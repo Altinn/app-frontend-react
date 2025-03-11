@@ -25,7 +25,7 @@ export interface ChildClaimsMap {
 
 type GlobalProviderProps = Pick<GeneratorContext, 'layouts' | 'layoutMap' | 'registry'>;
 
-type PageProviderProps = Pick<GeneratorContext, 'childrenMap' | 'isValid'> & {
+type PageProviderProps = Pick<GeneratorContext, 'isValid'> & {
   parent: LayoutPage;
 };
 
@@ -46,7 +46,6 @@ interface GeneratorContext {
   recursiveMutators?: ChildMutator[];
   layouts: ILayouts;
   layoutMap: Record<string, CompExternal>;
-  childrenMap: ChildClaimsMap | undefined;
   page: LayoutPage | undefined;
   parent: LayoutNode | LayoutPage | undefined;
   item: CompIntermediateExact<CompTypes> | undefined;
@@ -182,8 +181,7 @@ export const GeneratorInternal = {
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
   useDepth: () => useCtx().depth,
   useLayouts: () => useCtx().layouts,
-  useLayoutMap: () => useCtx().layoutMap,
-  useChildrenMap: () => useCtx().childrenMap,
+  // useLayoutMap: () => useCtx().layoutMap,
   useParent: () => useCtx().parent,
   usePage: () => useCtx().page,
   useRowBinding: () => useCtx().row?.binding,

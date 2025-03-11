@@ -6,6 +6,7 @@ import deepEqual from 'fast-deep-equal';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentCapabilities, getComponentDef, getNodeConstructor } from 'src/layout';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
@@ -122,7 +123,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
   const rowIndex = GeneratorInternal.useRowIndex();
   const pageKey = GeneratorInternal.usePage()?.pageKey ?? '';
   const idMutators = GeneratorInternal.useIdMutators() ?? [];
-  const layoutMap = GeneratorInternal.useLayoutMap();
+  const layoutMap = useLayoutLookups().allComponents;
   const isValid = GeneratorInternal.useIsValid();
   const getCapabilities = (type: CompTypes) => getComponentCapabilities(type);
   const stateFactoryProps = {
