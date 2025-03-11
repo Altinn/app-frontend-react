@@ -220,7 +220,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                       />
                       :
                     </b>
-                    <span className={classes.contentFormatting}>{displayData[i]}</span>
+                    <span className={classes.contentFormatting}>{displayData[item.baseId] ?? ''}</span>
                     {i < length - 1 && <div style={{ height: 8 }} />}
                   </Flex>
                 )),
