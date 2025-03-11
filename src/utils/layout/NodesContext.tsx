@@ -51,7 +51,7 @@ import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
+import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -510,20 +510,6 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     }
   }, [latestLayouts, layouts, markNotReady, reset, getProcessedLast]);
 
-  const layoutMap = useMemo(() => {
-    const out: { [id: string]: CompExternal } = {};
-    for (const page of Object.values(latestLayouts)) {
-      if (!page) {
-        continue;
-      }
-      for (const component of page) {
-        out[component.id] = component;
-      }
-    }
-
-    return out;
-  }, [latestLayouts]);
-
   if (layouts !== latestLayouts) {
     // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
     return <NodesLoader />;
@@ -533,7 +519,6 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     <ProvideLayoutPages value={pagesRef.current}>
       <GeneratorGlobalProvider
         layouts={layouts}
-        layoutMap={layoutMap}
         registry={registry}
       >
         {children}

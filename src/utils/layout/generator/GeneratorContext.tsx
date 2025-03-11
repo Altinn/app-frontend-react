@@ -3,7 +3,7 @@ import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { CompExternal, CompIntermediate, CompIntermediateExact, CompTypes, ILayouts } from 'src/layout/layout';
+import type { CompIntermediate, CompIntermediateExact, CompTypes, ILayouts } from 'src/layout/layout';
 import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -23,7 +23,7 @@ export interface ChildClaimsMap {
   [parentId: string]: ChildClaims;
 }
 
-type GlobalProviderProps = Pick<GeneratorContext, 'layouts' | 'layoutMap' | 'registry'>;
+type GlobalProviderProps = Pick<GeneratorContext, 'layouts' | 'registry'>;
 
 type PageProviderProps = Pick<GeneratorContext, 'isValid'> & {
   parent: LayoutPage;
@@ -45,7 +45,6 @@ interface GeneratorContext {
   directMutators?: ChildMutator[];
   recursiveMutators?: ChildMutator[];
   layouts: ILayouts;
-  layoutMap: Record<string, CompExternal>;
   page: LayoutPage | undefined;
   parent: LayoutNode | LayoutPage | undefined;
   item: CompIntermediateExact<CompTypes> | undefined;
@@ -181,10 +180,8 @@ export const GeneratorInternal = {
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
   useDepth: () => useCtx().depth,
   useLayouts: () => useCtx().layouts,
-  // useLayoutMap: () => useCtx().layoutMap,
   useParent: () => useCtx().parent,
   usePage: () => useCtx().page,
-  useRowBinding: () => useCtx().row?.binding,
   useRowIndex: () => useCtx().row?.index,
   useIntermediateItem: () => useCtx().item,
   useIsValid: () => useCtx().isValid ?? true,
