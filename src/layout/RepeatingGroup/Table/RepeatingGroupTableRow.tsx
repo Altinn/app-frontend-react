@@ -150,7 +150,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
       data-row-uuid={uuid}
     >
       {!mobileView ? (
-        tableItems.map((item, idx) =>
+        tableItems.map((item) =>
           shouldEditInTable(editForGroup, item.baseId, item.type, columnSettings) ? (
             <Table.Cell
               key={item.id}
@@ -175,8 +175,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
               key={item.id}
               nodeId={item.id}
               isEditingRow={isEditingRow}
-              idx={idx}
-              displayData={displayData}
+              displayData={displayData[item.baseId] ?? ''}
               columnSettings={columnSettings}
             />
           ),
@@ -436,13 +435,11 @@ function NonEditableCell({
   nodeId,
   columnSettings,
   isEditingRow,
-  idx,
   displayData,
 }: {
   nodeId: string;
   columnSettings: ITableColumnFormatting | undefined;
-  idx: number;
-  displayData: string[];
+  displayData: string;
   isEditingRow: boolean;
 }) {
   const node = useNode(nodeId);
@@ -457,7 +454,7 @@ function NonEditableCell({
         className={classes.contentFormatting}
         style={style}
       >
-        {isEditingRow ? null : displayData[idx]}
+        {isEditingRow ? null : displayData}
       </span>
     </Table.Cell>
   );

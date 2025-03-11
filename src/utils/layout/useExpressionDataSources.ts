@@ -58,7 +58,7 @@ export interface ExpressionDataSources {
   currentDataModelPath: IDataModelReference | undefined;
   codeListSelector: CodeListSelector;
   layoutLookups: LayoutLookups;
-  displayValues: Record<string, string>;
+  displayValues: Record<string, string | undefined>;
 }
 
 const multiSelectors = {

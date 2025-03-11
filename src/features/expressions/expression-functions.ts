@@ -192,7 +192,7 @@ export const ExprFunctionDefinitions = {
   displayValue: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.String,
-    needs: dataSources('displayValues'),
+    needs: dataSources('displayValues', 'isHiddenSelector', 'currentDataModelPath', 'layoutLookups'),
   },
   optionLabel: {
     args: args(required(ExprVal.String), required(ExprVal.Any)),
@@ -521,12 +521,30 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     if (id === null) {
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
-
-    if (!(id in this.dataSources.displayValues)) {
-      throw new ExprRuntimeError(this.expr, this.path, `Failed to look up display value for ${id}`);
+    const target = this.dataSources.layoutLookups.allComponents[id];
+    if (!target) {
+      throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
 
-    return this.dataSources.displayValues[id];
+    const targetId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    if (!targetId) {
+      throw new NodeRelationNotFound(this, id);
+    }
+
+    if (this.dataSources.isHiddenSelector(targetId)) {
+      // Not related to the current path, or currently hidden
+      return null;
+    }
+
+    if (!(id in this.dataSources.displayValues)) {
+      throw new ExprRuntimeError(
+        this.expr,
+        this.path,
+        `Component of type '${target.type}' does not have a displayValue`,
+      );
+    }
+
+    return this.dataSources.displayValues[id] ?? '';
   },
   optionLabel(optionsId, value) {
     if (optionsId === null) {

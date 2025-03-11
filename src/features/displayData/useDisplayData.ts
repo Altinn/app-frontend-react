@@ -21,16 +21,18 @@ export function useDisplayData(node: LayoutNode): string {
 export function useDisplayDataFor(
   componentIds: string[],
   dataModelLocation?: IDataModelReference,
-): { [componentId: string]: string } {
+): { [componentId: string]: string | undefined } {
   const layoutLookups = useLayoutLookups();
-  const output: { [componentId: string]: string } = {};
+  const output: { [componentId: string]: string | undefined } = {};
   const makeIndexedId = useMakeIndexedId(true, dataModelLocation);
 
   for (const id of componentIds) {
-    const type = layoutLookups.getComponent(id).type;
+    const type = layoutLookups.allComponents[id]?.type;
+    if (!type) {
+      continue;
+    }
     const def = getComponentDef(type);
     if (!implementsDisplayData(def)) {
-      output[id] = '';
       continue;
     }
     const indexedId = makeIndexedId(id);
