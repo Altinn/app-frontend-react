@@ -107,14 +107,14 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
   const layoutLookups = useLayoutLookups();
   const dataModelLocation = useDataModelLocationForRow(group.dataModelBindings.group, index);
   const rawTableIds = useTableComponentIds(node);
-  const displayData = Object.values(useDisplayDataFor(rawTableIds, dataModelLocation));
+  const displayData = useDisplayDataFor(rawTableIds, dataModelLocation);
   const tableIds = useIndexedComponentIds(rawTableIds, dataModelLocation);
   const tableItems = rawTableIds.map((baseId, index) => ({
     baseId,
     id: tableIds[index],
     type: layoutLookups.getComponent(baseId).type,
   }));
-  const firstCellData = displayData.find((c) => !!c);
+  const firstCellData = Object.values(displayData).find((c) => !!c);
   const isEditingRow = isEditing(uuid);
   const isDeletingRow = isDeleting(uuid);
 
