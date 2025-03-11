@@ -255,11 +255,8 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
 
 function TitleCell({ nodeId, columnSettings }: { nodeId: string; columnSettings: ITableColumnFormatting }) {
   const node = useNode(nodeId);
-  if (!node) {
-    throw new Error(`Node with id ${nodeId} not found`);
-  }
-
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
+
   return (
     <Table.HeaderCell
       className={classes.tableCellFormatting}
