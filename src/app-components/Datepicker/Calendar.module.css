@@ -50,6 +50,7 @@
 
 .calendarWrapper {
   max-width: 363px;
+  box-sizing: content-box;
 }
 .calendar {
   width: 350px;

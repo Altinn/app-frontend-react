@@ -4,7 +4,6 @@ import type { MonthCaption } from 'react-day-picker';
 import { CalendarIcon } from '@navikt/aksel-icons';
 import { isValid as isValidDate } from 'date-fns';
 
-import { Button } from 'src/app-components/Button/Button';
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/app-components/Datepicker/DatePickerCalendar';
 import { DatePickerDialog } from 'src/app-components/Datepicker/DatepickerDialog';
@@ -75,25 +74,12 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
           readOnly={readOnly}
         />
         <DatePickerDialog
+          id={id}
+          buttonAriaLabel={buttonAriaLabel}
+          readOnly={readOnly}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
-          trigger={
-            <Button
-              id={`${id}-button`}
-              variant='tertiary'
-              icon
-              aria-controls='dialog'
-              aria-haspopup='dialog'
-              onClick={() => setIsDialogOpen(!isDialogOpen)}
-              aria-label={buttonAriaLabel}
-              aria-expanded={isDialogOpen}
-              disabled={readOnly}
-              data-color='accent'
-              size='sm'
-            >
-              <CalendarIcon title={calendarIconTitle} />
-            </Button>
-          }
+          trigger={<CalendarIcon title={calendarIconTitle} />}
         >
           <DatePickerCalendar
             id={id}
