@@ -1,5 +1,14 @@
 import { useMemo } from 'react';
 
+import {
+  CardIcon,
+  FolderIcon,
+  PencilLineIcon,
+  ReceiptIcon,
+  SealCheckmarkIcon,
+  TasklistIcon,
+} from '@navikt/aksel-icons';
+
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
@@ -58,6 +67,23 @@ export function useGetTaskName() {
 
     return `taskTypes.${type}`;
   };
+}
+
+export function getTaskIcon(taskType: string | undefined) {
+  switch (taskType) {
+    case 'data':
+      return TasklistIcon;
+    case 'confirmation':
+      return SealCheckmarkIcon;
+    case 'signing':
+      return PencilLineIcon;
+    case 'payment':
+      return CardIcon;
+    case 'receipt':
+      return ReceiptIcon;
+    default:
+      return FolderIcon;
+  }
 }
 
 /**
