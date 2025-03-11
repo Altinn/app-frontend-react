@@ -71,11 +71,6 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   }
 
   const isNested = typeof baseComponentId === 'string';
-
-  if (!tableIds.length) {
-    return null;
-  }
-
   const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
 
   return (
