@@ -107,10 +107,7 @@
 .calendarInput {
   padding: 1px;
 }
-.calendarInputWrapper button {
-  min-height: 38px;
-  min-width: 38px;
-}
+
 .calendarInput input:not(:focus-visible),
 .calendarInput button {
   border: none;
