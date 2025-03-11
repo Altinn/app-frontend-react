@@ -89,10 +89,10 @@ export function GroupComponent({
           }
         >
           <div
-            data-componentid={container.id}
-            data-componentbaseid={container.baseComponentId || container.id}
+            data-componentid={groupNode.id}
+            data-componentbaseid={groupNode.baseId}
             ref={containerDivRef}
-            id={id ?? container.id}
+            id={id ?? groupNode.id}
             data-testid='display-group-container'
             className={cn(classes.groupContainer, {
               [classes.indented]: isIndented && !isNested,

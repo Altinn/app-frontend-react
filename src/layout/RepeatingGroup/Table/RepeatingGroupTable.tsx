@@ -42,7 +42,6 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     stickyHeader,
     tableColumns,
     rows,
-    baseComponentId,
     dataModelBindings,
   } = useNodeItem(node);
   const required = !!minCount && minCount > 0;
@@ -70,7 +69,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     displayEditColumn = false;
   }
 
-  const isNested = typeof baseComponentId === 'string';
+  const isNested = node.parent instanceof LayoutNode;
   const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
 
   return (
