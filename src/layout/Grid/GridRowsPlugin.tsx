@@ -168,7 +168,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
     } as DefPluginExtraInItem<ToInternal<E>>;
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: number | undefined | undefined): string[] {
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: number | undefined): string[] {
     const out: string[] = [];
     if (restriction !== undefined) {
       return out;

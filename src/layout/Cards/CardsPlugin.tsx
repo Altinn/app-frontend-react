@@ -118,7 +118,7 @@ export class CardsPlugin<Type extends CompTypes>
     } as DefPluginExtraInItem<Config<Type>>;
   }
 
-  pickDirectChildren(state: DefPluginState<Config<Type>>, restriction?: number | undefined | undefined): string[] {
+  pickDirectChildren(state: DefPluginState<Config<Type>>, restriction?: number | undefined): string[] {
     const out: string[] = [];
     if (restriction !== undefined) {
       return out;
