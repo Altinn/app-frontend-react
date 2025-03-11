@@ -86,29 +86,22 @@ interface PageProps {
   layoutSet: LayoutPages;
 }
 
-const emptyMap: Record<string, never> = {};
 function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const page = useMemo(() => new LayoutPage(), []);
   useGeneratorErrorBoundaryNodeRef().current = page;
-  const map = useLayoutLookups().childClaims[name] ?? emptyMap;
-
+  const layoutLookups = useLayoutLookups();
+  const topLevel = layoutLookups.topLevelComponents[name];
   const pageOrder = useRawPageOrder();
   const pdfPage = usePdfLayoutName();
   const isValid = pageOrder.includes(name) || name === pdfPage;
 
   const topLevelIdsAsClaims = useMemo(() => {
-    const claimedChildren = new Set(
-      Object.values(map)
-        .map((claims) => Object.keys(claims))
-        .flat(),
-    );
-    const ids = layout.filter((component) => !claimedChildren.has(component.id)).map((component) => component.id);
     const claims: ChildClaims = {};
-    for (const id of ids) {
+    for (const id of topLevel || []) {
       claims[id] = {};
     }
     return claims;
-  }, [map, layout]);
+  }, [topLevel]);
 
   if (layout.length === 0) {
     return null;
@@ -258,7 +251,7 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
             <GenerateComponent
               layout={layout}
               claim={claims[id]}
-              childClaims={map?.[id]}
+              childClaims={map[id]}
             />
           </GeneratorErrorBoundary>
         );
