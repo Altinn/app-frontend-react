@@ -41,7 +41,7 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
@@ -54,7 +54,6 @@ import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
@@ -731,7 +730,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): Layou
       return lastValue.current;
     }
 
-    const node = id instanceof BaseLayoutNode ? id : nodes.findById(id);
+    const node = id instanceof LayoutNode ? id : nodes.findById(id);
     lastValue.current = node;
     return node;
   });

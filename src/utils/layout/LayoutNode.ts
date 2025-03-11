@@ -2,7 +2,6 @@ import { getComponentDef } from 'src/layout';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { CompClassMap } from 'src/layout';
 import type { CompCategory } from 'src/layout/common';
-import type { ComponentTypeConfigs } from 'src/layout/components.generated';
 import type { CompIntermediate, CompTypes, LayoutNodeFromCategory, ParentNode } from 'src/layout/layout';
 
 export interface LayoutNodeProps<Type extends CompTypes> {
@@ -15,7 +14,7 @@ export interface LayoutNodeProps<Type extends CompTypes> {
  * A LayoutNode wraps a component with information about its parent, allowing you to traverse a component (or an
  * instance of a component inside a repeating group), finding other components near it.
  */
-export class BaseLayoutNode<Type extends CompTypes = CompTypes> {
+export class LayoutNode<Type extends CompTypes = CompTypes> {
   public readonly parent: ParentNode;
   public readonly rowIndex?: number;
   public readonly page: LayoutPage;
@@ -50,7 +49,3 @@ export class BaseLayoutNode<Type extends CompTypes = CompTypes> {
     return this.def.category === category;
   }
 }
-
-export type LayoutNode<Type extends CompTypes = CompTypes> = Type extends CompTypes
-  ? ComponentTypeConfigs[Type]['nodeObj']
-  : BaseLayoutNode;

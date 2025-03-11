@@ -22,7 +22,7 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
@@ -45,7 +45,7 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ExprResolver, NodeGeneratorProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode, LayoutNodeProps } from 'src/utils/layout/LayoutNode';
+import type { LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { StateFactoryProps } from 'src/utils/layout/types';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
@@ -129,7 +129,7 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
   const stateFactoryProps = {
     item: intermediateItem,
     parent,
-    parentId: parent instanceof BaseLayoutNode ? parent.id : undefined,
+    parentId: parent instanceof LayoutNode ? parent.id : undefined,
     depth,
     rowIndex,
     pageKey,

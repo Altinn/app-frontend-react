@@ -11,7 +11,7 @@ import type {
   FormComponent,
   PresentationComponent,
 } from 'src/layout/LayoutComponent';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ILayouts {
@@ -39,7 +39,7 @@ type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
  *  const myImageComponent:CompExternal<'Image'> = ...
  *
  * @see CompInternal
- * @see LayoutNode
+ * @see REMOVELayoutNode
  */
 export type CompExternal<Type extends CompTypes = CompTypes> = Extract<AllComponents, { type: Type }>;
 
@@ -103,7 +103,7 @@ export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { 
 
 export type TypeFromNode<N extends LayoutNode | undefined> = N extends undefined
   ? never
-  : N extends BaseLayoutNode<infer Type>
+  : N extends LayoutNode<infer Type>
     ? Type
     : CompTypes;
 
