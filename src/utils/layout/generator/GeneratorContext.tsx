@@ -29,7 +29,7 @@ type PageProviderProps = Pick<GeneratorContext, 'isValid'> & {
   parent: LayoutPage;
 };
 
-type NodeGeneratorProps = Pick<GeneratorContext, 'idMutators' | 'directMutators' | 'recursiveMutators'> & {
+type NodeGeneratorProps = {
   item: CompIntermediateExact<CompTypes>;
   parent: LayoutNode;
 };
@@ -72,26 +72,22 @@ const emptyArray: never[] = [];
  *
  * This provider is meant to be used for nodes, i.e. the lowest level components in the hierarchy.
  */
-export function GeneratorNodeProvider({ children, ...rest }: PropsWithChildren<NodeGeneratorProps>) {
-  const parent = useCtx();
+export function GeneratorNodeProvider({ children, parent, item }: PropsWithChildren<NodeGeneratorProps>) {
+  const parentCtx = useCtx();
   const value: GeneratorContext = useMemo(
     () => ({
       // Inherit all values from the parent, overwrite with our own if they are passed
-      ...parent,
-      ...rest,
+      ...parentCtx,
+      parent,
+      item,
 
-      // Direct mutators and rows are not meant to be inherited, if none are passed to us directly we'll reset
-      directMutators: rest.directMutators ?? emptyArray,
-      row: parent.row ?? undefined,
+      // Direct mutators and rows are not meant to be inherited, and regular non-repeating nodes do not pass them.
+      directMutators: emptyArray,
+      row: undefined,
 
-      idMutators: parent.idMutators ? [...parent.idMutators, ...(rest.idMutators ?? [])] : rest.idMutators,
-      recursiveMutators: parent.recursiveMutators
-        ? [...parent.recursiveMutators, ...(rest.recursiveMutators ?? [])]
-        : rest.recursiveMutators,
-
-      depth: parent.depth + 1,
+      depth: parentCtx.depth + 1,
     }),
-    [parent, rest],
+    [parentCtx, parent, item],
   );
 
   return <Provider value={value}>{children}</Provider>;
