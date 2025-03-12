@@ -9,7 +9,7 @@ export const DIVIDER_SUMMARY_OVERRIDE_PROPS = new CG.obj()
   .exportAs('DividerSummaryOverrideProps');
 
 export const Config = new CG.component({
-  category: CompCategory.Action,
+  category: CompCategory.Presentation,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
