@@ -22,6 +22,7 @@ import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/Repeat
 import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
 import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
@@ -32,8 +33,18 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing } = useRepeatingGroup();
   const { rowsToDisplay } = useRepeatingGroupPagination();
-  const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, rows, baseComponentId } =
-    useNodeItem(node);
+  const {
+    textResourceBindings,
+    labelSettings,
+    id,
+    edit,
+    minCount,
+    stickyHeader,
+    tableColumns,
+    rows,
+    baseComponentId,
+    dataModelBindings,
+  } = useNodeItem(node);
   const required = !!minCount && minCount > 0;
 
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
@@ -139,7 +150,11 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           {rowsToDisplay.map((row) => {
             const isEditingRow = isEditing(row.uuid) && edit?.mode !== 'onlyTable';
             return (
-              <React.Fragment key={`${row.uuid}-${row.index}`}>
+              <DataModelLocationProvider
+                key={`${row.uuid}-${row.index}`}
+                binding={dataModelBindings.group}
+                rowIndex={row.index}
+              >
                 <RepeatingGroupTableRow
                   className={cn({
                     [classes.editingRow]: isEditingRow,
@@ -171,7 +186,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                     </Table.Cell>
                   </Table.Row>
                 )}
-              </React.Fragment>
+              </DataModelLocationProvider>
             );
           })}
         </Table.Body>

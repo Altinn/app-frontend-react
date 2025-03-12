@@ -52,8 +52,7 @@ export function verifyAndDeduplicateOptions(options: IOptionInternal[] | undefin
 }
 
 function logNullValue(option: IOptionInternal) {
-  const { rowNode: _, ...o } = option;
-  window.logErrorOnce('Option has a null value\n', JSON.stringify(o, null, 2));
+  window.logErrorOnce('Option has a null value\n', JSON.stringify(option, null, 2));
 }
 
 /**
@@ -61,10 +60,9 @@ function logNullValue(option: IOptionInternal) {
  * the value from the data model.
  */
 function logNonUniqueValue(option: IOptionInternal) {
-  const { rowNode: _, ...o } = option;
   window.logWarnOnce(
     'Option was duplicate value (and was removed). With duplicate values, it is impossible to tell which of the options the user selected.\n',
-    JSON.stringify(o, null, 2),
+    JSON.stringify(option, null, 2),
   );
 }
 
@@ -76,10 +74,9 @@ function logNonUniqueValue(option: IOptionInternal) {
  * Error because the behavior will always be very buggy to the end user
  */
 function logEmptyValueMulti(option: IOptionInternal) {
-  const { rowNode: _, ...o } = option;
   window.logErrorOnce(
     'Option used in multi-select (Checkboxes or MultipleSelect) has an empty value, this will lead to unexpected behavior when saving and reading form data\n',
-    JSON.stringify(o, null, 2),
+    JSON.stringify(option, null, 2),
   );
 }
 
@@ -91,10 +88,9 @@ function logEmptyValueMulti(option: IOptionInternal) {
  * Warning because it could be reasonable in a Dropdown component
  */
 function logEmptyValueSingle(option: IOptionInternal) {
-  const { rowNode: _, ...o } = option;
   window.logWarnOnce(
     'Option used in single-select (RadioButtons or Dropdown) has an empty value, this can lead to unexpected behavior when saving and reading form data\n',
-    JSON.stringify(o, null, 2),
+    JSON.stringify(option, null, 2),
   );
 }
 
@@ -102,8 +98,7 @@ function logEmptyValueSingle(option: IOptionInternal) {
  * Option label is required (but can be empty)
  */
 function logNullLabel(option: IOptionInternal) {
-  const { rowNode: _, ...o } = option;
-  window.logErrorOnce('Option has a null label\n', JSON.stringify(o, null, 2));
+  window.logErrorOnce('Option has a null label\n', JSON.stringify(option, null, 2));
 }
 
 /**
@@ -111,10 +106,9 @@ function logNullLabel(option: IOptionInternal) {
  * therefore it will not behave as expected if the value itself contains commas
  */
 function logIncludesComma(option: IOptionInternal) {
-  const { rowNode: _, ...o } = option;
   window.logErrorOnce(
     'Option has a value containing a "," since selected values are stored as a comma-separated list this will not work as expected!\n',
-    JSON.stringify(o, null, 2),
+    JSON.stringify(option, null, 2),
   );
 }
 

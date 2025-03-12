@@ -23,6 +23,7 @@ import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
@@ -140,31 +141,41 @@ type DataRowProps = {
 
 function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowProps) {
   const cellNodes = useTableNodes(node, index);
+  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings);
+
+  if (!row) {
+    return null;
+  }
 
   return (
-    <Table.Row>
-      {cellNodes.map((cellNode) =>
-        cellNode.type === 'Custom' ? (
-          <Table.Cell key={cellNode.id}>
-            <ComponentSummary componentNode={cellNode} />
+    <DataModelLocationProvider
+      binding={dataModelBindings.group}
+      rowIndex={row.index}
+    >
+      <Table.Row>
+        {cellNodes.map((cellNode) =>
+          cellNode.type === 'Custom' ? (
+            <Table.Cell key={cellNode.id}>
+              <ComponentSummary componentNode={cellNode} />
+            </Table.Cell>
+          ) : (
+            <DataCell
+              key={cellNode.id}
+              node={cellNode}
+              columnSettings={columnSettings}
+            />
+          ),
+        )}
+        {!pdfModeActive && (
+          <Table.Cell
+            align='right'
+            className={tableClasses.buttonCell}
+          >
+            {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={cellNodes[0]} />}
           </Table.Cell>
-        ) : (
-          <DataCell
-            key={cellNode.id}
-            node={cellNode}
-            columnSettings={columnSettings}
-          />
-        ),
-      )}
-      {!pdfModeActive && (
-        <Table.Cell
-          align='right'
-          className={tableClasses.buttonCell}
-        >
-          {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={cellNodes[0]} />}
-        </Table.Cell>
-      )}
-    </Table.Row>
+        )}
+      </Table.Row>
+    </DataModelLocationProvider>
   );
 }
 

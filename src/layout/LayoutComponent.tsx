@@ -7,7 +7,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
-import { runEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
@@ -16,7 +16,7 @@ import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type {
   ComponentBase,
   FormComponentProps,
@@ -25,8 +25,8 @@ import type {
 } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
+  CompExternal,
   CompExternalExact,
-  CompIntermediate,
   CompIntermediateExact,
   CompTypes,
   ITextResourceBindingsExternal,
@@ -39,7 +39,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { NodeData, StateFactoryProps } from 'src/utils/layout/types';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface NodeGeneratorProps {
   externalItem: CompExternalExact<CompTypes>;
@@ -125,7 +124,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Picks all direct children of a node, returning an array of node IDs for each child. This must be implemented for
    * every component type that can adopt children.
    */
-  public pickDirectChildren(_state: NodeData<Type>, _restriction?: TraversalRestriction): string[] {
+  public pickDirectChildren(_state: NodeData<Type>, _restriction?: number | undefined): string[] {
     return [];
   }
 
@@ -351,8 +350,8 @@ export abstract class FormComponent<Type extends CompTypes>
 {
   readonly category = CompCategory.Form;
 
-  runEmptyFieldValidation(node: LayoutNode<Type>, ValidationDataSources: ValidationDataSources): ComponentValidation[] {
-    return runEmptyFieldValidationAllBindings(node, ValidationDataSources);
+  useEmptyFieldValidation(node: LayoutNode<Type>): ComponentValidation[] {
+    return useEmptyFieldValidationAllBindings(node);
   }
 }
 
@@ -362,7 +361,7 @@ export interface ComponentProto {
 }
 
 export interface ChildClaimerProps<Type extends CompTypes> {
-  item: CompIntermediate<Type>;
+  item: CompExternal<Type>;
   claimChild: (pluginKey: string, id: string) => void;
   getProto: (id: string) => ComponentProto | undefined;
 }
@@ -376,7 +375,7 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
 
-  abstract pickDirectChildren(state: NodeData<Type>, restriction?: TraversalRestriction): string[];
+  abstract pickDirectChildren(state: NodeData<Type>, restriction?: number | undefined): string[];
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =
