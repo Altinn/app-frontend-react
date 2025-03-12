@@ -13,17 +13,17 @@ Altinn, and making sure they are consistent. */
 
 .likertTable th {
   border-bottom: 1px solid #dde3e5;
-  padding-top: 15px;
-  padding-bottom: 15px;
+  padding-top: var(--ds-size-3);
+  padding-bottom: var(--ds-size-3);
 }
 
 .likertTable thead th {
   background-color: var(--ds-color-neutral-1);
 }
 
-.likertTable tr:not(:last-of-type) td {
-  padding-top: 8px;
-  padding-bottom: 8px;
+.likertTable tr td {
+  padding-top: var(--ds-size-4);
+  padding-bottom: var(--ds-size-4);
   border-bottom: 1px solid #dde3e5;
 }
 
@@ -32,6 +32,10 @@ Altinn, and making sure they are consistent. */
 }
 
 /* ==== */
+
+.likertTable thead td:not(:first-of-type) {
+  justify-content: center;
+}
 
 .likertTable thead th:not(:first-of-type) {
   width: 100px;
