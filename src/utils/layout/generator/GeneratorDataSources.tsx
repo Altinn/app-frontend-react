@@ -4,7 +4,7 @@ import { useApplicationSettings } from 'src/features/applicationSettings/Applica
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
@@ -12,16 +12,12 @@ import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import { useCodeListSelectorProps } from 'src/features/options/CodeListsProvider';
-import { useCurrentPartyRoles } from 'src/features/useCurrentPartyRoles';
-import { Validation } from 'src/features/validation/validationContext';
 import { useMultipleDelayedSelectors } from 'src/hooks/delayedSelectors';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
+import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import { useCommitWhenFinished } from 'src/utils/layout/generator/CommitQueue';
-import { Hidden, NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useInnerDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
-import { useInnerNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
-import { useInnerNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
-import type { ValidationDataSources } from 'src/features/validation';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 const { Provider, hooks } = createHookContext({
@@ -33,13 +29,11 @@ const { Provider, hooks } = createHookContext({
   useIsForcedVisibleByDevTools: () => useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide'),
   useGetDataElementIdForDataType: () => DataModels.useGetDataElementIdForDataType(),
   useCommitWhenFinished: () => useCommitWhenFinished(),
-  useCurrentPartyRoles: () => useCurrentPartyRoles(),
 });
 
 export const GeneratorData = {
   Provider,
   useExpressionDataSources,
-  useValidationDataSources,
   useDefaultDataType: hooks.useDefaultDataType,
   useIsForcedVisibleByDevTools: hooks.useIsForcedVisibleByDevTools,
   useGetDataElementIdForDataType: hooks.useGetDataElementIdForDataType,
@@ -53,7 +47,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     attachmentsSelector,
     optionsSelector,
     nodeDataSelector,
-    dataSelectorForTraversal,
     isHiddenSelector,
     dataElementSelector,
     codeListSelector,
@@ -63,7 +56,6 @@ function useExpressionDataSources(): ExpressionDataSources {
     NodesInternal.useAttachmentsSelectorProps(),
     NodesInternal.useNodeOptionsSelectorProps(),
     NodesInternal.useNodeDataSelectorProps(),
-    NodesInternal.useDataSelectorForTraversalProps(),
     Hidden.useIsHiddenSelectorProps(),
     useLaxDataElementsSelectorProps(),
     useCodeListSelectorProps(),
@@ -72,15 +64,14 @@ function useExpressionDataSources(): ExpressionDataSources {
   const process = useLaxProcessData();
   const applicationSettings = useApplicationSettings();
   const currentLanguage = useCurrentLanguage();
+  const currentDataModelPath = useCurrentDataModelLocation();
+  const layoutLookups = useLayoutLookups();
 
   const instanceDataSources = hooks.useLaxInstanceDataSources();
   const currentLayoutSet = hooks.useCurrentLayoutSet() ?? null;
   const dataModelNames = hooks.useReadableDataTypes();
   const externalApis = hooks.useExternalApis();
-  const roles = hooks.useCurrentPartyRoles();
-  const nodeTraversal = useInnerNodeTraversalSelector(useNodes(), dataSelectorForTraversal);
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
-  const nodeFormDataSelector = useInnerNodeFormDataSelector(nodeDataSelector, formDataSelector);
   const langToolsSelector = useInnerLanguageWithForcedNodeSelector(
     hooks.useDefaultDataType(),
     dataModelNames,
@@ -89,7 +80,6 @@ function useExpressionDataSources(): ExpressionDataSources {
   );
 
   return useShallowMemo({
-    roles,
     formDataSelector,
     formDataRowsSelector,
     attachmentsSelector,
@@ -101,47 +91,13 @@ function useExpressionDataSources(): ExpressionDataSources {
     langToolsSelector,
     currentLanguage,
     isHiddenSelector,
-    nodeFormDataSelector,
-    nodeTraversal,
     transposeSelector,
     currentLayoutSet,
     externalApis,
     dataModelNames,
     dataElementSelector,
     codeListSelector,
-  });
-}
-
-function useValidationDataSources(): ValidationDataSources {
-  const [
-    formDataSelector,
-    invalidDataSelector,
-    attachmentsSelector,
-    nodeDataSelector,
-    dataElementsSelector,
-    dataElementHasErrorsSelector,
-  ] = useMultipleDelayedSelectors(
-    FD.useDebouncedSelectorProps(),
-    FD.useInvalidDebouncedSelectorProps(),
-    NodesInternal.useAttachmentsSelectorProps(),
-    NodesInternal.useNodeDataSelectorProps(),
-    useLaxDataElementsSelectorProps(),
-    Validation.useDataElementHasErrorsSelectorProps(),
-  );
-
-  const currentLanguage = useCurrentLanguage();
-  const applicationMetadata = useApplicationMetadata();
-  const layoutSets = useLayoutSets();
-
-  return useShallowMemo({
-    formDataSelector,
-    invalidDataSelector,
-    attachmentsSelector,
-    nodeDataSelector,
-    dataElementsSelector,
-    dataElementHasErrorsSelector,
-    currentLanguage,
-    applicationMetadata,
-    layoutSets,
+    currentDataModelPath,
+    layoutLookups,
   });
 }

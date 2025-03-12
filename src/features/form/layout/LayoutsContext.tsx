@@ -8,9 +8,9 @@ import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
+import { makeLayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import { applyLayoutQuirks } from 'src/features/form/layout/quirks';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -55,7 +55,15 @@ function useLayoutQuery() {
     utils.error && window.logError('Fetching form layout failed:\n', utils.error);
   }, [utils.error]);
 
-  return utils;
+  return utils.data
+    ? {
+        ...utils,
+        data: {
+          ...utils.data,
+          lookups: makeLayoutLookups(utils.data.layouts),
+        },
+      }
+    : utils;
 }
 const { Provider, useCtx } = delayedContext(() =>
   createQueryContext({
@@ -79,7 +87,7 @@ export function useLayoutSetId() {
   const layoutSetId =
     taskId != null
       ? layoutSets.find((set) => {
-          if (layoutSetIsDefault(set) && set.tasks?.length) {
+          if (set.tasks?.length) {
             return set.tasks.includes(taskId);
           }
           return false;
@@ -94,8 +102,10 @@ export function useDataTypeFromLayoutSet(layoutSetName: string) {
   return layoutSets.find((set) => set.id === layoutSetName)?.dataType;
 }
 
+const emptyLayouts: ILayouts = {};
 export const LayoutsProvider = Provider;
-export const useLayouts = (): ILayouts => useCtx()?.layouts ?? {};
+export const useLayouts = (): ILayouts => useCtx()?.layouts ?? emptyLayouts;
+export const useLayoutLookups = () => useCtx().lookups;
 
 export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
 

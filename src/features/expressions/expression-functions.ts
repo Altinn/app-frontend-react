@@ -3,18 +3,17 @@ import escapeStringRegexp from 'escape-string-regexp';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { exprCastValue } from 'src/features/expressions';
-import { ExprRuntimeError, NodeNotFound } from 'src/features/expressions/errors';
+import { ExprRuntimeError, NodeRelationNotFound } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
+import { makeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
 import { CodeListPending } from 'src/features/options/CodeListsProvider';
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
-import { implementsDisplayData } from 'src/layout';
+import { getComponentDef, implementsDisplayData } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { formatDateLocale } from 'src/utils/formatDateLocale';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import type { DisplayData } from 'src/features/displayData';
+import { getNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
   AnyExprArg,
@@ -27,7 +26,6 @@ import type {
 import type { ValidationContext } from 'src/features/expressions/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IAuthContext, IInstanceDataSources } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ArgsToActual<T extends readonly AnyExprArg[]> = {
   [Index in keyof T]: T[Index]['variant'] extends 'optional'
@@ -153,10 +151,6 @@ export const ExprFunctionDefinitions = {
   countDataElements: {
     args: args(required(ExprVal.String)),
     returns: ExprVal.Number,
-  },
-  hasRole: {
-    args: args(required(ExprVal.String)),
-    returns: ExprVal.Boolean,
   },
   externalApi: {
     args: args(required(ExprVal.String), required(ExprVal.String)),
@@ -378,33 +372,39 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
 
-    const node = ensureNode(this);
-    const closest = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
-
-    const dataModelBindings = closest
-      ? this.dataSources.nodeDataSelector((picker) => picker(closest)?.layout.dataModelBindings, [closest])
-      : undefined;
-
-    const simpleBinding =
-      dataModelBindings && 'simpleBinding' in dataModelBindings ? dataModelBindings.simpleBinding : undefined;
-    if (closest && simpleBinding) {
-      if (this.dataSources.isHiddenSelector(closest)) {
-        return null;
-      }
-
-      return pickSimpleValue(simpleBinding, this);
+    const target = this.dataSources.layoutLookups.allComponents[id];
+    if (!target) {
+      throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
 
-    // Expressions can technically be used without having all the layouts available, which might lead to unexpected
-    // results. We should note this in the error message, so we know the reason we couldn't find the component.
-    const hasAllLayouts = node instanceof LayoutPage ? !!node.layoutSet : !!node.page.layoutSet;
-    throw new ExprRuntimeError(
-      this.expr,
-      this.path,
-      hasAllLayouts
-        ? `Unable to find component with identifier ${id} or it does not have a simpleBinding`
-        : `Unable to find component with identifier ${id} in the current layout or it does not have a simpleBinding`,
-    );
+    const rawBinding =
+      target.dataModelBindings && 'simpleBinding' in target.dataModelBindings
+        ? target.dataModelBindings.simpleBinding
+        : undefined;
+
+    if (!rawBinding) {
+      throw new ExprRuntimeError(this.expr, this.path, `Component ${id} does not have a simpleBinding`);
+    }
+
+    const targetId = makeIndexedId(target.id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    if (!targetId) {
+      throw new NodeRelationNotFound(this, id);
+    }
+
+    if (this.dataSources.isHiddenSelector(targetId)) {
+      // Not related to the current path, or currently hidden
+      return null;
+    }
+
+    if (this.dataSources.currentDataModelPath) {
+      const transposed = transposeDataBinding({
+        subject: rawBinding,
+        currentLocation: this.dataSources.currentDataModelPath,
+      });
+      return pickSimpleValue(transposed, this);
+    }
+
+    return pickSimpleValue(rawBinding, this);
   },
   dataModel(propertyPath, maybeDataType) {
     if (propertyPath === null) {
@@ -425,14 +425,6 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return pickSimpleValue(newReference, this);
     }
 
-    const node = ensureNode(this);
-    if (node instanceof BaseLayoutNode) {
-      const newReference = this.dataSources.transposeSelector(node as LayoutNode, reference);
-      return pickSimpleValue(newReference, this);
-    }
-
-    // No need to transpose the data model according to the location inside a repeating group when the context is
-    // a LayoutPage (i.e., when we're resolving an expression directly on the layout definition).
     return pickSimpleValue(reference, this);
   },
   countDataElements(dataType) {
@@ -450,12 +442,6 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     }
 
     return length;
-  },
-  hasRole(roleName) {
-    if (!this.dataSources.roles || !roleName) {
-      return false;
-    }
-    return this.dataSources.roles.data?.map((role) => role.value).includes(roleName) ?? null;
   },
   externalApi(externalApiId, path) {
     if (externalApiId === null) {
@@ -481,31 +467,33 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       throw new ExprRuntimeError(this.expr, this.path, `Cannot lookup component null`);
     }
 
-    const node = ensureNode(this);
-    const targetNode = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
-
-    if (!targetNode) {
+    const target = this.dataSources.layoutLookups.allComponents[id];
+    if (!target) {
       throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
 
-    const def = targetNode.def;
+    const def = getComponentDef(target.type);
     if (!implementsDisplayData(def)) {
       throw new ExprRuntimeError(this.expr, this.path, `Component with identifier ${id} does not have a displayValue`);
     }
 
-    if (this.dataSources.isHiddenSelector(targetNode)) {
+    const relativeId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    if (!relativeId) {
+      throw new NodeRelationNotFound(this, id);
+    }
+
+    if (this.dataSources.isHiddenSelector(relativeId)) {
       return null;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (def as DisplayData<any>).getDisplayData(targetNode, {
+    return def.getDisplayData({
       attachmentsSelector: this.dataSources.attachmentsSelector,
       optionsSelector: this.dataSources.optionsSelector,
-      langTools: this.dataSources.langToolsSelector(node as LayoutNode),
+      langTools: this.dataSources.langToolsSelector(relativeId),
       currentLanguage: this.dataSources.currentLanguage,
-      formDataSelector: this.dataSources.formDataSelector,
-      nodeFormDataSelector: this.dataSources.nodeFormDataSelector,
       nodeDataSelector: this.dataSources.nodeDataSelector,
+      formData: getNodeFormData(relativeId, this.dataSources.nodeDataSelector, this.dataSources.formDataSelector),
+      nodeId: relativeId,
     });
   },
   optionLabel(optionsId, value) {
@@ -573,10 +561,9 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       return null;
     }
 
-    const node = ensureNode(this);
-    const closest = this.dataSources.nodeTraversal((t) => t.with(node).closestId(id), [node, id]);
-
-    if (!closest) {
+    const target = this.dataSources.layoutLookups.allComponents[id];
+    const pageKey = this.dataSources.layoutLookups.componentToPage[id];
+    if (!target || !pageKey) {
       throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
     }
 
@@ -585,13 +572,18 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     let url = '';
     if (taskId && instanceId) {
-      url = `/instance/${instanceId}/${taskId}/${closest.pageKey}`;
+      url = `/instance/${instanceId}/${taskId}/${pageKey}`;
     } else {
-      url = `/${closest.pageKey}`;
+      url = `/${pageKey}`;
+    }
+
+    const relativeId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
+    if (!relativeId) {
+      throw new NodeRelationNotFound(this, id);
     }
 
     const searchParams = new URLSearchParams();
-    searchParams.set(SearchParams.FocusComponentId, closest.id);
+    searchParams.set(SearchParams.FocusComponentId, relativeId);
     const newUrl = `${url}?${searchParams.toString()}`;
     return `<a href="${newUrl}" data-link-type="LinkToPotentialNode">${linkText}</a>`;
   },
@@ -795,22 +787,6 @@ function pickSimpleValue(path: IDataModelReference, params: EvaluateExpressionPa
     return value;
   }
   return null;
-}
-
-export function ensureNode(ctx: EvaluateExpressionParams): LayoutNode | LayoutPage {
-  const reference = ctx.reference;
-  let node: LayoutNode | LayoutPage | undefined = undefined;
-  if (reference.type === 'node') {
-    node = ctx.dataSources.nodeTraversal((t) => t.findById(reference.id), [reference.id]);
-  } else if (reference.type === 'page') {
-    node = ctx.dataSources.nodeTraversal((t) => t.findPage(reference.id), [reference.id]);
-  }
-
-  if (!node) {
-    throw new NodeNotFound(reference.type === 'none' ? undefined : reference.id);
-  }
-
-  return node;
 }
 
 /**

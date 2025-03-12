@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
@@ -11,7 +11,6 @@ import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 /**
  * Use the item of a node. This re-renders when the item changes (or when the part of the item you select changes),
@@ -63,10 +62,7 @@ export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
 }
 
 const emptyArray: LayoutNode[] = [];
-export function useNodeDirectChildren(
-  parent: LayoutNode | undefined,
-  restriction?: TraversalRestriction,
-): LayoutNode[] {
+export function useNodeDirectChildren(parent: LayoutNode | undefined, restriction?: number | undefined): LayoutNode[] {
   return (
     NodesInternal.useNodeData(parent, (nodeData) => {
       if (!parent) {
@@ -91,31 +87,13 @@ export function useNodeFormData<N extends LayoutNode | undefined>(node: N): Node
   const formDataSelector = FD.useDebouncedSelector();
 
   return useMemo(
-    () => (dataModelBindings ? getNodeFormData(dataModelBindings, formDataSelector) : emptyObject) as NodeFormData<N>,
+    () =>
+      (dataModelBindings ? getNodeFormDataInner(dataModelBindings, formDataSelector) : emptyObject) as NodeFormData<N>,
     [dataModelBindings, formDataSelector],
   );
 }
 
-export type NodeFormDataSelector = ReturnType<typeof useNodeFormDataSelector>;
-export function useNodeFormDataSelector() {
-  const nodeSelector = NodesInternal.useNodeDataSelector();
-  const formDataSelector = FD.useDebouncedSelector();
-
-  return useInnerNodeFormDataSelector(nodeSelector, formDataSelector);
-}
-export function useInnerNodeFormDataSelector(nodeSelector: NodeDataSelector, formDataSelector: FormDataSelector) {
-  return useCallback(
-    <N extends LayoutNode | undefined>(node: N): NodeFormData<N> => {
-      const dataModelBindings = nodeSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
-      return dataModelBindings
-        ? (getNodeFormData(dataModelBindings, formDataSelector) as NodeFormData<N>)
-        : (emptyObject as NodeFormData<N>);
-    },
-    [nodeSelector, formDataSelector],
-  );
-}
-
-function getNodeFormData<N extends LayoutNode>(
+function getNodeFormDataInner<N extends LayoutNode>(
   dataModelBindings: IDataModelBindings<TypeFromNode<N>>,
   formDataSelector: FormDataSelector,
 ): NodeFormData<N> {
@@ -138,4 +116,15 @@ function getNodeFormData<N extends LayoutNode>(
   }
 
   return formDataObj as NodeFormData<N>;
+}
+
+export function getNodeFormData<Type extends CompTypes = CompTypes>(
+  nodeId: string,
+  nodeDataSelector: NodeDataSelector,
+  formDataSelector: FormDataSelector,
+): IComponentFormData<Type> | undefined {
+  const dataModelBindings = nodeDataSelector((picker) => picker(nodeId)?.layout.dataModelBindings, [nodeId]);
+  return dataModelBindings
+    ? (getNodeFormDataInner(dataModelBindings, formDataSelector) as IComponentFormData<Type>)
+    : undefined;
 }

@@ -39,7 +39,6 @@ import {
   getProcessNextUrl,
   getProcessStateUrl,
   getRedirectUrl,
-  getRolesUrl,
   getRulehandlerUrl,
   getSetCurrentPartyUrl,
   getValidationUrl,
@@ -80,7 +79,6 @@ import type {
   IParty,
   IProcess,
   IProfile,
-  Role,
 } from 'src/types/shared';
 
 export const doSetCurrentParty = (partyId: number) =>
@@ -94,8 +92,6 @@ export const doInstantiate = async (partyId: number, language?: string): Promise
 
 export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType) =>
   httpPut<IProcess>(getProcessNextUrl(instanceId, language), action ? { action } : null);
-
-export const fetchRoles = async () => httpGet<Role[]>(getRolesUrl());
 
 export const doAttachmentUploadOld = async (instanceId: string, dataTypeId: string, file: File): Promise<IData> => {
   const url = getFileUploadUrlOld(instanceId, dataTypeId);

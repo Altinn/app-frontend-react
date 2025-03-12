@@ -26,7 +26,6 @@ import {
   Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
@@ -46,12 +45,10 @@ import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
-import type { DSProps, DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
 import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
@@ -131,9 +128,6 @@ export enum NodesReadiness {
 export type NodesContext = {
   readiness: NodesReadiness;
 
-  // Counter to prevent re-rendering of NodeTraversal when expressions/options/validations change
-  addRemoveCounter: number;
-
   hasErrors: boolean;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
@@ -177,7 +171,6 @@ export type NodesContextStore = StoreApi<NodesContext>;
 export function createNodesDataStore({ registry, validationsProcessedLast }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
-    addRemoveCounter: 0,
     hasErrors: false,
     pagesData: {
       type: 'pages' as const,
@@ -216,7 +209,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
-          addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
     removeNodes: (requests) =>
@@ -247,7 +239,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
-          addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
     setNodeProps: (requests) =>
@@ -317,7 +308,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
             target: NodesReadiness.NotReady,
             reason: `New page added`,
             mutate: true,
-            newNodes: true,
           });
         }),
       ),
@@ -356,20 +346,13 @@ interface SetReadinessProps {
   state: NodesContext;
   target: NodesReadiness;
   reason: string;
-  newNodes?: boolean;
   mutate?: boolean;
 }
 
 /**
  * Helper function to set new readiness state. Never try to set a new readiness without going through this function.
  */
-export function setReadiness({
-  state,
-  target,
-  reason,
-  newNodes = false,
-  mutate = false,
-}: SetReadinessProps): Partial<NodesContext> {
+export function setReadiness({ state, target, reason, mutate = false }: SetReadinessProps): Partial<NodesContext> {
   const toSet: Partial<NodesContext> = {};
   if (state.readiness !== target) {
     generatorLog('logReadiness', `Marking state as ${target}: ${reason}`);
@@ -381,9 +364,6 @@ export function setReadiness({
       toSet.prevNodeData = state.nodeData;
     } else if (target === NodesReadiness.Ready) {
       toSet.prevNodeData = undefined;
-    }
-    if (newNodes) {
-      toSet.addRemoveCounter = state.addRemoveCounter + 1;
     }
   }
 
@@ -775,7 +755,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): Layou
 
 export const useGetPage = (pageId: string | undefined) => {
   const nodes = useNodes();
-  return Store.useSelector((state) => {
+  return Store.useSelector(() => {
     if (!pageId) {
       return undefined;
     }
@@ -783,7 +763,7 @@ export const useGetPage = (pageId: string | undefined) => {
     if (!nodes) {
       return undefined;
     }
-    return nodes.findLayout(new TraversalTask(state, nodes, undefined, undefined), pageId);
+    return nodes.findLayout(pageId);
   });
 };
 
@@ -984,102 +964,50 @@ export const Hidden = {
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
-export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(
-  node: N | string,
-) => NodePickerReturns<N>;
-type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
+export type NodeIdPicker = <T extends CompTypes = CompTypes>(
+  id: string | undefined,
+  type: T | undefined,
+) => NodeData<T> | undefined;
 
-function selectNodeData<N extends LayoutNode | undefined>(
-  node: N | string,
+function selectNodeData<T extends CompTypes = CompTypes>(
+  id: string | undefined,
+  type: T | undefined,
   state: NodesContext,
   preferFreshData = false,
-): NodePickerReturns<N> {
-  const nodeId = typeof node === 'string' ? node : node?.id;
-  if (!nodeId) {
+): NodeData<T> | undefined {
+  if (!id) {
     return undefined;
   }
 
   const data =
     state.readiness === NodesReadiness.Ready
-      ? state.nodeData[nodeId] // Always use fresh data when ready
-      : preferFreshData && state.nodeData[nodeId]?.item?.id // Only allow getting fresh data when not ready if item is set
-        ? state.nodeData[nodeId]
-        : state.prevNodeData?.[nodeId]
-          ? state.prevNodeData[nodeId]
-          : state.nodeData[nodeId]; // Fall back to fresh data if prevNodeData is not set
+      ? state.nodeData[id] // Always use fresh data when ready
+      : preferFreshData && state.nodeData[id]?.item?.id // Only allow getting fresh data when not ready if item is set
+        ? state.nodeData[id]
+        : state.prevNodeData?.[id]
+          ? state.prevNodeData[id]
+          : state.nodeData[id]; // Fall back to fresh data if prevNodeData is not set
 
-  return data as NodePickerReturns<N>;
+  if (data && type && data.layout.type !== type) {
+    return undefined;
+  }
+
+  return data as NodeData<T>;
 }
 
 function getNodeData<N extends LayoutNode | undefined, Out>(
-  node: N | string,
+  node: N,
   state: NodesContext,
   selector: (nodeData: NodeDataFromNode<N>) => Out,
   preferFreshData = false,
 ) {
-  return node ? selector(selectNodeData(node, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
+  return node ? selector(selectNodeData(node.id, node.type, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
 }
 
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  /**
-   * This is a special selector that will only re-render when the number of nodes that have been added/removed
-   * increases AND the selector would return a different result.
-   *
-   * This is useful for node traversal, which only needs to re-run when a node is added or removed, but don't care about
-   * expressions that are solved within. Also, the selectors will always return ContextNotProvided when the nodes
-   * are not ready yet.
-   */
-  useDataSelectorForTraversal(): DSReturn<{
-    store: StoreApi<NodesContext>;
-    strictness: SelectorStrictness.returnWhenNotProvided;
-    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
-  }> {
-    return useDelayedSelector({
-      store: Store.useLaxStore(),
-      strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (state.readiness !== NodesReadiness.Ready) {
-          return false;
-        }
-        if (lastValue !== state.addRemoveCounter) {
-          setNewValue(state.addRemoveCounter);
-          return true;
-        }
-        return false;
-      }) satisfies OnlyReRenderWhen<NodesContext, number>,
-      mode: {
-        mode: 'innerSelector',
-        makeArgs: (state) => [state],
-      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
-    });
-  },
-  useDataSelectorForTraversalProps(): DSProps<{
-    store: StoreApi<NodesContext> | typeof ContextNotProvided;
-    strictness: SelectorStrictness.returnWhenNotProvided;
-    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
-  }> {
-    return {
-      store: Store.useLaxStore(),
-      strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (state.readiness !== NodesReadiness.Ready) {
-          return false;
-        }
-        if (lastValue !== state.addRemoveCounter) {
-          setNewValue(state.addRemoveCounter);
-          return true;
-        }
-        return false;
-      }) satisfies OnlyReRenderWhen<NodesContext, number>,
-      mode: {
-        mode: 'innerSelector',
-        makeArgs: (state) => [state],
-      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
-    };
-  },
   useIsReady() {
     const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
     if (isReady === ContextNotProvided) {
@@ -1234,21 +1162,27 @@ export const NodesInternal = {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+      makeArgs: (state) => [
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+      ],
     });
   },
   useLaxNodeDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+      makeArgs: (state) => [
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+      ],
     });
   },
   useNodeDataSelectorProps: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelectorProps({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+      makeArgs: (state) => [
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+      ],
     });
   },
   useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),

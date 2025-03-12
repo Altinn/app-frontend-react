@@ -3,6 +3,7 @@ import { CHECKBOX_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Checkboxes/config';
 import { CompCategory } from 'src/layout/common';
 import { DATE_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Date/config';
 import { DATEPICKER_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Datepicker/config';
+import { DIVIDER_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Divider/config';
 import { DROPDOWN_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Dropdown/config';
 import { GROUP_SUMMARY_PROPS } from 'src/layout/Group/config';
 import { HEADER_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Header/config';
@@ -77,6 +78,7 @@ export const Config = new CG.component({
           CHECKBOX_SUMMARY_OVERRIDE_PROPS,
           DATEPICKER_SUMMARY_OVERRIDE_PROPS,
           DATE_SUMMARY_OVERRIDE_PROPS,
+          DIVIDER_SUMMARY_OVERRIDE_PROPS,
           DROPDOWN_SUMMARY_OVERRIDE_PROPS,
           GROUP_SUMMARY_PROPS,
           HEADER_SUMMARY_OVERRIDE_PROPS,

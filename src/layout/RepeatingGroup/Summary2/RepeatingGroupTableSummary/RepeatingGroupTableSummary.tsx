@@ -5,7 +5,7 @@ import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/caption/Caption';
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -22,6 +22,7 @@ import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButt
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
@@ -138,48 +139,54 @@ type DataRowProps = {
 
 function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowProps) {
   const cellNodes = useTableNodes(node, index);
-  const displayDataProps = useDisplayDataProps();
+  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings);
+
+  if (!row) {
+    return null;
+  }
 
   return (
-    <Table.Row>
-      {cellNodes.map((node) =>
-        node.type === 'Custom' ? (
-          <Table.Cell key={node.id}>
-            <ComponentSummary componentNode={node} />
+    <DataModelLocationProvider
+      binding={dataModelBindings.group}
+      rowIndex={row.index}
+    >
+      <Table.Row>
+        {cellNodes.map((cellNode) =>
+          cellNode.type === 'Custom' ? (
+            <Table.Cell key={cellNode.id}>
+              <ComponentSummary componentNode={cellNode} />
+            </Table.Cell>
+          ) : (
+            <DataCell
+              key={cellNode.id}
+              node={cellNode}
+              columnSettings={columnSettings}
+            />
+          ),
+        )}
+        {!pdfModeActive && (
+          <Table.Cell
+            align='right'
+            className={tableClasses.buttonCell}
+          >
+            {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={cellNodes[0]} />}
           </Table.Cell>
-        ) : (
-          <DataCell
-            key={node.id}
-            node={node}
-            displayData={
-              ('getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)) ?? ''
-            }
-            columnSettings={columnSettings}
-          />
-        ),
-      )}
-      {!pdfModeActive && (
-        <Table.Cell
-          align='right'
-          className={tableClasses.buttonCell}
-        >
-          {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={cellNodes[0]} />}
-        </Table.Cell>
-      )}
-    </Table.Row>
+        )}
+      </Table.Row>
+    </DataModelLocationProvider>
   );
 }
 
 type DataCellProps = {
   node: LayoutNode;
-  displayData: string | false;
   columnSettings: ITableColumnFormatting;
 };
 
-function DataCell({ node, displayData, columnSettings }: DataCellProps) {
+function DataCell({ node, columnSettings }: DataCellProps) {
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(node));
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  const displayData = useDisplayData(node);
 
   return (
     <Table.Cell
