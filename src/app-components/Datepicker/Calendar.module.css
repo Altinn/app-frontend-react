@@ -20,7 +20,7 @@
 }
 
 .selectedDate {
-  background-color: var(--ds-global-blue-9);
+  background-color: var(--ds-color-accent-base-active);
   color: white;
   font-weight: normal;
   border-radius: var(--ds-border-radius-md);
@@ -38,18 +38,18 @@
 }
 .focusedDate {
   border-radius: var(--ds-border-radius-md);
-  background: var(--ds-global-blue-2);
+  background: var(--ds-blue-2);
 }
 .today {
   border-radius: var(--ds-border-radius-md);
-  border: var(--ds-border-width-default) solid var(--ds-global-blue-2);
+  border: var(--ds-border-width-default) solid var(--ds-color-accent-border-subtle);
 }
 .disabledDate:hover button {
   cursor: not-allowed;
 }
 
 .calendarWrapper {
-  max-width: 363px;
+  max-width: 380px;
   box-sizing: content-box;
 }
 .calendar {
@@ -68,7 +68,8 @@
 }
 .calendarDay:hover {
   border-radius: var(--ds-border-radius-md);
-  background: var(--ds-global-blue-2);
+  background: var(--ds-color-accent-surface-hover);
+  cursor: pointer;
 }
 .calendarDay {
   width: 48px;
@@ -85,6 +86,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-2);
+  align-items: center;
 }
 .dropdownCaption {
   display: flex;
