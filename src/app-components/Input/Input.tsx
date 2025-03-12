@@ -1,8 +1,7 @@
 import React from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 
-import { Field, Paragraph, Textfield } from '@digdir/designsystemet-react';
-import type { FieldCounterProps } from '@digdir/designsystemet-react';
+import { Paragraph, Textfield } from '@digdir/designsystemet-react';
 
 import classes from 'src/app-components/Input/Input.module.css';
 import type { InputType } from 'src/app-components/Input/constants';
@@ -16,7 +15,6 @@ export type InputProps = {
   size?: 'sm' | 'md' | 'lg';
   prefix?: string;
   suffix?: string;
-  characterLimit?: FieldCounterProps;
   error?: ReactNode;
   disabled?: boolean;
   id?: string;
@@ -40,7 +38,7 @@ export type InputProps = {
   LabelRequired;
 
 export function Input(props: InputProps) {
-  const { size = 'sm', readOnly, error, textonly, characterLimit, ...rest } = props;
+  const { size = 'sm', readOnly, error, textonly, ...rest } = props;
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     if (readOnly) {
@@ -67,20 +65,12 @@ export function Input(props: InputProps) {
   }
 
   return (
-    <Field>
-      <Textfield
-        aria-invalid={!!error}
-        onPaste={handlePaste}
-        data-size={size}
-        readOnly={readOnly}
-        {...rest}
-      />
-      {characterLimit && (
-        <Field.Counter
-          {...characterLimit}
-          data-size='sm'
-        />
-      )}
-    </Field>
+    <Textfield
+      data-size={size}
+      onPaste={handlePaste}
+      aria-invalid={!!error}
+      readOnly={readOnly}
+      {...rest}
+    />
   );
 }
