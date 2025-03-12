@@ -23,6 +23,16 @@ export class Input extends InputDef {
     },
   );
 
+  // renderNext(props: PropsFromGenericComponent<'Input'>): JSX.Element | null {
+  //   return (
+  //     <InputSummary
+  //       componentNode={props.target}
+  //       isCompact={props.isCompact}
+  //       emptyFieldText={props.override?.emptyFieldText}
+  //     />
+  //   );
+  // }
+
   getDisplayData(
     node: LayoutNode<'Input'>,
     { currentLanguage, nodeFormDataSelector, nodeDataSelector }: DisplayDataProps,

@@ -5,7 +5,7 @@ import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
-import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { Expression, ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { AllComponents, ILayoutCollection } from 'src/layout/layout';
 import type { LayoutSetsSchema } from 'src/next/types/LayoutSetsDTO';
 import type { PageOrderDTO } from 'src/next/types/PageOrderDTO';
@@ -43,6 +43,7 @@ interface Layouts {
   setDataObject: (data: DataObject) => void;
   setDataValue: (key: string, value: string) => void;
   updateResolvedLayouts: () => void;
+  evaluateExpression: (expr: Expression) => any;
 }
 
 /**
@@ -173,32 +174,23 @@ export const layoutStore = createStore<Layouts>()(
               throw new Error('no data object');
             }
 
-            // Get current value for comparison
             const currentVal = dot.pick(dataKeyToUpdate, state.data);
             if (currentVal === newValue) {
-              // No change, so do nothing
               return {};
             }
 
-            // Update in place
             dot.set(dataKeyToUpdate, newValue, state.data);
 
-            // Return a shallow copy so Zustand sees the update
             return { data: { ...state.data } };
           });
         },
-
-        // setDataValue: (dataKeyToUpdate: string, newValue: string) => {
-        //   set((state) => {
-        //     const dataCopy = structuredClone(state.data);
-        //     if (!dataCopy) {
-        //       throw new Error('no data copy');
-        //     }
-        //     dot.set(dataKeyToUpdate, newValue, dataCopy);
-        //     return { data: dataCopy };
-        //   });
-        //   //get().updateResolvedLayouts();
-        // },
+        evaluateExpression: (expr: Expression) => {
+          const { data } = get();
+          if (!data) {
+            throw new Error('No data available in store');
+          }
+          return evaluateExpression(expr, data);
+        },
       }),
       {
         name: 'LayoutStore',

@@ -76,6 +76,12 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
+  // abstract renderNext:
+  //   | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
+  //   | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
+
+  renderNext?(props: PropsFromGenericComponent<Type>): JSX.Element | null;
+
   renderSummary2?(props: Summary2Props<Type>): JSX.Element | null;
 
   /**

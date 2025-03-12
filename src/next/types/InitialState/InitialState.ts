@@ -1,3 +1,5 @@
+import type { createComponentConfigs } from 'src/layout/components.generated';
+
 export interface IApplicationLogic {
   allowAnonymousOnStateless?: boolean | null;
   autoCreate?: boolean | null;
@@ -292,4 +294,5 @@ export interface InitialState {
   frontEndSettings: IApplicationSettings;
   user: IProfile;
   validParties: IParty[];
+  componentConfigs: ReturnType<typeof createComponentConfigs> | null;
 }

@@ -9,13 +9,13 @@ export function moveChildren(input: ILayoutFile): ResolvedLayoutFile {
   const allItems = input.data?.layout ?? [];
   const itemMap = new Map<string, any>(allItems.map((item) => [item.id, item]));
 
-  function getIsHidden(hiddenVal: unknown): boolean {
-    // Adjust to your own logic for evaluating 'hidden'
-    if (typeof hiddenVal === 'boolean') {
-      return hiddenVal;
-    }
-    return false;
-  }
+  // function getIsHidden(hiddenVal: unknown): boolean {
+  //   // Adjust to your own logic for evaluating 'hidden'
+  //   if (typeof hiddenVal === 'boolean') {
+  //     return hiddenVal;
+  //   }
+  //   return false;
+  // }
 
   function resolveItem(id: string, visited = new Set<string>()): ResolvedCompExternal {
     const item = itemMap.get(id);
@@ -27,11 +27,11 @@ export function moveChildren(input: ILayoutFile): ResolvedLayoutFile {
     }
     visited.add(id);
 
-    const { children, hidden, ...rest } = item;
+    const { children, ...rest } = item;
     const resolved: ResolvedCompExternal = {
       ...rest,
-      isHidden: getIsHidden(hidden),
-      renderedValue: '', // or any other computed string
+      //isHidden: getIsHidden(hidden),
+      //renderedValue: '', // or any other computed string
     };
 
     if (Array.isArray(children)) {
@@ -44,7 +44,9 @@ export function moveChildren(input: ILayoutFile): ResolvedLayoutFile {
   // Identify all child IDs
   const childIds = new Set<string>();
   for (const item of allItems) {
-    if (item.type === 'RepeatingGroup' && Array.isArray(item.children)) {
+    // @ts-ignore
+    if (item.children && Array.isArray(item.children)) {
+      // @ts-ignore
       for (const c of item.children) {
         childIds.add(c);
       }

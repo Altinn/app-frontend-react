@@ -1,6 +1,7 @@
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
+import { getComponentConfigs } from 'src/layout/components.generated';
 import { isInitialState } from 'src/next/types/InitialState/initialStateTypeChecker';
 import type { InitialState } from 'src/next/types/InitialState/InitialState';
 
@@ -18,7 +19,10 @@ const getInitialState = (): InitialState => {
     throw new Error('State is invalid');
   }
 
-  return state;
+  return {
+    ...state,
+    componentConfigs: getComponentConfigs(),
+  };
 };
 
 // Create the Zustand store with devtools
