@@ -11,6 +11,7 @@ import 'test/e2e/support/formFiller';
 import '@percy/cypress';
 
 import failOnConsoleError from 'cypress-fail-on-console-error';
+import type { ConsoleMessage } from 'cypress-fail-on-console-error';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { chaiExtensions } from 'test/e2e/support/chai-extensions';
@@ -24,13 +25,8 @@ before(() => {
 
 // Clear media emulation and reset default command timeout before each test
 beforeEach(() => {
-  cy.wrap(
-    Cypress.automation('remote:debugger:protocol', {
-      command: 'Emulation.setEmulatedMedia',
-      params: {},
-    }),
-    { log: false },
-  );
+  cy.setEmulatedMedia();
+  cy.setCacheDisabled(false);
 });
 
 afterEach(function () {
@@ -48,7 +44,15 @@ afterEach(function () {
 
 // When running Cypress tests, we want to fail immediately if there are any console errors, or even logging
 // of warnings, etc. This will help us catch issues early.
-failOnConsoleError({
+const { setConfig, getConfig } = failOnConsoleError({
   consoleTypes: ['error', 'warn', 'info', 'trace'],
   consoleMessages: ignoredConsoleMessages,
+});
+
+Cypress.Commands.add('ignoreConsoleMessages', (consoleMessages: ConsoleMessage[]) => {
+  const config = getConfig();
+  setConfig({
+    ...config,
+    consoleMessages: config?.consoleMessages ? [...config.consoleMessages, ...consoleMessages] : consoleMessages,
+  });
 });

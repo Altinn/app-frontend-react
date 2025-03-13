@@ -5,13 +5,14 @@ import { ErrorMessage, Heading, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { LabelContent } from 'src/components/label/LabelContent';
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { getComponentDef } from 'src/layout';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Grid/GridSummary.module.css';
@@ -19,11 +20,9 @@ import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
-import type { DisplayDataProps } from 'src/features/displayData';
 import type {
   GridCellLabelFrom,
   GridCellText,
@@ -32,6 +31,7 @@ import type {
 } from 'src/layout/common.generated';
 import type { GridCellInternal, GridCellNode, GridRowInternal } from 'src/layout/Grid/types';
 import type { ITextResourceBindings } from 'src/layout/layout';
+import type { EditButtonProps } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type GridSummaryProps = Readonly<{
@@ -145,7 +145,7 @@ export function GridRowRenderer(props: GridRowProps) {
 
   const isSmall = isMobile && !pdfModeActive;
 
-  const firstNode = useFirstFormNode(row);
+  const firstNodeId = useFirstFormNodeId(row);
 
   if (isGridRowHidden(row, isHiddenSelector)) {
     return null;
@@ -171,9 +171,9 @@ export function GridRowRenderer(props: GridRowProps) {
       )}
       {!pdfModeActive && !row.header && !isSmall && (
         <Table.Cell align='right'>
-          {firstNode && !row.readOnly && (
-            <EditButton
-              componentNode={firstNode}
+          {firstNodeId && !row.readOnly && (
+            <WrappedEditButton
+              componentNodeId={firstNodeId}
               summaryComponentId=''
             />
           )}
@@ -183,18 +183,36 @@ export function GridRowRenderer(props: GridRowProps) {
   );
 }
 
-function useFirstFormNode(row: GridRowInternal) {
-  return useNodeTraversal((t) => {
+function useFirstFormNodeId(row: GridRowInternal): string | undefined {
+  return NodesInternal.useSelector((state) => {
     for (const cell of row.cells) {
       if (cell && 'nodeId' in cell && cell.nodeId) {
-        const node = t.findById(cell.nodeId);
-        if (node && node.isCategory(CompCategory.Form)) {
-          return node;
+        const nodeData = state.nodeData?.[cell.nodeId];
+        const def = nodeData && getComponentDef(nodeData.layout.type);
+        if (def && def.category === CompCategory.Form) {
+          return nodeData.layout.id;
         }
       }
     }
     return undefined;
   });
+}
+
+function WrappedEditButton({
+  componentNodeId,
+  ...rest
+}: { componentNodeId: string } & Omit<EditButtonProps, 'componentNode'>) {
+  const node = useNode(componentNodeId);
+  if (!node) {
+    return null;
+  }
+
+  return (
+    <EditButton
+      componentNode={node}
+      {...rest}
+    />
+  );
 }
 
 type InternalRowProps = PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>>;
@@ -331,7 +349,7 @@ function CellWithComponent({
 }: CellWithComponentProps) {
   const node = useNode(cell.nodeId);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-  const displayDataProps = useDisplayDataProps();
+  const displayData = useDisplayData(node);
   const validations = useUnifiedValidationsForNode(node);
   const errors = validationsOfSeverity(validations, 'error');
   const isHidden = Hidden.useIsHidden(node);
@@ -349,7 +367,7 @@ function CellWithComponent({
       data-header-title={isSmall ? headerTitle : ''}
     >
       <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
-        {getComponentCellData(node, displayDataProps, textResourceBindings)}
+        {getComponentCellData(node, displayData, textResourceBindings)}
         {isSmall && !rowReadOnly && (
           <EditButton
             className={classes.mobileEditButton}
@@ -427,16 +445,11 @@ function CellWithLabel({ cell, columnStyleOptions, isHeader = false, headerTitle
   );
 }
 
-function getComponentCellData(
-  node: LayoutNode,
-  displayDataProps: DisplayDataProps,
-  textResourceBindings?: ITextResourceBindings,
-) {
+function getComponentCellData(node: LayoutNode, displayData: string, textResourceBindings?: ITextResourceBindings) {
   if (node?.type === 'Custom') {
     return <ComponentSummary componentNode={node} />;
-  } else if (node && 'getDisplayData' in node.def && node.type) {
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    return node.def.getDisplayData(node as LayoutNode<any>, displayDataProps) || '-';
+  } else if (displayData) {
+    return displayData;
   } else if (textResourceBindings && 'title' in textResourceBindings) {
     return <Lang id={textResourceBindings.title} />;
   } else {

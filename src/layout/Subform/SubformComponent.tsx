@@ -8,7 +8,9 @@ import dot from 'dot-object';
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictDataElements, useStrictInstanceId } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -52,23 +54,24 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
   const addEntryMutation = useAddEntryMutation(dataType);
   const dataElements = useStrictDataElements(dataType);
   const navigate = useNavigate();
-  const [isAdding, setIsAdding] = useState(false);
+  const lock = FD.useLocking(id);
+  const { performProcess, isAnyProcessing: isAddingDisabled, isThisProcessing: isAdding } = useIsProcessing();
   const [subformEntries, updateSubformEntries] = useState(dataElements);
 
   const subformIdsWithError = useComponentValidationsForNode(node).find(isSubformValidation)?.subformDataElementIds;
 
-  const addEntry = async () => {
-    setIsAdding(true);
-
-    try {
-      const result = await addEntryMutation.mutateAsync({});
-      navigate(`${node.id}/${result.id}`);
-    } catch {
-      // NOTE: Handled by useAddEntryMutation
-    } finally {
-      setIsAdding(false);
-    }
-  };
+  const addEntry = () =>
+    performProcess(async () => {
+      const currentLock = await lock();
+      try {
+        const result = await addEntryMutation.mutateAsync({});
+        navigate(`${node.id}/${result.id}`);
+      } catch {
+        // NOTE: Handled by useAddEntryMutation
+      } finally {
+        currentLock.unlock();
+      }
+    });
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -145,7 +148,8 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
             <Button
               id={`subform-${id}-add-button`}
               size='md'
-              disabled={isAdding}
+              disabled={isAddingDisabled}
+              isLoading={isAdding}
               onClick={async () => await addEntry()}
               onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
                 const allowedKeys = ['enter', ' ', 'spacebar'];
@@ -156,10 +160,12 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
               variant='secondary'
               fullWidth
             >
-              <AddIcon
-                fontSize='1.5rem'
-                aria-hidden='true'
-              />
+              {!isAdding && (
+                <AddIcon
+                  fontSize='1.5rem'
+                  aria-hidden='true'
+                />
+              )}
               {langAsString(textResourceBindings?.addButton)}
             </Button>
           </div>

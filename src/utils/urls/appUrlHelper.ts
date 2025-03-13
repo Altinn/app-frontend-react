@@ -52,16 +52,20 @@ export const getFileTagUrl = (instanceId: string, dataGuid: string, tag: string 
 
 export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+
 export const getStatelessDataModelUrlWithPrefill = (
   dataType: string,
   includeRowIds: boolean,
   prefillFromQueryParams: string,
 ) =>
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}&prefill=${prefillFromQueryParams}`;
+
 export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+
 export const getStatefulDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;
+
 export const getMultiPatchUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/data`;
 
 export const getDataModelGuidUrl = (instanceId: string, dataGuid: string) =>
@@ -181,7 +185,6 @@ export const getLayoutsUrl = (layoutSetId: string) => `${appPath}/api/layouts/${
 export const getRulehandlerUrl = (layoutSet: string) => `${appPath}/api/rulehandler/${layoutSet}`;
 export const getActiveInstancesUrl = (partyId: number) => `${appPath}/instances/${partyId}/active`;
 export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${instanceId}`;
-export const getRolesUrl = () => `${appPath}/api/authorization/roles`;
 
 export const appFrontendCDNPath = 'https://altinncdn.no/toolkits/altinn-app-frontend';
 export const frontendVersionsCDN = `${appFrontendCDNPath}/index.json`;

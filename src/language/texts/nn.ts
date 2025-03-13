@@ -2,6 +2,10 @@ import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 
 export function nn(): FixedLanguageList {
   return {
+    dateTime: {
+      am: 'a.m.',
+      pm: 'p.m.',
+    },
     altinn: {
       standard_validation: {
         file_content_type_not_allowed:
@@ -128,6 +132,12 @@ export function nn(): FixedLanguageList {
       form: 'Skjemanavigasjon',
       to_main_content: 'Hopp til hovedinnholdet',
       go_to_task: 'Gå til {0}',
+      form_pages: 'Skjemasider',
+      back_to_inbox: 'Tilbake til innboks',
+      inbox: 'Innboks',
+      back_to_main_form: 'Tilbake til {0}',
+      main_form: '{0}',
+      back: 'Tilbake',
     },
     general: {
       action: 'Handling',
@@ -141,7 +151,6 @@ export function nn(): FixedLanguageList {
       choose_label: 'Vel namn',
       choose_method: 'Vel metode',
       choose: 'Vel',
-      close_schema: 'Lukk skjema',
       close: 'Lukk',
       contains: 'Inneheld',
       control_submit: 'Kontroller og send inn',
@@ -160,7 +169,8 @@ export function nn(): FixedLanguageList {
       empty_summary: 'Du har ikkje lagt inn informasjon her',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
-      expand_form: 'Utvid skjema',
+      full_width: 'Utvid breidden',
+      standard_width: 'Reduser breidden',
       for: 'for',
       header_profile_icon_label: 'Profil ikon knapp',
       label: 'Namn',
@@ -242,6 +252,7 @@ export function nn(): FixedLanguageList {
       starting: 'Vent litt, vi hentar det du treng',
     },
     language: {
+      language_selection: 'Språkval',
       full_name: {
         nb: 'Norsk bokmål',
         en: 'Engelsk',
@@ -334,7 +345,7 @@ export function nn(): FixedLanguageList {
       surname_label: 'Etternamn',
       name_label: 'Namn',
       from_registry_description: 'Frå folkeregisteret',
-      validation_error_name_too_short: 'Etternamn må vere minst 2 teikn lange.',
+      validation_error_name_too_short: 'Etternamn kan ikkje vere tomt.',
       validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
       validation_error_not_found:
         'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
@@ -408,11 +419,10 @@ export function nn(): FixedLanguageList {
     },
     list_component: {
       rowsPerPage: 'Rader per side',
-      of: 'av',
-      navigateFirstPage: 'Naviger til første side i tabell',
-      previousPage: 'Førre side i tabell',
-      nextPage: 'Neste side i tabell',
-      navigateLastPage: 'Naviger til siste side i tabell',
+      previousPage: 'Førre',
+      previousPageAriaLabel: 'Førre side i tabell',
+      nextPage: 'Neste',
+      nextPageAriaLabel: 'Neste side i tabell',
     },
     config_error: {
       layoutset_subform_config_error_customer_support:
@@ -427,6 +437,8 @@ export function nn(): FixedLanguageList {
       subform_no_datatype_appmetadata: "Datatype '{0}' vart ikkje funnen i applicationmetadata.json.",
       subform_misconfigured_add_button:
         "Datatype '{0}' er markert som 'disallowUserCreate=true', men underskjema-komponenten er konfigurert med 'showAddButton=true'. Dette er ei motseiing, Sidan brukaren aldri vil få lov til å utføre handlingane bak legg-til knappen.",
+      file_upload_same_binding:
+        'Det er fleire filopplastingskomponentar med same datamodellbinding. Kvar komponent må ha ein unik binding. Andre komponentar med same binding: {0}',
     },
     version_error: {
       version_mismatch: 'Versjonsfeil',
@@ -450,6 +462,13 @@ export function nn(): FixedLanguageList {
     pdfPreview: {
       error: 'Kunne ikkje førehandsvise PDF',
       defaultButtonText: 'Førehandsvis PDF',
+    },
+    taskTypes: {
+      data: 'Utfylling',
+      signing: 'Signering',
+      confirmation: 'Bekreftelse',
+      payment: 'Betaling',
+      receipt: 'Kvittering',
     },
   } satisfies NestedTexts;
 }

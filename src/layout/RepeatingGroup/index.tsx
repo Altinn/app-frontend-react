@@ -10,6 +10,7 @@ import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/Repe
 import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { BaseValidation, ComponentValidation, ValidationDataSources } from 'src/features/validation';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -95,25 +96,25 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return false;
   }
 
-  getDisplayData(): string {
-    return '';
-  }
-
   runComponentValidation(
     node: LayoutNode<'RepeatingGroup'>,
     { nodeDataSelector }: ValidationDataSources,
   ): ComponentValidation[] {
-    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
+    const dataModelBindings = nodeDataSelector(
+      (picker) => picker(node.id, 'RepeatingGroup')?.layout.dataModelBindings,
+      [node.id],
+    );
     if (!dataModelBindings) {
       return [];
     }
 
     const validations: ComponentValidation[] = [];
     // check if minCount is less than visible rows
-    const minCount = nodeDataSelector((picker) => picker(node)?.item?.minCount, [node]) ?? 0;
+    const minCount = nodeDataSelector((picker) => picker(node.id, 'RepeatingGroup')?.item?.minCount, [node.id]) ?? 0;
     const visibleRows = nodeDataSelector(
-      (picker) => picker(node)?.item?.rows?.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
-      [node],
+      (picker) =>
+        picker(node.id, 'RepeatingGroup')?.item?.rows?.filter((row) => row && !row.groupExpressions?.hiddenRow).length,
+      [node.id],
     );
 
     // Validate minCount
@@ -140,7 +141,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   }
 
   getValidationFilters(node: LayoutNode<'RepeatingGroup'>, selector: NodeDataSelector): ValidationFilterFunction[] {
-    if (selector((picker) => picker(node)?.item?.minCount ?? 0, [node]) > 0) {
+    if (selector((picker) => picker(node.id, 'RepeatingGroup')?.item?.minCount ?? 0, [node.id]) > 0) {
       return [this.schemaMinItemsFilter];
     }
     return [];
@@ -166,20 +167,21 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return [];
   }
 
-  isChildHidden(state: NodeData<'RepeatingGroup'>, childNode: LayoutNode): boolean {
-    const hiddenByPlugins = super.isChildHidden(state, childNode);
+  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string): boolean {
+    const hiddenByPlugins = super.isChildHidden(state, childId);
     if (hiddenByPlugins) {
       return true;
     }
 
-    const row = childNode.rowIndex !== undefined ? state.item?.rows[childNode.rowIndex] : undefined;
+    const { baseComponentId, depth } = splitDashedKey(childId);
+    const rowIndex = depth.at(-1);
+    const row = rowIndex !== undefined ? state.item?.rows[rowIndex] : undefined;
     const rowHidden = row?.groupExpressions?.hiddenRow;
     if (rowHidden) {
       return true;
     }
 
-    const baseId = childNode.baseId;
-    const tableColSetup = state.item?.tableColumns?.[baseId];
+    const tableColSetup = state.item?.tableColumns?.[baseComponentId];
     const mode = state.item?.edit?.mode;
 
     // This specific configuration hides the component fully, without having set hidden=true on the component itself.

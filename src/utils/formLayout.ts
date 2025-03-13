@@ -1,8 +1,5 @@
-import { layoutSetIsDefault } from 'src/features/form/layoutSets/TypeGuards';
-import { getComponentCapabilities } from 'src/layout';
-import type { ILayoutSets } from 'src/layout/common.generated';
+import type { ILayoutSet } from 'src/layout/common.generated';
 import type { ILikertFilter } from 'src/layout/Likert/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilter = []) => {
   if (typeof lastIndex === 'undefined') {
@@ -24,36 +21,14 @@ export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilte
 };
 
 /**
- * Takes a layout and splits it into two return parts; the last will contain
- * all the buttons on the bottom of the input layout, while the first returned
- * value is the input layout except for these extracted components.
- */
-export function extractBottomButtons(topLevelNodes: LayoutNode[]) {
-  const all = [...topLevelNodes];
-  const toMainLayout: string[] = [];
-  const toErrorReport: string[] = [];
-  for (const node of all.reverse()) {
-    const capabilities = getComponentCapabilities(node.type);
-    const isButtonLike = node.isType('ButtonGroup') || (capabilities.renderInButtonGroup && !node.isType('Custom'));
-    if (isButtonLike && toMainLayout.length === 0) {
-      toErrorReport.push(node.id);
-    } else {
-      toMainLayout.push(node.id);
-    }
-  }
-
-  return [toMainLayout.reverse(), toErrorReport.reverse()];
-}
-
-/**
  * Some tasks other than data (for instance confirm, or other in the future) can be configured to behave like data steps
  * @param task the task
  * @param layoutSets the layout sets
  */
-export function behavesLikeDataTask(task: string | null | undefined, layoutSets: ILayoutSets | null): boolean {
+export function behavesLikeDataTask(task: string | null | undefined, layoutSets: ILayoutSet[] | null): boolean {
   if (!task) {
     return false;
   }
 
-  return !!layoutSets?.sets.some((set) => layoutSetIsDefault(set) && set.tasks?.includes(task));
+  return !!layoutSets?.some((set) => set.tasks?.includes(task));
 }

@@ -94,6 +94,65 @@ describe('Subform test', () => {
       cy.wrap($toast).should('contain', 'Maks antall moped oppføringer har blitt nådd');
       cy.wrap($toast).should('have.class', 'Toastify__toast--error');
     });
+
+    cy.get('#Input-Age').type('30');
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Delete the last two mopeds (those with errors)
+    cy.get('#subform-subform-mopeder-table tbody tr').should('have.length', 3);
+    cy.get('#subform-subform-mopeder-table tbody tr').eq(1).findByText('Slett').clickAndGone();
+    cy.get('#subform-subform-mopeder-table tbody tr').should('have.length', 2);
+    cy.get('#subform-subform-mopeder-table tbody tr').eq(1).findByText('Slett').clickAndGone();
+    cy.get('#subform-subform-mopeder-table tbody tr').should('have.length', 1);
+    cy.get('[data-testid="NavigationButtons"] button.fds-btn--primary').clickAndGone();
+
+    // Verify summary fields
+    cy.get('[data-testid=summary-single-value-component]').eq(0).should('contain.text', name);
+    cy.get('[data-testid=summary-single-value-component]').eq(1).should('contain.text', '30 år');
+    cy.get('#label-attachment-summary2-attachments')
+      .next()
+      .should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.get('#form-content-subform-mopeder table tbody tr').should('have.length', 1);
+    cy.get('#form-content-subform-mopeder table tbody tr').within(() => {
+      cy.get('td').eq(0).should('have.text', regno);
+      cy.get('td').eq(1).should('have.text', merke);
+      cy.get('td').eq(2).should('have.text', extrainfo);
+    });
+
+    cy.get('#label-subform-boker').next().should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.findByRole('button', { name: 'Vis Summary2 for hele steget' }).clickAndGone();
+
+    cy.get('.fds-paragraph')
+      .eq(0)
+      .should(
+        'contain.text',
+        'Subform komponentene finner du nederst på denne siden, under et par felter med personalia.',
+      );
+    cy.get('[data-testid=summary-single-value-component]').eq(0).should('contain.text', name);
+    cy.get('[data-testid=summary-single-value-component]').eq(1).should('contain.text', '30 år');
+    cy.get('#label-attachment-summary2-attachments')
+      .next()
+      .should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    // There is probably room for improvement in the way Summary generates ids here, and we probably want
+    // to change the subform title to something other than the data model UUID.
+    cy.get('#label-undefined').should('contain.text', 'Dine mopeder');
+    cy.get('#label-undefined')
+      .next()
+      .invoke('text')
+      .should('match', /^[a-f0-9-]+$/);
+
+    cy.get('[data-testid=summary-single-value-component]').eq(2).should('contain.text', regno);
+    cy.get('[data-testid=summary-single-value-component]').eq(3).should('contain.text', merke);
+    cy.get('[data-testid=summary-single-value-component]').eq(4).should('contain.text', model);
+    cy.get('[data-testid=summary-single-value-component]').eq(5).should('contain.text', 'Har du ekstra info?');
+    cy.get('[data-testid=summary-single-value-component]').eq(5).should('contain.text', 'Ja');
+    cy.get('[data-testid=summary-single-value-component]').eq(6).should('contain.text', extrainfo);
+    cy.get('[data-testid=summary-single-value-component]').eq(7).should('contain.text', year);
+
+    cy.get('#label-subform-boker').next().should('contain.text', 'Du har ikke lagt inn informasjon her');
   });
 
   it('subform validation', () => {
@@ -107,14 +166,14 @@ describe('Subform test', () => {
     cy.get(appFrontend.fieldValidation('subform-mopeder')).should('contain.text', 'Minst 1 moped oppføring er påkrevd');
 
     // Test that save is blocked by validation
-    cy.findByRole('button', { name: /legg til moped/i }).click();
+    cy.findByRole('button', { name: /legg til moped/i }).clickAndGone();
     cy.findByRole('button', { name: /ferdig/i }).should('be.visible');
     cy.get(appFrontend.errorReport).should('not.exist');
     cy.findByRole('button', { name: /ferdig/i }).click();
     cy.get(appFrontend.errorReport).should('be.visible');
 
     // Test validation of subform content
-    cy.findByRole('button', { name: /avbryt/i }).click();
+    cy.findByRole('button', { name: /avbryt/i }).clickAndGone();
     cy.findByRole('button', { name: /neste/i }).click();
     cy.get(appFrontend.errorReport).should('be.visible');
     cy.get(appFrontend.fieldValidation('subform-mopeder')).should(
@@ -127,12 +186,12 @@ describe('Subform test', () => {
     );
 
     // Test that editing a subform with visible validations shows validations upon entering
-    cy.findByRole('button', { name: /endre/i }).click();
+    cy.findByRole('button', { name: /endre/i }).clickAndGone();
     cy.findByRole('button', { name: /ferdig/i }).should('be.visible');
     cy.get(appFrontend.errorReport).should('be.visible');
 
     // Test that main form still shows the same validations as before upon exiting subform
-    cy.findByRole('button', { name: /avbryt/i }).click();
+    cy.findByRole('button', { name: /avbryt/i }).clickAndGone();
     cy.findByRole('button', { name: /neste/i }).should('be.visible');
     cy.get(appFrontend.errorReport).should('be.visible');
     cy.get(appFrontend.fieldValidation('subform-mopeder')).should(
@@ -142,10 +201,10 @@ describe('Subform test', () => {
 
     // Test that main form still shows the same validations as before upon exiting a newly created subform
     // The reason for this case is that this did not work initially
-    cy.findByRole('button', { name: /legg til moped/i }).click();
+    cy.findByRole('button', { name: /legg til moped/i }).clickAndGone();
     cy.findByRole('button', { name: /ferdig/i }).should('be.visible');
     cy.get(appFrontend.errorReport).should('not.exist');
-    cy.findByRole('button', { name: /avbryt/i }).click();
+    cy.findByRole('button', { name: /avbryt/i }).clickAndGone();
     cy.findByRole('button', { name: /neste/i }).should('be.visible');
     cy.get(appFrontend.errorReport).should('be.visible');
     cy.get(appFrontend.fieldValidation('subform-mopeder')).should(
@@ -155,7 +214,7 @@ describe('Subform test', () => {
     cy.findAllByRole('button', { name: /slett/i }).last().clickAndGone();
 
     // Test that fixing the validations works
-    cy.findByRole('button', { name: /endre/i }).click();
+    cy.findByRole('button', { name: /endre/i }).clickAndGone();
     cy.findByRole('button', { name: /ferdig/i }).should('be.visible');
     cy.get(appFrontend.errorReport).should('be.visible');
     cy.findByRole('textbox', { name: /registreringsnummer/i }).type('ABC123');
@@ -163,7 +222,7 @@ describe('Subform test', () => {
     cy.findByRole('textbox', { name: /modell/i }).type('Scooter2000');
     cy.findByRole('textbox', { name: /produksjonsår/i }).type('2024');
     cy.get(appFrontend.errorReport).should('not.exist');
-    cy.findByRole('button', { name: /ferdig/i }).click();
+    cy.findByRole('button', { name: /ferdig/i }).clickAndGone();
     cy.findByRole('button', { name: /neste/i }).should('be.visible');
     cy.get(appFrontend.errorReport).should('not.exist');
   });
@@ -172,22 +231,23 @@ describe('Subform test', () => {
     cy.findByRole('textbox', { name: /navn/i }).type('Per');
     cy.findByRole('textbox', { name: /alder/i }).type('28');
 
-    cy.findByRole('button', { name: /legg til moped/i }).click();
+    cy.findByRole('button', { name: /legg til moped/i }).clickAndGone();
     cy.findByRole('textbox', { name: /registreringsnummer/i }).type('ABC123');
     cy.findByRole('textbox', { name: /merke/i }).type('Digdir');
     cy.findByRole('textbox', { name: /modell/i }).type('Scooter2000');
     cy.findByRole('textbox', { name: /produksjonsår/i }).type('2024');
-    cy.findByRole('button', { name: /ferdig/i }).click();
+    cy.findByRole('button', { name: /ferdig/i }).clickAndGone();
 
-    cy.findByRole('button', { name: /legg til moped/i }).click();
+    cy.findByRole('button', { name: /legg til moped/i }).clickAndGone();
     cy.findByRole('textbox', { name: /registreringsnummer/i }).type('XYZ987');
     cy.findByRole('textbox', { name: /merke/i }).type('Altinn');
     cy.findByRole('textbox', { name: /modell/i }).type('3.0');
     cy.findByRole('textbox', { name: /produksjonsår/i }).type('2030');
-    cy.findByRole('button', { name: /ferdig/i }).click();
+    cy.findByRole('button', { name: /ferdig/i }).clickAndGone();
 
     cy.testPdf({
       snapshotName: 'subform',
+      enableResponseFuzzing: true,
       callback: () => {
         cy.getSummary('Navn').should('contain.text', 'Per');
         cy.getSummary('Alder').should('contain.text', '28 år');

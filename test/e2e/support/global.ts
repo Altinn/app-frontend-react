@@ -1,3 +1,7 @@
+import type JQuery from 'cypress/types/jquery';
+import type { RouteMatcher } from 'cypress/types/net-stubbing';
+import type { ConsoleMessage } from 'cypress-fail-on-console-error';
+
 import type { CyUser } from 'test/e2e/support/auth';
 
 import type { BackendValidationIssue, BackendValidationIssueGroupListItem } from 'src/features/validation';
@@ -27,6 +31,7 @@ export interface TestPdfOptions {
   beforeReload?: () => void;
   callback: () => void;
   returnToForm?: boolean;
+  enableResponseFuzzing?: boolean;
 }
 
 declare global {
@@ -275,9 +280,41 @@ declare global {
        * scenarios, and in those cases we don't want to fail the test if the test fails.
        */
       allowFailureOnEnd(): Chainable<null>;
+
+      /**
+       * This command uses the chrome dev tools protocol directly and has to be reset manually. Only works in chromium based browsers
+       */
+      setEmulatedMedia(media?: 'print' | 'screen'): Chainable<null>;
+      /**
+       * This command uses the chrome dev tools protocol directly and has to be reset manually. Only works in chromium based browsers
+       */
+      setCacheDisabled(cacheDisabled: boolean): Chainable<null>;
+
+      /**
+       * Enables response fuzzing for everything except documents and scripts. Returns a method to disable later.
+       * Setting enable = false does nothing, but is more convenient so you can keep the return value in scope.
+       */
+      enableResponseFuzzing(options?: ResponseFuzzingOptions): Chainable<ResponseFuzzing>;
+
+      getCurrentViewportSize(): Chainable<Size>;
+
+      showNavGroups(open: boolean): Chainable<null>;
+
+      navGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<JQuery<Element>>;
+
+      gotoNavGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<null>;
+
+      openNavGroup(groupName: string | RegExp): Chainable<null>;
+
+      ignoreConsoleMessages(consoleMessages: ConsoleMessage[]): Chainable<null>;
     }
   }
 }
+
+export type ResponseFuzzingOptions = { enabled?: boolean; min?: number; max?: number; matchingRoutes?: RouteMatcher };
+export type ResponseFuzzing = { disable: () => void };
+
+export type Size = { width: number; height: number };
 
 export type BackendValidationResult = {
   validations: BackendValidationIssueGroupListItem[] | null;

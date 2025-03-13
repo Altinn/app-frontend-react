@@ -1,4 +1,5 @@
 import { prettyErrors } from 'src/features/expressions/prettyErrors';
+import { ValidationErrorMessage } from 'src/features/expressions/validation';
 import type { ExprConfig, Expression } from 'src/features/expressions/types';
 
 export class ExprRuntimeError extends Error {
@@ -17,9 +18,12 @@ export class UnknownTargetType extends ExprRuntimeError {
   }
 }
 
-export class UnknownSourceType extends ExprRuntimeError {
+export class UnknownArgType extends ExprRuntimeError {
   public constructor(expression: Expression, path: string[], type: string, supported: string) {
-    super(expression, path, `Received unsupported type '${type}, only ${supported} are supported'`);
+    let paramIdx = 0;
+    const params = [supported, type];
+    const newMessage = ValidationErrorMessage.ArgWrongType.replaceAll('%s', () => params[paramIdx++]);
+    super(expression, path, newMessage);
   }
 }
 
@@ -33,14 +37,6 @@ export class NodeNotFound extends Error {
   public constructor(nodeId: string | undefined) {
     const id = JSON.stringify(nodeId);
     super(`Unable to evaluate expressions in context of the ${id} component (it could not be found)`);
-  }
-}
-
-export class NodeNotFoundWithoutContext {
-  public constructor(private nodeId: string | undefined) {}
-
-  public getId() {
-    return this.nodeId;
   }
 }
 

@@ -1,4 +1,3 @@
-import { NodeNotFoundWithoutContext } from 'src/features/expressions/errors';
 import { ExprFunctionDefinitions } from 'src/features/expressions/expression-functions';
 import { evalExpr } from 'src/features/expressions/index';
 import { ExprVal } from 'src/features/expressions/types';
@@ -16,7 +15,7 @@ describe('Expressions', () => {
     expect(
       evalExpr(
         ['frontendSettings', 'whatever'],
-        new NodeNotFoundWithoutContext('test'),
+        { type: 'none' },
         {
           applicationSettings: {},
         } as ExpressionDataSources,
@@ -43,6 +42,14 @@ describe('Expressions', () => {
         } else if (arg.variant === 'rest' && restFound) {
           throw new Error('Multiple rest arguments found');
         }
+      }
+
+      if (def.returns === ExprVal.Date) {
+        throw new Error(
+          'Date is not a valid return type for an expression function. It is only possible to receive a Date as ' +
+            'an argument, and if you need to return a Date, you should return it as a string (formatted in a way ' +
+            'that lets the date parser parse it).',
+        );
       }
 
       expect(def.returns).toBeDefined();

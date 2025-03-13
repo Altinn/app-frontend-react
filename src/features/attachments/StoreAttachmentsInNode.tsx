@@ -40,9 +40,18 @@ function StoreAttachmentsInNodeWorker() {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveAttachments'>>;
   const item = GeneratorInternal.useIntermediateItem();
   const attachments = useNodeAttachments();
+  const errors = NodesInternal.useNodeErrors(node);
+  const hasErrors = errors && Object.values(errors).length > 0;
 
   const hasBeenSet = NodesInternal.useNodeData(node, (data) => deepEqual(data.attachments, attachments));
   NodesStateQueue.useSetNodeProp({ node, prop: 'attachments', value: attachments }, !hasBeenSet);
+
+  if (hasErrors) {
+    // If there are errors, we don't want to run the effects. It could be the case that multiple FileUpload components
+    // have been bound to the same path in the data model, which could cause infinite loops in the components below
+    // when they try to manage the same binding.
+    return null;
+  }
 
   // When the backend deletes an attachment, we might need to update the data model and remove the attachment ID from
   // there (if the backend didn't do so already). This is done by these `Maintain*DataModelBinding` components.
@@ -184,12 +193,22 @@ function MaintainListDataModelBinding({ bindings, attachments }: MaintainListDat
       .filter(isAttachmentUploaded)
       .map((attachment) => attachment.data.id);
 
-    if (!deepEqual(formData.list, newList)) {
+    if (!deepEqual(formData.list, newList) && !empty(formData.list, newList)) {
       setValue('list', newList);
     }
   }, [attachments, formData.list, setValue]);
 
   return null;
+}
+
+/**
+ * Checks if two items are practically empty. In that case, we consider them equal. There is no point in setting an
+ * empty array in the data model, that just increases the amount of times we have to save the data model.
+ */
+function empty(a: unknown, b: unknown): boolean {
+  const aEmpty = a === undefined || a === null || (Array.isArray(a) && a.length === 0);
+  const bEmpty = b === undefined || b === null || (Array.isArray(b) && b.length === 0);
+  return aEmpty && bEmpty;
 }
 
 /**

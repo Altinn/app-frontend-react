@@ -22,9 +22,16 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
+import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
-import type { ExprConfig, ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type {
+  ExprConfig,
+  ExprResolved,
+  ExprValToActual,
+  ExprValToActualOrExpr,
+  LayoutReference,
+} from 'src/features/expressions/types';
 import type { CompDef } from 'src/layout';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
 import type {
@@ -101,7 +108,8 @@ interface CommonProps<T extends CompTypes> {
 }
 
 function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T>) {
-  const hidden = useEvalExpressionInGenerator(ExprVal.Boolean, node, externalItem.hidden, false) ?? false;
+  const reference: LayoutReference = useMemo(() => ({ type: 'node', id: node.id }), [node]);
+  const hidden = useEvalExpressionInGenerator(ExprVal.Boolean, reference, externalItem.hidden, false) ?? false;
   const isSet = NodesInternal.useNodeData(node, (data) => data.hidden === hidden);
   NodesStateQueue.useSetNodeProp({ node, prop: 'hidden', value: hidden }, !isSet);
 
@@ -110,19 +118,24 @@ function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T
 
 function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonProps<T>) {
   const parent = GeneratorInternal.useParent()!;
+  const depth = GeneratorInternal.useDepth();
   const rowIndex = GeneratorInternal.useRowIndex();
   const pageKey = GeneratorInternal.usePage()?.pageKey ?? '';
   const idMutators = GeneratorInternal.useIdMutators() ?? [];
   const layoutMap = GeneratorInternal.useLayoutMap();
+  const isValid = GeneratorInternal.useIsValid();
   const getCapabilities = (type: CompTypes) => getComponentCapabilities(type);
   const stateFactoryProps = {
     item: intermediateItem,
     parent,
+    parentId: parent instanceof BaseLayoutNode ? parent.id : undefined,
+    depth,
     rowIndex,
     pageKey,
     idMutators,
     layoutMap,
     getCapabilities,
+    isValid,
   } satisfies StateFactoryProps<T>;
   const isAdded = NodesInternal.useIsAdded(node);
 
@@ -175,9 +188,13 @@ function ResolveExpressions<T extends CompTypes>({ node, intermediateItem }: Com
  */
 export function useExpressionResolverProps<T extends CompTypes>(
   node: LayoutNode<T> | undefined,
-  _item: CompIntermediateExact<T>,
+  rawItem: CompIntermediateExact<T>,
   rowIndex?: number,
 ): ExprResolver<T> {
+  const reference: LayoutReference | undefined = useMemo(
+    () => (node ? { type: 'node', id: node.id } : undefined),
+    [node],
+  );
   const allDataSources = GeneratorData.useExpressionDataSources();
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
@@ -185,9 +202,9 @@ export function useExpressionResolverProps<T extends CompTypes>(
   // expression) which could be read. Try useIsHidden() or useIsHiddenSelector() if you need to know if a
   // component is hidden.
   const item = useMemo(() => {
-    const { hidden: _hidden, ...rest } = _item;
+    const { hidden: _hidden, ...rest } = rawItem;
     return rest;
-  }, [_item]) as CompIntermediate<T>;
+  }, [rawItem]) as CompIntermediate<T>;
 
   const evalProto = useCallback(
     <T extends ExprVal>(
@@ -196,11 +213,11 @@ export function useExpressionResolverProps<T extends CompTypes>(
       defaultValue: ExprValToActual<T>,
       dataSources?: Partial<ExpressionDataSources>,
     ) => {
-      if (!node) {
+      if (!reference) {
         return defaultValue;
       }
 
-      const errorIntroText = `Invalid expression for component '${node.baseId}'`;
+      const errorIntroText = `Invalid expression for component '${reference.id}'`;
       if (!ExprValidation.isValidOrScalar(expr, type, errorIntroText)) {
         return defaultValue;
       }
@@ -210,9 +227,9 @@ export function useExpressionResolverProps<T extends CompTypes>(
         defaultValue,
       };
 
-      return evalExpr(expr, node, { ...allDataSourcesAsRef.current, ...dataSources }, { config, errorIntroText });
+      return evalExpr(expr, reference, { ...allDataSourcesAsRef.current, ...dataSources }, { config, errorIntroText });
     },
-    [allDataSourcesAsRef, node],
+    [allDataSourcesAsRef, reference],
   );
 
   const evalBool = useCallback<SimpleEval<ExprVal.Boolean>>(

@@ -12,7 +12,7 @@ import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoa
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
@@ -20,23 +20,24 @@ import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
-import { GenericComponent } from 'src/layout/GenericComponent';
+import { getComponentDef } from 'src/layout';
+import { GenericComponentById } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { IPdfFormat } from 'src/features/pdf/types';
+import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { NodeData } from 'src/utils/layout/types';
 
 export const PDFView2 = () => {
   const order = usePageOrder();
   const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
-  const pdfLayoutName = useLayoutSettings().pages.pdfLayoutName;
-  const isHiddenPage = Hidden.useIsHiddenPageSelector();
+  const pdfLayoutName = usePdfLayoutName();
 
   if (pdfFormatIsLoading) {
     return null;
@@ -68,7 +69,6 @@ export const PDFView2 = () => {
             />
           </div>
           {order
-            ?.filter((pageKey) => !isHiddenPage(pageKey))
             .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
             .map((pageKey) => (
               <PdfForPage
@@ -85,12 +85,16 @@ export const PDFView2 = () => {
 };
 
 export function DataLoaderStoreInit({ children }: PropsWithChildren) {
-  const subforms = useNodeTraversal((t) => t.allNodes().filter((node) => node.isType('Subform')));
+  const subformIds = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData)
+      .filter((node) => node.layout.type === 'Subform')
+      .map((node) => node.layout.id),
+  );
 
   const [loadingState, setLoadingState] = React.useState(() => {
     const initialLoadingState: Record<string, DataLoadingState> = {};
-    for (const subform of subforms) {
-      initialLoadingState[subform.id] = DataLoadingState.Loading;
+    for (const subformId of subformIds) {
+      initialLoadingState[subformId] = DataLoadingState.Loading;
     }
 
     return initialLoadingState;
@@ -107,10 +111,10 @@ export function DataLoaderStoreInit({ children }: PropsWithChildren) {
 
   return (
     <>
-      {subforms.map((subform, idx) => (
+      {subformIds.map((subformId, idx) => (
         <DataLoaderStoreInitWorker
           key={idx}
-          node={subform}
+          nodeId={subformId}
           initComplete={handleWorkerCompletion}
         />
       ))}
@@ -120,12 +124,13 @@ export function DataLoaderStoreInit({ children }: PropsWithChildren) {
 }
 
 function DataLoaderStoreInitWorker({
-  node,
+  nodeId,
   initComplete,
 }: PropsWithChildren<{
-  node: LayoutNode<'Subform'>;
+  nodeId: string;
   initComplete: (subformId: string) => void;
 }>): React.JSX.Element | null {
+  const node = useNode(nodeId) as LayoutNode<'Subform'>;
   const { layoutSet } = useNodeItem(node);
   const setDataLoaderElements = useDataLoadingStore((state) => state.setDataElements);
   const dataLoaderElements = useDataLoadingStore((state) => state.dataElements);
@@ -190,10 +195,20 @@ function PdfWrapping({ children }: PropsWithChildren) {
 }
 
 function PlainPage({ pageKey }: { pageKey: string }) {
-  const children = useNodeTraversal((t) => {
-    const page = t.findPage(pageKey);
-    return page ? t.with(page).children() : [];
-  });
+  const pageExists = NodesInternal.useSelector((state) =>
+    Object.values(state.pagesData.pages).some((data) => data.pageKey === pageKey),
+  );
+  const children = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData)
+      .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
+      .map((data) => data.layout.id),
+  );
+
+  if (!pageExists) {
+    const message = `Error using: "pdfLayoutName": ${JSON.stringify(pageKey)}, could not find a layout with that name.`;
+    window.logErrorOnce(message);
+    throw new Error(message);
+  }
 
   return (
     <div className={classes.page}>
@@ -202,10 +217,10 @@ function PlainPage({ pageKey }: { pageKey: string }) {
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((node) => (
-          <GenericComponent
-            key={node.id}
-            node={node}
+        {children.map((nodeId) => (
+          <GenericComponentById
+            key={nodeId}
+            id={nodeId}
           />
         ))}
       </Flex>
@@ -214,21 +229,23 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 }
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
-  const children = useNodeTraversal((t) => {
-    const page = t.findPage(pageKey);
-    return page
-      ? t
-          .with(page)
-          .children()
-          .filter((node) => !node.isType('Subform'))
-          .filter((node) => !isHiddenSelector(node))
-          .filter((node) => !pdfSettings?.excludedComponents.includes(node.id))
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .filter((node) => node.def.shouldRenderInAutomaticPDF(node as any, nodeDataSelector))
-      : [];
-  });
+  const children = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData)
+      .filter(
+        (data) =>
+          data.pageKey === pageKey &&
+          data.parentId === undefined &&
+          data.layout.type !== 'Subform' &&
+          !isHidden(state, 'node', data.layout.id) &&
+          !pdfSettings?.excludedComponents.includes(data.layout.id),
+      )
+      .filter(<T extends CompTypes>(data: NodeData<T>) => {
+        const def = getComponentDef(data.layout.type);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return def.shouldRenderInAutomaticPDF(data as any);
+      })
+      .map((data) => data.layout.id),
+  );
 
   return (
     <div className={classes.page}>
@@ -237,10 +254,10 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((node) => (
+        {children.map((nodeId) => (
           <PdfForNode
-            key={node.id}
-            node={node}
+            key={nodeId}
+            nodeId={nodeId}
           />
         ))}
       </Flex>
@@ -248,8 +265,14 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
   );
 }
 
-function PdfForNode({ node }: { node: LayoutNode }) {
+function PdfForNode({ nodeId }: { nodeId: string }) {
+  const node = useNode(nodeId);
   const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
+
+  if (!node) {
+    return null;
+  }
+
   if (node.isType('Summary2') && target?.taskId) {
     return (
       <SummaryComponent2

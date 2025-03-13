@@ -12,12 +12,9 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import { useNodeTraversal, useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
-import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { ExprConfig, Expression, ExprFunctionName, LayoutReference } from 'src/features/expressions/types';
 
 interface ExpressionResult {
   value: string;
@@ -74,10 +71,11 @@ export const ExpressionPlayground = () => {
   // populating the output history with a fresh value.
   const resetOutputHistory = () => setOutputs([]);
 
-  const traversalSelector = useNodeTraversalSelector();
-
-  const componentOptions = useNodeTraversal((t) =>
-    t.allNodes().map((n) => ({ label: n.id, value: `${n.page.pageKey}|${n.id}` })),
+  const componentOptions = NodesInternal.useMemoSelector((state) =>
+    Object.values(state.nodeData).map((nodeData) => ({
+      label: nodeData.layout.id,
+      value: `${nodeData.pageKey}|${nodeData.layout.id}`,
+    })),
   );
 
   useEffect(() => {
@@ -106,32 +104,14 @@ export const ExpressionPlayground = () => {
 
       ExprValidation.throwIfInvalid(maybeExpression);
 
-      let evalContext: LayoutPage | LayoutNode | undefined = traversalSelector(
-        (t) => t.findPage(currentPageId),
-        [currentPageId],
-      );
-      if (!evalContext) {
-        throw new Error('Fant ikke nåværende side/layout');
-      }
-
+      let evalContext: LayoutReference = currentPageId ? { type: 'page', id: currentPageId } : { type: 'none' };
       if (forPage && forComponentId) {
-        const foundNode = traversalSelector(
-          (t) => {
-            const page = t.findPage(forPage);
-            return page
-              ? t.with(page).children((i) => i.type === 'node' && i.item?.id === forComponentId)[0]
-              : undefined;
-          },
-          [forPage, forComponentId],
-        );
-        if (foundNode) {
-          evalContext = foundNode;
-        }
+        evalContext = { type: 'node', id: forComponentId };
       }
 
       const calls: string[] = [];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const onAfterFunctionCall = (path: string[], func: ExprFunction, args: any[], result: any) => {
+      const onAfterFunctionCall = (path: string[], func: ExprFunctionName, args: any[], result: any) => {
         const indent = '  '.repeat(path.length);
         calls.push(`${indent}${JSON.stringify([func, ...args])} => ${JSON.stringify(result)}`);
       };
@@ -148,18 +128,7 @@ export const ExpressionPlayground = () => {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [
-    input,
-    forPage,
-    forComponentId,
-    dataSources,
-    nodes,
-    showAllSteps,
-    outputs,
-    setOutputWithHistory,
-    currentPageId,
-    traversalSelector,
-  ]);
+  }, [input, forPage, forComponentId, dataSources, nodes, showAllSteps, outputs, setOutputWithHistory, currentPageId]);
 
   return (
     <div className={classes.container}>

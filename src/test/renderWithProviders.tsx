@@ -36,7 +36,7 @@ import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteP
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
-import { LanguageProvider } from 'src/features/language/LanguageProvider';
+import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
@@ -142,6 +142,7 @@ const defaultQueryMocks: AppQueries = {
   fetchLayoutSets: async () => getLayoutSetsMock(),
   fetchOrgs: async () => ({ orgs: getOrgsMock() }),
   fetchUserProfile: async () => getProfileMock(),
+  fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
   fetchParties: async () => [getPartyMock()],
   fetchRefreshJwtToken: async () => ({}),
@@ -152,9 +153,9 @@ const defaultQueryMocks: AppQueries = {
   fetchPdfFormat: async () => ({ excludedPages: [], excludedComponents: [] }),
   fetchDynamics: async () => null,
   fetchRuleHandler: async () => null,
-  fetchTextResources: async () => ({ language: 'nb', resources: getTextResourcesMock() }),
+  fetchTextResources: async (language) => ({ language, resources: getTextResourcesMock() }),
   fetchLayoutSchema: async () => ({}) as JSONSchema7,
-  fetchAppLanguages: async () => [],
+  fetchAppLanguages: async () => [{ language: 'nb' }, { language: 'nn' }, { language: 'en' }],
   fetchProcessNextSteps: async () => [],
   fetchPostPlace: async () => ({ valid: true, result: 'OSLO' }),
   fetchLayoutSettings: async () => ({ pages: { order: [] } }),
@@ -203,6 +204,7 @@ export const makeFormDataMethodProxies = (
     appendToList: makeProxy('appendToList', ref),
     unlock: makeProxy('unlock', ref),
     lock: makeProxy('lock', ref),
+    nextLock: makeProxy('nextLock', ref),
     requestManualSave: makeProxy('requestManualSave', ref),
   };
 
@@ -255,11 +257,11 @@ export function InstanceRouter({
     >
       <Routes>
         <Route
-          path='instance/:partyId/:instanceGuid/:taskId/:pageId'
+          path='instance/:instanceOwnerPartyId/:instanceGuid/:taskId/:pageId'
           element={children}
         />
         <Route
-          path='instance/:partyId/:instanceGuid/:taskId'
+          path='instance/:instanceOwnerPartyId/:instanceGuid/:taskId'
           element={children}
         />
         <Route
@@ -296,6 +298,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                           <OrgsProvider>
                             <ApplicationSettingsProvider>
                               <LayoutSetsProvider>
+                                <SetShouldFetchAppLanguages />
                                 <ProfileProvider>
                                   <PartyProvider>
                                     <TextResourcesProvider>
