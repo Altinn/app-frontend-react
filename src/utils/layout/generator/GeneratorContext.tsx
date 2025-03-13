@@ -81,6 +81,7 @@ export function GeneratorNodeProvider({ children, parent, item }: PropsWithChild
       ...parentCtx,
       parent,
       item,
+      multiPageMapping: undefined,
 
       // Direct mutators and rows are not meant to be inherited, and regular non-repeating nodes do not pass them.
       directMutators: emptyArray,
@@ -126,6 +127,7 @@ export function GeneratorRowProvider({
   groupBinding,
   idMutators,
   recursiveMutators,
+  multiPageMapping,
 }: PropsWithChildren<RowGeneratorProps>) {
   const parent = useCtx();
   const value: GeneratorContext = useMemo(
@@ -137,12 +139,13 @@ export function GeneratorRowProvider({
         binding: groupBinding,
       },
 
+      multiPageMapping,
       idMutators: parent.idMutators ? [...parent.idMutators, ...(idMutators ?? [])] : idMutators,
       recursiveMutators: parent.recursiveMutators
         ? [...parent.recursiveMutators, ...(recursiveMutators ?? [])]
         : recursiveMutators,
     }),
-    [parent, rowIndex, groupBinding, idMutators, recursiveMutators],
+    [parent, rowIndex, groupBinding, multiPageMapping, idMutators, recursiveMutators],
   );
   return <Provider value={value}>{children}</Provider>;
 }
@@ -153,6 +156,7 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
       item: undefined,
       row: undefined,
       depth: 0,
+      multiPageIndex: undefined,
       childrenMap: undefined,
       parent: undefined,
       page: undefined,
