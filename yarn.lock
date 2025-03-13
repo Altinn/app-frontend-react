@@ -2043,16 +2043,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-css@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@digdir/designsystemet-css@npm:1.0.0"
-  checksum: 10c0/99659c2b9165e18d7c43e30742ce6ca6f5999833788af884523175ae37c67ee3ee277177d8845dae0e142aa8826996c367e8a90297c02b51e5fddd01a08ee996
+"@digdir/designsystemet-css@npm:1.0.2":
+  version: 1.0.2
+  resolution: "@digdir/designsystemet-css@npm:1.0.2"
+  checksum: 10c0/5563b3e1034462ff65754b2e42cdc0bae294e71065b04b3ae814cfad15821c82140316b5e163086ca53582a0f15351e1c23a5a5dccd77017607e96e76f3d2d5d
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-react@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@digdir/designsystemet-react@npm:1.0.0"
+"@digdir/designsystemet-react@npm:1.0.2":
+  version: 1.0.2
+  resolution: "@digdir/designsystemet-react@npm:1.0.2"
   dependencies:
     "@floating-ui/dom": "npm:^1.6.10"
     "@floating-ui/react": "npm:0.26.23"
@@ -2066,7 +2066,7 @@ __metadata:
   peerDependencies:
     react: ">=18.3.1 || ^19.0.0"
     react-dom: ">=18.3.1 || ^19.0.0"
-  checksum: 10c0/6af540acc2c63e717b0382ae032d973d20d054d562947c98bfc26229580789acaf8890bad20cb755e00c7df3db4fa93ab4f6d7fb00b6713f23a88a6a834cf329
+  checksum: 10c0/aff11321387b04d1da5e8a0c9db1fafe19d6be1d2d4a530b31e7cf0c52c88c30ec2b2ff56cff7f0a9f7b133d049a3df7cf1b42af0e39f7bac36235c4d61cb371
   languageName: node
   linkType: hard
 
@@ -2077,10 +2077,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-theme@npm:1.0.0":
-  version: 1.0.0
-  resolution: "@digdir/designsystemet-theme@npm:1.0.0"
-  checksum: 10c0/c9e14abbb8c870a1586c50593a652e54f542bf6341afeca7013c7963935ad545606c43ca95460f80d5009078d5310bb7a8b0616036edd5b26eb9d8077e5b6375
+"@digdir/designsystemet-theme@npm:1.0.2":
+  version: 1.0.2
+  resolution: "@digdir/designsystemet-theme@npm:1.0.2"
+  checksum: 10c0/fc02d60ce8a9b0f3ca6115a5c0b04201e049c80b7af1887660bafed898ac4220820d62b8ca5801130bd1137f7f3ad6ac6b60bfefeb0670f53354934fb0dbf331
   languageName: node
   linkType: hard
 
@@ -5459,9 +5459,9 @@ __metadata:
     "@babel/runtime-corejs3": "npm:7.26.9"
     "@date-fns/tz": "npm:1.2.0"
     "@digdir/design-system-react": "npm:0.54.0"
-    "@digdir/designsystemet-css": "npm:1.0.0"
-    "@digdir/designsystemet-react": "npm:1.0.0"
-    "@digdir/designsystemet-theme": "npm:1.0.0"
+    "@digdir/designsystemet-css": "npm:1.0.2"
+    "@digdir/designsystemet-react": "npm:1.0.2"
+    "@digdir/designsystemet-theme": "npm:1.0.2"
     "@eslint/compat": "npm:1.2.7"
     "@faker-js/faker": "npm:9.5.0"
     "@material-ui/core": "npm:4.12.4"
