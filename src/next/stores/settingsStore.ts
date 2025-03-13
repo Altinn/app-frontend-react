@@ -1,7 +1,6 @@
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { getComponentConfigs } from 'src/layout/components.generated';
 import { isInitialState } from 'src/next/types/InitialState/initialStateTypeChecker';
 import type { InitialState } from 'src/next/types/InitialState/InitialState';
 
@@ -21,7 +20,7 @@ const getInitialState = (): InitialState => {
 
   return {
     ...state,
-    componentConfigs: getComponentConfigs(),
+    //componentConfigs: getComponentConfigs(),
   };
 };
 

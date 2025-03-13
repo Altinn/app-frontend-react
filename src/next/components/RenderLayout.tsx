@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { RenderComponent } from 'src/next/components/RenderComponent';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
@@ -54,43 +54,41 @@ function useGlobalIntersectionObserver(options: IntersectionOptions = {}) {
   return { observe, visibleIds };
 }
 
-export const RenderLayout: React.FunctionComponent<RenderLayoutType> = memo(
-  ({ components, parentBinding, itemIndex }) => {
-    const { observe, visibleIds } = useGlobalIntersectionObserver({ once: true });
+export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ components, parentBinding, itemIndex }) => {
+  const { observe, visibleIds } = useGlobalIntersectionObserver({ once: true });
 
-    if (!components) {
-      return null;
-    }
+  if (!components) {
+    return null;
+  }
 
-    return (
-      <div>
-        {components.map((currentComponent, idx) => {
-          const childMapping = currentComponent.dataModelBindings
-            ? currentComponent.dataModelBindings['simpleBinding']
-            : '';
-          const childField = childMapping ? childMapping.replace(parentBinding, '') : undefined;
-          const id = `item-${currentComponent.id}`;
-          const isVisible = visibleIds.has(id);
+  return (
+    <div>
+      {components.map((currentComponent, idx) => {
+        const childMapping = currentComponent.dataModelBindings
+          ? currentComponent.dataModelBindings['simpleBinding']
+          : '';
+        const childField = childMapping ? childMapping.replace(parentBinding, '') : undefined;
+        const id = `item-${currentComponent.id}`;
+        const isVisible = visibleIds.has(id);
 
-          return (
-            <div
-              key={idx}
-              ref={observe}
-              id={id}
-            >
-              {isVisible && (
-                <RenderComponent
-                  component={currentComponent}
-                  parentBinding={parentBinding}
-                  itemIndex={itemIndex}
-                  childField={childField}
-                />
-              )}
-              {!isVisible && <div>Loading...</div>}
-            </div>
-          );
-        })}
-      </div>
-    );
-  },
-);
+        return (
+          <div
+            key={idx}
+            ref={observe}
+            id={id}
+          >
+            {isVisible && (
+              <RenderComponent
+                component={currentComponent}
+                parentBinding={parentBinding}
+                itemIndex={itemIndex}
+                childField={childField}
+              />
+            )}
+            {!isVisible && <div>Loading...</div>}
+          </div>
+        );
+      })}
+    </div>
+  );
+};

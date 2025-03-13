@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useRef } from 'react';
 
 import { Textarea } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
@@ -46,13 +46,6 @@ export const RenderComponent = memo(function RenderComponent({
   itemIndex,
   childField,
 }: RenderComponentType) {
-  // const allComps = getComponentConfigs();
-  //
-  // debugger;
-
-  // @ts-ignore
-  //const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
-
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
   const binding =
     !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
@@ -63,50 +56,7 @@ export const RenderComponent = memo(function RenderComponent({
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
-
-  // useEffect(() => {
-  //   if (!ref.current) {
-  //     return;
-  //   }
-  //
-  //   const node = ref.current;
-  //   const observer = new IntersectionObserver(([entry]) => {
-  //     if (entry.isIntersecting) {
-  //       // Your code that should only run when this item is in view:
-  //       console.log(`RenderComponent ${component.id} is now visible in the viewport`);
-  //
-  //       // If you only want to do this ONCE per component, unobserve here:
-  //       observer.unobserve(node);
-  //     }
-  //   });
-  //
-  //   observer.observe(node);
-  //   return () => {
-  //     observer.disconnect();
-  //   };
-  // }, [component.id]);
-
-  const depenentFields = Array.isArray(component.hidden) ? extractDataModelFields(component.hidden) : [];
-
-  useEffect(() => {
-    // if (component.type === 'TextArea') {
-    //   console.log('component.isHidden');
-    //   console.log(component.isHidden);
-    // }
-
-    if (Array.isArray(component.hidden)) {
-      console.log('we have set tthis');
-      console.log('component.isHidden');
-      console.log(component.hidden);
-      // @ts-ignore
-      const isHidden = component.isHidden !== undefined ? evaluateExpression(component.hidden) : false;
-      console.log('isHidden', isHidden);
-
-      const fields = extractDataModelFields(component.hidden);
-      console.log('fields', fields);
-    }
-  }, [component.isHidden, evaluateExpression]);
+  const dependentFields = Array.isArray(component.hidden) ? extractDataModelFields(component.hidden) : [];
 
   const textResource = useStore(textResourceStore, (state) =>
     component.textResourceBindings && component.textResourceBindings['title'] && state.textResource?.resources
@@ -120,7 +70,7 @@ export const RenderComponent = memo(function RenderComponent({
       ref={ref}
       key={component.id}
     >
-      {depenentFields.length > 0 && <pre>{JSON.stringify(depenentFields, null, 2)}</pre>}
+      {dependentFields.length > 0 && <pre>{JSON.stringify(dependentFields, null, 2)}</pre>}
       {component.type === 'Paragraph' && <p>{textResource?.value}</p>}
 
       {component.type === 'Header' && <h1>{textResource?.value}</h1>}
@@ -180,6 +130,29 @@ export const RenderComponent = memo(function RenderComponent({
         )}
     </div>
   );
+
+  // const allComps = getComponentConfigs();
+  //
+  // debugger;
+
+  // @ts-ignore
+  //const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
+  // const allComps = getComponentConfigs();
+  //
+  // debugger;
+
+  // @ts-ignore
+  //const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
+
+  //const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
+
+  // useEffect(() => {
+  //   if (Array.isArray(component.hidden)) {
+  //     // @ts-ignore
+  //     const isHidden = component.isHidden !== undefined ? evaluateExpression(component.hidden) : false;
+  //     const fields = extractDataModelFields(component.hidden);
+  //   }
+  // }, [component.isHidden, evaluateExpression]);
 
   // if (component.type === 'Paragraph') {
   //   return <p key={component.id}>{textResource?.value}</p>;
