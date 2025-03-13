@@ -8,25 +8,34 @@ export enum DataTypeReference {
   FromTask = 'from-task',
 }
 
-export const filterDisplayAttachments = (
-  data: IData[],
-  excludeDataTypes: string[],
-  excludePdfs = true,
-): IDisplayAttachment[] =>
-  getDisplayAttachments(
-    data.filter((el) => {
-      if (excludePdfs && el.dataType === DataTypeReference.RefDataAsPdf) {
-        return false;
+export const filterDisplayAttachments = ({
+  data,
+  applicationMetadata,
+}: {
+  data: IData[];
+  applicationMetadata: ApplicationMetadata;
+}): IDisplayAttachment[] => {
+  const excludeDataTypes = applicationMetadata.dataTypes
+    .filter((dataType) => {
+      if (dataType.appLogic) {
+        return true;
       }
 
-      return !excludeDataTypes.includes(el.dataType);
-    }),
+      return !!dataType.allowedContributers?.some((it) => it === 'app:owned');
+    })
+    .map((type) => type.id);
+
+  const filteredData = data.filter(
+    (el) => el.dataType !== DataTypeReference.RefDataAsPdf && !excludeDataTypes.includes(el.dataType),
   );
 
-export const filterDisplayPdfAttachments = (data: IData[]) =>
-  getDisplayAttachments(data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf));
+  return toDisplayAttachments(filteredData);
+};
 
-export const getDisplayAttachments = (data: IData[]): IDisplayAttachment[] =>
+export const filterDisplayPdfAttachments = (data: IData[]) =>
+  toDisplayAttachments(data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf));
+
+export const toDisplayAttachments = (data: IData[]): IDisplayAttachment[] =>
   data.map((dataElement: IData) => ({
     name: dataElement.filename,
     url: dataElement.selfLinks?.apps,

@@ -45,12 +45,10 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
 
   const getAttachments = () => {
     if (instance?.data && applicationMetadata) {
-      const appLogicDataTypes = applicationMetadata.dataTypes.filter((dataType) => !!dataType.appLogic);
-
-      return filterDisplayAttachments(
-        instance.data,
-        appLogicDataTypes.map((type) => type.id),
-      );
+      return filterDisplayAttachments({
+        data: instance.data,
+        applicationMetadata,
+      });
     }
   };
 
