@@ -26,9 +26,10 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import {
-  filterDisplayAttachments,
-  filterDisplayPdfAttachments,
   getAttachmentGroupings,
+  getFilteredDisplayAttachments,
+  getRefAsPdfAttachments,
+  toDisplayAttachments,
 } from 'src/utils/attachmentsUtils';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
@@ -162,12 +163,15 @@ export const ReceiptContainer = () => {
   }, [lastChanged]);
 
   const attachments = useMemo(
-    () => (dataElements.length ? filterDisplayAttachments({ data: dataElements, applicationMetadata }) : undefined),
+    () =>
+      dataElements.length
+        ? getFilteredDisplayAttachments({ data: dataElements, appMetadataDataTypes: applicationMetadata.dataTypes })
+        : undefined,
     [applicationMetadata, dataElements],
   );
 
   const pdf = useMemo(
-    () => (dataElements.length ? filterDisplayPdfAttachments(dataElements) : undefined),
+    () => (dataElements.length ? toDisplayAttachments(getRefAsPdfAttachments(dataElements)) : undefined),
     [dataElements],
   );
 

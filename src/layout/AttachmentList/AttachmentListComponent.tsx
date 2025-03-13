@@ -5,7 +5,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { DataTypeReference, filterDisplayPdfAttachments, toDisplayAttachments } from 'src/utils/attachmentsUtils';
+import { DataTypeReference, getRefAsPdfDisplayAttachments, toDisplayAttachments } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataType } from 'src/types/shared';
@@ -24,7 +24,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
     const allowedTypes = new Set(dataTypeIds ?? []);
     const includePdf =
       allowedTypes.has(DataTypeReference.RefDataAsPdf) || allowedTypes.has(DataTypeReference.IncludeAll);
-    const pdfAttachments = includePdf ? filterDisplayPdfAttachments(instanceData) : [];
+    const pdfAttachments = includePdf ? getRefAsPdfDisplayAttachments(instanceData) : [];
 
     // These are the data types that are marked as available in the current task
     const dataTypesInTask = new Set(dataTypes.filter((type) => type.taskId === currentTaskId).map((type) => type.id));

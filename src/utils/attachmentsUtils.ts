@@ -8,40 +8,45 @@ export enum DataTypeReference {
   FromTask = 'from-task',
 }
 
-export const filterDisplayAttachments = ({
-  data,
-  applicationMetadata,
-}: {
+type AttachmentFilterArgs = {
   data: IData[];
-  applicationMetadata: ApplicationMetadata;
-}): IDisplayAttachment[] => {
-  const excludeDataTypes = applicationMetadata.dataTypes
-    .filter((dataType) => {
-      if (dataType.appLogic) {
-        return true;
-      }
-
-      return !!dataType.allowedContributers?.some((it) => it === 'app:owned');
-    })
-    .map((type) => type.id);
-
-  const filteredData = data.filter(
-    (el) => el.dataType !== DataTypeReference.RefDataAsPdf && !excludeDataTypes.includes(el.dataType),
-  );
-
-  return toDisplayAttachments(filteredData);
+  appMetadataDataTypes: IDataType[];
 };
 
-export const filterDisplayPdfAttachments = (data: IData[]) =>
-  toDisplayAttachments(data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf));
+export function getFilteredDisplayAttachments({
+  data,
+  appMetadataDataTypes,
+}: AttachmentFilterArgs): IDisplayAttachment[] {
+  const filteredData = filterAttachments({ data, appMetadataDataTypes });
+  return toDisplayAttachments(filteredData);
+}
 
-export const toDisplayAttachments = (data: IData[]): IDisplayAttachment[] =>
-  data.map((dataElement: IData) => ({
+export const filterAttachments = ({ data, appMetadataDataTypes }: AttachmentFilterArgs): IData[] => {
+  const appLogicDataTypes = appMetadataDataTypes.filter((dataType) => !!dataType.appLogic);
+  const appOwnedDataTypes = appMetadataDataTypes.filter(
+    (dataType) => !!dataType.allowedContributers?.some((it) => it === 'app:owned'),
+  );
+  const excludeDataTypes = [...appLogicDataTypes, ...appOwnedDataTypes].map((dataType) => dataType.id);
+
+  return data.filter((el) => el.dataType !== DataTypeReference.RefDataAsPdf && !excludeDataTypes.includes(el.dataType));
+};
+
+export function getRefAsPdfDisplayAttachments(data: IData[]) {
+  return toDisplayAttachments(getRefAsPdfAttachments(data));
+}
+
+export function getRefAsPdfAttachments(data: IData[]) {
+  return data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf);
+}
+
+export function toDisplayAttachments(data: IData[]): IDisplayAttachment[] {
+  return data.map((dataElement: IData) => ({
     name: dataElement.filename,
     url: dataElement.selfLinks?.apps,
     iconClass: 'reg reg-attachment',
     dataType: dataElement.dataType,
   }));
+}
 
 /**
  * Gets the attachment groupings from a list of attachments.
