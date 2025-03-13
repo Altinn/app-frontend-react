@@ -11,6 +11,7 @@ import { Label } from 'src/app-components/Label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListSummary.module.css';
+import { toTimeZonedDate } from 'src/utils/dateUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SigneeState } from 'src/layout/SigneeList/api';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -81,7 +82,11 @@ export function SigneeListSummary({ componentNode, titleOverride }: SigneeListSu
             <Paragraph className={classes.signeeDescription}>
               <Lang
                 id='signee_list_summary.signed_time'
-                params={[format(new Date(item.signedTime), "dd.MM.yyyy 'kl.' HH:mm", { locale: nb })]}
+                params={[
+                  format(toTimeZonedDate(item.signedTime), "dd.MM.yyyy 'kl.' HH:mm", {
+                    locale: nb,
+                  }),
+                ]}
               />
             </Paragraph>
           </li>

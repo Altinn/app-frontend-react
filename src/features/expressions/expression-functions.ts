@@ -12,7 +12,7 @@ import { SearchParams } from 'src/features/routing/AppRoutingContext';
 import { getComponentDef, implementsDisplayData } from 'src/layout';
 import { buildAuthContext } from 'src/utils/authContext';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
-import { formatDateLocale } from 'src/utils/formatDateLocale';
+import { formatDateLocale } from 'src/utils/dateUtils';
 import { getNodeFormData } from 'src/utils/layout/useNodeItem';
 import type { EvaluateExpressionParams } from 'src/features/expressions';
 import type {
