@@ -56,11 +56,11 @@ function useFormDataSelectorForSubform(dataType: string, subformData: unknown) {
   );
 }
 
-function useLangToolsSelectorForSubform(dataType: string) {
+function useLangToolsSelectorForSubform(dataType: string, subformData: unknown) {
   return useInnerLanguageWithForcedNodeSelector(
     dataType,
-    DataModels.useReadableDataTypes(),
-    FD.useDebouncedSelector(),
+    useDataModelNamesForSubform(dataType),
+    useFormDataSelectorForSubform(dataType, subformData),
     selectorContextNotProvided,
   );
 }
@@ -76,9 +76,9 @@ function useOverriddenDataSourcesForSubform(
   return {
     defaultDataType: () => dataType,
     currentDataModelPath: () => undefined,
-    formDataSelector: () => useFormDataSelectorForSubform(dataType, subformData),
     dataModelNames: () => useDataModelNamesForSubform(dataType),
-    langToolsSelector: () => useLangToolsSelectorForSubform(dataType),
+    formDataSelector: () => useFormDataSelectorForSubform(dataType, subformData),
+    langToolsSelector: () => useLangToolsSelectorForSubform(dataType, subformData),
   };
 }
 
