@@ -1,3 +1,4 @@
+import { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import { filterDisplayAttachments, filterDisplayPdfAttachments } from 'src/utils/attachmentsUtils';
 import type { IData } from 'src/types/shared';
 
@@ -186,7 +187,17 @@ test('filterInstanceAttachments() returns correct attachment array', () => {
   ];
 
   expect(
-    filterDisplayAttachments(instance.data as unknown as IData[], ['585b2f4e-5ecb-417b-9d01-82b6e889e1d1']),
+    filterDisplayAttachments({
+      data: instance.data as unknown as IData[],
+      applicationMetadata: {
+        dataTypes: [
+          {
+            id: '585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
+            appLogic: {},
+          },
+        ],
+      } as unknown as ApplicationMetadata,
+    }),
   ).toEqual(attachmentsTestData);
 });
 

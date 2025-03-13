@@ -161,24 +161,15 @@ export const ReceiptContainer = () => {
     return undefined;
   }, [lastChanged]);
 
-  const attachments = useMemo(() => {
-    if (dataElements.length) {
-      const defaultElementIds = applicationMetadata.dataTypes
-        .filter((dataType) => !!dataType.appLogic)
-        .map((type) => type.id);
+  const attachments = useMemo(
+    () => (dataElements.length ? filterDisplayAttachments({ data: dataElements, applicationMetadata }) : undefined),
+    [applicationMetadata, dataElements],
+  );
 
-      const attachmentsResult = filterDisplayAttachments(dataElements, defaultElementIds);
-      return attachmentsResult || [];
-    }
-    return undefined;
-  }, [applicationMetadata, dataElements]);
-
-  const pdf = useMemo(() => {
-    if (dataElements.length) {
-      return filterDisplayPdfAttachments(dataElements);
-    }
-    return undefined;
-  }, [dataElements]);
+  const pdf = useMemo(
+    () => (dataElements.length ? filterDisplayPdfAttachments(dataElements) : undefined),
+    [dataElements],
+  );
 
   const instanceMetaObject = useMemo(() => {
     if (instanceOrg && instanceOwner && parties && instanceGuid && lastChangedDateTime) {

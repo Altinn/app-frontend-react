@@ -5,7 +5,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { DataTypeReference, filterDisplayPdfAttachments, getDisplayAttachments } from 'src/utils/attachmentsUtils';
+import { DataTypeReference, filterDisplayPdfAttachments, toDisplayAttachments } from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataType } from 'src/types/shared';
@@ -52,7 +52,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
       return allowedTypes.size === 0;
     });
 
-    const otherAttachments = getDisplayAttachments(attachments);
+    const otherAttachments = toDisplayAttachments(attachments);
     return [...pdfAttachments, ...otherAttachments];
   });
 
