@@ -72,7 +72,7 @@ function getDataModelUrl({
   instanceId,
   prefillFromQueryParams,
 }: DataModelDeps & DataModelProps) {
-  if (prefillFromQueryParams && isStateless && !isAnonymous && dataType) {
+  if (prefillFromQueryParams && isStateless && dataType) {
     return getUrlWithLanguage(
       getStatelessDataModelUrlWithPrefill(dataType, includeRowIds, prefillFromQueryParams),
       language,
