@@ -1,17 +1,16 @@
 import React from 'react';
 
-import { Spinner } from '@digdir/designsystemet-react';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useMaybeSaveOnPageChange, useNavigateToPage, usePageOrder } from 'src/features/navigation/useNavigatePage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationBar/NavigationBarComponent.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -55,39 +54,40 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const isMobile = useIsMobile() || compact === true;
   const { langAsString } = useLanguage();
   const currentPageId = useNavigationParam('pageKey') ?? '';
-  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
+  const { mutateAsync: maybeSaveOnPageChange } = useMaybeSaveOnPageChange();
+  const order = usePageOrder();
+  const { mutateAsync: navigateToPage } = useNavigateToPage();
   const onPageNavigationValidation = useOnPageNavigationValidation();
-  const { performProcess, isAnyProcessing, process } = useIsProcessing<string>();
+  const hasLongLivedMutations = useHasLongLivedMutations();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
-  const handleNavigationClick = (pageId: string) =>
-    performProcess(pageId, async () => {
-      const currentIndex = order.indexOf(currentPageId);
-      const newIndex = order.indexOf(pageId);
+  async function handlePageNavigation(pageId: string) {
+    const currentIndex = order.indexOf(currentPageId);
+    const newIndex = order.indexOf(pageId);
 
-      const isForward = newIndex > currentIndex && currentIndex !== -1;
-      const isBackward = newIndex < currentIndex && currentIndex !== -1;
+    const isForward = newIndex > currentIndex && currentIndex !== -1;
+    const isBackward = newIndex < currentIndex && currentIndex !== -1;
 
-      if (pageId === currentPageId || newIndex === -1) {
-        return;
-      }
+    if (pageId === currentPageId || newIndex === -1) {
+      return;
+    }
 
-      await maybeSaveOnPageChange();
+    await maybeSaveOnPageChange();
 
-      if (isForward && validateOnForward && (await onPageNavigationValidation(node.page, validateOnForward))) {
-        // Block navigation if validation fails
-        return;
-      }
+    if (isForward && validateOnForward && (await onPageNavigationValidation(node.page, validateOnForward))) {
+      // Block navigation if validation fails
+      return;
+    }
 
-      if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.page, validateOnBackward))) {
-        // Block navigation if validation fails
-        return;
-      }
+    if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.page, validateOnBackward))) {
+      // Block navigation if validation fails
+      return;
+    }
 
-      setShowMenu(false);
-      navigateToPage(pageId, { skipAutoSave: true });
-    });
+    setShowMenu(false);
+    navigateToPage({ page: pageId, options: { skipAutoSave: true } });
+  }
 
   const shouldShowMenu = !isMobile || showMenu;
 
@@ -151,18 +151,12 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
                   className={classes.containerBase}
                 >
                   <NavigationButton
-                    disabled={isAnyProcessing}
+                    disabled={hasLongLivedMutations}
                     current={currentPageId === pageId}
-                    onClick={() => handleNavigationClick(pageId)}
+                    onClick={() => handlePageNavigation(pageId)}
                     ref={index === 0 ? firstPageLink : null}
                   >
                     <div className={classes.buttonContent}>
-                      {process === pageId && (
-                        <Spinner
-                          className={classes.spinner}
-                          title={langAsString('general.loading')}
-                        />
-                      )}
                       <span>
                         {index + 1}. <Lang id={pageId} />
                       </span>

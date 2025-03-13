@@ -10,7 +10,6 @@ import { Pagination } from 'src/app-components/Pagination/Pagination';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -22,10 +21,11 @@ import {
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { focusMainContent } from 'src/features/navigation/useNavigatePage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
-import { focusMainContent } from 'src/hooks/useNavigatePage';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { ProcessTaskType } from 'src/types';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { getInstanceUiUrl } from 'src/utils/urls/appUrlHelper';
@@ -66,10 +66,18 @@ function InstanceSelection() {
   const { langAsString, language } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
-  const instantiate = useInstantiation().instantiate;
+  const { instantiate, isPendingInstantiation: isInstantiating } = useInstantiation();
   const currentParty = useCurrentParty();
   const storeCallback = useSetNavigationEffect();
-  const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
+
+  const hasLongLivedMutations = useHasLongLivedMutations();
+
+  async function handleInstantiation() {
+    if (currentParty) {
+      storeCallback(focusMainContent);
+      await instantiate(currentParty.partyId);
+    }
+  }
 
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -272,17 +280,10 @@ function InstanceSelection() {
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <Button
-            disabled={isAnyProcessing}
-            isLoading={isLoading}
+            disabled={hasLongLivedMutations}
+            isLoading={isInstantiating}
             size='md'
-            onClick={() =>
-              performProcess(async () => {
-                if (currentParty) {
-                  storeCallback(focusMainContent);
-                  await instantiate(currentParty.partyId);
-                }
-              })
-            }
+            onClick={handleInstantiation}
             id='new-instance-button'
           >
             <Lang id='instance_selection.new_instance' />

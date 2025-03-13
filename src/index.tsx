@@ -8,11 +8,11 @@ import { HelmetProvider } from 'react-helmet-async';
 import { createHashRouter, RouterProvider, ScrollRestoration } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
+import '@digdir/designsystemet-css';
 import 'src/features/baseurlinjection';
-import 'src/features/toggles';
 import 'src/features/logging';
 import 'src/features/styleInjection';
-import '@digdir/designsystemet-css';
+import 'src/features/toggles';
 
 import { AppWrapper } from '@altinn/altinn-design-system';
 
@@ -21,7 +21,6 @@ import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ViewportWrapper } from 'src/components/ViewportWrapper';
 import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
-import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
@@ -41,9 +40,9 @@ import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
 
+import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
-import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
 
 const router = createHashRouter([
   {
@@ -99,9 +98,7 @@ function Root() {
                         <KeepAliveProvider>
                           <HelmetProvider>
                             <TaskStoreProvider>
-                              <ProcessingProvider>
-                                <App />
-                              </ProcessingProvider>
+                              <App />
                             </TaskStoreProvider>
                             <ToastContainer
                               position='top-center'

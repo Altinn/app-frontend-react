@@ -4,13 +4,13 @@ import { Helmet } from 'react-helmet-async';
 import { Button } from 'src/app-components/Button/Button';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useAppOwner } from 'src/core/texts/appTexts';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import {
   filterDisplayAttachments,
   filterDisplayPdfAttachments,
@@ -84,17 +84,17 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
 
 const ConfirmButton = () => {
   const { actions } = useLaxProcessData()?.currentTask || {};
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const { processNext, isPending: isThisProcessing } = useProcessNext();
+  const hasLongLivedMutations = useHasLongLivedMutations();
 
-  const disabled = !actions?.confirm || isAnyProcessing;
+  const disabled = !actions?.confirm || hasLongLivedMutations;
 
   return (
     <div style={{ marginTop: 'var(--button-margin-top)' }}>
       <Button
         id='confirm-button'
         isLoading={isThisProcessing}
-        onClick={() => performProcess(() => processNext({ action: 'confirm' }))}
+        onClick={() => processNext({ action: 'confirm' })}
         disabled={disabled}
         color='success'
       >

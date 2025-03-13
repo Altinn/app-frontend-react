@@ -3,8 +3,8 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { Hidden } from 'src/utils/layout/NodesContext';
+import type { NavigateToPageOptions } from 'src/features/navigation/useNavigatePage';
 import type { NodeRefValidation } from 'src/features/validation';
-import type { NavigateToPageOptions } from 'src/hooks/useNavigatePage';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type NavigationHandler = (node: LayoutNode, options: NavigateToNodeOptions | undefined) => Promise<boolean>;

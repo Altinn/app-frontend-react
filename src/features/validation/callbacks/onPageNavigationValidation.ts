@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 
+import { usePageOrder } from 'src/features/navigation/useNavigatePage';
 import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { PageValidation } from 'src/layout/common.generated';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';

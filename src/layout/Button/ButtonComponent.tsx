@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
 import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
@@ -9,6 +8,7 @@ import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
+import { useHasLongLivedMutations } from 'src/hooks/useHasLongLivedMutations';
 import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -31,8 +31,9 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const currentTaskType = useTaskTypeFromBackend();
   const { actions, write } = useLaxProcessData()?.currentTask || {};
   const attachmentsPending = useHasPendingAttachments();
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const { processNext, isPending: isThisProcessing } = useProcessNext();
+  const hasLongLivedMutations = useHasLongLivedMutations();
+
   const setReturnToView = useSetReturnToView();
 
   if (useIsSubformPage()) {
@@ -40,7 +41,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   }
 
   const disabled =
-    isAnyProcessing ||
+    hasLongLivedMutations ||
     attachmentsPending ||
     (currentTaskType === ProcessTaskType.Data && !write) ||
     (currentTaskType === ProcessTaskType.Confirm && !actions?.confirm);
@@ -62,15 +63,14 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
     );
   }
 
-  const submitTask = () =>
-    performProcess(async () => {
-      setReturnToView?.(undefined);
-      if (currentTaskType === ProcessTaskType.Data) {
-        await processNext();
-      } else if (currentTaskType === ProcessTaskType.Confirm) {
-        await processNext({ action: 'confirm' });
-      }
-    });
+  async function submitTask() {
+    setReturnToView?.(undefined);
+    if (currentTaskType === ProcessTaskType.Data) {
+      await processNext();
+    } else if (currentTaskType === ProcessTaskType.Confirm) {
+      await processNext({ action: 'confirm' });
+    }
+  }
 
   return (
     <ComponentStructureWrapper node={node}>

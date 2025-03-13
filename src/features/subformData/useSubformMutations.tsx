@@ -11,6 +11,11 @@ import {
 } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 
+export const subformMutationKeys = {
+  all: () => ['subform'] as const,
+  add: (dataType: string) => [...subformMutationKeys.all(), 'add', dataType] as const,
+};
+
 export const useAddEntryMutation = (dataType: string) => {
   const instanceId = useStrictInstanceId();
   const appendDataElements = useStrictAppendDataElements();
@@ -18,7 +23,7 @@ export const useAddEntryMutation = (dataType: string) => {
   const { doSubformEntryAdd } = useAppMutations();
 
   return useMutation({
-    mutationKey: ['addSubform', dataType],
+    mutationKey: subformMutationKeys.add(dataType),
     mutationFn: async (data: unknown) => await doSubformEntryAdd(instanceId, dataType, data),
     onSuccess: (reply) => appendDataElements([reply]),
     onError: (error) => {

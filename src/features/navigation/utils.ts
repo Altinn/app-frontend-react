@@ -3,8 +3,8 @@ import { useMemo } from 'react';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
+import { useVisitedPages } from 'src/features/navigation/useNavigatePage';
 import { ValidationMask } from 'src/features/validation';
-import { useVisitedPages } from 'src/hooks/useNavigatePage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type {
   NavigationPageGroup,

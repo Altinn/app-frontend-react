@@ -11,7 +11,7 @@ import { NodeInspectorContextProvider } from 'src/features/devtools/components/N
 import { ValidationInspector } from 'src/features/devtools/components/NodeInspector/ValidationInspector';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import { useCurrentView } from 'src/hooks/useNavigatePage';
+import { useCurrentView } from 'src/features/navigation/useNavigatePage';
 import { implementsAnyValidation } from 'src/layout';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 
