@@ -11,11 +11,7 @@ import {
 } from 'src/features/expressions/errors';
 import { ExprFunctionDefinitions, ExprFunctionImplementations } from 'src/features/expressions/expression-functions';
 import { ExprVal } from 'src/features/expressions/types';
-import {
-  type ExpressionDataSources,
-  type ExpressionDataSourcesWithNodes,
-  isExpressionDataSourcesWithNodes,
-} from 'src/utils/layout/useExpressionDataSources';
+import { type ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type {
   ExprConfig,
   ExprDate,
@@ -47,21 +43,16 @@ export type SimpleEval<T extends ExprVal> = (
   dataSources?: Partial<ExpressionDataSources>,
 ) => ExprValToActual<T>;
 
-export type EvaluateExpressionParams<D extends ExpressionDataSources = ExpressionDataSources> = {
+type Source = keyof ExpressionDataSources;
+export type EvaluateExpressionParams<DataSources extends readonly Source[] = Source[]> = {
   expr: Expression;
   path: string[];
   callbacks: { onBeforeFunctionCall?: BeforeFuncCallback; onAfterFunctionCall?: AfterFuncCallback };
   reference: LayoutReference;
-  dataSources: D;
+  dataSources: Pick<ExpressionDataSources, DataSources[number]>;
   positionalArguments?: ExprPositionalArgs;
   valueArguments?: ExprValueArgs;
 };
-
-export function expressionParamsHasNodeContext(
-  params: EvaluateExpressionParams,
-): params is EvaluateExpressionParams<ExpressionDataSourcesWithNodes> {
-  return isExpressionDataSourcesWithNodes(params.dataSources);
-}
 
 /**
  * Simple (non-validating) check to make sure an input is an expression.
@@ -219,7 +210,7 @@ function valueToExprValueType(value: unknown): ExprVal {
 export function exprCastValue<T extends ExprVal>(
   value: unknown,
   toType: T | undefined,
-  context: EvaluateExpressionParams,
+  context: EvaluateExpressionParams<[]>,
 ): ExprValToActual<T> | null {
   if (!toType || !(toType in ExprTypes)) {
     throw new UnknownTargetType(context.expr, context.path, toType ? toType : typeof toType);

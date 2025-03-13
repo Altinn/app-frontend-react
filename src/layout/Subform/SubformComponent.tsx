@@ -20,7 +20,7 @@ import { useComponentValidationsForNode } from 'src/features/validation/selector
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
-import { useSubformDataSources } from 'src/layout/Subform/utils';
+import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
@@ -191,8 +191,8 @@ function SubformTableRow({
 }) {
   const id = dataElement.id;
   const { tableColumns = [] } = useNodeItem(node);
-  const { isSubformDataFetching, subformData, subformDataSources, subformDataError } =
-    useSubformDataSources(dataElement);
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);

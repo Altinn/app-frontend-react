@@ -12,7 +12,11 @@ import classes from 'src/features/navigation/components/SubformsForPage.module.c
 import { useNavigate, useNavigationParams } from 'src/features/routing/AppRoutingContext';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
-import { getSubformEntryDisplayName, useSubformDataSources } from 'src/layout/Subform/utils';
+import {
+  getSubformEntryDisplayName,
+  useExpressionDataSourcesForSubform,
+  useSubformFormData,
+} from 'src/layout/Subform/utils';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -114,7 +118,8 @@ function SubformLink({
   const { isAnyProcessing: disabled } = useIsProcessing();
   const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
   const navigate = useNavigate();
-  const { subformDataSources, isSubformDataFetching, subformDataError } = useSubformDataSources(dataElement);
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, entryDisplayName);
 
   const subformEntryName =
     !isSubformDataFetching && !subformDataError

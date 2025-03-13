@@ -18,7 +18,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes1 from 'src/layout/Subform/SubformComponent.module.css';
 import classes2 from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
-import { useSubformDataSources } from 'src/layout/Subform/utils';
+import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ISubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
@@ -39,10 +39,12 @@ function SubformTableRow({
   pdfModeActive: boolean;
 }) {
   const id = dataElement.id;
-  const { tableColumns = [] } = useNodeItem(targetNode);
+  const { tableColumns } = useNodeItem(targetNode);
   const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
-  const { isSubformDataFetching, subformData, subformDataSources, subformDataError } =
-    useSubformDataSources(dataElement);
+
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
+
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
 

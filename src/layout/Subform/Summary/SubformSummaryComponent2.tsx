@@ -12,7 +12,11 @@ import { Lang } from 'src/features/language/Lang';
 import { useDoOverrideSummary } from 'src/layout/Subform/SubformWrapper';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
 import { SubformSummaryTable } from 'src/layout/Subform/Summary/SubformSummaryTable';
-import { getSubformEntryDisplayName, useSubformDataSources } from 'src/layout/Subform/utils';
+import {
+  getSubformEntryDisplayName,
+  useExpressionDataSourcesForSubform,
+  useSubformFormData,
+} from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -78,7 +82,8 @@ const DoSummaryWrapper = ({
 }>) => {
   const isDone = useDoOverrideSummary(dataElement.id, layoutSet, dataElement.dataType);
 
-  const { subformDataSources, isSubformDataFetching, subformDataError } = useSubformDataSources(dataElement);
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, entryDisplayName);
 
   if (!isDone || isSubformDataFetching) {
     return null;

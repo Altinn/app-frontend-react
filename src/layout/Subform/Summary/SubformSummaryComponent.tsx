@@ -9,7 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent.module.css';
-import { useSubformDataSources } from 'src/layout/Subform/utils';
+import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -47,9 +47,11 @@ export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent
 
 function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'Subform'> }) {
   const id = dataElement.id;
-  const { tableColumns = [], summaryDelimiter = ' — ' } = useNodeItem(node);
-  const { isSubformDataFetching, subformData, subformDataSources, subformDataError } =
-    useSubformDataSources(dataElement);
+  const { tableColumns, summaryDelimiter = ' — ' } = useNodeItem(node);
+
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
+
   const { langAsString } = useLanguage();
 
   if (isSubformDataFetching) {

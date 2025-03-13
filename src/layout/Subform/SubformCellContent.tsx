@@ -8,7 +8,7 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { Lang } from 'src/features/language/Lang';
 import type { ExprConfig, ExprValToActualOrExpr, NodeReference } from 'src/features/expressions/types';
 import type { ISubformCellContent } from 'src/layout/Subform/config.generated';
-import type { ExpressionDataSourcesWithoutNodes } from 'src/utils/layout/useExpressionDataSources';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 interface DataQueryParams {
   data: unknown;
@@ -25,7 +25,7 @@ function DataQueryWithDefaultValue({ data, query, defaultValue }: DataQueryParam
 }
 
 interface DataValueParams {
-  dataSources: ExpressionDataSourcesWithoutNodes;
+  dataSources: ExpressionDataSources;
   reference: NodeReference;
   value: ExprValToActualOrExpr<ExprVal.String>;
   defaultValue?: string;
@@ -52,7 +52,7 @@ type SubformCellContentProps = {
   cellContent: ISubformCellContent;
   reference: NodeReference;
   data: unknown;
-  dataSources: ExpressionDataSourcesWithoutNodes;
+  dataSources: ExpressionDataSources;
 };
 
 export function SubformCellContent({ cellContent, reference, dataSources, data }: SubformCellContentProps) {
