@@ -41,7 +41,7 @@ interface Layouts {
   setPageOrder: (order: PageOrderDTO) => void;
   setLayouts: (layouts: ILayoutCollection) => void;
   setDataObject: (data: DataObject) => void;
-  setDataValue: (key: string, value: string) => void;
+  setDataValue: (key: string, value: string | boolean) => void;
   updateResolvedLayouts: () => void;
   evaluateExpression: (expr: Expression) => any;
 }

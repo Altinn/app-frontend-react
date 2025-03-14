@@ -1,12 +1,13 @@
-import React, { memo, useRef } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 
-import { Textarea } from '@digdir/designsystemet-react';
+import { Alert, Radio, Textarea } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
 import { useStore } from 'zustand';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/GenericComponent.module.css';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
@@ -18,6 +19,10 @@ interface RenderComponentType {
   parentBinding?: string;
   itemIndex?: number;
   childField?: string;
+}
+
+function parseBoolean(value: string): boolean {
+  return ['true', '1'].includes(value.toLowerCase());
 }
 
 export function extractDataModelFields(expression: any[]): string[] {
@@ -47,6 +52,9 @@ export const RenderComponent = memo(function RenderComponent({
   childField,
 }: RenderComponentType) {
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
+
+  const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
+
   const binding =
     !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
       ? component.dataModelBindings['simpleBinding']
@@ -58,6 +66,8 @@ export const RenderComponent = memo(function RenderComponent({
 
   const dependentFields = Array.isArray(component.hidden) ? extractDataModelFields(component.hidden) : [];
 
+  const [isHidden, setIsHidden] = useState(false);
+
   const textResource = useStore(textResourceStore, (state) =>
     component.textResourceBindings && component.textResourceBindings['title'] && state.textResource?.resources
       ? // @ts-ignore
@@ -65,12 +75,35 @@ export const RenderComponent = memo(function RenderComponent({
       : undefined,
   );
 
+  useEffect(() => {
+    layoutStore.subscribe(
+      (state) => dependentFields.map((path) => dot.pick(path, state.data)),
+      () => {
+        if (Array.isArray(component.hidden)) {
+          // @ts-ignore
+          const isHidden = evaluateExpression(component.hidden);
+          setIsHidden(isHidden);
+        }
+      },
+    );
+  }, [component.hidden, dependentFields, evaluateExpression]);
+
+  if (isHidden) {
+    return <h1>Im hidden!! {component.id}</h1>;
+  }
+
   return (
     <div
       ref={ref}
       key={component.id}
     >
-      {dependentFields.length > 0 && <pre>{JSON.stringify(dependentFields, null, 2)}</pre>}
+      {/*<pre>{JSON.stringify(values, null, 2)}</pre>*/}
+
+      {dependentFields.length > 0 && (
+        <div>
+          dependentFields <pre>{JSON.stringify(dependentFields, null, 2)}</pre>
+        </div>
+      )}
       {component.type === 'Paragraph' && <p>{textResource?.value}</p>}
 
       {component.type === 'Header' && <h1>{textResource?.value}</h1>}
@@ -117,7 +150,27 @@ export const RenderComponent = memo(function RenderComponent({
 
       {component.type === 'RepeatingGroup' && <RepeatingGroupNext component={component} />}
 
-      {component.type === 'Alert' && <div>Alert</div>}
+      {component.type === 'Alert' && <div>{textResource?.value}</div>}
+
+      {component.type === 'RadioButtons' && (
+        <Radio.Group
+          legend='temp'
+          role='radiogroup'
+        >
+          {component.options?.map((option, idx) => (
+            <Radio
+              value={`${option.value}`}
+              description={option.description && <Lang id={option.description} />}
+              key={idx}
+              onChange={(event) => {
+                setDataValue(binding, parseBoolean(event.target.value));
+              }}
+            />
+          ))}
+        </Radio.Group>
+      )}
+
+      {component.type === 'Alert' && <Alert>You are using the Alert component!</Alert>}
 
       {/* Fallback for unknown types */}
       {component.type !== 'Paragraph' &&

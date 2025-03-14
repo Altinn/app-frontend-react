@@ -26,9 +26,7 @@ export const Page = () => {
     throw new Error(`could not find layout: ${currentPage}`);
   }
   const currentPageLayout =
-    resolvedLayouts && resolvedLayouts[pageId] && resolvedLayouts[pageId].data && resolvedLayouts[pageId].data.layout
-      ? resolvedLayouts[pageId].data.layout
-      : undefined;
+    currentPage.data && currentPage.data.layout ? resolvedLayouts[pageId].data.layout : undefined;
 
   if (!currentPageLayout) {
     return null;

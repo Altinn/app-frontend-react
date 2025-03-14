@@ -29,7 +29,8 @@ export async function initialLoader() {
     throw new Error('No valid parties');
   }
 
-  const res = await API_CLIENT.org.activeDetail(ORG, APP, currentParty.partyId); //fetch('/api/users');
+  const res = await API_CLIENT.org.activeDetail(ORG, APP, currentParty.partyId);
+
   const instances = await res.json();
   let instanceId = '';
 
