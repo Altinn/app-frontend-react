@@ -385,7 +385,7 @@ describe('navigation', () => {
     // the error report causes the next-button to unmount before
     // saving finishes. This unmounts the waitForState hook so the promise
     // is never resolved and the callback is never completed.
-    // Make sure waitForState rejects pending promises on unmount.
+    // Make sure this does not lead to everything staying disabled.
     cy.findByRole('textbox', { name: /Fødselsdag/ }).type('1234');
     cy.findByRole('button', { name: 'Neste' }).click();
     cy.get(appFrontend.errorReport).should('be.visible');
