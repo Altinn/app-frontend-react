@@ -135,10 +135,7 @@ dl {
 }
 
 /* Workaround: The above style affects DropdownMenu from the design system */
-ul.fds-dropdownmenu {
-  padding: 8px;
-}
-ul.fds-dropdownmenu__section {
+.ds-dropdown ul {
   padding: 0;
 }
 
