@@ -118,7 +118,7 @@ export function useExpressionDataSources(toEvaluate: unknown, overrides?: DataSo
     for (const functionName of functionCalls) {
       const definition = ExprFunctionDefinitions[functionName];
       for (const need of definition.needs) {
-        if (unsupportedDataSources && need in unsupportedDataSources) {
+        if (unsupportedDataSources && unsupportedDataSources.has(need)) {
           const message = `Expression: "${functionName}" is not supported in ${errorSuffix ? errorSuffix : 'this context'}.`;
           window.logErrorOnce(message);
           throw new Error(message);
