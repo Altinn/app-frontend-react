@@ -63,7 +63,6 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
           <Fieldset
             className={classes.checkboxGroup}
             aria-label={ariaLabel}
-            data-testid='checkboxes-fieldset'
           >
             {overrideDisplay?.renderLegend !== false && <Fieldset.Legend>{labelTextGroup}</Fieldset.Legend>}
             {textResourceBindings?.description && (
@@ -73,7 +72,14 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
             )}
             <ConditionalWrapper
               condition={horizontal}
-              wrapper={(children) => <div className={classes.horizontal}>{children}</div>}
+              wrapper={(children) => (
+                <div
+                  data-testid='horizontalWrapper'
+                  className={classes.horizontal}
+                >
+                  {children}
+                </div>
+              )}
             >
               {calculatedOptions.map((option) => (
                 <WrappedCheckbox

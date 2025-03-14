@@ -10,6 +10,7 @@ import classes from 'src/app-components/Label/Label.module.css';
 import type { IGridStyling } from 'src/layout/common.generated';
 
 type LabelProps = {
+  id?: string;
   label: string | ReactElement | undefined;
   htmlFor?: DesignsystemetLabelProps['htmlFor'];
   required?: boolean;
@@ -23,6 +24,7 @@ type LabelProps = {
 };
 
 export function Label({
+  id,
   label,
   htmlFor,
   required,
@@ -52,6 +54,7 @@ export function Label({
         <span className={classes.labelAndDescWrapper}>
           <span className={classes.labelAndHelpWrapper}>
             <DesignsystemetLabel
+              id={id}
               weight='medium'
               data-size='md'
               htmlFor={htmlFor}

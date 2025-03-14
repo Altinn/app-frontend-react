@@ -514,7 +514,7 @@ describe('UI Components', () => {
     cy.goto('changename');
     cy.gotoNavPage('grid');
     // dialog pops up when unchecking a checkbox
-    cy.get('[data-testid="checkboxes-fieldset"]').find('label').contains('Ja').dblclick();
+    cy.findByRole('checkbox', { name: /Ja/ }).dblclick();
     //Make sure that the alert popover for only one checkbox is displayed, if several dialogs are displayed, the test will fail
     cy.findByRole('dialog');
   });
