@@ -39,7 +39,6 @@ type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
  *  const myImageComponent:CompExternal<'Image'> = ...
  *
  * @see CompInternal
- * @see REMOVELayoutNode
  */
 export type CompExternal<Type extends CompTypes = CompTypes> = Extract<AllComponents, { type: Type }>;
 
