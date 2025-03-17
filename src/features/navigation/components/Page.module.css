@@ -36,8 +36,10 @@
   text-align: left;
 
   border-radius: var(--fds-border_radius-interactive);
+  hyphens: auto;
+  overflow-wrap: anywhere; /* Capitalized words will not get hyphenated for some reason, so this is needed as a fallback */
   padding: 2px 6px;
-  margin: -2px;
+  margin: -2px -6px -2px -2px;
 }
 
 .page-button:disabled {
