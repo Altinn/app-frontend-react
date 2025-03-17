@@ -1,5 +1,6 @@
 import dot from 'dot-object';
 import { createSelector } from 'reselect';
+import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
@@ -49,6 +50,8 @@ interface MegaStore extends InitialState {
   setLayouts: (layouts: ILayoutCollection) => void;
   setDataObject: (data: DataObject) => void;
   setDataValue: (key: string, value: string | boolean) => void;
+  addRow: (path: string) => void;
+  removeRow: (path: string, index: number) => void;
   updateResolvedLayouts: () => void;
   evaluateExpression: (expr: Expression) => any;
   setApplicationMetadata: (metadata: ApplicationMetadata) => void;
@@ -218,6 +221,36 @@ export const megaStore = createStore<MegaStore>()(
 
             dot.set(dataKeyToUpdate, newValue, state.data);
 
+            return { data: { ...state.data } };
+          });
+        },
+        addRow: (path) => {
+          set((state) => {
+            if (!state.data) {
+              throw new Error('no data object');
+            }
+
+            const currentVal = dot.pick(path, state.data);
+            if (!Array.isArray(currentVal)) {
+              throw new Error('not an array');
+            }
+
+            currentVal.push({ altinnRowId: uuidv4() });
+            return { data: { ...state.data } };
+          });
+        },
+        removeRow: (path, index) => {
+          set((state) => {
+            if (!state.data) {
+              throw new Error('no data object');
+            }
+
+            const currentVal = dot.pick(path, state.data);
+            if (!Array.isArray(currentVal)) {
+              throw new Error('not an array');
+            }
+
+            currentVal.splice(index, 1);
             return { data: { ...state.data } };
           });
         },

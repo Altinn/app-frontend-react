@@ -12,12 +12,10 @@ interface RepeatingGroupNextType {
 }
 
 export const RepeatingGroupNext: React.FunctionComponent<RepeatingGroupNextType> = ({ component }) => {
+  const addRow = megaStore.getState().addRow;
+  const groupBinding = component.dataModelBindings && component.dataModelBindings['group'];
   const numRows = useStore(megaStore, (state) => {
-    const maybeArray =
-      component.dataModelBindings && component.dataModelBindings['group']
-        ? dot.pick(component.dataModelBindings['group'], state.data)
-        : undefined;
-
+    const maybeArray = groupBinding ? dot.pick(groupBinding, state.data) : undefined;
     if (Array.isArray(maybeArray)) {
       return maybeArray.length;
     }
@@ -29,21 +27,22 @@ export const RepeatingGroupNext: React.FunctionComponent<RepeatingGroupNextType>
     return null;
   }
 
-  const parentBinding =
-    component.dataModelBindings && component.dataModelBindings['group']
-      ? component.dataModelBindings['group']
-      : undefined;
-
   return (
     <div style={{ backgroundColor: 'lightblue' }}>
       {Array.from({ length: numRows }, (_, idx) => (
         <RenderSubLayout
           key={idx}
           components={component.children}
-          parentBinding={parentBinding}
+          parentBinding={groupBinding}
           itemIndex={idx}
         />
       ))}
+      <button
+        onClick={() => addRow(groupBinding)}
+        style={{ display: 'block', margin: 'auto', marginTop: '1rem', width: '100%', padding: '1rem' }}
+      >
+        Legg til ny
+      </button>
     </div>
   );
 };
