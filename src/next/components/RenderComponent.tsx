@@ -1,4 +1,5 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { Alert, Radio, Textarea } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
@@ -58,6 +59,17 @@ function useTextResource(bindingsOrId: unknown, key?: string) {
 }
 
 function RenderComponentInner({ id, component, parentBinding, itemIndex, childField, setHeight }: RenderComponentType) {
+  const currentPage = useParams().pageId ?? '';
+  const prevPage = useStore(layoutStore, (state) => {
+    const currentIndex = state.pageOrder.pages.order.findIndex((page) => page === currentPage);
+    return state.pageOrder.pages.order[currentIndex - 1];
+  });
+  const nextPage = useStore(layoutStore, (state) => {
+    const currentIndex = state.pageOrder.pages.order.findIndex((page) => page === currentPage);
+    return state.pageOrder.pages.order[currentIndex + 1];
+  });
+  const allPages = useStore(layoutStore, (state) => state.pageOrder.pages.order);
+
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
 
   const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
@@ -109,7 +121,7 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
 
       {dependentFields.length > 0 && (
         <div>
-          dependentFields <pre>{JSON.stringify(dependentFields, null, 2)}</pre>
+          dependentFields for {component.id} ({component.type}): <pre>{JSON.stringify(dependentFields, null, 2)}</pre>
         </div>
       )}
       {component.type === 'Paragraph' && <p>{title}</p>}
@@ -158,8 +170,6 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
 
       {component.type === 'RepeatingGroup' && <RepeatingGroupNext component={component} />}
 
-      {component.type === 'Alert' && <div>{title}</div>}
-
       {component.type === 'RadioButtons' && (
         <Radio.Group
           legend={title}
@@ -185,14 +195,47 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
         </Radio.Group>
       )}
 
-      {component.type === 'Alert' && <Alert>You are using the Alert component!</Alert>}
+      {component.type === 'NavigationBar' && (
+        <div style={{ display: 'flex', gap: '5px' }}>
+          {allPages.map((page) => (
+            <button
+              key={page}
+              onClick={() => (window.location.hash = window.location.hash.replace(currentPage, page))}
+              style={{ backgroundColor: page === currentPage ? 'lightblue' : 'white' }}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {component.type === 'NavigationButtons' && (
+        <div>
+          {prevPage && (
+            <button onClick={() => (window.location.hash = window.location.hash.replace(currentPage, prevPage))}>
+              Forrige
+            </button>
+          )}
+          {nextPage && (
+            <button onClick={() => (window.location.href = window.location.href.replace(currentPage, nextPage))}>
+              Neste
+            </button>
+          )}
+        </div>
+      )}
+
+      {component.type === 'Alert' && <Alert>{title}</Alert>}
 
       {/* Fallback for unknown types */}
       {component.type !== 'Paragraph' &&
         component.type !== 'Header' &&
         component.type !== 'Input' &&
         component.type !== 'RepeatingGroup' &&
-        component.type !== 'NavigationButtons' && (
+        component.type !== 'TextArea' &&
+        component.type !== 'Alert' &&
+        component.type !== 'RadioButtons' &&
+        component.type !== 'NavigationButtons' &&
+        component.type !== 'NavigationBar' && (
           <div>
             {component.id} type: {component.type}
           </div>
