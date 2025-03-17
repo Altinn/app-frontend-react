@@ -102,7 +102,10 @@ export const ProcessWrapper = () => {
 
   if (!isValidTaskId(taskIdParam)) {
     return (
-      <PresentationComponent type={ProcessTaskType.Unknown}>
+      <PresentationComponent
+        type={ProcessTaskType.Unknown}
+        showNavigation={false}
+      >
         <NavigationError label='general.invalid_task_id' />
       </PresentationComponent>
     );
@@ -110,7 +113,10 @@ export const ProcessWrapper = () => {
 
   if (!isCurrentTask) {
     return (
-      <PresentationComponent type={ProcessTaskType.Unknown}>
+      <PresentationComponent
+        type={ProcessTaskType.Unknown}
+        showNavigation={false}
+      >
         <NavigationError label='general.part_of_form_completed' />
       </PresentationComponent>
     );
@@ -173,7 +179,7 @@ export const ComponentRouting = () => {
   }
 
   function isSubroutingNode(node: LayoutNode): node is LayoutNode<'Subform'> {
-    return node.type === 'Subform' && !!node.def.subRouting;
+    return node.isType('Subform') && !!node.def.subRouting;
   }
 
   if (isSubroutingNode(node)) {

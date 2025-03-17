@@ -10,7 +10,7 @@ import { getKeyWithoutIndex } from 'src/utils/databindings';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { Expression, ExprValueArgs, NodeReference } from 'src/features/expressions/types';
-import type { IDataModelReference, ILayoutSet } from 'src/layout/common.generated';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export function ExpressionValidation() {
@@ -37,7 +37,7 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
   const formData = FD.useDebounced(dataType);
   const expressionValidationConfig = DataModels.useExpressionValidationConfig(dataType);
-  const dataSources = useExpressionDataSources();
+  const dataSources = useExpressionDataSources(expressionValidationConfig);
   const dataElementId = DataModels.useDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
   const allBindings = NodesInternal.useMemoSelector((state) => {
     const out: NodeWithBindings[] = [];
@@ -60,16 +60,9 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
 
       for (const { nodeReference, dmb } of allBindings) {
         // Modify the hierarchy data sources to make the current dataModel the default one when running expression validations
-        const currentLayoutSet = dataSources.currentLayoutSet;
-        const modifiedCurrentLayoutSet: ILayoutSet | null = currentLayoutSet
-          ? {
-              ...currentLayoutSet,
-              dataType,
-            }
-          : null;
         const modifiedDataSources: ExpressionDataSources = {
           ...dataSources,
-          currentLayoutSet: modifiedCurrentLayoutSet,
+          defaultDataType: dataType,
         };
 
         for (const reference of Object.values(dmb as Record<string, IDataModelReference>)) {

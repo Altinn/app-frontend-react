@@ -91,7 +91,10 @@ export const getSummaryDataObject = ({
 
 export function DefaultReceipt() {
   return (
-    <PresentationComponent type={ProcessTaskType.Archived}>
+    <PresentationComponent
+      type={ProcessTaskType.Archived}
+      showNavigation={false}
+    >
       <ReceiptContainer />
     </PresentationComponent>
   );
@@ -108,7 +111,10 @@ export function CustomReceipt() {
       'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
     );
     return (
-      <PresentationComponent type={ProcessTaskType.Archived}>
+      <PresentationComponent
+        type={ProcessTaskType.Archived}
+        showNavigation={false}
+      >
         <ReceiptContainer />
       </PresentationComponent>
     );
@@ -120,7 +126,10 @@ export function CustomReceipt() {
         <Route
           path=':pageKey/:componentId/*'
           element={
-            <PresentationComponent type={ProcessTaskType.Archived}>
+            <PresentationComponent
+              type={ProcessTaskType.Archived}
+              showNavigation={false}
+            >
               <ComponentRouting />
             </PresentationComponent>
           }
@@ -129,7 +138,10 @@ export function CustomReceipt() {
           path='*'
           element={
             <PDFWrapper>
-              <PresentationComponent type={ProcessTaskType.Archived}>
+              <PresentationComponent
+                type={ProcessTaskType.Archived}
+                showNavigation={false}
+              >
                 <Form />
               </PresentationComponent>
             </PDFWrapper>
