@@ -4,9 +4,7 @@ import { Navigate, Outlet, useLoaderData, useParams } from 'react-router-dom';
 import { useStore } from 'zustand/index';
 
 import { API_CLIENT, APP, ORG } from 'src/next/app/App';
-import { layoutStore } from 'src/next/stores/layoutStore';
-import { initialStateStore } from 'src/next/stores/settingsStore';
-import { textResourceStore } from 'src/next/stores/textResourceStore';
+import { megaStore } from 'src/next/stores/megaStore';
 
 // @ts-ignore
 const xsrfCookie = document.cookie
@@ -20,9 +18,7 @@ export interface LoaderData {
 }
 
 export async function initialLoader() {
-  const { user, validParties } = initialStateStore.getState();
-
-  const { layoutSetsConfig } = layoutStore.getState();
+  const { user, validParties, layoutSetsConfig } = megaStore.getState();
 
   const currentParty = validParties[0];
   if (!currentParty) {
@@ -55,13 +51,13 @@ export async function initialLoader() {
   if (!layoutSetsConfig) {
     const res = await API_CLIENT.org.layoutsetsDetail(ORG, APP);
     const data = await res.json();
-    layoutStore.getState().setLayoutSets(data);
+    megaStore.getState().setLayoutSets(data);
   }
 
   if (user.profileSettingPreference.language) {
     const res = await API_CLIENT.org.v1TextsDetail(ORG, APP, user.profileSettingPreference.language);
     const data = await res.json();
-    textResourceStore.setState({ textResource: data });
+    megaStore.setState({ textResource: data });
   }
 
   return { instanceId };
@@ -69,8 +65,7 @@ export async function initialLoader() {
 
 export const InstancesParent = () => {
   const params = useParams();
-  const { validParties } = useStore(initialStateStore);
-  const currentParty = validParties[0];
+  const currentParty = useStore(megaStore, (state) => state.validParties[0]);
 
   const { instanceId } = useLoaderData() as LoaderData;
   if (!instanceId) {

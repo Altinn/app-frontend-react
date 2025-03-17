@@ -5,7 +5,7 @@ import { useStore } from 'zustand';
 
 import { useApiClient } from 'src/next/app/ApiClientContext';
 import { APP, ORG } from 'src/next/app/App';
-import { layoutStore } from 'src/next/stores/layoutStore';
+import { megaStore } from 'src/next/stores/megaStore';
 
 // Adjust to match your real shape:
 type TaskParams = {
@@ -15,14 +15,14 @@ type TaskParams = {
 export const Task = () => {
   const { taskId } = useParams<TaskParams>() as Required<TaskParams>;
 
-  const layoutSetsConfig = useStore(layoutStore, (state) => state.layoutSetsConfig);
+  const layoutSetsConfig = useStore(megaStore, (state) => state.layoutSetsConfig);
 
-  const pageOrder = useStore(layoutStore, (state) => state.pageOrder);
+  const pageOrder = useStore(megaStore, (state) => state.pageOrder);
 
-  const setPageOrder = useStore(layoutStore, (state) => state.setPageOrder);
-  const setLayouts = useStore(layoutStore, (state) => state.setLayouts);
+  const setPageOrder = useStore(megaStore, (state) => state.setPageOrder);
+  const setLayouts = useStore(megaStore, (state) => state.setLayouts);
 
-  const layouts = useStore(layoutStore, (state) => state.layouts);
+  const layouts = useStore(megaStore, (state) => state.layouts);
 
   const apiClient = useApiClient();
   const [isLoading, setIsLoading] = useState(true);

@@ -10,10 +10,9 @@ import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
 import classes from 'src/layout/GenericComponent.module.css';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
-import { layoutStore } from 'src/next/stores/layoutStore';
-import { textResourceStore } from 'src/next/stores/textResourceStore';
+import { megaStore } from 'src/next/stores/megaStore';
 import type { ITextResourceBindings } from 'src/layout/layout';
-import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
+import type { ResolvedCompExternal } from 'src/next/stores/megaStore';
 
 interface RenderComponentType {
   id: string;
@@ -50,7 +49,7 @@ export function extractDataModelFields(expression: any[]): string[] {
 
 function useTextResource(bindingsOrId: unknown, key?: string) {
   const id = key === undefined ? bindingsOrId : (bindingsOrId as ITextResourceBindings)?.[key];
-  return useStore(textResourceStore, (state) =>
+  return useStore(megaStore, (state) =>
     state.textResource?.resources?.find((r) => r.id === id)
       ? // @ts-ignore
         (state.textResource.resources.find((r) => r.id === id)?.value ?? id)
@@ -60,26 +59,26 @@ function useTextResource(bindingsOrId: unknown, key?: string) {
 
 function RenderComponentInner({ id, component, parentBinding, itemIndex, childField, setHeight }: RenderComponentType) {
   const currentPage = useParams().pageId ?? '';
-  const prevPage = useStore(layoutStore, (state) => {
+  const prevPage = useStore(megaStore, (state) => {
     const currentIndex = state.pageOrder.pages.order.findIndex((page) => page === currentPage);
     return state.pageOrder.pages.order[currentIndex - 1];
   });
-  const nextPage = useStore(layoutStore, (state) => {
+  const nextPage = useStore(megaStore, (state) => {
     const currentIndex = state.pageOrder.pages.order.findIndex((page) => page === currentPage);
     return state.pageOrder.pages.order[currentIndex + 1];
   });
-  const allPages = useStore(layoutStore, (state) => state.pageOrder.pages.order);
+  const allPages = useStore(megaStore, (state) => state.pageOrder.pages.order);
 
-  const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
+  const setDataValue = useStore(megaStore, (state) => state.setDataValue);
 
-  const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
+  const evaluateExpression = useStore(megaStore, (state) => state.evaluateExpression);
 
   const binding =
     !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
       ? component.dataModelBindings['simpleBinding']
       : `${parentBinding}[${itemIndex}]${childField}`;
 
-  const value = useStore(layoutStore, (state) => (binding ? dot.pick(binding, state.data) : undefined));
+  const value = useStore(megaStore, (state) => (binding ? dot.pick(binding, state.data) : undefined));
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -90,7 +89,7 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
   const title = useTextResource(component.textResourceBindings, 'title');
 
   useEffect(() => {
-    layoutStore.subscribe(
+    megaStore.subscribe(
       (state) => dependentFields.map((path) => dot.pick(path, state.data)),
       () => {
         if (Array.isArray(component.hidden)) {

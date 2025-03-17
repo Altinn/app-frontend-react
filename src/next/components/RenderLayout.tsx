@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
 import { RenderComponent } from 'src/next/components/RenderComponent';
-import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
+import type { ResolvedCompExternal } from 'src/next/stores/megaStore';
 
 interface RenderLayoutType {
   components?: ResolvedCompExternal[];

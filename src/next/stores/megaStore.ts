@@ -5,8 +5,12 @@ import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
+import { isInitialState } from 'src/next/types/InitialState/initialStateTypeChecker';
 import type { Expression, ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { AllComponents, ILayoutCollection } from 'src/layout/layout';
+import type { TextResource } from 'src/next/app/api';
+import type { ApplicationMetadata, InitialState, IParty, IProfile } from 'src/next/types/InitialState/InitialState';
+import type { InstanceDTO } from 'src/next/types/InstanceDTO';
 import type { LayoutSetsSchema } from 'src/next/types/LayoutSetsDTO';
 import type { PageOrderDTO } from 'src/next/types/PageOrderDTO';
 import type { ProcessSchema } from 'src/next/types/ProcessDTO';
@@ -29,13 +33,16 @@ export interface ResolvedLayoutFile {
 
 export type ResolvedLayoutCollection = { [pageName: string]: ResolvedLayoutFile };
 
-interface Layouts {
+interface MegaStore extends InitialState {
+  instance?: InstanceDTO;
   layoutSetsConfig: LayoutSetsSchema;
   process: ProcessSchema;
   pageOrder: PageOrderDTO;
   layouts: ResolvedLayoutCollection;
   resolvedLayouts: ResolvedLayoutCollection;
   data: DataObject | undefined;
+  textResource?: TextResource;
+  setInstance: (instance: InstanceDTO) => void;
   setLayoutSets: (schema: LayoutSetsSchema) => void;
   setProcess: (proc: ProcessSchema) => void;
   setPageOrder: (order: PageOrderDTO) => void;
@@ -44,6 +51,10 @@ interface Layouts {
   setDataValue: (key: string, value: string | boolean) => void;
   updateResolvedLayouts: () => void;
   evaluateExpression: (expr: Expression) => any;
+  setApplicationMetadata: (metadata: ApplicationMetadata) => void;
+  setUser: (user: IProfile) => void;
+  setValidParties: (parties: IParty[]) => void;
+  setTextResource: (textResource: TextResource) => void;
 }
 
 /**
@@ -118,7 +129,7 @@ function rebuildResolvedLayouts(
 }
 
 const selectResolvedLayouts = createSelector(
-  [(state: Layouts) => state.layouts, (state: Layouts) => state.data],
+  [(state: MegaStore) => state.layouts, (state: MegaStore) => state.data],
   (layouts, data) => {
     if (!layouts) {
       return {};
@@ -127,10 +138,32 @@ const selectResolvedLayouts = createSelector(
   },
 );
 
-export const layoutStore = createStore<Layouts>()(
+const getInitialState = (): InitialState => {
+  const windowValid =
+    typeof window !== 'undefined' && (window as unknown as { __INITIAL_STATE__: unknown }).__INITIAL_STATE__;
+
+  if (!windowValid) {
+    throw new Error('window invalid');
+  }
+
+  const state = (window as unknown as { __INITIAL_STATE__: unknown }).__INITIAL_STATE__;
+
+  if (!isInitialState(state)) {
+    throw new Error('State is invalid');
+  }
+
+  return {
+    ...state,
+    //componentConfigs: getComponentConfigs(),
+  };
+};
+
+export const megaStore = createStore<MegaStore>()(
   subscribeWithSelector(
     devtools(
       (set, get) => ({
+        ...getInitialState(),
+        instance: undefined,
         data: undefined,
 
         // updateResolvedLayouts: () => {
@@ -138,6 +171,10 @@ export const layoutStore = createStore<Layouts>()(
         //   const newResolved = selectResolvedLayouts(get());
         //   set({ resolvedLayouts: newResolved });
         // },
+
+        setInstance: (instance: InstanceDTO) => {
+          set({ instance });
+        },
 
         setLayoutSets: (schema) => set({ layoutSetsConfig: schema }),
         setProcess: (proc) => set({ process: proc }),
@@ -191,9 +228,13 @@ export const layoutStore = createStore<Layouts>()(
           }
           return evaluateExpression(expr, data);
         },
+        setApplicationMetadata: (metadata) => set({ applicationMetadata: metadata }),
+        setUser: (user) => set({ user }),
+        setValidParties: (parties) => set({ validParties: parties }),
+        setTextResource: (textResource) => set(() => ({ textResource })),
       }),
       {
-        name: 'LayoutStore',
+        name: 'MegaStore',
       },
     ),
   ),

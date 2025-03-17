@@ -5,7 +5,7 @@ import { useStore } from 'zustand';
 
 import classes from 'src/components/presentation/Presentation.module.css';
 import { RenderMainLayout } from 'src/next/components/RenderLayout';
-import { layoutStore } from 'src/next/stores/layoutStore';
+import { megaStore } from 'src/next/stores/megaStore';
 
 type PageParams = {
   pageId: string;
@@ -14,7 +14,7 @@ type PageParams = {
 export const Page = () => {
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
 
-  const resolvedLayouts = useStore(layoutStore, (state) => state.layouts);
+  const resolvedLayouts = useStore(megaStore, (state) => state.layouts);
 
   if (!resolvedLayouts) {
     throw new Error(`could not find layout`);

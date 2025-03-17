@@ -5,9 +5,7 @@ import type { LoaderFunctionArgs } from 'react-router-dom';
 import { useStore } from 'zustand';
 
 import { API_CLIENT, APP, ORG } from 'src/next/app/App';
-import { instanceStore } from 'src/next/stores/instanceStore';
-import { layoutStore } from 'src/next/stores/layoutStore';
-import { initialStateStore } from 'src/next/stores/settingsStore';
+import { megaStore } from 'src/next/stores/megaStore';
 
 type InstanceParams = {
   partyId: string;
@@ -16,13 +14,12 @@ type InstanceParams = {
 
 export async function instanceLoader({ params }: LoaderFunctionArgs<InstanceParams>) {
   const { partyId, instanceGuid } = params;
-  const { instance } = instanceStore.getState();
+  const { instance, validParties } = megaStore.getState();
 
   let localInstance = instance;
   if (!partyId || !instanceGuid) {
     throw new Error('missing url params');
   }
-  const { validParties } = initialStateStore.getState();
 
   const currentParty = validParties[0];
   if (!currentParty) {
@@ -32,7 +29,7 @@ export async function instanceLoader({ params }: LoaderFunctionArgs<InstancePara
   if (!instance) {
     const res = await API_CLIENT.org.instancesDetail(ORG, APP, parseInt(partyId), instanceGuid); //fetch('/api/users');
     const instance = await res.json();
-    instanceStore.setState({ instance });
+    megaStore.setState({ instance });
     localInstance = instance;
   }
 
@@ -48,15 +45,15 @@ export async function instanceLoader({ params }: LoaderFunctionArgs<InstancePara
     localInstance.data[0].id,
   );
   const data = await res.json();
-  layoutStore.getState().setDataObject(data);
+  megaStore.getState().setDataObject(data);
   return {};
 }
 
 export const Instance = () => {
-  const { instance } = useStore(instanceStore); //instanceStore.getState();
+  const target = useStore(megaStore, (s) => s.instance?.process.currentTask.elementId);
   return (
     <div>
-      {instance?.process.currentTask.elementId && <Navigate to={`${instance?.process.currentTask.elementId}`} />}
+      {target && <Navigate to={target} />}
       <Outlet />
     </div>
   );

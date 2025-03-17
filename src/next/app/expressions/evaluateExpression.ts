@@ -2,7 +2,7 @@
  * evaluateExpression.ts
  * A simple evaluator for the array-based expression format in Altinn.
  */
-import type { DataObject } from 'src/next/stores/layoutStore';
+import type { DataObject } from 'src/next/stores/megaStore';
 
 type Expression = any; // Adjust with a more precise type if desired
 type FormData = Record<string, string>; // Adjust if your form data differs

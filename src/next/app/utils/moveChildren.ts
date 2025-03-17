@@ -1,5 +1,5 @@
 import type { ILayoutFile } from 'src/layout/common.generated';
-import type { ResolvedCompExternal, ResolvedLayoutFile } from 'src/next/stores/layoutStore';
+import type { ResolvedCompExternal, ResolvedLayoutFile } from 'src/next/stores/megaStore';
 
 /**
  * Recursively transforms the layout so that if an item has a "children" array of IDs,
