@@ -115,9 +115,6 @@ function TabHeader({
     <DesignsystemetTabs.Tab
       key={id}
       value={id}
-      style={{
-        backgroundColor: isActive ? 'white' : 'transparent',
-      }}
       tabIndex={0}
     >
       {!!icon && (
