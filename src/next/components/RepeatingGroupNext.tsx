@@ -3,7 +3,7 @@ import React from 'react';
 import dot from 'dot-object';
 import { useStore } from 'zustand/index';
 
-import { RenderLayout } from 'src/next/components/RenderLayout';
+import { RenderSubLayout } from 'src/next/components/RenderLayout';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
@@ -12,15 +12,18 @@ interface RepeatingGroupNextType {
 }
 
 export const RepeatingGroupNext: React.FunctionComponent<RepeatingGroupNextType> = ({ component }) => {
-  const value = useStore(layoutStore, (state) =>
-    component.dataModelBindings && component.dataModelBindings['group']
-      ? dot.pick(component.dataModelBindings['group'], state.data)
-      : undefined,
-  );
+  const numRows = useStore(layoutStore, (state) => {
+    const maybeArray =
+      component.dataModelBindings && component.dataModelBindings['group']
+        ? dot.pick(component.dataModelBindings['group'], state.data)
+        : undefined;
 
-  if (!Array.isArray(value)) {
+    if (Array.isArray(maybeArray)) {
+      return maybeArray.length;
+    }
+
     throw new Error('rep group should have array');
-  }
+  });
 
   if (component.children === undefined) {
     return null;
@@ -33,14 +36,13 @@ export const RepeatingGroupNext: React.FunctionComponent<RepeatingGroupNextType>
 
   return (
     <div style={{ backgroundColor: 'lightblue' }}>
-      {value.map((value, idx) => (
-        <div key={idx}>
-          <RenderLayout
-            components={component.children}
-            parentBinding={parentBinding}
-            itemIndex={idx}
-          />
-        </div>
+      {Array.from({ length: numRows }, (_, idx) => (
+        <RenderSubLayout
+          key={idx}
+          components={component.children}
+          parentBinding={parentBinding}
+          itemIndex={idx}
+        />
       ))}
     </div>
   );

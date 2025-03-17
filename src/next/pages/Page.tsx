@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useStore } from 'zustand';
 
 import classes from 'src/components/presentation/Presentation.module.css';
-import { RenderLayout } from 'src/next/components/RenderLayout';
+import { RenderMainLayout } from 'src/next/components/RenderLayout';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
 type PageParams = {
@@ -41,7 +41,7 @@ export const Page = () => {
           tabIndex={-1}
         >
           <div className={classes.modalBody}>
-            <RenderLayout components={currentPageLayout} />
+            <RenderMainLayout components={currentPageLayout} />
           </div>
         </section>
       </div>

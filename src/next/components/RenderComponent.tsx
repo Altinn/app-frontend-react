@@ -15,10 +15,12 @@ import { textResourceStore } from 'src/next/stores/textResourceStore';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
 interface RenderComponentType {
+  id: string;
   component: ResolvedCompExternal;
   parentBinding?: string;
   itemIndex?: number;
   childField?: string;
+  setHeight: (id: string, height: number) => void;
 }
 
 function parseBoolean(value: string): boolean {
@@ -45,12 +47,7 @@ export function extractDataModelFields(expression: any[]): string[] {
   return fields;
 }
 
-export const RenderComponent = memo(function RenderComponent({
-  component,
-  parentBinding,
-  itemIndex,
-  childField,
-}: RenderComponentType) {
+function RenderComponentInner({ id, component, parentBinding, itemIndex, childField, setHeight }: RenderComponentType) {
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
 
   const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
@@ -88,6 +85,12 @@ export const RenderComponent = memo(function RenderComponent({
     );
   }, [component.hidden, dependentFields, evaluateExpression]);
 
+  useEffect(() => {
+    if (ref.current) {
+      setHeight(id, ref.current.clientHeight);
+    }
+  }, [id, setHeight]);
+
   if (isHidden) {
     return <h1>Im hidden!! {component.id}</h1>;
   }
@@ -116,7 +119,7 @@ export const RenderComponent = memo(function RenderComponent({
           >
             <Label label={textResource?.value || ''} />
             <Input
-              value={value}
+              value={value ?? ''}
               onChange={(e) => {
                 if (binding) {
                   // @ts-ignore
@@ -136,7 +139,7 @@ export const RenderComponent = memo(function RenderComponent({
           >
             <Label label={textResource?.value || ''} />
             <Textarea
-              value={value}
+              value={value ?? ''}
               onChange={(e) => {
                 if (binding) {
                   // @ts-ignore
@@ -183,70 +186,73 @@ export const RenderComponent = memo(function RenderComponent({
         )}
     </div>
   );
+}
 
-  // const allComps = getComponentConfigs();
-  //
-  // debugger;
+export const RenderComponent = memo(RenderComponentInner);
+RenderComponent.displayName = 'RenderComponent';
 
-  // @ts-ignore
-  //const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
-  // const allComps = getComponentConfigs();
-  //
-  // debugger;
+// const allComps = getComponentConfigs();
+//
+// debugger;
 
-  // @ts-ignore
-  //const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
+// @ts-ignore
+//const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
+// const allComps = getComponentConfigs();
+//
+// debugger;
 
-  //const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
+// @ts-ignore
+//const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
 
-  // useEffect(() => {
-  //   if (Array.isArray(component.hidden)) {
-  //     // @ts-ignore
-  //     const isHidden = component.isHidden !== undefined ? evaluateExpression(component.hidden) : false;
-  //     const fields = extractDataModelFields(component.hidden);
-  //   }
-  // }, [component.isHidden, evaluateExpression]);
+//const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
 
-  // if (component.type === 'Paragraph') {
-  //   return <p key={component.id}>{textResource?.value}</p>;
-  // }
-  //
-  // if (component.type === 'Header') {
-  //   return <h1 key={component.id}>{textResource?.value}</h1>;
-  // }
-  //
-  // if (component.type === 'Input') {
-  //   return (
-  //     <Flex
-  //       key={component.id}
-  //       className={classes.container}
-  //     >
-  //       <div
-  //         className={classes.md}
-  //         style={{ display: 'flex' }}
-  //       >
-  //         <Label label={textResource?.value || ''} />
-  //         <Input
-  //           value={value}
-  //           onChange={(e) => {
-  //             if (binding) {
-  //               // @ts-ignore
-  //               setDataValue(binding, e.target.value);
-  //             }
-  //           }}
-  //         />
-  //       </div>
-  //     </Flex>
-  //   );
-  // }
-  //
-  // if (component.type === 'RepeatingGroup') {
-  //   return <RepeatingGroupNext component={component} />;
-  // }
-  //
-  // return (
-  //   <div key={component.id}>
-  //     {component.id} type: {component.type}
-  //   </div>
-  // );
-});
+// useEffect(() => {
+//   if (Array.isArray(component.hidden)) {
+//     // @ts-ignore
+//     const isHidden = component.isHidden !== undefined ? evaluateExpression(component.hidden) : false;
+//     const fields = extractDataModelFields(component.hidden);
+//   }
+// }, [component.isHidden, evaluateExpression]);
+
+// if (component.type === 'Paragraph') {
+//   return <p key={component.id}>{textResource?.value}</p>;
+// }
+//
+// if (component.type === 'Header') {
+//   return <h1 key={component.id}>{textResource?.value}</h1>;
+// }
+//
+// if (component.type === 'Input') {
+//   return (
+//     <Flex
+//       key={component.id}
+//       className={classes.container}
+//     >
+//       <div
+//         className={classes.md}
+//         style={{ display: 'flex' }}
+//       >
+//         <Label label={textResource?.value || ''} />
+//         <Input
+//           value={value}
+//           onChange={(e) => {
+//             if (binding) {
+//               // @ts-ignore
+//               setDataValue(binding, e.target.value);
+//             }
+//           }}
+//         />
+//       </div>
+//     </Flex>
+//   );
+// }
+//
+// if (component.type === 'RepeatingGroup') {
+//   return <RepeatingGroupNext component={component} />;
+// }
+//
+// return (
+//   <div key={component.id}>
+//     {component.id} type: {component.type}
+//   </div>
+// );
