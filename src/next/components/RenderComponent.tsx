@@ -7,11 +7,11 @@ import { useStore } from 'zustand';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
-import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/GenericComponent.module.css';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
+import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
 interface RenderComponentType {
@@ -47,6 +47,16 @@ export function extractDataModelFields(expression: any[]): string[] {
   return fields;
 }
 
+function useTextResource(bindingsOrId: unknown, key?: string) {
+  const id = key === undefined ? bindingsOrId : (bindingsOrId as ITextResourceBindings)?.[key];
+  return useStore(textResourceStore, (state) =>
+    state.textResource?.resources?.find((r) => r.id === id)
+      ? // @ts-ignore
+        (state.textResource.resources.find((r) => r.id === id)?.value ?? id)
+      : id,
+  );
+}
+
 function RenderComponentInner({ id, component, parentBinding, itemIndex, childField, setHeight }: RenderComponentType) {
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
 
@@ -65,12 +75,7 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
 
   const [isHidden, setIsHidden] = useState(false);
 
-  const textResource = useStore(textResourceStore, (state) =>
-    component.textResourceBindings && component.textResourceBindings['title'] && state.textResource?.resources
-      ? // @ts-ignore
-        state.textResource.resources.find((r) => r.id === component.textResourceBindings['title']) //dot.pick(component.textResourceBindings['title'], state.textResource)
-      : undefined,
-  );
+  const title = useTextResource(component.textResourceBindings, 'title');
 
   useEffect(() => {
     layoutStore.subscribe(
@@ -107,9 +112,9 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
           dependentFields <pre>{JSON.stringify(dependentFields, null, 2)}</pre>
         </div>
       )}
-      {component.type === 'Paragraph' && <p>{textResource?.value}</p>}
+      {component.type === 'Paragraph' && <p>{title}</p>}
 
-      {component.type === 'Header' && <h1>{textResource?.value}</h1>}
+      {component.type === 'Header' && <h1>{title}</h1>}
 
       {component.type === 'Input' && (
         <Flex className={classes.container}>
@@ -117,7 +122,7 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
             className={classes.md}
             style={{ display: 'flex' }}
           >
-            <Label label={textResource?.value || ''} />
+            <Label label={title} />
             <Input
               value={value ?? ''}
               onChange={(e) => {
@@ -137,7 +142,7 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
             className={classes.md}
             style={{ display: 'flex' }}
           >
-            <Label label={textResource?.value || ''} />
+            <Label label={title} />
             <Textarea
               value={value ?? ''}
               onChange={(e) => {
@@ -153,22 +158,29 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
 
       {component.type === 'RepeatingGroup' && <RepeatingGroupNext component={component} />}
 
-      {component.type === 'Alert' && <div>{textResource?.value}</div>}
+      {component.type === 'Alert' && <div>{title}</div>}
 
       {component.type === 'RadioButtons' && (
         <Radio.Group
-          legend='temp'
+          legend={title}
           role='radiogroup'
         >
           {component.options?.map((option, idx) => (
-            <Radio
-              value={`${option.value}`}
-              description={option.description && <Lang id={option.description} />}
+            <label
               key={idx}
-              onChange={(event) => {
-                setDataValue(binding, parseBoolean(event.target.value));
-              }}
-            />
+              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}
+            >
+              <Radio
+                value={`${option.value}`}
+                description={option.description}
+                key={idx}
+                onChange={(event) => {
+                  setDataValue(binding, parseBoolean(event.target.value));
+                }}
+              />
+              {/* eslint-disable-next-line react-hooks/rules-of-hooks */}
+              {useTextResource(option.label)}
+            </label>
           ))}
         </Radio.Group>
       )}
@@ -179,7 +191,8 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
       {component.type !== 'Paragraph' &&
         component.type !== 'Header' &&
         component.type !== 'Input' &&
-        component.type !== 'RepeatingGroup' && (
+        component.type !== 'RepeatingGroup' &&
+        component.type !== 'NavigationButtons' && (
           <div>
             {component.id} type: {component.type}
           </div>
