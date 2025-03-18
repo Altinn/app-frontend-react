@@ -15,12 +15,10 @@ import type { ITextResourceBindings } from 'src/layout/layout';
 import type { ResolvedCompExternal } from 'src/next/stores/megaStore';
 
 interface RenderComponentType {
-  id: string;
   component: ResolvedCompExternal;
   parentBinding?: string;
   itemIndex?: number;
   childField?: string;
-  setHeight: (id: string, height: number) => void;
 }
 
 function parseBoolean(value: string): boolean {
@@ -57,7 +55,7 @@ function useTextResource(bindingsOrId: unknown, key?: string) {
   );
 }
 
-function RenderComponentInner({ id, component, parentBinding, itemIndex, childField, setHeight }: RenderComponentType) {
+function RenderComponentInner({ component, parentBinding, itemIndex, childField }: RenderComponentType) {
   const currentPage = useParams().pageId ?? '';
   const prevPage = useStore(megaStore, (state) => {
     const currentIndex = state.pageOrder.pages.order.findIndex((page) => page === currentPage);
@@ -100,12 +98,6 @@ function RenderComponentInner({ id, component, parentBinding, itemIndex, childFi
       },
     );
   }, [component.hidden, dependentFields, evaluateExpression]);
-
-  useEffect(() => {
-    if (ref.current) {
-      setHeight(id, ref.current.clientHeight);
-    }
-  }, [id, setHeight]);
 
   if (isHidden) {
     return <h1>Im hidden!! {component.id}</h1>;

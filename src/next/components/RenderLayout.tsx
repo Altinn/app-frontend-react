@@ -1,7 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo } from 'react';
-
-import { create } from 'zustand';
-import { useShallow } from 'zustand/react/shallow';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 import { RenderComponent } from 'src/next/components/RenderComponent';
 import type { ResolvedCompExternal } from 'src/next/stores/megaStore';
@@ -12,57 +9,33 @@ interface RenderLayoutType {
   itemIndex?: number;
 }
 
-interface VisibilityState {
-  components: {
-    [id: string]:
-      | {
-          height: number | undefined;
-          isVisible: boolean;
-        }
-      | undefined;
-  };
-  setHeight: (id: string, height: number) => void;
-  setVisible: (id: string, isVisible: boolean) => void;
+interface IntersectionOptions {
+  once?: boolean; // if you only want to fire once
 }
 
-const useVisibilityStore = create<VisibilityState>((set) => ({
-  components: {},
-  setHeight: (id, height) =>
-    set((state) => ({
-      components: {
-        ...state.components,
-        [id]: {
-          isVisible: state.components[id]?.isVisible ?? false,
-          ...state.components[id],
-          height,
-        },
-      },
-    })),
-  setVisible: (id, isVisible) =>
-    set((state) => ({
-      components: {
-        ...state.components,
-        [id]: {
-          height: state.components[id]?.height,
-          ...state.components[id],
-          isVisible,
-        },
-      },
-    })),
-}));
+function useGlobalIntersectionObserver(options: IntersectionOptions = {}) {
+  const { once, ...observerOptions } = options;
+  const [visibleIds, setVisibleIds] = useState<Set<string>>(new Set());
 
-function useGlobalIntersectionObserver() {
-  const setVisible = useVisibilityStore.getState().setVisible;
   const observer = useMemo(
     () =>
       new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.target.id) {
-            setVisible(entry.target.id, entry.isIntersecting);
+          const elementId = entry.target.id;
+          if (entry.isIntersecting && elementId) {
+            setVisibleIds((prev) => {
+              // If we only want to fire once, keep the ID in our set
+              const next = new Set(prev).add(elementId);
+              return next;
+            });
+            if (once) {
+              // Stop observing if we only need it once
+              observer.unobserve(entry.target);
+            }
           }
         });
-      }),
-    [setVisible],
+      }, observerOptions),
+    [],
   );
 
   // The "ref callback" for each item to mount/unmount in the observer
@@ -78,7 +51,7 @@ function useGlobalIntersectionObserver() {
   // Cleanup
   useEffect(() => () => observer.disconnect(), [observer]);
 
-  return observe;
+  return { observe, visibleIds };
 }
 
 const ObserverContext = createContext<ReturnType<typeof useGlobalIntersectionObserver> | undefined>(undefined);
@@ -88,41 +61,21 @@ export const RenderSubLayout: React.FunctionComponent<RenderLayoutType> = ({
   parentBinding,
   itemIndex,
 }) => {
-  const setHeight = useVisibilityStore.getState().setHeight;
-  const frozenState = useVisibilityStore.getState();
-  const observe = useContext(ObserverContext);
-  const componentsWithIds = useMemo(
-    () =>
-      components?.map((component) => {
-        const suffix = itemIndex !== undefined ? `[${itemIndex}]` : '';
-        return { id: `item-${component.id}${suffix}`, component };
-      }),
-    [components, itemIndex],
-  );
+  const { observe, visibleIds } = useGlobalIntersectionObserver({ once: true });
 
-  const visibleIds = useVisibilityStore(
-    useShallow((state) => {
-      const visibleIds = new Set<string>();
-      componentsWithIds?.forEach(({ id }) => {
-        if (state.components[id]?.isVisible) {
-          visibleIds.add(id);
-        }
-      });
-      return visibleIds;
-    }),
-  );
-
-  if (!components || !observe || !componentsWithIds) {
+  if (!components || !observe || !components) {
     return null;
   }
 
   return (
     <div>
-      {componentsWithIds.map(({ id, component }) => {
-        const childMapping = component.dataModelBindings ? component.dataModelBindings['simpleBinding'] : '';
+      {components.map((currentComponent) => {
+        const childMapping = currentComponent.dataModelBindings
+          ? currentComponent.dataModelBindings['simpleBinding']
+          : '';
         const childField = childMapping ? childMapping.replace(parentBinding, '') : undefined;
+        const id = `item-${currentComponent.id}`;
         const isVisible = visibleIds.has(id);
-        const height = frozenState.components[id]?.height;
 
         return (
           <div
@@ -132,15 +85,13 @@ export const RenderSubLayout: React.FunctionComponent<RenderLayoutType> = ({
           >
             {isVisible && (
               <RenderComponent
-                id={id}
-                component={component}
+                component={currentComponent}
                 parentBinding={parentBinding}
                 itemIndex={itemIndex}
                 childField={childField}
-                setHeight={setHeight}
               />
             )}
-            {!isVisible && <div style={{ height: height ? `${height}px` : '100px' }}>Loading...</div>}
+            {!isVisible && <div>Loading...</div>}
           </div>
         );
       })}
