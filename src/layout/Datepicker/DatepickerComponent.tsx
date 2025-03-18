@@ -1,5 +1,6 @@
 import React from 'react';
 
+import cn from 'classnames';
 import { formatDate } from 'date-fns';
 
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
@@ -35,6 +36,7 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     id,
     dataModelBindings,
     grid,
+    showExampleDate,
   } = useNodeItem(node);
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
@@ -89,9 +91,11 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
               />
             </div>
           </Flex>
-          <span className={`${styles.formatText} no-visual-testing`}>
-            {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat)])}
-          </span>
+          {showExampleDate === true && (
+            <span className={cn(styles.formatText, 'no-visual-testing')}>
+              {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat)])}
+            </span>
+          )}
         </div>
       </ComponentStructureWrapper>
     </Label>

@@ -73,5 +73,16 @@ export const Config = new CG.component({
         .addExample('dd/MM/yyyy', 'MM/dd/yyyy', 'yyyy-MM-dd'),
     ),
   )
+  .addProperty(
+    new CG.prop(
+      'showExampleDate',
+      new CG.bool()
+        .optional({ default: false })
+        .setTitle('Show example date')
+        .setDescription(
+          'Shows the current date formatted according to `format` below the input as an example to the user.',
+        ),
+    ),
+  )
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'));
