@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 
 import { Alert, Radio, Textarea } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
@@ -25,18 +25,50 @@ function parseBoolean(value: string): boolean {
   return ['true', '1'].includes(value.toLowerCase());
 }
 
-export function extractDataModelFields(expression: any[]): string[] {
+export function extractDependentFields(expression: any, componentMap?: Record<string, ResolvedCompExternal>): string[] {
+  console.log('extractDependentFields', extractDependentFields);
   const fields: string[] = [];
 
-  function recurse(item: any) {
-    if (Array.isArray(item)) {
-      // If this array starts with 'dataModel', the next item is a field
-      if (item[0] === 'dataModel' && typeof item[1] === 'string') {
-        fields.push(item[1]);
+  function recurse(expr: any) {
+    if (!Array.isArray(expr)) {
+      return;
+    }
+
+    const [operator, ...params] = expr;
+
+    switch (operator) {
+      case 'dataModel': {
+        // usage: ["dataModel", "someField"]
+        const fieldName = params[0];
+        if (typeof fieldName === 'string') {
+          fields.push(fieldName);
+        }
+        break;
       }
-      // Recurse into each child element
-      for (const child of item) {
-        recurse(child);
+
+      case 'component': {
+        // usage: ["component", "someId"]
+        const compId = params[0];
+        if (componentMap && typeof compId === 'string') {
+          const comp = componentMap[compId];
+          if (comp) {
+            // Suppose we only care about the simpleBinding
+            // @ts-ignore
+            const binding = comp.dataModelBindings?.simpleBinding;
+            if (binding) {
+              fields.push(binding);
+            }
+          }
+        }
+        break;
+      }
+
+      default: {
+        // Recursively handle sub-expressions (e.g. ["equals", exprA, exprB])
+        for (const childExpr of params) {
+          recurse(childExpr);
+        }
+        break;
       }
     }
   }
@@ -44,6 +76,26 @@ export function extractDataModelFields(expression: any[]): string[] {
   recurse(expression);
   return fields;
 }
+
+// export function extractDataModelFields(expression: any[]): string[] {
+//   const fields: string[] = [];
+//
+//   function recurse(item: any) {
+//     if (Array.isArray(item)) {
+//       // If this array starts with 'dataModel', the next item is a field
+//       if (item[0] === 'dataModel' && typeof item[1] === 'string') {
+//         fields.push(item[1]);
+//       }
+//       // Recurse into each child element
+//       for (const child of item) {
+//         recurse(child);
+//       }
+//     }
+//   }
+//
+//   recurse(expression);
+//   return fields;
+// }
 
 export const RenderComponent = memo(function RenderComponent({
   component,
@@ -55,6 +107,21 @@ export const RenderComponent = memo(function RenderComponent({
 
   const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
 
+  const componentMap = useStore(layoutStore, (s) => s.componentMap);
+
+  // @ts-ignore
+  const dependentFields = useMemo(() => {
+    if (Array.isArray(component.hidden) && componentMap) {
+      return extractDependentFields(component.hidden, componentMap);
+    }
+    return [];
+  }, [component.hidden, componentMap]);
+
+  console.log('dependentFields', dependentFields);
+
+  // @ts-ignore
+  //const isHidden = useExpression(component.hidden, false);
+
   const binding =
     !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
       ? component.dataModelBindings['simpleBinding']
@@ -64,7 +131,7 @@ export const RenderComponent = memo(function RenderComponent({
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const dependentFields = Array.isArray(component.hidden) ? extractDataModelFields(component.hidden) : [];
+  //const dependentFields = Array.isArray(component.hidden) ? extractDataModelFields(component.hidden) : [];
 
   const [isHidden, setIsHidden] = useState(false);
 
@@ -76,20 +143,27 @@ export const RenderComponent = memo(function RenderComponent({
   );
 
   useEffect(() => {
-    layoutStore.subscribe(
-      (state) => dependentFields.map((path) => dot.pick(path, state.data)),
-      () => {
-        if (Array.isArray(component.hidden)) {
-          // @ts-ignore
-          const isHidden = evaluateExpression(component.hidden);
-          setIsHidden(isHidden);
-        }
-      },
-    );
-  }, [component.hidden, dependentFields, evaluateExpression]);
+    if (dependentFields.length > 0) {
+      layoutStore.subscribe(
+        (state) => dependentFields.map((path) => dot.pick(path, state.data)),
+        () => {
+          if (Array.isArray(component.hidden)) {
+            console.log('clicky');
+            // @ts-ignore
+            const isHidden = evaluateExpression(component.hidden);
+            setIsHidden(isHidden);
+          }
+        },
+      );
+    }
+  }, [dependentFields.length]);
+
+  useEffect(() => {
+    console.log('isHidden', isHidden);
+  }, [isHidden]);
 
   if (isHidden) {
-    return <h1>Im hidden!! {component.id}</h1>;
+    return <div>Im hidden!</div>;
   }
 
   return (
@@ -97,8 +171,6 @@ export const RenderComponent = memo(function RenderComponent({
       ref={ref}
       key={component.id}
     >
-      {/*<pre>{JSON.stringify(values, null, 2)}</pre>*/}
-
       {dependentFields.length > 0 && (
         <div>
           dependentFields <pre>{JSON.stringify(dependentFields, null, 2)}</pre>
@@ -153,21 +225,25 @@ export const RenderComponent = memo(function RenderComponent({
       {component.type === 'Alert' && <div>{textResource?.value}</div>}
 
       {component.type === 'RadioButtons' && (
-        <Radio.Group
-          legend='temp'
-          role='radiogroup'
-        >
-          {component.options?.map((option, idx) => (
-            <Radio
-              value={`${option.value}`}
-              description={option.description && <Lang id={option.description} />}
-              key={idx}
-              onChange={(event) => {
-                setDataValue(binding, parseBoolean(event.target.value));
-              }}
-            />
-          ))}
-        </Radio.Group>
+        <div>
+          <Radio.Group
+            legend=''
+            role='radiogroup'
+          >
+            {component.options?.map((option, idx) => (
+              <Radio
+                value={`${option.value}`}
+                description={option.description && <Lang id={option.description} />}
+                key={idx}
+                onChange={(event) => {
+                  setDataValue(binding, parseBoolean(event.target.value));
+                }}
+              >
+                {option.label}
+              </Radio>
+            ))}
+          </Radio.Group>
+        </div>
       )}
 
       {component.type === 'Alert' && <Alert>You are using the Alert component!</Alert>}
@@ -183,70 +259,4 @@ export const RenderComponent = memo(function RenderComponent({
         )}
     </div>
   );
-
-  // const allComps = getComponentConfigs();
-  //
-  // debugger;
-
-  // @ts-ignore
-  //const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
-  // const allComps = getComponentConfigs();
-  //
-  // debugger;
-
-  // @ts-ignore
-  //const renderComponent = useStore(initialStateStore, (state) => state.componentConfigs[component.type]);
-
-  //const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
-
-  // useEffect(() => {
-  //   if (Array.isArray(component.hidden)) {
-  //     // @ts-ignore
-  //     const isHidden = component.isHidden !== undefined ? evaluateExpression(component.hidden) : false;
-  //     const fields = extractDataModelFields(component.hidden);
-  //   }
-  // }, [component.isHidden, evaluateExpression]);
-
-  // if (component.type === 'Paragraph') {
-  //   return <p key={component.id}>{textResource?.value}</p>;
-  // }
-  //
-  // if (component.type === 'Header') {
-  //   return <h1 key={component.id}>{textResource?.value}</h1>;
-  // }
-  //
-  // if (component.type === 'Input') {
-  //   return (
-  //     <Flex
-  //       key={component.id}
-  //       className={classes.container}
-  //     >
-  //       <div
-  //         className={classes.md}
-  //         style={{ display: 'flex' }}
-  //       >
-  //         <Label label={textResource?.value || ''} />
-  //         <Input
-  //           value={value}
-  //           onChange={(e) => {
-  //             if (binding) {
-  //               // @ts-ignore
-  //               setDataValue(binding, e.target.value);
-  //             }
-  //           }}
-  //         />
-  //       </div>
-  //     </Flex>
-  //   );
-  // }
-  //
-  // if (component.type === 'RepeatingGroup') {
-  //   return <RepeatingGroupNext component={component} />;
-  // }
-  //
-  // return (
-  //   <div key={component.id}>
-  //     {component.id} type: {component.type}
-  //   </div>
-  // );
 });
