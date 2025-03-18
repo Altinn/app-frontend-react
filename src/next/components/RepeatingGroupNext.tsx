@@ -3,7 +3,7 @@ import React from 'react';
 import dot from 'dot-object';
 import { useStore } from 'zustand/index';
 
-import { RenderSubLayout } from 'src/next/components/RenderLayout';
+import { RenderLayout } from 'src/next/components/RenderLayout';
 import { megaStore } from 'src/next/stores/megaStore';
 import type { ResolvedCompExternal } from 'src/next/stores/megaStore';
 
@@ -30,7 +30,7 @@ export const RepeatingGroupNext: React.FunctionComponent<RepeatingGroupNextType>
   return (
     <div style={{ backgroundColor: 'lightblue' }}>
       {Array.from({ length: numRows }, (_, idx) => (
-        <RenderSubLayout
+        <RenderLayout
           key={idx}
           components={component.children}
           parentBinding={groupBinding}

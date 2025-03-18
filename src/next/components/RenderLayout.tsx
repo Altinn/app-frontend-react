@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { RenderComponent } from 'src/next/components/RenderComponent';
 import type { ResolvedCompExternal } from 'src/next/stores/megaStore';
@@ -54,13 +54,7 @@ function useGlobalIntersectionObserver(options: IntersectionOptions = {}) {
   return { observe, visibleIds };
 }
 
-const ObserverContext = createContext<ReturnType<typeof useGlobalIntersectionObserver> | undefined>(undefined);
-
-export const RenderSubLayout: React.FunctionComponent<RenderLayoutType> = ({
-  components,
-  parentBinding,
-  itemIndex,
-}) => {
+export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ components, parentBinding, itemIndex }) => {
   const { observe, visibleIds } = useGlobalIntersectionObserver({ once: true });
 
   if (!components || !observe || !components) {
@@ -96,15 +90,5 @@ export const RenderSubLayout: React.FunctionComponent<RenderLayoutType> = ({
         );
       })}
     </div>
-  );
-};
-
-export const RenderMainLayout: React.FunctionComponent<RenderLayoutType> = ({ components }) => {
-  const observe = useGlobalIntersectionObserver();
-
-  return (
-    <ObserverContext.Provider value={observe}>
-      <RenderSubLayout components={components} />
-    </ObserverContext.Provider>
   );
 };
