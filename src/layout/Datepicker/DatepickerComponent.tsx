@@ -72,24 +72,22 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
             item
             size={{ xs: 12 }}
           >
-            <div className={styles.calendarInputWrapper}>
-              <DatePickerControl
-                id={id}
-                value={value}
-                dateFormat={dateFormat}
-                timeStamp={timeStamp}
-                onValueChange={handleInputValueChange}
-                readOnly={readOnly}
-                required={required}
-                locale={languageLocale}
-                isMobile={isMobile}
-                minDate={calculatedMinDate}
-                maxDate={calculatedMaxDate}
-                DropdownCaption={DropdownCaption}
-                buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
-                calendarIconTitle={langAsString('date_picker.aria_label_icon')}
-              />
-            </div>
+            <DatePickerControl
+              id={id}
+              value={value}
+              dateFormat={dateFormat}
+              timeStamp={timeStamp}
+              onValueChange={handleInputValueChange}
+              readOnly={readOnly}
+              required={required}
+              locale={languageLocale}
+              isMobile={isMobile}
+              minDate={calculatedMinDate}
+              maxDate={calculatedMaxDate}
+              DropdownCaption={DropdownCaption}
+              buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
+              calendarIconTitle={langAsString('date_picker.aria_label_icon')}
+            />
           </Flex>
           {showExampleDate === true && (
             <span className={cn(styles.formatText, 'no-visual-testing')}>

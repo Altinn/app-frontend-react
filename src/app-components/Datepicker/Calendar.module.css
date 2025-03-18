@@ -14,8 +14,37 @@
   font-weight: normal;
 }
 
-.calendarButton {
-  background-color: white;
+.calendarToggleButton {
+  margin: 1px;
+  min-height: 36px;
+  min-width: 36px;
+  border-radius: 2px;
+}
+
+.calendarDay {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+}
+.calendarDay:hover {
+  border-radius: var(--fds-border_radius-medium);
+  background: var(--fds-colors-blue-200);
+}
+
+.calendarDayButton {
+  height: 46px;
+  width: 46px;
+  background: transparent;
+  border: none;
+}
+
+.focusedDate {
+  border-radius: var(--fds-border_radius-medium);
+  background: var(--fds-colors-blue-200);
+}
+.today {
+  border-radius: var(--fds-border_radius-medium);
+  border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
 }
 
 .selectedDate {
@@ -24,9 +53,13 @@
   font-weight: normal;
   border-radius: var(--fds-border_radius-medium);
 }
+.selectedDate:hover {
+  background: var(--fds-colors-blue-800);
+}
 .selectedDate button {
   color: white;
 }
+
 .disabledDate {
   border-radius: var(--fds-border_radius-medium);
   background: var(--fds-colors-grey-100);
@@ -34,14 +67,6 @@
 }
 .disabledDate button {
   text-decoration: line-through;
-}
-.focusedDate {
-  border-radius: var(--fds-border_radius-medium);
-  background: var(--fds-colors-blue-200);
-}
-.today {
-  border-radius: var(--fds-border_radius-medium);
-  border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
 }
 .disabledDate:hover button {
   cursor: not-allowed;
@@ -64,21 +89,6 @@
   font: inherit;
   font-weight: 500;
 }
-.calendarDay:hover {
-  border-radius: var(--fds-border_radius-medium);
-  background: var(--fds-colors-blue-200);
-}
-.calendarDay {
-  width: 48px;
-  height: 48px;
-  text-align: center;
-}
-.calendarDayButton {
-  height: 46px;
-  width: 46px;
-  background: transparent;
-  border: none;
-}
 .monthWrapper {
   display: flex;
   flex-direction: column;
@@ -98,6 +108,7 @@
   background: white;
 }
 .calendarInputWrapper:hover {
+  border-color: var(--fds-semantic-border-input-hover);
   box-shadow: inset 0 0 0 1px var(--fds-semantic-border-input-hover);
 }
 .calendarInput {
@@ -107,12 +118,8 @@
 .calendarInput * {
   height: 36px;
 }
-.calendarInputWrapper button {
-  min-height: 38px;
-  min-width: 38px;
-}
-.calendarInput input:not(:focus-visible),
-.calendarInput button {
+
+.calendarInput input:not(:focus-visible) {
   border: none;
   background: white;
 }
