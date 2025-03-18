@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 
 import { Alert, Radio, Textarea } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
@@ -106,21 +106,8 @@ export const RenderComponent = memo(function RenderComponent({
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
 
   const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
-
-  const componentMap = useStore(layoutStore, (s) => s.componentMap);
-
-  // @ts-ignore
-  const dependentFields = useMemo(() => {
-    if (Array.isArray(component.hidden) && componentMap) {
-      return extractDependentFields(component.hidden, componentMap);
-    }
-    return [];
-  }, [component.hidden, componentMap]);
-
-  console.log('dependentFields', dependentFields);
-
-  // @ts-ignore
-  //const isHidden = useExpression(component.hidden, false);
+  //
+  // const componentMap = useStore(layoutStore, (s) => s.componentMap);
 
   const binding =
     !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
@@ -143,24 +130,26 @@ export const RenderComponent = memo(function RenderComponent({
   );
 
   useEffect(() => {
-    if (dependentFields.length > 0) {
+    if (Array.isArray(component.hidden)) {
+      console.log(component.id, 'is sibscribing');
+
       layoutStore.subscribe(
-        (state) => dependentFields.map((path) => dot.pick(path, state.data)),
+        (state) => state.data,
         () => {
-          if (Array.isArray(component.hidden)) {
-            console.log('clicky');
-            // @ts-ignore
-            const isHidden = evaluateExpression(component.hidden);
-            setIsHidden(isHidden);
-          }
+          // if (component.id === 'agentforetak-oppdatering-arsak') {
+          //   debugger;
+          // }
+
+          console.log('parentBinding, itemIndex');
+          console.log(parentBinding, itemIndex);
+          // @ts-ignore
+          const isHidden = evaluateExpression(component.hidden, parentBinding, itemIndex);
+          console.log('isHidden', isHidden);
+          setIsHidden(isHidden);
         },
       );
     }
-  }, [dependentFields.length]);
-
-  useEffect(() => {
-    console.log('isHidden', isHidden);
-  }, [isHidden]);
+  }, [component.hidden, evaluateExpression, itemIndex, parentBinding]);
 
   if (isHidden) {
     return <div>Im hidden!</div>;
@@ -171,11 +160,7 @@ export const RenderComponent = memo(function RenderComponent({
       ref={ref}
       key={component.id}
     >
-      {dependentFields.length > 0 && (
-        <div>
-          dependentFields <pre>{JSON.stringify(dependentFields, null, 2)}</pre>
-        </div>
-      )}
+      <h2>{parentBinding}</h2>
       {component.type === 'Paragraph' && <p>{textResource?.value}</p>}
 
       {component.type === 'Header' && <h1>{textResource?.value}</h1>}
@@ -236,7 +221,8 @@ export const RenderComponent = memo(function RenderComponent({
                 description={option.description && <Lang id={option.description} />}
                 key={idx}
                 onChange={(event) => {
-                  setDataValue(binding, parseBoolean(event.target.value));
+                  console.log('ding dong');
+                  setDataValue(binding, event.target.value);
                 }}
               >
                 {option.label}

@@ -38,10 +38,6 @@ interface Layouts {
   resolvedLayouts: ResolvedLayoutCollection;
   data: DataObject | undefined;
 
-  /**
-   * Map from a component ID to its component definition.
-   * This is crucial for our "component" expression lookups.
-   */
   componentMap?: Record<string, ResolvedCompExternal>;
 
   setLayoutSets: (schema: LayoutSetsSchema) => void;
@@ -52,44 +48,86 @@ interface Layouts {
   setDataValue: (key: string, value: string | boolean) => void;
 
   updateResolvedLayouts: () => void; // if you need it
-  evaluateExpression: (expr: Expression) => any;
+  evaluateExpression: (expr: Expression, parentBinding?: string, itemIndex?: number) => any;
 }
 
-/**
- * Recursively walk all pages and components to create a map
- * { [componentId]: componentObject }.
- */
 function buildComponentMap(collection: ResolvedLayoutCollection) {
   const map: Record<string, ResolvedCompExternal> = {};
 
-  function recurse(components: ResolvedCompExternal[]) {
+  function traverse(components: ResolvedCompExternal[] | undefined) {
+    if (!Array.isArray(components)) {
+      return;
+    }
+
     for (const comp of components) {
-      // Add the component to the map
       if (comp.id) {
         map[comp.id] = comp;
       }
-      // If it has children, recurse
-      if (comp.children && comp.children.length > 0) {
-        for (const childGroup of comp.children) {
-          // If `children` is an array-of-arrays for repeating groups,
-          // handle that. Otherwise, just one array:
-          if (Array.isArray(childGroup)) {
-            recurse(childGroup);
-          } else if (childGroup.children) {
-            recurse(comp.children);
-          }
-        }
+
+      // If this component has children, we need to recurse.
+      // Be aware that for repeating groups, `comp.children` might itself be an
+      // array of arrays. Example: [[child1, child2], [child1, child2]]
+      // So we do a further check:
+      if (Array.isArray(comp.children)) {
+        // Check if comp.children looks like an array-of-arrays (repeating groups)
+
+        traverse(comp.children as ResolvedCompExternal[]);
+
+        // const firstChild = comp.children[0];
+        // if (Array.isArray(firstChild)) {
+        //   // Flatten each sub-array
+        //   for (const subArray of comp.children) {
+        //     // @ts-ignore
+        //     traverse(subArray as ResolvedCompExternal[]);
+        //   }
+        // } else {
+        //   // Normal single array of children
+        //   traverse(comp.children as ResolvedCompExternal[]);
+        // }
       }
     }
   }
 
-  // For each page, walk its layout array
-  for (const pageName of Object.keys(collection)) {
-    recurse(collection[pageName].data.layout);
+  // For each page in the layout, traverse its layout array
+  for (const pageId of Object.keys(collection)) {
+    const layout = collection[pageId]?.data?.layout;
+    traverse(layout);
   }
 
   return map;
 }
+
+// function buildComponentMap(collection: ResolvedLayoutCollection) {
+//   const map: Record<string, ResolvedCompExternal> = {};
+//
+//   function recurse(components: ResolvedCompExternal[]) {
+//     for (const comp of components) {
+//       // Add the component to the map
+//       if (comp.id) {
+//         map[comp.id] = comp;
+//       }
+//       // If it has children, recurse
+//       if (comp.children && comp.children.length > 0) {
+//         for (const childGroup of comp.children) {
+//           // If `children` is an array-of-arrays for repeating groups,
+//           // handle that. Otherwise, just one array:
+//           if (Array.isArray(childGroup)) {
+//             recurse(childGroup);
+//           } else if (childGroup.children) {
+//             recurse(comp.children);
+//           }
+//         }
+//       }
+//     }
+//   }
+//
+//   // For each page, walk its layout array
+//   for (const pageName of Object.keys(collection)) {
+//     recurse(collection[pageName].data.layout);
+//   }
+//
+//   return map;
+// }
 
 export const layoutStore = createStore<Layouts>()(
   subscribeWithSelector(
@@ -130,6 +168,8 @@ export const layoutStore = createStore<Layouts>()(
         },
 
         setDataValue: (dataKeyToUpdate: string, newValue: string | boolean) => {
+          console.log('dataKeyToUpdate', newValue);
+
           set((state) => {
             if (!state.data) {
               throw new Error('no data object');
@@ -149,13 +189,16 @@ export const layoutStore = createStore<Layouts>()(
           // If you do something else to rebuild resolvedLayouts, do it here
         },
 
-        evaluateExpression: (expr: Expression) => {
+        evaluateExpression: (expr: Expression, parentBinding?: string, itemIndex?: number) => {
+          console.log('evaluating!!!');
+
           const { data, componentMap } = get();
           if (!data) {
             throw new Error('No data available in store');
           }
+
           // Evaluate the expression with data + componentMap
-          return evaluateExpression(expr, data, componentMap);
+          return evaluateExpression(expr, data, componentMap, parentBinding, itemIndex);
         },
       }),
       {

@@ -10,19 +10,23 @@ import type { DataObject, ResolvedCompExternal } from 'src/next/stores/layoutSto
  * Extended signature: pass data + optional componentMap
  */
 export function evaluateExpression(
-  expr: any, // Expression type
+  expr: any,
   formData: DataObject,
   componentMap?: Record<string, ResolvedCompExternal>,
+  parentBinding?: string,
+  itemIndex?: number,
 ): any {
   // If not an array, treat as literal and return directly
   if (!Array.isArray(expr)) {
     return expr;
   }
 
+  //debugger;
+
   const [operator, ...params] = expr;
 
   // Helper to evaluate sub-expressions
-  const evalParam = (param: any) => evaluateExpression(param, formData, componentMap);
+  const evalParam = (param: any) => evaluateExpression(param, formData, componentMap, parentBinding, itemIndex);
 
   // Convert a param to number if possible
   const toNumber = (value: any): number => {
@@ -49,6 +53,7 @@ export function evaluateExpression(
     }
 
     case 'component': {
+      //debugger;
       // Usage: ["component", "someComponentId"]
       const componentId = params[0];
       if (!componentMap) {
@@ -64,8 +69,27 @@ export function evaluateExpression(
       if (!binding) {
         throw new Error(`Component '${componentId}' has no simpleBinding`);
       }
-      // Return the data from that path
-      return dot.pick(binding, formData);
+
+      if (!parentBinding) {
+        console.log('ware looking up this binding:', binding);
+        // Return the data from that path
+        return dot.pick(binding, formData);
+      }
+
+      console.log('ware looking up this binding:', `${parentBinding}[${itemIndex}].${binding}`);
+
+      const fieldSplitted = binding.split('.');
+      if (fieldSplitted.length === 0) {
+        throw new Error('field not found');
+      }
+
+      const field = fieldSplitted[fieldSplitted.length - 1];
+
+      const retValue = dot.pick(`${parentBinding}[${itemIndex}].${field}`, formData);
+
+      console.log('retValue', retValue);
+
+      return retValue;
     }
 
     case 'equals': {
