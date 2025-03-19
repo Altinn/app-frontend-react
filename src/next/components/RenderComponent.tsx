@@ -1,8 +1,10 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Alert, Radio, Textarea } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
 import { useStore } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
@@ -84,28 +86,36 @@ export const RenderComponent = memo(function RenderComponent({
 }: RenderComponentType) {
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
 
-  const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
+  const navigate = useNavigate();
 
-  let binding: string;
+  // const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
 
-  if (component.dataModelBindings && component.dataModelBindings['simpleBinding'] && !parentBinding) {
-    binding = component.dataModelBindings['simpleBinding'];
-  }
+  const binding = useMemo(() => {
+    // @ts-ignore
+    const simple = component.dataModelBindings?.simpleBinding;
+    if (!simple) {
+      return undefined;
+    }
+    if (!parentBinding) {
+      return simple;
+    }
+    // E.g. parentBinding = "someGroup", itemIndex=0, childField=".firstName"
+    // => "someGroup[0].firstName"
+    return `${parentBinding}[${itemIndex}]${childField || ''}`;
+  }, [component.dataModelBindings, parentBinding, itemIndex, childField]);
 
-  if (component.dataModelBindings && component.dataModelBindings['simpleBinding'] && parentBinding) {
-    binding = `${parentBinding}[${itemIndex}]${childField}`;
-  }
+  const value = useStore(
+    layoutStore,
+    useShallow((state) => (binding ? dot.pick(binding, state.data) : undefined)),
+  );
 
-  // const binding =
-  //   !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
-  //     ? component.dataModelBindings['simpleBinding']
-  //     : `${parentBinding}[${itemIndex}]${childField}`;
-
-  const value = useStore(layoutStore, (state) => (binding ? dot.pick(binding, state.data) : undefined));
-
-  const ref = useRef<HTMLDivElement>(null);
-
-  const [isHidden, setIsHidden] = useState(false);
+  const isHidden = useStore(layoutStore, (state) => {
+    if (!component.hidden) {
+      return false;
+    }
+    // @ts-ignore
+    return state.evaluateExpression(component.hidden, parentBinding, itemIndex);
+  });
 
   const textResource = useStore(textResourceStore, (state) =>
     component.textResourceBindings && component.textResourceBindings['title'] && state.textResource?.resources
@@ -114,34 +124,12 @@ export const RenderComponent = memo(function RenderComponent({
       : undefined,
   );
 
-  useEffect(() => {
-    if (Array.isArray(component.hidden)) {
-      layoutStore.subscribe(
-        (state) => state.data,
-        () => {
-          // if (component.id === 'alert-ingen-avtaler') {
-          //   debugger;
-          // }
-
-          // @ts-ignore
-          const isHidden = evaluateExpression(component.hidden, parentBinding, itemIndex);
-
-          setIsHidden(isHidden);
-        },
-      );
-    }
-  }, [component.hidden, evaluateExpression, itemIndex, parentBinding]);
-
   if (isHidden) {
     return <div>Im hidden!</div>;
   }
 
   return (
-    <div
-      ref={ref}
-      key={component.id}
-    >
-      <h2>{parentBinding}</h2>
+    <div key={component.id}>
       {component.type === 'Paragraph' && <p>{textResource?.value}</p>}
 
       {component.type === 'Header' && <h1>{textResource?.value}</h1>}
@@ -172,7 +160,7 @@ export const RenderComponent = memo(function RenderComponent({
             className={classes.md}
             style={{ display: 'flex' }}
           >
-            <Label label={textResource?.value || ''} />
+            {/*<Label label={textResource?.value || ''} />*/}
             <Textarea
               value={value}
               onChange={(e) => {
@@ -188,7 +176,7 @@ export const RenderComponent = memo(function RenderComponent({
 
       {component.type === 'RepeatingGroup' && <RepeatingGroupNext component={component} />}
 
-      {component.type === 'Alert' && <div>{textResource?.value}</div>}
+      {/*{component.type === 'Alert' && <div>{textResource?.value}</div>}*/}
 
       {component.type === 'RadioButtons' && (
         <div>
@@ -214,7 +202,17 @@ export const RenderComponent = memo(function RenderComponent({
 
       {component.type === 'Alert' && <Alert>You are using the Alert component!</Alert>}
 
-      {/* Fallback for unknown types */}
+      {component.type === 'CustomButton' && component.actions[0].type === 'ClientAction' && (
+        <button
+          onClick={() => {
+            if (component.actions[0].type === 'ClientAction') {
+              // @ts-ignore
+              navigate(component.actions[0].metadata.page);
+            }
+          }}
+        />
+      )}
+
       {component.type !== 'Paragraph' &&
         component.type !== 'Header' &&
         component.type !== 'Input' &&

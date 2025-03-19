@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { useStore } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 
 import classes from 'src/components/presentation/Presentation.module.css';
 import { RenderLayout } from 'src/next/components/RenderLayout';
@@ -14,20 +15,22 @@ type PageParams = {
 export const Page = () => {
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
 
-  const resolvedLayouts = useStore(layoutStore, (state) => state.layouts);
+  // const resolvedLayouts = useStore(layoutStore, (state) => state.layouts);
 
-  if (!resolvedLayouts) {
-    throw new Error(`could not find layout`);
-  }
-
-  const currentPage = resolvedLayouts[pageId];
+  const currentPage = useStore(
+    layoutStore,
+    useShallow((state) => state.layouts?.[pageId]),
+  );
 
   if (!currentPage) {
-    throw new Error(`could not find layout: ${currentPage}`);
+    throw new Error(`could not find layout`);
   }
-  const currentPageLayout =
-    currentPage.data && currentPage.data.layout ? resolvedLayouts[pageId].data.layout : undefined;
+  if (!currentPage) {
+    // In production, you might prefer graceful handling rather than throwing
+    throw new Error(`No layout found for page: ${pageId}`);
+  }
 
+  const currentPageLayout = currentPage.data?.layout;
   if (!currentPageLayout) {
     return null;
   }
