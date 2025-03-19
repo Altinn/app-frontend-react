@@ -12,6 +12,7 @@ import { jestPreviewConfigure } from 'jest-preview';
 import { TextDecoder, TextEncoder } from 'util';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import type { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import type { AppQueries } from 'src/queries/types';
@@ -103,3 +104,5 @@ jest.mock('react-helmet-async', () => ({
   Helmet: () => null,
   HelmetProvider: ({ children }) => React.createElement(React.Fragment, null, children),
 }));
+
+document.cookie = `altinnPartyId=${getPartyMock().partyId};`;
