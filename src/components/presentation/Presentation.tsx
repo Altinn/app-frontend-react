@@ -20,7 +20,7 @@ import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { SideBarNavigation } from 'src/features/navigation/SidebarNavigation';
 import { useHasGroupedNavigation } from 'src/features/navigation/utils';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
@@ -40,7 +40,7 @@ export const PresentationComponent = ({
   showNavbar = true,
   showNavigation = true,
 }: IPresentationProvidedProps) => {
-  const party = useCurrentParty();
+  const instanceOwnerParty = useInstanceOwnerParty();
   const user = useProfile();
   const instanceStatus = useLaxInstanceStatus();
   const { expandedWidth } = useUiConfigContext();
@@ -64,7 +64,7 @@ export const PresentationComponent = ({
           })}
         >
           <AppHeader
-            party={party}
+            instanceOwnerParty={instanceOwnerParty}
             user={user}
             logoColor={LogoColor.blueDarker}
             headerBackgroundColor={backgroundColor}

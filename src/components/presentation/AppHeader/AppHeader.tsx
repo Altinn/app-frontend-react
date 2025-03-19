@@ -15,17 +15,17 @@ import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderProps {
   /** The party of the instance owner */
-  party: IParty | undefined;
+  instanceOwnerParty: IParty | undefined;
   /** The party of the currently logged in user */
   user: IProfile | undefined;
   logoColor: LogoColor;
   headerBackgroundColor: string;
 }
 
-export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: AppHeaderProps) => {
+export const AppHeader = ({ logoColor, headerBackgroundColor, instanceOwnerParty, user }: AppHeaderProps) => {
   const { showLanguageSelector } = usePageSettings();
 
-  const displayName = getPartyDisplayName(party, user);
+  const displayName = getPartyDisplayName(instanceOwnerParty, user);
 
   return (
     <header
@@ -47,7 +47,7 @@ export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: App
           <div className={classes.wrapper}>
             <span className={classes.partyName}>{displayName}</span>
             <AppHeaderMenu
-              party={party ? { orgNumber: party.orgNumber ?? null, displayName } : undefined}
+              party={instanceOwnerParty ? { orgNumber: instanceOwnerParty.orgNumber ?? null, displayName } : undefined}
               logoColor={logoColor}
             />
           </div>
