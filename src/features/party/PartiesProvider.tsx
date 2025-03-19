@@ -111,7 +111,7 @@ interface CurrentParty {
   currentIsValid: boolean | undefined;
   userHasSelectedParty: boolean | undefined;
   setUserHasSelectedParty: (hasSelected: boolean) => void;
-  setParty: (party: IParty) => void;
+  setParty: (party: IParty) => Promise<void>;
 }
 
 const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = createContext<CurrentParty>({
@@ -132,7 +132,7 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
 
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const validParties = useValidParties();
-  const { mutate, error: errorFromMutation } = useSetCurrentPartyMutation();
+  const { mutateAsync, error: errorFromMutation } = useSetCurrentPartyMutation();
   const { data: currentParty, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
 
@@ -156,9 +156,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
         currentIsValid: !!currentParty,
         userHasSelectedParty,
         setUserHasSelectedParty: (hasSelected: boolean) => setUserHasSelectedParty(hasSelected),
-        setParty: (party) => {
-          mutate(party.partyId);
-        },
+        setParty: (party) => mutateAsync(party.partyId),
       }}
     >
       {children}
