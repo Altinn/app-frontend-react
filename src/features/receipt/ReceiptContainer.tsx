@@ -24,10 +24,10 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
+import { getInstanceSender } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
-import type { IParty } from 'src/types/shared';
 import {
   filterDisplayAttachments,
   filterDisplayPdfAttachments,
@@ -39,7 +39,7 @@ import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 
 interface ReturnInstanceMetaDataObjectProps {
   langTools: IUseLanguage;
-  instanceOwnerParty: IParty | undefined;
+  sender: string;
   instanceGuid: string;
   lastChangedDateTime: string;
   receiver: string | undefined;
@@ -47,7 +47,7 @@ interface ReturnInstanceMetaDataObjectProps {
 
 export const getSummaryDataObject = ({
   langTools,
-  instanceOwnerParty,
+  sender,
   instanceGuid,
   lastChangedDateTime,
   receiver,
@@ -58,12 +58,6 @@ export const getSummaryDataObject = ({
     hideFromVisualTesting: true,
   };
 
-  let sender = '';
-  if (instanceOwnerParty?.ssn) {
-    sender = `${instanceOwnerParty.ssn}-${instanceOwnerParty.name}`;
-  } else if (instanceOwnerParty?.orgNumber) {
-    sender = `${instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
-  }
   obj[langTools.langAsString('receipt.sender')] = {
     value: sender,
   };
@@ -194,10 +188,12 @@ export const ReceiptContainer = () => {
   }, [dataElements]);
 
   const instanceMetaObject = useMemo(() => {
+    const sender = getInstanceSender(instanceOwnerParty);
+
     if (instanceOrg && instanceOwner && parties && instanceGuid && lastChangedDateTime) {
       return getSummaryDataObject({
         langTools,
-        instanceOwnerParty,
+        sender,
         instanceGuid,
         lastChangedDateTime,
         receiver,
