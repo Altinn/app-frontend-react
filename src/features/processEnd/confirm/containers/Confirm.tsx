@@ -5,9 +5,8 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { useAppName } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { getInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmPage';
-import { getInstanceOwnerParty } from 'src/utils/party';
 
 export const Confirm = () => {
   const instance = useLaxInstanceData((data) => data);

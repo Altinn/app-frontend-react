@@ -11,7 +11,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import type { IParty } from 'src/types/shared';
+import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
@@ -183,3 +183,15 @@ export const useValidParties = () => usePartiesAllowedToInstantiateCtx()?.filter
 export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
 
 export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
+
+export function getInstanceOwnerParty(instance?: IInstance | IInstanceOwner, parties?: IParty[]): IParty | undefined {
+  if (!instance || !parties) {
+    return undefined;
+  }
+
+  // This logic assumes that the current logged in user has "access" to the party of the instance owner,
+  // as the parties array comes from the current users party list.
+  const allParties = [...parties, ...parties.flatMap((party) => party.childParties ?? [])];
+  const instanceOwner = 'instanceOwner' in instance ? instance.instanceOwner : instance;
+  return allParties.find((party) => party.partyId.toString() === instanceOwner.partyId);
+}

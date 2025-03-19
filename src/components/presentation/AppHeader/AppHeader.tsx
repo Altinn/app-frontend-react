@@ -10,7 +10,6 @@ import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
-import { getPartyDisplayName } from 'src/utils/party';
 import type { LogoColor } from 'src/components/logo/AltinnLogo';
 import type { IParty, IProfile } from 'src/types/shared';
 
@@ -25,6 +24,8 @@ export interface AppHeaderProps {
 
 export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: AppHeaderProps) => {
   const { showLanguageSelector } = usePageSettings();
+
+  const displayName = getPartyDisplayName(party, user);
 
   return (
     <header
@@ -44,10 +45,9 @@ export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: App
         <div className={classes.wrapper}>
           {showLanguageSelector && <LanguageSelector />}
           <div className={classes.wrapper}>
-            <span className={classes.partyName}>{getPartyDisplayName(party, user)}</span>
+            <span className={classes.partyName}>{displayName}</span>
             <AppHeaderMenu
-              party={party}
-              user={user}
+              party={party ? { orgNumber: party.orgNumber ?? null, displayName } : undefined}
               logoColor={logoColor}
             />
           </div>
@@ -67,3 +67,13 @@ const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
   const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
   return enableOrgLogo ? <OrganisationLogo /> : <AltinnLogo color={color} />;
 };
+
+function getPartyDisplayName(instanceOwnerParty?: IParty, user?: IProfile) {
+  if (!instanceOwnerParty || !user?.party) {
+    return null;
+  }
+
+  return instanceOwnerParty.partyId === user.party.partyId
+    ? user.party.name
+    : `${user.party.name} for ${instanceOwnerParty.name}`;
+}
