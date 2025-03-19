@@ -100,9 +100,7 @@ export class List extends ListDef {
     const groupBinding = dataModelBindings?.group;
     if (groupBinding) {
       const [groupErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
-      if (groupErrors) {
-        errors.push(...(groupErrors || []));
-      }
+      groupErrors && errors.push(...groupErrors);
 
       for (const key of Object.keys(dataModelBindings)) {
         const binding = dataModelBindings[key];
@@ -122,9 +120,9 @@ export class List extends ListDef {
         const fieldWithoutGroup = binding.field.replace(`${groupBinding.field}.`, '');
         const fieldWithIndex = `${groupBinding.field}[0].${fieldWithoutGroup}`;
         const [schema, err] = ctx.lookupBinding({ field: fieldWithIndex, dataType: binding.dataType });
-        if (err || !schema) {
+        if (err) {
           errors.push(lookupErrorAsText(err));
-        } else if (!schema || typeof schema.type !== 'string' || !allowedLeafTypes.includes(schema.type)) {
+        } else if (typeof schema?.type !== 'string' || !allowedLeafTypes.includes(schema.type)) {
           errors.push(`Field ${binding} in group must be one of types ${allowedLeafTypes.join(', ')}`);
         }
       }
