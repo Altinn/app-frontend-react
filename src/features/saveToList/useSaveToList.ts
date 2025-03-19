@@ -5,18 +5,19 @@ import { ALTINN_ROW_ID, DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/t
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IDataModelBindingsForSaveTolistCheckbox } from 'src/layout/Checkboxes/config.generated';
+import type { IDataModelReference } from 'src/layout/common.generated';
 
 type Row = Record<string, string | number | boolean>;
 
 export const useSaveToList = (node) => {
   const bindings = useNodeItem(node, (i) => i.dataModelBindings) as IDataModelBindingsForSaveTolistCheckbox;
   const isDeleted = bindings.isDeleted;
-  const { formData, setValue } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+  const setLeafValue = FD.useSetLeafValue();
+  const { formData } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveIndexFromList();
 
   function isRowChecked(row: Row): boolean {
-    console.log('formData?.saveToList', formData?.saveToList);
     return (formData?.saveToList as Row[]).some((selectedRow) =>
       Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
     );
@@ -32,12 +33,13 @@ export const useSaveToList = (node) => {
         return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
       });
       if (isDeleted) {
-        const newSaveToList = [...(formData?.saveToList as Row[])];
-        newSaveToList[index] = {
-          ...newSaveToList[index],
-          [isDeleted.field.split('.').reverse()[0]]: true,
-        };
-        setValue('saveToList', newSaveToList);
+        const pathSegments = bindings.isDeleted?.field.split('.');
+        const lastElement = pathSegments?.pop();
+        const newPath = `${pathSegments?.join('.')}[${index}].${lastElement}`;
+        setLeafValue({
+          reference: { ...bindings.isDeleted, field: newPath } as IDataModelReference,
+          newValue: !!isDeleted,
+        });
       } else {
         if (index >= 0) {
           removeFromList({
