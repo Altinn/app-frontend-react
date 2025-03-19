@@ -60,7 +60,6 @@ const useCurrentPartyQuery = (enabled: boolean) => {
   const parties = usePartiesAllowedToInstantiate();
   const query = useQuery(altinnPartyIdCookieQuery(enabled));
   const { data: altinnPartyIdCookieValue, error } = query;
-  const queryClient = useQueryClient();
 
   useEffect(() => {
     error && window.logError('Fetching current party failed:\n', error);
