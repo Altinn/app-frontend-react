@@ -168,8 +168,6 @@ export const layoutStore = createStore<Layouts>()(
         },
 
         setDataValue: (dataKeyToUpdate: string, newValue: string | boolean) => {
-          console.log('dataKeyToUpdate', newValue);
-
           set((state) => {
             if (!state.data) {
               throw new Error('no data object');
@@ -190,8 +188,6 @@ export const layoutStore = createStore<Layouts>()(
         },
 
         evaluateExpression: (expr: Expression, parentBinding?: string, itemIndex?: number) => {
-          console.log('evaluating!!!');
-
           const { data, componentMap } = get();
           if (!data) {
             throw new Error('No data available in store');

@@ -26,7 +26,6 @@ function parseBoolean(value: string): boolean {
 }
 
 export function extractDependentFields(expression: any, componentMap?: Record<string, ResolvedCompExternal>): string[] {
-  console.log('extractDependentFields', extractDependentFields);
   const fields: string[] = [];
 
   function recurse(expr: any) {
@@ -77,26 +76,6 @@ export function extractDependentFields(expression: any, componentMap?: Record<st
   return fields;
 }
 
-// export function extractDataModelFields(expression: any[]): string[] {
-//   const fields: string[] = [];
-//
-//   function recurse(item: any) {
-//     if (Array.isArray(item)) {
-//       // If this array starts with 'dataModel', the next item is a field
-//       if (item[0] === 'dataModel' && typeof item[1] === 'string') {
-//         fields.push(item[1]);
-//       }
-//       // Recurse into each child element
-//       for (const child of item) {
-//         recurse(child);
-//       }
-//     }
-//   }
-//
-//   recurse(expression);
-//   return fields;
-// }
-
 export const RenderComponent = memo(function RenderComponent({
   component,
   parentBinding,
@@ -106,19 +85,25 @@ export const RenderComponent = memo(function RenderComponent({
   const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
 
   const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
-  //
-  // const componentMap = useStore(layoutStore, (s) => s.componentMap);
 
-  const binding =
-    !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
-      ? component.dataModelBindings['simpleBinding']
-      : `${parentBinding}[${itemIndex}]${childField}`;
+  let binding: string;
+
+  if (component.dataModelBindings && component.dataModelBindings['simpleBinding'] && !parentBinding) {
+    binding = component.dataModelBindings['simpleBinding'];
+  }
+
+  if (component.dataModelBindings && component.dataModelBindings['simpleBinding'] && parentBinding) {
+    binding = `${parentBinding}[${itemIndex}]${childField}`;
+  }
+
+  // const binding =
+  //   !parentBinding && component.dataModelBindings && component.dataModelBindings['simpleBinding']
+  //     ? component.dataModelBindings['simpleBinding']
+  //     : `${parentBinding}[${itemIndex}]${childField}`;
 
   const value = useStore(layoutStore, (state) => (binding ? dot.pick(binding, state.data) : undefined));
 
   const ref = useRef<HTMLDivElement>(null);
-
-  //const dependentFields = Array.isArray(component.hidden) ? extractDataModelFields(component.hidden) : [];
 
   const [isHidden, setIsHidden] = useState(false);
 
@@ -131,20 +116,16 @@ export const RenderComponent = memo(function RenderComponent({
 
   useEffect(() => {
     if (Array.isArray(component.hidden)) {
-      console.log(component.id, 'is sibscribing');
-
       layoutStore.subscribe(
         (state) => state.data,
         () => {
-          // if (component.id === 'agentforetak-oppdatering-arsak') {
+          // if (component.id === 'alert-ingen-avtaler') {
           //   debugger;
           // }
 
-          console.log('parentBinding, itemIndex');
-          console.log(parentBinding, itemIndex);
           // @ts-ignore
           const isHidden = evaluateExpression(component.hidden, parentBinding, itemIndex);
-          console.log('isHidden', isHidden);
+
           setIsHidden(isHidden);
         },
       );
@@ -221,7 +202,6 @@ export const RenderComponent = memo(function RenderComponent({
                 description={option.description && <Lang id={option.description} />}
                 key={idx}
                 onChange={(event) => {
-                  console.log('ding dong');
                   setDataValue(binding, event.target.value);
                 }}
               >

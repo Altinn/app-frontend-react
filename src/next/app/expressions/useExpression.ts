@@ -22,8 +22,6 @@ export function useExpression(expression: Expression | undefined, defaultValue: 
     defaultValue,
   );
 
-  console.log('result', result);
-
   if (!expression) {
     return defaultValue;
   }

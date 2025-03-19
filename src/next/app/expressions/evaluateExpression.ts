@@ -45,10 +45,15 @@ export function evaluateExpression(
   switch (operator) {
     case 'dataModel': {
       // Usage: ["dataModel", "someField"]
+
       const fieldName = params[0];
       if (!formData) {
         throw new Error('cannot use dataModel expression without data');
       }
+
+      const value = formData[fieldName];
+      // debugger;
+
       return formData[fieldName];
     }
 
@@ -71,12 +76,8 @@ export function evaluateExpression(
       }
 
       if (!parentBinding) {
-        console.log('ware looking up this binding:', binding);
-        // Return the data from that path
         return dot.pick(binding, formData);
       }
-
-      console.log('ware looking up this binding:', `${parentBinding}[${itemIndex}].${binding}`);
 
       const fieldSplitted = binding.split('.');
       if (fieldSplitted.length === 0) {
@@ -86,8 +87,6 @@ export function evaluateExpression(
       const field = fieldSplitted[fieldSplitted.length - 1];
 
       const retValue = dot.pick(`${parentBinding}[${itemIndex}].${field}`, formData);
-
-      console.log('retValue', retValue);
 
       return retValue;
     }
@@ -102,6 +101,10 @@ export function evaluateExpression(
     case 'notEquals': {
       const left = evalParam(params[0]);
       const right = evalParam(params[1]);
+
+      const result = left !== right;
+
+      // debugger;
       return left !== right;
     }
 
