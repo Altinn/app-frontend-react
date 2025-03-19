@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
@@ -9,6 +9,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
@@ -182,7 +183,14 @@ export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedPar
 
 export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
 
-export function getInstanceOwnerParty(instance?: IInstance | IInstanceOwner, parties?: IParty[]): IParty | undefined {
+export function useInstanceOwnerParty() {
+  const instance = useLaxInstanceData((data) => data);
+  const parties = usePartiesAllowedToInstantiate();
+
+  return getInstanceOwnerParty(instance, parties);
+}
+
+function getInstanceOwnerParty(instance?: IInstance | IInstanceOwner, parties?: IParty[]): IParty | undefined {
   if (!instance || !parties) {
     return undefined;
   }

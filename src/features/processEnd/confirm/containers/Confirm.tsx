@@ -5,14 +5,14 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { useAppName } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { getInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { useInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmPage';
 
 export const Confirm = () => {
   const instance = useLaxInstanceData((data) => data);
   const parties = usePartiesAllowedToInstantiate();
 
-  const instanceOwnerParty = getInstanceOwnerParty(instance, parties);
+  const instanceOwnerParty = useInstanceOwnerParty();
   const applicationMetadata = useApplicationMetadata();
 
   const missingRequirement = !instance ? 'instance' : !parties ? 'parties' : undefined;
