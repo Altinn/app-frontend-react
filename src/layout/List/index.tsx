@@ -40,7 +40,7 @@ export class List extends ListDef {
       return formData?.[summaryBinding] ?? '';
     } else if (legacySummaryBinding && dmBindings) {
       for (const [key, binding] of Object.entries(dmBindings)) {
-        if (binding.field === legacySummaryBinding) {
+        if (binding?.field === legacySummaryBinding) {
           return formData?.[key] ?? '';
         }
       }
@@ -74,21 +74,21 @@ export class List extends ListDef {
 
     const dataModelBindings = ctx.item.dataModelBindings ?? {};
 
-    if (!dataModelBindings?.saveToList) {
+    if (!dataModelBindings?.group) {
       for (const [binding] of Object.entries(dataModelBindings ?? {})) {
         const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
         errors.push(...(newErrors || []));
       }
     }
 
-    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array'], false);
+    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
     if (newErrors) {
       errors.push(...(newErrors || []));
     }
 
-    if (dataModelBindings?.saveToList) {
-      const saveToListBinding = ctx.lookupBinding(dataModelBindings?.saveToList);
-      const items = saveToListBinding[0]?.items;
+    if (dataModelBindings?.group) {
+      const groupBinding = ctx.lookupBinding(dataModelBindings.group);
+      const items = groupBinding[0]?.items;
       const properties =
         items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
           ? items.properties
@@ -97,15 +97,16 @@ export class List extends ListDef {
       for (const [binding] of Object.entries(dataModelBindings ?? {})) {
         let selectedBinding: JSONSchema7Definition | undefined;
         if (properties) {
+          // TODO: Fix this, it doesn't properly handle nested properties
           selectedBinding = properties[binding];
         }
-        if (binding !== 'saveToList' && items && typeof items === 'object' && 'properties' in items) {
+        if (binding !== 'group' && items && typeof items === 'object' && 'properties' in items) {
           if (!selectedBinding) {
-            errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
+            errors.push(`group must contain a field with the same name as the field ${binding}`);
           } else if (typeof selectedBinding !== 'object' || typeof selectedBinding.type !== 'string') {
-            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
+            errors.push(`Field ${binding} in group must be one of types ${allowedTypes.join(', ')}`);
           } else if (!allowedTypes.includes(selectedBinding.type)) {
-            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
+            errors.push(`Field ${binding} in group must be one of types ${allowedTypes.join(', ')}`);
           }
         }
       }

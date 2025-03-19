@@ -15,11 +15,18 @@ export function useValidateListIsEmpty(node: LayoutNode<'List'>): ComponentValid
     return [];
   }
 
-  const references = Object.values(dataModelBindings);
   const validations: ComponentValidation[] = [];
 
   let listHasErrors = false;
-  for (const reference of references) {
+  for (const key of Object.keys(dataModelBindings)) {
+    const reference = dataModelBindings[key];
+    if (!reference) {
+      continue;
+    }
+    if (key === 'group') {
+      // TODO: Fix, it should validate properly when using a group binding as well
+    }
+
     const data = formDataSelector(reference) ?? invalidDataSelector(reference);
     const dataAsString =
       typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
