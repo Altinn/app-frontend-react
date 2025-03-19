@@ -101,15 +101,10 @@ export function evaluateExpression(
     case 'notEquals': {
       const left = evalParam(params[0]);
       const right = evalParam(params[1]);
-
-      const result = left !== right;
-
-      // debugger;
       return left !== right;
     }
 
     case 'not': {
-      // Usage: ["not", expression]
       const value = evalParam(params[0]);
       return !value;
     }

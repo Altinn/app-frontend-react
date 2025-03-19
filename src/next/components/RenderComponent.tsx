@@ -1,7 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Alert, Radio, Textarea } from '@digdir/designsystemet-react';
+import { Alert, Checkbox, Radio, Textarea } from '@digdir/designsystemet-react';
 import dot from 'dot-object';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
@@ -9,7 +9,6 @@ import { useShallow } from 'zustand/react/shallow';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
-import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/GenericComponent.module.css';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
@@ -187,7 +186,7 @@ export const RenderComponent = memo(function RenderComponent({
             {component.options?.map((option, idx) => (
               <Radio
                 value={`${option.value}`}
-                description={option.description && <Lang id={option.description} />}
+                description={option.description}
                 key={idx}
                 onChange={(event) => {
                   setDataValue(binding, event.target.value);
@@ -197,6 +196,33 @@ export const RenderComponent = memo(function RenderComponent({
               </Radio>
             ))}
           </Radio.Group>
+        </div>
+      )}
+
+      {component.type === 'Checkboxes' && (
+        <div>
+          <Checkbox.Group
+            legend=''
+            role='radiogroup'
+          >
+            {component.options?.map((option, idx) => (
+              <Checkbox
+                key={idx}
+                description={option.description}
+                value={`${option.value}`}
+                size='small'
+                onChange={(event) => {
+                  console.log('event.target.value', event.target.value);
+                  setDataValue(binding, event.target.value);
+                }}
+              >
+                <span>
+                  {option.label}
+                  {option.value}
+                </span>
+              </Checkbox>
+            ))}
+          </Checkbox.Group>
         </div>
       )}
 
