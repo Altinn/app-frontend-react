@@ -80,14 +80,13 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowSelected(row: Row): boolean {
+    if (groupBinding) {
+      const rows = (formData?.group as Row[] | undefined) ?? [];
+      return rows.some((selectedRow) =>
+        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
+      );
+    }
     return JSON.stringify(selectedRow) === JSON.stringify(row);
-  }
-
-  function isRowChecked(row: Row): boolean {
-    const rows = (formData?.group as Row[] | undefined) ?? [];
-    return rows.some((selectedRow) =>
-      Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
-    );
   }
 
   const title = item.textResourceBindings?.title;
@@ -105,7 +104,7 @@ export const ListComponent = ({ node }: IListProps) => {
     if (!groupBinding) {
       return;
     }
-    if (isRowChecked(row)) {
+    if (isRowSelected(row)) {
       const index = (formData?.group as Row[]).findIndex((selectedRow) => {
         const { altinnRowId: _ } = selectedRow;
         return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
@@ -160,7 +159,7 @@ export const ListComponent = ({ node }: IListProps) => {
           onClick={() => handleRowClick(row)}
           value={JSON.stringify(row)}
           className={cn(classes.mobile)}
-          checked={isRowChecked(row)}
+          checked={isRowSelected(row)}
         >
           {renderListItems(row, tableHeaders)}
         </Checkbox>
@@ -271,7 +270,7 @@ export const ListComponent = ({ node }: IListProps) => {
                     aria-label={JSON.stringify(row)}
                     onChange={() => {}}
                     value={JSON.stringify(row)}
-                    checked={isRowChecked(row)}
+                    checked={isRowSelected(row)}
                     name={node.id}
                   />
                 ) : (
