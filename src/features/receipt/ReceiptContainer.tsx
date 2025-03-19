@@ -11,6 +11,7 @@ import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
+import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import { ComponentRouting } from 'src/components/wrappers/ProcessWrapper';
 import { useAppName, useAppOwner, useAppReceiver } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -19,12 +20,14 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceAllDataElements, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { getInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
+import type { IParty } from 'src/types/shared';
 import {
   filterDisplayAttachments,
   filterDisplayPdfAttachments,
@@ -32,11 +35,7 @@ import {
 } from 'src/utils/attachmentsUtils';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
-import { getInstanceOwnerParty } from 'src/utils/party';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
-import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { IParty } from 'src/types/shared';
 
 interface ReturnInstanceMetaDataObjectProps {
   langTools: IUseLanguage;

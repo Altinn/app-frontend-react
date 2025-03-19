@@ -7,19 +7,18 @@ import type { PropsFromGenericComponent } from '..';
 
 import { getDateFormat, PrettyDateAndTime } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
+import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import type { IUseLanguage } from 'src/features/language/useLanguage';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { getInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import type { CompInternal } from 'src/layout/layout';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getInstanceOwnerParty } from 'src/utils/party';
-import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { CompInternal } from 'src/layout/layout';
 
 export const returnInstanceMetaDataObject = (
   langTools: IUseLanguage,
