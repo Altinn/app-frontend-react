@@ -22,7 +22,7 @@ import { useLaxInstanceAllDataElements, useLaxInstanceData } from 'src/features/
 import { Lang } from 'src/features/language/Lang';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { getInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { useInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
@@ -160,6 +160,8 @@ export const ReceiptContainer = () => {
   const langTools = useLanguage();
   const receiver = useAppReceiver();
 
+  const instanceOwnerParty = useInstanceOwnerParty();
+
   const instanceGuid = useNavigationParam('instanceGuid');
 
   const appName = useAppName();
@@ -193,8 +195,6 @@ export const ReceiptContainer = () => {
 
   const instanceMetaObject = useMemo(() => {
     if (instanceOrg && instanceOwner && parties && instanceGuid && lastChangedDateTime) {
-      const instanceOwnerParty = getInstanceOwnerParty(instanceOwner, parties);
-
       return getSummaryDataObject({
         langTools,
         instanceOwnerParty,
@@ -205,7 +205,7 @@ export const ReceiptContainer = () => {
     }
 
     return undefined;
-  }, [instanceOrg, parties, instanceGuid, lastChangedDateTime, langTools, receiver, instanceOwner]);
+  }, [instanceOrg, parties, instanceGuid, lastChangedDateTime, langTools, receiver, instanceOwner, instanceOwnerParty]);
 
   const requirementMissing = !attachments
     ? 'attachments'

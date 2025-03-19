@@ -14,7 +14,7 @@ import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/Inst
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { getInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { useInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import type { CompInternal } from 'src/layout/layout';
 import { useLabel } from 'src/utils/layout/useLabel';
@@ -67,13 +67,11 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const langTools = useLanguage();
   const selectedLanguage = useCurrentLanguage();
 
-  const instanceOwner = useLaxInstanceData((data) => data.instanceOwner);
   const lastChanged = useLaxInstanceData((data) => data.lastChanged);
   const instanceId = useLaxInstanceId();
-  const parties = usePartiesAllowedToInstantiate();
   const appReceiver = useAppReceiver();
 
-  const instanceOwnerParty = getInstanceOwnerParty(instanceOwner, parties);
+  const instanceOwnerParty = useInstanceOwnerParty();
 
   const instanceDateSent =
     lastChanged &&
