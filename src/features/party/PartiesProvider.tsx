@@ -11,7 +11,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -43,7 +43,7 @@ const usePartiesAllowedToInstantiateQuery = () => {
 };
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
-export function useCurrentPartyQueryDef(enabled: boolean) {
+export function altinnPartyIdCookieQuery(enabled: boolean) {
   return {
     queryKey: ['currentParty'],
     queryFn: () =>
@@ -56,21 +56,37 @@ export function useCurrentPartyQueryDef(enabled: boolean) {
 }
 
 const useCurrentPartyQuery = (enabled: boolean) => {
-  const query = useQuery(useCurrentPartyQueryDef(enabled));
+  const profile = useProfile();
+  const parties = usePartiesAllowedToInstantiate();
+  const query = useQuery(altinnPartyIdCookieQuery(enabled));
+  const { data: altinnPartyIdCookieValue, error } = query;
 
   useEffect(() => {
-    query.error && window.logError('Fetching current party failed:\n', query.error);
-  }, [query.error]);
+    error && window.logError('Fetching current party failed:\n', error);
+  }, [error]);
 
-  return query;
+  // TODO: use new values from backend, but default to this
+  const cookieParty = altinnPartyIdCookieValue
+    ? parties?.find((party) => party.partyId.toString() === altinnPartyIdCookieValue)
+    : undefined;
+
+  // fallback to profile.party if no cookie is set
+  const selectedParty = cookieParty ?? profile?.party;
+
+  if (selectedParty) {
+    document.cookie = `${altinnPartyIdCookieName}=${selectedParty.partyId};`;
+  }
+
+  return { ...query, data: selectedParty };
 };
 
 const useSetCurrentPartyMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (party: IParty) => {
-      document.cookie = `${altinnPartyIdCookieName}=${party.partyId};`;
+    mutationFn: async (partyId: string | number | undefined) => {
+      const value = partyId ?? '';
+      document.cookie = `${altinnPartyIdCookieName}=${value};`;
     },
     onError: (error: HttpClientError) => {
       window.logError('Setting current party failed:\n', error);
@@ -117,7 +133,7 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const validParties = useValidParties();
   const { mutate, error: errorFromMutation } = useSetCurrentPartyMutation();
-  const { data: currentPartyId, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
+  const { data: currentParty, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
 
   if (isLoading) {
@@ -133,8 +149,6 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
     return <NoValidPartiesError />;
   }
 
-  const currentParty = validParties.find((party) => party.partyId.toString() === currentPartyId);
-
   return (
     <RealCurrentPartyProvider
       value={{
@@ -143,7 +157,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
         userHasSelectedParty,
         setUserHasSelectedParty: (hasSelected: boolean) => setUserHasSelectedParty(hasSelected),
         setParty: (party) => {
-          mutate(party);
+          mutate(party.partyId);
         },
       }}
     >
