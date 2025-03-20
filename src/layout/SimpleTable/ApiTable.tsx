@@ -31,7 +31,7 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
     return null;
   }
 
-  const dataForPath = externalApi.path.split('.').reduce((object, key) => object && object[key], data[externalApi.id]);
+  const dataForPath = pick(externalApi.path, data[externalApi.id]);
 
   if (!dataForPath) {
     return null;
