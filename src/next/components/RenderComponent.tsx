@@ -10,6 +10,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
 import classes from 'src/layout/GenericComponent.module.css';
+import { useValidateComponent } from 'src/next/app/hooks/useValidateComponent';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -22,61 +23,6 @@ interface RenderComponentType {
   childField?: string;
 }
 
-function parseBoolean(value: string): boolean {
-  return ['true', '1'].includes(value.toLowerCase());
-}
-
-export function extractDependentFields(expression: any, componentMap?: Record<string, ResolvedCompExternal>): string[] {
-  const fields: string[] = [];
-
-  function recurse(expr: any) {
-    if (!Array.isArray(expr)) {
-      return;
-    }
-
-    const [operator, ...params] = expr;
-
-    switch (operator) {
-      case 'dataModel': {
-        // usage: ["dataModel", "someField"]
-        const fieldName = params[0];
-        if (typeof fieldName === 'string') {
-          fields.push(fieldName);
-        }
-        break;
-      }
-
-      case 'component': {
-        // usage: ["component", "someId"]
-        const compId = params[0];
-        if (componentMap && typeof compId === 'string') {
-          const comp = componentMap[compId];
-          if (comp) {
-            // Suppose we only care about the simpleBinding
-            // @ts-ignore
-            const binding = comp.dataModelBindings?.simpleBinding;
-            if (binding) {
-              fields.push(binding);
-            }
-          }
-        }
-        break;
-      }
-
-      default: {
-        // Recursively handle sub-expressions (e.g. ["equals", exprA, exprB])
-        for (const childExpr of params) {
-          recurse(childExpr);
-        }
-        break;
-      }
-    }
-  }
-
-  recurse(expression);
-  return fields;
-}
-
 export const RenderComponent = memo(function RenderComponent({
   component,
   parentBinding,
@@ -87,8 +33,6 @@ export const RenderComponent = memo(function RenderComponent({
 
   const navigate = useNavigate();
 
-  // const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
-
   const binding = useMemo(() => {
     // @ts-ignore
     const simple = component.dataModelBindings?.simpleBinding;
@@ -98,8 +42,6 @@ export const RenderComponent = memo(function RenderComponent({
     if (!parentBinding) {
       return simple;
     }
-    // E.g. parentBinding = "someGroup", itemIndex=0, childField=".firstName"
-    // => "someGroup[0].firstName"
     return `${parentBinding}[${itemIndex}]${childField || ''}`;
   }, [component.dataModelBindings, parentBinding, itemIndex, childField]);
 
@@ -107,6 +49,8 @@ export const RenderComponent = memo(function RenderComponent({
     layoutStore,
     useShallow((state) => (binding ? dot.pick(binding, state.data) : undefined)),
   );
+
+  const validationErrors = useValidateComponent(component, value);
 
   const isHidden = useStore(layoutStore, (state) => {
     if (!component.hidden) {

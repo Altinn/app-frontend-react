@@ -48,10 +48,10 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
   return (
     <div style={{ backgroundColor: 'lightblue' }}>
       <List
-        height={1200} // total visible height of the list
+        height={2000} // total visible height of the list
         width='100%' // can be a number or string
         itemCount={groupArray.length}
-        itemSize={1500} // fixed row height in px
+        itemSize={900} // fixed row height in px
         // overscanCount={2}       // optional: how many extra items to render offscreen
       >
         {Row}
