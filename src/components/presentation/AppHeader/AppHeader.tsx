@@ -47,7 +47,10 @@ export const AppHeader = ({ logoColor, headerBackgroundColor, instanceOwnerParty
           <div className={classes.wrapper}>
             <span className={classes.partyName}>{displayName}</span>
             <AppHeaderMenu
-              party={instanceOwnerParty ? { orgNumber: instanceOwnerParty.orgNumber ?? null, displayName } : undefined}
+              party={{
+                orgNumber: instanceOwnerParty?.orgNumber ?? user?.party?.orgNumber ?? null,
+                displayName,
+              }}
               logoColor={logoColor}
             />
           </div>
@@ -69,11 +72,15 @@ const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
 };
 
 function getPartyDisplayName(instanceOwnerParty?: IParty, user?: IProfile) {
-  if (!instanceOwnerParty || !user?.party) {
+  if (!instanceOwnerParty && !user?.party) {
     return null;
   }
 
-  return instanceOwnerParty.partyId === user.party.partyId
-    ? user.party.name
-    : `${user.party.name} for ${instanceOwnerParty.name}`;
+  const userParty = user?.party;
+
+  if (instanceOwnerParty && instanceOwnerParty?.partyId !== userParty?.partyId) {
+    return `${userParty?.name} for ${instanceOwnerParty?.name}`;
+  }
+
+  return userParty?.name ?? '';
 }
