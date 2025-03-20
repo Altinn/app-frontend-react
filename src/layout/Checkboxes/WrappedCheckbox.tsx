@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 
 import { Checkbox } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -21,16 +21,10 @@ type IWrappedCheckboxProps = {
   setChecked: (checked: boolean) => void;
 } & Omit<CheckboxProps, 'label' | 'aria-label' | 'aria-labelledby'>;
 
-export function WrappedCheckbox({
-  id,
-  option,
-  hideLabel,
-  alertOnChange,
-  checked,
-  setChecked,
-  readOnly,
-  ...rest
-}: IWrappedCheckboxProps) {
+export const WrappedCheckbox = forwardRef<HTMLInputElement, IWrappedCheckboxProps>(function WrappedCheckbox(
+  { id, option, hideLabel, alertOnChange, checked, setChecked, readOnly, ...rest }: IWrappedCheckboxProps,
+  ref,
+) {
   const { langAsString, elementAsString } = useLanguage();
 
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange } = useAlertOnChange(
@@ -79,7 +73,8 @@ export function WrappedCheckbox({
         checked={checked}
         data-size='sm'
         onChange={(e) => handleChange(e.target.checked)}
+        ref={ref}
       />
     </ConditionalWrapper>
   );
-}
+});

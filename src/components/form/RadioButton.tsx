@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { forwardRef, useRef } from 'react';
 
 import { Radio } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -21,25 +21,29 @@ export interface IRadioButtonProps extends Omit<RadioProps, 'children' | 'aria-l
   confirmChangeText?: string;
 }
 
-export const RadioButton = ({
-  showAsCard = false,
-  helpText,
-  label,
-  hideLabel,
-  onChange,
-  alertOnChange,
-  alertText,
-  confirmChangeText,
-  className,
-  ...rest
-}: IRadioButtonProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+export const RadioButton = forwardRef<HTMLInputElement, IRadioButtonProps>(function RadioButton(
+  {
+    showAsCard = false,
+    helpText,
+    label,
+    hideLabel,
+    onChange,
+    alertOnChange,
+    alertText,
+    confirmChangeText,
+    className,
+    ...rest
+  },
+  forwardedRef,
+) {
   const { elementAsString } = useLanguage();
 
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange } = useAlertOnChange(
     Boolean(alertOnChange),
     onChange,
   );
+
+  const internalRef = useRef<HTMLInputElement | null>(null);
 
   const radioButton = (
     <Radio
@@ -52,7 +56,14 @@ export const RadioButton = ({
       }
       className={cn(classes.radioButton, className)}
       onChange={handleChange}
-      ref={showAsCard ? inputRef : undefined}
+      ref={(elem) => {
+        internalRef.current = elem;
+        if (typeof forwardedRef === 'function') {
+          forwardedRef(elem);
+        } else if (forwardedRef) {
+          forwardedRef.current = elem;
+        }
+      }}
     />
   );
   const cardElement = (
@@ -64,9 +75,7 @@ export const RadioButton = ({
       className={classes.card}
       data-testid={`test-id-${label}`}
       onClick={() => {
-        if (inputRef.current) {
-          inputRef.current.click();
-        }
+        internalRef.current?.click();
       }}
     >
       {radioButton}
@@ -92,4 +101,4 @@ export const RadioButton = ({
       {showAsCard ? cardElement : radioButton}
     </ConditionalWrapper>
   );
-};
+});

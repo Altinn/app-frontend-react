@@ -10,7 +10,6 @@ import { Button } from 'src/app-components/Button/Button';
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { getMonths, getYears } from 'src/app-components/Datepicker/DatePickerHelpers';
 import { getDateLib } from 'src/app-components/Datepicker/utils/dateHelpers';
-import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import comboboxClasses from 'src/styles/combobox.module.css';
@@ -63,7 +62,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
               key={date.getMonth()}
               value={date.getMonth().toString()}
             >
-              <Lang id={formatMonthDropdown(date, dateLib)} />
+              {langAsString(formatMonthDropdown(date, dateLib))}
             </Select.Option>
           ))}
         </Select>
@@ -81,7 +80,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
               key={date.getFullYear().toString()}
               value={date.getFullYear().toString()}
             >
-              <Lang id={date.getFullYear().toString()} />
+              {langAsString(date.getFullYear().toString())}
             </Select.Option>
           ))}
         </Select>
