@@ -1,9 +1,5 @@
 import React from 'react';
 
-import cn from 'classnames';
-import { formatDate } from 'date-fns';
-
-import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { DatePickerControl } from 'src/app-components/Datepicker/Datepicker';
 import { getDateConstraint, getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { Flex } from 'src/app-components/Flex/Flex';
@@ -36,7 +32,6 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
     id,
     dataModelBindings,
     grid,
-    showExampleDate,
   } = useNodeItem(node);
 
   const calculatedMinDate = getDateConstraint(minDate, 'min');
@@ -66,35 +61,28 @@ export function DatepickerComponent({ node, overrideDisplay }: IDatepickerProps)
       description={getDescriptionComponent()}
     >
       <ComponentStructureWrapper node={node}>
-        <div className={styles.calendarGrid}>
-          <Flex
-            container
-            item
-            size={{ xs: 12 }}
-          >
-            <DatePickerControl
-              id={id}
-              value={value}
-              dateFormat={dateFormat}
-              timeStamp={timeStamp}
-              onValueChange={handleInputValueChange}
-              readOnly={readOnly}
-              required={required}
-              locale={languageLocale}
-              isMobile={isMobile}
-              minDate={calculatedMinDate}
-              maxDate={calculatedMaxDate}
-              DropdownCaption={DropdownCaption}
-              buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
-              calendarIconTitle={langAsString('date_picker.aria_label_icon')}
-            />
-          </Flex>
-          {showExampleDate === true && (
-            <span className={cn(styles.formatText, 'no-visual-testing')}>
-              {langAsString('date_picker.format_text', [formatDate(new Date(), dateFormat)])}
-            </span>
-          )}
-        </div>
+        <Flex
+          container
+          item
+          size={{ xs: 12 }}
+        >
+          <DatePickerControl
+            id={id}
+            value={value}
+            dateFormat={dateFormat}
+            timeStamp={timeStamp}
+            onValueChange={handleInputValueChange}
+            readOnly={readOnly}
+            required={required}
+            locale={languageLocale}
+            isMobile={isMobile}
+            minDate={calculatedMinDate}
+            maxDate={calculatedMaxDate}
+            DropdownCaption={DropdownCaption}
+            buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
+            calendarIconTitle={langAsString('date_picker.aria_label_icon')}
+          />
+        </Flex>
       </ComponentStructureWrapper>
     </Label>
   );
