@@ -11,7 +11,7 @@ import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ICardsProps = PropsFromGenericComponent<'Cards'>;
 
@@ -70,7 +70,7 @@ export const Cards = ({ node }: ICardsProps) => {
 
 type CardItemProps = {
   nodeId: string;
-  parentNode: BaseLayoutNode<'Cards'>;
+  parentNode: LayoutNode<'Cards'>;
   isMedia: boolean;
   minMediaHeight?: string;
 };

@@ -1,22 +1,31 @@
 .datepickerLabelWrapper span[id*='description-'] {
   margin-bottom: 0;
 }
-.calendarGrid {
-  gap: var(--ds-size-2);
-  display: flex;
-  flex-direction: column;
-  margin-bottom: var(--ds-size-2);
+
+.calendarDay {
+  width: 48px;
+  height: 48px;
+  text-align: center;
+}
+.calendarDay:hover {
+  border-radius: var(--fds-border_radius-medium);
+  background: var(--fds-colors-blue-200);
 }
 
-.formatText {
-  word-break: break-word;
-  line-height: 1.5rem;
-  display: inline-block;
-  font-weight: normal;
+.calendarDayButton {
+  height: 46px;
+  width: 46px;
+  background: transparent;
+  border: none;
 }
 
-.calendarButton {
-  background-color: white;
+.focusedDate {
+  border-radius: var(--fds-border_radius-medium);
+  background: var(--fds-colors-blue-200);
+}
+.today {
+  border-radius: var(--fds-border_radius-medium);
+  border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
 }
 
 .selectedDate {
@@ -25,9 +34,13 @@
   font-weight: normal;
   border-radius: var(--ds-border-radius-md);
 }
+.selectedDate:hover {
+  background: var(--fds-colors-blue-800);
+}
 .selectedDate button {
   color: white;
 }
+
 .disabledDate {
   border-radius: var(--ds-border-radius-md);
   background: var(--ds-color-neutral-1);

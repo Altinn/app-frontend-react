@@ -4,6 +4,7 @@ import type { NodeReference, PageReference } from 'src/features/expressions/type
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimsMap } from 'src/utils/layout/generator/GeneratorContext';
 
 interface PlainLayoutLookups {
   // Map of all component ids (without row indexes) to component definitions
@@ -37,21 +38,26 @@ interface RelationshipLookups {
     [componentId: string]: PageReference | NodeReference | undefined;
   };
 
+  // Map of all component ids to their children component ids
+  componentToChildren: {
+    [componentId: string]: string[] | undefined;
+  };
+
   // Map of all page keys to the top-level component ids on that page
   topLevelComponents: {
     [pageKey: string]: string[] | undefined;
   };
+
+  // Map of all parent component ids to their child claims
+  childClaims: ChildClaimsMap;
 }
 
 interface LookupFunctions {
   // Get the component config for a given ID and component type, or crash
-  getComponent<T extends CompTypes>(id: string, type: T): CompExternal<T>;
-}
-
-interface ChildClaims {
-  [parentId: string]: {
-    [childId: string]: true;
-  };
+  getComponent<T extends CompTypes | undefined = CompTypes>(
+    id: string,
+    type?: T,
+  ): CompExternal<T extends CompTypes ? T : CompTypes>;
 }
 
 export type LayoutLookups = PlainLayoutLookups & RelationshipLookups & LookupFunctions;
@@ -106,10 +112,11 @@ function makePlainLookup(layouts: ILayouts): PlainLayoutLookups {
 export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
   const plainLookups = makePlainLookup(layouts);
   const componentToParent: { [componentId: string]: PageReference | NodeReference } = {};
+  const componentToChildren: { [componentId: string]: string[] } = {};
   const topLevelComponents: { [pageKey: string]: string[] } = {};
+  const childClaims: ChildClaimsMap = {};
 
   for (const pageKey of Object.keys(plainLookups.allPerPage)) {
-    const childClaims: ChildClaims = {};
     const claimedIds = new Set<string>();
 
     if (!topLevelComponents[pageKey]) {
@@ -123,14 +130,19 @@ export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
         const parentId = component.id;
         const props: ChildClaimerProps<CompTypes> = {
           item: component,
-          claimChild: (_, childId) => {
+          claimChild: (pluginKey, childId) => {
             if (canClaimChild(childId, parentId, plainLookups, childClaims)) {
-              childClaims[parentId] = { ...childClaims[parentId], [childId]: true };
+              childClaims[parentId] = { ...childClaims[parentId], [childId]: { pluginKey } };
               claimedIds.add(childId);
               componentToParent[childId] = { type: 'node', id: parentId };
+              if (!componentToChildren[parentId]) {
+                componentToChildren[parentId] = [];
+              }
+              componentToChildren[parentId].push(childId);
             }
           },
-          getProto: (id) => getTypeAndCapabilities(id, component.id, plainLookups),
+          getType: (id) => getType(id, component.id, plainLookups),
+          getCapabilities: (type) => getComponentCapabilities(type),
         };
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -147,7 +159,7 @@ export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
     }
   }
 
-  const lookups = { ...plainLookups, componentToParent, topLevelComponents };
+  const lookups = { ...plainLookups, componentToParent, componentToChildren, topLevelComponents, childClaims };
   return makeLookupFunctions(lookups);
 }
 
@@ -159,15 +171,15 @@ function makeLookupFunctions(lookups: PlainLayoutLookups & RelationshipLookups):
       if (!component) {
         throw new Error(`Component '${id}' does not exist`);
       }
-      if (component.type !== type) {
+      if (type && component.type !== type) {
         throw new Error(`Component '${id}' is of type '${component.type}', not '${type}'`);
       }
-      return component as CompExternal<typeof type>;
+      return component as CompExternal<typeof type extends CompTypes ? typeof type : CompTypes>;
     },
   };
 }
 
-function canClaimChild(childId: string, parentId: string, lookup: PlainLayoutLookups, claims: ChildClaims) {
+function canClaimChild(childId: string, parentId: string, lookup: PlainLayoutLookups, claims: ChildClaimsMap) {
   const parentPageKey = lookup.componentToPage[parentId];
   const exists = !!lookup.allComponents[childId];
   if (!exists) {
@@ -202,11 +214,11 @@ function canClaimChild(childId: string, parentId: string, lookup: PlainLayoutLoo
  * the type and make the code calling this get the capabilities, but the code that needs these capabilities will crash
  * upon importing CSS in the code generator if we do that.
  */
-function getTypeAndCapabilities(id: string, requestedBy: string, lookup: PlainLayoutLookups) {
+function getType(id: string, requestedBy: string, lookup: PlainLayoutLookups) {
   const type = lookup.allComponents[id]?.type;
   if (type === undefined) {
     window.logError(`Component '${id}' (as referenced by '${requestedBy}') does not exist`);
     return undefined;
   }
-  return { type, capabilities: getComponentCapabilities(type) };
+  return type;
 }

@@ -66,7 +66,7 @@ export const ListComponent = ({ node }: IListProps) => {
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
 
   const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
-  const saveToList = item.dataModelBindings?.saveToList;
+  const groupBinding = item.dataModelBindings?.group;
 
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveIndexFromList();
@@ -75,7 +75,7 @@ export const ListComponent = ({ node }: IListProps) => {
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
 
-  const selectedRow = !saveToList
+  const selectedRow = !groupBinding
     ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
     : '';
 
@@ -88,21 +88,20 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowSelected(row: Row): boolean {
+    if (groupBinding) {
+      const rows = (formData?.group as Row[] | undefined) ?? [];
+      return rows.some((selectedRow) =>
+        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
+      );
+    }
     return JSON.stringify(selectedRow) === JSON.stringify(row);
-  }
-
-  function isRowChecked(row: Row): boolean {
-    const rows = (formData?.saveToList as Row[] | undefined) ?? [];
-    return rows.some((selectedRow) =>
-      Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
-    );
   }
 
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
 
   const handleRowClick = (row: Row) => {
-    if (saveToList) {
+    if (groupBinding) {
       handleSelectedCheckboxRow(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });
@@ -110,17 +109,17 @@ export const ListComponent = ({ node }: IListProps) => {
   };
 
   const handleSelectedCheckboxRow = (row: Row) => {
-    if (!saveToList) {
+    if (!groupBinding) {
       return;
     }
-    if (isRowChecked(row)) {
-      const index = (formData?.saveToList as Row[]).findIndex((selectedRow) => {
+    if (isRowSelected(row)) {
+      const index = (formData?.group as Row[]).findIndex((selectedRow) => {
         const { altinnRowId: _ } = selectedRow;
         return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
       });
       if (index >= 0) {
         removeFromList({
-          reference: saveToList,
+          reference: groupBinding,
           index,
         });
       }
@@ -128,12 +127,12 @@ export const ListComponent = ({ node }: IListProps) => {
       const uuid = uuidv4();
       const next: Row = { [ALTINN_ROW_ID]: uuid };
       for (const binding of Object.keys(bindings)) {
-        if (binding !== 'saveToList') {
+        if (binding !== 'group') {
           next[binding] = row[binding];
         }
       }
       appendToList({
-        reference: saveToList,
+        reference: groupBinding,
         newValue: { ...next },
       });
     }
@@ -163,7 +162,7 @@ export const ListComponent = ({ node }: IListProps) => {
   if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
-        {saveToList ? (
+        {groupBinding ? (
           <Fieldset>
             <Fieldset.Legend>
               {description && (
@@ -186,7 +185,7 @@ export const ListComponent = ({ node }: IListProps) => {
                 {...getCheckboxProps({ value: JSON.stringify(row) })}
                 onClick={() => handleRowClick(row)}
                 value={JSON.stringify(row)}
-                checked={isRowChecked(row)}
+                checked={isRowSelected(row)}
                 label={renderListItems(row, tableHeaders)}
               />
             ))}
@@ -276,13 +275,13 @@ export const ListComponent = ({ node }: IListProps) => {
                   [classes.selectedRowCell]: isRowSelected(row),
                 })}
               >
-                {saveToList ? (
+                {groupBinding ? (
                   <Checkbox
                     className={classes.toggleControl}
                     aria-label={JSON.stringify(row)}
                     onChange={() => {}}
                     value={JSON.stringify(row)}
-                    checked={isRowChecked(row)}
+                    checked={isRowSelected(row)}
                     name={node.id}
                   />
                 ) : (

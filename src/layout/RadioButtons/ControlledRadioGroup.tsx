@@ -15,7 +15,7 @@ import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
 import utilClasses from 'src/styles/utils.module.css';
 import { shouldUseRowLayout } from 'src/utils/layout';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -25,7 +25,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   const { node, overrideDisplay } = props;
   const isValid = useIsValid(node);
   const item = useNodeItem(node);
-  const parentItem = useNodeItem(node.parent instanceof BaseLayoutNode ? node.parent : undefined);
+  const parentItem = useNodeItem(node.parent instanceof LayoutNode ? node.parent : undefined);
   const { id, layout, readOnly, textResourceBindings, required, showLabelsInTable } = item;
   const showAsCard = 'showAsCard' in item ? item.showAsCard : false;
   const { selectedValues, handleChange, fetchingOptions, calculatedOptions } = useRadioButtons(props);

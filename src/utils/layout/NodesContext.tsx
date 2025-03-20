@@ -14,6 +14,7 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePdfLayoutName, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -41,7 +42,7 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
@@ -51,10 +52,9 @@ import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
+import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
@@ -510,20 +510,6 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     }
   }, [latestLayouts, layouts, markNotReady, reset, getProcessedLast]);
 
-  const layoutMap = useMemo(() => {
-    const out: { [id: string]: CompExternal } = {};
-    for (const page of Object.values(latestLayouts)) {
-      if (!page) {
-        continue;
-      }
-      for (const component of page) {
-        out[component.id] = component;
-      }
-    }
-
-    return out;
-  }, [latestLayouts]);
-
   if (layouts !== latestLayouts) {
     // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
     return <NodesLoader />;
@@ -533,7 +519,6 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     <ProvideLayoutPages value={pagesRef.current}>
       <GeneratorGlobalProvider
         layouts={layouts}
-        layoutMap={layoutMap}
         registry={registry}
       >
         {children}
@@ -746,7 +731,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): Layou
       return lastValue.current;
     }
 
-    const node = id instanceof BaseLayoutNode ? id : nodes.findById(id);
+    const node = id instanceof LayoutNode ? id : nodes.findById(id);
     lastValue.current = node;
     return node;
   });
@@ -830,14 +815,14 @@ export function isHidden(
     return isHiddenPage(state, id, _options);
   }
 
-  const pageKey = state.nodeData[id]?.pageKey;
-  if (pageKey && isHiddenPage(state, pageKey, _options)) {
-    return true;
-  }
-
   const options = withDefaults(_options);
   if (options.forcedVisibleByDevTools && options.respectDevTools) {
     return false;
+  }
+
+  const pageKey = state.nodeData[id]?.pageKey;
+  if (pageKey && isHiddenPage(state, pageKey, _options)) {
+    return true;
   }
 
   const hidden = state.nodeData[id]?.hidden;
@@ -874,23 +859,27 @@ function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHid
   };
 }
 
+function useIsForcedVisibleByDevTools() {
+  return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
+}
+
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
     const id = node instanceof LayoutPage ? node.pageKey : node?.id;
     return WhenReady.useSelector((s) => isHidden(s, type, id, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return WhenReady.useSelector((s) => {
       const pageKey = page instanceof LayoutPage ? page.pageKey : page;
       return isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options));
     });
   },
   useIsHiddenPageSelector() {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
@@ -903,14 +892,14 @@ export const Hidden = {
     );
   },
   useHiddenPages(): Set<string> {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
       Object.keys(s.pagesData.pages).filter((key) => isHiddenPage(s, key, makeOptions(forcedVisibleByDevTools))),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector() {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
@@ -924,7 +913,7 @@ export const Hidden = {
     );
   },
   useIsHiddenSelectorProps() {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useDelayedSelectorProps(
       {
         mode: 'simple',
@@ -1106,6 +1095,31 @@ export const NodesInternal = {
     });
   },
 
+  useNodeDataWhenType<T extends CompTypes, Out>(
+    nodeId: string | undefined,
+    type: T,
+    selector: (nodeData: NodeData<T>) => Out,
+  ) {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Conditionally.useMemoSelector((s) => {
+      if (!nodeId) {
+        return undefined;
+      }
+
+      const data =
+        insideGenerator && s.nodeData[nodeId]
+          ? s.nodeData[nodeId]
+          : s.readiness === NodesReadiness.Ready
+            ? s.nodeData[nodeId]
+            : (s.prevNodeData?.[nodeId] ?? s.nodeData[nodeId]);
+
+      if (!data || data.layout.type !== type) {
+        return undefined;
+      }
+
+      return selector(data as NodeData<T>);
+    });
+  },
   useNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (nodeData: NodeDataFromNode<N>, readiness: NodesReadiness, fullState: NodesContext) => Out,
