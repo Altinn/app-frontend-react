@@ -107,20 +107,23 @@ export const PartySelection = () => {
     return capitalizeName(selectedParty.name);
   }
 
-  function templateErrorMessage() {
-    if (errorCode === '403') {
-      return (
-        <Paragraph
-          data-testid={`error-code-${HttpStatusCodes.Forbidden}`}
-          className={classes.error}
-          id='party-selection-error'
-        >
-          {`${langAsString('party_selection.invalid_selection_first_part')} ${getRepresentedPartyName()}.
-            ${langAsString('party_selection.invalid_selection_second_part')} ${templatePartyTypesString()}.
-            ${langAsString('party_selection.invalid_selection_third_part')}`}
-        </Paragraph>
-      );
-    }
+  function TemplateErrorMessage() {
+    return (
+      <Paragraph
+        data-testid={`error-code-${HttpStatusCodes.Forbidden}`}
+        className={classes.error}
+        id='party-selection-error'
+      >
+        {!selectedParty ? (
+          <Lang
+            id='party_selection.invalid_selection_existing_party'
+            params={[getRepresentedPartyName(), templatePartyTypesString()]}
+          />
+        ) : (
+          <Lang id='party_selection.invalid_selection_no_party' />
+        )}
+      </Paragraph>
+    );
   }
 
   function templatePartyTypesString() {
@@ -197,7 +200,7 @@ export const PartySelection = () => {
         >
           <Lang id='party_selection.header' />
         </Heading>
-        {templateErrorMessage()}
+        {errorCode === '403' && <TemplateErrorMessage />}
       </Flex>
       <Flex
         container

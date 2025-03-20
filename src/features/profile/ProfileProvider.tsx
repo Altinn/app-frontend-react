@@ -16,7 +16,10 @@ export function useProfileQueryDef(enabled: boolean) {
   const { fetchUserProfile } = useAppQueries();
   return {
     queryKey: ['fetchUserProfile', enabled],
-    queryFn: fetchUserProfile,
+    queryFn: async () =>
+      // await new Promise((resolve) => setTimeout(resolvxe, 2000));
+
+      fetchUserProfile(),
     enabled,
   };
 }

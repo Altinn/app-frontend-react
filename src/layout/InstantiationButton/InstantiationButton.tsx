@@ -5,7 +5,7 @@ import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useCurrentParty, useCurrentParty2 } from 'src/features/party/PartiesProvider';
 import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 
 type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
@@ -16,6 +16,9 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useCurrentParty();
+  const party2 = useCurrentParty2();
+
+  console.log('InstantiationButton', { prefill, party, party2 });
 
   useEffect(() => {
     if (error) {

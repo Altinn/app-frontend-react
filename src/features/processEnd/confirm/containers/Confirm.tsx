@@ -34,7 +34,6 @@ export const Confirm = () => {
           instance={instance}
           instanceOwnerParty={instanceOwnerParty}
           appName={appName}
-          parties={parties}
         />
       )}
     </div>
