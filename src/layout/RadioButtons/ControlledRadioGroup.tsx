@@ -42,7 +42,11 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
       componentId={id}
       label={
         <>
-          {leftColumnHeader ? `${langAsString(leftColumnHeader)} ` : null}
+          {leftColumnHeader ? (
+            <>
+              <Lang id={leftColumnHeader} />{' '}
+            </>
+          ) : null}
           <Lang id={textResourceBindings?.title} />
         </>
       }
