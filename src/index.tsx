@@ -14,8 +14,6 @@ import 'src/features/logging';
 import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
 
-import { AppWrapper } from '@altinn/altinn-design-system';
-
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ViewportWrapper } from 'src/components/ViewportWrapper';
@@ -67,17 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
     <AppQueriesProvider {...queries}>
       <ErrorBoundary>
         <AppPrefetcher />
-        <AppWrapper>
-          <LanguageProvider>
-            <LangToolsStoreProvider>
-              <ViewportWrapper>
-                <UiConfigProvider>
-                  <RouterProvider router={router} />
-                </UiConfigProvider>
-              </ViewportWrapper>
-            </LangToolsStoreProvider>
-          </LanguageProvider>
-        </AppWrapper>
+        <LanguageProvider>
+          <LangToolsStoreProvider>
+            <ViewportWrapper>
+              <UiConfigProvider>
+                <RouterProvider router={router} />
+              </UiConfigProvider>
+            </ViewportWrapper>
+          </LangToolsStoreProvider>
+        </LanguageProvider>
       </ErrorBoundary>
     </AppQueriesProvider>,
   );
