@@ -97,9 +97,7 @@ export function DropzoneComponent({
 
           return (
             <div
-              {...getRootProps({
-                onClick,
-              })}
+              {...getRootProps({ onClick, role: 'button' })}
               style={styles}
               id={`altinn-drop-zone-${id}`}
               className={`${classes.fileUpload}${hasValidationMessages ? classes.fileUploadInvalid : ''}`}
