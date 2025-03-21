@@ -31,14 +31,13 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
     return null;
   }
 
-  const dataForPath = pick(externalApi.path, data[externalApi.id]);
+  const value = pick(externalApi.path, data[externalApi.id]);
 
-  if (!dataForPath) {
+  if (!value) {
     return null;
   }
 
   let dataToDisplay: FormDataObject[] = [];
-  const value = dataForPath;
 
   if (!isFormDataObject(value) && !isFormDataObjectArray(value)) {
     return;
