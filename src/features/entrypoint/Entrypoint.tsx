@@ -60,7 +60,7 @@ export const Entrypoint = () => {
     );
   }
 
-  if (currentParty === null) {
+  if (!currentParty) {
     return (
       <Navigate
         to='/party-selection/403'

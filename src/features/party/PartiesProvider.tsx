@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
+import { Loader } from 'src/core/loading/Loader';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
@@ -70,19 +72,32 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
   },
 });
 
-function getAltinnPartyIdCookie() {
-  return document.cookie
-    .split('; ')
-    .find((row) => row.startsWith(`${altinnPartyIdCookieName}=`))
-    ?.split('=')[1];
+function useAltinnPartyIdCookie() {
+  return useQuery({
+    queryKey: ['altinnPartyIdCookie'],
+    queryFn: () =>
+      document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(`${altinnPartyIdCookieName}=`))
+        ?.split('=')[1] ?? null,
+    enabled: true,
+  });
 }
 
-function setAltinnPartyIdCookie(partyId: string | number | undefined) {
-  const value = partyId ?? '';
-  document.cookie = `${altinnPartyIdCookieName}=${value};`;
-}
+const useSetAltinnPartyIdCookie = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (partyId: string | number | undefined) => {
+      const value = partyId ?? '';
+      document.cookie = `${altinnPartyIdCookieName}=${value};`;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['altinnPartyIdCookie'] });
+    },
+  });
+};
 
-function getCookieParty(partyId: string | undefined, parties: IParty[]): IParty | undefined {
+function getCookieParty(partyId: string | null | undefined, parties: IParty[]): IParty | undefined {
   if (!partyId) {
     return undefined;
   }
@@ -101,9 +116,10 @@ function getCookieParty(partyId: string | undefined, parties: IParty[]): IParty 
 function getRepresentedParty(
   cookieParty: IParty | undefined,
   profileParty: IParty | undefined,
-  altinnPartyIdCookieValue: string | undefined,
+  altinnPartyIdCookieValue: string | null | undefined,
 ): IParty | null {
   if (!altinnPartyIdCookieValue) {
+    // TODO: Should we throw here (or before somewhere) if profileParty is undefined?
     return profileParty ?? null;
   }
 
@@ -114,13 +130,23 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const validParties = useValidParties();
   const profile = useProfile();
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
+  const { data: altinnPartyIdCookieValue, isLoading, error: queryError } = useAltinnPartyIdCookie();
+  const { mutateAsync: setAltinnPartyIdCookie, error: mutationError } = useSetAltinnPartyIdCookie();
 
   if (!validParties?.length) {
     return <NoValidPartiesError />;
   }
 
-  const altinnPartyIdCookieValue = getAltinnPartyIdCookie();
   const cookieParty = getCookieParty(altinnPartyIdCookieValue, validParties);
+
+  if (isLoading) {
+    return <Loader reason='altinn-party-id-cookie' />;
+  }
+
+  const error = queryError ?? mutationError;
+  if (error) {
+    return <DisplayError error={error} />;
+  }
 
   return (
     <RealCurrentPartyProvider
