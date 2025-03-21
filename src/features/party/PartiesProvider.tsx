@@ -156,8 +156,6 @@ export const usePartiesAllowedToInstantiate = () => usePartiesAllowedToInstantia
 
 export const useCurrentParty = () => useCurrentPartyCtx().currentParty;
 
-export const useCurrentParty2 = () => useCurrentPartyCtx();
-
 export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
 
 export const useValidParties = () => usePartiesAllowedToInstantiateCtx()?.filter((party) => party.isDeleted === false);
