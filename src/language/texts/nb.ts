@@ -89,8 +89,7 @@ export function nb(): FixedLanguageList {
       file_uploader_list_header_status: 'Status',
       file_uploader_list_status_done: 'Ferdig lastet',
       file_uploader_list_header_delete_sr: 'Slett',
-      file_uploader_max_size: 'Maks filstørrelse',
-      file_uploader_mb: 'MB.',
+      file_uploader_max_size_mb: 'Maks filstørrelse {0} MB',
       file_uploader_upload: 'Last opp fil',
       file_uploader_number_of_files: 'Antall filer {0}.',
       file_uploader_show_more_errors: 'Vis {0} flere',
@@ -157,8 +156,10 @@ export function nb(): FixedLanguageList {
       create_new: 'Opprett ny',
       create: 'Opprett',
       customer_service_phone_number: '+47 75 00 60 00',
-      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_slack: 'https://altinn.slack.com',
       customer_service_email: 'servicedesk@altinn.no',
+      customer_service_error_message:
+        'Hvis du har behov for assistanse kan du nå Altinn på<br/><br/><li>Telefon: <a href="tel:{0}">{0}</a></li><li>E-post: {1}</li><li>Slack: {2}</li></ul>',
       delete: 'Slett',
       download: 'Nedlasting {0}',
       disabled: 'Deaktivert',
@@ -167,6 +168,7 @@ export function nb(): FixedLanguageList {
       edit_alt: 'Rediger',
       edit: 'Endre',
       empty_summary: 'Du har ikke lagt inn informasjon her',
+      empty_table: 'Ingen data funnet.',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
       full_width: 'Utvid bredden',
@@ -355,6 +357,81 @@ export function nb(): FixedLanguageList {
       validation_invalid_response_from_server: 'Det oppstod en feil. Vennligst prøv igjen senere.',
       unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
     },
+    signing: {
+      awaiting_signature_panel_title: 'Signer skjemaet',
+      checkbox_label: 'Jeg bekrefter at informasjonen og dokumentene er korrekte.',
+      sign_button: 'Signer skjemaet',
+
+      submit_panel_title: 'Du kan nå sende inn skjemaet',
+      submit_panel_description: 'Alle parter har signert! Velg "{0}" for å fullføre.',
+      submit_button: 'Send inn skjemaet',
+
+      awaiting_other_signatures_panel_title: 'Venter på signaturer',
+      awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
+      awaiting_other_signatures_panel_description_signed:
+        'Takk for at du signerte! Du kan sende inn skjemaet når alle parter har signert.',
+
+      no_action_required_panel_title_has_signed: 'Du har signert skjemaet',
+      no_action_required_panel_title_not_signed: 'Ingenting å signere',
+      no_action_required_panel_description_has_signed: 'Alt i orden! Du kan nå gå tilbake til innboksen.',
+      no_action_required_panel_description_not_signed: 'Du har ikke tilgang til å signere dette skjemaet.',
+      no_action_required_button: 'Gå til innboksen',
+
+      api_error_panel_title: 'Kunne ikke hente signeringsstatus',
+      api_error_panel_description:
+        'En feil oppstod under henting av status for signaturer. Prøv igjen senere eller kontakt skjemaeier for å rette opp feilen.',
+
+      delegation_error_panel_title: 'Kunne ikke gi tilgang til skjema',
+      delegation_error_panel_description:
+        'En eller flere av signatarene er ugyldige og har ikke fått tilgang til skjemaet. Gå tilbake for å prøve å rette opp feilen eller kontakt skjemaeier.',
+
+      reject_modal_title: 'Avbryt signeringsprosessen',
+      reject_modal_description:
+        'Ved å avbryte signeringsprosessen vil alle signaturer bli slettet og alle delegerte tilganger trukket tilbake.',
+      reject_modal_button: 'Avbryt signeringsprosessen',
+      reject_modal_trigger_button: 'Avbryt signering',
+
+      loading: 'Laster inn signeringsstatus...',
+      wrong_task_error: '{0}-komponenten er kun tilgjengelig i et signeringssteg.',
+      error_missing_signing_rights:
+        'Noe gikk galt. Nåværende bruker skal signere, men har ikke rettigheter til å gjøre det.',
+      error_signing: 'Noe gikk galt under signeringen. Prøv igjen.',
+    },
+    signee_list: {
+      parse_error: 'Feil ved lasting av signatarliste.',
+      unknown_api_error: 'En feil oppstod under henting av signatarer.',
+      api_error_display: 'En feil oppstod under henting av signatarer. Se devtool-loggene for mer informasjon.',
+      no_signees: 'Ingen signatarer funnet.',
+      signee_status_signed: 'Signert',
+      signee_status_waiting: 'Venter på signering',
+      signee_status_delegation_failed: 'Delegering mislyktes',
+      signee_status_notification_failed: 'Varsling mislyktes',
+      header_name: 'Navn',
+      header_on_behalf_of: 'På vegne av',
+      header_status: 'Status',
+    },
+    signee_list_summary: {
+      name_placeholder: 'Ukjent navn',
+      on_behalf_of: 'på vegne av',
+      loading: 'Laster signaturdata...',
+      error: 'Feil ved lasting av signaturdata.',
+      no_data: 'Ingen signaturdata.',
+      no_signatures: 'Ingen signaturer funnet.',
+      signed_time: 'Digitalt signert gjennom Altinn {0}',
+    },
+    signing_document_list: {
+      parse_error: 'Feil ved lasting av dokumenter.',
+      unknown_api_error: 'En feil oppstod under henting av doumenter.',
+      api_error_display: 'En feil oppstod under henting av dokumenter. Se devtool-loggene for mer informasjon.',
+      header_filename: 'Navn',
+      header_attachment_type: 'Vedleggstype',
+      header_size: 'Størrelse',
+      attachment_type_form: 'Skjema',
+      download: 'Last ned',
+    },
+    signing_document_list_summary: {
+      header: 'Signerte dokumenter',
+    },
     helptext: {
       button_title: 'Hjelp',
       button_title_prefix: 'Hjelpetekst for',
@@ -425,8 +502,6 @@ export function nb(): FixedLanguageList {
       nextPageAriaLabel: 'Neste side i tabell',
     },
     config_error: {
-      layoutset_subform_config_error_customer_support:
-        'Hvis du har behov for assistanse kan du nå Altinn på<br/><br/><li>Telefon: <a href="tel:{0}">{0}</a></li><li>E-post: {1}</li><li>Slack: {2}</li></ul>',
       layoutset_subform_config_error:
         'Layout set med id <strong>{0}</strong> er konfigurert feil.<br /><br />Layout set kan ikke ha både <strong>type</strong> <em>og</em> <strong>tasks</strong> definert.',
       layoutset_error: 'Layout set error',
