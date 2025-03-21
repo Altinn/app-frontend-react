@@ -10,21 +10,22 @@ import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
-import { getPartyDisplayName } from 'src/utils/party';
 import type { LogoColor } from 'src/components/logo/AltinnLogo';
 import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderProps {
   /** The party of the instance owner */
-  party: IParty | undefined;
+  instanceOwnerParty: IParty | undefined;
   /** The party of the currently logged in user */
   user: IProfile | undefined;
   logoColor: LogoColor;
   headerBackgroundColor: string;
 }
 
-export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: AppHeaderProps) => {
+export const AppHeader = ({ logoColor, headerBackgroundColor, instanceOwnerParty, user }: AppHeaderProps) => {
   const { showLanguageSelector } = usePageSettings();
+
+  const displayName = getPartyDisplayName(instanceOwnerParty, user);
 
   return (
     <header
@@ -44,10 +45,12 @@ export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: App
         <div className={classes.wrapper}>
           {showLanguageSelector && <LanguageSelector />}
           <div className={classes.wrapper}>
-            <span className={classes.partyName}>{getPartyDisplayName(party, user)}</span>
+            <span className={classes.partyName}>{displayName}</span>
             <AppHeaderMenu
-              party={party}
-              user={user}
+              party={{
+                orgNumber: instanceOwnerParty?.orgNumber ?? user?.party?.orgNumber ?? null,
+                displayName,
+              }}
               logoColor={logoColor}
             />
           </div>
@@ -67,3 +70,17 @@ const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
   const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
   return enableOrgLogo ? <OrganisationLogo /> : <AltinnLogo color={color} />;
 };
+
+function getPartyDisplayName(instanceOwnerParty?: IParty, user?: IProfile) {
+  if (!instanceOwnerParty && !user?.party) {
+    return null;
+  }
+
+  const userParty = user?.party;
+
+  if (instanceOwnerParty && instanceOwnerParty?.partyId !== userParty?.partyId) {
+    return `${userParty?.name} for ${instanceOwnerParty?.name}`;
+  }
+
+  return userParty?.name ?? '';
+}

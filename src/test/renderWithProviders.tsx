@@ -124,7 +124,6 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doPatchFormData: makeMock('doPatchFormData'),
   doPatchMultipleFormData: makeMock('doPatchMultipleFormData'),
   doPostStatelessFormData: makeMock('doPostStatelessFormData'),
-  doSetCurrentParty: makeMock('doSetCurrentParty'),
   doInstantiate: makeMock('doInstantiate'),
   doProcessNext: makeMock('doProcessNext'),
   doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
@@ -136,7 +135,6 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
 const defaultQueryMocks: AppQueries = {
   fetchLogo: async () => getLogoMock(),
   fetchActiveInstances: async () => [],
-  fetchCurrentParty: async () => getPartyMock(),
   fetchApplicationSettings: async () => ({}),
   fetchFooterLayout: async () => ({ footer: [] }) as IFooterLayout,
   fetchLayoutSets: async () => getLayoutSetsMock(),

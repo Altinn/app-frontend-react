@@ -13,7 +13,6 @@ describe('Confirm', () => {
       renderer: () => <Confirm />,
       queries: {
         fetchPartiesAllowedToInstantiate: () => Promise.resolve([getPartyMock()]),
-        fetchCurrentParty: () => Promise.resolve(getPartyMock()),
       },
     });
     const contentLoader = screen.queryByText('Loading...');
@@ -30,7 +29,6 @@ describe('Confirm', () => {
       instanceId: instance.id,
       queries: {
         fetchPartiesAllowedToInstantiate: () => Promise.resolve([partyMock.org]),
-        fetchCurrentParty: () => Promise.resolve(subunitParty),
         fetchInstanceData: (partyId: string, instanceGuid: string) => {
           expect(partyId).toBe(subunitParty.partyId.toString());
           expect(instance.id).toContain(instanceGuid);

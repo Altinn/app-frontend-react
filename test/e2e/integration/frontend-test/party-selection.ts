@@ -8,8 +8,14 @@ const appFrontend = new AppFrontend();
 
 describe('Party selection', () => {
   it('Party selection filtering and search', () => {
-    cyMockResponses({ allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg] });
+    cyMockResponses({
+      allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg],
+      doNotPromptForParty: false,
+    });
     cy.startAppInstance(appFrontend.apps.frontendTest);
+
+    cy.setCookie('AltinnPartyId', CyPartyMocks.ExampleDeletedOrg.partyId.toString());
+
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get(appFrontend.reporteeSelection.error).contains(texts.selectNewReportee);
     cy.findByText('underenheter').click();
@@ -24,16 +30,19 @@ describe('Party selection', () => {
   });
 
   it('Should show the correct title', () => {
-    cyMockResponses({ allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg] });
+    cyMockResponses({
+      allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg],
+      doNotPromptForParty: false,
+    });
     cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.setCookie('AltinnPartyId', CyPartyMocks.ExampleDeletedOrg.partyId.toString());
+
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.title().should('eq', 'Hvem vil du sende inn for? - frontend-test - Testdepartementet');
   });
 
   it('Should skip party selection if you can only represent one person', () => {
     cyMockResponses({
-      preSelectedParty: CyPartyMocks.ExamplePerson1.partyId,
-      currentParty: CyPartyMocks.ExamplePerson1,
       allowedToInstantiate: [CyPartyMocks.ExamplePerson1],
     });
     cy.intercept(
@@ -41,6 +50,9 @@ describe('Party selection', () => {
       `/ttd/frontend-test/instances?instanceOwnerPartyId=${CyPartyMocks.ExamplePerson1.partyId}*`,
     ).as('loadInstance');
     cy.startAppInstance(appFrontend.apps.frontendTest);
+
+    cy.setCookie('AltinnPartyId', CyPartyMocks.ExamplePerson1.partyId.toString());
+
     cy.get(appFrontend.reporteeSelection.reportee).should('not.exist');
     cy.wait('@loadInstance');
 
@@ -51,20 +63,15 @@ describe('Party selection', () => {
 
   it('Should show party selection with a warning when you cannot use the preselected party', () => {
     cyMockResponses({
-      preSelectedParty: CyPartyMocks.ExampleOrgWithSubUnit.partyId,
-
       // We'll only allow one party to be selected, and it's not the preselected one. Even though one-party-choices
       // normally won't show up as being selectable, we'll still show the warning in these cases.
       allowedToInstantiate: [CyPartyMocks.ExamplePerson2],
-      partyTypesAllowed: {
-        person: true,
-        subUnit: false,
-        bankruptcyEstate: false,
-        organisation: false,
-      },
     });
 
     cy.startAppInstance(appFrontend.apps.frontendTest);
+
+    cy.setCookie('AltinnPartyId', CyPartyMocks.ExampleOrgWithSubUnit.partyId.toString());
+
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get(appFrontend.reporteeSelection.error).should('be.visible');
   });
@@ -72,12 +79,6 @@ describe('Party selection', () => {
   it('Should show an error if there are no parties to select from', () => {
     cyMockResponses({
       allowedToInstantiate: [],
-      partyTypesAllowed: {
-        person: false,
-        subUnit: false,
-        bankruptcyEstate: false,
-        organisation: true,
-      },
     });
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');

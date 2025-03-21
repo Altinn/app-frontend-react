@@ -9,17 +9,14 @@ import classes from 'src/components/presentation/AppHeader/AppHeaderMenu.module.
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { getPartyDisplayName } from 'src/utils/party';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
-import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderMenuProps {
-  party: IParty | undefined;
-  user: IProfile | undefined;
+  party: { orgNumber: string | null; displayName: string | null } | undefined;
   logoColor: string;
 }
 
-export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
+export function AppHeaderMenu({ party, logoColor }: AppHeaderMenuProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -60,7 +57,7 @@ export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
         </CircleIcon>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        <DropdownMenu.Group heading={isMobile ? getPartyDisplayName(party, user) : undefined}>
+        <DropdownMenu.Group heading={isMobile ? party.displayName : undefined}>
           <DropdownMenu.Item asChild>
             <a href={logoutUrlAltinn(window.location.host)}>
               <Lang id='general.log_out' />
