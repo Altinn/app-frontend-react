@@ -40,7 +40,7 @@ export const RepeatingGroupSummary = ({
   if (rows.length === 0) {
     return (
       <SingleValueSummary
-        title={title}
+        title={<Lang id={title} />}
         componentNode={componentNode}
         errors={errors}
         isCompact={isCompact}
