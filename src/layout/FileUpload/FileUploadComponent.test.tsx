@@ -67,7 +67,7 @@ describe('FileUploadComponent', () => {
       const file = new File(['(⌐□_□)'], attachment?.filename || '', { type: attachment.contentType });
 
       const fileInput = screen
-        .getByRole('presentation', { name: /attachment-title/i })
+        .getByRole('button', { name: /attachment-title/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(fileInput, file);
 
@@ -123,7 +123,7 @@ describe('FileUploadComponent', () => {
         attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(screen.queryByRole('presentation', { name: /attachment-title/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /attachment-title/i })).not.toBeInTheDocument();
     });
 
     it('should display drop area when displayMode is not simple', async () => {
@@ -132,7 +132,7 @@ describe('FileUploadComponent', () => {
         attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(screen.getByRole('presentation', { name: /attachment-title/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /attachment-title/i })).toBeInTheDocument();
     });
 
     it('should not display drop area when displayMode is not simple and max attachments is reached', async () => {
@@ -141,7 +141,7 @@ describe('FileUploadComponent', () => {
         attachments: (dataType) => getDataElements({ count: 3, dataType }),
       });
 
-      expect(screen.queryByRole('presentation', { name: /attachment-title/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /attachment-title/i })).not.toBeInTheDocument();
     });
   });
 
@@ -222,7 +222,7 @@ describe('FileUploadWithTagComponent', () => {
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
 
       const dropZone = screen
-        .getByRole('presentation', { name: /attachment-title/i })
+        .getByRole('button', { name: /attachment-title/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
@@ -302,7 +302,7 @@ describe('FileUploadWithTagComponent', () => {
       const file = new File(['(⌐□_□)'], 'chucknorris.png', { type: 'image/png' });
 
       const dropZone = screen
-        .getByRole('presentation', { name: /attachment-title/i })
+        .getByRole('button', { name: /attachment-title/i })
         .querySelector('input') as HTMLInputElement;
       await userEvent.upload(dropZone, file);
 
@@ -362,7 +362,7 @@ describe('FileUploadWithTagComponent', () => {
         attachments: (dataType) => getDataElements({ count: 2, dataType }),
       });
 
-      expect(screen.getByRole('presentation', { name: /attachment-title/i }).textContent).toMatch(
+      expect(screen.getByRole('button', { name: /attachment-title/i }).textContent).toMatch(
         'Dra og slipp eller let etter filTillatte filformater er: alle',
       );
     });
@@ -374,7 +374,7 @@ describe('FileUploadWithTagComponent', () => {
       });
 
       expect(
-        screen.queryByRole('presentation', {
+        screen.queryByRole('button', {
           name: /attachment-title/i,
         }),
       ).not.toBeInTheDocument();

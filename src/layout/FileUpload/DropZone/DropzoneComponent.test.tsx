@@ -45,7 +45,7 @@ describe('DropzoneComponent', () => {
         </>
       ),
     });
-    const dropzone = screen.getByRole('presentation', {
+    const dropzone = screen.getByRole('button', {
       name: /Enkel filopplasting/i,
       description: /Enkel beskrivelse/i,
     });
@@ -57,7 +57,7 @@ describe('DropzoneComponent', () => {
       renderer: () => <DropzoneComponent {...defaultProps} />,
     });
 
-    const dropzone = screen.getByRole('presentation');
+    const dropzone = screen.getByRole('button');
     expect(dropzone.getAttribute('aria-describedby')).not.toContain(getDescriptionId(id));
   });
 });
