@@ -54,8 +54,6 @@ describe('presentation/AppHeader', () => {
     return await renderWithInstanceAndLayout({
       renderer: () => (
         <AppHeader
-          instanceOwnerParty={party}
-          user={user}
           logoColor={LogoColor.blueDarker}
           headerBackgroundColor={headerBackgroundColor}
         />

@@ -12,16 +12,17 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
 
 export interface AppHeaderMenuProps {
-  party: { orgNumber: string | null; displayName: string | null } | undefined;
+  orgNumber: string | null;
+  displayName: string | null;
   logoColor: string;
 }
 
-export function AppHeaderMenu({ party, logoColor }: AppHeaderMenuProps) {
+export function AppHeaderMenu({ orgNumber, displayName, logoColor }: AppHeaderMenuProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!party) {
+  if (!orgNumber && !displayName) {
     return <div style={{ height: 40 }} />;
   }
 
@@ -43,7 +44,7 @@ export function AppHeaderMenu({ party, logoColor }: AppHeaderMenuProps) {
           size='1.5rem'
           color={logoColor}
         >
-          {party.orgNumber ? (
+          {orgNumber ? (
             <Buildings3Icon
               color='white'
               aria-hidden='true'
@@ -57,7 +58,7 @@ export function AppHeaderMenu({ party, logoColor }: AppHeaderMenuProps) {
         </CircleIcon>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        <DropdownMenu.Group heading={isMobile ? party.displayName : undefined}>
+        <DropdownMenu.Group heading={isMobile ? displayName : undefined}>
           <DropdownMenu.Item asChild>
             <a href={logoutUrlAltinn(window.location.host)}>
               <Lang id='general.log_out' />

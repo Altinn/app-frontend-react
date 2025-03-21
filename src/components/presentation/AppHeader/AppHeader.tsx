@@ -10,22 +10,23 @@ import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
+import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import type { LogoColor } from 'src/components/logo/AltinnLogo';
 import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderProps {
-  /** The party of the instance owner */
-  instanceOwnerParty: IParty | undefined;
-  /** The party of the currently logged in user */
-  user: IProfile | undefined;
   logoColor: LogoColor;
   headerBackgroundColor: string;
 }
 
-export const AppHeader = ({ logoColor, headerBackgroundColor, instanceOwnerParty, user }: AppHeaderProps) => {
+export const AppHeader = ({ logoColor, headerBackgroundColor }: AppHeaderProps) => {
+  const user = useProfile();
+  const instanceOwnerParty = useInstanceOwnerParty();
   const { showLanguageSelector } = usePageSettings();
 
   const displayName = getPartyDisplayName(instanceOwnerParty, user);
+  const orgNumber = instanceOwnerParty?.orgNumber ?? user?.party?.orgNumber ?? null;
 
   return (
     <header
@@ -47,10 +48,8 @@ export const AppHeader = ({ logoColor, headerBackgroundColor, instanceOwnerParty
           <div className={classes.wrapper}>
             <span className={classes.partyName}>{displayName}</span>
             <AppHeaderMenu
-              party={{
-                orgNumber: instanceOwnerParty?.orgNumber ?? user?.party?.orgNumber ?? null,
-                displayName,
-              }}
+              orgNumber={orgNumber}
+              displayName={displayName}
               logoColor={logoColor}
             />
           </div>
