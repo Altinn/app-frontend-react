@@ -95,18 +95,12 @@ export function DropzoneComponent({
             ? `${descriptionId} ${maxSizeLabelId} ${dragLabelId} ${formatLabelId}`
             : `${maxSizeLabelId} ${dragLabelId} ${formatLabelId}`;
 
-          // Remove the role supplied from rootProps for our own role override
-          // to work (the user can click it, so it's a button)
-          const rootProps = getRootProps({ onClick }) as ReturnType<typeof getRootProps> & { role?: string };
-          delete rootProps.role;
-
           return (
             <div
-              {...rootProps}
+              {...getRootProps({ onClick, role: 'button' })}
               style={styles}
               id={`altinn-drop-zone-${id}`}
               className={`${classes.fileUpload}${hasValidationMessages ? classes.fileUploadInvalid : ''}`}
-              role='button'
               aria-labelledby={labelId}
               aria-describedby={ariaDescribedBy}
             >
