@@ -137,8 +137,6 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
     return <NoValidPartiesError />;
   }
 
-  const cookieParty = getCookieParty(altinnPartyIdCookieValue, validParties);
-
   if (isLoading) {
     return <Loader reason='altinn-party-id-cookie' />;
   }
@@ -148,10 +146,13 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
     return <DisplayError error={error} />;
   }
 
+  const cookieParty = getCookieParty(altinnPartyIdCookieValue, validParties);
+  const currentParty = getRepresentedParty(cookieParty, profile?.party, altinnPartyIdCookieValue);
+
   return (
     <RealCurrentPartyProvider
       value={{
-        currentParty: getRepresentedParty(cookieParty, profile?.party, altinnPartyIdCookieValue),
+        currentParty,
         userHasSelectedParty,
         setUserHasSelectedParty,
         setParty: async (party: IParty) => setAltinnPartyIdCookie(party.partyId),
