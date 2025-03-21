@@ -94,8 +94,6 @@ export const CyPartyMocks = {
 };
 
 interface Mockable {
-  preSelectedParty?: number;
-  currentParty?: IParty;
   allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
   doNotPromptForParty?: boolean;
   appPromptForPartyOverride?: IncomingApplicationMetadata['promptForParty'];
@@ -104,19 +102,6 @@ interface Mockable {
 }
 
 export function cyMockResponses(whatToMock: Mockable) {
-  if (whatToMock.preSelectedParty !== undefined) {
-    // Sets the 'AltinnPartyId' cookie to emulate having selected a party when logging in to Altinn
-    cy.setCookie('AltinnPartyId', whatToMock.preSelectedParty.toString());
-  }
-
-  if (whatToMock.currentParty) {
-    cy.intercept('GET', `**/api/authorization/parties/current?returnPartyObject=true`, (req) => {
-      req.on('response', (res) => {
-        res.body = whatToMock.currentParty;
-      });
-    });
-  }
-
   if (whatToMock.allowedToInstantiate) {
     cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
       req.continue((res) => {
@@ -125,17 +110,20 @@ export function cyMockResponses(whatToMock: Mockable) {
             ? whatToMock.allowedToInstantiate(res.body)
             : // eslint-disable-next-line @typescript-eslint/no-explicit-any
               (whatToMock.allowedToInstantiate as any);
-        res.send(body);
+        res.send(200, body);
       });
     });
   }
   if (whatToMock.doNotPromptForParty !== undefined) {
-    cy.intercept('GET', '**/api/v1/profile/user', {
-      body: {
-        profileSettingPreference: {
-          doNotPromptForParty: whatToMock.doNotPromptForParty,
-        },
-      },
+    cy.intercept('GET', '**/api/v1/profile/user', (req) => {
+      req.continue((res) =>
+        res.send({
+          ...res.body,
+          profileSettingPreference: {
+            doNotPromptForParty: whatToMock.doNotPromptForParty,
+          },
+        }),
+      );
     });
   }
   if (whatToMock.appPromptForPartyOverride !== undefined || whatToMock.partyTypesAllowed !== undefined) {
