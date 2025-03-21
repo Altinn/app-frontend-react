@@ -8,7 +8,10 @@ const appFrontend = new AppFrontend();
 
 describe('Party selection', () => {
   it('Party selection filtering and search', () => {
-    cyMockResponses({ allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg] });
+    cyMockResponses({
+      allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg],
+      doNotPromptForParty: false,
+    });
     cy.startAppInstance(appFrontend.apps.frontendTest);
 
     cy.setCookie('AltinnPartyId', CyPartyMocks.ExampleDeletedOrg.partyId.toString());
@@ -27,7 +30,10 @@ describe('Party selection', () => {
   });
 
   it('Should show the correct title', () => {
-    cyMockResponses({ allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg] });
+    cyMockResponses({
+      allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg],
+      doNotPromptForParty: false,
+    });
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.title().should('eq', 'Hvem vil du sende inn for? - frontend-test - Testdepartementet');

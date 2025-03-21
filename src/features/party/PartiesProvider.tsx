@@ -12,7 +12,7 @@ import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValid
 import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
 
-export const altinnPartyIdCookieName = 'altinnPartyId';
+export const altinnPartyIdCookieName = 'AltinnPartyId';
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
 export function usePartiesAllowedToInstantiateQueryDef(enabled: boolean) {
