@@ -18,11 +18,6 @@ export const InstantiateContainer = () => {
   const instantiation = useInstantiation();
   const clearRef = useAsRef(instantiation.clear);
 
-  console.group('InstantiateContainer');
-  console.log('party', party);
-  console.log('instantiation', instantiation);
-  console.groupEnd();
-
   if (instantiationCleanupTimeout) {
     // If we render this again before the cleanup timeout has run, we should clear it to avoid the cleanup.
     clearTimeout(instantiationCleanupTimeout);

@@ -6,11 +6,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import {
-  useCurrentParty,
-  useHasSelectedParty,
-  usePartiesAllowedToInstantiate,
-} from 'src/features/party/PartiesProvider';
+import { useCurrentParty, useHasSelectedParty, useValidParties } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import type { ShowTypes } from 'src/features/applicationMetadata/types';
@@ -46,7 +42,7 @@ export const Entrypoint = () => {
     promptForParty,
   } = useApplicationMetadata();
   const profile = useProfile();
-  const parties = usePartiesAllowedToInstantiate();
+  const validParties = useValidParties();
   const userHasSelectedParty = useHasSelectedParty();
   const allowAnonymous = useAllowAnonymousIs(true);
   const currentParty = useCurrentParty();
@@ -73,11 +69,11 @@ export const Entrypoint = () => {
     );
   }
 
-  if (!parties?.length) {
+  if (!validParties?.length) {
     return <NoValidPartiesError />;
   }
 
-  if (parties.length === 1 || userHasSelectedParty) {
+  if (validParties.length === 1 || userHasSelectedParty) {
     return <ShowOrInstantiate show={show} />;
   }
 

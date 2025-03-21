@@ -71,12 +71,10 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
 });
 
 function getAltinnPartyIdCookie() {
-  return (
-    document.cookie
-      .split('; ')
-      .find((row) => row.startsWith(`${altinnPartyIdCookieName}=`))
-      ?.split('=')[1] ?? null
-  );
+  return document.cookie
+    .split('; ')
+    .find((row) => row.startsWith(`${altinnPartyIdCookieName}=`))
+    ?.split('=')[1];
 }
 
 function setAltinnPartyIdCookie(partyId: string | number | undefined) {
@@ -84,7 +82,7 @@ function setAltinnPartyIdCookie(partyId: string | number | undefined) {
   document.cookie = `${altinnPartyIdCookieName}=${value};`;
 }
 
-function getCookieParty(partyId: string | null, parties: IParty[]): IParty | undefined {
+function getCookieParty(partyId: string | undefined, parties: IParty[]): IParty | undefined {
   if (!partyId) {
     return undefined;
   }
@@ -103,7 +101,7 @@ function getCookieParty(partyId: string | null, parties: IParty[]): IParty | und
 function getRepresentedParty(
   cookieParty: IParty | undefined,
   profileParty: IParty | undefined,
-  altinnPartyIdCookieValue: string | null,
+  altinnPartyIdCookieValue: string | undefined,
 ): IParty | null {
   if (!altinnPartyIdCookieValue) {
     return profileParty ?? null;

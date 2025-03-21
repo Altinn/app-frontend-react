@@ -35,6 +35,8 @@ describe('Party selection', () => {
       doNotPromptForParty: false,
     });
     cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.setCookie('AltinnPartyId', CyPartyMocks.ExampleDeletedOrg.partyId.toString());
+
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.title().should('eq', 'Hvem vil du sende inn for? - frontend-test - Testdepartementet');
   });
