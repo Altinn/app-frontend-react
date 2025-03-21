@@ -7,12 +7,6 @@ const appFrontend = new AppFrontend();
 describe('Stateless party selection', () => {
   it('should show party selection before starting instance', () => {
     cyMockResponses({
-      partyTypesAllowed: {
-        person: true,
-        subUnit: false,
-        bankruptcyEstate: false,
-        organisation: false,
-      },
       allowedToInstantiate: removeAllButOneOrg,
       doNotPromptForParty: false,
     });

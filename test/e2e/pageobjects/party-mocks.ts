@@ -97,7 +97,6 @@ interface Mockable {
   allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
   doNotPromptForParty?: boolean;
   appPromptForPartyOverride?: IncomingApplicationMetadata['promptForParty'];
-  partyTypesAllowed?: IncomingApplicationMetadata['partyTypesAllowed'];
   noActiveInstances?: boolean; // Defaults to true
 }
 
@@ -126,14 +125,11 @@ export function cyMockResponses(whatToMock: Mockable) {
       );
     });
   }
-  if (whatToMock.appPromptForPartyOverride !== undefined || whatToMock.partyTypesAllowed !== undefined) {
+  if (whatToMock.appPromptForPartyOverride !== undefined) {
     cy.intercept('GET', '**/api/v1/applicationmetadata', (req) => {
       req.on('response', (res) => {
         if (whatToMock.appPromptForPartyOverride !== undefined) {
           res.body.promptForParty = whatToMock.appPromptForPartyOverride;
-        }
-        if (whatToMock.partyTypesAllowed !== undefined) {
-          res.body.partyTypesAllowed = whatToMock.partyTypesAllowed;
         }
       });
     });

@@ -66,12 +66,6 @@ describe('Party selection', () => {
       // We'll only allow one party to be selected, and it's not the preselected one. Even though one-party-choices
       // normally won't show up as being selectable, we'll still show the warning in these cases.
       allowedToInstantiate: [CyPartyMocks.ExamplePerson2],
-      partyTypesAllowed: {
-        person: true,
-        subUnit: false,
-        bankruptcyEstate: false,
-        organisation: false,
-      },
     });
 
     cy.startAppInstance(appFrontend.apps.frontendTest);
@@ -85,12 +79,6 @@ describe('Party selection', () => {
   it('Should show an error if there are no parties to select from', () => {
     cyMockResponses({
       allowedToInstantiate: [],
-      partyTypesAllowed: {
-        person: false,
-        subUnit: false,
-        bankruptcyEstate: false,
-        organisation: true,
-      },
     });
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
