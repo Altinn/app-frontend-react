@@ -39,19 +39,6 @@ const usePartiesAllowedToInstantiateQuery = () => {
   };
 };
 
-// Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
-export function altinnPartyIdCookieQuery(enabled: boolean) {
-  return {
-    queryKey: ['currentParty'],
-    queryFn: () =>
-      document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(`${altinnPartyIdCookieName}=`))
-        ?.split('=')[1],
-    enabled,
-  };
-}
-
 const { Provider: PartiesProvider, useCtx: usePartiesAllowedToInstantiateCtx } = delayedContext(() =>
   createQueryContext<IParty[] | undefined, false>({
     name: 'Parties',

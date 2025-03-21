@@ -1,5 +1,5 @@
 import { usePrefetchQuery } from 'src/core/queries/usePrefetchQuery';
-import { altinnPartyIdCookieQuery, usePartiesQueryDef } from 'src/features/party/PartiesProvider';
+import { usePartiesQueryDef } from 'src/features/party/PartiesProvider';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 
 /**
@@ -9,7 +9,6 @@ export function PartyPrefetcher() {
   const enabled = useShouldFetchProfile();
 
   usePrefetchQuery(usePartiesQueryDef(true), enabled);
-  usePrefetchQuery(altinnPartyIdCookieQuery(true), enabled);
 
   return null;
 }
