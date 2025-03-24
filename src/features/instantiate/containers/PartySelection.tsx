@@ -115,12 +115,12 @@ export const PartySelection = () => {
         id='party-selection-error'
       >
         {!selectedParty ? (
+          <Lang id='party_selection.invalid_selection_non_existing_party' />
+        ) : (
           <Lang
             id='party_selection.invalid_selection_existing_party'
             params={[getRepresentedPartyName(), templatePartyTypesString()]}
           />
-        ) : (
-          <Lang id='party_selection.invalid_selection_no_party' />
         )}
       </Paragraph>
     );
