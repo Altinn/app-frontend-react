@@ -22,11 +22,7 @@ export function useValidateComponent(component: ResolvedCompExternal, currentVal
       return [];
     }
 
-    // Add your own validation rules here
     const errors: string[] = [];
-
-    // Example:
-    // Check if required is set but there's no dataModelBindings (makes no sense, etc.)
 
     if (
       component.required &&
@@ -43,5 +39,5 @@ export function useValidateComponent(component: ResolvedCompExternal, currentVal
     // More checks as needed...
 
     return errors;
-  }, [component]);
+  }, [component, currentValue]);
 }

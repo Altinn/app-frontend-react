@@ -72,7 +72,7 @@ export const RenderComponent = memo(function RenderComponent({
   }
 
   return (
-    <div key={component.id}>
+    <div id={component.id}>
       {component.type === 'Paragraph' && <p>{textResource?.value}</p>}
 
       {component.type === 'Header' && <h1>{textResource?.value}</h1>}
@@ -86,6 +86,7 @@ export const RenderComponent = memo(function RenderComponent({
             <Label label={textResource?.value || ''} />
             <Input
               value={value}
+              error={validationErrors.length > 0 ? validationErrors[0] : null}
               onChange={(e) => {
                 if (binding) {
                   // @ts-ignore
