@@ -50,7 +50,7 @@ export const RenderComponent = memo(function RenderComponent({
     useShallow((state) => (binding ? dot.pick(binding, state.data) : undefined)),
   );
 
-  const validationErrors = useValidateComponent(component, value);
+  const validationErrors = useValidateComponent(component, value, parentBinding, itemIndex);
 
   const isHidden = useStore(layoutStore, (state) => {
     if (!component.hidden) {

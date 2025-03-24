@@ -35,7 +35,6 @@ interface Layouts {
   process: ProcessSchema;
   pageOrder: PageOrderDTO;
   layouts: ResolvedLayoutCollection;
-  // You can store the resolved layouts if needed, or skip
   resolvedLayouts: ResolvedLayoutCollection;
   data: DataObject | undefined;
 
@@ -65,26 +64,8 @@ function buildComponentMap(collection: ResolvedLayoutCollection) {
         map[comp.id] = comp;
       }
 
-      // If this component has children, we need to recurse.
-      // Be aware that for repeating groups, `comp.children` might itself be an
-      // array of arrays. Example: [[child1, child2], [child1, child2]]
-      // So we do a further check:
       if (Array.isArray(comp.children)) {
-        // Check if comp.children looks like an array-of-arrays (repeating groups)
-
         traverse(comp.children as ResolvedCompExternal[]);
-
-        // const firstChild = comp.children[0];
-        // if (Array.isArray(firstChild)) {
-        //   // Flatten each sub-array
-        //   for (const subArray of comp.children) {
-        //     // @ts-ignore
-        //     traverse(subArray as ResolvedCompExternal[]);
-        //   }
-        // } else {
-        //   // Normal single array of children
-        //   traverse(comp.children as ResolvedCompExternal[]);
-        // }
       }
     }
   }
@@ -97,38 +78,6 @@ function buildComponentMap(collection: ResolvedLayoutCollection) {
 
   return map;
 }
-
-// function buildComponentMap(collection: ResolvedLayoutCollection) {
-//   const map: Record<string, ResolvedCompExternal> = {};
-//
-//   function recurse(components: ResolvedCompExternal[]) {
-//     for (const comp of components) {
-//       // Add the component to the map
-//       if (comp.id) {
-//         map[comp.id] = comp;
-//       }
-//       // If it has children, recurse
-//       if (comp.children && comp.children.length > 0) {
-//         for (const childGroup of comp.children) {
-//           // If `children` is an array-of-arrays for repeating groups,
-//           // handle that. Otherwise, just one array:
-//           if (Array.isArray(childGroup)) {
-//             recurse(childGroup);
-//           } else if (childGroup.children) {
-//             recurse(comp.children);
-//           }
-//         }
-//       }
-//     }
-//   }
-//
-//   // For each page, walk its layout array
-//   for (const pageName of Object.keys(collection)) {
-//     recurse(collection[pageName].data.layout);
-//   }
-//
-//   return map;
-// }
 
 export const layoutStore = createStore<Layouts>()(
   subscribeWithSelector(
@@ -154,10 +103,8 @@ export const layoutStore = createStore<Layouts>()(
               },
             };
           });
-          // Build the map
           const compMap = buildComponentMap(resolvedLayoutCollection);
 
-          // Store both the resolved layouts and the map
           set({
             layouts: resolvedLayoutCollection,
             componentMap: compMap,
@@ -182,19 +129,7 @@ export const layoutStore = createStore<Layouts>()(
                 dot.set(dataKeyToUpdate, newValue, draft.data);
               }
             });
-            //
-            // const currentVal = dot.pick(dataKeyToUpdate, state.data);
-            // if (currentVal === newValue) {
-            //   return {};
-            // }
-            //
-            // dot.set(dataKeyToUpdate, newValue, state.data);
-            // return { data: { ...state.data } };
           });
-        },
-
-        updateResolvedLayouts: () => {
-          // If you do something else to rebuild resolvedLayouts, do it here
         },
 
         evaluateExpression: (expr: Expression, parentBinding?: string, itemIndex?: number) => {
