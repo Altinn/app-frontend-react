@@ -99,14 +99,14 @@ export function DropzoneComponent({
             <div
               {...getRootProps({ onClick, role: 'button' })}
               style={styles}
-              id={`altinn-drop-zone-${id}`}
+              id={id}
               className={`${classes.fileUpload}${hasValidationMessages ? classes.fileUploadInvalid : ''}`}
               aria-labelledby={labelId}
               aria-describedby={ariaDescribedBy}
             >
               <input
-                {...getInputProps()}
-                id={id}
+                {...getInputProps({ role: 'none' })}
+                id={`hidden-input-${id}`}
               />
               <div className={classes.fileUploadWrapper}>
                 <CloudUpIcon

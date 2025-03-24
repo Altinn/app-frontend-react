@@ -161,7 +161,7 @@ export class AppFrontend {
     dateOfEffect: '#dateOfEffect',
     municipalityMetadata: '#kommuner-metadata',
     municipality: '#kommune',
-    upload: '#fileUpload-changename',
+    upload: '#fileUpload-changename input',
     uploadWithTag: {
       uploadZone: '#fileUploadWithTags-changename',
       editWindow: '[id^="attachment-edit-window"]',
@@ -179,7 +179,6 @@ export class AppFrontend {
     uploadedTable: '#file-upload-table',
     downloadAttachment: '[data-testid="attachment-download"]',
     fileUploadSuccess: '[data-testid="status-success"]',
-    uploadDropZone: '#altinn-drop-zone-fileUpload-changename',
     componentSummary: '[data-testid="summary-item-simple"]',
     uploadError: '#error_fileUpload-changename',
     summaryReference: '[data-componentid="summary-reference"]',
@@ -380,8 +379,8 @@ export function makeUploaderSelectors<T extends Type>(
   return {
     fileUploader: `#altinn-fileuploader-${id}-${row}`,
     stateKey: `${id}-${row}`,
-    dropZoneContainer: `#altinn-drop-zone-${id}-${row}`,
-    dropZone: `#altinn-drop-zone-${id}-${row} input[type=file]`,
+    dropZoneContainer: `#${id}-${row}`,
+    dropZone: `#${id}-${row} input[type=file]`,
     attachments: (idx) => ({
       name: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(1)`,
       status: `${tableSelector} > tbody > tr:nth-child(${idx + 1}) > td:nth-child(${statusIdx})`,

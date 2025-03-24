@@ -47,7 +47,7 @@ describe('Attachments', () => {
     assertAttachments();
 
     // Upload 5 files in quick succession
-    cy.get('#altinn-drop-zone-attachments input[type=file]').selectFile(
+    cy.get('#attachments input[type=file]').selectFile(
       [mkFile('test1.png'), mkFile('test2.png'), mkFile('test3.png'), mkFile('test4.png'), mkFile('test5.png')],
       { force: true },
     );
@@ -74,10 +74,9 @@ describe('Attachments', () => {
     cy.get('#Input-Name').type(',delete,test5.png');
     assertAttachments();
 
-    cy.get('#altinn-drop-zone-attachments input[type=file]').selectFile(
-      [mkFile('whatever.png'), mkFile('idontcare.png')],
-      { force: true },
-    );
+    cy.get('#attachments input[type=file]').selectFile([mkFile('whatever.png'), mkFile('idontcare.png')], {
+      force: true,
+    });
 
     cy.get('#altinn-fileuploader-attachments')
       .findByRole('alert')

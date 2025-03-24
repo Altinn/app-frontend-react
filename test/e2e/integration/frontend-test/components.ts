@@ -51,9 +51,7 @@ describe('UI Components', () => {
     }).as('uploadWithDelay');
 
     cy.goto('changename');
-    cy.findByRole('presentation', {
-      name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
-    }).should('be.visible');
+    cy.findByRole('button', { name: /Last opp eventuell dokumentasjon for ditt nye navn/i }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.uploadedTable)
@@ -74,9 +72,7 @@ describe('UI Components', () => {
       }
     });
     cy.goto('changename');
-    cy.findByRole('presentation', {
-      name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
-    }).should('be.visible');
+    cy.findByRole('button', { name: /Last opp eventuell dokumentasjon for ditt nye navn/i }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
@@ -95,9 +91,7 @@ describe('UI Components', () => {
       });
     }).as('uploadWithDelay');
 
-    cy.findByRole('presentation', {
-      name: /Last opp eventuell dokumentasjon for ditt nye navn/i,
-    }).should('be.visible');
+    cy.findByRole('button', { name: /Last opp eventuell dokumentasjon for ditt nye navn/i }).should('be.visible');
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
