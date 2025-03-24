@@ -4,7 +4,9 @@ import { layoutStore } from 'src/next/stores/layoutStore';
 import type { FormComponentProps } from 'src/layout/common.generated';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
-function isFormComponentProps(component: ResolvedCompExternal): component is ResolvedCompExternal & FormComponentProps {
+export function isFormComponentProps(
+  component: ResolvedCompExternal,
+): component is ResolvedCompExternal & FormComponentProps {
   return component != null && ('readOnly' in component || 'required' in component || 'showValidations' in component);
 }
 function evaluateBooleanOrExpression(

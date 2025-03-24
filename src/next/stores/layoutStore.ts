@@ -4,6 +4,7 @@ import { createStore } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
+import { isFormComponentProps } from 'src/next/app/hooks/useValidateComponent';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
 import type { Expression, ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { AllComponents, ILayoutCollection } from 'src/layout/layout';
@@ -46,9 +47,27 @@ interface Layouts {
   setLayouts: (layouts: ILayoutCollection) => void;
   setDataObject: (data: DataObject) => void;
   setDataValue: (key: string, value: string | boolean) => void;
-
+  setBoundValue: (
+    component: ResolvedCompExternal,
+    newValue: any,
+    parentBinding?: string,
+    itemIndex?: number,
+    childField?: string,
+  ) => void;
   updateResolvedLayouts: () => void; // if you need it
   evaluateExpression: (expr: Expression, parentBinding?: string, itemIndex?: number) => any;
+  validateComponent: (
+    component: ResolvedCompExternal,
+    parentBinding?: string,
+    itemIndex?: number,
+    childField?: string,
+  ) => string[];
+  getBoundValue: (
+    component: ResolvedCompExternal,
+    parentBinding?: string,
+    itemIndex?: number,
+    childField?: string,
+  ) => any;
 }
 
 function buildComponentMap(collection: ResolvedLayoutCollection) {
@@ -115,23 +134,6 @@ export const layoutStore = createStore<Layouts>()(
           set({ data: newData });
         },
 
-        setDataValue: (dataKeyToUpdate: string, newValue: string | boolean) => {
-          set((state) => {
-            if (!state.data) {
-              throw new Error('no data object');
-            }
-            return produce(state, (draft) => {
-              const currentVal = dot.pick(dataKeyToUpdate, draft.data);
-              if (!draft.data) {
-                throw new Error('no draft data');
-              }
-              if (currentVal !== newValue) {
-                dot.set(dataKeyToUpdate, newValue, draft.data);
-              }
-            });
-          });
-        },
-
         evaluateExpression: (expr: Expression, parentBinding?: string, itemIndex?: number) => {
           const { data, componentMap } = get();
           if (!data) {
@@ -140,6 +142,101 @@ export const layoutStore = createStore<Layouts>()(
 
           // Evaluate the expression with data + componentMap
           return evaluateExpression(expr, data, componentMap, parentBinding, itemIndex);
+        },
+
+        validateComponent: (
+          component: ResolvedCompExternal,
+          parentBinding?: string,
+          itemIndex?: number,
+          childField?: string,
+        ) => {
+          if (!isFormComponentProps(component)) {
+            return [];
+          }
+          const errors: string[] = [];
+
+          const currentValue = get().getBoundValue(component, parentBinding, itemIndex, childField);
+
+          let isRequired: boolean;
+
+          if (!Array.isArray(component.required)) {
+            isRequired = !!component.required;
+          }
+
+          const { evaluateExpression } = get();
+
+          // @ts-ignore
+          isRequired = evaluateExpression(component.required, parentBinding, itemIndex);
+
+          console.log('isRequired', isRequired);
+
+          if (isRequired) {
+            if (!currentValue) {
+              errors.push('This value is required');
+            }
+          }
+          return errors;
+        },
+
+        getBoundValue: (component, parentBinding, itemIndex, childField) => {
+          const data = get().data;
+          if (!data) {
+            return undefined;
+          }
+
+          // The logic that was in RenderComponent:
+          // @ts-ignore
+          const simple = component.dataModelBindings?.simpleBinding;
+          if (!simple) {
+            return undefined;
+          }
+
+          // Build the final binding key:
+          const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
+
+          return dot.pick(binding, data);
+        },
+
+        // setDataValue: (dataKeyToUpdate: string, newValue: string | boolean) => {
+        //   set((state) => {
+        //     if (!state.data) {
+        //       throw new Error('no data object');
+        //     }
+        //     return produce(state, (draft) => {
+        //       const currentVal = dot.pick(dataKeyToUpdate, draft.data);
+        //       if (!draft.data) {
+        //         throw new Error('no draft data');
+        //       }
+        //       if (currentVal !== newValue) {
+        //         dot.set(dataKeyToUpdate, newValue, draft.data);
+        //       }
+        //     });
+        //   });
+        // },
+
+        setBoundValue: (component, newValue, parentBinding, itemIndex, childField) => {
+          // @ts-ignore
+          const simple = component.dataModelBindings?.simpleBinding;
+          if (!simple) {
+            return; // or throw
+          }
+
+          const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
+
+          set((state) => {
+            if (!state.data) {
+              throw new Error('No data object');
+            }
+            return produce(state, (draft) => {
+              const currentVal = dot.pick(binding, draft.data);
+              if (!draft.data) {
+                throw new Error('no draft data');
+              }
+              if (currentVal !== newValue) {
+                dot.set(binding, newValue, draft.data);
+              }
+            });
+          });
         },
       }),
       {

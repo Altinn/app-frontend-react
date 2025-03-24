@@ -1,8 +1,7 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Alert, Checkbox, Radio, Textarea } from '@digdir/designsystemet-react';
-import dot from 'dot-object';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -10,7 +9,6 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
 import classes from 'src/layout/GenericComponent.module.css';
-import { useValidateComponent } from 'src/next/app/hooks/useValidateComponent';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -23,34 +21,78 @@ interface RenderComponentType {
   childField?: string;
 }
 
+function areEqualIgnoringOrder(arr1?: string[] | null, arr2?: string[] | null): boolean {
+  // Both null or undefined
+  if (!arr1 && !arr2) {
+    return true;
+  }
+
+  // Only one is null or undefined
+  if (!arr1 || !arr2) {
+    return false;
+  }
+
+  // Different lengths means not equal
+  if (arr1.length !== arr2.length) {
+    return false;
+  }
+
+  // Build frequency map for arr1
+  const freq = new Map<string, number>();
+  for (const item of arr1) {
+    freq.set(item, (freq.get(item) || 0) + 1);
+  }
+
+  // Decrement from the frequency map using arr2
+  for (const item of arr2) {
+    if (!freq.has(item)) {
+      return false;
+    }
+    const newCount = freq.get(item)! - 1;
+    if (newCount < 0) {
+      return false;
+    }
+    freq.set(item, newCount);
+  }
+
+  return true;
+}
+
 export const RenderComponent = memo(function RenderComponent({
   component,
   parentBinding,
   itemIndex,
   childField,
 }: RenderComponentType) {
-  const setDataValue = useStore(layoutStore, (state) => state.setDataValue);
+  const setBoundValue = useStore(layoutStore, (state) => state.setBoundValue);
 
   const navigate = useNavigate();
 
-  const binding = useMemo(() => {
-    // @ts-ignore
-    const simple = component.dataModelBindings?.simpleBinding;
-    if (!simple) {
-      return undefined;
-    }
-    if (!parentBinding) {
-      return simple;
-    }
-    return `${parentBinding}[${itemIndex}]${childField || ''}`;
-  }, [component.dataModelBindings, parentBinding, itemIndex, childField]);
+  const getBoundValue = useStore(layoutStore, (state) => state.getBoundValue);
+
+  // const binding = useMemo(() => {
+  //   // @ts-ignore
+  //   const simple = component.dataModelBindings?.simpleBinding;
+  //   if (!simple) {
+  //     return undefined;
+  //   }
+  //   if (!parentBinding) {
+  //     return simple;
+  //   }
+  //   return `${parentBinding}[${itemIndex}]${childField || ''}`;
+  // }, [component.dataModelBindings, parentBinding, itemIndex, childField]);
 
   const value = useStore(
     layoutStore,
-    useShallow((state) => (binding ? dot.pick(binding, state.data) : undefined)),
+    useShallow((state) => state.getBoundValue(component, parentBinding, itemIndex, childField)),
   );
 
-  const validationErrors = useValidateComponent(component, value, parentBinding, itemIndex);
+  // const value = useStore(
+  //   layoutStore,
+  //   useShallow((state) => (binding ? dot.pick(binding, state.data) : undefined)),
+  // );
+
+  // const validationErrors = useValidateComponent(component, value, parentBinding, itemIndex);
 
   const isHidden = useStore(layoutStore, (state) => {
     if (!component.hidden) {
@@ -58,6 +100,18 @@ export const RenderComponent = memo(function RenderComponent({
     }
     // @ts-ignore
     return state.evaluateExpression(component.hidden, parentBinding, itemIndex);
+  });
+
+  const [errors, setErrors] = useState<string[]>([]);
+
+  useStore(layoutStore, (state) => {
+    const newErrors = state.validateComponent(component, parentBinding, itemIndex, childField);
+
+    console.log('check');
+
+    if (!areEqualIgnoringOrder(errors, newErrors)) {
+      setErrors(newErrors);
+    }
   });
 
   const textResource = useStore(textResourceStore, (state) =>
@@ -86,12 +140,13 @@ export const RenderComponent = memo(function RenderComponent({
             <Label label={textResource?.value || ''} />
             <Input
               value={value}
-              error={validationErrors.length > 0 ? validationErrors[0] : null}
+              error={errors.length > 0 ? errors[0] : null}
               onChange={(e) => {
-                if (binding) {
-                  // @ts-ignore
-                  setDataValue(binding, e.target.value);
-                }
+                setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
+                // if (binding) {
+                //   // @ts-ignore
+                //   setDataValue(binding, e.target.value);
+                // }
               }}
             />
           </div>
@@ -108,10 +163,11 @@ export const RenderComponent = memo(function RenderComponent({
             <Textarea
               value={value}
               onChange={(e) => {
-                if (binding) {
-                  // @ts-ignore
-                  setDataValue(binding, e.target.value);
-                }
+                setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
+                // if (binding) {
+                //   // @ts-ignore
+                //   setDataValue(binding, e.target.value);
+                // }
               }}
             />
           </div>
@@ -133,8 +189,9 @@ export const RenderComponent = memo(function RenderComponent({
                 value={`${option.value}`}
                 description={option.description}
                 key={idx}
-                onChange={(event) => {
-                  setDataValue(binding, event.target.value);
+                onChange={(e) => {
+                  // setDataValue(binding, event.target.value);
+                  setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
                 }}
               >
                 {option.label}
@@ -156,9 +213,10 @@ export const RenderComponent = memo(function RenderComponent({
                 description={option.description}
                 value={`${option.value}`}
                 size='small'
-                onChange={(event) => {
-                  console.log('event.target.value', event.target.value);
-                  setDataValue(binding, event.target.value);
+                onChange={(e) => {
+                  setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
+                  // console.log('event.target.value', event.target.value);
+                  // setDataValue(binding, event.target.value);
                 }}
               >
                 <span>
