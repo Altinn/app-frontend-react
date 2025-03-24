@@ -2,8 +2,7 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useMatch } from 'react-router-dom';
 
-import { LegacyCheckbox } from '@digdir/design-system-react';
-import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Checkbox, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { PlusIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -241,11 +240,13 @@ export const PartySelection = () => {
                   container
                   direction='row'
                 >
-                  <LegacyCheckbox
+                  <Checkbox
+                    value='showDeleted'
                     checked={showDeleted}
                     onChange={toggleShowDeleted}
-                    label={<Lang id='party_selection.show_deleted' />}
-                  />
+                  >
+                    <Lang id='party_selection.show_deleted' />
+                  </Checkbox>
                 </Flex>
               </Flex>
               <Flex
@@ -256,11 +257,13 @@ export const PartySelection = () => {
                   container
                   direction='row'
                 >
-                  <LegacyCheckbox
+                  <Checkbox
+                    value='showSubUnits'
                     checked={showSubUnits}
                     onChange={toggleShowSubUnits}
-                    label={<Lang id='party_selection.show_sub_unit' />}
-                  />
+                  >
+                    <Lang id='party_selection.show_sub_unit' />
+                  </Checkbox>
                 </Flex>
               </Flex>
             </Flex>
