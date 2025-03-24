@@ -12,9 +12,11 @@ import { Loader } from 'src/core/loading/Loader';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { getCookieValue, setCookie } from 'src/utils/cookieUtils';
 import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
 
 export const altinnPartyIdCookieName = 'AltinnPartyId';
+const cookieQueryKey = ['altinnPartyIdCookie'] as const;
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
 export function usePartiesAllowedToInstantiateQueryDef(enabled: boolean) {
@@ -74,12 +76,8 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
 
 function useAltinnPartyIdCookie() {
   return useQuery({
-    queryKey: ['altinnPartyIdCookie'],
-    queryFn: () =>
-      document.cookie
-        .split('; ')
-        .find((row) => row.startsWith(`${altinnPartyIdCookieName}=`))
-        ?.split('=')[1] ?? null,
+    queryKey: cookieQueryKey,
+    queryFn: () => getCookieValue(altinnPartyIdCookieName),
     enabled: true,
   });
 }
@@ -89,10 +87,10 @@ const useSetAltinnPartyIdCookie = () => {
   return useMutation({
     mutationFn: async (partyId: string | number | undefined) => {
       const value = partyId ?? '';
-      document.cookie = `${altinnPartyIdCookieName}=${value};`;
+      setCookie({ name: altinnPartyIdCookieName, value });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['altinnPartyIdCookie'] });
+      queryClient.invalidateQueries({ queryKey: cookieQueryKey });
     },
   });
 };
@@ -127,13 +125,14 @@ function getRepresentedParty(
 }
 
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
+  const parties = usePartiesAllowedToInstantiate();
   const validParties = useValidParties();
   const profile = useProfile();
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
   const { data: altinnPartyIdCookieValue, isLoading, error: queryError } = useAltinnPartyIdCookie();
   const { mutateAsync: setAltinnPartyIdCookie, error: mutationError } = useSetAltinnPartyIdCookie();
 
-  if (!validParties?.length) {
+  if (!parties?.length) {
     return <NoValidPartiesError />;
   }
 
@@ -146,13 +145,14 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
     return <DisplayError error={error} />;
   }
 
-  const cookieParty = getCookieParty(altinnPartyIdCookieValue, validParties);
+  const cookieParty = getCookieParty(altinnPartyIdCookieValue, parties);
   const currentParty = getRepresentedParty(cookieParty, profile?.party, altinnPartyIdCookieValue);
 
   return (
     <RealCurrentPartyProvider
       value={{
         currentParty,
+        currentUserIsValid: !!currentParty && validParties?.some((party) => party.partyId === currentParty?.partyId),
         userHasSelectedParty,
         setUserHasSelectedParty,
         setParty: async (party: IParty) => setAltinnPartyIdCookie(party.partyId),

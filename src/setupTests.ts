@@ -105,4 +105,4 @@ jest.mock('react-helmet-async', () => ({
   HelmetProvider: ({ children }) => React.createElement(React.Fragment, null, children),
 }));
 
-document.cookie = `altinnPartyId=${getPartyMock().partyId};`;
+document.cookie = `AltinnPartyId=${getPartyMock().partyId};`;
