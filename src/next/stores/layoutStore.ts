@@ -140,7 +140,6 @@ export const layoutStore = createStore<Layouts>()(
             throw new Error('No data available in store');
           }
 
-          // Evaluate the expression with data + componentMap
           return evaluateExpression(expr, data, componentMap, parentBinding, itemIndex);
         },
 
@@ -168,8 +167,6 @@ export const layoutStore = createStore<Layouts>()(
           // @ts-ignore
           isRequired = evaluateExpression(component.required, parentBinding, itemIndex);
 
-          console.log('isRequired', isRequired);
-
           if (isRequired) {
             if (!currentValue) {
               errors.push('This value is required');
@@ -184,36 +181,15 @@ export const layoutStore = createStore<Layouts>()(
             return undefined;
           }
 
-          // The logic that was in RenderComponent:
           // @ts-ignore
           const simple = component.dataModelBindings?.simpleBinding;
           if (!simple) {
             return undefined;
           }
-
-          // Build the final binding key:
           const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
 
           return dot.pick(binding, data);
         },
-
-        // setDataValue: (dataKeyToUpdate: string, newValue: string | boolean) => {
-        //   set((state) => {
-        //     if (!state.data) {
-        //       throw new Error('no data object');
-        //     }
-        //     return produce(state, (draft) => {
-        //       const currentVal = dot.pick(dataKeyToUpdate, draft.data);
-        //       if (!draft.data) {
-        //         throw new Error('no draft data');
-        //       }
-        //       if (currentVal !== newValue) {
-        //         dot.set(dataKeyToUpdate, newValue, draft.data);
-        //       }
-        //     });
-        //   });
-        // },
-
         setBoundValue: (component, newValue, parentBinding, itemIndex, childField) => {
           // @ts-ignore
           const simple = component.dataModelBindings?.simpleBinding;

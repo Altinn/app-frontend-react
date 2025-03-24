@@ -9,6 +9,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { Label } from 'src/app-components/Label/Label';
 import classes from 'src/layout/GenericComponent.module.css';
+import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -21,43 +22,6 @@ interface RenderComponentType {
   childField?: string;
 }
 
-function areEqualIgnoringOrder(arr1?: string[] | null, arr2?: string[] | null): boolean {
-  // Both null or undefined
-  if (!arr1 && !arr2) {
-    return true;
-  }
-
-  // Only one is null or undefined
-  if (!arr1 || !arr2) {
-    return false;
-  }
-
-  // Different lengths means not equal
-  if (arr1.length !== arr2.length) {
-    return false;
-  }
-
-  // Build frequency map for arr1
-  const freq = new Map<string, number>();
-  for (const item of arr1) {
-    freq.set(item, (freq.get(item) || 0) + 1);
-  }
-
-  // Decrement from the frequency map using arr2
-  for (const item of arr2) {
-    if (!freq.has(item)) {
-      return false;
-    }
-    const newCount = freq.get(item)! - 1;
-    if (newCount < 0) {
-      return false;
-    }
-    freq.set(item, newCount);
-  }
-
-  return true;
-}
-
 export const RenderComponent = memo(function RenderComponent({
   component,
   parentBinding,
@@ -68,31 +32,10 @@ export const RenderComponent = memo(function RenderComponent({
 
   const navigate = useNavigate();
 
-  const getBoundValue = useStore(layoutStore, (state) => state.getBoundValue);
-
-  // const binding = useMemo(() => {
-  //   // @ts-ignore
-  //   const simple = component.dataModelBindings?.simpleBinding;
-  //   if (!simple) {
-  //     return undefined;
-  //   }
-  //   if (!parentBinding) {
-  //     return simple;
-  //   }
-  //   return `${parentBinding}[${itemIndex}]${childField || ''}`;
-  // }, [component.dataModelBindings, parentBinding, itemIndex, childField]);
-
   const value = useStore(
     layoutStore,
     useShallow((state) => state.getBoundValue(component, parentBinding, itemIndex, childField)),
   );
-
-  // const value = useStore(
-  //   layoutStore,
-  //   useShallow((state) => (binding ? dot.pick(binding, state.data) : undefined)),
-  // );
-
-  // const validationErrors = useValidateComponent(component, value, parentBinding, itemIndex);
 
   const isHidden = useStore(layoutStore, (state) => {
     if (!component.hidden) {
@@ -106,8 +49,6 @@ export const RenderComponent = memo(function RenderComponent({
 
   useStore(layoutStore, (state) => {
     const newErrors = state.validateComponent(component, parentBinding, itemIndex, childField);
-
-    console.log('check');
 
     if (!areEqualIgnoringOrder(errors, newErrors)) {
       setErrors(newErrors);
@@ -143,10 +84,6 @@ export const RenderComponent = memo(function RenderComponent({
               error={errors.length > 0 ? errors[0] : null}
               onChange={(e) => {
                 setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
-                // if (binding) {
-                //   // @ts-ignore
-                //   setDataValue(binding, e.target.value);
-                // }
               }}
             />
           </div>
@@ -164,10 +101,6 @@ export const RenderComponent = memo(function RenderComponent({
               value={value}
               onChange={(e) => {
                 setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
-                // if (binding) {
-                //   // @ts-ignore
-                //   setDataValue(binding, e.target.value);
-                // }
               }}
             />
           </div>
@@ -175,8 +108,6 @@ export const RenderComponent = memo(function RenderComponent({
       )}
 
       {component.type === 'RepeatingGroup' && <RepeatingGroupNext component={component} />}
-
-      {/*{component.type === 'Alert' && <div>{textResource?.value}</div>}*/}
 
       {component.type === 'RadioButtons' && (
         <div>
@@ -190,7 +121,6 @@ export const RenderComponent = memo(function RenderComponent({
                 description={option.description}
                 key={idx}
                 onChange={(e) => {
-                  // setDataValue(binding, event.target.value);
                   setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
                 }}
               >
@@ -215,8 +145,6 @@ export const RenderComponent = memo(function RenderComponent({
                 size='small'
                 onChange={(e) => {
                   setBoundValue(component, e.target.value, parentBinding, itemIndex, childField);
-                  // console.log('event.target.value', event.target.value);
-                  // setDataValue(binding, event.target.value);
                 }}
               >
                 <span>
