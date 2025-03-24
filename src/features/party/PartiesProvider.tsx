@@ -152,7 +152,6 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
     <RealCurrentPartyProvider
       value={{
         currentParty,
-        currentUserIsValid: !!currentParty && validParties?.some((party) => party.partyId === currentParty?.partyId),
         userHasSelectedParty,
         setUserHasSelectedParty,
         setParty: async (party: IParty) => setAltinnPartyIdCookie(party.partyId),
