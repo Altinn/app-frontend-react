@@ -19,8 +19,7 @@ export interface DataObject {
 export type ResolvedCompExternal = AllComponents & ExtraProps;
 
 interface ExtraProps {
-  isHidden: boolean;
-  renderedValue: string;
+  //  isHidden: boolean;
   children: ResolvedCompExternal[] | undefined;
 }
 

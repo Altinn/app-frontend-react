@@ -25,6 +25,7 @@ import type {
   SummarizableComponentProps,
 } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
+import type { CommonProps } from 'src/layout/Input';
 import type {
   CompExternalExact,
   CompIntermediate,
@@ -80,7 +81,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
   //   | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
   //   | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
-  renderNext?(props: PropsFromGenericComponent<Type>): JSX.Element | null;
+  renderNext?(props: CompIntermediateExact<Type>, commonProps: CommonProps): JSX.Element | null;
 
   renderSummary2?(props: Summary2Props<Type>): JSX.Element | null;
 
