@@ -11,7 +11,6 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface CardInternal extends Omit<CardConfigExternal, 'children' | 'media'> {
   childIds?: string[];
@@ -58,17 +57,18 @@ export class CardsPlugin<Type extends CompTypes>
     return `'${this.component!.type}'`;
   }
 
-  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
+  claimChildren({ item, claimChild, getType, getCapabilities }: DefPluginChildClaimerProps<Config<Type>>): void {
     for (const card of (item.cards || []).values()) {
       if (card.media) {
-        const proto = getProto(card.media);
-        if (!proto) {
+        const type = getType(card.media);
+        if (!type) {
           continue;
         }
-        if (!proto.capabilities.renderInCardsMedia) {
+        const capabilities = getCapabilities(type);
+        if (!capabilities.renderInCardsMedia) {
           window.logWarn(
             `Cards component included a component '${card.media}', which ` +
-              `is a '${proto.type}' and cannot be rendered as Card media.`,
+              `is a '${type}' and cannot be rendered as Card media.`,
           );
           continue;
         }
@@ -76,14 +76,15 @@ export class CardsPlugin<Type extends CompTypes>
       }
 
       for (const child of card.children?.values() ?? []) {
-        const proto = getProto(child);
-        if (!proto) {
+        const type = getType(child);
+        if (!type) {
           continue;
         }
-        if (!proto.capabilities.renderInCards) {
+        const capabilities = getCapabilities(type);
+        if (!capabilities.renderInCards) {
           window.logWarn(
             `Cards component included a component '${child}', which ` +
-              `is a '${proto.type}' and cannot be rendered as a Card child.`,
+              `is a '${type}' and cannot be rendered as a Card child.`,
           );
           continue;
         }
@@ -119,7 +120,7 @@ export class CardsPlugin<Type extends CompTypes>
     } as DefPluginExtraInItem<Config<Type>>;
   }
 
-  pickDirectChildren(state: DefPluginState<Config<Type>>, restriction?: TraversalRestriction | undefined): string[] {
+  pickDirectChildren(state: DefPluginState<Config<Type>>, restriction?: number | undefined): string[] {
     const out: string[] = [];
     if (restriction !== undefined) {
       return out;

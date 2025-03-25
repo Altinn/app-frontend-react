@@ -3,6 +3,7 @@ import type { AriaAttributes } from 'react';
 
 import { Checkbox, Heading, Radio, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Pagination as CustomPagination } from 'src/app-components/Pagination/Pagination';
 import { Description } from 'src/components/form/Description';
@@ -10,11 +11,11 @@ import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
-import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { FD } from 'src/features/formData/FormDataWrite';
+import { ALTINN_ROW_ID, DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useSaveToList } from 'src/features/saveToList/useSaveToList';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/List/ListComponent.module.css';
@@ -57,14 +58,16 @@ export const ListComponent = ({ node }: IListProps) => {
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
 
   const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
-  const { setList, isRowChecked } = useSaveToList(node);
-  const saveToList = item.dataModelBindings?.saveToList;
+  const groupBinding = item.dataModelBindings?.group;
+
+  const appendToList = FD.useAppendToList();
+  const removeFromList = FD.useRemoveIndexFromList();
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
 
-  const selectedRow = !saveToList
+  const selectedRow = !groupBinding
     ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
     : '';
 
@@ -77,6 +80,12 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowSelected(row: Row): boolean {
+    if (groupBinding) {
+      const rows = (formData?.group as Row[] | undefined) ?? [];
+      return rows.some((selectedRow) =>
+        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
+      );
+    }
     return JSON.stringify(selectedRow) === JSON.stringify(row);
   }
 
@@ -84,10 +93,40 @@ export const ListComponent = ({ node }: IListProps) => {
   const description = item.textResourceBindings?.description;
 
   const handleRowClick = (row: Row) => {
-    if (saveToList) {
-      setList(row);
+    if (groupBinding) {
+      handleSelectedCheckboxRow(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });
+    }
+  };
+
+  const handleSelectedCheckboxRow = (row: Row) => {
+    if (!groupBinding) {
+      return;
+    }
+    if (isRowSelected(row)) {
+      const index = (formData?.group as Row[]).findIndex((selectedRow) => {
+        const { altinnRowId: _ } = selectedRow;
+        return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
+      });
+      if (index >= 0) {
+        removeFromList({
+          reference: groupBinding,
+          index,
+        });
+      }
+    } else {
+      const uuid = uuidv4();
+      const next: Row = { [ALTINN_ROW_ID]: uuid };
+      for (const binding of Object.keys(bindings)) {
+        if (binding !== 'group') {
+          next[binding] = row[binding];
+        }
+      }
+      appendToList({
+        reference: groupBinding,
+        newValue: { ...next },
+      });
     }
   };
 
@@ -101,7 +140,7 @@ export const ListComponent = ({ node }: IListProps) => {
       </div>
     ));
 
-  const options = saveToList ? (
+  const options = groupBinding ? (
     <Checkbox.Group
       legend={
         <Heading
@@ -120,7 +159,7 @@ export const ListComponent = ({ node }: IListProps) => {
           onClick={() => handleRowClick(row)}
           value={JSON.stringify(row)}
           className={cn(classes.mobile)}
-          checked={isRowChecked(row)}
+          checked={isRowSelected(row)}
         >
           {renderListItems(row, tableHeaders)}
         </Checkbox>
@@ -225,13 +264,13 @@ export const ListComponent = ({ node }: IListProps) => {
                   [classes.selectedRowCell]: isRowSelected(row),
                 })}
               >
-                {saveToList ? (
+                {groupBinding ? (
                   <Checkbox
                     className={classes.toggleControl}
                     aria-label={JSON.stringify(row)}
                     onChange={() => {}}
                     value={JSON.stringify(row)}
-                    checked={isRowChecked(row)}
+                    checked={isRowSelected(row)}
                     name={node.id}
                   />
                 ) : (

@@ -1,14 +1,15 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressSummary } from 'src/layout/Address/AddressSummary/AddressSummary';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
+import { useAddressValidation } from 'src/layout/Address/useAddressValidation';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -21,13 +22,13 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     },
   );
 
-  getDisplayData(node: LayoutNode<'Address'>, { nodeFormDataSelector }: DisplayDataProps): string {
-    const data = nodeFormDataSelector(node);
-    return Object.values(data).join(' ');
+  useDisplayData(nodeId: string): string {
+    const formData = useNodeFormDataWhenType(nodeId, 'Address');
+    return Object.values(formData ?? {}).join(' ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Address'>): JSX.Element | null {
-    const data = this.useDisplayData(targetNode);
+    const data = useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={data} />;
   }
 
@@ -39,47 +40,8 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     return false;
   }
 
-  runComponentValidation(
-    node: LayoutNode<'Address'>,
-    { formDataSelector, nodeDataSelector }: ValidationDataSources,
-  ): ComponentValidation[] {
-    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
-    if (!dataModelBindings) {
-      return [];
-    }
-    const validations: ComponentValidation[] = [];
-
-    const zipCodeField = dataModelBindings.zipCode;
-    const zipCode = zipCodeField ? formDataSelector(zipCodeField) : undefined;
-    const zipCodeAsString = typeof zipCode === 'string' || typeof zipCode === 'number' ? String(zipCode) : undefined;
-
-    // TODO(Validation): Add better message for the special case of 0000 or add better validation for zipCodes that the API says are invalid
-    if (zipCodeAsString && (!zipCodeAsString.match(/^\d{4}$/) || zipCodeAsString === '0000')) {
-      validations.push({
-        message: { key: 'address_component.validation_error_zipcode' },
-        severity: 'error',
-        bindingKey: 'zipCode',
-        source: FrontendValidationSource.Component,
-        category: ValidationMask.Component,
-      });
-    }
-
-    const houseNumberField = dataModelBindings.houseNumber;
-    const houseNumber = houseNumberField ? formDataSelector(houseNumberField) : undefined;
-    const houseNumberAsString =
-      typeof houseNumber === 'string' || typeof houseNumber === 'number' ? String(houseNumber) : undefined;
-
-    if (houseNumberAsString && !houseNumberAsString.match(/^[a-z,A-Z]\d{4}$/)) {
-      validations.push({
-        message: { key: 'address_component.validation_error_house_number' },
-        severity: 'error',
-        bindingKey: 'houseNumber',
-        source: FrontendValidationSource.Component,
-        category: ValidationMask.Component,
-      });
-    }
-
-    return validations;
+  useComponentValidation(node: LayoutNode<'Address'>): ComponentValidation[] {
+    return useAddressValidation(node);
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Address'>): string[] {

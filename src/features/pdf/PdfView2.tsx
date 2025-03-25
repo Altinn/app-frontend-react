@@ -4,7 +4,6 @@ import type { PropsWithChildren } from 'react';
 import { Heading } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { DummyPresentation } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
@@ -157,7 +156,7 @@ function DataLoaderStoreInitWorker({
 }
 
 function PdfWrapping({ children }: PropsWithChildren) {
-  const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
+  const orgLogoEnabled = Boolean(useApplicationMetadata().logoOptions);
   const appOwner = useAppOwner();
   const appName = useAppName();
   const { langAsString } = useLanguage();
@@ -168,26 +167,21 @@ function PdfWrapping({ children }: PropsWithChildren) {
       id='pdfView'
       className={classes.pdfWrapper}
     >
-      {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
-
-      <ConditionalWrapper
-        condition={enableOrgLogo}
-        wrapper={(children) => (
-          <div
-            className={classes.paymentTitleContainer}
-            data-testid='pdf-logo'
-          >
-            {children} <OrganisationLogo />
-          </div>
-        )}
-      >
-        <Heading
-          level={1}
-          size='lg'
+      {orgLogoEnabled && (
+        <div
+          className={classes.pdfLogoContainer}
+          data-testid='pdf-logo'
         >
-          {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
-        </Heading>
-      </ConditionalWrapper>
+          <OrganisationLogo />
+        </div>
+      )}
+      {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
+      <Heading
+        level={1}
+        size='lg'
+      >
+        {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
+      </Heading>
       {children}
       <ReadyForPrint type='print' />
     </div>
@@ -195,11 +189,20 @@ function PdfWrapping({ children }: PropsWithChildren) {
 }
 
 function PlainPage({ pageKey }: { pageKey: string }) {
+  const pageExists = NodesInternal.useSelector((state) =>
+    Object.values(state.pagesData.pages).some((data) => data.pageKey === pageKey),
+  );
   const children = NodesInternal.useShallowSelector((state) =>
     Object.values(state.nodeData)
       .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
       .map((data) => data.layout.id),
   );
+
+  if (!pageExists) {
+    const message = `Error using: "pdfLayoutName": ${JSON.stringify(pageKey)}, could not find a layout with that name.`;
+    window.logErrorOnce(message);
+    throw new Error(message);
+  }
 
   return (
     <div className={classes.page}>

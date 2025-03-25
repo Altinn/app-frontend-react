@@ -19,7 +19,7 @@ export const useSaveToList = (node) => {
   const removeFromList = FD.useRemoveIndexFromList();
 
   const getObjectFromFormDataRow = (row: Row): Row | undefined =>
-    (formData?.saveToList as Row[]).find((selectedRow) =>
+    (formData?.saveToList as Row[])?.find((selectedRow) =>
       Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
     );
 

@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -16,6 +17,7 @@ import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import {
   getAllReferencedDataTypes,
+  getValidPrefillDataFromQueryParams,
   isDataTypeWritable,
   MissingClassRefException,
   MissingDataElementException,
@@ -74,9 +76,9 @@ function initialCreateStore() {
     error: null,
 
     setDataTypes: (allDataTypes, writableDataTypes, defaultDataType, layoutSetId) => {
-      set(() => ({
-        allDataTypes,
-        writableDataTypes,
+      set((s) => ({
+        allDataTypes: deepEqual(allDataTypes, s.allDataTypes) ? s.allDataTypes : allDataTypes,
+        writableDataTypes: deepEqual(writableDataTypes, s.writableDataTypes) ? s.writableDataTypes : writableDataTypes,
         defaultDataType,
         layoutSetId,
       }));
@@ -294,13 +296,24 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const setError = useSelector((state) => state.setError);
   const dataElements = useLaxInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
-  const url = useDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+  const metaData = useApplicationMetadata();
+
+  const url = useDataModelUrl({
+    dataType,
+    dataElementId,
+    includeRowIds: true,
+    prefillFromQueryParams: getValidPrefillDataFromQueryParams(metaData, dataType),
+  });
+
   const { data, error } = useFormDataQuery(url);
+
   useEffect(() => {
-    if (data && url) {
-      setInitialData(dataType, data);
+    if (!data || !url) {
+      return;
     }
-  }, [data, dataType, setInitialData, url]);
+    sessionStorage.removeItem('queryParams');
+    setInitialData(dataType, data);
+  }, [data, dataType, metaData.id, setInitialData, url]);
 
   useEffect(() => {
     setDataElementId(dataType, dataElementId ?? null);

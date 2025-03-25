@@ -2,6 +2,7 @@ import React from 'react';
 
 import { Heading, Table } from '@digdir/designsystemet-react';
 
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
@@ -21,7 +22,7 @@ type ListComponentSummaryProps = {
 type Row = Record<string, string | number | boolean>;
 
 export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListComponentSummaryProps) => {
-  const displayData = componentNode.def.useDisplayData(componentNode);
+  const displayData = useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(
@@ -32,7 +33,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
   const { tableHeaders, dataModelBindings } = useNodeItem(componentNode);
   const { formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
-  const displayRows = (formData?.saveToList as Row[])?.map((row: Row) => {
+  const displayRows = (formData?.group as Row[])?.map((row: Row) => {
     const { altinnRowId: _, ...rest } = row;
     return rest;
   });

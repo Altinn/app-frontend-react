@@ -862,28 +862,28 @@ Cypress.Commands.add('getCurrentViewportSize', function () {
   }));
 });
 
-Cypress.Commands.add('showNavGroups', (open) => {
-  cy.get('body').then((body) => {
-    const isVisible = !!body.find('[data-testid=page-navigation]').length;
-    const isDialogOpen = !!body.find('[data-testid=page-navigation-dialog]').length;
-
-    if (open && isVisible) {
-      return;
-    }
-    if (open && !isVisible) {
-      cy.findByRole('button', { name: 'Skjemasider' }).click();
-      cy.findByRole('dialog', { name: 'Skjemasider' }).should('be.visible');
-      cy.findByRole('dialog', { name: 'Skjemasider' }).should('have.css', 'opacity', '1');
-    }
-    if (!open && isDialogOpen) {
-      cy.findByRole('dialog', { name: 'Skjemasider' }).within(() => cy.findByRole('button', { name: 'Lukk' }).click());
-      cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
-    }
-  });
+Cypress.Commands.add('showNavGroups', () => {
+  cy.findByRole('button', { name: 'Skjemasider' }).click();
+  cy.findByRole('dialog', { name: 'Skjemasider' }).should('be.visible');
+  cy.findByRole('dialog', { name: 'Skjemasider' }).should('have.css', 'opacity', '1');
 });
 
-Cypress.Commands.add('navGroup', (groupName, pageName) => {
-  if (pageName) {
+Cypress.Commands.add('hideNavGroups', () => {
+  cy.findByRole('dialog', { name: 'Skjemasider' }).within(() => cy.findByRole('button', { name: 'Lukk' }).click());
+  cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+});
+
+Cypress.Commands.add('navGroup', (groupName, pageName, subformName) => {
+  if (subformName && pageName) {
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy
+        .findByRole('button', { name: groupName, container })
+        .parent()
+        .then((container) => cy.findByRole('button', { name: pageName, container }))
+        .parent()
+        .then((container) => cy.findByRole('button', { name: subformName, container })),
+    );
+  } else if (pageName) {
     cy.get('[data-testid=page-navigation]').then((container) =>
       cy
         .findByRole('button', { name: groupName, container })
@@ -898,11 +898,8 @@ Cypress.Commands.add('navGroup', (groupName, pageName) => {
 });
 
 Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
-  cy.showNavGroups(true);
-
   cy.get('body').then((body) => {
     const isUsingDialog = !!body.find('[data-testid=page-navigation-trigger]').length;
-
     if (pageName) {
       cy.navGroup(groupName).then((group) => {
         if (group[0].getAttribute('aria-expanded') === 'false') {
@@ -928,13 +925,23 @@ Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
   });
 });
 
-Cypress.Commands.add('openNavGroup', (groupName) => {
-  cy.showNavGroups(true);
-
+Cypress.Commands.add('openNavGroup', (groupName, pageName, subformName) => {
   cy.navGroup(groupName).then((group) => {
     if (group[0].getAttribute('aria-expanded') === 'false') {
       cy.navGroup(groupName).click();
     }
   });
   cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
+
+  if (pageName && !subformName) {
+    throw new Error('Navigation page cannot be "opened", perhaps you intended to use "gotoNavGroup" instead?');
+  }
+
+  if (pageName && subformName) {
+    cy.navGroup(groupName, pageName, subformName).then((subform) => {
+      if (subform[0].getAttribute('aria-expanded') === 'false') {
+        cy.navGroup(groupName, pageName, subformName).click();
+      }
+    });
+  }
 });

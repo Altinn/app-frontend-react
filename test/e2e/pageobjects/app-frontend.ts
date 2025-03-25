@@ -29,8 +29,8 @@ export class AppFrontend {
     /** @see https://dev.altinn.studio/repos/ttd/subform-test */
     subformTest: 'subform-test',
 
-    /** @see https://dev.altinn.studio/repos/ttd/navigation-test */
-    navigationTest: 'navigation-test',
+    /** @see https://dev.altinn.studio/repos/ttd/navigation-test-subform */
+    navigationTest: 'navigation-test-subform',
   };
 
   //Start app instance page
@@ -112,7 +112,6 @@ export class AppFrontend {
   //Receipt
   public receipt = {
     container: '#ReceiptContainer',
-    linkToArchive: 'a[href$="/ui/messagebox/archive"]',
     pdf: '#attachment-list-pdf',
     uploadedAttachments: '[data-testid=attachment-list]',
   };
@@ -307,6 +306,8 @@ export class AppFrontend {
     idnumber: '#idnummer',
     idnummer2: '#idnummer2',
     dropdown: '#options',
+    jobTitle: '#jobTitle',
+    prefilledJobTitle: '#prefilledJobTitle',
   };
 
   public reporteeSelection = {

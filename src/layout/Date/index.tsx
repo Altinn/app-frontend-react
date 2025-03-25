@@ -3,20 +3,19 @@ import type { JSX } from 'react';
 
 import { formatDate, isValid, parseISO } from 'date-fns';
 
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
 import { DateDef } from 'src/layout/Date/config.def.generated';
 import { DateComponent } from 'src/layout/Date/DateComponent';
 import { DateSummary } from 'src/layout/Date/DateSummary';
-import type { DisplayDataProps } from 'src/features/displayData';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Date extends DateDef {
-  getDisplayData(node: LayoutNode<'Date'>, { nodeDataSelector }: DisplayDataProps): string {
-    const dateString = nodeDataSelector((picker) => picker(node)?.item?.value, [node]);
-    const format = nodeDataSelector((picker) => picker(node)?.item?.format, [node]);
+export class Date extends DateDef implements DisplayData {
+  useDisplayData(nodeId: string): string {
+    const dateString = NodesInternal.useNodeDataWhenType(nodeId, 'Date', (data) => data.item?.value);
+    const format = NodesInternal.useNodeDataWhenType(nodeId, 'Date', (data) => data.item?.format);
 
     if (dateString === undefined) {
       return '';
@@ -31,11 +30,6 @@ export class Date extends DateDef {
     }
 
     return displayData;
-  }
-
-  useDisplayData(node: LayoutNode<'Date'>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Date'>>(

@@ -5,7 +5,9 @@ import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/caption/Caption';
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { useIndexedComponentIds } from 'src/features/form/layout/utils/makeIndexedId';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -17,22 +19,24 @@ import repeatingGroupClasses from 'src/layout/RepeatingGroup/RepeatingGroup.modu
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary.module.css';
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
-import { useTableNodes } from 'src/layout/RepeatingGroup/useTableNodes';
-import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
+import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
+import { EditButtonById } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
+import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const RepeatingGroupTableSummary = ({
   componentNode,
   isCompact,
   emptyFieldText,
 }: {
-  componentNode: BaseLayoutNode<'RepeatingGroup'>;
+  componentNode: LayoutNode<'RepeatingGroup'>;
   isCompact?: boolean;
   emptyFieldText?: string;
 }) => {
@@ -45,14 +49,21 @@ export const RepeatingGroupTableSummary = ({
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const childNodes = useTableNodes(componentNode, 0);
+  const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
+  const locationForFirstRow = useDataModelLocationForRow(dataModelBindings.group, 0);
+  const tableIds = useIndexedComponentIds(useTableComponentIds(componentNode), locationForFirstRow);
   const { tableColumns } = useNodeItem(componentNode);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
   if (rows.length === 0) {
     return (
       <SingleValueSummary
-        title={title}
+        title={
+          <Lang
+            id={title}
+            node={componentNode}
+          />
+        }
         componentNode={componentNode}
         errors={errors}
         isCompact={isCompact}
@@ -70,10 +81,10 @@ export const RepeatingGroupTableSummary = ({
         <Caption title={<Lang id={title} />} />
         <Table.Head>
           <Table.Row>
-            {childNodes.map((childNode) => (
+            {tableIds.map((id) => (
               <HeaderCell
-                key={childNode.id}
-                node={childNode}
+                key={id}
+                nodeId={id}
                 columnSettings={columnSettings}
               />
             ))}
@@ -88,14 +99,19 @@ export const RepeatingGroupTableSummary = ({
         </Table.Head>
         <Table.Body>
           {rows.map((row, index) => (
-            <DataRow
-              key={row?.uuid}
-              row={row}
-              node={componentNode}
-              index={index}
-              pdfModeActive={pdfModeActive}
-              columnSettings={columnSettings}
-            />
+            <DataModelLocationProvider
+              groupBinding={dataModelBindings.group}
+              rowIndex={row?.index ?? index}
+              key={`${row?.uuid}-${index}`}
+            >
+              <DataRow
+                key={row?.uuid}
+                row={row}
+                node={componentNode}
+                pdfModeActive={pdfModeActive}
+                columnSettings={columnSettings}
+              />
+            </DataModelLocationProvider>
           ))}
         </Table.Body>
       </Table>
@@ -116,7 +132,11 @@ export const RepeatingGroupTableSummary = ({
   );
 };
 
-function HeaderCell({ node, columnSettings }: { node: LayoutNode; columnSettings: ITableColumnFormatting }) {
+function HeaderCell({ nodeId, columnSettings }: { nodeId: string; columnSettings: ITableColumnFormatting }) {
+  const node = useNode(nodeId);
+  if (!node) {
+    throw new Error(`Could not find node with id ${nodeId}`);
+  }
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   return (
     <Table.HeaderCell style={style}>
@@ -130,56 +150,67 @@ function HeaderCell({ node, columnSettings }: { node: LayoutNode; columnSettings
 
 type DataRowProps = {
   row: RepGroupRow | undefined;
-  node: BaseLayoutNode<'RepeatingGroup'>;
-  index: number;
+  node: LayoutNode<'RepeatingGroup'>;
   pdfModeActive: boolean;
   columnSettings: ITableColumnFormatting;
 };
 
-function DataRow({ row, node, index, pdfModeActive, columnSettings }: DataRowProps) {
-  const cellNodes = useTableNodes(node, index);
-  const displayDataProps = useDisplayDataProps();
+function DataRow({ row, node, pdfModeActive, columnSettings }: DataRowProps) {
+  const layoutLookups = useLayoutLookups();
+  const rawIds = useTableComponentIds(node);
+  const indexedIds = useIndexedComponentIds(rawIds);
+  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings);
+
+  if (!row) {
+    return null;
+  }
 
   return (
-    <Table.Row>
-      {cellNodes.map((node) =>
-        node.type === 'Custom' ? (
-          <Table.Cell key={node.id}>
-            <ComponentSummary componentNode={node} />
+    <DataModelLocationProvider
+      groupBinding={dataModelBindings.group}
+      rowIndex={row.index}
+    >
+      <Table.Row>
+        {indexedIds.map((id, index) =>
+          layoutLookups.getComponent(rawIds[index]).type === 'Custom' ? (
+            <Table.Cell key={id}>
+              <ComponentSummaryById componentId={id} />
+            </Table.Cell>
+          ) : (
+            <DataCell
+              key={id}
+              nodeId={id}
+              columnSettings={columnSettings}
+            />
+          ),
+        )}
+        {!pdfModeActive && (
+          <Table.Cell
+            align='right'
+            className={tableClasses.buttonCell}
+          >
+            {row?.itemIds && row?.itemIds?.length > 0 && indexedIds.length > 0 && <EditButtonById id={indexedIds[0]} />}
           </Table.Cell>
-        ) : (
-          <DataCell
-            key={node.id}
-            node={node}
-            displayData={
-              ('getDisplayData' in node.def && node.def.getDisplayData(node as never, displayDataProps)) ?? ''
-            }
-            columnSettings={columnSettings}
-          />
-        ),
-      )}
-      {!pdfModeActive && (
-        <Table.Cell
-          align='right'
-          className={tableClasses.buttonCell}
-        >
-          {row?.itemIds && row?.itemIds?.length > 0 && <EditButton componentNode={cellNodes[0]} />}
-        </Table.Cell>
-      )}
-    </Table.Row>
+        )}
+      </Table.Row>
+    </DataModelLocationProvider>
   );
 }
 
 type DataCellProps = {
-  node: LayoutNode;
-  displayData: string | false;
+  nodeId: string;
   columnSettings: ITableColumnFormatting;
 };
 
-function DataCell({ node, displayData, columnSettings }: DataCellProps) {
+function DataCell({ nodeId, columnSettings }: DataCellProps) {
+  const node = useNode(nodeId);
+  if (!node) {
+    throw new Error(`Could not find node with id ${nodeId}`);
+  }
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(node));
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  const displayData = useDisplayData(node);
 
   return (
     <Table.Cell

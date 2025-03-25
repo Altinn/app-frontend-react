@@ -1,19 +1,22 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import type { JSONSchema7Definition } from 'json-schema';
+import dot from 'dot-object';
 
+import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { evalQueryParameters } from 'src/features/options/evalQueryParameters';
-import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { ListSummary } from 'src/layout/List/ListSummary';
+import { useValidateListIsEmpty } from 'src/layout/List/useValidateListIsEmpty';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { getFieldNameKey } from 'src/utils/formComponentUtils';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -25,18 +28,44 @@ export class List extends ListDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'List'>, { nodeFormDataSelector, nodeDataSelector }: DisplayDataProps): string {
-    const formData = nodeFormDataSelector(node);
-    const dmBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
-    const summaryBinding = nodeDataSelector((picker) => picker(node)?.item?.summaryBinding, [node]);
-    const legacySummaryBinding = nodeDataSelector((picker) => picker(node)?.item?.bindingToShowInSummary, [node]);
+  useDisplayData(nodeId: string): string {
+    const dmBindings = NodesInternal.useNodeDataWhenType(nodeId, 'List', (data) => data.layout.dataModelBindings);
+    const groupBinding = dmBindings?.group;
+    const summaryBinding = NodesInternal.useNodeDataWhenType(nodeId, 'List', (data) => data.item?.summaryBinding);
+    const legacySummaryBinding = NodesInternal.useNodeDataWhenType(
+      nodeId,
+      'List',
+      (data) => data.item?.bindingToShowInSummary,
+    );
+    const formData = useNodeFormDataWhenType(nodeId, 'List');
+
+    if (groupBinding) {
+      // When the data model binding is a group binding, all the data is now in formData.group, and all the other
+      // values are undefined. This is because useNodeFormDataWhenType doesn't know the intricacies of the group
+      // binding and how it works in the List component. We need to find the values inside the rows ourselves.
+      const rows = (formData?.group as unknown[] | undefined) ?? [];
+      if (summaryBinding && dmBindings) {
+        const summaryReference = dmBindings[summaryBinding];
+        const rowData = rows.map((row) => (summaryReference ? findDataInRow(row, summaryReference, groupBinding) : ''));
+        return Object.values(rowData).join(', ');
+      }
+
+      if (legacySummaryBinding && dmBindings) {
+        window.logError(
+          `Node ${nodeId}: BindingToShowInSummary is deprecated and does not work ` +
+            `along with a group binding, use summaryBinding instead`,
+        );
+      }
+
+      return '';
+    }
 
     if (summaryBinding && dmBindings) {
-      return formData[summaryBinding] ?? '';
+      return formData?.[summaryBinding] ?? '';
     } else if (legacySummaryBinding && dmBindings) {
       for (const [key, binding] of Object.entries(dmBindings)) {
-        if (binding.field === legacySummaryBinding) {
-          return formData[key] ?? '';
+        if (binding?.field === legacySummaryBinding) {
+          return formData?.[key] ?? '';
         }
       }
     }
@@ -45,7 +74,7 @@ export class List extends ListDef {
   }
 
   renderSummary(props: SummaryRendererProps<'List'>): JSX.Element | null {
-    const displayData = this.useDisplayData(props.targetNode);
+    const displayData = useDisplayData(props.targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
@@ -59,99 +88,48 @@ export class List extends ListDef {
     );
   }
 
-  runEmptyFieldValidation(
-    node: LayoutNode<'List'>,
-    { formDataSelector, invalidDataSelector, nodeDataSelector }: ValidationDataSources,
-  ): ComponentValidation[] {
-    const required = nodeDataSelector(
-      (picker) => {
-        const item = picker(node)?.item;
-        return item && 'required' in item ? item.required : false;
-      },
-      [node],
-    );
-    const dataModelBindings = nodeDataSelector((picker) => picker(node)?.layout.dataModelBindings, [node]);
-    if (!required || !dataModelBindings) {
-      return [];
-    }
-
-    const references = Object.values(dataModelBindings);
-    const validations: ComponentValidation[] = [];
-    const textResourceBindings = nodeDataSelector((picker) => picker(node)?.item?.textResourceBindings, [node]);
-
-    let listHasErrors = false;
-    for (const reference of references) {
-      const data = formDataSelector(reference) ?? invalidDataSelector(reference);
-      const dataAsString =
-        typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
-
-      if (!dataAsString?.length) {
-        listHasErrors = true;
-      }
-    }
-    if (listHasErrors) {
-      const key = textResourceBindings?.requiredValidation
-        ? textResourceBindings?.requiredValidation
-        : 'form_filler.error_required';
-
-      const fieldNameReference = {
-        key: getFieldNameKey(textResourceBindings, undefined),
-        makeLowerCase: true,
-      };
-
-      validations.push({
-        message: {
-          key,
-          params: [fieldNameReference],
-        },
-        severity: 'error',
-        source: FrontendValidationSource.EmptyField,
-        category: ValidationMask.Required,
-      });
-    }
-    return validations;
+  useEmptyFieldValidation(node: LayoutNode<'List'>): ComponentValidation[] {
+    return useValidateListIsEmpty(node);
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
     const errors: string[] = [];
-    const allowedTypes = ['string', 'boolean', 'number', 'integer'];
-
+    const allowedLeafTypes = ['string', 'boolean', 'number', 'integer'];
     const dataModelBindings = ctx.item.dataModelBindings ?? {};
 
-    if (!dataModelBindings?.saveToList) {
-      for (const [binding] of Object.entries(dataModelBindings ?? {})) {
-        const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
-        errors.push(...(newErrors || []));
+    const groupBinding = dataModelBindings?.group;
+    if (groupBinding) {
+      const [groupErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
+      groupErrors && errors.push(...groupErrors);
+
+      for (const key of Object.keys(dataModelBindings)) {
+        const binding = dataModelBindings[key];
+        if (key === 'group' || !binding) {
+          continue;
+        }
+        if (binding.dataType !== groupBinding.dataType) {
+          errors.push(`Field ${key} must have the same data type as the group binding`);
+          continue;
+        }
+        if (!binding.field.startsWith(`${groupBinding.field}.`)) {
+          errors.push(
+            `Field ${key} must start with the group binding field (must point to a property inside the group)`,
+          );
+          continue;
+        }
+        const fieldWithoutGroup = binding.field.replace(`${groupBinding.field}.`, '');
+        const fieldWithIndex = `${groupBinding.field}[0].${fieldWithoutGroup}`;
+        const [schema, err] = ctx.lookupBinding({ field: fieldWithIndex, dataType: binding.dataType });
+        if (err) {
+          errors.push(lookupErrorAsText(err));
+        } else if (typeof schema?.type !== 'string' || !allowedLeafTypes.includes(schema.type)) {
+          errors.push(`Field ${binding} in group must be one of types ${allowedLeafTypes.join(', ')}`);
+        }
       }
-    }
-
-    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array'], false);
-    if (newErrors) {
-      errors.push(...(newErrors || []));
-    }
-
-    if (dataModelBindings?.saveToList) {
-      const saveToListBinding = ctx.lookupBinding(dataModelBindings?.saveToList);
-      const items = saveToListBinding[0]?.items;
-      const properties =
-        items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
-          ? items.properties
-          : undefined;
-
+    } else {
       for (const [binding] of Object.entries(dataModelBindings ?? {})) {
-        let selectedBinding: JSONSchema7Definition | undefined;
-        if (properties) {
-          selectedBinding = properties[binding];
-        }
-        if (binding !== 'saveToList' && items && typeof items === 'object' && 'properties' in items) {
-          if (!selectedBinding) {
-            errors.push(`saveToList must contain a field with the same name as the field ${binding}`);
-          } else if (typeof selectedBinding !== 'object' || typeof selectedBinding.type !== 'string') {
-            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
-          } else if (!allowedTypes.includes(selectedBinding.type)) {
-            errors.push(`Field ${binding} in saveToList must be one of types ${allowedTypes.join(', ')}`);
-          }
-        }
+        const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedLeafTypes, false);
+        errors.push(...(newErrors || []));
       }
     }
 
@@ -164,4 +142,10 @@ export class List extends ListDef {
       queryParameters: evalQueryParameters(props),
     };
   }
+}
+
+function findDataInRow(row: unknown, binding: IDataModelReference, groupBinding: IDataModelReference): unknown {
+  // Remove the first part of the binding.field that overlaps with the group binding
+  const field = binding.field.replace(`${groupBinding.field}.`, '');
+  return dot.pick(field, row);
 }

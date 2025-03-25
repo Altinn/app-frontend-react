@@ -1,16 +1,16 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
+import { useAttachmentsFor } from 'src/features/attachments/hooks';
 import { AttachmentSummaryComponent2 } from 'src/layout/FileUpload/AttachmentSummaryComponent2';
 import { FileUploadDef } from 'src/layout/FileUpload/config.def.generated';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { FileUploadLayoutValidator } from 'src/layout/FileUpload/FileUploadLayoutValidator';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
+import { useValidateMinNumberOfAttachments } from 'src/layout/FileUpload/useValidateMinNumberOfAttachments';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -28,10 +28,9 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return false;
   }
 
-  getDisplayData(node: LayoutNode<'FileUpload'>, { attachmentsSelector }: DisplayDataProps): string {
-    return attachmentsSelector(node.id)
-      .map((a) => a.data.filename)
-      .join(', ');
+  useDisplayData(nodeId: string): string {
+    const attachments = useAttachmentsFor(nodeId);
+    return attachments.map((a) => a.data.filename).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'FileUpload'>): JSX.Element | null {
@@ -51,37 +50,12 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
   }
 
   // This component does not have empty field validation, so has to override its inherited method
-  runEmptyFieldValidation(): ComponentValidation[] {
+  useEmptyFieldValidation(): ComponentValidation[] {
     return [];
   }
 
-  runComponentValidation(
-    node: LayoutNode<'FileUpload'>,
-    { attachmentsSelector, nodeDataSelector }: ValidationDataSources,
-  ): ComponentValidation[] {
-    const validations: ComponentValidation[] = [];
-    const minNumberOfAttachments = nodeDataSelector((picker) => picker(node)?.item?.minNumberOfAttachments, [node]);
-
-    // Validate minNumberOfAttachments
-    const attachments = attachmentsSelector(node.id);
-    if (
-      minNumberOfAttachments !== undefined &&
-      minNumberOfAttachments > 0 &&
-      attachments.length < minNumberOfAttachments
-    ) {
-      validations.push({
-        message: {
-          key: 'form_filler.file_uploader_validation_error_file_number',
-          params: [minNumberOfAttachments],
-        },
-        severity: 'error',
-        source: FrontendValidationSource.Component,
-        // Treat visibility of minNumberOfAttachments the same as required to prevent showing an error immediately
-        category: ValidationMask.Required,
-      });
-    }
-
-    return validations;
+  useComponentValidation(node: LayoutNode<'FileUpload'>): ComponentValidation[] {
+    return useValidateMinNumberOfAttachments(node);
   }
 
   isDataModelBindingsRequired(node: LayoutNode<'FileUpload'>): boolean {

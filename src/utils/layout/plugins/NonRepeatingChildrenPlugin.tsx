@@ -11,7 +11,6 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 interface Config<
   Type extends TypesFromCategory<CompCategory.Container>,
@@ -130,17 +129,18 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     } as DefPluginExtraInItem<ToInternal<E>>;
   }
 
-  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<ToInternal<E>>): void {
+  claimChildren({ item, claimChild, getType, getCapabilities }: DefPluginChildClaimerProps<ToInternal<E>>): void {
     for (const id of item[this.settings.externalProp].values()) {
       if (this.settings.onlyWithCapability) {
-        const proto = getProto(id);
-        if (!proto) {
+        const type = getType(id);
+        if (!type) {
           continue;
         }
-        if (!proto.capabilities[this.settings.onlyWithCapability]) {
+        const capabilities = getCapabilities(type);
+        if (!capabilities[this.settings.onlyWithCapability]) {
           window.logWarn(
             `${this.settings.componentType} component included a component '${id}', which ` +
-              `is a '${proto.type}' and cannot be rendered in an ${this.settings.componentType}.`,
+              `is a '${type}' and cannot be rendered in an ${this.settings.componentType}.`,
           );
           continue;
         }
@@ -149,7 +149,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     }
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction): string[] {
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: number | undefined): string[] {
     if (restriction !== undefined) {
       return [];
     }
