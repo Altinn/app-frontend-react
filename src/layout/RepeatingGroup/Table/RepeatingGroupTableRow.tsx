@@ -261,6 +261,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                       <XMarkOctagonFillIcon
                         fontSize='1rem'
                         aria-hidden='true'
+                        style={{ verticalAlign: 'middle' }}
                       />
                     </span>
                   ) : (
@@ -320,6 +321,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                     <XMarkOctagonFillIcon
                       fontSize='1rem'
                       aria-hidden='true'
+                      style={{ verticalAlign: 'middle' }}
                     />
                   </span>
                 ) : (
