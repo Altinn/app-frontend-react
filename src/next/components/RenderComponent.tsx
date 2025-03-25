@@ -1,10 +1,10 @@
 import React, { memo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
+import { Navbar } from 'src/next/components/navbar/Navbar';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -19,7 +19,7 @@ interface RenderComponentType {
   childField?: string;
 }
 
-export const RenderComponent = memo(function RenderComponent<Type extends CompTypes = CompTypes>({
+export const RenderComponent = memo(function RenderComponentMemo<Type extends CompTypes = CompTypes>({
   component,
   parentBinding,
   itemIndex,
@@ -35,10 +35,6 @@ export const RenderComponent = memo(function RenderComponent<Type extends CompTy
 
   const layoutComponent = components[component.type].def as unknown as LayoutComponent<Type>;
   const RenderComponent = layoutComponent.renderNext;
-
-  // const RenderComponent = components[component.type];
-
-  const navigate = useNavigate();
 
   const value = useStore(
     layoutStore,
@@ -76,6 +72,10 @@ export const RenderComponent = memo(function RenderComponent<Type extends CompTy
 
   if (!RenderComponent) {
     return <h1>Not implemented {component.type}</h1>;
+  }
+
+  if (component.type === 'NavigationBar') {
+    return <Navbar component={component} />;
   }
 
   return (
