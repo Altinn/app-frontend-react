@@ -116,7 +116,7 @@ export function AwaitingCurrentUserSignaturePanel({
       description={<Lang id={checkboxDescription} />}
       errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
     >
-      {authorizedOrganisationDetails && authorizedOrganisationDetails.length > 0 && (
+      {authorizedOrganisationDetails && authorizedOrganisationDetails.organisations.length > 0 && (
         <Radio.Group
           legend='Hvem ønsker du å signere på vegne av?'
           hideLegend={false}
@@ -132,7 +132,7 @@ export function AwaitingCurrentUserSignaturePanel({
             name='self'
             onChange={handleChange}
           />
-          {authorizedOrganisationDetails.map((org) => (
+          {authorizedOrganisationDetails.organisations.map((org) => (
             <RadioButton
               value={org.orgName}
               label={org.orgName}

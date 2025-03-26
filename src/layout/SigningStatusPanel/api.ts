@@ -3,13 +3,15 @@ import { z } from 'zod';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
-const authorizedOrganisationDetailsSchema = z.array(
-  z.object({
-    orgNumber: z.string(),
-    orgName: z.string(),
-    partyId: z.number(),
-  }),
-);
+const authorizedOrganisationDetailsSchema = z.object({
+  organisations: z.array(
+    z.object({
+      orgNumber: z.string(),
+      orgName: z.string(),
+      partyId: z.number(),
+    }),
+  ),
+});
 
 export type AuthorizedOrganisationDetails = z.infer<typeof authorizedOrganisationDetailsSchema>;
 
