@@ -39,7 +39,7 @@ export const PartySelection = () => {
   const selectedParty = useCurrentParty();
   const setUserHasSelectedParty = useSetHasSelectedParty();
 
-  const parties = usePartiesAllowedToInstantiate() ?? [];
+  const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate();
   const appMetadata = useApplicationMetadata();
 
   const appPromptForPartyOverride = appMetadata.promptForParty;
@@ -60,13 +60,13 @@ export const PartySelection = () => {
     navigate('/');
   };
 
-  const filteredParties = parties
+  const filteredParties = partiesAllowedToInstantiate
     .filter(
       (party) => party.name.toUpperCase().includes(filterString.toUpperCase()) && !(party.isDeleted && !showDeleted),
     )
     .slice(0, numberOfPartiesShown);
 
-  const hasMoreParties = filteredParties.length < parties.length;
+  const hasMoreParties = filteredParties.length < partiesAllowedToInstantiate.length;
 
   function renderParties() {
     return (
@@ -136,19 +136,20 @@ export const PartySelection = () => {
     */
     const { partyTypesAllowed } = appMetadata ?? {};
     const partyTypes: string[] = [];
+    const allDisallowed = Object.values(partyTypesAllowed).every((value) => !value);
 
     let returnString = '';
 
-    if (partyTypesAllowed?.person) {
+    if (allDisallowed || partyTypesAllowed?.person) {
       partyTypes.push(langAsString('party_selection.unit_type_private_person'));
     }
-    if (partyTypesAllowed?.organisation) {
+    if (allDisallowed || partyTypesAllowed?.organisation) {
       partyTypes.push(langAsString('party_selection.unit_type_company'));
     }
-    if (partyTypesAllowed?.subUnit) {
+    if (allDisallowed || partyTypesAllowed?.subUnit) {
       partyTypes.push(langAsString('party_selection.unit_type_subunit'));
     }
-    if (partyTypesAllowed?.bankruptcyEstate) {
+    if (allDisallowed || partyTypesAllowed?.bankruptcyEstate) {
       partyTypes.push(langAsString('party_selection.unit_type_bankruptcy_state'));
     }
 

@@ -150,7 +150,7 @@ export const ReceiptContainer = () => {
   const instanceOrg = useLaxInstanceData((i) => i.org);
   const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
   const dataElements = useLaxInstanceAllDataElements();
-  const parties = usePartiesAllowedToInstantiate();
+  const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate();
   const langTools = useLanguage();
   const receiver = useAppReceiver();
 
@@ -190,7 +190,7 @@ export const ReceiptContainer = () => {
   const instanceMetaObject = useMemo(() => {
     const sender = getInstanceSender(instanceOwnerParty);
 
-    if (instanceOrg && instanceOwner && parties && instanceGuid && lastChangedDateTime) {
+    if (instanceOrg && instanceOwner && partiesAllowedToInstantiate && instanceGuid && lastChangedDateTime) {
       return getSummaryDataObject({
         langTools,
         sender,
@@ -201,7 +201,16 @@ export const ReceiptContainer = () => {
     }
 
     return undefined;
-  }, [instanceOrg, parties, instanceGuid, lastChangedDateTime, langTools, receiver, instanceOwner, instanceOwnerParty]);
+  }, [
+    instanceOrg,
+    partiesAllowedToInstantiate,
+    instanceGuid,
+    lastChangedDateTime,
+    langTools,
+    receiver,
+    instanceOwner,
+    instanceOwnerParty,
+  ]);
 
   const requirementMissing = !attachments
     ? 'attachments'
@@ -211,11 +220,11 @@ export const ReceiptContainer = () => {
         ? 'lastChangedDateTime'
         : !instanceOwner
           ? 'instance'
-          : !parties
+          : !partiesAllowedToInstantiate
             ? 'parties'
             : undefined;
 
-  if (requirementMissing || !(instanceOwner && parties && instanceMetaObject && pdf)) {
+  if (requirementMissing || !(instanceOwner && partiesAllowedToInstantiate && instanceMetaObject && pdf)) {
     return (
       <AltinnContentLoader
         width={705}

@@ -10,12 +10,12 @@ import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmP
 
 export const Confirm = () => {
   const instance = useLaxInstanceData((data) => data);
-  const parties = usePartiesAllowedToInstantiate();
+  const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate();
 
   const instanceOwnerParty = useInstanceOwnerParty();
   const applicationMetadata = useApplicationMetadata();
 
-  const missingRequirement = !instance ? 'instance' : !parties ? 'parties' : undefined;
+  const missingRequirement = !instance ? 'instance' : !partiesAllowedToInstantiate ? 'parties' : undefined;
 
   const appName = useAppName();
   return (

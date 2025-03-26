@@ -5,9 +5,9 @@ import { useProfile } from 'src/features/profile/ProfileProvider';
 export function usePromptForParty(): boolean | null {
   const applicationMetadata = useApplicationMetadata();
   const profile = useProfile();
-  const parties = usePartiesAllowedToInstantiate();
+  const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate();
 
-  if (!profile?.partyId || !parties) {
+  if (!profile?.partyId || !partiesAllowedToInstantiate) {
     return null;
   }
 
@@ -20,7 +20,7 @@ export function usePromptForParty(): boolean | null {
   }
 
   // No point in prompting if there is only one party
-  if (parties.length === 1) {
+  if (partiesAllowedToInstantiate.length === 1) {
     return false;
   }
   return !profile.profileSettingPreference.doNotPromptForParty;

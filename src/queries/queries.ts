@@ -31,6 +31,7 @@ import {
   getLayoutSettingsUrl,
   getLayoutsUrl,
   getOrderDetailsUrl,
+  getPartiesUrl,
   getPaymentInformationUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
@@ -42,7 +43,6 @@ import {
   profileApiUrl,
   refreshJwtTokenUrl,
   textResourcesUrl,
-  validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI, orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -229,7 +229,8 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
 
-export const fetchPartiesAllowedToInstantiate = (): Promise<IParty[]> => httpGet(validPartiesUrl);
+export const fetchPartiesAllowedToInstantiate = (): Promise<IParty[]> => httpGet(getPartiesUrl(true));
+export const fetchAllParties = (): Promise<IParty[]> => httpGet(getPartiesUrl());
 
 export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
 

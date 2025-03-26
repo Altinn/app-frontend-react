@@ -14,7 +14,7 @@ import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useInstantiateMutation } from 'src/features/instantiate/InstantiationContext';
 import {
   ActiveInstancesProvider,
   useActiveInstances,
@@ -69,7 +69,7 @@ function InstanceSelection() {
   const { langAsString, language } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
-  const instantiate = useInstantiation().instantiate;
+  const { mutate: instantiate } = useInstantiateMutation();
   const currentParty = useCurrentParty();
   const storeCallback = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();

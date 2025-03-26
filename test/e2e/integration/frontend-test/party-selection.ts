@@ -9,12 +9,11 @@ const appFrontend = new AppFrontend();
 describe('Party selection', () => {
   it('Party selection filtering and search', () => {
     cyMockResponses({
+      parties: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg],
       allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg],
       doNotPromptForParty: false,
     });
     cy.startAppInstance(appFrontend.apps.frontendTest);
-
-    cy.setCookie('AltinnPartyId', CyPartyMocks.ExampleDeletedOrg.partyId.toString());
 
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get(appFrontend.reporteeSelection.error).contains(texts.selectNewReportee);
@@ -31,11 +30,9 @@ describe('Party selection', () => {
 
   it('Should show the correct title', () => {
     cyMockResponses({
-      allowedToInstantiate: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExampleDeletedOrg],
       doNotPromptForParty: false,
     });
     cy.startAppInstance(appFrontend.apps.frontendTest);
-    cy.setCookie('AltinnPartyId', CyPartyMocks.ExampleDeletedOrg.partyId.toString());
 
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.title().should('eq', 'Hvem vil du sende inn for? - frontend-test - Testdepartementet');
@@ -44,17 +41,16 @@ describe('Party selection', () => {
   it('Should skip party selection if you can only represent one person', () => {
     cyMockResponses({
       allowedToInstantiate: [CyPartyMocks.ExamplePerson1],
+      userParty: CyPartyMocks.ExamplePerson1,
     });
     cy.intercept(
       'POST',
       `/ttd/frontend-test/instances?instanceOwnerPartyId=${CyPartyMocks.ExamplePerson1.partyId}*`,
-    ).as('loadInstance');
+    ).as('createInstance');
     cy.startAppInstance(appFrontend.apps.frontendTest);
 
-    cy.setCookie('AltinnPartyId', CyPartyMocks.ExamplePerson1.partyId.toString());
-
     cy.get(appFrontend.reporteeSelection.reportee).should('not.exist');
-    cy.wait('@loadInstance');
+    cy.wait('@createInstance');
 
     // This fails in the end because the partyId does not exist, but we still proved
     // that party selection did not appear (even though @loadInstance fails with a 404)
@@ -65,6 +61,7 @@ describe('Party selection', () => {
     cyMockResponses({
       // We'll only allow one party to be selected, and it's not the preselected one. Even though one-party-choices
       // normally won't show up as being selectable, we'll still show the warning in these cases.
+      parties: [CyPartyMocks.ExampleOrgWithSubUnit, CyPartyMocks.ExamplePerson2],
       allowedToInstantiate: [CyPartyMocks.ExamplePerson2],
     });
 
@@ -74,6 +71,7 @@ describe('Party selection', () => {
 
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get(appFrontend.reporteeSelection.error).should('be.visible');
+    cy.findByText(new RegExp(CyPartyMocks.ExampleOrgWithSubUnit.name, 'i')).should('be.visible');
   });
 
   it('Should show an error if there are no parties to select from', () => {
@@ -163,48 +161,44 @@ describe('Party selection', () => {
         doNotPromptForParty,
       });
 
-      // The /parties request and /current request happen in parallel, so we need
-      // to await the first request in order to use its value in the second intercept.
-      let resolveParties: () => void;
-      const partiesPromise = new Promise<void>((res) => {
-        resolveParties = res;
-      });
-      // Need to make sure the returned party is the same current party:
-      let correctParty: IParty | undefined = undefined;
-      cy.intercept(
-        {
-          method: 'GET',
-          url: `**/api/v1/parties?allowedtoinstantiatefilter=true`,
-          times: 1,
-        },
-        (req) => {
-          req.on('response', (res) => {
-            const parties = res.body as IParty[];
-            correctParty = parties[0]; // parties.find((party: IParty) => party.partyId == partyId);
-            if (!correctParty) {
-              throw new Error(`No parties returned from api`);
-            }
-            res.send([correctParty]);
-            resolveParties();
-          });
-        },
-      );
-      cy.intercept(
-        {
-          method: 'GET',
-          url: `**/api/authorization/parties/current?returnPartyObject=true`,
-          times: 1,
-        },
-        (req) => {
-          req.on('response', async (res) => {
-            await partiesPromise;
-            if (!correctParty) {
-              throw new Error(`No parties returned from api`);
-            }
-            res.send(correctParty);
-          });
-        },
-      );
+      let userParty: IParty | undefined;
+
+      // Intercept /profile/user to capture the user party
+      cy.intercept('GET', '**/api/v1/profile/user', (req) => {
+        req.continue((res) => {
+          userParty = res.body.party;
+          res.send(res.body);
+        });
+      }).as('getUserProfile');
+
+      // Intercept /parties?allowedtoinstantiatefilter=true and filter by user party
+      cy.intercept('GET', '**/api/v1/parties?allowedtoinstantiatefilter=true', (req) => {
+        req.continue((res) => {
+          const filteredParties = res.body.filter((party: IParty) => party.partyId === userParty?.partyId);
+          res.send(filteredParties);
+        });
+      }).as('getAllowedToInstantiateParties');
+
+      // Intercept /parties and filter by user party
+      cy.intercept('GET', '**/api/v1/parties', (req) => {
+        req.continue((res) => {
+          const filteredParties = res.body.filter((party: IParty) => party.partyId === userParty?.partyId);
+          res.send(filteredParties);
+        });
+      }).as('getAllParties');
+
+      // Start the app instance
+      cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
+
+      // Wait for the intercepts to complete
+      cy.wait('@getUserProfile');
+      cy.wait('@getAllowedToInstantiateParties');
+      cy.wait('@getAllParties');
+
+      // Assert that the app does not prompt for party selection
+      cy.get(appFrontend.appHeader).should('be.visible');
+      cy.get('[id^="party-"]').should('not.exist');
+      cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
 
       cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
       cy.get(appFrontend.appHeader).should('be.visible');
@@ -250,29 +244,44 @@ describe('Party selection', () => {
     cy.allowFailureOnEnd();
     cyMockResponses({
       allowedToInstantiate: removeAllButOneOrg,
+      parties: removeAllButOneOrg,
       doNotPromptForParty: false,
     });
+
+    // Intercept subsequent requests and let them go through normally
+    cy.intercept({ method: 'POST', url: `**/instances?instanceOwnerPartyId*` }, (req) => {
+      req.continue();
+    }).as('createInstance');
+
+    // Intercept the first request and return a 403 error (must be defined after the other intercept)
+    cy.intercept({ method: 'POST', url: `**/instances?instanceOwnerPartyId*`, times: 1 }, { statusCode: 403 }).as(
+      'createInstanceError',
+    );
+
+    // Start the app instance
     cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'accountant' });
 
-    // Select the first organisation. This is not allowed to instantiate in this app, so it will throw an error.
+    // Select the first organization. This is not allowed to instantiate in this app, so it will throw an error.
     cy.findAllByText(/org\.nr\. \d+/)
       .first()
       .click();
+
+    // Wait for the first request to complete and verify the error
+    cy.wait('@createInstanceError');
     cy.get(appFrontend.altinnError).should('contain.text', texts.missingRights);
 
     // Try again with another party
     cy.findByRole('link', { name: 'skift aktør her' }).click();
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
 
-    /** We need to wait for the instantiation to be cleared before we can instantiate again.
-     * @see InstantiateContainer */
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
+    cy.get(appFrontend.reporteeSelection.searchReportee).should('exist');
 
     // The person on the other hand is allowed to instantiate
     cy.findAllByText(/personnr\. \d+/)
       .first()
       .click();
+
+    cy.wait('@createInstance');
     cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
 
     // To make sure this instance is different from the next, we navigate to the next process step in this one
@@ -285,12 +294,12 @@ describe('Party selection', () => {
     });
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
 
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
-
+    // Select the second party again
     cy.findAllByText(/personnr\. \d+/)
       .first()
       .click();
+
+    cy.wait('@createInstance');
     cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
   });
 });

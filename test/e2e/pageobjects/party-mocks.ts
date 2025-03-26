@@ -94,25 +94,36 @@ export const CyPartyMocks = {
 };
 
 interface Mockable {
+  parties?: IParty[] | ((parties: IParty[]) => IParty[]);
   allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
   doNotPromptForParty?: boolean;
   appPromptForPartyOverride?: IncomingApplicationMetadata['promptForParty'];
   noActiveInstances?: boolean; // Defaults to true
+  userParty?: IParty;
 }
 
 export function cyMockResponses(whatToMock: Mockable) {
   if (whatToMock.allowedToInstantiate) {
-    cy.intercept('GET', `**/api/v1/parties?allowedtoinstantiatefilter=true`, (req) => {
+    cy.intercept('GET', '**/api/v1/parties?allowedtoinstantiatefilter=true', (req) => {
       req.continue((res) => {
         const body =
           whatToMock.allowedToInstantiate instanceof Function
             ? whatToMock.allowedToInstantiate(res.body)
-            : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (whatToMock.allowedToInstantiate as any);
+            : whatToMock.allowedToInstantiate;
         res.send(200, body);
       });
-    });
+    }).as('getAllowedToInstantiateParties'); // Unique alias for allowed parties
   }
+
+  if (whatToMock.parties) {
+    cy.intercept('GET', '**/api/v1/parties', (req) => {
+      req.continue((res) => {
+        const body = whatToMock.parties instanceof Function ? whatToMock.parties(res.body) : whatToMock.parties;
+        res.send(200, body);
+      });
+    }).as('getAllParties'); // Unique alias for all parties
+  }
+
   if (whatToMock.doNotPromptForParty !== undefined) {
     cy.intercept('GET', '**/api/v1/profile/user', (req) => {
       req.continue((res) =>
@@ -123,8 +134,9 @@ export function cyMockResponses(whatToMock: Mockable) {
           },
         }),
       );
-    });
+    }).as('getUserProfile'); // Unique alias for user profile
   }
+
   if (whatToMock.appPromptForPartyOverride !== undefined) {
     cy.intercept('GET', '**/api/v1/applicationmetadata', (req) => {
       req.on('response', (res) => {
@@ -132,11 +144,22 @@ export function cyMockResponses(whatToMock: Mockable) {
           res.body.promptForParty = whatToMock.appPromptForPartyOverride;
         }
       });
-    });
+    }).as('getApplicationMetadata'); // Unique alias for application metadata
   }
 
   if (whatToMock.noActiveInstances !== false) {
-    cy.intercept('**/active', []).as('noActiveInstances');
+    cy.intercept('**/active', []).as('noActiveInstances'); // Unique alias for active instances
+  }
+
+  if (whatToMock.userParty) {
+    cy.intercept('GET', '**/api/v1/profile/user', (req) => {
+      req.continue((res) =>
+        res.send({
+          ...res.body,
+          party: whatToMock.userParty,
+        }),
+      );
+    }).as('getUserParty'); // Unique alias for user party
   }
 }
 
