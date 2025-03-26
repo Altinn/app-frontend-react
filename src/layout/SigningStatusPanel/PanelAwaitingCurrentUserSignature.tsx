@@ -134,10 +134,10 @@ export function AwaitingCurrentUserSignaturePanel({
           />
           {authorizedOrganisationDetails.organisations.map((org) => (
             <RadioButton
-              value={org.orgName}
+              value={org.orgNumber}
               label={org.orgName}
               helpText='Fordi du haren nøkkelrolle i denne befriften, kan du velge å signere på vegne av denne parten.'
-              name={org.orgName}
+              name={org.orgNumber}
               key={org.partyId}
               // checked={option.value === selectedValues[0]}
               // showAsCard={showAsCard}
