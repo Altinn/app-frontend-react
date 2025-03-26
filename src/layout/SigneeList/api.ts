@@ -56,5 +56,36 @@ export async function fetchSigneeList(partyId: string, instanceGuid: string): Pr
   const response = await httpGet(url);
   const parsed = z.object({ signeeStates: z.array(signeeStateSchema) }).parse(response);
 
+  // const data = [
+  //   {
+  //     name: null,
+  //     organisation: 'Company A',
+  //     delegationSuccessful: true,
+  //     notificationStatus: NotificationStatus.Sent,
+  //     partyId: 1,
+  //     hasSigned: false,
+  //     signedTime: null,
+  //   },
+  //   {
+  //     name: 'Johnny The Donny',
+  //     organisation: 'Company B',
+  //     delegationSuccessful: true,
+  //     notificationStatus: NotificationStatus.NotSent,
+  //     partyId: 2,
+  //     hasSigned: true,
+  //     signedTime: '2021-09-01T12:00:00Z',
+  //   },
+  //   {
+  //     name: 'John Doe',
+  //     organisation: null,
+  //     delegationSuccessful: true,
+  //     notificationStatus: NotificationStatus.Sent,
+  //     partyId: 3,
+  //     hasSigned: false,
+  //     signedTime: null,
+  //   },
+  // ];
+
   return parsed.signeeStates.toSorted((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+  // return data;
 }
