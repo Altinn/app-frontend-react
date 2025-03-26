@@ -12,7 +12,6 @@ import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
-import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
@@ -102,11 +101,17 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 
   if (hasMissingSignatures) {
     return (
-      <AwaitingOtherSignaturesPanel
+      <AwaitingCurrentUserSignaturePanel
         node={node}
-        hasSigned={hasSigned}
+        hasMissingSignatures={hasMissingSignatures}
       />
     );
+    // return (
+    //   <AwaitingOtherSignaturesPanel
+    //     node={node}
+    //     hasSigned={hasSigned}
+    //   />
+    // );
   }
 
   return <SubmitPanel node={node} />;
