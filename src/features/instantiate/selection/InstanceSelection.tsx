@@ -12,13 +12,13 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
+import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { useInstantiateMutation } from 'src/features/instantiate/InstantiationContext';
-import {
-  ActiveInstancesProvider,
-  useActiveInstances,
-} from 'src/features/instantiate/selection/ActiveInstancesProvider';
+import { useActiveInstancesQuery } from 'src/features/instantiate/selection/activeInstancesQuery';
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -47,22 +47,24 @@ function getDateDisplayString(timeStamp: string) {
 export const InstanceSelectionWrapper = () => (
   <TaskStoreProvider>
     <DataLoadingProvider>
-      <ActiveInstancesProvider>
-        <PresentationComponent
-          type={ProcessTaskType.Unknown}
-          showNavigation={false}
-        >
-          <DataLoadingProvider>
-            <InstanceSelection />
-          </DataLoadingProvider>
-        </PresentationComponent>
-      </ActiveInstancesProvider>
+      <PresentationComponent
+        type={ProcessTaskType.Unknown}
+        showNavigation={false}
+      >
+        <DataLoadingProvider>
+          <InstanceSelection />
+        </DataLoadingProvider>
+      </PresentationComponent>
     </DataLoadingProvider>
   </TaskStoreProvider>
 );
 
 function InstanceSelection() {
-  const _instances = useActiveInstances();
+  const {
+    data: _instances = [],
+    isLoading: isActiveInstancesLoading,
+    error: activeInstancesError,
+  } = useActiveInstancesQuery();
   const applicationMetadata = useApplicationMetadata();
   const instanceSelectionOptions = applicationMetadata?.onEntry.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
@@ -94,6 +96,19 @@ function InstanceSelection() {
     if (instances.length < currentPage * newRowsPerPage) {
       setCurrentPage(Math.floor(instances.length / newRowsPerPage));
     }
+  }
+
+  if (isActiveInstancesLoading) {
+    return <Loader reason='query-active-instances' />;
+  }
+
+  if (activeInstancesError) {
+    return <DisplayError error={activeInstancesError} />;
+  }
+
+  if (_instances?.length === 0) {
+    // If there's no active instances, we should instantiate a new one
+    return <InstantiateContainer />;
   }
 
   const renderMobileTable = () => (
