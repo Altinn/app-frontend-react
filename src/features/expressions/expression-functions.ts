@@ -429,7 +429,8 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     const target = this.dataSources.layoutLookups.allComponents[id];
     if (!target) {
-      throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
+      window.logErrorOnce(`Unable to find component with identifier ${id}`);
+      return null;
     }
 
     const rawBinding =
@@ -524,7 +525,8 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     }
     const target = this.dataSources.layoutLookups.allComponents[id];
     if (!target) {
-      throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
+      window.logErrorOnce(`Unable to find component with identifier ${id}`);
+      return null;
     }
 
     const targetId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
@@ -616,7 +618,8 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     const target = this.dataSources.layoutLookups.allComponents[id];
     const pageKey = this.dataSources.layoutLookups.componentToPage[id];
     if (!target || !pageKey) {
-      throw new ExprRuntimeError(this.expr, this.path, `Unable to find component with identifier ${id}`);
+      window.logErrorOnce(`Unable to find component with identifier ${id}`);
+      return null;
     }
 
     const taskId = this.dataSources.process?.currentTask?.elementId;
