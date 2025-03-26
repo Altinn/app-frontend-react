@@ -15,14 +15,11 @@ export function getDomain() {
 export function getCookieString(name: string, value: string | number | undefined) {
   const domain = getDomain();
 
-  return `${name}=${value}; Path=/; Domain=${domain}; SameSite=None;` + `${isLocalTest() ? '' : ' Secure;'}`;
+  return `${name}=${value}; Path=/; Domain=${domain};` + `${isLocalTest() ? '' : ' SameSite=None; Secure;'}`;
 }
 
 export function setCookie({ name, value }: { name: string; value: string | number | undefined }) {
-  console.log('Setting altinn partyId cookie', value);
-  const cookieString = getCookieString(name, value);
-  console.log('cookieString', cookieString);
-  document.cookie = cookieString;
+  document.cookie = getCookieString(name, value);
 }
 
 export function getCookieValue(name: string): string | null {

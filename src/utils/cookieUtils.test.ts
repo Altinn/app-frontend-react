@@ -9,7 +9,7 @@ describe('getCookieString', () => {
 
     // Arrange
     const domain = '.local.altinn.cloud';
-    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain}; SameSite=None;`;
+    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain};`;
 
     // Act
     const cookieString = getCookieString(name, value);
