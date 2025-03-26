@@ -38,6 +38,24 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const saveToList = dataModelBindings?.saveToList;
 
   const isValid = useIsValid(node);
+  const horizontal = shouldUseRowLayout({
+    layout,
+    optionsCount: calculatedOptions.length,
+  });
+
+  const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
+  const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
+  const rowKey = dataModelBindings.simpleBinding.field.split('.').pop();
+
+  const setChecked = (isChecked: boolean, option) => {
+    const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
+
+    if (saveToList) {
+      setList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
+    } else {
+      setData(newData);
+    }
+  };
 
   const labelTextGroup = (
     <LabelContent
@@ -49,23 +67,6 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
       labelSettings={labelSettings}
     />
   );
-
-  const horizontal = shouldUseRowLayout({
-    layout,
-    optionsCount: calculatedOptions.length,
-  });
-  const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
-  const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
-
-  const setChecked = (isChecked: boolean, option) => {
-    const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
-
-    if (saveToList) {
-      setList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
-    } else {
-      setData(newData);
-    }
-  };
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -84,7 +85,6 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
             hideLegend={overrideDisplay?.renderLegend === false}
             error={!isValid}
             aria-label={ariaLabel}
-            //value={selectedValues}
             data-testid='checkboxes-fieldset'
           >
             {calculatedOptions.map((option) => (
@@ -95,8 +95,8 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
                 hideLabel={hideLabel}
                 alertOnChange={alertOnChange}
                 checked={
-                  saveToList
-                    ? isRowChecked({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value })
+                  saveToList && rowKey
+                    ? isRowChecked({ [rowKey]: option.value })
                     : selectedValues.includes(option.value)
                 }
                 setChecked={(isChecked) => setChecked(isChecked, option)}

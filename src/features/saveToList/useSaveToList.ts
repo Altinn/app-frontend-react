@@ -6,13 +6,16 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IDataModelBindingsForSaveTolistCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { IDataModelReference } from 'src/layout/common.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Row = Record<string, string | number | boolean>;
 
-export const useSaveToList = (node) => {
+export const useSaveToList = (node: LayoutNode<'List' | 'Checkboxes' | 'MultipleSelect'>) => {
   const bindings = useNodeItem(node, (i) => i.dataModelBindings) as IDataModelBindingsForSaveTolistCheckbox;
   const isDeleted = bindings.isDeleted;
-  const isDeletedKey = isDeleted?.field.split('.').pop();
+  const isDeletedSegments = isDeleted?.field.split('.');
+  const isDeletedKey = isDeletedSegments?.pop();
+
   const setLeafValue = FD.useSetLeafValue();
   const { formData } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const appendToList = FD.useAppendToList();
@@ -29,27 +32,26 @@ export const useSaveToList = (node) => {
       return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
     });
 
-  function isRowChecked(row: Row): boolean {
+  const isRowChecked = (row: Row): boolean => {
     const formDataObject = getObjectFromFormDataRow(row);
-
     if (isDeletedKey) {
       return !!formDataObject && !formDataObject[isDeletedKey];
     }
     return !!formDataObject;
-  }
+  };
 
-  const setList = (row) => {
+  const setList = (row: Row) => {
     if (!bindings.saveToList) {
       return;
     }
     if (isRowChecked(row)) {
       const index = getIndexFromFormDataRow(row);
       if (isDeleted) {
-        const pathSegments = bindings.isDeleted?.field.split('.');
-        const lastElement = pathSegments?.pop();
-        const newPath = `${pathSegments?.join('.')}[${index}].${lastElement}`;
         setLeafValue({
-          reference: { ...bindings.isDeleted, field: newPath } as IDataModelReference,
+          reference: {
+            ...bindings.isDeleted,
+            field: `${isDeletedSegments?.join('.')}[${index}].${isDeletedKey}`,
+          } as IDataModelReference,
           newValue: true,
         });
       } else {
@@ -64,11 +66,11 @@ export const useSaveToList = (node) => {
       const formDataObject = getObjectFromFormDataRow(row);
       if (formDataObject && isDeletedKey && formDataObject[isDeletedKey]) {
         const index = getIndexFromFormDataRow(row);
-        const pathSegments = bindings.isDeleted?.field.split('.');
-        const lastElement = pathSegments?.pop();
-        const newPath = `${pathSegments?.join('.')}[${index}].${lastElement}`;
         setLeafValue({
-          reference: { ...bindings.isDeleted, field: newPath } as IDataModelReference,
+          reference: {
+            ...bindings.isDeleted,
+            field: `${isDeletedSegments?.join('.')}[${index}].${isDeletedKey}`,
+          } as IDataModelReference,
           newValue: false,
         });
       } else {
@@ -79,8 +81,10 @@ export const useSaveToList = (node) => {
         }
         for (const binding of Object.keys(bindings)) {
           if (binding === 'simpleBinding') {
-            const propertyName = bindings.simpleBinding.field.split('.')[1];
-            next[propertyName] = row[propertyName];
+            const propertyName = bindings.simpleBinding.field.split('.').pop();
+            if (propertyName) {
+              next[propertyName] = row[propertyName];
+            }
           } else if (binding !== 'saveToList' && binding !== 'label' && binding !== 'metadata') {
             next[binding] = row[binding];
           }
