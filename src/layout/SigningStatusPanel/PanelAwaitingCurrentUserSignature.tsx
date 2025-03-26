@@ -62,7 +62,7 @@ export function AwaitingCurrentUserSignaturePanel({
         return doPerformAction(
           instanceOwnerPartyId,
           instanceGuid,
-          { action: 'sign', metadata: { onBehalfOf } },
+          { action: 'sign', onBehalfOf },
           selectedLanguage,
           queryClient,
         );
