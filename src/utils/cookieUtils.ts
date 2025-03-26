@@ -15,7 +15,7 @@ export function getDomain() {
 export function getCookieString(name: string, value: string | number | undefined) {
   const domain = getDomain();
 
-  return `${name}=${value}; Path=/; Domain=${domain} SameSite=None;` + `${isLocalTest() ? '' : ' Secure;'}`;
+  return `${name}=${value}; Path=/; Domain=${domain}; SameSite=None;` + `${isLocalTest() ? '' : ' Secure;'}`;
 }
 
 export function setCookie({ name, value }: { name: string; value: string | number | undefined }) {

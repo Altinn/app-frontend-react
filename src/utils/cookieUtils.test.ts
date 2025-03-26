@@ -9,7 +9,7 @@ describe('getCookieString', () => {
 
     // Arrange
     const domain = '.local.altinn.cloud';
-    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain} SameSite=None;`;
+    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain}; SameSite=None;`;
 
     // Act
     const cookieString = getCookieString(name, value);
@@ -30,7 +30,7 @@ describe('getCookieString', () => {
     });
 
     const domain = '.altinn.no';
-    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain} SameSite=None; Secure;`;
+    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain}; SameSite=None; Secure;`;
 
     // Act
     const cookieString = getCookieString(name, value);
@@ -50,7 +50,7 @@ describe('getCookieString', () => {
     });
 
     const domain = '.altinn.no';
-    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain} SameSite=None; Secure;`;
+    const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain}; SameSite=None; Secure;`;
 
     // Act
     const cookieString = getCookieString(name, value);
