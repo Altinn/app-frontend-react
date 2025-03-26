@@ -41,16 +41,15 @@ describe('getCookieString', () => {
 
   it('should have domain ".altinn.no" and include secure if in production build and tt02 env', () => {
     // Arrange
-    process.env.NODE_ENV = 'production';
     window = Object.create(window);
     Object.defineProperty(window, 'location', {
       value: {
-        origin: 'https://tt02.altinn.no',
+        origin: 'https://ttd.apps.altinn.no',
       },
       writable: true,
     });
 
-    const domain = '.tt02.altinn.no';
+    const domain = '.altinn.no';
     const expectedCookieString = `${name}=${value}; Path=/; Domain=${domain} SameSite=None; Secure;`;
 
     // Act
