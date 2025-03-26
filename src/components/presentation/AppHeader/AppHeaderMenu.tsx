@@ -12,8 +12,8 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
 
 export interface AppHeaderMenuProps {
-  orgNumber: string | null;
-  displayName: string | null;
+  orgNumber: string | undefined;
+  displayName: string | undefined;
   logoColor: string;
 }
 

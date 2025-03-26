@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo } from 'src/components/logo/AltinnLogo';
@@ -10,10 +11,9 @@ import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
-import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
+import { useCurrentParty, useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import type { LogoColor } from 'src/components/logo/AltinnLogo';
-import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderProps {
   logoColor: LogoColor;
@@ -21,12 +21,9 @@ export interface AppHeaderProps {
 }
 
 export const AppHeader = ({ logoColor, headerBackgroundColor }: AppHeaderProps) => {
-  const user = useProfile();
-  const instanceOwnerParty = useInstanceOwnerParty();
   const { showLanguageSelector } = usePageSettings();
 
-  const displayName = getPartyDisplayName(instanceOwnerParty, user);
-  const orgNumber = instanceOwnerParty?.orgNumber ?? user?.party?.orgNumber ?? null;
+  const { displayName, orgNumber } = useGetOnBehalfOf();
 
   return (
     <header
@@ -70,16 +67,21 @@ const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
   return enableOrgLogo ? <OrganisationLogo /> : <AltinnLogo color={color} />;
 };
 
-function getPartyDisplayName(instanceOwnerParty?: IParty, user?: IProfile) {
-  if (!instanceOwnerParty && !user?.party) {
-    return null;
+function useGetOnBehalfOf() {
+  const instanceOwnerParty = useInstanceOwnerParty();
+  const currentParty = useCurrentParty();
+  const userParty = useProfile()?.party;
+
+  const isInsideActiveInstance = !!useParams().instanceOwnerPartyId;
+
+  let displayName = userParty?.name;
+  if (isInsideActiveInstance && instanceOwnerParty && instanceOwnerParty?.partyId !== userParty?.partyId) {
+    displayName = `${displayName} for ${instanceOwnerParty?.name}`;
+  } else if (currentParty?.partyId !== userParty?.partyId) {
+    displayName = `${displayName} for ${instanceOwnerParty?.name ?? currentParty?.name ?? userParty?.name ?? ''}`;
   }
 
-  const userParty = user?.party;
+  const orgNumber = instanceOwnerParty?.orgNumber ?? userParty?.orgNumber ?? undefined;
 
-  if (instanceOwnerParty && instanceOwnerParty?.partyId !== userParty?.partyId) {
-    return `${userParty?.name} for ${instanceOwnerParty?.name}`;
-  }
-
-  return userParty?.name ?? '';
+  return { displayName, orgNumber };
 }
