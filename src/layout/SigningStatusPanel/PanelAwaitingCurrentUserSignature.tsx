@@ -116,7 +116,7 @@ export function AwaitingCurrentUserSignaturePanel({
       description={<Lang id={checkboxDescription} />}
       errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
     >
-      {authorizedOrganisationDetails && authorizedOrganisationDetails.organisations.length > 0 && (
+      {!!authorizedOrganisationDetails?.organisations?.length && (
         <Radio.Group
           legend='Hvem ønsker du å signere på vegne av?'
           hideLegend={false}
