@@ -14,11 +14,6 @@ import type {
 } from 'src/layout/common.generated';
 import type { CommonProps } from 'src/layout/Input';
 import type { CompIntermediateExact } from 'src/layout/layout';
-// CompClassMap[Type]
-
-//CompIntermediateExact<Type>
-
-// The local versions of number/pattern format props
 type NumberFormatProps = Omit<NumberFormatPropsCG, 'thousandSeparator' | 'decimalSeparator' | 'suffix' | 'prefix'> & {
   thousandSeparator?: boolean | string;
   decimalSeparator?: string;
@@ -29,14 +24,12 @@ type PatternFormatProps = Omit<PatternFormatPropsCG, 'format'> & {
   format: string;
 };
 
-// Discriminant unions for the input variant
 type SearchVariant = { type: 'search' };
 type TextVariant = { type: 'text' };
 type NumberVariant = { type: 'number'; format: NumberFormatProps };
 type PatternVariant = { type: 'pattern'; format: PatternFormatProps };
 type Variant = SearchVariant | TextVariant | NumberVariant | PatternVariant;
 
-// Simple helper to figure out the variant if you still want that in the parent:
 export function getVariantWithFormat(
   type: 'text' | 'search' | undefined,
   format: NumberFormatProps | PatternFormatProps | undefined,
@@ -55,16 +48,12 @@ export function getVariantWithFormat(
 
 // Props to be passed in from the parent
 export interface InputVariantProps {
-  /** The resolved variant of the input (text/search/number/pattern) */
   variant: Variant;
 
-  /** The current input value */
   value: string;
 
-  /** Called whenever the user changes the input's value */
   onChange: (newValue: string) => void;
 
-  /** Common HTML input attributes / behavior flags */
   id: string;
   readOnly?: boolean;
   required?: boolean;
@@ -76,26 +65,13 @@ export interface InputVariantProps {
   suffix?: string;
   style?: React.CSSProperties;
 
-  /**
-   * If rendered in a table or a "row read-only" scenario,
-   * these can be used to adjust aria labels, styling, etc.
-   */
   renderedInTable?: boolean;
   rowReadOnly?: boolean;
 
-  /**
-   * You can pass in the same object you'd normally pass
-   * to `react-number-format` if it's a numeric type,
-   * or your pattern config for pattern type, etc.
-   */
   numberFormatProps?: NumberFormatProps;
   patternFormatProps?: PatternFormatProps;
 }
 
-/**
- * A refactored <InputVariant> component that does not rely on any internal hooks.
- * Everything it needs is passed in via props.
- */
 export const InputVariant: React.FC<InputVariantProps> = ({
   variant,
   value,
@@ -115,7 +91,6 @@ export const InputVariant: React.FC<InputVariantProps> = ({
   numberFormatProps,
   patternFormatProps,
 }) => {
-  // Build the props used by <Input>, <FormattedInput>, and <NumericInput>
   const inputProps: InputProps = {
     id,
     'aria-label': renderedInTable ? undefined : undefined, // Adjust as needed if you'd like
@@ -129,7 +104,6 @@ export const InputVariant: React.FC<InputVariantProps> = ({
     characterLimit: !readOnly ? characterLimit : undefined,
     className,
     style: style ?? { width: '100%' },
-    // Any other input-related fields you'd like
   };
 
   switch (variant.type) {

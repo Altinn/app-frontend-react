@@ -10,6 +10,7 @@ import { InputComponent } from 'src/layout/Input/InputComponent';
 import { InputSummary } from 'src/layout/Input/InputSummary';
 import { InputComponentNext } from 'src/layout/Input/next/InputComponent.next';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { SingleValueSummaryNext } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummaryNext';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -38,6 +39,15 @@ export class Input extends InputDef {
         component={props}
         commonProps={commonProps}
         {...props}
+      />
+    );
+  }
+
+  renderSummaryNext(props: CompIntermediateExact<'Input'>, commonProps: CommonProps): React.JSX.Element | null {
+    return (
+      <SingleValueSummaryNext
+        title={commonProps.label}
+        displayData={commonProps.currentValue}
       />
     );
   }

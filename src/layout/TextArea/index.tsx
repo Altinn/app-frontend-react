@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import { Label } from 'src/app-components/Label/Label';
 import { TextArea as TextAreaAppComponent } from 'src/app-components/TextArea/TextArea';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { SingleValueSummaryNext } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummaryNext';
 import { TextAreaDef } from 'src/layout/TextArea/config.def.generated';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import { TextAreaSummary } from 'src/layout/TextArea/TextAreaSummary';
@@ -38,6 +39,15 @@ export class TextArea extends TextAreaDef {
         componentNode={props.target}
         isCompact={props.isCompact}
         emptyFieldText={props.override?.emptyFieldText}
+      />
+    );
+  }
+
+  renderSummaryNext(props: CompIntermediateExact<'TextArea'>, commonProps: CommonProps): React.JSX.Element | null {
+    return (
+      <SingleValueSummaryNext
+        title={commonProps.label}
+        displayData={commonProps.currentValue}
       />
     );
   }

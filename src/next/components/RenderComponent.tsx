@@ -7,6 +7,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { Navbar } from 'src/next/components/navbar/Navbar';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
+import { SummaryNext } from 'src/next/components/SummaryNext/SummaryNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -14,11 +15,12 @@ import type { CompIntermediateExact, CompTypes } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
-interface RenderComponentType {
+export interface RenderComponentType {
   component: ResolvedCompExternal;
   parentBinding?: string;
   itemIndex?: number;
   childField?: string;
+  renderAsSummary?: boolean;
 }
 
 export const RenderComponent = memo(function RenderComponentMemo<Type extends CompTypes = CompTypes>({
@@ -26,6 +28,7 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   parentBinding,
   itemIndex,
   childField,
+  renderAsSummary,
 }: RenderComponentType) {
   const setBoundValue = useStore(layoutStore, (state) => state.setBoundValue);
 
@@ -36,7 +39,7 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   }
 
   const layoutComponent = components[component.type].def as unknown as LayoutComponent<Type>;
-  const RenderComponent = layoutComponent.renderNext;
+  const RenderComponent = renderAsSummary ? layoutComponent.renderSummaryNext : layoutComponent.renderNext;
 
   const value = useStore(
     layoutStore,
@@ -74,6 +77,15 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
 
   if (component.type === 'RepeatingGroup') {
     return <RepeatingGroupNext component={component} />;
+  }
+
+  if (component.type === 'Summary2') {
+    return (
+      <SummaryNext
+        component={component}
+        summaryComponent={component as unknown as CompIntermediateExact<'Summary2'>}
+      />
+    );
   }
 
   if (!RenderComponent) {
