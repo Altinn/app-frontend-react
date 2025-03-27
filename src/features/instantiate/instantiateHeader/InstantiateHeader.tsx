@@ -7,15 +7,11 @@ import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import classes from 'src/features/instantiate/instantiateHeader/InstantiateHeader.module.css';
 import { Lang } from 'src/features/language/Lang';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { returnUrlToAllForms, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
-import type { IProfile } from 'src/types/shared';
 
-export interface InstantiateHeaderProps {
-  profile: IProfile | undefined;
-}
-
-export const InstantiateHeader = ({ profile }: InstantiateHeaderProps) => {
-  const party = profile?.party;
+export const InstantiateHeader = () => {
+  const currentParty = useCurrentParty();
 
   return (
     <div
@@ -35,12 +31,12 @@ export const InstantiateHeader = ({ profile }: InstantiateHeaderProps) => {
           color={LogoColor.blueDark}
           className={classes.logo}
         />
-        {party && (
+        {currentParty && (
           <ul className={classes.headerLinkList}>
             <li className={classes.headerLink}>
               <a
                 className='altinnLink'
-                href={returnUrlToMessagebox(window.location.host, party?.partyId)}
+                href={returnUrlToMessagebox(window.location.host, currentParty?.partyId)}
               >
                 <Lang id='instantiate.inbox' />
               </a>
@@ -56,20 +52,20 @@ export const InstantiateHeader = ({ profile }: InstantiateHeaderProps) => {
             <li className={classes.headerLink}>
               <a
                 className='altinnLink'
-                href={returnUrlToProfile(window.location.host, party?.partyId)}
+                href={returnUrlToProfile(window.location.host, currentParty?.partyId)}
               >
                 <Lang id='instantiate.profile' />
               </a>
             </li>
           </ul>
         )}
-        {party && (
+        {currentParty && (
           <CircleIcon
             size='1.5rem'
             className={classes.partyIcon}
-            title={profile.party?.person?.name}
+            title={currentParty?.person?.name}
           >
-            {party.orgNumber ? (
+            {currentParty.orgNumber ? (
               <Buildings3Icon
                 color='white'
                 aria-hidden='true'

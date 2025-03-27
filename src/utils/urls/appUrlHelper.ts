@@ -15,6 +15,8 @@ export const currentPartyUrl = `${appPath}/api/authorization/parties/current?ret
 export const instancesControllerUrl = `${appPath}/instances`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
 export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
+export const getPartiesUrl = (allowedtoinstantiatefilter?: true) =>
+  `${appPath}/api/v1/parties${allowedtoinstantiatefilter ? '?allowedtoinstantiatefilter=true' : ''}`;
 
 export const getInstantiateUrl = (language?: string) => {
   const queryString = getQueryStringFromObject({ language });

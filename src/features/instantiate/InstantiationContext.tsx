@@ -36,14 +36,20 @@ interface InstantiationContext {
 
 const { Provider, useCtx } = createContext<InstantiationContext>({ name: 'InstantiationContext', required: true });
 
-function useInstantiateMutation() {
+export const instantiationKeys = {
+  all: ['instantiate'] as const,
+  simple: () => [...instantiationKeys.all, 'simple'] as const,
+  withPrefill: () => [...instantiationKeys.all, 'withPrefill'] as const,
+};
+
+export function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentLanguage = useCurrentLanguage();
 
   return useMutation({
-    mutationKey: ['instantiate', 'simple'],
+    mutationKey: instantiationKeys.simple(),
     mutationFn: (instanceOwnerPartyId: number) => doInstantiate(instanceOwnerPartyId, currentLanguage),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
@@ -55,14 +61,14 @@ function useInstantiateMutation() {
   });
 }
 
-function useInstantiateWithPrefillMutation() {
+export function useInstantiateWithPrefillMutation() {
   const { doInstantiateWithPrefill } = useAppMutations();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentLanguage = useCurrentLanguage();
 
   return useMutation({
-    mutationKey: ['instantiate', 'withPrefill'],
+    mutationKey: instantiationKeys.withPrefill(),
     mutationFn: (instantiation: Instantiation) => doInstantiateWithPrefill(instantiation, currentLanguage),
     onError: (error: HttpClientError) => {
       window.logError('Instantiation with prefill failed:\n', error);

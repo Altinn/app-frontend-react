@@ -1,4 +1,5 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo } from 'src/components/logo/AltinnLogo';
@@ -10,21 +11,19 @@ import { useHasAppTextsYet } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { Lang } from 'src/features/language/Lang';
-import { getPartyDisplayName } from 'src/utils/party';
+import { useCurrentParty, useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import type { LogoColor } from 'src/components/logo/AltinnLogo';
-import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderProps {
-  /** The party of the instance owner */
-  party: IParty | undefined;
-  /** The party of the currently logged in user */
-  user: IProfile | undefined;
   logoColor: LogoColor;
   headerBackgroundColor: string;
 }
 
-export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: AppHeaderProps) => {
+export const AppHeader = ({ logoColor, headerBackgroundColor }: AppHeaderProps) => {
   const { showLanguageSelector } = usePageSettings();
+
+  const { displayName, orgNumber } = useGetOnBehalfOf();
 
   return (
     <header
@@ -44,10 +43,10 @@ export const AppHeader = ({ logoColor, headerBackgroundColor, party, user }: App
         <div className={classes.wrapper}>
           {showLanguageSelector && <LanguageSelector />}
           <div className={classes.wrapper}>
-            <span className={classes.partyName}>{getPartyDisplayName(party, user)}</span>
+            <span className={classes.partyName}>{displayName}</span>
             <AppHeaderMenu
-              party={party}
-              user={user}
+              orgNumber={orgNumber}
+              displayName={displayName}
               logoColor={logoColor}
             />
           </div>
@@ -67,3 +66,22 @@ const MaybeOrganisationLogo = ({ color }: { color: LogoColor }) => {
   const enableOrgLogo = Boolean(useApplicationMetadata().logoOptions);
   return enableOrgLogo ? <OrganisationLogo /> : <AltinnLogo color={color} />;
 };
+
+function useGetOnBehalfOf() {
+  const instanceOwnerParty = useInstanceOwnerParty();
+  const currentParty = useCurrentParty();
+  const userParty = useProfile()?.party;
+
+  const isInsideActiveInstance = !!useParams().instanceOwnerPartyId;
+
+  let displayName = userParty?.name;
+  if (isInsideActiveInstance && instanceOwnerParty && instanceOwnerParty?.partyId !== userParty?.partyId) {
+    displayName = `${displayName} for ${instanceOwnerParty?.name}`;
+  } else if (currentParty?.partyId !== userParty?.partyId) {
+    displayName = `${displayName} for ${instanceOwnerParty?.name ?? currentParty?.name ?? userParty?.name ?? ''}`;
+  }
+
+  const orgNumber = instanceOwnerParty?.orgNumber ?? userParty?.orgNumber ?? undefined;
+
+  return { displayName, orgNumber };
+}

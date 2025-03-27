@@ -5,12 +5,13 @@ import type { IParty } from 'src/types/shared';
 
 const appFrontend = new AppFrontend();
 
+const selectedPartyId = Cypress.env('signingPartyId');
+
 function login(user: CyUser) {
   cy.url().then((url) => {
     const instanceSuffix = new URL(url).hash;
-    const partyId = Cypress.env('signingPartyId');
 
-    if (partyId) {
+    if (selectedPartyId) {
       // Intercepting party list to only return the party we want to use. This will be automatically used by
       // app-frontend when it starts.
       let correctParty: IParty | undefined = undefined;
@@ -31,9 +32,9 @@ function login(user: CyUser) {
         (req) => {
           req.on('response', (res) => {
             const parties = res.body as IParty[];
-            correctParty = parties.find((party: IParty) => party.partyId == partyId);
+            correctParty = parties.find((party: IParty) => party.partyId == selectedPartyId);
             if (!correctParty) {
-              throw new Error(`Could not find party with id ${partyId}`);
+              throw new Error(`Could not find party with id ${selectedPartyId}`);
             }
             res.send([correctParty]);
             resolveParties();
@@ -50,7 +51,7 @@ function login(user: CyUser) {
           req.on('response', async (res) => {
             await partiesPromise;
             if (!correctParty) {
-              throw new Error(`Could not find party with id ${partyId}`);
+              throw new Error(`Could not find party with id ${selectedPartyId}`);
             }
             res.send(correctParty);
           });
@@ -76,6 +77,8 @@ describe('Double signing', () => {
 
   it('accountant -> manager -> auditor', () => {
     login('accountant');
+
+    cy.setCookie('AltinnPartyId', selectedPartyId);
 
     cy.get(appFrontend.signingTest.incomeField).type('4567');
 
@@ -104,6 +107,8 @@ describe('Double signing', () => {
 
   it('manager -> manager -> auditor', () => {
     login('manager');
+
+    cy.setCookie('AltinnPartyId', selectedPartyId);
 
     cy.get(appFrontend.signingTest.incomeField).type('4567');
 

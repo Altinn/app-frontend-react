@@ -9,22 +9,20 @@ import classes from 'src/components/presentation/AppHeader/AppHeaderMenu.module.
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { getPartyDisplayName } from 'src/utils/party';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
-import type { IParty, IProfile } from 'src/types/shared';
 
 export interface AppHeaderMenuProps {
-  party: IParty | undefined;
-  user: IProfile | undefined;
+  orgNumber: string | undefined;
+  displayName: string | undefined;
   logoColor: string;
 }
 
-export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
+export function AppHeaderMenu({ orgNumber, displayName, logoColor }: AppHeaderMenuProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (!party) {
+  if (!orgNumber && !displayName) {
     return <div style={{ height: 40 }} />;
   }
 
@@ -46,7 +44,7 @@ export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
           size='1.5rem'
           color={logoColor}
         >
-          {party.orgNumber ? (
+          {orgNumber ? (
             <Buildings3Icon
               color='white'
               aria-hidden='true'
@@ -60,7 +58,7 @@ export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
         </CircleIcon>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
-        <DropdownMenu.Group heading={isMobile ? getPartyDisplayName(party, user) : undefined}>
+        <DropdownMenu.Group heading={isMobile ? displayName : undefined}>
           <DropdownMenu.Item asChild>
             <a href={logoutUrlAltinn(window.location.host)}>
               <Lang id='general.log_out' />

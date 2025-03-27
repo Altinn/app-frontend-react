@@ -12,9 +12,7 @@ import { getSummaryDataObject, ReceiptContainer } from 'src/features/receipt/Rec
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { InstanceRouter, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
-import { PartyType } from 'src/types/shared';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { IParty } from 'src/types/shared';
 
 interface IRender {
   autoDeleteOnProcessEnd?: boolean;
@@ -203,14 +201,7 @@ describe('getSummaryDataObject', () => {
         langTools: staticUseLanguageForTests({
           language: {},
         }),
-        instanceOwnerParty: {
-          partyId: 50001,
-          name: 'Ola Privatperson',
-          partyTypeName: PartyType.Person,
-          ssn: '01017512345',
-          isDeleted: false,
-          onlyHierarchyElementWithNoAccess: false,
-        } as IParty,
+        sender: '01017512345-Ola Privatperson',
         instanceGuid: '6697de17-18c7-4fb9-a428-d6a414a797ae',
         lastChangedDateTime: '22.08.2019 / 09:08',
         receiver: 'Testdepartementet',

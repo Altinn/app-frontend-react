@@ -1,24 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import type { IParty } from 'src/types/shared';
-import type { HttpClientError } from 'src/utils/network/sharedNetworking';
+import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { fetchAllParties } from 'src/queries/queries';
+import { getCookieValue, setCookie } from 'src/utils/cookieUtils';
+import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
+
+export const altinnPartyIdCookieName = 'AltinnPartyId';
+
+const partyQueryKeys = {
+  all: ['parties', 'allowedToInstantiate', false] as const,
+  allowedToInstantiate: ['parties', 'allowedToInstantiate', true] as const,
+  cookie: ['altinnPartyIdCookie'] as const,
+};
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
-export function usePartiesQueryDef(enabled: boolean) {
+export function usePartiesAllowedToInstantiateQueryDef(enabled: boolean) {
   const { fetchPartiesAllowedToInstantiate } = useAppQueries();
   return {
-    queryKey: ['partiesAllowedToInstantiate', enabled],
+    queryKey: partyQueryKeys.allowedToInstantiate,
     queryFn: fetchPartiesAllowedToInstantiate,
     enabled,
   };
@@ -27,7 +37,7 @@ export function usePartiesQueryDef(enabled: boolean) {
 const usePartiesAllowedToInstantiateQuery = () => {
   const enabled = useShouldFetchProfile();
 
-  const utils = useQuery(usePartiesQueryDef(enabled));
+  const utils = useQuery(usePartiesAllowedToInstantiateQueryDef(enabled));
 
   useEffect(() => {
     utils.error && window.logError('Fetching parties failed:\n', utils.error);
@@ -37,37 +47,6 @@ const usePartiesAllowedToInstantiateQuery = () => {
     ...utils,
     enabled,
   };
-};
-
-// Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
-export function useCurrentPartyQueryDef(enabled: boolean) {
-  const { fetchCurrentParty } = useAppQueries();
-  return {
-    queryKey: ['fetchUseCurrentParty', enabled],
-    queryFn: fetchCurrentParty,
-    enabled,
-  };
-}
-
-const useCurrentPartyQuery = (enabled: boolean) => {
-  const query = useQuery(useCurrentPartyQueryDef(enabled));
-
-  useEffect(() => {
-    query.error && window.logError('Fetching current party failed:\n', query.error);
-  }, [query.error]);
-
-  return query;
-};
-
-const useSetCurrentPartyMutation = () => {
-  const { doSetCurrentParty } = useAppMutations();
-  return useMutation({
-    mutationKey: ['doSetCurrentParty'],
-    mutationFn: (party: IParty) => doSetCurrentParty(party.partyId),
-    onError: (error: HttpClientError) => {
-      window.logError('Setting current party failed:\n', error);
-    },
-  });
 };
 
 const { Provider: PartiesProvider, useCtx: usePartiesAllowedToInstantiateCtx } = delayedContext(() =>
@@ -80,19 +59,19 @@ const { Provider: PartiesProvider, useCtx: usePartiesAllowedToInstantiateCtx } =
 );
 
 interface CurrentParty {
-  party: IParty | undefined;
-  currentIsValid: boolean | undefined;
+  currentParty: IParty | undefined;
+  currentPartyIsValid: boolean | undefined;
   userHasSelectedParty: boolean | undefined;
   setUserHasSelectedParty: (hasSelected: boolean) => void;
-  setParty: (party: IParty) => Promise<IParty | undefined>;
+  setParty: (party: IParty) => Promise<void>;
 }
 
 const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = createContext<CurrentParty>({
   name: 'CurrentParty',
   required: false,
   default: {
-    party: undefined,
-    currentIsValid: undefined,
+    currentParty: undefined,
+    currentPartyIsValid: undefined,
     userHasSelectedParty: undefined,
     setUserHasSelectedParty: () => {
       throw new Error('CurrentPartyProvider not initialized');
@@ -103,49 +82,85 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
   },
 });
 
+function useAltinnPartyIdCookie() {
+  return useQuery({
+    queryKey: partyQueryKeys.cookie,
+    queryFn: () => getCookieValue(altinnPartyIdCookieName),
+    enabled: true,
+  });
+}
+
+const useSetAltinnPartyIdCookie = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (partyId: string | number | undefined) => {
+      const value = partyId ?? '';
+      setCookie({ name: altinnPartyIdCookieName, value });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: partyQueryKeys.cookie });
+    },
+  });
+};
+
+function findCookieParty(partyId: string | null | undefined, parties: IParty[]): IParty | undefined {
+  if (!partyId) {
+    return undefined;
+  }
+
+  return parties.find((party) => {
+    if (party.partyId.toString() === partyId) {
+      return true;
+    }
+
+    if (party.childParties) {
+      return findCookieParty(partyId, party.childParties);
+    }
+  });
+}
+
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
+  const {
+    data: allParties,
+    isLoading: isLoadingParties,
+    error: allPartiesError,
+  } = useQuery({
+    queryKey: partyQueryKeys.all,
+    queryFn: fetchAllParties,
+  });
   const validParties = useValidParties();
-  const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
-  const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
-  const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
+
+  const profile = useProfile();
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
-
-  if (isLoading) {
-    return <Loader reason='current-party' />;
-  }
-
-  const error = errorFromMutation || errorFromQuery;
-  if (error) {
-    return <DisplayError error={error} />;
-  }
+  const { data: altinnPartyIdCookieValue, isLoading: isLoadingCookie, error: cookieError } = useAltinnPartyIdCookie();
+  const { mutateAsync: setAltinnPartyIdCookie, error: mutationError } = useSetAltinnPartyIdCookie();
 
   if (!validParties?.length) {
     return <NoValidPartiesError />;
   }
 
-  const partyFromMutation = dataFromMutation === 'Party successfully updated' ? sentToMutation : undefined;
-  const currentParty = partyFromMutation ?? partyFromQuery;
-  const currentIsValid = currentParty && validParties?.some((party) => party.partyId === currentParty.partyId);
+  if (isLoadingCookie || isLoadingParties) {
+    return <Loader reason='parties' />;
+  }
+
+  const error = cookieError ?? allPartiesError ?? mutationError;
+  if (error) {
+    return <DisplayError error={error} />;
+  }
+
+  const cookieParty = findCookieParty(altinnPartyIdCookieValue, allParties ?? []);
+
+  const currentParty = altinnPartyIdCookieValue ? cookieParty : profile?.party;
+  const currentPartyIsValid = currentParty && validParties?.some((party) => party.partyId === currentParty?.partyId);
 
   return (
     <RealCurrentPartyProvider
       value={{
-        party: currentParty,
-        currentIsValid,
+        currentParty,
+        currentPartyIsValid,
         userHasSelectedParty,
-        setUserHasSelectedParty: (hasSelected: boolean) => setUserHasSelectedParty(hasSelected),
-        setParty: async (party) => {
-          try {
-            setSentToMutation(party);
-            const result = await mutateAsync(party);
-            if (result === 'Party successfully updated') {
-              return party;
-            }
-            return undefined;
-          } catch (_err) {
-            // Ignoring error here, as it's handled by this provider
-          }
-        },
+        setUserHasSelectedParty,
+        setParty: async (party: IParty) => setAltinnPartyIdCookie(party.partyId),
       }}
     >
       {children}
@@ -167,19 +182,35 @@ export function PartyProvider({ children }: PropsWithChildren) {
   );
 }
 
-export const usePartiesAllowedToInstantiate = () => usePartiesAllowedToInstantiateCtx();
+export const usePartiesAllowedToInstantiate = () => usePartiesAllowedToInstantiateCtx() ?? [];
 
-/**
- * Returns the current party, or the custom selected current party if one is set.
- * Please note that the current party might not be allowed to instantiate, so you should
- * check the `canInstantiate` property as well.
- */
-export const useCurrentParty = () => useCurrentPartyCtx().party;
-export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentIsValid;
+export const useCurrentParty = () => useCurrentPartyCtx().currentParty;
+
 export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
 
-export const useValidParties = () => usePartiesAllowedToInstantiateCtx()?.filter((party) => party.isDeleted === false);
+export const useValidParties = () => usePartiesAllowedToInstantiate().filter((party) => !party.isDeleted);
 
 export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
 
 export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
+
+export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentPartyIsValid;
+
+export function useInstanceOwnerParty() {
+  const instance = useLaxInstanceData((data) => data);
+  const parties = usePartiesAllowedToInstantiate();
+
+  return getInstanceOwnerParty(instance, parties);
+}
+
+function getInstanceOwnerParty(instance?: IInstance | IInstanceOwner, parties?: IParty[]): IParty | undefined {
+  if (!instance || !parties) {
+    return undefined;
+  }
+
+  // This logic assumes that the current logged in user has "access" to the party of the instance owner,
+  // as the parties array comes from the current users party list.
+  const allParties = [...parties, ...parties.flatMap((party) => party.childParties ?? [])];
+  const instanceOwner = 'instanceOwner' in instance ? instance.instanceOwner : instance;
+  return allParties.find((party) => party.partyId.toString() === instanceOwner.partyId);
+}
