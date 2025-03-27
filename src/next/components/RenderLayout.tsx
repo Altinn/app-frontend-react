@@ -61,7 +61,11 @@
 
 import React from 'react';
 
+import classNames from 'classnames';
+
 import { Flex } from 'src/app-components/Flex/Flex';
+import { gridToClasses } from 'src/layout/GenericComponent';
+import classes from 'src/layout/GenericComponent.module.css';
 import { RenderComponent } from 'src/next/components/RenderComponent';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
@@ -88,12 +92,17 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
           : '';
         const childField = childMapping ? childMapping.replace(parentBinding, '') : undefined;
         const id = `item-${currentComponent.id}`;
-        // const isVisible = visibleIds.has(id);
 
         return (
-          <div
-            key={idx}
-            id={id}
+          <Flex
+            data-componentbaseid={id}
+            data-componentid={id}
+            data-componenttype={currentComponent.type}
+            item
+            container
+            size={currentComponent.grid}
+            key={`grid-${id}`}
+            className={classNames(classes.container, gridToClasses(currentComponent.grid?.labelGrid, classes))}
           >
             <RenderComponent
               component={currentComponent}
@@ -101,7 +110,7 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
               itemIndex={itemIndex}
               childField={childField}
             />
-          </div>
+          </Flex>
         );
       })}
     </Flex>

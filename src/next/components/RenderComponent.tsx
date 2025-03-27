@@ -3,6 +3,7 @@ import React, { memo, useState } from 'react';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
+import { Flex } from 'src/app-components/Flex/Flex';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { Navbar } from 'src/next/components/navbar/Navbar';
 import { layoutStore } from 'src/next/stores/layoutStore';
@@ -79,7 +80,11 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   }
 
   return (
-    <div>
+    <Flex
+      id={`form-content-${component.id}`}
+      size={{ xs: 12, ...component.grid?.innerGrid }}
+      item
+    >
       {RenderComponent(component as unknown as CompIntermediateExact<Type>, {
         onChange: (nextValue) => {
           setBoundValue(component, nextValue, parentBinding, itemIndex, childField);
@@ -87,7 +92,7 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
         currentValue: value,
         label: textResource?.value || undefined,
       })}
-    </div>
+    </Flex>
   );
 
   //return <RenderComponent ></RenderComponent>

@@ -4,6 +4,7 @@ import { Navigate, Outlet, useLoaderData, useParams } from 'react-router-dom';
 import { useStore } from 'zustand/index';
 
 import { API_CLIENT, APP, ORG } from 'src/next/app/App';
+import { Header } from 'src/next/components/Header';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -67,7 +68,7 @@ export async function initialLoader() {
   return { instanceId };
 }
 
-export const InstancesParent = () => {
+export const AppLayout = () => {
   const params = useParams();
   const { validParties } = useStore(initialStateStore);
   const currentParty = validParties[0];
@@ -82,6 +83,7 @@ export const InstancesParent = () => {
   }
   return (
     <div>
+      <Header />
       {!params.instanceGuid && instanceId && <Navigate to={`instance/${instanceId}`} />}
       <Outlet />
     </div>

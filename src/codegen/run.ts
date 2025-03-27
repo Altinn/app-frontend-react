@@ -51,7 +51,7 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
       (key) => `import type { TypeConfig as ${key}TypeConfig } from 'src/layout/${key}/config.generated';`,
     ),
     '',
-    `function createComponentConfigs() {`,
+    `export function createComponentConfigs() {`,
     `  return {`,
     ...sortedKeys.map((key) => `    ${componentList[key]}: get${key}Config(),`),
     `  };`,

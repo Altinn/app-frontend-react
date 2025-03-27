@@ -19,9 +19,10 @@ interface ButtonLinkProps {
   to: string;
   className?: string;
   children: React.ReactNode;
+  isCurrent: boolean;
 }
 
-export function ButtonLink({ to, className, children }: ButtonLinkProps) {
+export function ButtonLink({ to, className, children, isCurrent }: ButtonLinkProps) {
   const navigate = useNavigate();
   const handleClick = () => navigate(to);
 
@@ -29,6 +30,7 @@ export function ButtonLink({ to, className, children }: ButtonLinkProps) {
     <button
       onClick={handleClick}
       className={className}
+      {...(isCurrent && { 'aria-current': 'page' })}
     >
       {children}
     </button>
@@ -89,6 +91,7 @@ export const Navbar: React.FunctionComponent<NavbarProps> = (component) => {
               >
                 <ButtonLink
                   to={`../${page.path}`}
+                  isCurrent={page.isCurrent}
                   className={cn(classes.buttonBase, {
                     [classes.buttonSelected]: page.isCurrent,
                     [classes.hidden]: false,

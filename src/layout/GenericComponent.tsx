@@ -240,7 +240,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   );
 }
 
-const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: string]: string }) => {
+export const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: string]: string }) => {
   if (!labelGrid) {
     return {};
   }

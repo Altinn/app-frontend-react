@@ -16,7 +16,7 @@ type HeadingProps = {
   size: Parameters<typeof Heading>[0]['size'];
 };
 
-function getHeaderProps(size?: string): HeadingProps {
+export function getHeaderProps(size?: string): HeadingProps {
   switch (size) {
     case 'L':
     case 'h2': {

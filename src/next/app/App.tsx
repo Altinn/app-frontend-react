@@ -4,7 +4,7 @@ import { scan } from 'react-scan';
 
 import { Api } from 'src/next/app/api';
 import { Instance, instanceLoader } from 'src/next/pages/Instance';
-import { initialLoader, InstancesParent } from 'src/next/pages/Instances';
+import { AppLayout, initialLoader } from 'src/next/pages/Instances';
 import { Page } from 'src/next/pages/Page';
 import { Task } from 'src/next/pages/Task';
 
@@ -22,7 +22,7 @@ const router = createHashRouter([
   {
     path: '/',
     loader: initialLoader,
-    element: <InstancesParent />,
+    element: <AppLayout />,
     children: [
       {
         loader: instanceLoader,

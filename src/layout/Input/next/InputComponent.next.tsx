@@ -2,7 +2,6 @@ import React from 'react';
 
 import type { CharacterLimit } from '@digdir/design-system-react/dist/types/utilities/InputWrapper';
 
-import { Flex } from 'src/app-components/Flex/Flex';
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
@@ -215,34 +214,22 @@ interface InputComponentNextProps {
   commonProps: CommonProps;
 }
 
-//export const InputComponentNext = (props: PropsFromGenericComponent<'Input'>, commonProps: CommonProps) => (
-// export const InputComponentNext = (component: CompIntermediateExact<'Input'>, commonProps: CommonProps) => (
 export const InputComponentNext: React.FunctionComponent<InputComponentNextProps> = ({ component, commonProps }) => (
   <Label
     htmlFor={component.id}
     label={commonProps.label}
     grid={component?.grid}
-    required={commonProps.required}
+    required={false}
   >
-    <Flex
-      id={`form-content-${component.id}`}
-      size={{ xs: 12, ...component.grid?.innerGrid }}
-      item
-    >
-      <InputVariant
-        id={component.id}
-        variant={{
-          type: 'search',
-        }}
-        value={commonProps.currentValue || ''}
-        onChange={function (newValue: string): void {
-          commonProps.onChange(newValue);
-        }}
-      />
-      {/*<InputVariant*/}
-      {/*  node={node}*/}
-      {/*  overrideDisplay={props.}*/}
-      {/*/>*/}
-    </Flex>
+    <InputVariant
+      id={component.id}
+      variant={{
+        type: 'search',
+      }}
+      value={commonProps.currentValue || ''}
+      onChange={function (newValue: string): void {
+        commonProps.onChange(newValue);
+      }}
+    />
   </Label>
 );
