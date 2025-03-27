@@ -37,9 +37,9 @@ export const Config = new CG.component({
   .addDataModelBinding(
     new CG.obj(
       new CG.prop(
-        'saveToList',
+        'group',
         new CG.dataModelBinding()
-          .setTitle('SaveToList')
+          .setTitle('group')
           .setDescription(
             'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
           )
@@ -50,12 +50,12 @@ export const Config = new CG.component({
         new CG.dataModelBinding()
           .setTitle('IsDeleted')
           .setDescription(
-            'If deletionStrategy=soft and saveToList is set, this value points to where you want to save deleted status.',
+            'If deletionStrategy=soft and group is set, this value points to where you want to save deleted status.',
           )
           .optional(),
       ),
     )
-      .exportAs('IDataModelBindingsForSaveTolistCheckbox')
+      .exportAs('IDataModelBindingsForGroupCheckbox')
       .extends(CG.common('IDataModelBindingsOptionsSimple')),
   )
   .addProperty(new CG.prop('deletionStrategy', new CG.enum('soft', 'hard').optional()))

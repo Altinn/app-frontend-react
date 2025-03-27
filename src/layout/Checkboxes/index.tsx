@@ -64,7 +64,7 @@ export class Checkboxes extends CheckboxesDef {
 
     const dataModelBindings = ctx.item.dataModelBindings ?? {};
 
-    if (!dataModelBindings?.saveToList) {
+    if (!dataModelBindings?.group) {
       for (const [binding] of Object.entries(dataModelBindings ?? {})) {
         const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
         errors.push(...(newErrors || []));
@@ -76,15 +76,15 @@ export class Checkboxes extends CheckboxesDef {
       errors.push(...(newErrors || []));
     }
 
-    if (dataModelBindings?.saveToList) {
-      const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.saveToList.field}.`);
+    if (dataModelBindings?.group) {
+      const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.group.field}.`);
 
       if (!isCompatible) {
         errors.push(`simpleBinding must reference a field in saveToList`);
       }
 
       const simpleBindingPath = dataModelBindings.simpleBinding?.field.split('.');
-      const saveToListBinding = ctx.lookupBinding(dataModelBindings?.saveToList);
+      const saveToListBinding = ctx.lookupBinding(dataModelBindings?.group);
       const items = saveToListBinding[0]?.items;
       const properties =
         items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items

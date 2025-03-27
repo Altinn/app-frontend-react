@@ -4,14 +4,14 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID, DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { IDataModelBindingsForSaveTolistCheckbox } from 'src/layout/Checkboxes/config.generated';
+import type { IDataModelBindingsForGroupCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Row = Record<string, string | number | boolean>;
 
-export const useSaveToList = (node: LayoutNode<'List' | 'Checkboxes' | 'MultipleSelect'>) => {
-  const bindings = useNodeItem(node, (i) => i.dataModelBindings) as IDataModelBindingsForSaveTolistCheckbox;
+export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'MultipleSelect'>) => {
+  const bindings = useNodeItem(node, (i) => i.dataModelBindings) as IDataModelBindingsForGroupCheckbox;
   const isDeleted = bindings.isDeleted;
   const isDeletedSegments = isDeleted?.field.split('.');
   const isDeletedKey = isDeletedSegments?.pop();
@@ -22,12 +22,12 @@ export const useSaveToList = (node: LayoutNode<'List' | 'Checkboxes' | 'Multiple
   const removeFromList = FD.useRemoveIndexFromList();
 
   const getObjectFromFormDataRow = (row: Row): Row | undefined =>
-    (formData?.saveToList as Row[])?.find((selectedRow) =>
+    (formData?.group as Row[])?.find((selectedRow) =>
       Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
     );
 
   const getIndexFromFormDataRow = (row: Row) =>
-    (formData?.saveToList as Row[]).findIndex((selectedRow) => {
+    (formData?.group as Row[]).findIndex((selectedRow) => {
       const { altinnRowId: _ } = selectedRow;
       return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
     });
@@ -41,7 +41,7 @@ export const useSaveToList = (node: LayoutNode<'List' | 'Checkboxes' | 'Multiple
   };
 
   const setList = (row: Row) => {
-    if (!bindings.saveToList) {
+    if (!bindings.group) {
       return;
     }
     if (isRowChecked(row)) {
@@ -57,7 +57,7 @@ export const useSaveToList = (node: LayoutNode<'List' | 'Checkboxes' | 'Multiple
       } else {
         if (index >= 0) {
           removeFromList({
-            reference: bindings.saveToList,
+            reference: bindings.group,
             index,
           });
         }
@@ -85,12 +85,12 @@ export const useSaveToList = (node: LayoutNode<'List' | 'Checkboxes' | 'Multiple
             if (propertyName) {
               next[propertyName] = row[propertyName];
             }
-          } else if (binding !== 'saveToList' && binding !== 'label' && binding !== 'metadata') {
+          } else if (binding !== 'group' && binding !== 'label' && binding !== 'metadata') {
             next[binding] = row[binding];
           }
         }
         appendToList({
-          reference: bindings.saveToList,
+          reference: bindings.group,
           newValue: next,
         });
       }

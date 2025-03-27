@@ -7,7 +7,7 @@ import type { NodeValidationProps } from 'src/layout/layout';
 export function CheckboxesLayoutValidator(props: NodeValidationProps<'Checkboxes'>) {
   const { node, externalItem } = props;
   const { langAsString } = useLanguage();
-  const saveToList = externalItem.dataModelBindings.saveToList;
+  const group = externalItem.dataModelBindings.group;
   const deletionStrategy = externalItem.deletionStrategy;
   const isDeleted = externalItem.dataModelBindings.isDeleted;
 
@@ -16,11 +16,11 @@ export function CheckboxesLayoutValidator(props: NodeValidationProps<'Checkboxes
   useEffect(() => {
     let error: string | null = null;
 
-    if (!saveToList) {
+    if (!group) {
       if (!!deletionStrategy || !!isDeleted) {
         error = langAsString('config_error.deletion_strategy_no_save_to_list');
       }
-    } else if (saveToList) {
+    } else if (group) {
       if (!deletionStrategy) {
         error = langAsString('config_error.save_to_list_no_deletion_strategy');
       }
@@ -36,7 +36,7 @@ export function CheckboxesLayoutValidator(props: NodeValidationProps<'Checkboxes
       addError(error, node);
       window.logErrorOnce(`Validation error for '${node.id}': ${error}`);
     }
-  }, [addError, node, deletionStrategy, isDeleted, langAsString, saveToList]);
+  }, [addError, node, deletionStrategy, isDeleted, langAsString, group]);
 
   return null;
 }

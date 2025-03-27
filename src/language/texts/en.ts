@@ -439,8 +439,8 @@ export function en() {
       file_upload_same_binding:
         'There are multiple FileUpload components with the same data model binding. Each component must have a unique binding. Other components with the same binding: {0}',
       deletion_strategy_no_save_to_list:
-        'The fields deletionStrategy and isDeleted can only be used together with saveToList.',
-      save_to_list_no_deletion_strategy: 'When you have set saveToList, you must also set deletionStrategy.',
+        'The fields deletionStrategy and isDeleted can only be used together with group.',
+      save_to_list_no_deletion_strategy: 'When you have set group, you must also set deletionStrategy.',
       soft_delete_no_is_deleted: 'When you have set deletionStrategy to soft, you must also set isDeleted.',
       hard_delete_with_is_deleted: 'When you have set deletionStrategy to hard, you cannot set isDeleted.',
     },

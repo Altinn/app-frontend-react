@@ -8,7 +8,7 @@ import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { useSaveToList } from 'src/features/saveToList/useSaveToList';
+import { useSaveObjectToGroup } from 'src/features/saveToList/useSaveObjectToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
@@ -34,8 +34,8 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
-  const { setList, isRowChecked } = useSaveToList(node);
-  const saveToList = dataModelBindings?.saveToList;
+  const { setList, isRowChecked } = useSaveObjectToGroup(node);
+  const group = dataModelBindings?.group;
 
   const isValid = useIsValid(node);
   const horizontal = shouldUseRowLayout({
@@ -50,7 +50,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const setChecked = (isChecked: boolean, option) => {
     const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
 
-    if (saveToList) {
+    if (group) {
       setList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
     } else {
       setData(newData);
@@ -95,9 +95,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
                 hideLabel={hideLabel}
                 alertOnChange={alertOnChange}
                 checked={
-                  saveToList && rowKey
-                    ? isRowChecked({ [rowKey]: option.value })
-                    : selectedValues.includes(option.value)
+                  group && rowKey ? isRowChecked({ [rowKey]: option.value }) : selectedValues.includes(option.value)
                 }
                 setChecked={(isChecked) => setChecked(isChecked, option)}
               />
