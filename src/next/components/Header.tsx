@@ -14,5 +14,10 @@ export const Header: React.FunctionComponent<HeaderType> = ({ dings }) => {
 
   const appName = applicationMetadata.title['nb'];
 
-  return <InnerHeader header={appName} />;
+  return (
+    <InnerHeader
+      header={appName}
+      aboveHeader={applicationMetadata.org}
+    />
+  );
 };

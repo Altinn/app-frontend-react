@@ -6,6 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { Navbar } from 'src/next/components/navbar/Navbar';
+import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -69,6 +70,10 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
 
   if (isHidden) {
     return <div>Im hidden!</div>;
+  }
+
+  if (component.type === 'RepeatingGroup') {
+    return <RepeatingGroupNext component={component} />;
   }
 
   if (!RenderComponent) {

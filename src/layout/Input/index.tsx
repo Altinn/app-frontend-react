@@ -33,8 +33,6 @@ export class Input extends InputDef {
   );
 
   renderNext(props: CompIntermediateExact<'Input'>, commonProps: CommonProps): JSX.Element | null {
-    // console.log('props', props);
-    // return <pre>{JSON.stringify(props, null, 2)}</pre>;
     return (
       <InputComponentNext
         component={props}
