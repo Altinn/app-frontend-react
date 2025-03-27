@@ -8,7 +8,7 @@
     "component": "penger",
     "currentLayout": "Page"
   },
-  "expects": null,
+  "expectsFailure": "Unable to find component with identifier",
   "layouts": {
     "Page": {
       "$schema": "https://altinncdn.no/schemas/json/layout/layout.schema.v1.json",
