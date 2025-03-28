@@ -4,7 +4,7 @@ import { Collapse, List, ListItem, ListItemIcon, ListItemText, Typography } from
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
+import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
 import classes from 'src/components/molecules/AltinnCollapsibleAttachments.module.css';
 import { useLanguage } from 'src/features/language/useLanguage';
 import type { IDisplayAttachment } from 'src/types/shared';
@@ -69,7 +69,7 @@ export function AltinnCollapsibleAttachments({
         timeout='auto'
         unmountOnExit={true}
       >
-        <AltinnAttachment attachments={attachments} />
+        <AltinnAttachments attachments={attachments} />
       </Collapse>
     </List>
   ) : (
@@ -77,7 +77,7 @@ export function AltinnCollapsibleAttachments({
       <Typography style={fontStyle}>
         {title} {attachmentCount}
       </Typography>
-      <AltinnAttachment
+      <AltinnAttachments
         attachments={attachments}
         id='attachment-list'
       />
