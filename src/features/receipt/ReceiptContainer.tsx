@@ -154,7 +154,7 @@ export const ReceiptContainer = () => {
   const langTools = useLanguage();
   const receiver = useAppReceiver();
 
-  const instanceOwnerParty = useInstanceOwnerParty();
+  const { data: instanceOwnerParty } = useInstanceOwnerParty();
 
   const instanceGuid = useNavigationParam('instanceGuid');
 
@@ -188,7 +188,7 @@ export const ReceiptContainer = () => {
   }, [dataElements]);
 
   const instanceMetaObject = useMemo(() => {
-    const sender = getInstanceSender(instanceOwnerParty);
+    const sender = getInstanceSender(instanceOwnerParty ?? undefined);
 
     if (instanceOrg && instanceOwner && partiesAllowedToInstantiate && instanceGuid && lastChangedDateTime) {
       return getSummaryDataObject({

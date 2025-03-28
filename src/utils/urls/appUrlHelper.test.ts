@@ -31,7 +31,7 @@ describe('Frontend urlHelper.ts', () => {
       expect(getPartiesUrl()).toBe('https://local.altinn.cloud/ttd/test/api/v1/parties');
     });
     it('should return the expected url for getSetCurrentPartyUrl', () => {
-      expect(getSetCurrentPartyUrl(12345)).toBe('https://local.altinn.cloud/ttd/test/api/v1/parties/12345');
+      expect(getSetCurrentPartyUrl('12345')).toBe('https://local.altinn.cloud/ttd/test/api/v1/parties/12345');
     });
     it('should return the expected url for textResourcesUrl', () => {
       expect(textResourcesUrl('nb')).toBe('https://local.altinn.cloud/ttd/test/api/v1/texts/nb');

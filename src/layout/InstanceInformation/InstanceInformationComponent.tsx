@@ -71,7 +71,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const instanceId = useLaxInstanceId();
   const appReceiver = useAppReceiver();
 
-  const instanceOwnerParty = useInstanceOwnerParty();
+  const { data: instanceOwnerParty } = useInstanceOwnerParty();
 
   const instanceDateSent =
     lastChanged &&

@@ -12,7 +12,7 @@ export const Confirm = () => {
   const instance = useLaxInstanceData((data) => data);
   const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate();
 
-  const instanceOwnerParty = useInstanceOwnerParty();
+  const { data: instanceOwnerParty } = useInstanceOwnerParty();
   const applicationMetadata = useApplicationMetadata();
 
   const missingRequirement = !instance ? 'instance' : !partiesAllowedToInstantiate ? 'parties' : undefined;
@@ -32,7 +32,7 @@ export const Confirm = () => {
         <ConfirmPage
           applicationMetadata={applicationMetadata}
           instance={instance}
-          instanceOwnerParty={instanceOwnerParty}
+          instanceOwnerParty={instanceOwnerParty ?? undefined}
           appName={appName}
         />
       )}

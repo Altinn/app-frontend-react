@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
@@ -9,17 +10,20 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import { fetchAllParties } from 'src/queries/queries';
-import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
+import { httpGet, putWithoutConfig } from 'src/utils/network/networking';
+import { currentPartyUrl, getSetCurrentPartyUrl } from 'src/utils/urls/appUrlHelper';
+import type { IParty } from 'src/types/shared';
 
 export const altinnPartyIdCookieName = 'AltinnPartyId';
 
 const partyQueryKeys = {
-  all: ['parties', 'allowedToInstantiate', false] as const,
-  allowedToInstantiate: ['parties', 'allowedToInstantiate', true] as const,
+  all: ['parties'] as const,
+  allowedToInstantiate: () => [...partyQueryKeys.all, 'allowedToInstantiate'] as const,
+  instanceOwnerParty: (instanceOwnerPartyId: string | undefined) =>
+    [...partyQueryKeys.all, 'instanceOwnerParty', instanceOwnerPartyId] as const,
   cookie: ['altinnPartyIdCookie'] as const,
 };
 
@@ -27,7 +31,7 @@ const partyQueryKeys = {
 export function usePartiesAllowedToInstantiateQueryDef(enabled: boolean) {
   const { fetchPartiesAllowedToInstantiate } = useAppQueries();
   return {
-    queryKey: partyQueryKeys.allowedToInstantiate,
+    queryKey: partyQueryKeys.allowedToInstantiate(),
     queryFn: fetchPartiesAllowedToInstantiate,
     enabled,
   };
@@ -175,22 +179,22 @@ export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelec
 export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentPartyIsValid;
 
 export function useInstanceOwnerParty() {
-  const instance = useLaxInstanceData((data) => data);
-  const parties = usePartiesAllowedToInstantiate();
+  const { instanceOwnerPartyId } = useParams();
 
-  return getInstanceOwnerParty(instance, parties);
-}
+  const query = useQuery({
+    queryKey: partyQueryKeys.instanceOwnerParty(instanceOwnerPartyId),
+    queryFn: async () => {
+      if (!instanceOwnerPartyId) {
+        return null;
+      }
 
-function getInstanceOwnerParty(instance?: IInstance | IInstanceOwner, parties?: IParty[]): IParty | undefined {
-  if (!instance || !parties) {
-    return undefined;
-  }
+      await putWithoutConfig(getSetCurrentPartyUrl(instanceOwnerPartyId));
 
-  // This logic assumes that the current logged in user has "access" to the party of the instance owner,
-  // as the parties array comes from the current users party list.
-  const allParties = [...parties, ...parties.flatMap((party) => party.childParties ?? [])];
-  const instanceOwner = 'instanceOwner' in instance ? instance.instanceOwner : instance;
-  return allParties.find((party) => party.partyId.toString() === instanceOwner.partyId);
+      return httpGet<IParty>(currentPartyUrl);
+    },
+  });
+
+  return { ...query, data: query.data };
 }
 
 function getCookieValue(name: string): string | null {

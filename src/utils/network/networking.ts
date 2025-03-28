@@ -8,7 +8,7 @@ export enum HttpStatusCodes {
 }
 
 export async function httpGet<T, D = unknown>(url: string, options?: AxiosRequestConfig<D>) {
-  const headers = options?.headers as RawAxiosRequestHeaders | undefined;
+  const headers = options?.headers;
   const response = await axios.get<T, AxiosResponse<T>, D>(url, {
     ...options,
     headers: { ...headers, Pragma: 'no-cache' },
@@ -45,7 +45,7 @@ export async function httpDelete(url: string, options?: AxiosRequestConfig): Pro
   return await axios.delete(url, options);
 }
 
-export async function putWithoutConfig<ReturnType>(url: string): Promise<ReturnType> {
+export async function putWithoutConfig<ReturnType>(url: string): Promise<ReturnType | null> {
   try {
     const response = await axios.put(url);
     return response.data ? response.data : null;
