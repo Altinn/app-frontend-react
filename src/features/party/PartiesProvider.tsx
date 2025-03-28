@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
@@ -13,7 +13,6 @@ import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import { fetchAllParties } from 'src/queries/queries';
-import { getCookieValue, setCookie } from 'src/utils/cookieUtils';
 import type { IInstance, IInstanceOwner, IParty } from 'src/types/shared';
 
 export const altinnPartyIdCookieName = 'AltinnPartyId';
@@ -63,7 +62,7 @@ interface CurrentParty {
   currentPartyIsValid: boolean | undefined;
   userHasSelectedParty: boolean | undefined;
   setUserHasSelectedParty: (hasSelected: boolean) => void;
-  setParty: (party: IParty) => Promise<void>;
+  setCurrentParty: (party: IParty) => Promise<void>;
 }
 
 const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = createContext<CurrentParty>({
@@ -76,34 +75,13 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
     setUserHasSelectedParty: () => {
       throw new Error('CurrentPartyProvider not initialized');
     },
-    setParty: () => {
+    setCurrentParty: () => {
       throw new Error('CurrentPartyProvider not initialized');
     },
   },
 });
 
-function useAltinnPartyIdCookie() {
-  return useQuery({
-    queryKey: partyQueryKeys.cookie,
-    queryFn: () => getCookieValue(altinnPartyIdCookieName),
-    enabled: true,
-  });
-}
-
-const useSetAltinnPartyIdCookie = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (partyId: string | number | undefined) => {
-      const value = partyId ?? '';
-      setCookie({ name: altinnPartyIdCookieName, value });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: partyQueryKeys.cookie });
-    },
-  });
-};
-
-function findCookieParty(partyId: string | null | undefined, parties: IParty[]): IParty | undefined {
+function findParty(partyId: string | null | undefined, parties: IParty[]): IParty | undefined {
   if (!partyId) {
     return undefined;
   }
@@ -114,7 +92,7 @@ function findCookieParty(partyId: string | null | undefined, parties: IParty[]):
     }
 
     if (party.childParties) {
-      return findCookieParty(partyId, party.childParties);
+      return findParty(partyId, party.childParties);
     }
   });
 }
@@ -123,34 +101,34 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const {
     data: allParties,
     isLoading: isLoadingParties,
-    error: allPartiesError,
+    error,
   } = useQuery({
     queryKey: partyQueryKeys.all,
     queryFn: fetchAllParties,
   });
-  const validParties = useValidParties();
 
   const profile = useProfile();
+  const [currentPartyId, setCurrentPartyId] = useState<string | null>(
+    getCookieValue(altinnPartyIdCookieName) ?? profile?.partyId.toString() ?? null,
+  );
+  const validParties = useValidParties();
+
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
-  const { data: altinnPartyIdCookieValue, isLoading: isLoadingCookie, error: cookieError } = useAltinnPartyIdCookie();
-  const { mutateAsync: setAltinnPartyIdCookie, error: mutationError } = useSetAltinnPartyIdCookie();
 
   if (!validParties?.length) {
     return <NoValidPartiesError />;
   }
 
-  if (isLoadingCookie || isLoadingParties) {
+  if (isLoadingParties) {
     return <Loader reason='parties' />;
   }
 
-  const error = cookieError ?? allPartiesError ?? mutationError;
   if (error) {
     return <DisplayError error={error} />;
   }
 
-  const cookieParty = findCookieParty(altinnPartyIdCookieValue, allParties ?? []);
-
-  const currentParty = altinnPartyIdCookieValue ? cookieParty : profile?.party;
+  const currentParty =
+    currentPartyId === profile?.partyId.toString() ? profile.party : findParty(currentPartyId, allParties ?? []);
   const currentPartyIsValid = currentParty && validParties?.some((party) => party.partyId === currentParty?.partyId);
 
   return (
@@ -160,7 +138,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
         currentPartyIsValid,
         userHasSelectedParty,
         setUserHasSelectedParty,
-        setParty: async (party: IParty) => setAltinnPartyIdCookie(party.partyId),
+        setCurrentParty: async (party: IParty) => setCurrentPartyId(party.partyId.toString()),
       }}
     >
       {children}
@@ -186,7 +164,7 @@ export const usePartiesAllowedToInstantiate = () => usePartiesAllowedToInstantia
 
 export const useCurrentParty = () => useCurrentPartyCtx().currentParty;
 
-export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
+export const useSetCurrentParty = () => useCurrentPartyCtx().setCurrentParty;
 
 export const useValidParties = () => usePartiesAllowedToInstantiate().filter((party) => !party.isDeleted);
 
@@ -213,4 +191,13 @@ function getInstanceOwnerParty(instance?: IInstance | IInstanceOwner, parties?: 
   const allParties = [...parties, ...parties.flatMap((party) => party.childParties ?? [])];
   const instanceOwner = 'instanceOwner' in instance ? instance.instanceOwner : instance;
   return allParties.find((party) => party.partyId.toString() === instanceOwner.partyId);
+}
+
+function getCookieValue(name: string): string | null {
+  return (
+    document.cookie
+      .split('; ')
+      .find((row) => row.startsWith(`${name}=`))
+      ?.split('=')[1] ?? null
+  );
 }
