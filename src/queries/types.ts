@@ -6,6 +6,7 @@ type IgnoredQueries = keyof Pick<
   | 'fetchExternalApi'
   | 'fetchProcessState'
   | 'fetchAllParties'
+  | 'fetchInstanceOwnerParty'
   | 'fetchPartiesAllowedToInstantiate'
 >;
 

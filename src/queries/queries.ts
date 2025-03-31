@@ -5,13 +5,14 @@ import type { JSONSchema7 } from 'json-schema';
 import { LAYOUT_SCHEMA_NAME } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { getFileContentType } from 'src/utils/attachmentsUtils';
-import { httpDelete, httpGetRaw, httpPatch, httpPost } from 'src/utils/network/networking';
+import { httpDelete, httpGetRaw, httpPatch, httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
   applicationLanguagesUrl,
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   appPath,
+  currentPartyUrl,
   getActionsUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
@@ -38,6 +39,7 @@ import {
   getProcessStateUrl,
   getRedirectUrl,
   getRulehandlerUrl,
+  getSetCurrentPartyUrl,
   getValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
@@ -212,6 +214,18 @@ export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadat
 export const fetchApplicationSettings = (): Promise<IApplicationSettings> => httpGet(applicationSettingsApiUrl);
 
 export const fetchFooterLayout = (): Promise<IFooterLayout | null> => httpGet(getFooterLayoutUrl());
+
+export const fetchInstanceOwnerParty = async (
+  instanceOwnerPartyId: string | undefined,
+): Promise<IParty | undefined> => {
+  if (!instanceOwnerPartyId) {
+    return Promise.resolve(undefined);
+  }
+
+  await putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(instanceOwnerPartyId));
+
+  return httpGet(currentPartyUrl);
+};
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 

@@ -11,7 +11,7 @@ import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
-import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchInstanceOwnerParty, fetchProcessState } from 'src/queries/queries';
 import { InstanceRouter, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { AppQueries } from 'src/queries/types';
 
@@ -39,13 +39,6 @@ const axios400Error: AxiosError = {
   toJSON: () => ({}),
 };
 
-const buildInstance = () =>
-  getInstanceDataMock((i) => {
-    i.org = 'brg';
-    i.id = exampleInstanceId;
-    i.lastChanged = '2022-02-05T09:19:32.8858042Z';
-  });
-
 const render = async (renderAs: RenderAs, queriesOverride?: Partial<AppQueries>) => {
   jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
     getIncomingApplicationMetadataMock((m) => {
@@ -59,8 +52,11 @@ const render = async (renderAs: RenderAs, queriesOverride?: Partial<AppQueries>)
       p.processTasks = [p.currentTask!];
     }),
   );
+  jest.mocked(fetchInstanceOwnerParty).mockImplementation(async () => {
+    const instanceOwnerMockedParty = renderAs === RenderAs.User ? getPartyMock() : getServiceOwnerPartyMock();
 
-  const party = renderAs === RenderAs.User ? getPartyMock() : getServiceOwnerPartyMock();
+    return instanceOwnerMockedParty;
+  });
 
   return await renderWithoutInstanceAndLayout({
     renderer: () => (
@@ -94,7 +90,12 @@ const render = async (renderAs: RenderAs, queriesOverride?: Partial<AppQueries>)
           },
         },
       }),
-      fetchInstanceData: async () => buildInstance(),
+      fetchInstanceData: async () =>
+        getInstanceDataMock((i) => {
+          i.org = 'brg';
+          i.id = exampleInstanceId;
+          i.lastChanged = '2022-02-05T09:19:32.8858042Z';
+        }),
       fetchFormData: async () => ({}),
       fetchLayouts: async () => ({}),
       fetchUserProfile: async () => {
@@ -109,17 +110,22 @@ const render = async (renderAs: RenderAs, queriesOverride?: Partial<AppQueries>)
 };
 
 describe('PDFWrapper', () => {
-  it.each([RenderAs.User, RenderAs.ServiceOwner])(`should render PDF - %s`, async (renderAs) => {
-    const result = await render(renderAs);
+  it('should render PDF with correct sender for user', async () => {
+    const result = await render(RenderAs.User);
 
     await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
 
-    if (renderAs === RenderAs.ServiceOwner) {
-      expect(await screen.queryByText('Avsender:')).toBeNull();
-      expect(await screen.queryByText('01017512345-Ola Privatperson')).toBeNull();
-    } else if (renderAs === RenderAs.User) {
-      expect(await screen.queryByText('Avsender:')).not.toBeNull();
-      expect(await screen.queryByText('01017512345-Ola Privatperson')).not.toBeNull();
-    }
+    expect(screen.queryByText('Avsender:')).not.toBeNull();
+    expect(screen.queryByText('01017512345-Ola Privatperson')).not.toBeNull();
+  });
+
+  it('should render PDF with correct sender for service owner', async () => {
+    const result = await render(RenderAs.ServiceOwner);
+
+    await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
+
+    expect(screen.queryByText('Avsender:')).not.toBeNull();
+    expect(screen.queryByText('01017512345-Ola Privatperson')).toBeNull();
+    expect(screen.queryByText('974760673-Brønnøysundregistrene')).not.toBeNull();
   });
 });

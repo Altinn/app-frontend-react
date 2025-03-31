@@ -17,6 +17,7 @@ import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import type {
   fetchAllParties,
   fetchApplicationMetadata,
+  fetchInstanceOwnerParty,
   fetchPartiesAllowedToInstantiate,
   fetchProcessState,
 } from 'src/queries/queries';
@@ -104,6 +105,7 @@ jest.mock('src/queries/queries', () => ({
     .mockImplementation(async () => getIncomingApplicationMetadataMock()),
   fetchProcessState: jest.fn<typeof fetchProcessState>(async () => getProcessDataMock()),
   fetchAllParties: jest.fn<typeof fetchAllParties>(async () => [getPartyMock()]),
+  fetchInstanceOwnerParty: jest.fn<typeof fetchInstanceOwnerParty>(async () => getPartyMock()),
   fetchPartiesAllowedToInstantiate: jest.fn<typeof fetchPartiesAllowedToInstantiate>(async () => [getPartyMock()]),
 }));
 

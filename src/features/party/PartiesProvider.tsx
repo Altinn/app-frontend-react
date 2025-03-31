@@ -11,9 +11,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { fetchAllParties, fetchPartiesAllowedToInstantiate } from 'src/queries/queries';
-import { httpGet, putWithoutConfig } from 'src/utils/network/networking';
-import { currentPartyUrl, getSetCurrentPartyUrl } from 'src/utils/urls/appUrlHelper';
+import { fetchAllParties, fetchInstanceOwnerParty, fetchPartiesAllowedToInstantiate } from 'src/queries/queries';
 import type { IParty } from 'src/types/shared';
 
 export const altinnPartyIdCookieName = 'AltinnPartyId';
@@ -179,20 +177,10 @@ export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentPartyIsV
 export function useInstanceOwnerParty() {
   const { instanceOwnerPartyId } = useParams();
 
-  const query = useQuery({
+  return useQuery({
     queryKey: partyQueryKeys.instanceOwnerParty(instanceOwnerPartyId),
-    queryFn: async () => {
-      if (!instanceOwnerPartyId) {
-        return null;
-      }
-
-      await putWithoutConfig(getSetCurrentPartyUrl(instanceOwnerPartyId));
-
-      return httpGet<IParty>(currentPartyUrl);
-    },
+    queryFn: async () => fetchInstanceOwnerParty(instanceOwnerPartyId),
   });
-
-  return { ...query, data: query.data };
 }
 
 function getCookieValue(name: string): string | null {

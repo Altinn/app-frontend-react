@@ -5,13 +5,13 @@ import { screen } from '@testing-library/react';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getPartyWithSubunitMock } from 'src/__mocks__/getPartyMock';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
+import { fetchInstanceOwnerParty } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('Confirm', () => {
   it('should not show loading if required data is loaded', async () => {
     await renderWithInstanceAndLayout({
       renderer: () => <Confirm />,
-      queries: {},
     });
     const contentLoader = screen.queryByText('Loading...');
     expect(contentLoader).not.toBeInTheDocument();
@@ -21,6 +21,7 @@ describe('Confirm', () => {
     const partyMock = getPartyWithSubunitMock();
     const subunitParty = partyMock.org.childParties[0];
     const instance = getInstanceDataMock(undefined, subunitParty.partyId.toString(), undefined, subunitParty.orgNumber);
+    jest.mocked(fetchInstanceOwnerParty).mockImplementationOnce(async () => subunitParty);
 
     await renderWithInstanceAndLayout({
       renderer: () => <Confirm />,
