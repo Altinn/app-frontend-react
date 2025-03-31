@@ -8,35 +8,44 @@ import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
+import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { PresentationType } from 'src/types';
 
 export const App = () => (
   <Routes>
-    <Route element={<Entrypoint />}>
+    <Route
+      element={
+        <PartyProvider>
+          <Outlet />
+        </PartyProvider>
+      }
+    >
+      <Route element={<Entrypoint />}>
+        <Route
+          path=':pageKey'
+          element={
+            <PresentationComponent type={PresentationType.Stateless}>
+              <Form />
+            </PresentationComponent>
+          }
+        />
+        <Route
+          index
+          element={<FormFirstPage />}
+        />
+      </Route>
       <Route
-        path=':pageKey'
-        element={
-          <PresentationComponent type={PresentationType.Stateless}>
-            <Form />
-          </PresentationComponent>
-        }
+        path='/instance-selection/*'
+        element={<InstanceSelectionWrapper />}
       />
+
       <Route
-        index
-        element={<FormFirstPage />}
+        path='/party-selection/*'
+        element={<PartySelection />}
       />
     </Route>
-    <Route
-      path='/instance-selection/*'
-      element={<InstanceSelectionWrapper />}
-    />
-
-    <Route
-      path='/party-selection/*'
-      element={<PartySelection />}
-    />
 
     <Route
       path='/instance/:instanceOwnerPartyId/:instanceGuid/*'

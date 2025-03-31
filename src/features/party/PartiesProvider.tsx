@@ -97,6 +97,11 @@ function findParty(partyId: string | null | undefined, parties: IParty[]): IPart
   });
 }
 
+/*
+ * This provider is used to manage the selected party and its validity _before_ any instance is present.
+ * That is, the selected party should only be used to determine the party that is used to instantiate an app or to select from previously instantiated apps.
+ * When the user is filling out an app, the current party is always the user's party, found in the profile, filling out the form on behalf of the instance owner.
+ */
 const SelectedPartyProvider = ({ children }: PropsWithChildren) => {
   const {
     data: allParties,
