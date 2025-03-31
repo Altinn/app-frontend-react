@@ -74,6 +74,12 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
   );
 }
 
+/**
+ * The AppHeader should display text to inform the current user about the current context:
+ * - When there is an instance ID in the URL: '$user.name for $instanceOwner'
+ * - When the user has chosen a different party than themselves through party selection (and there is not an instance ID in the URL): '$user.name for $selectedParty'
+ * - In all other cases: '$user.name'
+ */
 function useGetOnBehalfOf() {
   const { data: instanceOwnerParty } = useInstanceOwnerParty();
   const currentParty = useCurrentParty();
