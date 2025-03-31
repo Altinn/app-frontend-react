@@ -7,11 +7,11 @@ import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import classes from 'src/features/instantiate/instantiateHeader/InstantiateHeader.module.css';
 import { Lang } from 'src/features/language/Lang';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { returnUrlToAllForms, returnUrlToMessagebox, returnUrlToProfile } from 'src/utils/urls/urlHelper';
 
 export const InstantiateHeader = () => {
-  const currentParty = useCurrentParty();
+  const selectedParty = useSelectedParty();
 
   return (
     <div
@@ -31,12 +31,12 @@ export const InstantiateHeader = () => {
           color={LogoColor.blueDark}
           className={classes.logo}
         />
-        {currentParty && (
+        {selectedParty && (
           <ul className={classes.headerLinkList}>
             <li className={classes.headerLink}>
               <a
                 className='altinnLink'
-                href={returnUrlToMessagebox(window.location.host, currentParty?.partyId)}
+                href={returnUrlToMessagebox(window.location.host, selectedParty?.partyId)}
               >
                 <Lang id='instantiate.inbox' />
               </a>
@@ -52,20 +52,20 @@ export const InstantiateHeader = () => {
             <li className={classes.headerLink}>
               <a
                 className='altinnLink'
-                href={returnUrlToProfile(window.location.host, currentParty?.partyId)}
+                href={returnUrlToProfile(window.location.host, selectedParty?.partyId)}
               >
                 <Lang id='instantiate.profile' />
               </a>
             </li>
           </ul>
         )}
-        {currentParty && (
+        {selectedParty && (
           <CircleIcon
             size='1.5rem'
             className={classes.partyIcon}
-            title={currentParty?.person?.name}
+            title={selectedParty?.person?.name}
           >
-            {currentParty.orgNumber ? (
+            {selectedParty.orgNumber ? (
               <Buildings3Icon
                 color='white'
                 aria-hidden='true'

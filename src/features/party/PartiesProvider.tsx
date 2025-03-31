@@ -57,26 +57,26 @@ const { Provider: PartiesProvider, useCtx: usePartiesAllowedToInstantiateCtx } =
   }),
 );
 
-interface CurrentParty {
-  currentParty: IParty | undefined;
-  currentPartyIsValid: boolean | undefined;
+interface SelectedParty {
+  selectedParty: IParty | undefined;
+  selectedPartyIsValid: boolean | undefined;
   userHasSelectedParty: boolean | undefined;
   setUserHasSelectedParty: (hasSelected: boolean) => void;
-  setCurrentParty: (party: IParty) => Promise<void>;
+  setSelectedParty: (party: IParty) => Promise<void>;
 }
 
-const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = createContext<CurrentParty>({
-  name: 'CurrentParty',
+const { Provider: RealSelectedPartyProvider, useCtx: useSelectedPartyCtx } = createContext<SelectedParty>({
+  name: 'SelectedParty',
   required: false,
   default: {
-    currentParty: undefined,
-    currentPartyIsValid: undefined,
+    selectedParty: undefined,
+    selectedPartyIsValid: undefined,
     userHasSelectedParty: undefined,
     setUserHasSelectedParty: () => {
-      throw new Error('CurrentPartyProvider not initialized');
+      throw new Error('SelectedPartyProvider not initialized');
     },
-    setCurrentParty: () => {
-      throw new Error('CurrentPartyProvider not initialized');
+    setSelectedParty: () => {
+      throw new Error('SelectedPartyProvider not initialized');
     },
   },
 });
@@ -97,7 +97,7 @@ function findParty(partyId: string | null | undefined, parties: IParty[]): IPart
   });
 }
 
-const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
+const SelectedPartyProvider = ({ children }: PropsWithChildren) => {
   const {
     data: allParties,
     isLoading: isLoadingParties,
@@ -108,7 +108,7 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   });
 
   const profile = useProfile();
-  const [currentPartyId, setCurrentPartyId] = useState<string | null>(
+  const [selectedPartyId, setSelectedPartyId] = useState<string | null>(
     getCookieValue(altinnPartyIdCookieName) ?? profile?.partyId.toString() ?? null,
   );
   const validParties = useValidParties();
@@ -127,22 +127,22 @@ const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
     return <DisplayError error={error} />;
   }
 
-  const currentParty =
-    currentPartyId === profile?.partyId.toString() ? profile.party : findParty(currentPartyId, allParties ?? []);
-  const currentPartyIsValid = currentParty && validParties?.some((party) => party.partyId === currentParty?.partyId);
+  const selectedParty =
+    selectedPartyId === profile?.partyId.toString() ? profile.party : findParty(selectedPartyId, allParties ?? []);
+  const selectedPartyIsValid = selectedParty && validParties?.some((party) => party.partyId === selectedParty?.partyId);
 
   return (
-    <RealCurrentPartyProvider
+    <RealSelectedPartyProvider
       value={{
-        currentParty,
-        currentPartyIsValid,
+        selectedParty,
+        selectedPartyIsValid,
         userHasSelectedParty,
         setUserHasSelectedParty,
-        setCurrentParty: async (party: IParty) => setCurrentPartyId(party.partyId.toString()),
+        setSelectedParty: async (party: IParty) => setSelectedPartyId(party.partyId.toString()),
       }}
     >
       {children}
-    </RealCurrentPartyProvider>
+    </RealSelectedPartyProvider>
   );
 };
 
@@ -155,31 +155,31 @@ export function PartyProvider({ children }: PropsWithChildren) {
 
   return (
     <PartiesProvider>
-      <CurrentPartyProvider>{children}</CurrentPartyProvider>
+      <SelectedPartyProvider>{children}</SelectedPartyProvider>
     </PartiesProvider>
   );
 }
 
 export const usePartiesAllowedToInstantiate = () => usePartiesAllowedToInstantiateCtx() ?? [];
 
-export const useCurrentParty = () => useCurrentPartyCtx().currentParty;
+export const useSelectedParty = () => useSelectedPartyCtx().selectedParty;
 
-export const useSetCurrentParty = () => useCurrentPartyCtx().setCurrentParty;
+export const useSetSelectedParty = () => useSelectedPartyCtx().setSelectedParty;
 
 export const useValidParties = () => usePartiesAllowedToInstantiate().filter((party) => !party.isDeleted);
 
-export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
+export const useHasSelectedParty = () => useSelectedPartyCtx().userHasSelectedParty;
 
-export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
+export const useSetHasSelectedParty = () => useSelectedPartyCtx().setUserHasSelectedParty;
 
-export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentPartyIsValid;
+export const useSelectedPartyIsValid = () => useSelectedPartyCtx().selectedPartyIsValid;
 
 export function useInstanceOwnerParty() {
   const { instanceOwnerPartyId } = useParams();
 
   return useQuery({
     queryKey: partyQueryKeys.instanceOwnerParty(instanceOwnerPartyId),
-    queryFn: async () => fetchInstanceOwnerParty(instanceOwnerPartyId),
+    queryFn: () => fetchInstanceOwnerParty(instanceOwnerPartyId),
   });
 }
 

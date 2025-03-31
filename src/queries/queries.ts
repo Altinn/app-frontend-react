@@ -12,7 +12,6 @@ import {
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   appPath,
-  currentPartyUrl,
   getActionsUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
@@ -39,11 +38,12 @@ import {
   getProcessStateUrl,
   getRedirectUrl,
   getRulehandlerUrl,
-  getSetCurrentPartyUrl,
+  getSetSelectedPartyUrl,
   getValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
+  selectedPartyUrl,
   textResourcesUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI, orgsListUrl } from 'src/utils/urls/urlHelper';
@@ -222,9 +222,9 @@ export const fetchInstanceOwnerParty = async (
     return Promise.resolve(undefined);
   }
 
-  await putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(instanceOwnerPartyId));
+  await putWithoutConfig<'Party successfully updated' | string | null>(getSetSelectedPartyUrl(instanceOwnerPartyId));
 
-  return httpGet(currentPartyUrl);
+  return httpGet(selectedPartyUrl);
 };
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());

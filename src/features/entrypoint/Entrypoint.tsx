@@ -7,9 +7,9 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import {
-  useCurrentParty,
-  useCurrentPartyIsValid,
   useHasSelectedParty,
+  useSelectedParty,
+  useSelectedPartyIsValid,
   useValidParties,
 } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
@@ -50,10 +50,10 @@ export const Entrypoint = () => {
   const validParties = useValidParties();
   const userHasSelectedParty = useHasSelectedParty();
   const allowAnonymous = useAllowAnonymousIs(true);
-  const currentParty = useCurrentParty();
-  const currentPartyIsValid = useCurrentPartyIsValid();
+  const selectedParty = useSelectedParty();
+  const selectedPartyIsValid = useSelectedPartyIsValid();
 
-  if (isStateless && allowAnonymous && !currentParty) {
+  if (isStateless && allowAnonymous && !selectedParty) {
     // Anonymous stateless app. No need to log in and select party, but cannot create a new instance.
     // The regular stateless mode (where you have to log in) is handled in ShowOrInstantiate, after the party is
     // selected and valid.
@@ -66,7 +66,7 @@ export const Entrypoint = () => {
     );
   }
 
-  if (!currentPartyIsValid) {
+  if (!selectedPartyIsValid) {
     return (
       <Navigate
         to='/party-selection/403'

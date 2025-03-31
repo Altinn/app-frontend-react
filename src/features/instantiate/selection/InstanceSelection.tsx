@@ -22,7 +22,7 @@ import { useActiveInstancesQuery } from 'src/features/instantiate/selection/acti
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
@@ -72,7 +72,7 @@ function InstanceSelection() {
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const { mutate: instantiate } = useInstantiateMutation();
-  const currentParty = useCurrentParty();
+  const selectedParty = useSelectedParty();
   const storeCallback = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
 
@@ -295,9 +295,9 @@ function InstanceSelection() {
             size='md'
             onClick={() =>
               performProcess(async () => {
-                if (currentParty) {
+                if (selectedParty) {
                   storeCallback(focusMainContent);
-                  await instantiate(currentParty.partyId);
+                  await instantiate(selectedParty.partyId);
                 }
               })
             }
