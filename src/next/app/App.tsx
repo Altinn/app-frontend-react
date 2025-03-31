@@ -3,8 +3,9 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { scan } from 'react-scan';
 
 import { Api } from 'src/next/app/api';
+import { AppLayout } from 'src/next/pages/AppLayout/AppLayout';
+import { initialLoader } from 'src/next/pages/AppLayout/initialLoader';
 import { Instance, instanceLoader } from 'src/next/pages/Instance';
-import { AppLayout, initialLoader } from 'src/next/pages/Instances';
 import { Page } from 'src/next/pages/Page';
 import { Task } from 'src/next/pages/Task';
 
