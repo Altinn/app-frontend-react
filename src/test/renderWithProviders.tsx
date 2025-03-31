@@ -17,7 +17,6 @@ import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
 import { orderDetailsResponsePayload } from 'src/__mocks__/getOrderDetailsPayloadMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
-import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
@@ -142,7 +141,6 @@ const defaultQueryMocks: AppQueries = {
   fetchUserProfile: async () => getProfileMock(),
   fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
-  fetchPartiesAllowedToInstantiate: async () => [getPartyMock()],
   fetchRefreshJwtToken: async () => ({}),
   fetchCustomValidationConfig: async () => null,
   fetchFormData: async () => ({}),

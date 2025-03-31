@@ -20,7 +20,7 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceAllDataElements, useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { getInstanceSender } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
@@ -150,7 +150,6 @@ export const ReceiptContainer = () => {
   const instanceOrg = useLaxInstanceData((i) => i.org);
   const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
   const dataElements = useLaxInstanceAllDataElements();
-  const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate();
   const langTools = useLanguage();
   const receiver = useAppReceiver();
 
@@ -190,7 +189,7 @@ export const ReceiptContainer = () => {
   const instanceMetaObject = useMemo(() => {
     const sender = getInstanceSender(instanceOwnerParty ?? undefined);
 
-    if (instanceOrg && instanceOwner && partiesAllowedToInstantiate && instanceGuid && lastChangedDateTime) {
+    if (instanceOrg && instanceOwner && instanceGuid && lastChangedDateTime) {
       return getSummaryDataObject({
         langTools,
         sender,
@@ -201,16 +200,7 @@ export const ReceiptContainer = () => {
     }
 
     return undefined;
-  }, [
-    instanceOrg,
-    partiesAllowedToInstantiate,
-    instanceGuid,
-    lastChangedDateTime,
-    langTools,
-    receiver,
-    instanceOwner,
-    instanceOwnerParty,
-  ]);
+  }, [instanceOrg, instanceGuid, lastChangedDateTime, langTools, receiver, instanceOwner, instanceOwnerParty]);
 
   const requirementMissing = !attachments
     ? 'attachments'
@@ -220,11 +210,9 @@ export const ReceiptContainer = () => {
         ? 'lastChangedDateTime'
         : !instanceOwner
           ? 'instance'
-          : !partiesAllowedToInstantiate
-            ? 'parties'
-            : undefined;
+          : undefined;
 
-  if (requirementMissing || !(instanceOwner && partiesAllowedToInstantiate && instanceMetaObject && pdf)) {
+  if (requirementMissing || !(instanceOwner && instanceMetaObject && pdf)) {
     return (
       <AltinnContentLoader
         width={705}

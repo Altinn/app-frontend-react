@@ -4,7 +4,6 @@ import type { PropsWithChildren } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 
-import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
@@ -12,7 +11,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { fetchAllParties } from 'src/queries/queries';
+import { fetchAllParties, fetchPartiesAllowedToInstantiate } from 'src/queries/queries';
 import { httpGet, putWithoutConfig } from 'src/utils/network/networking';
 import { currentPartyUrl, getSetCurrentPartyUrl } from 'src/utils/urls/appUrlHelper';
 import type { IParty } from 'src/types/shared';
@@ -29,7 +28,6 @@ const partyQueryKeys = {
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
 export function usePartiesAllowedToInstantiateQueryDef(enabled: boolean) {
-  const { fetchPartiesAllowedToInstantiate } = useAppQueries();
   return {
     queryKey: partyQueryKeys.allowedToInstantiate(),
     queryFn: fetchPartiesAllowedToInstantiate,
