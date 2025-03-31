@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { Spinner, Table } from '@digdir/designsystemet-react';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
+import { PencilIcon, PlusIcon, TrashIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -161,7 +161,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
               fullWidth
             >
               {!isAdding && (
-                <AddIcon
+                <PlusIcon
                   fontSize='1.5rem'
                   aria-hidden='true'
                 />
@@ -265,7 +265,7 @@ function SubformTableRow({
             className={classes.tableButton}
           >
             {editButtonText}
-            <EditIcon
+            <PencilIcon
               fontSize='1rem'
               aria-hidden='true'
             />
@@ -284,7 +284,7 @@ function SubformTableRow({
               className={classes.tableButton}
             >
               {deleteButtonText}
-              <DeleteIcon
+              <TrashIcon
                 fontSize='1rem'
                 aria-hidden='true'
               />

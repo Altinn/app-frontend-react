@@ -15,8 +15,6 @@ import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
 import '@digdir/designsystemet-theme';
 
-import { AppWrapper } from '@altinn/altinn-design-system';
-
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ViewportWrapper } from 'src/components/ViewportWrapper';
@@ -24,6 +22,7 @@ import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { DisplayErrorProvider } from 'src/core/errorHandling/DisplayErrorProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
@@ -42,6 +41,7 @@ import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
 
+import 'leaflet/dist/leaflet.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 
@@ -67,17 +67,15 @@ document.addEventListener('DOMContentLoaded', () => {
     <AppQueriesProvider {...queries}>
       <ErrorBoundary>
         <AppPrefetcher />
-        <AppWrapper>
-          <LanguageProvider>
-            <LangToolsStoreProvider>
-              <ViewportWrapper>
-                <UiConfigProvider>
-                  <RouterProvider router={router} />
-                </UiConfigProvider>
-              </ViewportWrapper>
-            </LangToolsStoreProvider>
-          </LanguageProvider>
-        </AppWrapper>
+        <LanguageProvider>
+          <LangToolsStoreProvider>
+            <ViewportWrapper>
+              <UiConfigProvider>
+                <RouterProvider router={router} />
+              </UiConfigProvider>
+            </ViewportWrapper>
+          </LangToolsStoreProvider>
+        </LanguageProvider>
       </ErrorBoundary>
     </AppQueriesProvider>,
   );
@@ -99,9 +97,11 @@ function Root() {
                         <KeepAliveProvider>
                           <HelmetProvider>
                             <TaskStoreProvider>
-                              <ProcessingProvider>
-                                <App />
-                              </ProcessingProvider>
+                              <DisplayErrorProvider>
+                                <ProcessingProvider>
+                                  <App />
+                                </ProcessingProvider>
+                              </DisplayErrorProvider>
                             </TaskStoreProvider>
                             <ToastContainer
                               position='top-center'
