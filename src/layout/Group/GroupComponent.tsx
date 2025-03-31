@@ -82,9 +82,9 @@ export function GroupComponent({
           }
           description={
             description && !isSummary ? (
-              <div className={classes.description}>
+              <span className={classes.description}>
                 <Lang id={description} />
-              </div>
+              </span>
             ) : undefined
           }
         >
