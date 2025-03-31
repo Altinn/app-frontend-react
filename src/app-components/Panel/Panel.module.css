@@ -36,19 +36,19 @@
 }
 
 .panelContentWrapper_info {
-  background-color: var(--ds-color-info-surface-default);
+  background-color: var(--ds-color-info-surface-tinted);
 }
 
 .panelContentWrapper_success {
-  background-color: var(--ds-color-success-surface-default);
+  background-color: var(--ds-color-success-surface-tinted);
 }
 
 .panelContentWrapper_warning {
-  background-color: var(--ds-color-warning-surface-default);
+  background-color: var(--ds-color-warning-surface-tinted);
 }
 
 .panelContentWrapper_error {
-  background-color: var(--ds-color-danger-surface-hover);
+  background-color: var(--ds-color-danger-surface-tinted);
 }
 
 .panelIconWrapper {

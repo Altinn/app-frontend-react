@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { Flex } from 'src/app-components/Flex/Flex';
-import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
-import { Panel } from 'src/app-components/Panel/Panel';
+import { ErrorSummary } from '@digdir/designsystemet-react';
+
 import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
@@ -34,48 +33,39 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
   return (
     <div data-testid='ErrorReport'>
       <FullWidthWrapper isOnBottom={true}>
-        <Panel
-          title={<Lang id='form_filler.error_report_header' />}
-          variant={PANEL_VARIANT.Error}
+        <ErrorSummary
+          data-size='lg'
+          className={classes.errorSummary}
         >
-          <Flex
-            container
-            item
-            spacing={6}
-            alignItems='flex-start'
-          >
-            <Flex
-              item
-              size={{ xs: 12 }}
-            >
-              <ul className={classes.errorList}>
-                {taskErrors.map((error) => (
-                  <li
-                    key={getUniqueKeyFromObject(error)}
-                    style={{ listStyleImage: listStyleImg }}
-                  >
-                    <Lang
-                      id={error.message.key}
-                      params={error.message.params}
-                    />
-                  </li>
-                ))}
-                {formErrors.map((error) => (
-                  <Error
-                    key={getUniqueKeyFromObject(error)}
-                    error={error}
-                  />
-                ))}
-              </ul>
-            </Flex>
-            {renderIds.map((id) => (
-              <GenericComponentById
-                key={id}
-                id={id}
+          <ErrorSummary.Heading>
+            <Lang id='form_filler.error_report_header' />
+          </ErrorSummary.Heading>
+          <ErrorSummary.List className={classes.errorList}>
+            {taskErrors.map((error) => (
+              <ErrorSummary.Item
+                key={getUniqueKeyFromObject(error)}
+                style={{ listStyleImage: listStyleImg }}
+              >
+                <Lang
+                  id={error.message.key}
+                  params={error.message.params}
+                />
+              </ErrorSummary.Item>
+            ))}
+            {formErrors.map((error) => (
+              <Error
+                key={getUniqueKeyFromObject(error)}
+                error={error}
               />
             ))}
-          </Flex>
-        </Panel>
+          </ErrorSummary.List>
+          {renderIds.map((id) => (
+            <GenericComponentById
+              key={id}
+              id={id}
+            />
+          ))}
+        </ErrorSummary>
       </FullWidthWrapper>
     </div>
   );
