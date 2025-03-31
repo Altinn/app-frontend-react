@@ -178,8 +178,7 @@ export function Map({
               permanent={true}
               content={label}
               interactive={isInteractive}
-              direction={data.type == 'Point' ? 'left' : 'top'}
-              offset={data.type == 'Point' ? [-16, -28] : undefined}
+              direction={data.type == 'Point' ? 'bottom' : 'top'}
               eventHandlers={{
                 click: (e) => e.originalEvent.preventDefault(),
               }}
