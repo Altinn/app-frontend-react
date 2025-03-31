@@ -5,7 +5,7 @@ import { Buildings3Icon, ChevronRightCircleFillIcon, PersonIcon } from '@navikt/
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { AltinnCollapsableList } from 'src/components/AltinnCollapsableList';
+import { AltinnCollapsableList } from 'src/components/AltinnCollapsable';
 import classes from 'src/components/altinnParty.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -51,7 +51,7 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
 
     return (
       <AltinnCollapsableList
-        transition={subUnitsExpanded}
+        open={subUnitsExpanded}
         onClickExpand={expandSubUnits}
         listHeader={
           <Flex

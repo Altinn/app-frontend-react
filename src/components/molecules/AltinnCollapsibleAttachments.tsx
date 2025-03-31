@@ -1,9 +1,10 @@
 import React from 'react';
 
-import { Collapse, List, ListItem, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
+import { List, ListItem, ListItemIcon, ListItemText, Typography } from '@material-ui/core';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
+import { AltinnCollapsable } from 'src/components/AltinnCollapsable';
 import { AltinnAttachment } from 'src/components/atoms/AltinnAttachment';
 import classes from 'src/components/molecules/AltinnCollapsibleAttachments.module.css';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -64,13 +65,9 @@ export function AltinnCollapsibleAttachments({
           }}
         />
       </ListItem>
-      <Collapse
-        in={open}
-        timeout='auto'
-        unmountOnExit={true}
-      >
+      <AltinnCollapsable open={open}>
         <AltinnAttachment attachments={attachments} />
-      </Collapse>
+      </AltinnCollapsable>
     </List>
   ) : (
     <>
