@@ -366,6 +366,11 @@ export function nb(): FixedLanguageList {
       submit_panel_description: 'Alle parter har signert! Velg "{0}" for å fullføre.',
       submit_button: 'Send inn skjemaet',
 
+      submit_panel_radio_group_legend: 'Hvem ønsker du å signere på vegne av?',
+      submit_panel_radio_group_description: 'Følgende er parter du har rettigheter til å signere på vegne av.',
+      submit_panel_radio_org_help_text:
+        'Fordi du har en nøkkelrolle i denne virksomheten, kan du velge å signere på vegne av denne parten.',
+
       awaiting_other_signatures_panel_title: 'Venter på signaturer',
       awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
       awaiting_other_signatures_panel_description_signed:

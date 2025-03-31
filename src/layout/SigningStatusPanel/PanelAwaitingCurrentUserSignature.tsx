@@ -71,7 +71,7 @@ export function AwaitingCurrentUserSignaturePanel({
   });
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
-  const [onBehalfOf, setOnBehalfOf] = useState('self');
+  const [onBehalfOf, setOnBehalfOf] = useState('');
 
   // This shouldn't really happen, but if it does it indicates that our backend is out of sync with Autorisasjon somehow
   if (!canSign) {
@@ -118,16 +118,17 @@ export function AwaitingCurrentUserSignaturePanel({
     >
       {!!authorizedOrganisationDetails?.organisations?.length && (
         <Radio.Group
-          legend='Hvem ønsker du å signere på vegne av?'
+          legend={<Lang id='signing.sign_on_behalf_of' />}
           hideLegend={false}
-          description='Følgende er parter du har rettigheter til å signere på vegne av.'
+          description={<Lang id='signing.sign_on_behalf_of_description' />}
+          required={true}
           error={false}
           readOnly={false}
           inline={false}
           role='radiogroup'
         >
           <RadioButton
-            value='self'
+            value=''
             label='Meg selv'
             name='self'
             onChange={handleChange}
@@ -136,18 +137,10 @@ export function AwaitingCurrentUserSignaturePanel({
             <RadioButton
               value={org.orgNumber}
               label={org.orgName}
-              helpText='Fordi du haren nøkkelrolle i denne befriften, kan du velge å signere på vegne av denne parten.'
+              helpText={<Lang id='submit_panel_radio_org_help_text' />}
               name={org.orgNumber}
               key={org.partyId}
-              // checked={option.value === selectedValues[0]}
-              // showAsCard={showAsCard}
-              // readOnly={readOnly}
               onChange={handleChange}
-              // hideLabel={hideLabel}
-              // size='small'
-              // alertOnChange={alertOnChange}
-              // alertText={alertText}
-              // confirmChangeText={confirmChangeText}
             />
           ))}
         </Radio.Group>
