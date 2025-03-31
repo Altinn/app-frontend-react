@@ -3,7 +3,7 @@ import escapeStringRegexp from 'escape-string-regexp';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { exprCastValue } from 'src/features/expressions';
-import { ExprRuntimeError, getNodeRelationNotFoundError } from 'src/features/expressions/errors';
+import { ExprRuntimeError, NodeRelationNotFound } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
 import { makeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
@@ -443,8 +443,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     const targetId = makeIndexedId(target.id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
     if (!targetId) {
-      window.logErrorOnce(getNodeRelationNotFoundError(this, id));
-      return null;
+      throw new NodeRelationNotFound(this, id);
     }
 
     if (this.dataSources.isHiddenSelector(targetId)) {
@@ -529,8 +528,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     const targetId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
     if (!targetId) {
-      window.logErrorOnce(getNodeRelationNotFoundError(this, id));
-      return null;
+      throw new NodeRelationNotFound(this, id);
     }
 
     if (this.dataSources.isHiddenSelector(targetId)) {
@@ -631,8 +629,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     const relativeId = makeIndexedId(id, this.dataSources.currentDataModelPath, this.dataSources.layoutLookups);
     if (!relativeId) {
-      window.logErrorOnce(getNodeRelationNotFoundError(this, id));
-      return null;
+      throw new NodeRelationNotFound(this, id);
     }
 
     const searchParams = new URLSearchParams();
