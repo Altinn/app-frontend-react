@@ -90,7 +90,7 @@ function Error({ error }: { error: NodeRefValidation }) {
   };
 
   return (
-    <li style={{ listStyleImage: listStyleImg }}>
+    <ErrorSummary.Item style={{ listStyleImage: listStyleImg }}>
       <button
         className={classes.buttonAsInvisibleLink}
         onClick={handleErrorClick}
@@ -102,6 +102,6 @@ function Error({ error }: { error: NodeRefValidation }) {
           node={node}
         />
       </button>
-    </li>
+    </ErrorSummary.Item>
   );
 }
