@@ -28,17 +28,4 @@ export async function fetchAuthorizedOrganisationDetails(
   const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/organisations`;
   const response = await httpGet(url);
   return authorizedOrganisationDetailsSchema.parse(response);
-
-  // //simulate isloading
-  // return new Promise((resolve) => {
-  //   setTimeout(() => {
-  //     resolve([
-  //       {
-  //         orgNumber: '123456789',
-  //         orgName: 'Company A',
-  //         partyId: 1,
-  //       },
-  //     ]);
-  //   }, 1000);
-  // });
 }

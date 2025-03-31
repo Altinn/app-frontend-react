@@ -101,12 +101,6 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   }
 
   if (hasMissingSignatures) {
-    // return (
-    //   <AwaitingCurrentUserSignaturePanel
-    //     node={node}
-    //     hasMissingSignatures={hasMissingSignatures}
-    //   />
-    // );
     return (
       <AwaitingOtherSignaturesPanel
         node={node}
