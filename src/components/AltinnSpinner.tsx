@@ -23,6 +23,7 @@ export const AltinnSpinner = (props: IAltinnSpinnerComponentProvidedProps) => {
       data-testid='altinn-spinner'
     >
       <Spinner
+        role='progressbar'
         title={spinnerText || langAsString('general.loading')}
         aria-label={spinnerText || langAsString('general.loading')}
         id={id}
