@@ -17,10 +17,10 @@ import classes from 'src/features/instantiate/containers/PartySelection.module.c
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import {
-  useCurrentParty,
   usePartiesAllowedToInstantiate,
-  useSetCurrentParty,
+  useSelectedParty,
   useSetHasSelectedParty,
+  useSetSelectedParty,
 } from 'src/features/party/PartiesProvider';
 import { useNavigate } from 'src/features/routing/AppRoutingContext';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
@@ -35,11 +35,11 @@ export const PartySelection = () => {
   const match = useMatch(`/party-selection/:errorCode`);
   const errorCode = match?.params.errorCode;
 
-  const selectParty = useSetCurrentParty();
-  const selectedParty = useCurrentParty();
+  const selectParty = useSetSelectedParty();
+  const selectedParty = useSelectedParty();
   const setUserHasSelectedParty = useSetHasSelectedParty();
 
-  const parties = usePartiesAllowedToInstantiate() ?? [];
+  const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate();
   const appMetadata = useApplicationMetadata();
 
   const appPromptForPartyOverride = appMetadata.promptForParty;
@@ -60,13 +60,13 @@ export const PartySelection = () => {
     navigate('/');
   };
 
-  const filteredParties = parties
+  const filteredParties = partiesAllowedToInstantiate
     .filter(
       (party) => party.name.toUpperCase().includes(filterString.toUpperCase()) && !(party.isDeleted && !showDeleted),
     )
     .slice(0, numberOfPartiesShown);
 
-  const hasMoreParties = filteredParties.length < parties.length;
+  const hasMoreParties = filteredParties.length < partiesAllowedToInstantiate.length;
 
   function renderParties() {
     return (
@@ -107,20 +107,23 @@ export const PartySelection = () => {
     return capitalizeName(selectedParty.name);
   }
 
-  function templateErrorMessage() {
-    if (errorCode === '403') {
-      return (
-        <Paragraph
-          data-testid={`error-code-${HttpStatusCodes.Forbidden}`}
-          className={classes.error}
-          id='party-selection-error'
-        >
-          {`${langAsString('party_selection.invalid_selection_first_part')} ${getRepresentedPartyName()}.
-            ${langAsString('party_selection.invalid_selection_second_part')} ${templatePartyTypesString()}.
-            ${langAsString('party_selection.invalid_selection_third_part')}`}
-        </Paragraph>
-      );
-    }
+  function TemplateErrorMessage() {
+    return (
+      <Paragraph
+        data-testid={`error-code-${HttpStatusCodes.Forbidden}`}
+        className={classes.error}
+        id='party-selection-error'
+      >
+        {!selectedParty ? (
+          <Lang id='party_selection.invalid_selection_non_existing_party' />
+        ) : (
+          <Lang
+            id='party_selection.invalid_selection_existing_party'
+            params={[getRepresentedPartyName(), templatePartyTypesString()]}
+          />
+        )}
+      </Paragraph>
+    );
   }
 
   function templatePartyTypesString() {
@@ -133,19 +136,20 @@ export const PartySelection = () => {
     */
     const { partyTypesAllowed } = appMetadata ?? {};
     const partyTypes: string[] = [];
+    const allDisallowed = Object.values(partyTypesAllowed).every((value) => !value);
 
     let returnString = '';
 
-    if (partyTypesAllowed?.person) {
+    if (allDisallowed || partyTypesAllowed?.person) {
       partyTypes.push(langAsString('party_selection.unit_type_private_person'));
     }
-    if (partyTypesAllowed?.organisation) {
+    if (allDisallowed || partyTypesAllowed?.organisation) {
       partyTypes.push(langAsString('party_selection.unit_type_company'));
     }
-    if (partyTypesAllowed?.subUnit) {
+    if (allDisallowed || partyTypesAllowed?.subUnit) {
       partyTypes.push(langAsString('party_selection.unit_type_subunit'));
     }
-    if (partyTypesAllowed?.bankruptcyEstate) {
+    if (allDisallowed || partyTypesAllowed?.bankruptcyEstate) {
       partyTypes.push(langAsString('party_selection.unit_type_bankruptcy_state'));
     }
 
@@ -197,7 +201,7 @@ export const PartySelection = () => {
         >
           <Lang id='party_selection.header' />
         </Heading>
-        {templateErrorMessage()}
+        {errorCode === '403' && <TemplateErrorMessage />}
       </Flex>
       <Flex
         container

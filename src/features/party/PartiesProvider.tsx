@@ -1,24 +1,33 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
-import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
-import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { useProfile, useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { fetchAllParties, fetchInstanceOwnerParty, fetchPartiesAllowedToInstantiate } from 'src/queries/queries';
 import type { IParty } from 'src/types/shared';
-import type { HttpClientError } from 'src/utils/network/sharedNetworking';
+
+export const altinnPartyIdCookieName = 'AltinnPartyId';
+
+const partyQueryKeys = {
+  all: ['parties'] as const,
+  allowedToInstantiate: () => [...partyQueryKeys.all, 'allowedToInstantiate'] as const,
+  instanceOwnerParty: (instanceOwnerPartyId: string | undefined) =>
+    [...partyQueryKeys.all, 'instanceOwnerParty', instanceOwnerPartyId] as const,
+  cookie: ['altinnPartyIdCookie'] as const,
+};
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
-export function usePartiesQueryDef(enabled: boolean) {
-  const { fetchPartiesAllowedToInstantiate } = useAppQueries();
+export function usePartiesAllowedToInstantiateQueryDef(enabled: boolean) {
   return {
-    queryKey: ['partiesAllowedToInstantiate', enabled],
+    queryKey: partyQueryKeys.allowedToInstantiate(),
     queryFn: fetchPartiesAllowedToInstantiate,
     enabled,
   };
@@ -27,7 +36,7 @@ export function usePartiesQueryDef(enabled: boolean) {
 const usePartiesAllowedToInstantiateQuery = () => {
   const enabled = useShouldFetchProfile();
 
-  const utils = useQuery(usePartiesQueryDef(enabled));
+  const utils = useQuery(usePartiesAllowedToInstantiateQueryDef(enabled));
 
   useEffect(() => {
     utils.error && window.logError('Fetching parties failed:\n', utils.error);
@@ -39,37 +48,6 @@ const usePartiesAllowedToInstantiateQuery = () => {
   };
 };
 
-// Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
-export function useCurrentPartyQueryDef(enabled: boolean) {
-  const { fetchCurrentParty } = useAppQueries();
-  return {
-    queryKey: ['fetchUseCurrentParty', enabled],
-    queryFn: fetchCurrentParty,
-    enabled,
-  };
-}
-
-const useCurrentPartyQuery = (enabled: boolean) => {
-  const query = useQuery(useCurrentPartyQueryDef(enabled));
-
-  useEffect(() => {
-    query.error && window.logError('Fetching current party failed:\n', query.error);
-  }, [query.error]);
-
-  return query;
-};
-
-const useSetCurrentPartyMutation = () => {
-  const { doSetCurrentParty } = useAppMutations();
-  return useMutation({
-    mutationKey: ['doSetCurrentParty'],
-    mutationFn: (party: IParty) => doSetCurrentParty(party.partyId),
-    onError: (error: HttpClientError) => {
-      window.logError('Setting current party failed:\n', error);
-    },
-  });
-};
-
 const { Provider: PartiesProvider, useCtx: usePartiesAllowedToInstantiateCtx } = delayedContext(() =>
   createQueryContext<IParty[] | undefined, false>({
     name: 'Parties',
@@ -79,77 +57,97 @@ const { Provider: PartiesProvider, useCtx: usePartiesAllowedToInstantiateCtx } =
   }),
 );
 
-interface CurrentParty {
-  party: IParty | undefined;
-  currentIsValid: boolean | undefined;
+interface SelectedParty {
+  selectedParty: IParty | undefined;
+  selectedPartyIsValid: boolean | undefined;
   userHasSelectedParty: boolean | undefined;
   setUserHasSelectedParty: (hasSelected: boolean) => void;
-  setParty: (party: IParty) => Promise<IParty | undefined>;
+  setSelectedParty: (party: IParty) => Promise<void>;
 }
 
-const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = createContext<CurrentParty>({
-  name: 'CurrentParty',
+const { Provider: RealSelectedPartyProvider, useCtx: useSelectedPartyCtx } = createContext<SelectedParty>({
+  name: 'SelectedParty',
   required: false,
   default: {
-    party: undefined,
-    currentIsValid: undefined,
+    selectedParty: undefined,
+    selectedPartyIsValid: undefined,
     userHasSelectedParty: undefined,
     setUserHasSelectedParty: () => {
-      throw new Error('CurrentPartyProvider not initialized');
+      throw new Error('SelectedPartyProvider not initialized');
     },
-    setParty: () => {
-      throw new Error('CurrentPartyProvider not initialized');
+    setSelectedParty: () => {
+      throw new Error('SelectedPartyProvider not initialized');
     },
   },
 });
 
-const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
+function findParty(partyId: string | null | undefined, parties: IParty[]): IParty | undefined {
+  if (!partyId) {
+    return undefined;
+  }
+
+  return parties.find((party) => {
+    if (party.partyId.toString() === partyId) {
+      return true;
+    }
+
+    if (party.childParties) {
+      return findParty(partyId, party.childParties);
+    }
+  });
+}
+
+/*
+ * This provider is used to manage the selected party and its validity _before_ any instance is present.
+ * That is, the selected party should only be used to determine the party that is used to instantiate an app or to select from previously instantiated apps.
+ * When the user is filling out an app, the current party is always the user's party, found in the profile, filling out the form on behalf of the instance owner.
+ */
+const SelectedPartyProvider = ({ children }: PropsWithChildren) => {
+  const {
+    data: allParties,
+    isLoading: isLoadingParties,
+    error,
+  } = useQuery({
+    queryKey: partyQueryKeys.all,
+    queryFn: fetchAllParties,
+  });
+
+  const profile = useProfile();
+  const [selectedPartyId, setSelectedPartyId] = useState<string | null>(
+    getCookieValue(altinnPartyIdCookieName) ?? profile?.partyId.toString() ?? null,
+  );
   const validParties = useValidParties();
-  const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
-  const { mutateAsync, data: dataFromMutation, error: errorFromMutation } = useSetCurrentPartyMutation();
-  const { data: partyFromQuery, isLoading, error: errorFromQuery } = useCurrentPartyQuery(true);
+
   const [userHasSelectedParty, setUserHasSelectedParty] = useState(false);
-
-  if (isLoading) {
-    return <Loader reason='current-party' />;
-  }
-
-  const error = errorFromMutation || errorFromQuery;
-  if (error) {
-    return <DisplayError error={error} />;
-  }
 
   if (!validParties?.length) {
     return <NoValidPartiesError />;
   }
 
-  const partyFromMutation = dataFromMutation === 'Party successfully updated' ? sentToMutation : undefined;
-  const currentParty = partyFromMutation ?? partyFromQuery;
-  const currentIsValid = currentParty && validParties?.some((party) => party.partyId === currentParty.partyId);
+  if (isLoadingParties) {
+    return <Loader reason='parties' />;
+  }
+
+  if (error) {
+    return <DisplayError error={error} />;
+  }
+
+  const selectedParty =
+    selectedPartyId === profile?.partyId.toString() ? profile.party : findParty(selectedPartyId, allParties ?? []);
+  const selectedPartyIsValid = selectedParty && validParties?.some((party) => party.partyId === selectedParty?.partyId);
 
   return (
-    <RealCurrentPartyProvider
+    <RealSelectedPartyProvider
       value={{
-        party: currentParty,
-        currentIsValid,
+        selectedParty,
+        selectedPartyIsValid,
         userHasSelectedParty,
-        setUserHasSelectedParty: (hasSelected: boolean) => setUserHasSelectedParty(hasSelected),
-        setParty: async (party) => {
-          try {
-            setSentToMutation(party);
-            const result = await mutateAsync(party);
-            if (result === 'Party successfully updated') {
-              return party;
-            }
-            return undefined;
-          } catch (_err) {
-            // Ignoring error here, as it's handled by this provider
-          }
-        },
+        setUserHasSelectedParty,
+        setSelectedParty: async (party: IParty) => setSelectedPartyId(party.partyId.toString()),
       }}
     >
       {children}
-    </RealCurrentPartyProvider>
+    </RealSelectedPartyProvider>
   );
 };
 
@@ -162,24 +160,39 @@ export function PartyProvider({ children }: PropsWithChildren) {
 
   return (
     <PartiesProvider>
-      <CurrentPartyProvider>{children}</CurrentPartyProvider>
+      <SelectedPartyProvider>{children}</SelectedPartyProvider>
     </PartiesProvider>
   );
 }
 
-export const usePartiesAllowedToInstantiate = () => usePartiesAllowedToInstantiateCtx();
+export const usePartiesAllowedToInstantiate = () => usePartiesAllowedToInstantiateCtx() ?? [];
 
-/**
- * Returns the current party, or the custom selected current party if one is set.
- * Please note that the current party might not be allowed to instantiate, so you should
- * check the `canInstantiate` property as well.
- */
-export const useCurrentParty = () => useCurrentPartyCtx().party;
-export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentIsValid;
-export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
+export const useSelectedParty = () => useSelectedPartyCtx().selectedParty;
 
-export const useValidParties = () => usePartiesAllowedToInstantiateCtx()?.filter((party) => party.isDeleted === false);
+export const useSetSelectedParty = () => useSelectedPartyCtx().setSelectedParty;
 
-export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
+export const useValidParties = () => usePartiesAllowedToInstantiate().filter((party) => !party.isDeleted);
 
-export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
+export const useHasSelectedParty = () => useSelectedPartyCtx().userHasSelectedParty;
+
+export const useSetHasSelectedParty = () => useSelectedPartyCtx().setUserHasSelectedParty;
+
+export const useSelectedPartyIsValid = () => useSelectedPartyCtx().selectedPartyIsValid;
+
+export function useInstanceOwnerParty() {
+  const { instanceOwnerPartyId } = useParams();
+
+  return useQuery({
+    queryKey: partyQueryKeys.instanceOwnerParty(instanceOwnerPartyId),
+    queryFn: () => fetchInstanceOwnerParty(instanceOwnerPartyId),
+  });
+}
+
+function getCookieValue(name: string): string | null {
+  return (
+    document.cookie
+      .split('; ')
+      .find((row) => row.startsWith(`${name}=`))
+      ?.split('=')[1] ?? null
+  );
+}

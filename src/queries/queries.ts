@@ -12,7 +12,6 @@ import {
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   appPath,
-  currentPartyUrl,
   getActionsUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
@@ -32,19 +31,20 @@ import {
   getLayoutSettingsUrl,
   getLayoutsUrl,
   getOrderDetailsUrl,
+  getPartiesUrl,
   getPaymentInformationUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
   getRedirectUrl,
   getRulehandlerUrl,
-  getSetCurrentPartyUrl,
+  getSetSelectedPartyUrl,
   getValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
+  selectedPartyUrl,
   textResourcesUrl,
-  validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
 import { customEncodeURI, orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -78,9 +78,6 @@ import type {
   IProcess,
   IProfile,
 } from 'src/types/shared';
-
-export const doSetCurrentParty = (partyId: number) =>
-  putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation, language?: string): Promise<IInstance> =>
   cleanUpInstanceData((await httpPost(getInstantiateUrl(language), undefined, data)).data);
@@ -216,9 +213,17 @@ export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadat
 
 export const fetchApplicationSettings = (): Promise<IApplicationSettings> => httpGet(applicationSettingsApiUrl);
 
-export const fetchCurrentParty = (): Promise<IParty | undefined> => httpGet(currentPartyUrl);
-
 export const fetchFooterLayout = (): Promise<IFooterLayout | null> => httpGet(getFooterLayoutUrl());
+
+export const fetchInstanceOwnerParty = async (instanceOwnerPartyId: string | undefined): Promise<IParty | null> => {
+  if (!instanceOwnerPartyId) {
+    return Promise.resolve(null);
+  }
+
+  await putWithoutConfig<'Party successfully updated' | string | null>(getSetSelectedPartyUrl(instanceOwnerPartyId));
+
+  return httpGet(selectedPartyUrl);
+};
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
@@ -236,7 +241,8 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
 
-export const fetchPartiesAllowedToInstantiate = (): Promise<IParty[]> => httpGet(validPartiesUrl);
+export const fetchPartiesAllowedToInstantiate = (): Promise<IParty[]> => httpGet(getPartiesUrl(true));
+export const fetchAllParties = (): Promise<IParty[]> => httpGet(getPartiesUrl());
 
 export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
 

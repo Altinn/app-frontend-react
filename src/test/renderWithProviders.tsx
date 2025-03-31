@@ -17,7 +17,6 @@ import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
 import { orderDetailsResponsePayload } from 'src/__mocks__/getOrderDetailsPayloadMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
-import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
@@ -124,7 +123,6 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doPatchFormData: makeMock('doPatchFormData'),
   doPatchMultipleFormData: makeMock('doPatchMultipleFormData'),
   doPostStatelessFormData: makeMock('doPostStatelessFormData'),
-  doSetCurrentParty: makeMock('doSetCurrentParty'),
   doInstantiate: makeMock('doInstantiate'),
   doProcessNext: makeMock('doProcessNext'),
   doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
@@ -136,7 +134,6 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
 const defaultQueryMocks: AppQueries = {
   fetchLogo: async () => getLogoMock(),
   fetchActiveInstances: async () => [],
-  fetchCurrentParty: async () => getPartyMock(),
   fetchApplicationSettings: async () => ({}),
   fetchFooterLayout: async () => ({ footer: [] }) as IFooterLayout,
   fetchLayoutSets: async () => getLayoutSetsMock(),
@@ -144,7 +141,6 @@ const defaultQueryMocks: AppQueries = {
   fetchUserProfile: async () => getProfileMock(),
   fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
-  fetchPartiesAllowedToInstantiate: async () => [getPartyMock()],
   fetchRefreshJwtToken: async () => ({}),
   fetchCustomValidationConfig: async () => null,
   fetchFormData: async () => ({}),

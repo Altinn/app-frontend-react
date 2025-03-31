@@ -59,7 +59,7 @@ export function NoValidPartiesError() {
               id='party_selection.no_valid_selection_second_part'
               params={[appMetadata?.title.nb]}
             />
-          </span>
+          </span>{' '}
           <span>
             <Lang
               id='party_selection.no_valid_selection_third_part'

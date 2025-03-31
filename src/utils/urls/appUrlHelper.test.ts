@@ -9,26 +9,29 @@ import {
   getLayoutSettingsUrl,
   getLayoutsUrl,
   getOptionsUrl,
+  getPartiesUrl,
   getProcessStateUrl,
   getRedirectUrl,
   getRulehandlerUrl,
-  getSetCurrentPartyUrl,
+  getSetSelectedPartyUrl,
   getUpgradeAuthLevelUrl,
   getValidationUrl,
   redirectToUpgrade,
   textResourcesUrl,
-  validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
 
 describe('Frontend urlHelper.ts', () => {
   describe('constants', () => {
-    it('should return the expected url for validPartiesUrl', () => {
-      expect(validPartiesUrl).toBe(
+    it('should return the expected url for getPartiesUrl(true)', () => {
+      expect(getPartiesUrl(true)).toBe(
         'https://local.altinn.cloud/ttd/test/api/v1/parties?allowedtoinstantiatefilter=true',
       );
     });
-    it('should return the expected url for getSetCurrentPartyUrl', () => {
-      expect(getSetCurrentPartyUrl(12345)).toBe('https://local.altinn.cloud/ttd/test/api/v1/parties/12345');
+    it('should return the expected url for getPartiesUrl()', () => {
+      expect(getPartiesUrl()).toBe('https://local.altinn.cloud/ttd/test/api/v1/parties');
+    });
+    it('should return the expected url for getSetSelectedPartyUrl', () => {
+      expect(getSetSelectedPartyUrl('12345')).toBe('https://local.altinn.cloud/ttd/test/api/v1/parties/12345');
     });
     it('should return the expected url for textResourcesUrl', () => {
       expect(textResourcesUrl('nb')).toBe('https://local.altinn.cloud/ttd/test/api/v1/texts/nb');

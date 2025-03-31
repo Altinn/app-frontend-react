@@ -5,18 +5,16 @@ import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoade
 import { useAppName } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
+import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmPage';
-import { getInstanceOwnerParty } from 'src/utils/party';
 
 export const Confirm = () => {
   const instance = useLaxInstanceData((data) => data);
-  const parties = usePartiesAllowedToInstantiate();
 
-  const instanceOwnerParty = getInstanceOwnerParty(instance, parties);
+  const { data: instanceOwnerParty } = useInstanceOwnerParty();
   const applicationMetadata = useApplicationMetadata();
 
-  const missingRequirement = !instance ? 'instance' : !parties ? 'parties' : undefined;
+  const missingRequirement = !instance ? 'instance' : !instanceOwnerParty ? 'instanceOwner' : undefined;
 
   const appName = useAppName();
   return (
@@ -33,9 +31,8 @@ export const Confirm = () => {
         <ConfirmPage
           applicationMetadata={applicationMetadata}
           instance={instance}
-          instanceOwnerParty={instanceOwnerParty}
+          instanceOwnerParty={instanceOwnerParty ?? undefined}
           appName={appName}
-          parties={parties}
         />
       )}
     </div>

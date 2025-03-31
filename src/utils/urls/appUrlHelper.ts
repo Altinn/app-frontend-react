@@ -11,17 +11,19 @@ export const applicationMetadataApiUrl = `${appPath}/api/v1/applicationmetadata`
 export const applicationSettingsApiUrl = `${appPath}/api/v1/applicationsettings`;
 export const invalidateCookieUrl = `${appPath}/api/authentication/invalidatecookie`;
 export const validPartiesUrl = `${appPath}/api/v1/parties?allowedtoinstantiatefilter=true`;
-export const currentPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
+export const selectedPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
 export const instancesControllerUrl = `${appPath}/instances`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
 export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
+export const getPartiesUrl = (allowedtoinstantiatefilter?: true) =>
+  `${appPath}/api/v1/parties${allowedtoinstantiatefilter ? '?allowedtoinstantiatefilter=true' : ''}`;
 
 export const getInstantiateUrl = (language?: string) => {
   const queryString = getQueryStringFromObject({ language });
   return `${appPath}/instances/create${queryString}`;
 };
 
-export const getSetCurrentPartyUrl = (partyId: number) => `${appPath}/api/v1/parties/${partyId}`;
+export const getSetSelectedPartyUrl = (partyId: string) => `${appPath}/api/v1/parties/${partyId}`;
 
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 

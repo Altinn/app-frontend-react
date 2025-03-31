@@ -19,7 +19,6 @@ describe('ConfirmPage', () => {
     instance: getInstanceDataMock(),
     instanceOwnerParty: getPartyMock(),
     applicationMetadata: getApplicationMetadataMock(),
-    parties: [],
   };
   it('should present confirm information when necessary data is present', async () => {
     await renderWithInstanceAndLayout({

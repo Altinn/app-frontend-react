@@ -7,9 +7,9 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import {
-  useCurrentParty,
-  useCurrentPartyIsValid,
   useHasSelectedParty,
+  useSelectedParty,
+  useSelectedPartyIsValid,
   useValidParties,
 } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
@@ -48,12 +48,12 @@ export const Entrypoint = () => {
   } = useApplicationMetadata();
   const profile = useProfile();
   const validParties = useValidParties();
-  const partyIsValid = useCurrentPartyIsValid();
   const userHasSelectedParty = useHasSelectedParty();
   const allowAnonymous = useAllowAnonymousIs(true);
-  const party = useCurrentParty();
+  const selectedParty = useSelectedParty();
+  const selectedPartyIsValid = useSelectedPartyIsValid();
 
-  if (isStateless && allowAnonymous && !party) {
+  if (isStateless && allowAnonymous && !selectedParty) {
     // Anonymous stateless app. No need to log in and select party, but cannot create a new instance.
     // The regular stateless mode (where you have to log in) is handled in ShowOrInstantiate, after the party is
     // selected and valid.
@@ -66,7 +66,7 @@ export const Entrypoint = () => {
     );
   }
 
-  if (!partyIsValid) {
+  if (!selectedPartyIsValid) {
     return (
       <Navigate
         to='/party-selection/403'
@@ -79,6 +79,7 @@ export const Entrypoint = () => {
     return <NoValidPartiesError />;
   }
 
+  // TODO: should always match user profile? What happens if it doesn't?
   if (validParties.length === 1 || userHasSelectedParty) {
     return <ShowOrInstantiate show={show} />;
   }
