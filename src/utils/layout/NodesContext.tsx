@@ -497,7 +497,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const markNotReady = NodesInternal.useMarkNotReady();
   const reset = Store.useSelector((s) => s.reset);
   const getProcessedLast = Validation.useGetProcessedLast();
-  const pagesRef = useRef<LayoutPages>();
+  const pagesRef = useRef<LayoutPages>(undefined);
   if (!pagesRef.current) {
     pagesRef.current = new LayoutPages();
   }

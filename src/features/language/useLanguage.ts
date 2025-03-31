@@ -1,5 +1,5 @@
 import { Children, isValidElement, useCallback, useMemo } from 'react';
-import type { JSX, ReactNode } from 'react';
+import type { JSX, ReactElement, ReactNode } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
@@ -275,17 +275,27 @@ const getPlainTextFromNode = (node: ReactNode, langAsString: IUseLanguage['langA
   let text = '';
   for (const innerNode of Children.toArray(node)) {
     if (isValidElement(innerNode)) {
-      if (innerNode.type === Lang) {
+      if (isLangElement(innerNode)) {
         return langAsString(innerNode.props.id, innerNode.props.params);
       }
 
-      Children.forEach(innerNode.props.children, (child) => {
-        text += getPlainTextFromNode(child, langAsString);
-      });
+      if (isNativeElement(innerNode)) {
+        Children.forEach(innerNode.props.children, (child) => {
+          text += getPlainTextFromNode(child, langAsString);
+        });
+      }
     }
   }
   return text;
 };
+
+function isLangElement(node: ReactNode): node is ReactElement<{ id: string; params?: ValidLangParam[] }> {
+  return isValidElement(node) && node.type === Lang;
+}
+
+function isNativeElement(node: ReactNode): node is ReactElement<{ children?: ReactNode }> {
+  return isValidElement(node) && typeof node.type === 'string' && typeof node.props === 'object' && node.props !== null;
+}
 
 function getLanguageSpecificText(key: string, language: ILanguage) {
   const path = key.split('.');
