@@ -91,10 +91,13 @@ describe('Frontend urlHelper.ts', () => {
       const oldWindowLocation = window.location;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (window as any).location;
-      window.location = {
-        ...oldWindowLocation,
-        ...location,
-      };
+      Object.defineProperty(window, 'location', {
+        value: {
+          ...oldWindowLocation,
+          ...location,
+        },
+        writable: true,
+      });
     };
     describe('util', () => {
       it('should return the expected url for getUpgradeAuthLevelUrl', () => {
@@ -148,14 +151,17 @@ describe('Frontend urlHelper.ts', () => {
         const oldWindowLocation = window.location;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         delete (window as any).location;
-        window.location = {
-          ...oldWindowLocation,
-          origin: 'https://ttd.apps.altinn.no',
-          hash: '#/datamodelling',
-          pathname: '/ttd/jesttest/',
-          host: 'https://ttd.apps.too.many.domains.altinn.no',
-          href: 'https://ttd.apps.altinn.no/ttd/test',
-        };
+        Object.defineProperty(window, 'location', {
+          value: {
+            ...oldWindowLocation,
+            origin: 'https://ttd.apps.altinn.no',
+            hash: '#/datamodelling',
+            pathname: '/ttd/jesttest/',
+            host: 'https://ttd.apps.too.many.domains.altinn.no',
+            href: 'https://ttd.apps.altinn.no/ttd/test',
+          },
+          writable: true,
+        });
         const oidcProvider = '';
 
         expect(() => getEnvironmentLoginUrl(oidcProvider)).toThrow('Unknown domain');
