@@ -215,11 +215,9 @@ export const fetchApplicationSettings = (): Promise<IApplicationSettings> => htt
 
 export const fetchFooterLayout = (): Promise<IFooterLayout | null> => httpGet(getFooterLayoutUrl());
 
-export const fetchInstanceOwnerParty = async (
-  instanceOwnerPartyId: string | undefined,
-): Promise<IParty | undefined> => {
+export const fetchInstanceOwnerParty = async (instanceOwnerPartyId: string | undefined): Promise<IParty | null> => {
   if (!instanceOwnerPartyId) {
-    return Promise.resolve(undefined);
+    return Promise.resolve(null);
   }
 
   await putWithoutConfig<'Party successfully updated' | string | null>(getSetSelectedPartyUrl(instanceOwnerPartyId));
