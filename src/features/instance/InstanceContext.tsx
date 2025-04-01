@@ -16,6 +16,7 @@ import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { ProcessProvider } from 'src/features/instance/ProcessContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { instanceLoaderFn } from 'src/next/pages/Instance/instanceLoader';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IData, IInstance, IInstanceDataSources } from 'src/types/shared';
@@ -139,6 +140,18 @@ function useGetInstanceDataQuery(hasResultFromInstantiation: boolean, partyId: s
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
   const partyId = useNavigationParam('partyId');
   const instanceGuid = useNavigationParam('instanceGuid');
+
+  useEffect(() => {
+    console.log('dings');
+
+    const load = async (partyId: string, instanceGuid: string) => {
+      await instanceLoaderFn({ partyId, instanceGuid });
+    };
+
+    if (partyId && instanceGuid) {
+      load(partyId, instanceGuid);
+    }
+  }, [instanceGuid, partyId]);
 
   if (!partyId || !instanceGuid) {
     return null;

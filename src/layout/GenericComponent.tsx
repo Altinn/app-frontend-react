@@ -40,6 +40,7 @@ export interface IGenericComponentByIdProps<Type extends CompTypes> extends Over
  */
 export function GenericComponentById<Type extends CompTypes = CompTypes>(props: IGenericComponentByIdProps<Type>) {
   const node = useNode(props.id);
+
   if (!node) {
     return false;
   }

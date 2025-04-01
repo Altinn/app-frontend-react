@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Route, Routes } from 'react-router-dom';
 
+import { useStore } from 'zustand/index';
+
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Form } from 'src/components/form/Form';
@@ -25,6 +27,8 @@ import {
 } from 'src/features/routing/AppRoutingContext';
 import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
+import { API_CLIENT, APP, ORG } from 'src/next/app/App';
+import { layoutStore } from 'src/next/stores/layoutStore';
 import { ProcessTaskType } from 'src/types';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';
@@ -96,6 +100,36 @@ export const ProcessWrapper = () => {
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
   const process = useLaxProcessData();
+
+  const layoutSetsConfig = useStore(layoutStore, (state) => state.layoutSetsConfig);
+
+  // const pageOrder = useStore(layoutStore, (state) => state.pageOrder);
+
+  const setPageOrder = useStore(layoutStore, (state) => state.setPageOrder);
+  const setLayouts = useStore(layoutStore, (state) => state.setLayouts);
+
+  if (!taskIdParam) {
+    throw new Error('no taskIdParam');
+  }
+
+  const currentLayoutSet = layoutSetsConfig?.sets.find((layoutSet) => layoutSet.tasks.includes(taskIdParam));
+
+  useEffect(() => {
+    async function getLayoutDetails(layoutSetId: string) {
+      const res = await API_CLIENT.org.layoutsAllSettingsDetail(layoutSetId, ORG, APP);
+      const data = await res.json();
+      const settings = JSON.parse(data.settings);
+      const layoutsJson = JSON.parse(data.layouts);
+
+      setPageOrder(settings);
+      setLayouts(layoutsJson);
+      // setIsLoading(false);
+    }
+
+    if (currentLayoutSet?.id) {
+      void getLayoutDetails(currentLayoutSet.id);
+    }
+  }, [currentLayoutSet?.id, setLayouts, setPageOrder]);
 
   if (process?.ended) {
     return <NavigateToStartUrl />;

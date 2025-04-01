@@ -1,8 +1,4 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
 import type { LoaderFunctionArgs } from 'react-router-dom';
-
-import { useStore } from 'zustand';
 
 import { API_CLIENT, APP, ORG } from 'src/next/app/App';
 import { instanceStore } from 'src/next/stores/instanceStore';
@@ -14,8 +10,7 @@ type InstanceParams = {
   instanceGuid: string;
 };
 
-export async function instanceLoader({ params }: LoaderFunctionArgs<InstanceParams>) {
-  const { partyId, instanceGuid } = params;
+export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams) {
   const { instance } = instanceStore.getState();
 
   let localInstance = instance;
@@ -52,12 +47,12 @@ export async function instanceLoader({ params }: LoaderFunctionArgs<InstancePara
   return {};
 }
 
-export const Instance = () => {
-  const { instance } = useStore(instanceStore); //instanceStore.getState();
-  return (
-    <div>
-      {instance?.process.currentTask.elementId && <Navigate to={`${instance?.process.currentTask.elementId}`} />}
-      <Outlet />
-    </div>
-  );
-};
+export async function instanceLoader({ params }: LoaderFunctionArgs<InstanceParams>) {
+  console.log('instance loader');
+  const { partyId, instanceGuid } = params;
+  if (!partyId || !instanceGuid) {
+    throw new Error('partyId, instanceGuid should be set');
+  }
+  await instanceLoaderFn({ partyId, instanceGuid });
+  return {};
+}

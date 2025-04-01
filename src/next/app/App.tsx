@@ -5,9 +5,10 @@ import { scan } from 'react-scan';
 import { Api } from 'src/next/app/api';
 import { AppLayout } from 'src/next/pages/AppLayout/AppLayout';
 import { initialLoader } from 'src/next/pages/AppLayout/initialLoader';
-import { Instance, instanceLoader } from 'src/next/pages/Instance';
+import { Instance } from 'src/next/pages/Instance/Instance';
+import { instanceLoader } from 'src/next/pages/Instance/instanceLoader';
 import { Page } from 'src/next/pages/Page';
-import { Task } from 'src/next/pages/Task';
+import { Task } from 'src/next/pages/Task/Task';
 
 const { org, app } = window;
 const origin = window.location.origin;
@@ -32,6 +33,7 @@ const router = createHashRouter([
         children: [
           {
             path: ':taskId',
+            // loader: taskLoader,
             element: <Task />,
             children: [
               {

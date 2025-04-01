@@ -11,7 +11,7 @@ const xsrfCookie = document.cookie
 const headers = { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrfCookie };
 
 export async function initialLoader() {
-  console.log('dingo');
+  console.log('initial loader');
   const { user, validParties } = initialStateStore.getState();
 
   const { layoutSetsConfig } = layoutStore.getState();

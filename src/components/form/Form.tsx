@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 
+import { useStore } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
+
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
@@ -27,6 +30,7 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
+import { layoutStore } from 'src/next/stores/layoutStore';
 import { extractBottomButtons } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
@@ -64,6 +68,17 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = formState;
   const requiredFieldsMissing = NodesInternal.usePageHasVisibleRequiredValidations(currentPageId);
 
+  if (!currentPageId) {
+    throw new Error('no currentPageId');
+  }
+
+  const currentPage = useStore(
+    layoutStore,
+    useShallow((state) => state.layouts?.[currentPageId]),
+  );
+
+  const componentIds = currentPage.data.layout.map((comp) => comp.id);
+
   useRedirectToStoredPage();
   useSetExpandedWidth();
 
@@ -86,14 +101,14 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
     return <FormFirstPage />;
   }
 
-  if (mainIds === undefined) {
-    return (
-      <>
-        <ErrorProcessing setFormState={setFormState} />
-        <Loader reason='form-ids' />
-      </>
-    );
-  }
+  // if (mainIds === undefined) {
+  //   return (
+  //     <>
+  //       <ErrorProcessing setFormState={setFormState} />
+  //       <Loader reason='form-ids' />
+  //     </>
+  //   );
+  // }
 
   const hasSetCurrentPageId = langAsString(currentPageId) !== currentPageId;
 
@@ -126,7 +141,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
         spacing={6}
         alignItems='flex-start'
       >
-        {mainIds.map((id) => (
+        {componentIds?.map((id) => (
           <GenericComponentById
             key={id}
             id={id}
