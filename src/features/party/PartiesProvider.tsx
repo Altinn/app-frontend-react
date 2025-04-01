@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
 
 import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
@@ -203,6 +203,7 @@ export function useInstanceOwnerParty() {
 
   return useQuery({
     queryKey: partyQueryKeys.instanceOwnerParty(instanceOwnerPartyId),
-    queryFn: () => fetchInstanceOwnerParty(instanceOwnerPartyId),
+    queryFn: instanceOwnerPartyId ? () => fetchInstanceOwnerParty(instanceOwnerPartyId) : skipToken,
+    enabled: !!instanceOwnerPartyId,
   });
 }

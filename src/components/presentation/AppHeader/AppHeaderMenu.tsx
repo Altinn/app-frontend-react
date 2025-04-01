@@ -21,9 +21,12 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
-  const { orgNumber, displayName } = useGetOnBehalfOf();
+  const userParty = useProfile()?.party;
+  const onBehalfOf = useGetOnBehalfOf();
 
-  if (!orgNumber && !displayName) {
+  const displayName = userParty?.name + (onBehalfOf ? ` for ${onBehalfOf.name}` : '');
+
+  if (!userParty && !onBehalfOf) {
     return <div style={{ height: 40 }} />;
   }
 
@@ -47,7 +50,7 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
             size='1.5rem'
             color={logoColor}
           >
-            {orgNumber ? (
+            {onBehalfOf?.orgNumber ? (
               <Buildings3Icon
                 color='white'
                 aria-hidden='true'
@@ -81,22 +84,17 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
  * - In all other cases: '$user.name'
  */
 function useGetOnBehalfOf() {
-  const { data: instanceOwnerParty } = useInstanceOwnerParty();
+  const { data: instanceOwnerParty, isLoading: isLoadingInstanceOwner } = useInstanceOwnerParty();
   const selectedParty = useCurrentParty();
   const userParty = useProfile()?.party;
 
-  let displayName = userParty?.name ?? '';
-
-  if (!userParty) {
-    return { displayName: '', orgNumber: undefined };
+  const onBehalfOfParty = !isLoadingInstanceOwner ? (instanceOwnerParty ?? selectedParty) : undefined;
+  if (!!onBehalfOfParty && !!userParty && onBehalfOfParty.orgNumber !== userParty.orgNumber) {
+    return {
+      name: onBehalfOfParty?.name,
+      orgNumber: onBehalfOfParty?.orgNumber,
+    };
   }
 
-  const onBehalfOfParty = instanceOwnerParty ?? selectedParty;
-  if (!!onBehalfOfParty && onBehalfOfParty?.partyId !== userParty.partyId) {
-    displayName = `${userParty.name} for ${onBehalfOfParty?.name}`;
-  }
-
-  const orgNumber = onBehalfOfParty?.orgNumber ?? undefined;
-
-  return { displayName, orgNumber };
+  return null;
 }

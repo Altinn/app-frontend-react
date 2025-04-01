@@ -219,13 +219,10 @@ export const fetchApplicationSettings = (): Promise<IApplicationSettings> => htt
 
 export const fetchCurrentParty = (): Promise<IParty | undefined> => httpGet(currentPartyUrl);
 
-export const fetchInstanceOwnerParty = async (instanceOwnerPartyId: string | undefined): Promise<IParty | null> => {
-  if (!instanceOwnerPartyId) {
-    return null;
-  }
+export const fetchInstanceOwnerParty = async (instanceOwnerPartyId: string): Promise<IParty | null> => {
   const altinnPartyIdCookieValue = getCookieValue(altinnPartyIdCookieName);
 
-  if (altinnPartyIdCookieValue && altinnPartyIdCookieValue !== instanceOwnerPartyId) {
+  if (altinnPartyIdCookieValue !== instanceOwnerPartyId) {
     await doSetCurrentParty(instanceOwnerPartyId);
   }
 
