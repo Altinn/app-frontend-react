@@ -306,7 +306,7 @@ function SummaryCell({ cell, idx: idx, headerRow, mutableColumnSettings, row, no
 
   if (cell && 'nodeId' in cell) {
     return (
-      <SummaryCellWithComponent
+      <SummaryCellWithComponentNodeCheck
         key={`${cell.nodeId}/${idx}`}
         cell={cell}
         columnStyleOptions={mutableColumnSettings[idx]}
@@ -340,19 +340,28 @@ interface CellWithLabelProps extends BaseCellProps {
   cell: GridCellLabelFrom;
 }
 
+function SummaryCellWithComponentNodeCheck(props: CellWithComponentProps) {
+  const node = useNode(props.cell.nodeId);
+  if (!node) {
+    return <Table.Cell />;
+  }
+
+  return (
+    <SummaryCellWithComponent
+      {...props}
+      node={node}
+    />
+  );
+}
+
 function SummaryCellWithComponent({
-  cell,
+  node,
   columnStyleOptions,
   isHeader = false,
   rowReadOnly,
   headerTitle,
   isSmall,
-}: CellWithComponentProps) {
-  const node = useNode(cell.nodeId);
-  if (!node) {
-    throw new Error(`Node with id ${cell.nodeId} not found`);
-  }
-
+}: CellWithComponentProps & { node: LayoutNode }) {
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
   const displayData = useDisplayData(node);
   const validations = useUnifiedValidationsForNode(node);
