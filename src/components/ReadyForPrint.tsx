@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
+import { useIsFetching } from '@tanstack/react-query';
+
 import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
-import type { DataLoading } from 'src/core/contexts/dataLoadingContext';
 
 type ReadyType = 'print' | 'load';
 const readyId: Record<ReadyType, string> = {
@@ -18,23 +18,23 @@ const readyId: Record<ReadyType, string> = {
  */
 export function ReadyForPrint({ type }: { type: ReadyType }) {
   const [assetsLoaded, setAssetsLoaded] = React.useState(false);
-  const dataLoadingIsDone = useDataLoadingStore((state) => state.isDone);
+
+  const isFetching = useIsFetching() > 0;
 
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
       return;
     }
 
-    const dataPromise = waitForDataLoading(dataLoadingIsDone);
     const imagePromise = waitForImages();
     const fontPromise = document.fonts.ready;
 
-    Promise.all([imagePromise, fontPromise, dataPromise]).then(() => {
+    Promise.all([imagePromise, fontPromise]).then(() => {
       setAssetsLoaded(true);
     });
-  }, [assetsLoaded, dataLoadingIsDone]);
+  }, [assetsLoaded]);
 
-  if (!assetsLoaded) {
+  if (!assetsLoaded || isFetching) {
     return null;
   }
 
@@ -67,13 +67,4 @@ async function waitForImages() {
       !node.complete && promises.push(loadPromise(node));
     });
   } while (nodes.some((node) => !node.complete));
-}
-
-async function waitForDataLoading(dataLoadingIsDone: DataLoading['isDone']) {
-  let done: boolean = dataLoadingIsDone();
-
-  while (!done) {
-    await new Promise((resolve) => window.requestIdleCallback(resolve, { timeout: 100 }));
-    done = dataLoadingIsDone();
-  }
 }
