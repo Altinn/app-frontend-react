@@ -46,9 +46,9 @@ export const Config = new CG.component({
           .optional(),
       ),
       new CG.prop(
-        'isDeleted',
+        'checked',
         new CG.dataModelBinding()
-          .setTitle('IsDeleted')
+          .setTitle('checked')
           .setDescription(
             'If deletionStrategy=soft and group is set, this value points to where you want to save deleted status.',
           )

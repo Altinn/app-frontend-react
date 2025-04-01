@@ -9,7 +9,7 @@ export function CheckboxesLayoutValidator(props: NodeValidationProps<'Checkboxes
   const { langAsString } = useLanguage();
   const group = externalItem.dataModelBindings.group;
   const deletionStrategy = externalItem.deletionStrategy;
-  const isDeleted = externalItem.dataModelBindings.isDeleted;
+  const checkedBinding = externalItem.dataModelBindings.checked;
 
   const addError = NodesInternal.useAddError();
 
@@ -17,17 +17,17 @@ export function CheckboxesLayoutValidator(props: NodeValidationProps<'Checkboxes
     let error: string | null = null;
 
     if (!group) {
-      if (!!deletionStrategy || !!isDeleted) {
+      if (!!deletionStrategy || !!checkedBinding) {
         error = langAsString('config_error.deletion_strategy_no_save_to_list');
       }
     } else if (group) {
       if (!deletionStrategy) {
         error = langAsString('config_error.save_to_list_no_deletion_strategy');
       }
-      if (deletionStrategy === 'soft' && !isDeleted) {
+      if (deletionStrategy === 'soft' && !checkedBinding) {
         error = langAsString('config_error.soft_delete_no_is_deleted');
       }
-      if (deletionStrategy === 'hard' && !!isDeleted) {
+      if (deletionStrategy === 'hard' && !!checkedBinding) {
         error = langAsString('config_error.hard_delete_with_is_deleted');
       }
     }
@@ -36,7 +36,7 @@ export function CheckboxesLayoutValidator(props: NodeValidationProps<'Checkboxes
       addError(error, node);
       window.logErrorOnce(`Validation error for '${node.id}': ${error}`);
     }
-  }, [addError, node, deletionStrategy, isDeleted, langAsString, group]);
+  }, [addError, node, deletionStrategy, checkedBinding, langAsString, group]);
 
   return null;
 }

@@ -12,9 +12,9 @@ type Row = Record<string, string | number | boolean>;
 
 export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'MultipleSelect'>) => {
   const bindings = useNodeItem(node, (i) => i.dataModelBindings) as IDataModelBindingsForGroupCheckbox;
-  const isDeleted = bindings.isDeleted;
-  const isDeletedSegments = isDeleted?.field.split('.');
-  const isDeletedKey = isDeletedSegments?.pop();
+  const checkedBinding = bindings.checked;
+  const checkedBindingSegments = checkedBinding?.field.split('.');
+  const checkedBindingKey = checkedBindingSegments?.pop();
 
   const setLeafValue = FD.useSetLeafValue();
   const { formData } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
@@ -34,8 +34,8 @@ export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'M
 
   const isRowChecked = (row: Row): boolean => {
     const formDataObject = getObjectFromFormDataRow(row);
-    if (isDeletedKey) {
-      return !!formDataObject && !formDataObject[isDeletedKey];
+    if (checkedBindingKey) {
+      return !!formDataObject && !!formDataObject[checkedBindingKey];
     }
     return !!formDataObject;
   };
@@ -46,13 +46,13 @@ export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'M
     }
     if (isRowChecked(row)) {
       const index = getIndexFromFormDataRow(row);
-      if (isDeleted) {
+      if (checkedBinding) {
         setLeafValue({
           reference: {
-            ...bindings.isDeleted,
-            field: `${isDeletedSegments?.join('.')}[${index}].${isDeletedKey}`,
+            ...bindings.checked,
+            field: `${checkedBindingSegments?.join('.')}[${index}].${checkedBindingKey}`,
           } as IDataModelReference,
-          newValue: true,
+          newValue: false,
         });
       } else {
         if (index >= 0) {
@@ -64,20 +64,20 @@ export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'M
       }
     } else {
       const formDataObject = getObjectFromFormDataRow(row);
-      if (formDataObject && isDeletedKey && formDataObject[isDeletedKey]) {
+      if (formDataObject && checkedBindingKey && formDataObject[checkedBindingKey]) {
         const index = getIndexFromFormDataRow(row);
         setLeafValue({
           reference: {
-            ...bindings.isDeleted,
-            field: `${isDeletedSegments?.join('.')}[${index}].${isDeletedKey}`,
+            ...bindings.checked,
+            field: `${checkedBindingSegments?.join('.')}[${index}].${checkedBindingKey}`,
           } as IDataModelReference,
-          newValue: false,
+          newValue: true,
         });
       } else {
         const uuid = uuidv4();
         const next: Row = { [ALTINN_ROW_ID]: uuid };
-        if (isDeletedKey) {
-          next[isDeletedKey] = false;
+        if (checkedBindingKey) {
+          next[checkedBindingKey] = true;
         }
         for (const binding of Object.keys(bindings)) {
           if (binding === 'simpleBinding') {
