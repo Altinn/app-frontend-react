@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -11,14 +12,22 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
+import { fetchInstanceOwnerParty } from 'src/queries/queries';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
+
+const partyQueryKeys = {
+  all: ['parties'] as const,
+  allowedToInstantiate: () => [...partyQueryKeys.all, 'allowedToInstantiate'] as const,
+  instanceOwnerParty: (instanceOwnerPartyId: string | undefined) =>
+    [...partyQueryKeys.all, 'instanceOwnerParty', instanceOwnerPartyId] as const,
+};
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
 export function usePartiesQueryDef(enabled: boolean) {
   const { fetchPartiesAllowedToInstantiate } = useAppQueries();
   return {
-    queryKey: ['partiesAllowedToInstantiate', enabled],
+    queryKey: partyQueryKeys.allowedToInstantiate(),
     queryFn: fetchPartiesAllowedToInstantiate,
     enabled,
   };
@@ -103,6 +112,11 @@ const { Provider: RealCurrentPartyProvider, useCtx: useCurrentPartyCtx } = creat
   },
 });
 
+/*
+ * This provider is used to manage the selected party and its validity _before_ any instance is present.
+ * That is, the selected party should only be used to determine the party that is used to instantiate an app or to select from previously instantiated apps.
+ * When the user is filling out an app, the current party is always the user's party, found in the profile, filling out the form on behalf of the instance owner.
+ */
 const CurrentPartyProvider = ({ children }: PropsWithChildren) => {
   const validParties = useValidParties();
   const [sentToMutation, setSentToMutation] = useState<IParty | undefined>(undefined);
@@ -183,3 +197,12 @@ export const useValidParties = () => usePartiesAllowedToInstantiateCtx()?.filter
 export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
 
 export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
+
+export function useInstanceOwnerParty() {
+  const { instanceOwnerPartyId } = useParams();
+
+  return useQuery({
+    queryKey: partyQueryKeys.instanceOwnerParty(instanceOwnerPartyId),
+    queryFn: () => fetchInstanceOwnerParty(instanceOwnerPartyId),
+  });
+}
