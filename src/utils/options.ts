@@ -119,3 +119,18 @@ export function optionSearchFilter(inputValue: string, option: Option): boolean 
 
   return label.includes(search) || (!!desc && desc.includes(search));
 }
+
+export function optionFilter(args: {
+  index: number;
+  text: string;
+  value: string;
+  optionElement: HTMLOptionElement;
+  input: HTMLInputElement;
+}): boolean {
+  const { value, optionElement, input } = args;
+  const search = input.value.toLowerCase();
+  const label = value.toLowerCase();
+  const desc = optionElement.getAttribute('aria-description')?.toLowerCase();
+
+  return label.includes(search) || (!!desc && desc.includes(search));
+}

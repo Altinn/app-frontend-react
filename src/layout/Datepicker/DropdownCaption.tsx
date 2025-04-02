@@ -55,7 +55,6 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
           value={calendarMonth.date.getMonth().toString()}
           onChange={(e) => handleMonthChange(e.target.value)}
           aria-label={langAsString('date_picker.aria_label_month_dropdown')}
-          className={comboboxClasses.container}
         >
           {months.map((date) => (
             <Select.Option
