@@ -11,7 +11,7 @@ import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useParties } from 'src/features/party/PartiesProvider';
+import { usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { toTimeZonedDate } from 'src/utils/dateUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
@@ -71,7 +71,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const instanceOwner = useLaxInstanceData((data) => data.instanceOwner);
   const lastChanged = useLaxInstanceData((data) => data.lastChanged);
   const instanceId = useLaxInstanceId();
-  const parties = useParties();
+  const parties = usePartiesAllowedToInstantiate();
   const appReceiver = useAppReceiver();
 
   const instanceOwnerParty = getInstanceOwnerParty(instanceOwner, parties);
