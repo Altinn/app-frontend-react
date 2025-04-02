@@ -71,7 +71,7 @@ export class Checkboxes extends CheckboxesDef {
       }
     }
 
-    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'saveToList', ['array'], false);
+    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
     if (newErrors) {
       errors.push(...(newErrors || []));
     }
@@ -80,19 +80,19 @@ export class Checkboxes extends CheckboxesDef {
       const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.group.field}.`);
 
       if (!isCompatible) {
-        errors.push(`simpleBinding must reference a field in saveToList`);
+        errors.push(`simpleBinding must reference a field in group`);
       }
 
       const simpleBindingPath = dataModelBindings.simpleBinding?.field.split('.');
-      const saveToListBinding = ctx.lookupBinding(dataModelBindings?.group);
-      const items = saveToListBinding[0]?.items;
+      const groupBinding = ctx.lookupBinding(dataModelBindings?.group);
+      const items = groupBinding[0]?.items;
       const properties =
         items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
           ? items.properties
           : undefined;
 
       if (!(properties && simpleBindingPath[1] in properties)) {
-        errors.push(`The property ${simpleBindingPath[1]} must be present in saveToList`);
+        errors.push(`The property ${simpleBindingPath[1]} must be present in group`);
       }
     }
 
