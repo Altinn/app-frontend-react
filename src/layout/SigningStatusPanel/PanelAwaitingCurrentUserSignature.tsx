@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { ChangeEvent } from 'react';
 
-import { Checkbox, Radio, Spinner } from '@digdir/designsystemet-react';
+import { Checkbox, Spinner } from '@digdir/designsystemet-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
+import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
@@ -117,20 +118,15 @@ export function AwaitingCurrentUserSignaturePanel({
       errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
     >
       {!!authorizedOrganisationDetails?.organisations?.length && (
-        <Radio.Group
+        <Fieldset
           legend={<Lang id='signing.sign_on_behalf_of' />}
-          hideLegend={false}
           description={<Lang id='signing.sign_on_behalf_of_description' />}
           required={true}
-          error={false}
-          readOnly={false}
-          inline={false}
-          role='radiogroup'
         >
           <RadioButton
             value=''
             label='Meg selv'
-            name='self'
+            name='onBehalfOf'
             onChange={handleChange}
           />
           {authorizedOrganisationDetails.organisations.map((org) => (
@@ -138,12 +134,12 @@ export function AwaitingCurrentUserSignaturePanel({
               value={org.orgNumber}
               label={org.orgName}
               helpText={<Lang id='submit_panel_radio_org_help_text' />}
-              name={org.orgNumber}
+              name='onBehalfOf'
               key={org.partyId}
               onChange={handleChange}
             />
           ))}
-        </Radio.Group>
+        </Fieldset>
       )}
       <Checkbox
         value={String(confirmReadDocuments)}
