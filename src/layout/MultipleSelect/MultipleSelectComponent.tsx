@@ -9,9 +9,12 @@ import { getDescriptionId } from 'src/components/label/Label';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useSaveObjectToGroup } from 'src/features/saveToList/useSaveObjectToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import comboboxClasses from 'src/styles/combobox.module.css';
@@ -20,12 +23,26 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { optionSearchFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
+type Row = Record<string, string | number | boolean>;
+
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSelectProps) {
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
-  const { id, readOnly, textResourceBindings, alertOnChange, grid, required, autocomplete } = item;
+  const { id, readOnly, textResourceBindings, alertOnChange, grid, required, dataModelBindings, autocomplete } = item;
   const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'multi');
+  const { formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+  const groupBinding = dataModelBindings.group;
+  const { isRowChecked, setList } = useSaveObjectToGroup(node);
+  const rowKey = dataModelBindings.simpleBinding.field.split('.').pop();
+  const selectedGroupItems = (formData?.group as Row[])
+    ?.map((row) => {
+      if (rowKey && isRowChecked(row)) {
+        return row[rowKey].toString();
+      }
+    })
+    .filter((el) => el !== undefined);
+
   const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage(node);
 
@@ -44,9 +61,23 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     [lang, langAsString, options, selectedValues],
   );
 
+  const handleOnChange = (values: string[]) => {
+    if (groupBinding) {
+      const newValue =
+        values > selectedGroupItems
+          ? values.find((value) => !selectedGroupItems.includes(value))
+          : selectedGroupItems.find((value) => !values.includes(value));
+      if (rowKey && newValue) {
+        setList({ [rowKey]: newValue });
+      }
+    } else {
+      setData(values);
+    }
+  };
+
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange, alertMessage } = useAlertOnChange(
     Boolean(alertOnChange),
-    setData,
+    handleOnChange,
     // Only alert when removing values
     (values) => values.length < selectedValues.length,
     changeMessageGenerator,
@@ -55,7 +86,6 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
   if (isFetching) {
     return <AltinnSpinner />;
   }
-
   return (
     <ConditionalWrapper
       condition={Boolean(alertOnChange)}
@@ -89,7 +119,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
             id={id}
             filter={optionSearchFilter}
             size='sm'
-            value={selectedValues}
+            value={groupBinding ? selectedGroupItems : selectedValues}
             readOnly={readOnly}
             onValueChange={handleChange}
             onBlur={debounce}

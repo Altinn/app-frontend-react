@@ -8,11 +8,13 @@ import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validatio
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
+import { MultipleSelectLayoutValidator } from 'src/layout/MultipleSelect/MultipleSelectLayoutValidator';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -51,7 +53,48 @@ export class MultipleSelect extends MultipleSelectDef {
     return useEmptyFieldValidationOnlySimpleBinding(node);
   }
 
+  renderLayoutValidators(props: NodeValidationProps<'MultipleSelect'>): JSX.Element | null {
+    return <MultipleSelectLayoutValidator {...props} />;
+  }
+
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx);
+    const errors: string[] = [];
+    const allowedTypes = ['string', 'boolean', 'number', 'integer'];
+
+    const dataModelBindings = ctx.item.dataModelBindings ?? {};
+
+    if (!dataModelBindings?.group) {
+      for (const [binding] of Object.entries(dataModelBindings ?? {})) {
+        const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
+        errors.push(...(newErrors || []));
+      }
+    }
+
+    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
+    if (newErrors) {
+      errors.push(...(newErrors || []));
+    }
+
+    if (dataModelBindings?.group) {
+      const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.group.field}.`);
+
+      if (!isCompatible) {
+        errors.push(`simpleBinding must reference a field in group`);
+      }
+
+      const simpleBindingPath = dataModelBindings.simpleBinding?.field.split('.');
+      const groupBinding = ctx.lookupBinding(dataModelBindings?.group);
+      const items = groupBinding[0]?.items;
+      const properties =
+        items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
+          ? items.properties
+          : undefined;
+
+      if (!(properties && simpleBindingPath[1] in properties)) {
+        errors.push(`The property ${simpleBindingPath[1]} must be present in group`);
+      }
+    }
+
+    return errors;
   }
 }
