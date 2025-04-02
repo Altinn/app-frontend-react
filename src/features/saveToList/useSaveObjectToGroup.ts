@@ -46,11 +46,11 @@ export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'M
     }
     if (isRowChecked(row)) {
       const index = getIndexFromFormDataRow(row);
-      if (checkedBinding) {
+      if (checkedBinding && checkedBindingSegments) {
         setLeafValue({
           reference: {
             ...bindings.checked,
-            field: `${checkedBindingSegments?.join('.')}[${index}].${checkedBindingKey}`,
+            field: `${checkedBindingSegments.join('.')}[${index}].${checkedBindingKey}`,
           } as IDataModelReference,
           newValue: false,
         });
@@ -64,7 +64,8 @@ export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'M
       }
     } else {
       const formDataObject = getObjectFromFormDataRow(row);
-      if (formDataObject && checkedBindingKey && formDataObject[checkedBindingKey]) {
+
+      if (formDataObject && checkedBindingKey && checkedBindingKey in formDataObject) {
         const index = getIndexFromFormDataRow(row);
         setLeafValue({
           reference: {
@@ -85,7 +86,8 @@ export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'M
             if (propertyName) {
               next[propertyName] = row[propertyName];
             }
-          } else if (binding !== 'group' && binding !== 'label' && binding !== 'metadata') {
+            //TODO: excluding from List now??
+          } else if (binding !== 'group' && binding !== 'checked' && binding !== 'label' && binding !== 'metadata') {
             next[binding] = row[binding];
           }
         }
