@@ -132,7 +132,6 @@
   "dependencies": {
     "@babel/polyfill": "7.12.1",
     "@date-fns/tz": "1.2.0",
-    "@digdir/design-system-react": "0.54.0",
     "@digdir/designsystemet-css": "1.0.2",
     "@digdir/designsystemet-react": "1.0.2",
     "@digdir/designsystemet-theme": "1.0.2",

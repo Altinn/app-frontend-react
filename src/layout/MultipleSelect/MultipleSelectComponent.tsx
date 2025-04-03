@@ -103,7 +103,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
                     : undefined
                 }
                 readOnly={readOnly}
-                autoComplete='name'
+                autoComplete={autocomplete}
               />
               <EXPERIMENTAL_MultiSuggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
               <EXPERIMENTAL_MultiSuggestion.List>
