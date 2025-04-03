@@ -32,10 +32,23 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
 }: RenderComponentType) {
   const setBoundValue = useStore(layoutStore, (state) => state.setBoundValue);
 
+  const storeOptions = useStore(layoutStore, (state) => state.options);
+
+  const order = useStore(layoutStore, (state) => state.pageOrder);
+
+  const optionsFromStore =
+    component.type === 'RadioButtons' && component.optionsId && storeOptions && storeOptions[component.optionsId]
+      ? storeOptions[component.optionsId]
+      : [];
+
   const components = useStore(initialStateStore, (state) => state.componentConfigs);
 
   if (!components) {
     throw new Error('component to render not found');
+  }
+
+  if (!components[component.type]) {
+    debugger;
   }
 
   const layoutComponent = components[component.type].def as unknown as LayoutComponent<Type>;
@@ -72,7 +85,12 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   );
 
   if (isHidden) {
-    return <div>Im hidden!</div>;
+    return (
+      <div>
+        Im hidden!
+        {/*<pre>{JSON.stringify(component, null, 2)}</pre>*/}
+      </div>
+    );
   }
 
   if (component.type === 'RepeatingGroup') {
@@ -108,6 +126,8 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
         },
         currentValue: value,
         label: textResource?.value || undefined,
+        options: optionsFromStore,
+        pageOrder: order.pages.order,
       })}
     </Flex>
   );

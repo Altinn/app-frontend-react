@@ -16,10 +16,16 @@ interface RepeatingGroupNextType {
 export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component }) => {
   // Grab the array from data using the group binding
 
-  const groupArray = useStore(layoutStore, (state) =>
-    // @ts-ignore
-    component.dataModelBindings?.group ? dot.pick(component.dataModelBindings.group, state.data) : [],
-  );
+  // component.dataModelBindings?.group
+
+  // @ts-ignore
+  const binding = component.dataModelBindings?.group;
+
+  if (!binding) {
+    throw new Error('Tried to render repeating group without datamodel binding');
+  }
+
+  const groupArray = useStore(layoutStore, (state) => dot.pick(binding, state.data));
 
   // @ts-ignore
   const parentBinding = component.dataModelBindings?.group;
@@ -59,43 +65,3 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
     </div>
   );
 };
-//
-// interface RepeatingGroupNextType {
-//   component: ResolvedCompExternal;
-// }
-//
-// export const RepeatingGroupNext: React.FunctionComponent<RepeatingGroupNextType> = ({ component }) => {
-//   const value = useStore(layoutStore, (state) =>
-//     component.dataModelBindings && component.dataModelBindings['group']
-//       ? dot.pick(component.dataModelBindings['group'], state.data)
-//       : undefined,
-//   );
-//
-//   if (!Array.isArray(value)) {
-//     throw new Error('rep group should have array');
-//   }
-//
-//   if (component.children === undefined) {
-//     return null;
-//   }
-//
-//   const parentBinding =
-//     component.dataModelBindings && component.dataModelBindings['group']
-//       ? component.dataModelBindings['group']
-//       : undefined;
-//
-//   return (
-//     <div style={{ backgroundColor: 'lightblue' }}>
-//       {Array.isArray(component.children) &&
-//         value.map((value, idx) => (
-//           <div key={idx}>
-//             <RenderLayout
-//               components={component.children!}
-//               parentBinding={parentBinding}
-//               itemIndex={idx}
-//             />
-//           </div>
-//         ))}
-//     </div>
-//   );
-// };

@@ -24,6 +24,8 @@ export interface CommonProps {
   currentValue?: string;
   label: string | undefined;
   required?: boolean;
+  options?: Record<string, any>;
+  pageOrder?: string[];
 }
 
 export class Input extends InputDef {

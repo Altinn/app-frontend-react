@@ -3,6 +3,7 @@ import { produce } from 'immer';
 import { createStore } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
 
+import { API_CLIENT } from 'src/next/app/App';
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
 import { isFormComponentProps } from 'src/next/app/hooks/useValidateComponent';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
@@ -39,7 +40,7 @@ interface Layouts {
   data: DataObject | undefined;
 
   componentMap?: Record<string, ResolvedCompExternal>;
-
+  options?: Record<string, any>;
   setLayoutSets: (schema: LayoutSetsSchema) => void;
   setProcess: (proc: ProcessSchema) => void;
   setPageOrder: (order: PageOrderDTO) => void;
@@ -97,6 +98,16 @@ function buildComponentMap(collection: ResolvedLayoutCollection) {
   return map;
 }
 
+function getDistinctOptionsIds(data: Record<string, any>): string[] {
+  const results = new Set<string>();
+  for (const key in data) {
+    if (data[key]?.optionsId) {
+      results.add(data[key].optionsId);
+    }
+  }
+  return Array.from(results);
+}
+
 export const layoutStore = createStore<Layouts>()(
   subscribeWithSelector(
     devtools(
@@ -106,12 +117,13 @@ export const layoutStore = createStore<Layouts>()(
         setProcess: (proc) => set({ process: proc }),
         setPageOrder: (order) => set({ pageOrder: order }),
 
-        setLayouts: (newLayouts) => {
+        setLayouts: async (newLayouts) => {
           if (!newLayouts) {
             throw new Error('no layouts');
           }
-          const resolvedLayoutCollection: ResolvedLayoutCollection = {};
 
+          // 1) Wrap and restructure your incoming layouts, same as before
+          const resolvedLayoutCollection: any = {};
           Object.keys(newLayouts).forEach((key) => {
             resolvedLayoutCollection[key] = {
               ...newLayouts[key],
@@ -121,7 +133,37 @@ export const layoutStore = createStore<Layouts>()(
               },
             };
           });
+
           const compMap = buildComponentMap(resolvedLayoutCollection);
+
+          const distinctOptionIds = getDistinctOptionsIds(compMap);
+
+          const fetchPromises = distinctOptionIds.map(async (id) => {
+            // Adjust org/app to whatever you have in your context
+            const org = 'krt';
+            const app = 'krt-3010a-1';
+
+            // Possibly also pass language/queryParams:
+            const response = await API_CLIENT.org.optionsDetail(
+              id,
+              org,
+              app,
+              { language: 'nb' }, // example
+            );
+            const data = await response.json();
+            set((state) =>
+              produce(state, (draft) => {
+                if (!draft.options) {
+                  draft.options = {};
+                }
+                draft.options[id] = data;
+              }),
+            );
+          });
+
+          if (fetchPromises.length > 0) {
+            await Promise.all(fetchPromises);
+          }
 
           set({
             layouts: resolvedLayoutCollection,

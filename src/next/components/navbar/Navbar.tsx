@@ -1,11 +1,12 @@
 import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import cn from 'classnames';
 import { useStore } from 'zustand/index';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { ButtonLink } from 'src/next/components/navbar/ButtonLink';
 import classes from 'src/next/components/navbar/Navbar.module.css';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
@@ -13,28 +14,6 @@ import type { CompIntermediateExact } from 'src/layout/layout';
 
 interface NavbarProps {
   component: CompIntermediateExact<'NavigationBar'>;
-}
-
-interface ButtonLinkProps {
-  to: string;
-  className?: string;
-  children: React.ReactNode;
-  isCurrent: boolean;
-}
-
-export function ButtonLink({ to, className, children, isCurrent }: ButtonLinkProps) {
-  const navigate = useNavigate();
-  const handleClick = () => navigate(to);
-
-  return (
-    <button
-      onClick={handleClick}
-      className={className}
-      {...(isCurrent && { 'aria-current': 'page' })}
-    >
-      {children}
-    </button>
-  );
 }
 
 export const Navbar: React.FunctionComponent<NavbarProps> = (component) => {
