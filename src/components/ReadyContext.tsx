@@ -141,8 +141,9 @@ export function useAllMarkedReady() {
         topState = topStore.getState();
       }
 
-      return topStore.subscribe((state) => {
-        setIsReady(state.ready && Object.values(state.children).every((ready) => ready));
+      setIsReady(topState.ready && Object.values(topState.children).every((ready) => ready));
+      return topStore.subscribe((topState) => {
+        setIsReady(topState.ready && Object.values(topState.children).every((ready) => ready));
       });
     }
   }, [store]);

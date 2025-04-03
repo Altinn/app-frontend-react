@@ -1,5 +1,7 @@
 import React from 'react';
+import type { FC } from 'react';
 
+import { withReadyState } from 'src/components/ReadyContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
@@ -34,7 +36,7 @@ function SummaryBody({ target }: SummaryBodyProps) {
   return <ComponentSummaryById componentId={target.id} />;
 }
 
-export function SummaryComponent2({ summaryNode }: ISummaryComponent2) {
+export const SummaryComponent2: FC<ISummaryComponent2> = withReadyState(({ summaryNode, MarkReady }) => {
   const item = useNodeItem(summaryNode);
 
   return (
@@ -45,8 +47,9 @@ export function SummaryComponent2({ summaryNode }: ISummaryComponent2) {
       >
         <TaskSummaryWrapper taskId={item?.target?.taskId}>
           <SummaryBody target={item?.target} />
+          <MarkReady />
         </TaskSummaryWrapper>
       </Summary2StoreProvider>
     </TaskStoreProvider>
   );
-}
+});
