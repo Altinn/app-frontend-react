@@ -11,7 +11,7 @@ import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmP
 export const Confirm = () => {
   const instance = useLaxInstanceData((data) => data);
   const parties = usePartiesAllowedToInstantiate();
-  const { data: instanceOwnerParty } = useInstanceOwnerParty();
+  const instanceOwnerParty = useInstanceOwnerParty();
 
   const applicationMetadata = useApplicationMetadata();
 

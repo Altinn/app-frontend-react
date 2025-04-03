@@ -12,7 +12,9 @@ import { getSummaryDataObject, ReceiptContainer } from 'src/features/receipt/Rec
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { InstanceRouter, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
+import { PartyType } from 'src/types/shared';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
+import type { IParty } from 'src/types/shared';
 
 interface IRender {
   autoDeleteOnProcessEnd?: boolean;
@@ -31,6 +33,17 @@ const buildInstance = (hasPdf = true) =>
     i.org = 'ttd';
     i.id = exampleInstanceId;
     i.lastChanged = '2022-02-05T09:19:32.8858042Z';
+    i.instanceOwner = {
+      partyId: '50001',
+      party: {
+        partyId: 50001,
+        name: 'Ola Privatperson',
+        partyTypeName: PartyType.Person,
+        ssn: '01017512345',
+        isDeleted: false,
+        onlyHierarchyElementWithNoAccess: false,
+      } as IParty,
+    };
     if (hasPdf) {
       i.data.push({
         id: exampleDataGuid,

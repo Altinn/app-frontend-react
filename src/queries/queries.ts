@@ -5,7 +5,6 @@ import type { JSONSchema7 } from 'json-schema';
 import { LAYOUT_SCHEMA_NAME } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { getFileContentType } from 'src/utils/attachmentsUtils';
-import { altinnPartyIdCookieName, getCookieValue } from 'src/utils/cookieUtils';
 import { httpDelete, httpGetRaw, httpPatch, httpPost, putWithoutConfig } from 'src/utils/network/networking';
 import { httpGet, httpPut } from 'src/utils/network/sharedNetworking';
 import {
@@ -218,26 +217,6 @@ export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadat
 export const fetchApplicationSettings = (): Promise<IApplicationSettings> => httpGet(applicationSettingsApiUrl);
 
 export const fetchCurrentParty = (): Promise<IParty | undefined> => httpGet(currentPartyUrl);
-
-export const fetchInstanceOwnerParty = async (instanceOwnerPartyId: string): Promise<IParty | null> => {
-  const altinnPartyIdCookieValue = getCookieValue(altinnPartyIdCookieName);
-
-  if (altinnPartyIdCookieValue !== instanceOwnerPartyId) {
-    await doSetCurrentParty(instanceOwnerPartyId);
-  }
-
-  try {
-    return (await fetchCurrentParty()) ?? null;
-  } catch (error) {
-    window.logError('Fetching current party failed:\n', error);
-    return null;
-  } finally {
-    if (altinnPartyIdCookieValue && altinnPartyIdCookieValue !== instanceOwnerPartyId) {
-      // Reset the current party to the one that was in the cookie originally
-      await doSetCurrentParty(altinnPartyIdCookieValue);
-    }
-  }
-};
 
 export const fetchFooterLayout = (): Promise<IFooterLayout | null> => httpGet(getFooterLayoutUrl());
 

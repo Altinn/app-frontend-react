@@ -4,11 +4,12 @@ import { jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getPartyMock, getServiceOwnerPartyMock } from 'src/__mocks__/getPartyMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
-import { fetchApplicationMetadata, fetchInstanceOwnerParty, fetchProcessState } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { InstanceRouter, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { AppQueries } from 'src/queries/types';
 
@@ -34,12 +35,6 @@ const render = async (renderAs: RenderAs, queriesOverride?: Partial<AppQueries>)
     }),
   );
 
-  jest.mocked(fetchInstanceOwnerParty).mockImplementation(async () => {
-    const instanceOwnerMockedParty = renderAs === RenderAs.User ? getPartyMock() : getServiceOwnerPartyMock();
-
-    return instanceOwnerMockedParty;
-  });
-
   return await renderWithoutInstanceAndLayout({
     renderer: () => (
       <InstanceProvider>
@@ -58,6 +53,16 @@ const render = async (renderAs: RenderAs, queriesOverride?: Partial<AppQueries>)
     ),
     queries: {
       fetchLayouts: async () => ({}),
+      fetchInstanceData: async () => {
+        const instanceOwnerParty = renderAs === RenderAs.User ? getPartyMock() : getServiceOwnerPartyMock();
+        return getInstanceDataMock(
+          undefined,
+          instanceOwnerParty.partyId,
+          undefined,
+          instanceOwnerParty.orgNumber,
+          instanceOwnerParty,
+        );
+      },
       ...queriesOverride,
     },
   });

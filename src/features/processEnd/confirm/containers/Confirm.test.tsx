@@ -5,7 +5,6 @@ import { screen } from '@testing-library/react';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getPartyWithSubunitMock } from 'src/__mocks__/getPartyMock';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
-import { fetchInstanceOwnerParty } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('Confirm', () => {
@@ -20,12 +19,20 @@ describe('Confirm', () => {
   it('should have subunit sender name present', async () => {
     const partyMock = getPartyWithSubunitMock();
     const subunitParty = partyMock.org.childParties[0];
-    const instance = getInstanceDataMock(undefined, subunitParty.partyId.toString(), undefined, subunitParty.orgNumber);
-    jest.mocked(fetchInstanceOwnerParty).mockImplementationOnce(async () => subunitParty);
+    const instance = getInstanceDataMock(
+      undefined,
+      subunitParty.partyId,
+      undefined,
+      subunitParty.orgNumber,
+      subunitParty,
+    );
 
     await renderWithInstanceAndLayout({
       renderer: () => <Confirm />,
       instanceId: instance.id,
+      queries: {
+        fetchInstanceData: async () => instance,
+      },
     });
 
     const orgNumber = screen.getByText(subunitParty.orgNumber ?? '', { exact: false });

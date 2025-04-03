@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
-import { skipToken, useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
@@ -10,9 +9,9 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
+import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import { fetchInstanceOwnerParty } from 'src/queries/queries';
 import type { IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -198,12 +197,23 @@ export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedPar
 
 export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
 
-export function useInstanceOwnerParty() {
-  const { instanceOwnerPartyId } = useParams();
+export function useInstanceOwnerParty(): IParty | null {
+  const parties = usePartiesAllowedToInstantiate();
+  const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
 
-  return useQuery({
-    queryKey: partyQueryKeys.instanceOwnerParty(instanceOwnerPartyId),
-    queryFn: instanceOwnerPartyId ? () => fetchInstanceOwnerParty(instanceOwnerPartyId) : skipToken,
-    enabled: !!instanceOwnerPartyId,
-  });
+  if (!instanceOwner) {
+    return null;
+  }
+
+  // If the backend is updated to v8.6.0 it will return the whole party object on the instance owner,
+  // so we can use that directly.
+  if (instanceOwner?.party) {
+    return instanceOwner.party;
+  }
+
+  // Backwards compatibility: if the backend returns only the partyId, we need to find the party in the list of parties.
+  // This logic assumes that the current logged in user has "access" to the party of the instance owner,
+  // as the parties array comes from the current users party list.
+  const flattenedParties = parties?.flatMap((party) => party.childParties ?? []);
+  return flattenedParties?.find((party) => party.partyId.toString() === instanceOwner.partyId) ?? null;
 }

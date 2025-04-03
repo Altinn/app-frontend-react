@@ -152,7 +152,7 @@ export const ReceiptContainer = () => {
   const dataElements = useLaxInstanceAllDataElements();
   const langTools = useLanguage();
   const receiver = useAppReceiver();
-  const { data: instanceOwnerParty } = useInstanceOwnerParty();
+  const instanceOwnerParty = useInstanceOwnerParty();
 
   const instanceGuid = useNavigationParam('instanceGuid');
 

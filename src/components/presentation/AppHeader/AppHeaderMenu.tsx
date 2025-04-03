@@ -84,11 +84,11 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
  * - In all other cases: '$user.name'
  */
 function useGetOnBehalfOf() {
-  const { data: instanceOwnerParty, isLoading: isLoadingInstanceOwner } = useInstanceOwnerParty();
+  const instanceOwnerParty = useInstanceOwnerParty();
   const selectedParty = useCurrentParty();
   const userParty = useProfile()?.party;
 
-  const onBehalfOfParty = !isLoadingInstanceOwner ? (instanceOwnerParty ?? selectedParty) : undefined;
+  const onBehalfOfParty = instanceOwnerParty ?? selectedParty;
   if (!!onBehalfOfParty && !!userParty && onBehalfOfParty.orgNumber !== userParty.orgNumber) {
     return {
       name: onBehalfOfParty?.name,
