@@ -3,7 +3,7 @@ import React from 'react';
 import { Alert as AlertDesignSystem, ValidationMessage } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/features/Validation/ComponentValidations.module.css';
+import classes from 'src/features/validation/ComponentValidations.module.css';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useCurrentNode } from 'src/layout/FormComponentContext';
