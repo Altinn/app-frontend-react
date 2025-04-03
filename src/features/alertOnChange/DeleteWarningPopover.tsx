@@ -28,14 +28,18 @@ export function DeleteWarningPopover({
   setOpen,
 }: IDeleteWarningPopover) {
   return (
-    <Popover
-      variant='warning'
-      placement={placement}
-      open={open}
-      onOpenChange={() => setOpen(!open)}
-    >
-      <Popover.Trigger asChild>{children}</Popover.Trigger>
-      <Popover.Content>
+    <Popover.TriggerContext>
+      <Popover.Trigger
+        asChild
+        onClick={() => setOpen(!open)}
+      >
+        {children}
+      </Popover.Trigger>
+      <Popover
+        open={open}
+        placement={placement}
+        data-color='warning'
+      >
         <div>{messageText}</div>
         <div className={classes.popoverButtonContainer}>
           <Button
@@ -52,7 +56,7 @@ export function DeleteWarningPopover({
             <Lang id='general.cancel' />
           </Button>
         </div>
-      </Popover.Content>
-    </Popover>
+      </Popover>
+    </Popover.TriggerContext>
   );
 }

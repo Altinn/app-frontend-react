@@ -38,7 +38,7 @@ describe('Validation', () => {
 
     cy.findByRole('checkbox', { name: /Ja[a-z, ]*/ }).check();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
-    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
     cy.get('button[aria-label*="Today"]').click();
     cy.findByRole('button', { name: /Neste/ }).click();
 
@@ -345,9 +345,9 @@ describe('Validation', () => {
     });
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.stor).check();
-    cy.get(appFrontend.group.prefill.stor).blur();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).blur();
     cy.findByRole('button', { name: /Neste/ }).clickAndGone();
     cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
 
@@ -391,7 +391,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.errorReport).should('contain.text', texts.requiredComment);
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).should('be.visible');
     cy.gotoNavPage('repeating');
     cy.findByRole('button', { name: 'Se innhold NOK 1 233' }).click();
     cy.get(appFrontend.errorReport).findByText(texts.requiredComment).click();
@@ -946,7 +946,7 @@ describe('Validation', () => {
 
     // Forcing us away from the 'repeating' page should reset the open-state in the repeating group, but not the errors
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).should('be.visible');
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.row(1).tableRow).should('contain.text', 'Rett feil her');
     cy.get(appFrontend.group.row(1).editBtn).click();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { DropdownMenu } from '@digdir/designsystemet-react';
+import { Dropdown } from '@digdir/designsystemet-react';
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -29,13 +29,9 @@ export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
   }
 
   return (
-    <DropdownMenu
-      size='sm'
-      open={isOpen}
-      onClose={() => setIsOpen(false)}
-    >
-      <DropdownMenu.Trigger
-        size='sm'
+    <Dropdown.TriggerContext>
+      <Dropdown.Trigger
+        data-size='sm'
         variant='tertiary'
         style={{ padding: 0, borderRadius: '50%' }}
         aria-label={langAsString('general.header_profile_icon_label')}
@@ -58,16 +54,23 @@ export function AppHeaderMenu({ party, user, logoColor }: AppHeaderMenuProps) {
             />
           )}
         </CircleIcon>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content>
-        <DropdownMenu.Group heading={isMobile ? getPartyDisplayName(party, user) : undefined}>
-          <DropdownMenu.Item asChild>
-            <a href={logoutUrlAltinn(window.location.host)}>
-              <Lang id='general.log_out' />
-            </a>
-          </DropdownMenu.Item>
-        </DropdownMenu.Group>
-      </DropdownMenu.Content>
-    </DropdownMenu>
+      </Dropdown.Trigger>
+      <Dropdown
+        data-size='sm'
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+      >
+        {isMobile && <Dropdown.Heading>{getPartyDisplayName(party, user)}</Dropdown.Heading>}
+        <Dropdown.List>
+          <Dropdown.Item>
+            <Dropdown.Button asChild>
+              <a href={logoutUrlAltinn(window.location.host)}>
+                <Lang id='general.log_out' />
+              </a>
+            </Dropdown.Button>
+          </Dropdown.Item>
+        </Dropdown.List>
+      </Dropdown>
+    </Dropdown.TriggerContext>
   );
 }

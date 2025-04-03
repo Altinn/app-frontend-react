@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Label, List, Paragraph } from '@digdir/designsystemet-react';
+import { Label, List, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
@@ -67,18 +67,16 @@ export const MultipleValueSummary = ({
         >
           <Label weight='regular'>{title}</Label>
           {displayType === 'list' && (
-            <List.Root>
-              <List.Unordered>
-                {displayValues?.map((item) => (
-                  <List.Item
-                    key={`list-item-${item}`}
-                    className={classes.formValue}
-                  >
-                    {item}
-                  </List.Item>
-                ))}
-              </List.Unordered>
-            </List.Root>
+            <List.Unordered>
+              {displayValues?.map((item) => (
+                <List.Item
+                  key={`list-item-${item}`}
+                  className={classes.formValue}
+                >
+                  {item}
+                </List.Item>
+              ))}
+            </List.Unordered>
           )}
           {displayType === 'inline' && (
             <Paragraph
@@ -101,13 +99,16 @@ export const MultipleValueSummary = ({
         </div>
         {errors.length > 0 &&
           errors.map(({ message }) => (
-            <ErrorMessage key={message.key}>
+            <ValidationMessage
+              key={message.key}
+              data-size='sm'
+            >
               <Lang
                 id={message.key}
                 params={message.params}
                 node={componentNode}
               />
-            </ErrorMessage>
+            </ValidationMessage>
           ))}
       </div>
       <EditButton
