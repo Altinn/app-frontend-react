@@ -16,7 +16,7 @@ describe('Grid component', () => {
     cy.get(appFrontend.changeOfName.confirmChangeName).find('input').check();
     cy.get(appFrontend.changeOfName.reasonRelationship).click();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('hello world');
-    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
     cy.get('button[aria-label*="Today"]').click();
 
     cy.gotoNavPage('grid');
@@ -137,7 +137,7 @@ describe('Grid component', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
     cy.findByRole('button', { name: 'Se innhold NOK 1' }).click();

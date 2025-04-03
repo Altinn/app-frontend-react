@@ -216,7 +216,9 @@ describe('Repeating group attachments', () => {
       }
     });
 
-    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.findByRole('button', { name: /lagre og lukk/i })
+      .last()
+      .click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     addNewRow();
     gotoSecondPage();

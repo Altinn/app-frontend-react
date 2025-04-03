@@ -49,7 +49,7 @@ function fillOutChangeName() {
       .check();
     cy.get(appFrontend.changeOfName.reasonRelationship).click();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
-    cy.findByRole('button', { name: /åpne datovelger/i }).click();
+    cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
     cy.get('button[aria-label*="Today"]').click();
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
 

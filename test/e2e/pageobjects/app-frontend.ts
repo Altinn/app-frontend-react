@@ -159,6 +159,7 @@ export class AppFrontend {
     reference: '#reference',
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',
+    datePickerButton: /åpne datovelger/i,
     municipalityMetadata: '#kommuner-metadata',
     municipality: '#kommune',
     upload: '#fileUpload-changename',
@@ -188,11 +189,11 @@ export class AppFrontend {
   //group - task 3
   public group = {
     prefill: {
-      liten: 'input[name=liten]',
-      middels: 'input[name=middels]',
-      stor: 'input[name=stor]',
-      svaer: 'input[name=svaer]',
-      enorm: 'input[name=enorm]',
+      liten: /En liten endring/i,
+      middels: /En middels endring/i,
+      stor: /En stor endring/i,
+      svaer: /En svær endring/i,
+      enorm: /En enorm endring/i,
     },
     showGroupToContinue: '#showGroupToContinue',
     mainGroup: '#group-mainGroup',
