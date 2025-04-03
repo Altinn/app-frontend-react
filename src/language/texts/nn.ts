@@ -347,7 +347,7 @@ export function nn(): FixedLanguageList {
       validation_error_name_too_short: 'Etternamn kan ikkje vere tomt.',
       validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
       validation_error_not_found:
-        'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
+        'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. <br> Merk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
       validation_error_too_many_requests: 'Du har gjort for mange søk. Ver venleg, prøv igjen seinare.',
       validation_error_forbidden:
         'Du har ikkje tilgang til å gjere dette søket. Sikkerheitsnivå 2 eller høgare er påkravd.',

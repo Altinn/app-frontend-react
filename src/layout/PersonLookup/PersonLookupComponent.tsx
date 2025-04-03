@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { ValidationMessage } from '@digdir/designsystemet-react';
+import { Field, ValidationMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -146,6 +146,11 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
 
   const hasSuccessfullyFetched = !!person_lookup_name && !!person_lookup_ssn;
 
+  const invalidSsn =
+    (ssnErrors?.length && ssnErrors?.length > 0) || hasValidationErrors(bindingValidations?.person_lookup_ssn);
+  const invalidName =
+    (nameErrors?.length && nameErrors?.length > 0) || hasValidationErrors(bindingValidations?.person_lookup_name);
+
   return (
     <Fieldset
       legend={labelText}
@@ -173,26 +178,30 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               }
             />
           </div>
-          <NumericInput
-            id={`${id}_ssn`}
-            aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
-            aria-label={langAsString('person_lookup.ssn_label')}
-            value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
-            className={classes.ssn}
-            required={required}
-            readOnly={hasSuccessfullyFetched}
-            error={
-              (ssnErrors?.length && <Lang id={ssnErrors.join(' ')} />) ||
+          <Field className={classes.ssn}>
+            <NumericInput
+              id={`${id}_ssn`}
+              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
+              aria-label={langAsString('person_lookup.ssn_label')}
+              value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
+              required={required}
+              readOnly={hasSuccessfullyFetched}
+              error={invalidSsn}
+              onValueChange={(e) => {
+                setTempSsn(e.value);
+              }}
+              onBlur={(e) => handleValidateSsn(e.target.value)}
+              allowLeadingZeros
+            />
+            {(ssnErrors?.length && (
+              <ValidationMessage>
+                <Lang id={ssnErrors.join(' ')} />
+              </ValidationMessage>
+            )) ||
               (hasValidationErrors(bindingValidations?.person_lookup_ssn) && (
                 <ComponentValidations validations={bindingValidations?.person_lookup_ssn} />
-              ))
-            }
-            onValueChange={(e) => {
-              setTempSsn(e.value);
-            }}
-            onBlur={(e) => handleValidateSsn(e.target.value)}
-            allowLeadingZeros
-          />
+              ))}
+          </Field>
           <div className={classes.nameLabel}>
             <Label
               htmlFor={`${id}_name`}
@@ -209,29 +218,32 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               }
             />
           </div>
-          <Input
-            id={`${id}_name`}
-            aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_name`) : undefined}
-            aria-label={langAsString(
-              hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label',
-            )}
-            value={hasSuccessfullyFetched ? person_lookup_name : tempName}
-            className={classes.name}
-            type='text'
-            required={required}
-            readOnly={hasSuccessfullyFetched}
-            error={
-              (nameErrors?.length && <Lang id={nameErrors.join(' ')} />) ||
+          <Field className={classes.name}>
+            <Input
+              id={`${id}_name`}
+              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_name`) : undefined}
+              aria-label={langAsString(
+                hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label',
+              )}
+              value={hasSuccessfullyFetched ? person_lookup_name : tempName}
+              type='text'
+              required={required}
+              readOnly={hasSuccessfullyFetched}
+              error={invalidName}
+              onChange={(e) => {
+                setTempName(e.target.value);
+              }}
+              onBlur={(e) => handleValidateName(e.target.value)}
+            />
+            {(nameErrors?.length && (
+              <ValidationMessage>
+                <Lang id={nameErrors.join(' ')} />
+              </ValidationMessage>
+            )) ||
               (hasValidationErrors(bindingValidations?.person_lookup_name) && (
                 <ComponentValidations validations={bindingValidations?.person_lookup_name} />
-              ))
-            }
-            onChange={(e) => {
-              setTempName(e.target.value);
-            }}
-            onBlur={(e) => handleValidateName(e.target.value)}
-          />
-
+              ))}
+          </Field>
           <div className={classes.submit}>
             {!hasSuccessfullyFetched ? (
               <Button
