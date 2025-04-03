@@ -1,4 +1,5 @@
 import React from 'react';
+import type { FC } from 'react';
 
 import { Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import classNames from 'classnames';
@@ -6,6 +7,7 @@ import classNames from 'classnames';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Label } from 'src/components/label/Label';
+import { withReadyState } from 'src/components/ReadyContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -25,19 +27,13 @@ import type { ISubformSummaryComponent } from 'src/layout/Subform/Summary/Subfor
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-function SubformTableRow({
-  dataElement,
-  targetNode,
-  hasErrors,
-  rowNumber,
-  pdfModeActive,
-}: {
+const SubformTableRow: FC<{
   dataElement: IData;
   targetNode: LayoutNode<'Subform'>;
   hasErrors: boolean;
   rowNumber: number;
   pdfModeActive: boolean;
-}) {
+}> = withReadyState(({ dataElement, targetNode, hasErrors, rowNumber, pdfModeActive, MarkReady }) => {
   const id = dataElement.id;
   const { tableColumns } = useNodeItem(targetNode);
   const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
@@ -99,9 +95,10 @@ function SubformTableRow({
           />
         </Table.Cell>
       )}
+      <MarkReady />
     </Table.Row>
   );
-}
+});
 
 export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): React.JSX.Element | null {
   const { id, layoutSet, textResourceBindings, tableColumns = [] } = useNodeItem(targetNode);

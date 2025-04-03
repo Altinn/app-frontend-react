@@ -29,6 +29,7 @@ export interface IExpandedWidthLayoutsExternal {
 export enum ProcessTaskType {
   Unknown = 'unknown',
   Data = 'data',
+  Signing = 'signing',
   Archived = 'ended',
   Confirm = 'confirmation',
   Feedback = 'feedback',

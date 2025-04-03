@@ -1,8 +1,9 @@
 import React from 'react';
-import type { ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
+import { withReadyState } from 'src/components/ReadyContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
@@ -45,52 +46,55 @@ export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent
   );
 }
 
-function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'Subform'> }) {
-  const id = dataElement.id;
-  const { tableColumns, summaryDelimiter = ' — ' } = useNodeItem(node);
+const SubformSummaryRow: FC<{ dataElement: IData; node: LayoutNode<'Subform'> }> = withReadyState(
+  ({ dataElement, node, MarkReady }) => {
+    const id = dataElement.id;
+    const { tableColumns, summaryDelimiter = ' — ' } = useNodeItem(node);
 
-  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
-  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
+    const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+    const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
 
-  const { langAsString } = useLanguage();
+    const { langAsString } = useLanguage();
 
-  if (isSubformDataFetching) {
-    return (
-      <Spinner
-        title={langAsString('general.loading')}
-        size='xs'
+    if (isSubformDataFetching) {
+      return (
+        <Spinner
+          title={langAsString('general.loading')}
+          size='xs'
+        />
+      );
+    } else if (subformDataError) {
+      return <Lang id='form_filler.error_fetch_subform' />;
+    }
+
+    const content: (ReactNode | string)[] = tableColumns.map((entry, i) => (
+      <SubformCellContent
+        key={i}
+        cellContent={entry.cellContent}
+        reference={{ type: 'node', id: node.id }}
+        data={subformData}
+        dataSources={subformDataSources}
       />
-    );
-  } else if (subformDataError) {
-    return <Lang id='form_filler.error_fetch_subform' />;
-  }
+    ));
 
-  const content: (ReactNode | string)[] = tableColumns.map((entry, i) => (
-    <SubformCellContent
-      key={i}
-      cellContent={entry.cellContent}
-      reference={{ type: 'node', id: node.id }}
-      data={subformData}
-      dataSources={subformDataSources}
-    />
-  ));
+    if (content.length === 0) {
+      content.push(id);
+    }
 
-  if (content.length === 0) {
-    content.push(id);
-  }
+    const isLastEntry = (i: number) => i === content.length - 1;
 
-  const isLastEntry = (i: number) => i === content.length - 1;
-
-  return (
-    <div className={classes.row}>
-      <div>
-        {content.map((entry, i) => (
-          <React.Fragment key={`wrapper-${i}`}>
-            {entry}
-            {!isLastEntry(i) && <span key={`delimiter-${i}`}>{summaryDelimiter}</span>}
-          </React.Fragment>
-        ))}
+    return (
+      <div className={classes.row}>
+        <div>
+          {content.map((entry, i) => (
+            <React.Fragment key={`wrapper-${i}`}>
+              {entry}
+              {!isLastEntry(i) && <span key={`delimiter-${i}`}>{summaryDelimiter}</span>}
+            </React.Fragment>
+          ))}
+          <MarkReady />
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  },
+);

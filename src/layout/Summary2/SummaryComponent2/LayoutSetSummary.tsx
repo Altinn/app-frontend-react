@@ -14,12 +14,7 @@ export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
 
   const summaryItem = useSummary2Store((state) => state.summaryItem);
 
-  const filteredPages = pageOrder.filter((layoutId) => {
-    if (!pageKey) {
-      return layoutId;
-    }
-    return layoutId === pageKey;
-  });
+  const filteredPages = pageOrder.filter((layoutId) => !pageKey || layoutId === pageKey);
 
   if (summaryItem?.showPageInAccordion) {
     return <LayoutSetSummaryAccordion filteredPages={filteredPages} />;

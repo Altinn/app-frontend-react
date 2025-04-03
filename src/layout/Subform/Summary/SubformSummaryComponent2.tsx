@@ -1,9 +1,10 @@
-import React, { type PropsWithChildren } from 'react';
+import React, { type FC, type PropsWithChildren } from 'react';
 
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Label } from 'src/components/label/Label';
+import { withReadyState } from 'src/components/ReadyContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
@@ -67,19 +68,15 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
   );
 };
 
-const DoSummaryWrapper = ({
-  dataElement,
-  layoutSet,
-  entryDisplayName,
-  title,
-  node,
-}: React.PropsWithChildren<{
-  dataElement: IData;
-  layoutSet: string;
-  entryDisplayName?: ExprValToActualOrExpr<ExprVal.String>;
-  title: string | undefined;
-  node: LayoutNode<'Subform'>;
-}>) => {
+const DoSummaryWrapper: FC<
+  PropsWithChildren<{
+    dataElement: IData;
+    layoutSet: string;
+    entryDisplayName?: ExprValToActualOrExpr<ExprVal.String>;
+    title: string | undefined;
+    node: LayoutNode<'Subform'>;
+  }>
+> = withReadyState(({ dataElement, layoutSet, entryDisplayName, title, node, MarkReady }) => {
   const isDone = useDoOverrideSummary(dataElement.id, layoutSet, dataElement.dataType);
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
@@ -124,11 +121,12 @@ const DoSummaryWrapper = ({
             </div>
           </Flex>
           <LayoutSetSummary />
+          <MarkReady />
         </Flex>
       </FormProvider>
     </div>
   );
-};
+});
 
 export function SubformSummaryComponent2({
   displayType,

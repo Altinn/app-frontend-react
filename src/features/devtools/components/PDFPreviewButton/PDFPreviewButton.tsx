@@ -31,7 +31,7 @@ export const PDFPreviewButton = () => {
     >
       <Button
         onClick={() => setPdfPreview(true)}
-        disabled={taskType !== ProcessTaskType.Data}
+        disabled={taskType !== ProcessTaskType.Data && taskType !== ProcessTaskType.Signing}
         color='second'
       >
         <FilePdfIcon

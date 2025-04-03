@@ -1,5 +1,7 @@
 import React, { useRef } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
+import { withReadyState } from 'src/components/ReadyContext';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { BlockUntilAllLoaded, LoadingRegistryProvider } from 'src/core/loading/LoadingRegistry';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
@@ -31,7 +33,7 @@ export function useIsInFormContext() {
 /**
  * This helper-context provider is used to provide all the contexts needed for forms to work
  */
-export function FormProvider({ children }: React.PropsWithChildren) {
+export const FormProvider: FC<PropsWithChildren> = withReadyState(({ children, MarkReady }) => {
   const hasProcess = useHasProcessProvider();
   const renderCount = useRef(0);
   renderCount.current += 1;
@@ -47,14 +49,20 @@ export function FormProvider({ children }: React.PropsWithChildren) {
     <Outer>
       {hasProcess ? (
         <PaymentProvider>
-          <Inner>{children}</Inner>
+          <Inner>
+            {children}
+            <MarkReady />
+          </Inner>
         </PaymentProvider>
       ) : (
-        <Inner>{children}</Inner>
+        <Inner>
+          {children}
+          <MarkReady />
+        </Inner>
       )}
     </Outer>
   );
-}
+});
 
 function Outer({ children }: React.PropsWithChildren) {
   return (

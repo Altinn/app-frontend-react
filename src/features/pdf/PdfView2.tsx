@@ -1,11 +1,12 @@
 import React, { useEffect } from 'react';
-import type { PropsWithChildren } from 'react';
+import type { FC, PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { DummyPresentation } from 'src/components/presentation/Presentation';
+import { withReadyState } from 'src/components/ReadyContext';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
@@ -155,7 +156,7 @@ function DataLoaderStoreInitWorker({
   return null;
 }
 
-function PdfWrapping({ children }: PropsWithChildren) {
+const PdfWrapping: FC<PropsWithChildren> = withReadyState(({ children, MarkReady }) => {
   const orgLogoEnabled = Boolean(useApplicationMetadata().logoOptions);
   const appOwner = useAppOwner();
   const appName = useAppName();
@@ -184,9 +185,10 @@ function PdfWrapping({ children }: PropsWithChildren) {
       </Heading>
       {children}
       <ReadyForPrint type='print' />
+      <MarkReady />
     </div>
   );
-}
+});
 
 function PlainPage({ pageKey }: { pageKey: string }) {
   const pageExists = NodesInternal.useSelector((state) =>

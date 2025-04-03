@@ -31,7 +31,8 @@ export function PDFGeneratorPreview({
   const instanceId = useLaxInstanceId();
   const language = useCurrentLanguage();
 
-  const disabled = taskType !== ProcessTaskType.Data || !instanceId || !isLocalOrStaging();
+  const disabled =
+    (taskType !== ProcessTaskType.Data && taskType !== ProcessTaskType.Signing) || !instanceId || !isLocalOrStaging();
 
   const { langAsString } = useLanguage();
 
