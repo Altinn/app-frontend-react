@@ -36,7 +36,7 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
     });
   }, [assetsLoaded, dataLoadingIsDone]);
 
-  if (!assetsLoaded || !isAllMarkedReady) {
+  if (!assetsLoaded || isAllMarkedReady === false) {
     return null;
   }
 

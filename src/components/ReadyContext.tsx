@@ -129,21 +129,23 @@ function makeReady(store: StoreApi<ReadyState>) {
 }
 
 export function useAllMarkedReady() {
-  const store = useStore();
+  const store = useLaxStore();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    let topStore = store;
-    let topState = topStore.getState();
-    while (topState.parent !== null) {
-      topStore = topState.parent;
-      topState = topStore.getState();
-    }
+    if (store !== ContextNotProvided) {
+      let topStore = store;
+      let topState = topStore.getState();
+      while (topState.parent !== null) {
+        topStore = topState.parent;
+        topState = topStore.getState();
+      }
 
-    return topStore.subscribe((state) => {
-      setIsReady(state.ready && Object.values(state.children).every((ready) => ready));
-    });
+      return topStore.subscribe((state) => {
+        setIsReady(state.ready && Object.values(state.children).every((ready) => ready));
+      });
+    }
   }, [store]);
 
-  return isReady;
+  return store != ContextNotProvided ? isReady : ContextNotProvided;
 }
