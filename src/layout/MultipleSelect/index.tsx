@@ -71,9 +71,7 @@ export class MultipleSelect extends MultipleSelectDef {
     }
 
     const [newErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
-    if (newErrors) {
-      errors.push(...(newErrors || []));
-    }
+    errors.push(...(newErrors || []));
 
     if (dataModelBindings?.group) {
       const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.group.field}.`);
