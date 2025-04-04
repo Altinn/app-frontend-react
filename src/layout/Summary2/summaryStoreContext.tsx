@@ -23,7 +23,7 @@ const createSummary2Store = (summaryNode: LayoutNode<'Summary2'>, summaryItem: C
 const StoreContext = createContext<ReturnType<typeof createSummary2Store> | null>(null);
 
 export function Summary2StoreProvider({ children, summaryNode, summaryItem }: Summary2StoreProviderProps) {
-  const storeRef = useRef<ReturnType<typeof createSummary2Store>>();
+  const storeRef = useRef<ReturnType<typeof createSummary2Store>>(undefined);
 
   if (!storeRef.current) {
     storeRef.current = createSummary2Store(summaryNode, summaryItem);

@@ -91,7 +91,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/core@npm:7.26.10":
+"@babel/core@npm:7.26.10, @babel/core@npm:^7.24.4, @babel/core@npm:^7.26.9":
   version: 7.26.10
   resolution: "@babel/core@npm:7.26.10"
   dependencies:
@@ -254,6 +254,23 @@ __metadata:
     lru-cache: "npm:^5.1.1"
     semver: "npm:^6.3.1"
   checksum: 10c0/9da5c77e5722f1a2fcb3e893049a01d414124522bbf51323bb1a0c9dcd326f15279836450fc36f83c9e8a846f3c40e88be032ed939c5a9840922bed6073edfb4
+  languageName: node
+  linkType: hard
+
+"@babel/helper-create-class-features-plugin@npm:^7.18.6":
+  version: 7.27.0
+  resolution: "@babel/helper-create-class-features-plugin@npm:7.27.0"
+  dependencies:
+    "@babel/helper-annotate-as-pure": "npm:^7.25.9"
+    "@babel/helper-member-expression-to-functions": "npm:^7.25.9"
+    "@babel/helper-optimise-call-expression": "npm:^7.25.9"
+    "@babel/helper-replace-supers": "npm:^7.26.5"
+    "@babel/helper-skip-transparent-expression-wrappers": "npm:^7.25.9"
+    "@babel/traverse": "npm:^7.27.0"
+    semver: "npm:^6.3.1"
+  peerDependencies:
+    "@babel/core": ^7.0.0
+  checksum: 10c0/c4945903136d934050e070f69a4d72ec425f1f70634e0ddf14ad36695f935125a6df559f8d5b94cc1ed49abd4ce9c5be8ef3ba033fa8d09c5dd78d1a9b97d8cc
   languageName: node
   linkType: hard
 
@@ -450,6 +467,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/helper-replace-supers@npm:^7.26.5":
+  version: 7.26.5
+  resolution: "@babel/helper-replace-supers@npm:7.26.5"
+  dependencies:
+    "@babel/helper-member-expression-to-functions": "npm:^7.25.9"
+    "@babel/helper-optimise-call-expression": "npm:^7.25.9"
+    "@babel/traverse": "npm:^7.26.5"
+  peerDependencies:
+    "@babel/core": ^7.0.0
+  checksum: 10c0/b19b1245caf835207aaaaac3a494f03a16069ae55e76a2e1350b5acd560e6a820026997a8160e8ebab82ae873e8208759aa008eb8422a67a775df41f0a4633d4
+  languageName: node
+  linkType: hard
+
 "@babel/helper-simple-access@npm:^7.25.7":
   version: 7.25.7
   resolution: "@babel/helper-simple-access@npm:7.25.7"
@@ -580,6 +610,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/parser@npm:^7.24.4, @babel/parser@npm:^7.26.10, @babel/parser@npm:^7.27.0":
+  version: 7.27.0
+  resolution: "@babel/parser@npm:7.27.0"
+  dependencies:
+    "@babel/types": "npm:^7.27.0"
+  bin:
+    parser: ./bin/babel-parser.js
+  checksum: 10c0/ba2ed3f41735826546a3ef2a7634a8d10351df221891906e59b29b0a0cd748f9b0e7a6f07576858a9de8e77785aad925c8389ddef146de04ea2842047c9d2859
+  languageName: node
+  linkType: hard
+
 "@babel/parser@npm:^7.25.9, @babel/parser@npm:^7.26.2":
   version: 7.26.2
   resolution: "@babel/parser@npm:7.26.2"
@@ -588,17 +629,6 @@ __metadata:
   bin:
     parser: ./bin/babel-parser.js
   checksum: 10c0/751a743087b3a9172a7599f1421830d44c38f065ef781588d2bfb1c98f9b461719a226feb13c868d7a284783eee120c88ea522593118f2668f46ebfb1105c4d7
-  languageName: node
-  linkType: hard
-
-"@babel/parser@npm:^7.26.10, @babel/parser@npm:^7.27.0":
-  version: 7.27.0
-  resolution: "@babel/parser@npm:7.27.0"
-  dependencies:
-    "@babel/types": "npm:^7.27.0"
-  bin:
-    parser: ./bin/babel-parser.js
-  checksum: 10c0/ba2ed3f41735826546a3ef2a7634a8d10351df221891906e59b29b0a0cd748f9b0e7a6f07576858a9de8e77785aad925c8389ddef146de04ea2842047c9d2859
   languageName: node
   linkType: hard
 
@@ -680,6 +710,18 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0
   checksum: 10c0/02b365f0cc4df8b8b811c68697c93476da387841e5f153fe42766f34241b685503ea51110d5ed6df7132759820b93e48d9fa3743cffc091eed97c19f7e5fe272
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-proposal-private-methods@npm:^7.18.6":
+  version: 7.18.6
+  resolution: "@babel/plugin-proposal-private-methods@npm:7.18.6"
+  dependencies:
+    "@babel/helper-create-class-features-plugin": "npm:^7.18.6"
+    "@babel/helper-plugin-utils": "npm:^7.18.6"
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 10c0/1c273d0ec3d49d0fe80bd754ec0191016e5b3ab4fb1e162ac0c014e9d3c1517a5d973afbf8b6dc9f9c98a8605c79e5f9e8b5ee158a4313fa68d1ff7b02084b6a
   languageName: node
   linkType: hard
 
@@ -898,6 +940,17 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 10c0/14bf6e65d5bc1231ffa9def5f0ef30b19b51c218fcecaa78cd1bdf7939dfdf23f90336080b7f5196916368e399934ce5d581492d8292b46a2fb569d8b2da106f
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-syntax-typescript@npm:^7.25.9":
+  version: 7.25.9
+  resolution: "@babel/plugin-syntax-typescript@npm:7.25.9"
+  dependencies:
+    "@babel/helper-plugin-utils": "npm:^7.25.9"
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 10c0/5192ebe11bd46aea68b7a60fd9555465c59af7e279e71126788e59121b86e00b505816685ab4782abe159232b0f73854e804b54449820b0d950b397ee158caa2
   languageName: node
   linkType: hard
 
@@ -1807,7 +1860,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/traverse@npm:^7.26.10":
+"@babel/traverse@npm:^7.26.10, @babel/traverse@npm:^7.26.5, @babel/traverse@npm:^7.27.0":
   version: 7.27.0
   resolution: "@babel/traverse@npm:7.27.0"
   dependencies:
@@ -3194,14 +3247,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-leaflet/core@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@react-leaflet/core@npm:2.1.0"
+"@react-leaflet/core@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@react-leaflet/core@npm:3.0.0"
   peerDependencies:
     leaflet: ^1.9.0
-    react: ^18.0.0
-    react-dom: ^18.0.0
-  checksum: 10c0/d5218c79ab9decd458e1fa8a0ec3757542e3ea4e569afa151a32ef0e9ceb63a13174f3fbc740fe0d514df8b0b3e30d913bfb0b8b661dac13924934d7e430bfc9
+    react: ^19.0.0
+    react-dom: ^19.0.0
+  checksum: 10c0/1e20f92ea99d378121d7ba57b9571ca3a67a86247729d8cd5726ded26105fcbffbbdf727da34b2ad5976438979819a38c93b94389313abb3ff80ca81632609a6
   languageName: node
   linkType: hard
 
@@ -3969,12 +4022,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:18.3.5":
-  version: 18.3.5
-  resolution: "@types/react-dom@npm:18.3.5"
+"@types/react-dom@npm:19.0.4":
+  version: 19.0.4
+  resolution: "@types/react-dom@npm:19.0.4"
   peerDependencies:
-    "@types/react": ^18.0.0
-  checksum: 10c0/b163d35a6b32a79f5782574a7aeb12a31a647e248792bf437e6d596e2676961c394c5e3c6e91d1ce44ae90441dbaf93158efb4f051c0d61e2612f1cb04ce4faa
+    "@types/react": ^19.0.0
+  checksum: 10c0/4e71853919b94df9e746a4bd73f8180e9ae13016333ce9c543dcba9f4f4c8fe6e28b038ca6ee61c24e291af8e03ca3bc5ded17c46dee938fcb32d71186fda7a3
   languageName: node
   linkType: hard
 
@@ -4009,13 +4062,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:18.3.20":
-  version: 18.3.20
-  resolution: "@types/react@npm:18.3.20"
+"@types/react@npm:19.0.12":
+  version: 19.0.12
+  resolution: "@types/react@npm:19.0.12"
   dependencies:
-    "@types/prop-types": "npm:*"
     csstype: "npm:^3.0.2"
-  checksum: 10c0/65fa867c91357e4c4c646945c8b99044360f8973cb7f928ec4de115fe3207827985d45be236e6fd6c092b09f631c2126ce835c137be30718419e143d73300d8f
+  checksum: 10c0/c814b6af5c0fbcf5c65d031b1c9bf98c5b857e015254d95811f2851b27b869c3d31c6f35dab127dc6921a3dbda0b0622c6323d493a14b31b231a6a58c41c5e84
   languageName: node
   linkType: hard
 
@@ -4878,8 +4930,8 @@ __metadata:
     "@types/marked": "npm:6.0.0"
     "@types/mime": "npm:4.0.0"
     "@types/node": "npm:22.13.13"
-    "@types/react": "npm:18.3.20"
-    "@types/react-dom": "npm:18.3.5"
+    "@types/react": "npm:19.0.12"
+    "@types/react-dom": "npm:19.0.4"
     "@types/react-router-dom": "npm:5.3.3"
     "@types/uuid": "npm:10.0.0"
     "@typescript-eslint/eslint-plugin": "npm:8.28.0"
@@ -4892,6 +4944,7 @@ __metadata:
     axios: "npm:1.8.4"
     babel-jest: "npm:29.7.0"
     babel-loader: "npm:10.0.0"
+    babel-plugin-react-compiler: "npm:^19.0.0-beta-e993439-20250328"
     caniuse-lite: "npm:1.0.30001707"
     classnames: "npm:2.5.1"
     core-js: "npm:3.41.0"
@@ -4920,6 +4973,7 @@ __metadata:
     eslint-plugin-preferred-import-path: "npm:1.1.0"
     eslint-plugin-prettier: "npm:5.2.5"
     eslint-plugin-react: "npm:7.37.4"
+    eslint-plugin-react-compiler: "npm:^19.0.0-beta-e993439-20250328"
     eslint-plugin-react-hooks: "npm:5.2.0"
     eslint-plugin-simple-import-sort: "npm:12.1.1"
     eslint-plugin-sonarjs: "npm:3.0.2"
@@ -4953,14 +5007,15 @@ __metadata:
     node-polyfill-webpack-plugin: "npm:4.1.0"
     postcss-modules: "npm:6.0.1"
     prettier: "npm:3.5.3"
-    react: "npm:18.3.1"
+    react: "npm:19.1.0"
+    react-compiler-webpack: "npm:^0.2.0"
     react-content-loader: "npm:7.0.2"
     react-day-picker: "npm:9.6.3"
     react-device-detect: "npm:2.2.3"
-    react-dom: "npm:18.3.1"
+    react-dom: "npm:19.1.0"
     react-dropzone: "npm:14.3.8"
     react-helmet-async: "npm:2.0.5"
-    react-leaflet: "npm:4.2.1"
+    react-leaflet: "npm:5.0.0"
     react-number-format: "npm:5.4.3"
     react-refresh: "npm:0.16.0"
     react-router-dom: "npm:6.30.0"
@@ -5433,6 +5488,15 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.4.0 || ^8.0.0-0 <8.0.0
   checksum: 10c0/bc541037cf7620bc84ddb75a1c0ce3288f90e7d2799c070a53f8a495c8c8ae0316447becb06f958dd25dcce2a2fce855d318ecfa48036a1ddb218d55aa38a744
+  languageName: node
+  linkType: hard
+
+"babel-plugin-react-compiler@npm:^19.0.0-beta-e993439-20250328":
+  version: 19.0.0-beta-e993439-20250328
+  resolution: "babel-plugin-react-compiler@npm:19.0.0-beta-e993439-20250328"
+  dependencies:
+    "@babel/types": "npm:^7.26.0"
+  checksum: 10c0/ab87aeb3dab8f92aad325a21f92594899b4c92a238121c1587f3a832df7a5b0f86785750db45e0f5c93729ba0a71896a62d95fa5a47699f5f3fe9c335b99ea49
   languageName: node
   linkType: hard
 
@@ -8216,6 +8280,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-react-compiler@npm:^19.0.0-beta-e993439-20250328":
+  version: 19.0.0-beta-e993439-20250328
+  resolution: "eslint-plugin-react-compiler@npm:19.0.0-beta-e993439-20250328"
+  dependencies:
+    "@babel/core": "npm:^7.24.4"
+    "@babel/parser": "npm:^7.24.4"
+    "@babel/plugin-proposal-private-methods": "npm:^7.18.6"
+    hermes-parser: "npm:^0.25.1"
+    zod: "npm:^3.22.4"
+    zod-validation-error: "npm:^3.0.3"
+  peerDependencies:
+    eslint: ">=7"
+  checksum: 10c0/9866b0a62ef77f8748fc79757e55ad0863791d4b9af524332fa0032900d6e44c80b076f126e82c33ecab4d3ae375b7a48d79d10622034d5659edac54a59d3798
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-react-hooks@npm:5.2.0":
   version: 5.2.0
   resolution: "eslint-plugin-react-hooks@npm:5.2.0"
@@ -9669,6 +9749,22 @@ __metadata:
   bin:
     he: bin/he
   checksum: 10c0/a27d478befe3c8192f006cdd0639a66798979dfa6e2125c6ac582a19a5ebfec62ad83e8382e6036170d873f46e4536a7e795bf8b95bf7c247f4cc0825ccc8c17
+  languageName: node
+  linkType: hard
+
+"hermes-estree@npm:0.25.1":
+  version: 0.25.1
+  resolution: "hermes-estree@npm:0.25.1"
+  checksum: 10c0/48be3b2fa37a0cbc77a112a89096fa212f25d06de92781b163d67853d210a8a5c3784fac23d7d48335058f7ed283115c87b4332c2a2abaaccc76d0ead1a282ac
+  languageName: node
+  linkType: hard
+
+"hermes-parser@npm:^0.25.1":
+  version: 0.25.1
+  resolution: "hermes-parser@npm:0.25.1"
+  dependencies:
+    hermes-estree: "npm:0.25.1"
+  checksum: 10c0/3abaa4c6f1bcc25273f267297a89a4904963ea29af19b8e4f6eabe04f1c2c7e9abd7bfc4730ddb1d58f2ea04b6fee74053d8bddb5656ec6ebf6c79cc8d14202c
   languageName: node
   linkType: hard
 
@@ -11993,7 +12089,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loader-utils@npm:^3.2.0":
+"loader-utils@npm:^3.2.0, loader-utils@npm:^3.3.1":
   version: 3.3.1
   resolution: "loader-utils@npm:3.3.1"
   checksum: 10c0/f2af4eb185ac5bf7e56e1337b666f90744e9f443861ac521b48f093fb9e8347f191c8960b4388a3365147d218913bc23421234e7788db69f385bacfefa0b4758
@@ -12102,7 +12198,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"loose-envify@npm:^1.0.0, loose-envify@npm:^1.1.0, loose-envify@npm:^1.4.0":
+"loose-envify@npm:^1.0.0, loose-envify@npm:^1.4.0":
   version: 1.4.0
   resolution: "loose-envify@npm:1.4.0"
   dependencies:
@@ -14067,6 +14163,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-compiler-webpack@npm:^0.2.0":
+  version: 0.2.0
+  resolution: "react-compiler-webpack@npm:0.2.0"
+  dependencies:
+    "@babel/core": "npm:^7.26.9"
+    "@babel/plugin-syntax-jsx": "npm:^7.25.9"
+    "@babel/plugin-syntax-typescript": "npm:^7.25.9"
+    loader-utils: "npm:^3.3.1"
+  peerDependencies:
+    babel-plugin-react-compiler: "*"
+  checksum: 10c0/9394488b39592cc69894d17763b58e0c456fc8174ca13ee155be24b9432e180032ac4f0dd606d79a3bebce3e9403ace1e3d1b3eeb37b23bb07ee49175804e04c
+  languageName: node
+  linkType: hard
+
 "react-content-loader@npm:7.0.2":
   version: 7.0.2
   resolution: "react-content-loader@npm:7.0.2"
@@ -14101,15 +14211,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:18.3.1":
-  version: 18.3.1
-  resolution: "react-dom@npm:18.3.1"
+"react-dom@npm:19.1.0":
+  version: 19.1.0
+  resolution: "react-dom@npm:19.1.0"
   dependencies:
-    loose-envify: "npm:^1.1.0"
-    scheduler: "npm:^0.23.2"
+    scheduler: "npm:^0.26.0"
   peerDependencies:
-    react: ^18.3.1
-  checksum: 10c0/a752496c1941f958f2e8ac56239172296fcddce1365ce45222d04a1947e0cc5547df3e8447f855a81d6d39f008d7c32eab43db3712077f09e3f67c4874973e85
+    react: ^19.1.0
+  checksum: 10c0/3e26e89bb6c67c9a6aa86cb888c7a7f8258f2e347a6d2a15299c17eb16e04c19194e3452bc3255bd34000a61e45e2cb51e46292392340432f133e5a5d2dfb5fc
   languageName: node
   linkType: hard
 
@@ -14167,16 +14276,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-leaflet@npm:4.2.1":
-  version: 4.2.1
-  resolution: "react-leaflet@npm:4.2.1"
+"react-leaflet@npm:5.0.0":
+  version: 5.0.0
+  resolution: "react-leaflet@npm:5.0.0"
   dependencies:
-    "@react-leaflet/core": "npm:^2.1.0"
+    "@react-leaflet/core": "npm:^3.0.0"
   peerDependencies:
     leaflet: ^1.9.0
-    react: ^18.0.0
-    react-dom: ^18.0.0
-  checksum: 10c0/2e9d1687e883fd7d2e9798e51a04600e1b14784dc98b981a44507e65eb39a24f08c7f237c7522ae5667e999eb53b8d565ebd0f5baa25ef73a0278d6bfcc369e1
+    react: ^19.0.0
+    react-dom: ^19.0.0
+  checksum: 10c0/f0b6fb797cc2d81bc8cbb54e0cb32aefa689d35ca5f52d203ce3c5a1d14668e51244f10844bd2c88d5cb4aca5eb05bc280794e6d1652727ff9da2358e89d1b86
   languageName: node
   linkType: hard
 
@@ -14252,12 +14361,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:18.3.1":
-  version: 18.3.1
-  resolution: "react@npm:18.3.1"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-  checksum: 10c0/283e8c5efcf37802c9d1ce767f302dd569dd97a70d9bb8c7be79a789b9902451e0d16334b05d73299b20f048cbc3c7d288bbbde10b701fa194e2089c237dbea3
+"react@npm:19.1.0":
+  version: 19.1.0
+  resolution: "react@npm:19.1.0"
+  checksum: 10c0/530fb9a62237d54137a13d2cfb67a7db6a2156faed43eecc423f4713d9b20c6f2728b026b45e28fcd72e8eadb9e9ed4b089e99f5e295d2f0ad3134251bdd3698
   languageName: node
   linkType: hard
 
@@ -14864,12 +14971,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.23.2":
-  version: 0.23.2
-  resolution: "scheduler@npm:0.23.2"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-  checksum: 10c0/26383305e249651d4c58e6705d5f8425f153211aef95f15161c151f7b8de885f24751b377e4a0b3dd42cce09aad3f87a61dab7636859c0d89b7daf1a1e2a5c78
+"scheduler@npm:^0.26.0":
+  version: 0.26.0
+  resolution: "scheduler@npm:0.26.0"
+  checksum: 10c0/5b8d5bfddaae3513410eda54f2268e98a376a429931921a81b5c3a2873aab7ca4d775a8caac5498f8cbc7d0daeab947cf923dbd8e215d61671f9f4e392d34356
   languageName: node
   linkType: hard
 
@@ -17717,6 +17822,22 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: 10c0/dceb44c28578b31641e13695d200d34ec4ab3966a5729814d5445b194933c096b7ced71494ce53a0e8820685d1d010df8b2422e5bf2cdea7e469d97ffbea306f
+  languageName: node
+  linkType: hard
+
+"zod-validation-error@npm:^3.0.3":
+  version: 3.4.0
+  resolution: "zod-validation-error@npm:3.4.0"
+  peerDependencies:
+    zod: ^3.18.0
+  checksum: 10c0/aaadb0e65c834aacb12fa088663d52d9f4224b5fe6958f09b039f4ab74145fda381c8a7d470bfddf7ddd9bbb5fdfbb52739cd66958ce6d388c256a44094d1fba
+  languageName: node
+  linkType: hard
+
+"zod@npm:^3.22.4":
+  version: 3.24.2
+  resolution: "zod@npm:3.24.2"
+  checksum: 10c0/c638c7220150847f13ad90635b3e7d0321b36cce36f3fc6050ed960689594c949c326dfe2c6fa87c14b126ee5d370ccdebd6efb304f41ef5557a4aaca2824565
   languageName: node
   linkType: hard
 

@@ -152,7 +152,7 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
   };
 
   function MyProvider({ children, ...props }: PropsWithChildren<Props>) {
-    const storeRef = useRef<Store>();
+    const storeRef = useRef<Store>(undefined);
     if (!storeRef.current) {
       storeRef.current = initialCreateStore(props as Props);
     }
