@@ -4,6 +4,8 @@ import { useIsFetching } from '@tanstack/react-query';
 
 import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
 
+export const loadingClassName = 'loading';
+
 type ReadyType = 'print' | 'load';
 const readyId: Record<ReadyType, string> = {
   print: 'readyForPrint',
@@ -21,7 +23,7 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
 
   const isFetching = useIsFetching() > 0;
 
-  const numLoaders = useClassCount('loading');
+  const numLoaders = useClassCount(loadingClassName);
 
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
