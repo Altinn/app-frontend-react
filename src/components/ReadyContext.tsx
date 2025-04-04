@@ -1,36 +1,31 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { ForwardedRef, PropsWithChildren, PropsWithoutRef } from 'react';
 
 import { v4 as uuid } from 'uuid';
 import { createStore } from 'zustand';
-import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 
 type ReadyState = {
-  parent: StoreApi<ReadyState> | null;
-  id: string;
-  ready: boolean;
+  rootReady: boolean;
   children: { [id: string]: boolean };
 
-  setReady: (ready: boolean) => void;
+  setRootReady: (ready: boolean) => void;
   registerChild: (id: string) => void;
   unRegisterChild: (id: string) => void;
   setChildReady: (id: string, ready: boolean) => void;
 };
 
-const { Provider, useStore, useLaxStore } = createZustandContext({
+const { Provider, useLaxStaticSelector, useStaticSelector, useLaxSelector } = createZustandContext({
   name: 'ReadyContext',
   required: true,
-  initialCreateStore: ({ parent }: { parent: StoreApi<ReadyState> | null }) =>
+  initialCreateStore: () =>
     createStore<ReadyState>((set) => ({
-      parent,
-      id: uuid(),
-      ready: false,
+      rootReady: false,
       children: {},
 
-      setReady: (ready) => set({ ready }),
+      setRootReady: (ready) => set({ rootReady: ready }),
       registerChild: (id) => set((state) => ({ children: { ...state.children, [id]: false } })),
       unRegisterChild: (id) =>
         set((state) => ({
@@ -40,51 +35,49 @@ const { Provider, useStore, useLaxStore } = createZustandContext({
     })),
 });
 
-function InnerReadyProvider({ children }: PropsWithChildren) {
-  const store = useStore();
-
-  useEffect(() => {
-    const { id, parent } = store.getState();
-    if (parent) {
-      parent.getState().registerChild(id);
-      return () => {
-        parent.getState().unRegisterChild(id);
-      };
-    }
-  }, [store]);
-
-  useEffect(() => {
-    const { id, parent } = store.getState();
-    if (parent) {
-      return store.subscribe((state) => {
-        const isReady = state.ready && Object.values(state.children).every((ready) => ready);
-        const parentState = parent.getState();
-        if (parentState.children[id] !== isReady) {
-          parentState.setChildReady(id, isReady);
-        }
-      });
-    }
-  }, [store]);
-
-  return children;
+export function RootReadyProvider({ children }: PropsWithChildren) {
+  return <Provider>{children}</Provider>;
 }
 
-function ReadyProvider({ children }: PropsWithChildren) {
-  const parent = useLaxStore();
-  return (
-    <Provider parent={parent !== ContextNotProvided ? parent : null}>
-      <InnerReadyProvider>{children}</InnerReadyProvider>
-    </Provider>
-  );
+export function MarkRootReady() {
+  const setRootReady = useStaticSelector((state) => state.setRootReady);
+  useEffect(() => {
+    setRootReady(true);
+    return () => {
+      setRootReady(false);
+    };
+  }, [setRootReady]);
+
+  return null;
 }
 
 /**
- * Wrap a component with conditional rendering logic and render the MarkReady component in the branch where the component is ready.
+ * Wrap a component with conditional rendering logic (or blocking providers) and render the MarkReady component in the branch where the component is ready.
  */
 export function withReadyState<P, R>(Component: React.ComponentType<PropsWithoutRef<P> & { MarkReady: React.FC }>) {
-  function WrappedComponent({ props, ref }: { props: PropsWithoutRef<P>; ref: ForwardedRef<R> }) {
-    const store = useStore();
-    const MarkReady = useMemo(() => makeReady(store), [store]);
+  function WrappedComponent(props: PropsWithoutRef<P>, ref: ForwardedRef<R>) {
+    const selectors = useLaxStaticSelector((state) => ({
+      registerChild: state.registerChild,
+      unRegisterChild: state.unRegisterChild,
+      setChildReady: state.setChildReady,
+    }));
+
+    const { id, MarkReady } = useMemo(() => {
+      const id = uuid();
+      const MarkReady = makeMarkReady(id, selectors);
+      return { id, MarkReady };
+    }, [selectors]);
+
+    // Register this component so we wait until it renders its MarkReady
+    useEffect(() => {
+      if (selectors !== ContextNotProvided) {
+        selectors.registerChild(id);
+        return () => {
+          selectors.unRegisterChild(id);
+        };
+      }
+    }, [id, selectors]);
+
     return (
       <Component
         {...props}
@@ -93,60 +86,29 @@ export function withReadyState<P, R>(Component: React.ComponentType<PropsWithout
       />
     );
   }
-  function forwardRef(props: PropsWithoutRef<P>, ref: ForwardedRef<R>) {
-    return (
-      <ReadyProvider>
-        <WrappedComponent
-          props={props}
-          ref={ref}
-        />
-      </ReadyProvider>
-    );
-  }
   const name = Component.displayName || Component.name;
-  forwardRef.displayName = `withReadyState(${name})`;
+  WrappedComponent.displayName = `withReadyState(${name})`;
 
-  return React.forwardRef(forwardRef);
+  return React.forwardRef(WrappedComponent);
 }
 
-function makeReady(store: StoreApi<ReadyState>) {
+function makeMarkReady(
+  id: string,
+  selectors: { setChildReady: ReadyState['setChildReady'] } | typeof ContextNotProvided,
+) {
   return function MarkReady() {
     useEffect(() => {
-      const state = store.getState();
-      if (state.ready === false) {
-        state.setReady(true);
+      if (selectors !== ContextNotProvided) {
+        selectors.setChildReady(id, true);
+        return () => {
+          selectors.setChildReady(id, false);
+        };
       }
-
-      return () => {
-        const state = store.getState();
-        if (state.ready === true) {
-          state.setReady(false);
-        }
-      };
     }, []);
+
     return null;
   };
 }
 
-export function useAllMarkedReady() {
-  const store = useLaxStore();
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    if (store !== ContextNotProvided) {
-      let topStore = store;
-      let topState = topStore.getState();
-      while (topState.parent !== null) {
-        topStore = topState.parent;
-        topState = topStore.getState();
-      }
-
-      setIsReady(topState.ready && Object.values(topState.children).every((ready) => ready));
-      return topStore.subscribe((topState) => {
-        setIsReady(topState.ready && Object.values(topState.children).every((ready) => ready));
-      });
-    }
-  }, [store]);
-
-  return store != ContextNotProvided ? isReady : ContextNotProvided;
-}
+export const useReadyState = () =>
+  useLaxSelector((state) => state.rootReady && Object.values(state.children).every((ready) => ready));

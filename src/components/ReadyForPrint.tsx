@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useAllMarkedReady } from 'src/components/ReadyContext';
+import { useReadyState } from 'src/components/ReadyContext';
 import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
 import type { DataLoading } from 'src/core/contexts/dataLoadingContext';
@@ -20,7 +20,7 @@ const readyId: Record<ReadyType, string> = {
 export function ReadyForPrint({ type }: { type: ReadyType }) {
   const [assetsLoaded, setAssetsLoaded] = React.useState(false);
   const dataLoadingIsDone = useDataLoadingStore((state) => state.isDone);
-  const isAllMarkedReady = useAllMarkedReady();
+  const isComponentsReady = useReadyState();
 
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
@@ -36,7 +36,7 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
     });
   }, [assetsLoaded, dataLoadingIsDone]);
 
-  if (!assetsLoaded || isAllMarkedReady === false) {
+  if (!assetsLoaded || isComponentsReady === false) {
     return null;
   }
 

@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import type { FC, PropsWithChildren } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { OrganisationLogo } from 'src/components/presentation/OrganisationLogo/OrganisationLogo';
 import { DummyPresentation } from 'src/components/presentation/Presentation';
-import { withReadyState } from 'src/components/ReadyContext';
+import { MarkRootReady, RootReadyProvider } from 'src/components/ReadyContext';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
@@ -156,7 +156,7 @@ function DataLoaderStoreInitWorker({
   return null;
 }
 
-const PdfWrapping: FC<PropsWithChildren> = withReadyState(({ children, MarkReady }) => {
+function PdfWrapping({ children }: PropsWithChildren) {
   const orgLogoEnabled = Boolean(useApplicationMetadata().logoOptions);
   const appOwner = useAppOwner();
   const appName = useAppName();
@@ -164,31 +164,33 @@ const PdfWrapping: FC<PropsWithChildren> = withReadyState(({ children, MarkReady
   const isPayment = useIsPayment();
 
   return (
-    <div
-      id='pdfView'
-      className={classes.pdfWrapper}
-    >
-      {orgLogoEnabled && (
-        <div
-          className={classes.pdfLogoContainer}
-          data-testid='pdf-logo'
-        >
-          <OrganisationLogo />
-        </div>
-      )}
-      {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
-      <Heading
-        level={1}
-        size='lg'
+    <RootReadyProvider>
+      <div
+        id='pdfView'
+        className={classes.pdfWrapper}
       >
-        {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
-      </Heading>
-      {children}
-      <ReadyForPrint type='print' />
-      <MarkReady />
-    </div>
+        {orgLogoEnabled && (
+          <div
+            className={classes.pdfLogoContainer}
+            data-testid='pdf-logo'
+          >
+            <OrganisationLogo />
+          </div>
+        )}
+        {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
+        <Heading
+          level={1}
+          size='lg'
+        >
+          {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
+        </Heading>
+        {children}
+        <ReadyForPrint type='print' />
+      </div>
+      <MarkRootReady />
+    </RootReadyProvider>
   );
-});
+}
 
 function PlainPage({ pageKey }: { pageKey: string }) {
   const pageExists = NodesInternal.useSelector((state) =>

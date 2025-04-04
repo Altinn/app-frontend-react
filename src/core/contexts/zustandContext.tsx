@@ -48,6 +48,11 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
    */
   const useStaticSelector: SelectorFunc<Type> = (selector) => selector(useCtx().getState());
 
+  const useLaxStaticSelector: SelectorFuncLax<Type> = (selector) => {
+    const ctx = useLaxCtx();
+    return ctx !== ContextNotProvided ? selector(ctx.getState()) : ContextNotProvided;
+  };
+
   const useSelectorAsRef: SelectorRefFunc<Type> = (selector) => {
     const store = useCtx();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -227,5 +232,6 @@ export function createZustandContext<Store extends StoreApi<Type>, Type = Extrac
     useStore: useCtx,
     useLaxStore: useLaxCtx,
     useStaticSelector,
+    useLaxStaticSelector,
   };
 }
