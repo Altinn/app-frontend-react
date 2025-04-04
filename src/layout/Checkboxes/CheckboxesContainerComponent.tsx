@@ -48,11 +48,10 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const rowKey = dataModelBindings.simpleBinding.field.split('.').pop();
 
   const setChecked = (isChecked: boolean, option) => {
-    const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
-
     if (group) {
       setList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
     } else {
+      const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
       setData(newData);
     }
   };

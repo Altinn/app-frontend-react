@@ -92,6 +92,7 @@ export function useSetOptions(
 
   const setData = useCallback(
     (values: string[]) => {
+      console.log(valueType);
       if (valueType === 'single') {
         setValue('simpleBinding', values.at(0));
       } else if (valueType === 'multi') {

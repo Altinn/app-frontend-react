@@ -60,9 +60,6 @@ export const ListComponent = ({ node }: IListProps) => {
   const groupBinding = item.dataModelBindings?.group;
   const { setList, isRowChecked } = useSaveObjectToGroup(node);
 
-  /*const appendToList = FD.useAppendToList();
-  const removeFromList = FD.useRemoveIndexFromList();*/
-
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
@@ -79,16 +76,6 @@ export const ListComponent = ({ node }: IListProps) => {
     setValues(next);
   }
 
-  /*function isRowSelected(row: Row): boolean {
-    if (groupBinding) {
-      const rows = (formData?.group as Row[] | undefined) ?? [];
-      return rows.some((selectedRow) =>
-        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
-      );
-    }
-    return JSON.stringify(selectedRow) === JSON.stringify(row);
-  }*/
-
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
 
@@ -100,36 +87,6 @@ export const ListComponent = ({ node }: IListProps) => {
       handleSelectedRadioRow({ selectedValue: row });
     }
   };
-
-  /*const handleSelectedCheckboxRow = (row: Row) => {
-    if (!groupBinding) {
-      return;
-    }
-    if (isRowSelected(row)) {
-      const index = (formData?.group as Row[]).findIndex((selectedRow) => {
-        const { altinnRowId: _ } = selectedRow;
-        return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
-      });
-      if (index >= 0) {
-        removeFromList({
-          reference: groupBinding,
-          index,
-        });
-      }
-    } else {
-      const uuid = uuidv4();
-      const next: Row = { [ALTINN_ROW_ID]: uuid };
-      for (const binding of Object.keys(bindings)) {
-        if (binding !== 'group') {
-          next[binding] = row[binding];
-        }
-      }
-      appendToList({
-        reference: groupBinding,
-        newValue: { ...next },
-      });
-    }
-  };*/
 
   const renderListItems = (row: Row, tableHeaders: { [x: string]: string | undefined }) =>
     tableHeadersToShowInMobile.map((key) => (

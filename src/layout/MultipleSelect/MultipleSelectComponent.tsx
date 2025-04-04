@@ -79,7 +79,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     Boolean(alertOnChange),
     handleOnChange,
     // Only alert when removing values
-    (values) => values.length < selectedValues.length,
+    (values) => (groupBinding ? values.length < selectedGroupItems?.length : values.length < selectedValues.length),
     changeMessageGenerator,
   );
 
