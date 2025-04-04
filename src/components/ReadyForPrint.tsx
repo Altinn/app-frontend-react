@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
@@ -20,6 +20,8 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
   const [assetsLoaded, setAssetsLoaded] = React.useState(false);
   const dataLoadingIsDone = useDataLoadingStore((state) => state.isDone);
 
+  const numLoaders = useClassCount('loading');
+
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
       return;
@@ -34,7 +36,7 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
     });
   }, [assetsLoaded, dataLoadingIsDone]);
 
-  if (!assetsLoaded) {
+  if (!assetsLoaded || numLoaders > 0) {
     return null;
   }
 
@@ -76,4 +78,31 @@ async function waitForDataLoading(dataLoadingIsDone: DataLoading['isDone']) {
     await new Promise((resolve) => window.requestIdleCallback(resolve, { timeout: 100 }));
     done = dataLoadingIsDone();
   }
+}
+
+export function useClassCount(className: string): number {
+  const [count, setCount] = useState(() => document.getElementsByClassName(className).length);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const newCount = document.getElementsByClassName(className).length;
+      setCount(newCount);
+    };
+
+    const observer = new MutationObserver(updateCount);
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Initial update in case of changes before observer is ready
+    updateCount();
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [className]);
+
+  return count;
 }

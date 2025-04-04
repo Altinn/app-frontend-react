@@ -14,7 +14,11 @@ const { Provider, useCtx } = createContext<Context | undefined>({
 });
 
 export function LoadingProvider({ children, ...rest }: PropsWithChildren<Context>) {
-  return <Provider value={rest}>{children}</Provider>;
+  return (
+    <div className='loading'>
+      <Provider value={rest}>{children}</Provider>
+    </div>
+  );
 }
 
 export const useIsLoading = () => useCtx() !== undefined;
