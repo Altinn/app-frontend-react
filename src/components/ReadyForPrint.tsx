@@ -89,7 +89,6 @@ export function useClassCount(className: string): number {
       subtree: true,
     });
 
-    // Initial update in case of changes before observer is ready
     updateCount();
 
     return () => {
