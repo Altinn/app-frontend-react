@@ -390,6 +390,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       appId: true,
       instanceOwnerPartyId: true,
       instanceOwnerPartyType: true,
+      instanceOwnerName: true,
     };
 
     if (key === null || instanceDataSourcesKeys[key] !== true) {

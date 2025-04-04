@@ -1,7 +1,7 @@
 import type { IInstance, IInstanceDataSources } from 'src/types/shared';
 
 export function buildInstanceDataSources(instance?: IInstance | null | undefined): IInstanceDataSources | null {
-  if (!instance || !instance.instanceOwner) {
+  if (!instance?.instanceOwner) {
     return null;
   }
   const instanceOwnerPartyType = instance.instanceOwner.organisationNumber
@@ -17,5 +17,6 @@ export function buildInstanceDataSources(instance?: IInstance | null | undefined
     instanceId: instance.id,
     instanceOwnerPartyId: instance.instanceOwner?.partyId,
     instanceOwnerPartyType,
+    instanceOwnerName: instance.instanceOwner?.party?.name,
   };
 }
