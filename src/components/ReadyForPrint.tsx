@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useIsFetching } from '@tanstack/react-query';
 
@@ -21,6 +21,8 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
 
   const isFetching = useIsFetching() > 0;
 
+  const numLoaders = useClassCount('loading');
+
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
       return;
@@ -34,7 +36,7 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
     });
   }, [assetsLoaded]);
 
-  if (!assetsLoaded || isFetching) {
+  if (!assetsLoaded || numLoaders > 0 || isFetching) {
     return null;
   }
 
@@ -67,4 +69,31 @@ async function waitForImages() {
       !node.complete && promises.push(loadPromise(node));
     });
   } while (nodes.some((node) => !node.complete));
+}
+
+export function useClassCount(className: string): number {
+  const [count, setCount] = useState(() => document.getElementsByClassName(className).length);
+
+  useEffect(() => {
+    const updateCount = () => {
+      const newCount = document.getElementsByClassName(className).length;
+      setCount(newCount);
+    };
+
+    const observer = new MutationObserver(updateCount);
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    // Initial update in case of changes before observer is ready
+    updateCount();
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [className]);
+
+  return count;
 }
