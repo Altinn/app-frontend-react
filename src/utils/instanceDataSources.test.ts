@@ -12,7 +12,7 @@ describe('instanceDataSources/instanceContext', () => {
       instanceOwner: {
         partyId,
         party: {
-          name: 'My secret person name',
+          name: 'Firstname Lastname',
         },
       },
     } as IInstance;
@@ -22,14 +22,14 @@ describe('instanceDataSources/instanceContext', () => {
       instanceId: instaceId,
       instanceOwnerPartyId: partyId,
       instanceOwnerPartyType: 'unknown',
-      instanceOwnerName: 'unknown',
+      instanceOwnerName: 'Firstname Lastname',
     };
     const actual = buildInstanceDataSources(mockInstance);
 
     expect(actual).toEqual(expected);
   });
 
-  it('should build a valid instance context with instance owner name if organisation', () => {
+  it('should build a valid instance context with organisation', () => {
     const partyId = '1337';
     const appId = 'tdd/enapp';
     const instaceId = `${partyId}/super-secret-uuid-000`;
