@@ -3,7 +3,6 @@ import type { AriaAttributes } from 'react';
 
 import { Checkbox, Heading, Radio, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
-import { v4 as uuidv4 } from 'uuid';
 
 import { Pagination as CustomPagination } from 'src/app-components/Pagination/Pagination';
 import { Description } from 'src/components/form/Description';
@@ -11,11 +10,11 @@ import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
-import { FD } from 'src/features/formData/FormDataWrite';
-import { ALTINN_ROW_ID, DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useSaveObjectToGroup } from 'src/features/saveToList/useSaveObjectToGroup';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/List/ListComponent.module.css';
@@ -59,9 +58,7 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const groupBinding = item.dataModelBindings?.group;
-
-  const appendToList = FD.useAppendToList();
-  const removeFromList = FD.useRemoveIndexFromList();
+  const { setList, isRowChecked } = useSaveObjectToGroup(node);
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
@@ -79,54 +76,15 @@ export const ListComponent = ({ node }: IListProps) => {
     setValues(next);
   }
 
-  function isRowSelected(row: Row): boolean {
-    if (groupBinding) {
-      const rows = (formData?.group as Row[] | undefined) ?? [];
-      return rows.some((selectedRow) =>
-        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
-      );
-    }
-    return JSON.stringify(selectedRow) === JSON.stringify(row);
-  }
-
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
 
   const handleRowClick = (row: Row) => {
     if (groupBinding) {
-      handleSelectedCheckboxRow(row);
+      setList(row);
+      //handleSelectedCheckboxRow(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });
-    }
-  };
-
-  const handleSelectedCheckboxRow = (row: Row) => {
-    if (!groupBinding) {
-      return;
-    }
-    if (isRowSelected(row)) {
-      const index = (formData?.group as Row[]).findIndex((selectedRow) => {
-        const { altinnRowId: _ } = selectedRow;
-        return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
-      });
-      if (index >= 0) {
-        removeFromList({
-          reference: groupBinding,
-          index,
-        });
-      }
-    } else {
-      const uuid = uuidv4();
-      const next: Row = { [ALTINN_ROW_ID]: uuid };
-      for (const binding of Object.keys(bindings)) {
-        if (binding !== 'group') {
-          next[binding] = row[binding];
-        }
-      }
-      appendToList({
-        reference: groupBinding,
-        newValue: { ...next },
-      });
     }
   };
 
@@ -159,7 +117,7 @@ export const ListComponent = ({ node }: IListProps) => {
           onClick={() => handleRowClick(row)}
           value={JSON.stringify(row)}
           className={cn(classes.mobile)}
-          checked={isRowSelected(row)}
+          checked={isRowChecked(row)}
         >
           {renderListItems(row, tableHeaders)}
         </Checkbox>
@@ -186,7 +144,7 @@ export const ListComponent = ({ node }: IListProps) => {
         <Radio
           key={JSON.stringify(row)}
           value={JSON.stringify(row)}
-          className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
+          className={cn(classes.mobile, { [classes.selectedRow]: isRowChecked(row) })}
           onClick={() => handleSelectedRadioRow({ selectedValue: row })}
         >
           {renderListItems(row, tableHeaders)}
@@ -261,7 +219,7 @@ export const ListComponent = ({ node }: IListProps) => {
             >
               <Table.Cell
                 className={cn({
-                  [classes.selectedRowCell]: isRowSelected(row),
+                  [classes.selectedRowCell]: isRowChecked(row),
                 })}
               >
                 {groupBinding ? (
@@ -270,7 +228,7 @@ export const ListComponent = ({ node }: IListProps) => {
                     aria-label={JSON.stringify(row)}
                     onChange={() => {}}
                     value={JSON.stringify(row)}
-                    checked={isRowSelected(row)}
+                    checked={isRowChecked(row)}
                     name={node.id}
                   />
                 ) : (
@@ -281,7 +239,7 @@ export const ListComponent = ({ node }: IListProps) => {
                       handleSelectedRadioRow({ selectedValue: row });
                     }}
                     value={JSON.stringify(row)}
-                    checked={isRowSelected(row)}
+                    checked={isRowChecked(row)}
                     name={node.id}
                   />
                 )}
@@ -290,7 +248,7 @@ export const ListComponent = ({ node }: IListProps) => {
                 <Table.Cell
                   key={key}
                   className={cn({
-                    [classes.selectedRowCell]: isRowSelected(row),
+                    [classes.selectedRowCell]: isRowChecked(row),
                   })}
                 >
                   {typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}

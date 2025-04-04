@@ -53,6 +53,30 @@ export const Config = new CG.component({
         ),
     ),
   )
-  .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))
+  .addDataModelBinding(
+    new CG.obj(
+      new CG.prop(
+        'group',
+        new CG.dataModelBinding()
+          .setTitle('group')
+          .setDescription(
+            'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
+          )
+          .optional(),
+      ),
+      new CG.prop(
+        'checked',
+        new CG.dataModelBinding()
+          .setTitle('checked')
+          .setDescription(
+            'If deletionStrategy=soft and group is set, this value points to where you want to save deleted status.',
+          )
+          .optional(),
+      ),
+    )
+      .exportAs('IDataModelBindingsForGroupMultiselect')
+      .extends(CG.common('IDataModelBindingsOptionsSimple')),
+  )
+  .addProperty(new CG.prop('deletionStrategy', new CG.enum('soft', 'hard').optional()))
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'));
