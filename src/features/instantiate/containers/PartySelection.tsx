@@ -28,6 +28,7 @@ import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { capitalizeName } from 'src/utils/stringHelper';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IParty } from 'src/types/shared';
 
 export const PartySelection = () => {
@@ -100,76 +101,6 @@ export const PartySelection = () => {
     );
   }
 
-  function getRepresentedPartyName(): string {
-    if (!selectedParty || selectedParty.name === null) {
-      return '';
-    }
-    return capitalizeName(selectedParty.name);
-  }
-
-  function TemplateErrorMessage() {
-    return (
-      <Paragraph
-        data-testid={`error-code-${HttpStatusCodes.Forbidden}`}
-        className={classes.error}
-        id='party-selection-error'
-      >
-        {!selectedParty ? (
-          <Lang id='party_selection.invalid_selection_non_existing_party' />
-        ) : (
-          <Lang
-            id='party_selection.invalid_selection_existing_party'
-            params={[getRepresentedPartyName(), templatePartyTypesString()]}
-          />
-        )}
-      </Paragraph>
-    );
-  }
-
-  function templatePartyTypesString() {
-    /*
-      This method we always return the strings in an order of:
-      1. private person
-      2. organisation
-      3. sub unit
-      4. bankruptcy state
-    */
-    const { partyTypesAllowed } = appMetadata ?? {};
-    const partyTypes: string[] = [];
-    const allDisallowed = Object.values(partyTypesAllowed).every((value) => !value);
-
-    let returnString = '';
-
-    if (allDisallowed || partyTypesAllowed?.person) {
-      partyTypes.push(langAsString('party_selection.unit_type_private_person'));
-    }
-    if (allDisallowed || partyTypesAllowed?.organisation) {
-      partyTypes.push(langAsString('party_selection.unit_type_company'));
-    }
-    if (allDisallowed || partyTypesAllowed?.subUnit) {
-      partyTypes.push(langAsString('party_selection.unit_type_subunit'));
-    }
-    if (allDisallowed || partyTypesAllowed?.bankruptcyEstate) {
-      partyTypes.push(langAsString('party_selection.unit_type_bankruptcy_state'));
-    }
-
-    if (partyTypes.length === 1) {
-      return partyTypes[0];
-    }
-
-    for (let i = 0; i < partyTypes.length; i++) {
-      if (i === 0) {
-        returnString += partyTypes[i];
-      } else if (i === partyTypes.length - 1) {
-        returnString += ` ${langAsString('party_selection.binding_word')} ${partyTypes[i]}`;
-      } else {
-        returnString += `, ${partyTypes[i]} `;
-      }
-    }
-
-    return returnString;
-  }
-
   const onFilterStringChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterString(event.target.value);
   };
@@ -201,7 +132,7 @@ export const PartySelection = () => {
         >
           <Lang id='party_selection.header' />
         </Heading>
-        {errorCode === '403' && <TemplateErrorMessage />}
+        {errorCode === '403' && <TemplateErrorMessage selectedParty={selectedParty} />}
       </Flex>
       <Flex
         container
@@ -287,3 +218,82 @@ export const PartySelection = () => {
     </InstantiationContainer>
   );
 };
+
+function TemplateErrorMessage({ selectedParty }: { selectedParty: IParty | undefined }) {
+  const appMetadata = useApplicationMetadata();
+  const { langAsString } = useLanguage();
+
+  return (
+    <Paragraph
+      data-testid={`error-code-${HttpStatusCodes.Forbidden}`}
+      className={classes.error}
+      id='party-selection-error'
+    >
+      {!selectedParty ? (
+        <Lang id='party_selection.invalid_selection_non_existing_party' />
+      ) : (
+        <Lang
+          id='party_selection.invalid_selection_existing_party'
+          params={[getRepresentedPartyName({ selectedParty }), templatePartyTypesString({ appMetadata, langAsString })]}
+        />
+      )}
+    </Paragraph>
+  );
+}
+
+function getRepresentedPartyName({ selectedParty }: { selectedParty: IParty | undefined }): string {
+  if (!selectedParty || selectedParty.name === null) {
+    return '';
+  }
+  return capitalizeName(selectedParty.name);
+}
+
+function templatePartyTypesString({
+  appMetadata,
+  langAsString,
+}: {
+  appMetadata: ApplicationMetadata;
+  langAsString: (id: string) => string;
+}): string {
+  /*
+      This method we always return the strings in an order of:
+      1. private person
+      2. organisation
+      3. sub unit
+      4. bankruptcy state
+    */
+  const { partyTypesAllowed } = appMetadata ?? {};
+  const partyTypes: string[] = [];
+  const allDisallowed = Object.values(partyTypesAllowed).every((value) => !value);
+
+  let returnString = '';
+
+  if (allDisallowed || partyTypesAllowed?.person) {
+    partyTypes.push(langAsString('party_selection.unit_type_private_person'));
+  }
+  if (allDisallowed || partyTypesAllowed?.organisation) {
+    partyTypes.push(langAsString('party_selection.unit_type_company'));
+  }
+  if (allDisallowed || partyTypesAllowed?.subUnit) {
+    partyTypes.push(langAsString('party_selection.unit_type_subunit'));
+  }
+  if (allDisallowed || partyTypesAllowed?.bankruptcyEstate) {
+    partyTypes.push(langAsString('party_selection.unit_type_bankruptcy_state'));
+  }
+
+  if (partyTypes.length === 1) {
+    return partyTypes[0];
+  }
+
+  for (let i = 0; i < partyTypes.length; i++) {
+    if (i === 0) {
+      returnString += partyTypes[i];
+    } else if (i === partyTypes.length - 1) {
+      returnString += ` ${langAsString('party_selection.binding_word')} ${partyTypes[i]}`;
+    } else {
+      returnString += `, ${partyTypes[i]} `;
+    }
+  }
+
+  return returnString;
+}
