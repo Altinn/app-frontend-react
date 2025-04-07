@@ -1,6 +1,9 @@
-import type { IInstance, IInstanceDataSources } from 'src/types/shared';
+import type { IInstance, IInstanceDataSources, IParty } from 'src/types/shared';
 
-export function buildInstanceDataSources(instance?: IInstance | null | undefined): IInstanceDataSources | null {
+export function buildInstanceDataSources(
+  instance: IInstance | null | undefined,
+  instanceOwnerParty: IParty | null | undefined = instance?.instanceOwner?.party,
+): IInstanceDataSources | null {
   if (!instance?.instanceOwner) {
     return null;
   }
@@ -17,6 +20,6 @@ export function buildInstanceDataSources(instance?: IInstance | null | undefined
     instanceId: instance.id,
     instanceOwnerPartyId: instance.instanceOwner?.partyId,
     instanceOwnerPartyType,
-    instanceOwnerName: instance.instanceOwner?.party?.name,
+    instanceOwnerName: instanceOwnerParty?.name,
   };
 }

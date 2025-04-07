@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 import type { PropsWithChildren } from 'react';
 
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -9,7 +10,7 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQueryDef } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
 import type { IParty } from 'src/types/shared';
@@ -197,7 +198,9 @@ export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelec
 
 export function useInstanceOwnerParty(): IParty | null {
   const parties = usePartiesAllowedToInstantiate() ?? [];
-  const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
+  const { instanceOwnerPartyId, instanceGuid } = useParams();
+  const { data: instance } = useQuery(useInstanceDataQueryDef(false, instanceOwnerPartyId, instanceGuid));
+  const instanceOwner = instance?.instanceOwner;
 
   if (!instanceOwner) {
     return null;
