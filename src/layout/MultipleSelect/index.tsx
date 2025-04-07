@@ -59,15 +59,11 @@ export class MultipleSelect extends MultipleSelectDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {
     const errors: string[] = [];
-    const allowedTypes = ['string', 'boolean', 'number', 'integer'];
-
     const dataModelBindings = ctx.item.dataModelBindings ?? {};
 
     if (!dataModelBindings?.group) {
-      for (const [binding] of Object.entries(dataModelBindings ?? {})) {
-        const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedTypes, false);
-        errors.push(...(newErrors || []));
-      }
+      const [newErrors] = this.validateDataModelBindingsSimple(ctx);
+      errors.push(...(newErrors || []));
     }
 
     const [newErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
