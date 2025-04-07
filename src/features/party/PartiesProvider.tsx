@@ -18,8 +18,6 @@ import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 const partyQueryKeys = {
   all: ['parties'] as const,
   allowedToInstantiate: () => [...partyQueryKeys.all, 'allowedToInstantiate'] as const,
-  instanceOwnerParty: (instanceOwnerPartyId: string | undefined) =>
-    [...partyQueryKeys.all, 'instanceOwnerParty', instanceOwnerPartyId] as const,
 };
 
 // Also used for prefetching @see appPrefetcher.ts, partyPrefetcher.ts
