@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
-import { FixedSizeList as List } from 'react-window';
-import type { ListChildComponentProps } from 'react-window';
+import React, { useRef } from 'react';
 
+import { Button } from '@digdir/designsystemet-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import dot from 'dot-object';
 import { useStore } from 'zustand';
 
@@ -14,54 +14,89 @@ interface RepeatingGroupNextType {
 }
 
 export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component }) => {
-  // Grab the array from data using the group binding
-
-  // component.dataModelBindings?.group
-
   // @ts-ignore
   const binding = component.dataModelBindings?.group;
-
   if (!binding) {
     throw new Error('Tried to render repeating group without datamodel binding');
   }
 
   const groupArray = useStore(layoutStore, (state) => dot.pick(binding, state.data));
-
-  // @ts-ignore
-  const parentBinding = component.dataModelBindings?.group;
-
-  // Row renderer for each item in the group
-  const Row = useCallback(
-    ({ index, style }: ListChildComponentProps) => (
-      <div style={style}>
-        <RenderLayout
-          components={component.children!}
-          parentBinding={parentBinding}
-          itemIndex={index}
-        />
-      </div>
-    ),
-    [component.children, parentBinding],
-  );
   if (!Array.isArray(groupArray)) {
     throw new Error('Repeating group data must be an array');
   }
 
+  // @ts-ignore
+  const parentBinding = component.dataModelBindings?.group;
+
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  // Set up the virtualizer
+  const rowVirtualizer = useVirtualizer({
+    count: groupArray.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 150, // just a rough estimate
+    overscan: 2,
+    measureElement: (element, entry, instance) => element.getBoundingClientRect().height,
+  });
   if (!component.children || !Array.isArray(component.children)) {
     return null;
   }
 
   return (
-    <div style={{ backgroundColor: 'lightblue' }}>
-      <List
-        height={2000} // total visible height of the list
-        width='100%' // can be a number or string
-        itemCount={groupArray.length}
-        itemSize={900} // fixed row height in px
-        // overscanCount={2}       // optional: how many extra items to render offscreen
+    <>
+      <div
+        ref={parentRef}
+        style={{
+          width: '100%',
+          height: '2000px',
+          overflow: 'auto',
+        }}
       >
-        {Row}
-      </List>
-    </div>
+        <div
+          style={{
+            height: `${rowVirtualizer.getTotalSize()}px`,
+            position: 'relative',
+            width: '100%',
+          }}
+        >
+          {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+            const index = virtualRow.index;
+            return (
+              <div
+                key={index}
+                ref={(el) => {
+                  if (el) {
+                    rowVirtualizer.measureElement(el);
+                  }
+                }}
+                data-index={index}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: `${groupArray[virtualRow.index]}px`,
+                  transform: `translateY(${virtualRow.start}px)`,
+                }}
+              >
+                <RenderLayout
+                  components={component.children}
+                  parentBinding={parentBinding}
+                  itemIndex={index}
+                />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <Button
+        onClick={() => {
+          console.log('click');
+        }}
+      >
+        Legg til
+      </Button>
+    </>
   );
 };

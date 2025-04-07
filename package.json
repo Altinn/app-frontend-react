@@ -141,6 +141,7 @@
     "@material-ui/core": "4.12.4",
     "@navikt/aksel-icons": "7.9.2",
     "@tanstack/react-query": "5.64.2",
+    "@tanstack/react-virtual": "^3.13.6",
     "ajv": "8.17.1",
     "ajv-errors": "3.0.0",
     "ajv-formats": "3.0.1",
