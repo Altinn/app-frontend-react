@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Table } from '@digdir/designsystemet-react';
+import { Table, ValidationMessage } from '@digdir/designsystemet-react';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -23,6 +23,7 @@ import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponen
 import { EditButtonById } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
@@ -90,7 +91,7 @@ export const RepeatingGroupTableSummary = ({
             ))}
             {!pdfModeActive && !isSmall && (
               <Table.HeaderCell className={tableClasses.narrowLastColumn}>
-                <span className={tableClasses.visuallyHidden}>
+                <span className={utilClasses.visuallyHidden}>
                   <Lang id='general.edit' />
                 </span>
               </Table.HeaderCell>
@@ -116,8 +117,9 @@ export const RepeatingGroupTableSummary = ({
         </Table.Body>
       </Table>
       {errors?.map(({ message }) => (
-        <ErrorMessage
+        <ValidationMessage
           key={message.key}
+          data-size='sm'
           className={classes.errorMessage}
         >
           <ExclamationmarkTriangleIcon fontSize='1.5rem' />
@@ -126,7 +128,7 @@ export const RepeatingGroupTableSummary = ({
             params={message.params}
             node={componentNode}
           />
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
     </div>
   );

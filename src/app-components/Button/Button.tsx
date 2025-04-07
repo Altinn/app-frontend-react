@@ -15,13 +15,13 @@ export type ButtonProps = {
   isLoading?: boolean;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  fullWidth?: boolean;
 } & Pick<
   DesignSystemButtonProps,
   | 'id'
   | 'title'
   | 'disabled'
   | 'icon'
-  | 'fullWidth'
   | 'onClick'
   | 'style'
   | 'tabIndex'
@@ -72,13 +72,13 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
       id={id}
       disabled={disabled || isLoading}
       variant={variant}
-      color={color}
-      size={size}
+      data-color={color}
+      data-size={size}
+      data-fullwidth={fullWidth}
       ref={ref}
       className={className}
       title={title}
       icon={icon}
-      fullWidth={fullWidth}
       onClick={onClick}
       style={style}
       tabIndex={tabIndex}
@@ -97,9 +97,9 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
         <>
           <Spinner
             aria-hidden='true'
-            color={color}
-            size={size === 'lg' ? 'sm' : 'xs'}
-            title={langAsString('general.loading')}
+            data-color={color}
+            data-size={size === 'lg' ? 'sm' : 'xs'}
+            aria-label={langAsString('general.loading')}
           />
           {children}
         </>

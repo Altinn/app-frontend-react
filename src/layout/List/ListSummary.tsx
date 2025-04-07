@@ -52,7 +52,7 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
           {title && (
             <caption className={classes.tableCaption}>
               <Heading
-                size='xs'
+                data-size='xs'
                 level={4}
               >
                 <Lang

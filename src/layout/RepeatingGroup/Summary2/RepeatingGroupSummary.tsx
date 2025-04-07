@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Heading } from '@digdir/designsystemet-react';
+import { Heading, ValidationMessage } from '@digdir/designsystemet-react';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -64,7 +64,7 @@ export const RepeatingGroupSummary = ({
       data-testid='summary-repeating-group-component'
     >
       <Heading
-        size='xs'
+        daata-size='xs'
         level={4}
       >
         <Lang
@@ -103,8 +103,9 @@ export const RepeatingGroupSummary = ({
         })}
       </div>
       {errors?.map(({ message }) => (
-        <ErrorMessage
+        <ValidationMessage
           key={message.key}
+          data-size='sm'
           className={classes.errorMessage}
         >
           <ExclamationmarkTriangleIcon fontSize='1.5rem' />
@@ -113,7 +114,7 @@ export const RepeatingGroupSummary = ({
             params={message.params}
             node={componentNode}
           />
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
     </div>
   );

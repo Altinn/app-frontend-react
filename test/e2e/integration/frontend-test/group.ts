@@ -260,9 +260,9 @@ describe('Group', () => {
       cy.findByRole('button', { name: 'Forrige' }).click();
       for (const item of Object.keys(items)) {
         if (items[item] === true) {
-          cy.get(appFrontend.group.prefill[item]).check();
+          cy.findByRole('checkbox', { name: appFrontend.group.prefill[item] }).check();
         } else {
-          cy.get(appFrontend.group.prefill[item]).uncheck();
+          cy.findByRole('checkbox', { name: appFrontend.group.prefill[item] }).uncheck();
         }
       }
       cy.findByRole('button', { name: /Neste/ }).click();
@@ -472,9 +472,9 @@ describe('Group', () => {
     });
 
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.enorm).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).blur();
@@ -612,9 +612,9 @@ describe('Group', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.enorm).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
@@ -655,8 +655,8 @@ describe('Group', () => {
   it('adding group rows should trigger backend calculations + selecting options from source', () => {
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
 
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
@@ -711,7 +711,7 @@ describe('Group', () => {
 
     // Adding a new row to the main group adds a new option
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.stor).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
     cy.gotoNavPage('repeating');
 
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 2);
@@ -761,7 +761,7 @@ describe('Group', () => {
     ]) {
       // It is very important that these gets checked in this order, as the rest of the test relies on that.
       // Order is not guaranteed here, so we'll wait for each one to be saved before continuing.
-      cy.get(prefill).check();
+      cy.findByRole('checkbox', { name: prefill }).check();
       cy.waitUntilSaved();
     }
 
@@ -777,7 +777,7 @@ describe('Group', () => {
     // Navigating between pages should clear the state for which group row is editing, so now the
     // first one (that is not hidden) should be open
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).should('be.visible');
     cy.gotoNavPage('repeating');
 
     cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 120');
@@ -790,7 +790,7 @@ describe('Group', () => {
     // value using C# default values in the strict model.
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).should('be.checked');
 
-    cy.get(appFrontend.group.prefill.liten).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
@@ -798,7 +798,7 @@ describe('Group', () => {
 
     cy.gotoNavPage('prefill');
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Nei' }).click();
-    cy.get(appFrontend.group.prefill.middels).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
     cy.waitUntilSaved();
 
     cy.gotoNavPage('repeating');
@@ -807,7 +807,7 @@ describe('Group', () => {
 
     cy.gotoNavPage('prefill');
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).click();
-    cy.get(appFrontend.group.prefill.stor).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
 
     // When we temporarily disabled the prefilling functionality, ruleHandler tricked the backend by
     // setting PrefillValuesShadow to the same value as PrefillValues, making the backend think the 'middels' row we
@@ -830,11 +830,11 @@ describe('Group', () => {
       }
     });
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.stor).check();
-    cy.get(appFrontend.group.prefill.svaer).check();
-    cy.get(appFrontend.group.prefill.enorm).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.svaer }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
@@ -965,9 +965,9 @@ describe('Group', () => {
     // starts as soon as the data is saved, and when you at that point immediately click a new checkbox, that triggers
     // a new node generation process - before the first one has finished.
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.waitUntilSaved();
-    cy.get(appFrontend.group.prefill.middels).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);

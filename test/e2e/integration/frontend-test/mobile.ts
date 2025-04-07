@@ -40,11 +40,11 @@ function testChangeName() {
 
 function testGroup(mode: Mode) {
   cy.wait('@getLayoutGroup');
-  cy.get(appFrontend.group.prefill.liten).check();
-  cy.get(appFrontend.group.prefill.middels).check();
-  cy.get(appFrontend.group.prefill.stor).check();
-  cy.get(appFrontend.group.prefill.svaer).check();
-  cy.get(appFrontend.group.prefill.enorm).check();
+  cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+  cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+  cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
+  cy.findByRole('checkbox', { name: appFrontend.group.prefill.svaer }).check();
+  cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
 
   cy.navPage('repeating').click();
   cy.get(appFrontend.group.showGroupToContinue).find('input').check();

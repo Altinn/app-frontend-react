@@ -1,0 +1,5 @@
+.inlineRadioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ds-size-6);
+}
