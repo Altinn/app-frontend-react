@@ -198,7 +198,7 @@ export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedPar
 export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelectedParty;
 
 export function useInstanceOwnerParty(): IParty | null {
-  const parties = usePartiesAllowedToInstantiate();
+  const parties = usePartiesAllowedToInstantiate() ?? [];
   const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
 
   if (!instanceOwner) {
@@ -214,6 +214,7 @@ export function useInstanceOwnerParty(): IParty | null {
   // Backwards compatibility: if the backend returns only the partyId, we need to find the party in the list of parties.
   // This logic assumes that the current logged in user has "access" to the party of the instance owner,
   // as the parties array comes from the current users party list.
-  const flattenedParties = parties?.flatMap((party) => party.childParties ?? []);
+  const flattenedParties = [...parties, ...parties.flatMap((party) => party.childParties ?? [])];
+
   return flattenedParties?.find((party) => party.partyId.toString() === instanceOwner.partyId) ?? null;
 }

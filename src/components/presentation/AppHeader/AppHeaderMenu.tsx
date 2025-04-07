@@ -89,7 +89,8 @@ function useGetOnBehalfOf() {
   const userParty = useProfile()?.party;
 
   const onBehalfOfParty = instanceOwnerParty ?? selectedParty;
-  if (!!onBehalfOfParty && !!userParty && onBehalfOfParty.orgNumber !== userParty.orgNumber) {
+
+  if (!!onBehalfOfParty && !!userParty && onBehalfOfParty.partyId !== userParty.partyId) {
     return {
       name: onBehalfOfParty?.name,
       orgNumber: onBehalfOfParty?.orgNumber,
