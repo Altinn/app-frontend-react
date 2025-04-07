@@ -76,6 +76,16 @@ export const ListComponent = ({ node }: IListProps) => {
     setValues(next);
   }
 
+  function isRowSelected(row: Row): boolean {
+    if (groupBinding) {
+      const rows = (formData?.group as Row[] | undefined) ?? [];
+      return rows.some((selectedRow) =>
+        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
+      );
+    }
+    return JSON.stringify(selectedRow) === JSON.stringify(row);
+  }
+
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
 
@@ -144,7 +154,7 @@ export const ListComponent = ({ node }: IListProps) => {
         <Radio
           key={JSON.stringify(row)}
           value={JSON.stringify(row)}
-          className={cn(classes.mobile, { [classes.selectedRow]: isRowChecked(row) })}
+          className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
           onClick={() => handleSelectedRadioRow({ selectedValue: row })}
         >
           {renderListItems(row, tableHeaders)}
@@ -219,7 +229,7 @@ export const ListComponent = ({ node }: IListProps) => {
             >
               <Table.Cell
                 className={cn({
-                  [classes.selectedRowCell]: isRowChecked(row),
+                  [classes.selectedRowCell]: isRowSelected(row),
                 })}
               >
                 {groupBinding ? (
@@ -239,7 +249,7 @@ export const ListComponent = ({ node }: IListProps) => {
                       handleSelectedRadioRow({ selectedValue: row });
                     }}
                     value={JSON.stringify(row)}
-                    checked={isRowChecked(row)}
+                    checked={isRowSelected(row)}
                     name={node.id}
                   />
                 )}
@@ -248,7 +258,7 @@ export const ListComponent = ({ node }: IListProps) => {
                 <Table.Cell
                   key={key}
                   className={cn({
-                    [classes.selectedRowCell]: isRowChecked(row),
+                    [classes.selectedRowCell]: isRowSelected(row),
                   })}
                 >
                   {typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}
