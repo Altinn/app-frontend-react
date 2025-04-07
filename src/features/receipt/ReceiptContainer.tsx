@@ -200,15 +200,23 @@ export const ReceiptContainer = () => {
     return undefined;
   }, [instanceOrg, instanceGuid, lastChangedDateTime, langTools, receiver, instanceOwner, instanceOwnerParty]);
 
-  const requirementMissing = !attachments
-    ? 'attachments'
-    : !instanceMetaObject
-      ? 'instanceMetaObject'
-      : !lastChangedDateTime
-        ? 'lastChangedDateTime'
-        : !instanceOwnerParty
-          ? 'instanceOwnerParty'
-          : undefined;
+  function getMissingRequirement() {
+    if (!attachments) {
+      return 'attachments';
+    }
+    if (!instanceMetaObject) {
+      return 'instanceMetaObject';
+    }
+    if (!lastChangedDateTime) {
+      return 'lastChangedDateTime';
+    }
+    if (!instanceOwnerParty) {
+      return 'instanceOwnerParty';
+    }
+    return undefined;
+  }
+
+  const requirementMissing = getMissingRequirement();
 
   if (requirementMissing || !(instanceMetaObject && pdf)) {
     return (

@@ -84,7 +84,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const instanceSender =
     sender !== false &&
     instanceOwnerParty &&
-    `${instanceOwnerParty.ssn ? instanceOwnerParty.ssn : instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
+    `${instanceOwnerParty.ssn ?? instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
 
   const instanceReceiver = receiver !== false ? (appReceiver ?? 'Error: Receiver org not found') : undefined;
 
