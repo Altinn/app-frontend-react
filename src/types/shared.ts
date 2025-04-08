@@ -291,6 +291,7 @@ export interface IInstanceDataSources {
   appId: string;
   instanceOwnerPartyId: string;
   instanceOwnerPartyType: InstanceOwnerPartyType;
+  instanceOwnerName?: string;
 }
 
 export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject' | 'read' | 'write' | 'complete';
