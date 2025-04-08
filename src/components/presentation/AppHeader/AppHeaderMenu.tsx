@@ -66,7 +66,10 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
           {isMobile && <Dropdown.Heading>{displayName}</Dropdown.Heading>}
           <Dropdown.List>
             <Dropdown.Item>
-              <Button asChild>
+              <Button
+                variant='tertiary'
+                asChild
+              >
                 <a href={logoutUrlAltinn(window.location.host)}>
                   <Lang id='general.log_out' />
                 </a>
