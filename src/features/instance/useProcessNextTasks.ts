@@ -18,9 +18,3 @@ function useProcessNextTasksQuery() {
     enabled: !!instanceId && !!taskId && taskType !== ProcessTaskType.Archived,
   });
 }
-
-/**
- * This gives you a list of possible next tasks you can navigate to from the current task.
- */
-export const useProcessNextTasks = (defaultValue: string[] | undefined = []) =>
-  useProcessNextTasksQuery().data || defaultValue;

@@ -57,7 +57,6 @@ const delayedSelectorProps = {
 };
 
 export type CodeListSelector = (optionsId: string) => IOptionInternal[] | undefined | typeof CodeListPending;
-export const useCodeListSelector = (): CodeListSelector => useDelayedSelector(delayedSelectorProps);
 export const useCodeListSelectorProps = () => useDelayedSelectorProps(delayedSelectorProps);
 
 function FindAndMaintainCodeLists() {
