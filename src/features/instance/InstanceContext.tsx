@@ -217,10 +217,8 @@ export const useLaxChangeInstance = (): ChangeInstanceData | undefined => useLax
 export const useHasInstance = () => useHasProvider();
 
 export function useLaxInstanceDataSources(): IInstanceDataSources | null {
-  const instance = useLaxInstanceData((i) => i);
   const instanceOwnerParty = useInstanceOwnerParty();
-
-  return buildInstanceDataSources(instance, instanceOwnerParty);
+  return useLaxInstanceData((data) => buildInstanceDataSources(data, instanceOwnerParty)) ?? null;
 }
 
 /** Beware that in later versions, this will re-render your component after every save, as
