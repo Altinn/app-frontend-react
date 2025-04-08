@@ -101,6 +101,14 @@ const {
     })),
 });
 
+export const instanceQueryKeys = {
+  instanceData: (instanceOwnerPartyId: string | undefined, instanceGuid: string | undefined) => [
+    'instanceData',
+    instanceOwnerPartyId,
+    instanceGuid,
+  ],
+};
+
 // Also used for prefetching @see appPrefetcher.ts
 export function useInstanceDataQueryDef(
   hasResultFromInstantiation: boolean,
@@ -109,7 +117,7 @@ export function useInstanceDataQueryDef(
 ): QueryDefinition<IInstance> {
   const { fetchInstanceData } = useAppQueries();
   return {
-    queryKey: ['fetchInstanceData', partyId, instanceGuid],
+    queryKey: instanceQueryKeys.instanceData(partyId, instanceGuid),
     queryFn: partyId && instanceGuid ? () => fetchInstanceData(partyId, instanceGuid) : skipToken,
     enabled: !!partyId && !!instanceGuid && !hasResultFromInstantiation,
   };
