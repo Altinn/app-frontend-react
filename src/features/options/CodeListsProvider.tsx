@@ -31,7 +31,7 @@ function initialCreateStore() {
   }));
 }
 
-const { Provider, useDelayedSelector, useDelayedSelectorProps, useStaticSelector } = createZustandContext({
+const { Provider, useDelayedSelectorProps, useStaticSelector } = createZustandContext({
   name: 'CodeListsContext',
   required: true,
   initialCreateStore,

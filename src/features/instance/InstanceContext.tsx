@@ -43,7 +43,6 @@ const {
   useLaxMemoSelector,
   useHasProvider,
   useLaxStore,
-  useLaxDelayedSelector,
   useLaxDelayedSelectorProps,
 } = createZustandContext({
   name: 'InstanceContext',
