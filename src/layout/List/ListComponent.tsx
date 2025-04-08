@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import type { AriaAttributes } from 'react';
 
-import { Pagination as AltinnPagination } from '@altinn/altinn-design-system';
-import { Heading, Radio, Table } from '@digdir/designsystemet-react';
+import { Checkbox, Heading, Radio, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
-import type { DescriptionText } from '@altinn/altinn-design-system/dist/types/src/components/Pagination/Pagination';
+import { v4 as uuidv4 } from 'uuid';
 
+import { Pagination as CustomPagination } from 'src/app-components/Pagination/Pagination';
 import { Description } from 'src/components/form/Description';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getLabelId } from 'src/components/label/Label';
 import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
+import { FD } from 'src/features/formData/FormDataWrite';
+import { ALTINN_ROW_ID, DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -54,16 +56,22 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const { data } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
-  const { formData, setValues } = useDataModelBindings(bindings);
+
+  const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+  const groupBinding = item.dataModelBindings?.group;
+
+  const appendToList = FD.useAppendToList();
+  const removeFromList = FD.useRemoveIndexFromList();
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
 
-  const selectedRow =
-    data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '';
+  const selectedRow = !groupBinding
+    ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
+    : '';
 
-  function handleRowSelect({ selectedValue }: { selectedValue: Row }) {
+  function handleSelectedRadioRow({ selectedValue }: { selectedValue: Row }) {
     const next: Row = {};
     for (const binding of Object.keys(bindings)) {
       next[binding] = selectedValue[binding];
@@ -72,49 +80,125 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowSelected(row: Row): boolean {
+    if (groupBinding) {
+      const rows = (formData?.group as Row[] | undefined) ?? [];
+      return rows.some((selectedRow) =>
+        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
+      );
+    }
     return JSON.stringify(selectedRow) === JSON.stringify(row);
   }
 
   const title = item.textResourceBindings?.title;
   const description = item.textResourceBindings?.description;
 
+  const handleRowClick = (row: Row) => {
+    if (groupBinding) {
+      handleSelectedCheckboxRow(row);
+    } else {
+      handleSelectedRadioRow({ selectedValue: row });
+    }
+  };
+
+  const handleSelectedCheckboxRow = (row: Row) => {
+    if (!groupBinding) {
+      return;
+    }
+    if (isRowSelected(row)) {
+      const index = (formData?.group as Row[]).findIndex((selectedRow) => {
+        const { altinnRowId: _ } = selectedRow;
+        return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
+      });
+      if (index >= 0) {
+        removeFromList({
+          reference: groupBinding,
+          index,
+        });
+      }
+    } else {
+      const uuid = uuidv4();
+      const next: Row = { [ALTINN_ROW_ID]: uuid };
+      for (const binding of Object.keys(bindings)) {
+        if (binding !== 'group') {
+          next[binding] = row[binding];
+        }
+      }
+      appendToList({
+        reference: groupBinding,
+        newValue: { ...next },
+      });
+    }
+  };
+
+  const renderListItems = (row: Row, tableHeaders: { [x: string]: string | undefined }) =>
+    tableHeadersToShowInMobile.map((key) => (
+      <div key={key}>
+        <strong>
+          <Lang id={tableHeaders[key]} />
+        </strong>
+        <span>{typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}</span>
+      </div>
+    ));
+
+  const options = groupBinding ? (
+    <Checkbox.Group
+      legend={
+        <Heading
+          level={2}
+          size='sm'
+        >
+          <Lang id={title} />
+          <RequiredIndicator required={required} />
+        </Heading>
+      }
+      description={description && <Lang id={description} />}
+    >
+      {data?.listItems.map((row) => (
+        <Checkbox
+          key={JSON.stringify(row)}
+          onClick={() => handleRowClick(row)}
+          value={JSON.stringify(row)}
+          className={cn(classes.mobile)}
+          checked={isRowSelected(row)}
+        >
+          {renderListItems(row, tableHeaders)}
+        </Checkbox>
+      ))}
+    </Checkbox.Group>
+  ) : (
+    <Radio.Group
+      role='radiogroup'
+      required={required}
+      legend={
+        <Heading
+          level={2}
+          size='sm'
+        >
+          <Lang id={title} />
+          <RequiredIndicator required={required} />
+        </Heading>
+      }
+      description={description && <Lang id={description} />}
+      className={classes.mobileGroup}
+      value={JSON.stringify(selectedRow)}
+    >
+      {data?.listItems.map((row) => (
+        <Radio
+          key={JSON.stringify(row)}
+          value={JSON.stringify(row)}
+          className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
+          onClick={() => handleSelectedRadioRow({ selectedValue: row })}
+        >
+          {renderListItems(row, tableHeaders)}
+        </Radio>
+      ))}
+    </Radio.Group>
+  );
+
   if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
-        <Radio.Group
-          role='radiogroup'
-          required={required}
-          legend={
-            <Heading
-              level={2}
-              size='sm'
-            >
-              <Lang id={title} />
-              <RequiredIndicator required={required} />
-            </Heading>
-          }
-          description={description && <Lang id={description} />}
-          className={classes.mobileRadioGroup}
-          value={JSON.stringify(selectedRow)}
-        >
-          {data?.listItems.map((row) => (
-            <Radio
-              key={JSON.stringify(row)}
-              value={JSON.stringify(row)}
-              className={cn(classes.mobileRadio, { [classes.selectedRow]: isRowSelected(row) })}
-              onClick={() => handleRowSelect({ selectedValue: row })}
-            >
-              {tableHeadersToShowInMobile.map((key) => (
-                <div key={key}>
-                  <strong>
-                    <Lang id={tableHeaders[key]} />
-                  </strong>
-                  <span>{typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}</span>
-                </div>
-              ))}
-            </Radio>
-          ))}
-        </Radio.Group>
+        {options}
         <Pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
@@ -173,25 +257,34 @@ export const ListComponent = ({ node }: IListProps) => {
           {data?.listItems.map((row) => (
             <Table.Row
               key={JSON.stringify(row)}
-              onClick={() => {
-                handleRowSelect({ selectedValue: row });
-              }}
+              onClick={() => handleRowClick(row)}
             >
               <Table.Cell
                 className={cn({
                   [classes.selectedRowCell]: isRowSelected(row),
                 })}
               >
-                <RadioButton
-                  className={classes.radio}
-                  aria-label={JSON.stringify(row)}
-                  onChange={() => {
-                    handleRowSelect({ selectedValue: row });
-                  }}
-                  value={JSON.stringify(row)}
-                  checked={isRowSelected(row)}
-                  name={node.id}
-                />
+                {groupBinding ? (
+                  <Checkbox
+                    className={classes.toggleControl}
+                    aria-label={JSON.stringify(row)}
+                    onChange={() => {}}
+                    value={JSON.stringify(row)}
+                    checked={isRowSelected(row)}
+                    name={node.id}
+                  />
+                ) : (
+                  <RadioButton
+                    className={classes.toggleControl}
+                    aria-label={JSON.stringify(row)}
+                    onChange={() => {
+                      handleSelectedRadioRow({ selectedValue: row });
+                    }}
+                    value={JSON.stringify(row)}
+                    checked={isRowSelected(row)}
+                    name={node.id}
+                  />
+                )}
               </Table.Cell>
               {Object.keys(tableHeaders).map((key) => (
                 <Table.Cell
@@ -245,21 +338,24 @@ function Pagination({
     setPageNumber(0);
     setPageSize(newSize);
   }
+  const textStrings = language?.['list_component'];
 
   return (
     <div className={cn({ [classes.paginationMobile]: isMobile }, classes.pagination, 'fds-table__header__cell')}>
-      <AltinnPagination
-        numberOfRows={numberOfRows ?? 0}
-        rowsPerPageOptions={rowsPerPageOptions}
-        rowsPerPage={pageSize}
-        onRowsPerPageChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-          handlePageSizeChange(parseInt(event.target.value, 10));
-        }}
+      <CustomPagination
+        nextLabel={textStrings['nextPage']}
+        nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
+        previousLabel={textStrings['previousPage']}
+        previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
+        rowsPerPageText={textStrings['rowsPerPage']}
+        size='sm'
         currentPage={pageNumber}
-        setCurrentPage={(newPage: number) => {
-          setPageNumber(newPage);
-        }}
-        descriptionTexts={(language?.['list_component'] ?? {}) as unknown as DescriptionText}
+        numberOfRows={numberOfRows}
+        pageSize={pageSize}
+        onChange={setPageNumber}
+        showRowsPerPageDropdown
+        onPageSizeChange={(value) => handlePageSizeChange(+value)}
+        rowsPerPageOptions={rowsPerPageOptions}
       />
     </div>
   );

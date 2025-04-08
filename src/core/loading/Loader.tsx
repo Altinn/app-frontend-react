@@ -21,7 +21,8 @@ export const Loader = (props: LoaderProps) => {
         <PresentationComponent
           header={<Lang id='instantiate.starting' />}
           type={ProcessTaskType.Unknown}
-          renderNavBar={false}
+          showNavbar={false}
+          showNavigation={false}
         >
           <InnerLoader {...props} />
         </PresentationComponent>

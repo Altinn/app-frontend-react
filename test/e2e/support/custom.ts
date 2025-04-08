@@ -1,5 +1,6 @@
 import 'cypress-wait-until';
 
+import escapeRegex from 'escape-string-regexp';
 import deepEqual from 'fast-deep-equal';
 import type axe from 'axe-core';
 import type { Options as AxeOptions } from 'cypress-axe';
@@ -90,7 +91,7 @@ Cypress.Commands.add('navPage', (page: string) => {
     if (win.innerWidth < 768) {
       cy.get(appFrontend.navMobileMenu).should('have.attr', 'aria-expanded', 'false').click();
     }
-    cy.get(appFrontend.navMenu).findByText(page).parent();
+    cy.get(appFrontend.navMenu).findByRole('button', { name: new RegExp(`^\\d+\\. ${escapeRegex(page)}$`) });
   });
 });
 
@@ -547,7 +548,7 @@ Cypress.Commands.add('getSummary', (label) => {
 type ImageData = { path: string; dataUrl: string };
 Cypress.Commands.add('directSnapshot', (snapshotName, { width, minHeight }, reset = true) => {
   // Store initial viewport size for later
-  cy.getCurrentViewportSize().as('viewportSize');
+  cy.getCurrentViewportSize().as('directSnapshotViewportSize');
   cy.viewport(width, minHeight);
 
   // cy.screenshot's blackout property does not ensure that text is monospace which causes unecessary visual changes, so using our own percy css instead
@@ -605,7 +606,7 @@ Cypress.Commands.add('directSnapshot', (snapshotName, { width, minHeight }, rese
   // Revert to original viewport
   if (reset) {
     cy.go('back');
-    cy.get<Size>('@viewportSize').then(({ width, height }) => {
+    cy.get<Size>('@directSnapshotViewportSize').then(({ width, height }) => {
       cy.viewport(width, height);
     });
   }
@@ -615,7 +616,7 @@ Cypress.Commands.add(
   'testPdf',
   ({ snapshotName = false, beforeReload, callback, returnToForm = false, enableResponseFuzzing = false }) => {
     // Store initial viewport size for later
-    cy.getCurrentViewportSize().as('viewportSize');
+    cy.getCurrentViewportSize().as('testPdfViewportSize');
 
     // Make sure instantiation is completed before we get the url
     cy.location('hash', { log: false }).should('contain', '#/instance/');
@@ -689,7 +690,8 @@ Cypress.Commands.add(
       // Disable media emulation and revert to original viewport
       cy.clock().invoke('restore');
       cy.setEmulatedMedia();
-      cy.get<Size>('@viewportSize').then(({ width, height }) => {
+      cy.get<Size>('@testPdfViewportSize').then(({ width, height }) => {
+        cy.log(`Viewport size: ${width}x${height}`);
         cy.viewport(width, height);
       });
       cy.get('body').invoke('css', 'margin', '');
@@ -858,4 +860,88 @@ Cypress.Commands.add('getCurrentViewportSize', function () {
     width: win.innerWidth,
     height: win.innerHeight,
   }));
+});
+
+Cypress.Commands.add('showNavGroups', () => {
+  cy.findByRole('button', { name: 'Skjemasider' }).click();
+  cy.findByRole('dialog', { name: 'Skjemasider' }).should('be.visible');
+  cy.findByRole('dialog', { name: 'Skjemasider' }).should('have.css', 'opacity', '1');
+});
+
+Cypress.Commands.add('hideNavGroups', () => {
+  cy.findByRole('dialog', { name: 'Skjemasider' }).within(() => cy.findByRole('button', { name: 'Lukk' }).click());
+  cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+});
+
+Cypress.Commands.add('navGroup', (groupName, pageName, subformName) => {
+  if (subformName && pageName) {
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy
+        .findByRole('button', { name: groupName, container })
+        .parent()
+        .then((container) => cy.findByRole('button', { name: pageName, container }))
+        .parent()
+        .then((container) => cy.findByRole('button', { name: subformName, container })),
+    );
+  } else if (pageName) {
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy
+        .findByRole('button', { name: groupName, container })
+        .parent()
+        .then((container) => cy.findByRole('button', { name: pageName, container })),
+    );
+  } else {
+    cy.get('[data-testid=page-navigation]').then((container) =>
+      cy.findByRole('button', { name: groupName, container }),
+    );
+  }
+});
+
+Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
+  cy.get('body').then((body) => {
+    const isUsingDialog = !!body.find('[data-testid=page-navigation-trigger]').length;
+    if (pageName) {
+      cy.navGroup(groupName).then((group) => {
+        if (group[0].getAttribute('aria-expanded') === 'false') {
+          cy.navGroup(groupName).click();
+        }
+      });
+      cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
+      cy.navGroup(groupName, pageName).click();
+      if (isUsingDialog) {
+        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      } else {
+        cy.navGroup(groupName, pageName).should('have.attr', 'aria-current', 'page');
+      }
+    } else {
+      cy.navGroup(groupName).should('not.have.attr', 'aria-expanded');
+      cy.navGroup(groupName).click();
+      if (isUsingDialog) {
+        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      } else {
+        cy.navGroup(groupName).should('have.attr', 'aria-current', 'page');
+      }
+    }
+  });
+});
+
+Cypress.Commands.add('openNavGroup', (groupName, pageName, subformName) => {
+  cy.navGroup(groupName).then((group) => {
+    if (group[0].getAttribute('aria-expanded') === 'false') {
+      cy.navGroup(groupName).click();
+    }
+  });
+  cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
+
+  if (pageName && !subformName) {
+    throw new Error('Navigation page cannot be "opened", perhaps you intended to use "gotoNavGroup" instead?');
+  }
+
+  if (pageName && subformName) {
+    cy.navGroup(groupName, pageName, subformName).then((subform) => {
+      if (subform[0].getAttribute('aria-expanded') === 'false') {
+        cy.navGroup(groupName, pageName, subformName).click();
+      }
+    });
+  }
 });

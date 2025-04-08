@@ -4,6 +4,8 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Likert } from 'test/e2e/pageobjects/likert';
 
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
+import type { ILayoutSettings } from 'src/layout/common.generated';
+import type { ILayoutCollection } from 'src/layout/layout';
 
 const appFrontend = new AppFrontend();
 const likertPage = new Likert();
@@ -96,7 +98,7 @@ describe('PDF', () => {
     cy.findByRole('checkbox', { name: /ja, jeg bekrefter/i }).check();
     cy.findByRole('radio', { name: /adoptivforelders/i }).check();
     cy.findByRole('textbox', { name: /når vil du at/i }).type('01/01/2020');
-    cy.findByRole('textbox', { name: /mobil nummer/i }).type('98765432');
+    cy.findByRole('textbox', { name: /mobilnummer/i }).type('98765432');
     cy.dsSelect(appFrontend.changeOfName.sources, 'Digitaliseringsdirektoratet');
     cy.get(appFrontend.changeOfName.reference).should('have.value', '');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', '');
@@ -123,7 +125,7 @@ describe('PDF', () => {
         cy.getSummary('Bruksnummer').should('not.exist');
         cy.getSummary('Forklar din tilknytning til gårdsbruket').should('not.exist');
         cy.getSummary('Når vil du at navnendringen').should('contain.text', '01/01/2020');
-        cy.getSummary('Mobil nummer').should('contain.text', '+47 987 65 432');
+        cy.getSummary('Mobilnummer').should('contain.text', '+47 987 65 432');
         cy.getSummary('hvor fikk du vite om skjemaet').should('contain.text', 'Digitaliseringsdirektoratet');
         cy.getSummary('Referanse').should('contain.text', 'Sophie Salt');
         cy.getSummary('Referanse 2').should('contain.text', 'Dole');
@@ -153,7 +155,9 @@ describe('PDF', () => {
     cy.testPdf({
       snapshotName: 'changeName 2',
       enableResponseFuzzing: true,
-      callback: () => {
+      callback: () =>
+        // prettier-ignore
+        {
         cy.findByRole('table').should('contain.text', 'Mottaker:Testdepartementet');
         cy.getSummary('Nytt fornavn').should('contain.text', 'Ola');
         cy.getSummary('Nytt etternavn').should('contain.text', 'Nordmann');
@@ -166,15 +170,16 @@ describe('PDF', () => {
         cy.getSummary('Bruksnummer').should('contain.text', '56');
         cy.getSummary('Forklar din tilknytning til gårdsbruket').should('contain.text', 'Gris');
         cy.getSummary('Når vil du at navnendringen').should('contain.text', '01/01/2020');
-        cy.getSummary('Mobil nummer').should('contain.text', '+47 987 65 432');
+        cy.getSummary('Mobilnummer').should('contain.text', '+47 987 65 432');
         cy.getSummary('hvor fikk du vite om skjemaet').should('contain.text', 'Altinn');
         cy.getSummary('Referanse').should('contain.text', 'Ola Nordmann');
         cy.getSummary('Referanse 2').should('contain.text', 'Ole');
         cy.getSummary('Adresse').should('contain.text', 'Økern 1');
-        cy.getSummary('Velg lokasjon').findByAltText('Marker').should('be.visible');
-        cy.getSummary('Velg lokasjon')
-          .findByText(/Valgt lokasjon: 67(\.\d{1,6})?° nord, 16(\.\d{1,6})?° øst/)
-          .should('be.visible');
+        cy.getSummary('Velg lokasjon').findByRole('img', { name: 'Marker', description: '' }).should('be.visible');
+        cy.getSummary('Velg lokasjon').findByRole('tooltip', { name: 'Hankabakken 4' }).should('be.visible');
+        cy.getSummary('Velg lokasjon').findByRole('img', { name: 'Marker', description: 'Hankabakken 6' }).should('be.visible');
+        cy.getSummary('Velg lokasjon').findByRole('tooltip', { name: 'Hankabakken 6' }).should('be.visible');
+        cy.getSummary('Velg lokasjon').findByText(/Valgt lokasjon: 67(\.\d{1,6})?° nord, 16(\.\d{1,6})?° øst/).should('be.visible');
       },
     });
   });
@@ -276,20 +281,20 @@ describe('PDF', () => {
   it('should use custom PDF if set', () => {
     const pdfLayoutName = 'CustomPDF';
 
-    cy.intercept('GET', '**/layoutsettings/**', (req) => {
-      req.continue((res) => {
-        const body = JSON.parse(res.body);
-        res.body = JSON.stringify({
+    cy.intercept('GET', '**/layoutsettings/**', (req) =>
+      req.on('response', (res) => {
+        const body: ILayoutSettings = JSON.parse(res.body);
+        res.send({
           ...body,
           pages: { ...body.pages, pdfLayoutName },
         });
-      });
-    });
+      }),
+    );
 
-    cy.intercept('GET', '**/layouts/**', (req) => {
-      req.continue((res) => {
-        const body = JSON.parse(res.body);
-        res.body = JSON.stringify({
+    cy.intercept('GET', '**/layouts/**', (req) =>
+      req.on('response', (res) => {
+        const body: ILayoutCollection = JSON.parse(res.body);
+        res.send({
           ...body,
           [pdfLayoutName]: {
             data: {
@@ -300,28 +305,88 @@ describe('PDF', () => {
                   textResourceBindings: { title: 'This is a custom PDF' },
                   size: 'L',
                 },
+                {
+                  id: 'datalist',
+                  type: 'Summary2',
+                  target: {
+                    taskId: 'Task_5',
+                    type: 'layoutSet',
+                  },
+                  showPageInAccordion: false,
+                },
               ],
             },
           },
         });
-      });
-    });
+      }),
+    );
 
-    cy.goto('changename');
+    cy.goto('message');
+    cy.get(appFrontend.message.title).should('be.visible');
+    cy.waitUntilSaved();
+
+    cy.gotoAndComplete('datalist');
 
     cy.testPdf({
       callback: () => {
         cy.findByRole('heading', { name: /this is a custom pdf/i }).should('be.visible');
+        cy.getSummary('Hvem gjelder saken?').should('contain.text', 'Caroline');
       },
     });
+  });
+
+  it('should fail if custom PDF is not found', () => {
+    // The PlainPage component should throw an error if the custom PDF layout is not found,
+    // so we don't want to fail the test when that happens
+    cy.allowFailureOnEnd();
+    cy.ignoreConsoleMessages([/Error using: "pdfLayoutName"/, /The above error occurred in the <PlainPage> component/]);
+    Cypress.on('uncaught:exception', (err) => {
+      if (err.message.includes('Error using: "pdfLayoutName"')) {
+        return false;
+      }
+    });
+
+    cy.intercept('GET', '**/layoutsettings/**', (req) =>
+      req.on('response', (res) => {
+        const body: ILayoutSettings = JSON.parse(res.body);
+        res.send({
+          ...body,
+          pages: { ...body.pages, pdfLayoutName: 'incorrect-pdf-layout-name' },
+        });
+      }),
+    );
+
+    cy.goto('message');
+
+    // Wait for page to load
+    cy.get('#finishedLoading').should('exist');
+    cy.waitForNetworkIdle(500);
+
+    // Visit the PDF page and reload
+    cy.location('href').then((href) => {
+      const regex = getInstanceIdRegExp();
+      const instanceId = regex.exec(href)?.[1];
+      const before = href.split(regex)[0];
+      const visitUrl = `${before}${instanceId}?pdf=1`;
+      cy.visit(visitUrl);
+    });
+    cy.reload();
+
+    // Wait for page to load
+    cy.get('#finishedLoading').should('exist');
+    cy.waitForNetworkIdle(500);
+
+    // Check that we are on the error page and that #readyForPrint is not present
+    cy.findByRole('heading', { name: 'Ukjent feil' }).should('exist');
+    cy.get('#readyForPrint').should('not.exist');
   });
 
   // Used to cause a crash, @see https://github.com/Altinn/app-frontend-react/pull/2019
   it('Grid in Group should display correctly', () => {
     cy.intercept('GET', '**/layouts/**', (req) => {
-      req.continue((res) => {
-        const body = JSON.parse(res.body);
-        res.body = JSON.stringify({
+      req.on('response', (res) => {
+        const body: ILayoutCollection = JSON.parse(res.body);
+        res.send({
           ...body,
           grid: {
             ...body.grid,
@@ -345,6 +410,8 @@ describe('PDF', () => {
     });
 
     cy.goto('changename');
+    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible');
+    cy.waitUntilSaved();
 
     cy.testPdf({
       callback: () => {

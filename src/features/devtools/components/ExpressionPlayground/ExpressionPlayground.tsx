@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { Checkbox, Combobox, Fieldset, Tabs } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -12,12 +12,9 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import { useNodeTraversal, useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
-import type { ExprConfig, Expression, ExprFunction } from 'src/features/expressions/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { ExprConfig, Expression, ExprFunctionName, LayoutReference } from 'src/features/expressions/types';
 
 interface ExpressionResult {
   value: string;
@@ -30,6 +27,19 @@ function getTabKeyAndValue(i: number, output: ExpressionResult) {
   return { key, value };
 }
 
+function usePlaygroundState() {
+  const [showAllSteps, setShowAllSteps] = useState(false);
+  const [activeOutputTab, setActiveOutputTab] = useState('Gjeldende resultat');
+  const [outputs, setOutputs] = useState<ExpressionResult[]>([
+    {
+      value: '',
+      isError: false,
+    },
+  ]);
+
+  return { showAllSteps, setShowAllSteps, activeOutputTab, setActiveOutputTab, outputs, setOutputs };
+}
+
 export const ExpressionPlayground = () => {
   const input = useDevToolsStore((state) => state.exprPlayground.expression);
   const forPage = useDevToolsStore((state) => state.exprPlayground.forPage);
@@ -38,128 +48,22 @@ export const ExpressionPlayground = () => {
   const setContext = useDevToolsStore((state) => state.actions.exprPlaygroundSetContext);
   const setActiveTab = useDevToolsStore((state) => state.actions.setActiveTab);
   const nodeInspectorSet = useDevToolsStore((state) => state.actions.nodeInspectorSet);
-
-  const [showAllSteps, setShowAllSteps] = React.useState(false);
-  const [activeOutputTab, setActiveOutputTab] = React.useState('Gjeldende resultat');
-  const [outputs, setOutputs] = React.useState<ExpressionResult[]>([
-    {
-      value: '',
-      isError: false,
-    },
-  ]);
-  const nodes = useNodes();
   const currentPageId = useNavigationParam('pageKey');
 
+  const { showAllSteps, setShowAllSteps, activeOutputTab, setActiveOutputTab, outputs, setOutputs } =
+    usePlaygroundState();
   const selectedContext = forPage && forComponentId ? [`${forPage}|${forComponentId}`] : [];
-  const dataSources = useExpressionDataSources();
-
-  const setOutputWithHistory = useCallback(
-    (newValue: string, isError: boolean): boolean => {
-      const lastOutput = outputs[0];
-      if (!lastOutput || lastOutput.value === '') {
-        setOutputs([{ value: newValue, isError }]);
-        return true;
-      }
-      if (lastOutput.value === newValue && lastOutput.isError === isError) {
-        return false;
-      }
-      const newOutputs = [{ value: newValue, isError }, ...outputs.filter((o) => (!isError ? !o.isError : true))];
-      setOutputs(newOutputs.slice(0, 10));
-      return true;
-    },
-    [outputs],
-  );
 
   // This is OK if this function is called from places that immediately evaluates the expression again, thus
   // populating the output history with a fresh value.
   const resetOutputHistory = () => setOutputs([]);
 
-  const traversalSelector = useNodeTraversalSelector();
-
-  const componentOptions = useNodeTraversal((t) =>
-    t.allNodes().map((n) => ({ label: n.id, value: `${n.page.pageKey}|${n.id}` })),
+  const componentOptions = NodesInternal.useMemoSelector((state) =>
+    Object.values(state.nodeData).map((nodeData) => ({
+      label: nodeData.layout.id,
+      value: `${nodeData.pageKey}|${nodeData.layout.id}`,
+    })),
   );
-
-  useEffect(() => {
-    if (!input || input.length <= 0) {
-      if (!outputs[0] || outputs[0]?.value !== '') {
-        setOutputs([{ value: '', isError: false }]);
-      }
-      return;
-    }
-
-    try {
-      let maybeExpression: unknown;
-      try {
-        maybeExpression = JSON.parse(input);
-      } catch (e) {
-        if (e instanceof Error) {
-          throw new Error(`Ugyldig JSON: ${e.message}`);
-        } else {
-          throw new Error('Ugyldig JSON');
-        }
-      }
-      const config: ExprConfig<ExprVal.Any> = {
-        returnType: ExprVal.Any,
-        defaultValue: null,
-      };
-
-      ExprValidation.throwIfInvalid(maybeExpression);
-
-      let evalContext: LayoutPage | LayoutNode | undefined = traversalSelector(
-        (t) => t.findPage(currentPageId),
-        [currentPageId],
-      );
-      if (!evalContext) {
-        throw new Error('Fant ikke nåværende side/layout');
-      }
-
-      if (forPage && forComponentId) {
-        const foundNode = traversalSelector(
-          (t) => {
-            const page = t.findPage(forPage);
-            return page
-              ? t.with(page).children((i) => i.type === 'node' && i.item?.id === forComponentId)[0]
-              : undefined;
-          },
-          [forPage, forComponentId],
-        );
-        if (foundNode) {
-          evalContext = foundNode;
-        }
-      }
-
-      const calls: string[] = [];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const onAfterFunctionCall = (path: string[], func: ExprFunction, args: any[], result: any) => {
-        const indent = '  '.repeat(path.length);
-        calls.push(`${indent}${JSON.stringify([func, ...args])} => ${JSON.stringify(result)}`);
-      };
-
-      const out = evalExpr(maybeExpression as Expression, evalContext, dataSources, { config, onAfterFunctionCall });
-
-      if (showAllSteps) {
-        setOutputWithHistory(calls.join('\n'), false);
-      } else {
-        setOutputWithHistory(JSON.stringify(out), false);
-      }
-    } catch (e) {
-      if (!outputs[0] || outputs[0]?.value !== e.message) {
-        setOutputs([{ value: e.message, isError: true }]);
-      }
-    }
-  }, [
-    input,
-    forPage,
-    forComponentId,
-    dataSources,
-    nodes,
-    showAllSteps,
-    outputs,
-    setOutputWithHistory,
-    currentPageId,
-    traversalSelector,
-  ]);
 
   return (
     <div className={classes.container}>
@@ -286,7 +190,7 @@ export const ExpressionPlayground = () => {
           <Fieldset legend='Dokumentasjon'>
             Les mer om uttrykk{' '}
             <a
-              href='https://docs.altinn.studio/nb/app/development/logic/expressions/'
+              href='https://docs.altinn.studio/nb/altinn-studio/reference/logic/expressions/'
               target='_blank'
               rel='noreferrer'
             >
@@ -295,6 +199,110 @@ export const ExpressionPlayground = () => {
           </Fieldset>
         </div>
       </SplitView>
+      <ExpressionRunner
+        key={input}
+        outputs={outputs}
+        setOutputs={setOutputs}
+        showAllSteps={showAllSteps}
+      />
     </div>
   );
 };
+
+type RunnerProps = Pick<ReturnType<typeof usePlaygroundState>, 'outputs' | 'setOutputs' | 'showAllSteps'>;
+
+function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
+  const input = useDevToolsStore((state) => state.exprPlayground.expression);
+  const forPage = useDevToolsStore((state) => state.exprPlayground.forPage);
+  const forComponentId = useDevToolsStore((state) => state.exprPlayground.forComponentId);
+  const currentPageId = useNavigationParam('pageKey');
+
+  const expression = useMemo(() => {
+    try {
+      if (!input || input.length <= 0) {
+        if (!outputs[0] || outputs[0]?.value !== '') {
+          setOutputs([{ value: '', isError: false }]);
+        }
+        return undefined;
+      }
+
+      let maybeExpression: unknown;
+      try {
+        maybeExpression = JSON.parse(input);
+      } catch (e) {
+        if (e instanceof Error) {
+          throw new Error(`Ugyldig JSON: ${e.message}`);
+        } else {
+          throw new Error('Ugyldig JSON');
+        }
+      }
+      ExprValidation.throwIfInvalid(maybeExpression);
+
+      return maybeExpression as Expression;
+    } catch (e) {
+      if (!outputs[0] || outputs[0]?.value !== e.message) {
+        setOutputs([{ value: e.message, isError: true }]);
+      }
+      return undefined;
+    }
+  }, [input, outputs, setOutputs]);
+
+  const dataSources = useExpressionDataSources(expression);
+  useEffect(() => {
+    if (expression === undefined) {
+      return;
+    }
+
+    try {
+      let evalContext: LayoutReference = currentPageId ? { type: 'page', id: currentPageId } : { type: 'none' };
+      if (forPage && forComponentId) {
+        evalContext = { type: 'node', id: forComponentId };
+      }
+
+      const calls: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const onAfterFunctionCall = (path: string[], func: ExprFunctionName, args: any[], result: any) => {
+        const indent = '  '.repeat(path.length);
+        calls.push(`${indent}${JSON.stringify([func, ...args])} => ${JSON.stringify(result)}`);
+      };
+
+      const config: ExprConfig<ExprVal.Any> = {
+        returnType: ExprVal.Any,
+        defaultValue: null,
+      };
+
+      const out = evalExpr(expression, evalContext, dataSources, { config, onAfterFunctionCall });
+
+      if (showAllSteps) {
+        setOutputWithHistory(calls.join('\n'), false, outputs, setOutputs);
+      } else {
+        setOutputWithHistory(JSON.stringify(out), false, outputs, setOutputs);
+      }
+    } catch (e) {
+      if (!outputs[0] || outputs[0]?.value !== e.message) {
+        setOutputs([{ value: e.message, isError: true }]);
+      }
+    }
+  }, [currentPageId, dataSources, expression, forComponentId, forPage, outputs, setOutputs, showAllSteps]);
+
+  return null;
+}
+
+function setOutputWithHistory(
+  newValue: string,
+  isError: boolean,
+  outputs: ExpressionResult[],
+  setOutputs: (outputs: ExpressionResult[]) => void,
+) {
+  const lastOutput = outputs[0];
+  if (!lastOutput || lastOutput.value === '') {
+    setOutputs([{ value: newValue, isError }]);
+    return true;
+  }
+  if (lastOutput.value === newValue && lastOutput.isError === isError) {
+    return false;
+  }
+  const newOutputs = [{ value: newValue, isError }, ...outputs.filter((o) => (!isError ? !o.isError : true))];
+  setOutputs(newOutputs.slice(0, 10));
+  return true;
+}

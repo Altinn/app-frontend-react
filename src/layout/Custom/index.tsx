@@ -1,15 +1,14 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { CustomDef } from 'src/layout/Custom/config.def.generated';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { useNodeFormData } from 'src/utils/layout/useNodeItem';
-import type { DisplayDataProps } from 'src/features/displayData';
+import { useNodeFormData, useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Custom extends CustomDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Custom'>>(
@@ -18,13 +17,13 @@ export class Custom extends CustomDef {
     },
   );
 
-  getDisplayData(node: LayoutNode<'Custom'>, { nodeFormDataSelector }: DisplayDataProps): string {
-    const data = nodeFormDataSelector(node);
-    return Object.values(data).join(', ');
+  useDisplayData(nodeId: string): string {
+    const formData = useNodeFormDataWhenType(nodeId, 'Custom');
+    return Object.values(formData ?? {}).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'Custom'>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+    const displayData = useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 

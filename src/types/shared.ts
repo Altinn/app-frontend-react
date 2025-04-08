@@ -96,6 +96,7 @@ export interface IInstanceOwner {
   personNumber?: string;
   organisationNumber?: string | null;
   username?: string;
+  party?: IParty | null;
 }
 
 export interface IInstanceState {
@@ -160,9 +161,15 @@ export interface IParty {
 export enum PartyType {
   Person = 1,
   Organisation = 2,
+
+  /**
+   * Commenting these out so nobody uses them by accident. The enum linked above has
+   * these values, but their existence seem to be a lie:
+   * @see https://digdir.slack.com/archives/C079ZFUSFMW/p1738771291616989?thread_ts=1738750152.285599&cid=C079ZFUSFMW
+   */
+  // SubUnit = 4,
   SelfIdentified = 3,
-  SubUnit = 4,
-  BankruptcyEstate = 5,
+  // BankruptcyEstate = 5,
 }
 
 export interface IPerson {
@@ -191,7 +198,7 @@ export interface IProcess {
   currentTask?: ITask;
   ended?: string | null;
   endEvent?: string | null;
-  processTasks?: ITask[];
+  processTasks?: Pick<ITask, 'altinnTaskType' | 'elementId'>[];
 }
 
 export interface Role {

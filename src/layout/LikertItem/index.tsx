@@ -1,17 +1,20 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import { runEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { LikertItemDef } from 'src/layout/LikertItem/config.def.generated';
 import { LikertItemComponent } from 'src/layout/LikertItem/LikertItemComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class LikertItem extends LikertItemDef {
   render = forwardRef<HTMLTableRowElement, PropsFromGenericComponent<'LikertItem'>>(
@@ -25,38 +28,38 @@ export class LikertItem extends LikertItemDef {
     },
   );
 
-  getDisplayData(
-    node: LayoutNode<'LikertItem'>,
-    { langTools, optionsSelector, nodeFormDataSelector }: DisplayDataProps,
-  ): string {
-    const value = String(nodeFormDataSelector(node).simpleBinding ?? '');
+  useDisplayData(nodeId: string): string {
+    const formData = useNodeFormDataWhenType(nodeId, 'LikertItem');
+    const options = useNodeOptions(nodeId).options;
+    const langTools = useLanguage();
+    const value = String(formData?.simpleBinding ?? '');
     if (!value) {
       return '';
     }
 
-    const { options } = optionsSelector(node);
     return getSelectedValueToText(value, langTools, options) || '';
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'LikertItem'>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+    const displayData = useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  runEmptyFieldValidation(
-    node: BaseLayoutNode<'LikertItem'>,
-    validationDataSources: ValidationDataSources,
-  ): ComponentValidation[] {
-    return runEmptyFieldValidationOnlySimpleBinding(node, validationDataSources);
+  useEmptyFieldValidation(node: LayoutNode<'LikertItem'>): ComponentValidation[] {
+    return useEmptyFieldValidationOnlySimpleBinding(node);
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'LikertItem'>): string[] {
     const [answerErr] = this.validateDataModelBindingsAny(ctx, 'simpleBinding', ['string', 'number', 'boolean']);
     const errors: string[] = [...(answerErr ?? [])];
 
+    if (!(ctx.node.parent instanceof LayoutNode) || !ctx.node.parent.isType('Likert')) {
+      throw new Error('LikertItem must have a parent of type "Likert"');
+    }
+    const parentId = ctx.node.parent.id;
     const parentBindings = ctx.nodeDataSelector(
-      (picker) => picker(ctx.node.parent as LayoutNode<'Likert'>)?.layout?.dataModelBindings,
-      [ctx.node.parent],
+      (picker) => picker(parentId, 'Likert')?.layout?.dataModelBindings,
+      [parentId],
     );
     const bindings = ctx.item.dataModelBindings;
 

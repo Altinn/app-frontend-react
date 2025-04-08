@@ -5,7 +5,6 @@ import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRows } from 'src/layout/common.generated';
 import type { GridCellInternal, GridRowsInternal } from 'src/layout/Grid/types';
 import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
   DefPluginExprResolver,
@@ -14,7 +13,6 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 interface ExternalConfig {
   componentType?: TypesFromCategory<CompCategory.Container>;
@@ -100,7 +98,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
     component.addProperty(new CG.prop(this.settings.externalProp, prop));
   }
 
-  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<ToInternal<E>>): void {
+  claimChildren({ item, claimChild, getType, getCapabilities }: DefPluginChildClaimerProps<ToInternal<E>>): void {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rows = (item as any)[this.settings.externalProp] as GridRows | undefined;
     if (!rows) {
@@ -110,14 +108,15 @@ export class GridRowsPlugin<E extends ExternalConfig>
     for (const row of rows.values()) {
       for (const cell of row.cells.values()) {
         if (cell && 'component' in cell && cell.component) {
-          const proto = getProto(cell.component);
-          if (!proto) {
+          const type = getType(cell.component);
+          if (!type) {
             continue;
           }
-          if (!proto.capabilities.renderInTable) {
+          const capabilities = getCapabilities(type);
+          if (!capabilities.renderInTable) {
             window.logWarn(
               `Grid-like component included a component '${cell.component}', which ` +
-                `is a '${proto.type}' and cannot be rendered in a table.`,
+                `is a '${type}' and cannot be rendered in a table.`,
             );
             continue;
           }
@@ -170,7 +169,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
     } as DefPluginExtraInItem<ToInternal<E>>;
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: TraversalRestriction | undefined): string[] {
+  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: number | undefined): string[] {
     const out: string[] = [];
     if (restriction !== undefined) {
       return out;
@@ -188,7 +187,7 @@ export class GridRowsPlugin<E extends ExternalConfig>
     return out;
   }
 
-  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childNode: LayoutNode): boolean {
+  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string): boolean {
     // There are no specific rules for hiding components in a Grid (yet). This should be implemented if we
     // add support for hiding a row or a cell (which should also hide the component inside)
     return false;

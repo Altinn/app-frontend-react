@@ -2,6 +2,10 @@ import type { NestedTexts } from 'src/language/languages';
 
 export function en() {
   return {
+    dateTime: {
+      am: 'AM',
+      pm: 'PM',
+    },
     altinn: {
       standard_validation: {
         file_content_type_not_allowed:
@@ -128,6 +132,12 @@ export function en() {
       form: 'Form navigation',
       to_main_content: 'Go to main content',
       go_to_task: 'Navigate to {0}',
+      form_pages: 'Form pages',
+      back_to_inbox: 'Back to inbox',
+      inbox: 'Inbox',
+      back_to_main_form: 'Back to {0}',
+      main_form: '{0}',
+      back: 'Back',
     },
     general: {
       action: 'Action',
@@ -141,7 +151,6 @@ export function en() {
       choose_label: 'Choose label',
       choose_method: 'Choose method',
       choose: 'Choose',
-      close_schema: 'Close schema',
       close: 'Close',
       contains: 'Contains{0}',
       control_submit: 'Control and submit',
@@ -160,7 +169,8 @@ export function en() {
       empty_summary: 'You have not entered any information here',
       enabled: 'Enabled',
       error_message_with_colon: 'Error message:',
-      expand_form: 'Expand form',
+      full_width: 'Expand width',
+      standard_width: 'Reduce width',
       for: 'for',
       header_profile_icon_label: 'Profile icon button',
       label: 'Label',
@@ -242,6 +252,7 @@ export function en() {
       starting: 'Just a minute, we’ll get the information you need',
     },
     language: {
+      language_selection: 'Language',
       full_name: {
         nb: 'Norwegian bokmål',
         en: 'English',
@@ -253,9 +264,10 @@ export function en() {
     },
     party_selection: {
       error_caption_prefix: 'Error',
-      invalid_selection_first_part: 'You started this app as',
-      invalid_selection_second_part: 'This app is available for',
-      invalid_selection_third_part: 'Choose another party below.',
+      invalid_selection_non_existing_party:
+        'You have started the service with an party that either does not exist or that you do not have access to. Select a new party below to continue.',
+      invalid_selection_existing_party:
+        'You started this app as {0}. This app is available for {1}. Choose another party below.',
       no_valid_selection_first_part: 'This is a app for {0}',
       no_valid_selection_second_part: 'It looks like you do not have access to a party who is allowed to start {0}.',
       no_valid_selection_third_part: 'To start this app, you must have accesses associated with {0}.',
@@ -333,7 +345,7 @@ export function en() {
       surname_label: 'Surname',
       name_label: 'Name',
       from_registry_description: 'From the National Population Register',
-      validation_error_name_too_short: "The name can't be shorter than 2 characters",
+      validation_error_name_too_short: "The name can't be empty.",
       validation_error_ssn: 'The national ID number/D-number is invalid.',
       validation_error_not_found:
         'No person is registered with this combination of national ID number/D-number and name. Please check the fields and try again. \n\nNote: After 5 failed attempts, the search functionality will be temporarily locked.',
@@ -407,11 +419,10 @@ export function en() {
     },
     list_component: {
       rowsPerPage: 'Rows per page',
-      of: 'of',
-      navigateFirstPage: 'Navigate to the first page in the table',
-      previousPage: 'Previous page in the table',
-      nextPage: 'Next page in the table',
-      navigateLastPage: 'Navigate to the last page in the table',
+      previousPage: 'Previous',
+      previousPageAriaLabel: 'Previous page in the table',
+      nextPage: 'Next',
+      nextPageAriaLabel: 'Next page in the table',
     },
     config_error: {
       layoutset_subform_config_error_customer_support:
@@ -426,6 +437,8 @@ export function en() {
       subform_no_datatype_appmetadata: "Data type '{0}' was not found in applicationmetadata.json",
       subform_misconfigured_add_button:
         "Data type '{0}' is marked as 'disallowUserCreate=true', but the subform component is configured with 'showAddButton=true'. This is a contradiction, as the user will never be permitted to perform the add-button operation.",
+      file_upload_same_binding:
+        'There are multiple FileUpload components with the same data model binding. Each component must have a unique binding. Other components with the same binding: {0}',
     },
     version_error: {
       version_mismatch: 'Version mismatch',
@@ -449,6 +462,13 @@ export function en() {
     pdfPreview: {
       error: 'Could not show PDF preview',
       defaultButtonText: 'Preview PDF',
+    },
+    taskTypes: {
+      data: 'Fill out',
+      signing: 'Signing',
+      confirmation: 'Confirmation',
+      payment: 'Payment',
+      receipt: 'Receipt',
     },
   } satisfies NestedTexts;
 }

@@ -1,41 +1,43 @@
-import { useMemo } from 'react';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { useMakeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
+import { useShallowMemo } from 'src/hooks/useShallowMemo';
+import { getComponentDef, implementsDisplayData } from 'src/layout';
+import type { IDataModelReference } from 'src/layout/common.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-import { useAttachmentsSelector } from 'src/features/attachments/hooks';
-import { FD } from 'src/features/formData/FormDataWrite';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useLanguage } from 'src/features/language/useLanguage';
-import { useNodeOptionsSelector } from 'src/features/options/useNodeOptions';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataSelector } from 'src/utils/layout/useNodeItem';
-import type { DisplayDataProps } from 'src/features/displayData/index';
+export function useDisplayData(node: LayoutNode): string {
+  const def = node.def;
+  if (!implementsDisplayData(def)) {
+    return '';
+  }
 
-export function useDisplayDataProps(): DisplayDataProps {
-  const langTools = useLanguage();
-  const optionsSelector = useNodeOptionsSelector();
-  const attachmentsSelector = useAttachmentsSelector();
-  const currentLanguage = useCurrentLanguage();
-  const formDataSelector = FD.useDebouncedSelector();
-  const nodeFormDataSelector = useNodeFormDataSelector();
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
+  return def.useDisplayData(node.id);
+}
 
-  return useMemo(
-    () => ({
-      optionsSelector,
-      attachmentsSelector,
-      langTools,
-      currentLanguage,
-      formDataSelector,
-      nodeFormDataSelector,
-      nodeDataSelector,
-    }),
-    [
-      attachmentsSelector,
-      langTools,
-      optionsSelector,
-      currentLanguage,
-      formDataSelector,
-      nodeFormDataSelector,
-      nodeDataSelector,
-    ],
-  );
+/**
+ * Use displayData for multiple node ids at once. Make sure you always call this with the same nodeIds, otherwise
+ * you'll break the rules of hooks.
+ */
+export function useDisplayDataFor(
+  componentIds: string[],
+  dataModelLocation?: IDataModelReference,
+): { [componentId: string]: string | undefined } {
+  const layoutLookups = useLayoutLookups();
+  const output: { [componentId: string]: string | undefined } = {};
+  const makeIndexedId = useMakeIndexedId(true, dataModelLocation);
+
+  for (const id of componentIds) {
+    const type = layoutLookups.allComponents[id]?.type;
+    if (!type) {
+      continue;
+    }
+    const def = getComponentDef(type);
+    if (!implementsDisplayData(def)) {
+      continue;
+    }
+    const indexedId = makeIndexedId(id);
+    output[id] = def.useDisplayData(indexedId);
+  }
+
+  return useShallowMemo(output);
 }

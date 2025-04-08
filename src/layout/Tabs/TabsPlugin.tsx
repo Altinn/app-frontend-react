@@ -4,7 +4,6 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompTypes } from 'src/layout/layout';
 import type { TabConfig } from 'src/layout/Tabs/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type {
   DefPluginChildClaimerProps,
   DefPluginExtraInItem,
@@ -12,7 +11,6 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface TabConfigInternal extends Omit<TabConfig, 'children'> {
   childIds: string[];
@@ -58,17 +56,18 @@ export class TabsPlugin<Type extends CompTypes>
     return 'TabsPlugin';
   }
 
-  claimChildren({ item, claimChild, getProto }: DefPluginChildClaimerProps<Config<Type>>): void {
+  claimChildren({ item, claimChild, getType, getCapabilities }: DefPluginChildClaimerProps<Config<Type>>): void {
     for (const tab of (item.tabs || []).values()) {
       for (const child of tab.children.values()) {
-        const proto = getProto(child);
-        if (!proto) {
+        const type = getType(child);
+        if (!type) {
           continue;
         }
-        if (proto.capabilities.renderInTabs === false) {
+        const capabilities = getCapabilities(type);
+        if (!capabilities.renderInTabs) {
           window.logWarn(
             `Tabs component included a component '${child}', which ` +
-              `is a '${proto.type}' and cannot be rendered as a Tabs child.`,
+              `is a '${type}' and cannot be rendered as a Tabs child.`,
           );
           continue;
         }
@@ -102,7 +101,7 @@ export class TabsPlugin<Type extends CompTypes>
     } as DefPluginExtraInItem<Config<Type>>;
   }
 
-  pickDirectChildren(state: DefPluginState<Config<Type>>, restriction?: TraversalRestriction | undefined): string[] {
+  pickDirectChildren(state: DefPluginState<Config<Type>>, restriction?: number | undefined): string[] {
     const out: string[] = [];
     if (restriction !== undefined) {
       return out;
@@ -117,7 +116,7 @@ export class TabsPlugin<Type extends CompTypes>
     return out;
   }
 
-  isChildHidden(_state: DefPluginState<Config<Type>>, _childNode: LayoutNode): boolean {
+  isChildHidden(_state: DefPluginState<Config<Type>>, _childId: string): boolean {
     return false;
   }
 }

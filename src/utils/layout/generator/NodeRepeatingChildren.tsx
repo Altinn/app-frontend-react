@@ -5,6 +5,7 @@ import deepEqual from 'fast-deep-equal';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import {
@@ -96,7 +97,6 @@ const GenerateRow = React.memo(function GenerateRow({
 }: GenerateRowProps) {
   const node = GeneratorInternal.useParent() as LayoutNode;
   const depth = GeneratorInternal.useDepth();
-  const directMutators = useMemo(() => [mutateMultiPageIndex(multiPageMapping)], [multiPageMapping]);
 
   const recursiveMutators = useMemo(
     () => [
@@ -110,28 +110,33 @@ const GenerateRow = React.memo(function GenerateRow({
   NodesStateQueue.useRemoveRow({ node, plugin });
 
   return (
-    <GeneratorRowProvider
-      rowIndex={rowIndex}
+    <DataModelLocationProvider
       groupBinding={groupBinding}
-      directMutators={directMutators}
-      idMutators={[mutateComponentIdPlain(rowIndex)]}
-      recursiveMutators={recursiveMutators}
+      rowIndex={rowIndex}
     >
-      <MaintainRowUuid
+      <GeneratorRowProvider
+        rowIndex={rowIndex}
+        multiPageMapping={multiPageMapping}
         groupBinding={groupBinding}
-        plugin={plugin}
-      />
-      <GeneratorCondition
-        stage={StageEvaluateExpressions}
-        mustBeAdded='all'
+        idMutators={[mutateComponentIdPlain(rowIndex)]}
+        recursiveMutators={recursiveMutators}
       >
-        <ResolveRowExpressions plugin={plugin} />
-      </GeneratorCondition>
-      <GenerateNodeChildren
-        claims={claims}
-        pluginKey={plugin.getKey()}
-      />
-    </GeneratorRowProvider>
+        <MaintainRowUuid
+          groupBinding={groupBinding}
+          plugin={plugin}
+        />
+        <GeneratorCondition
+          stage={StageEvaluateExpressions}
+          mustBeAdded='all'
+        >
+          <ResolveRowExpressions plugin={plugin} />
+        </GeneratorCondition>
+        <GenerateNodeChildren
+          claims={claims}
+          pluginKey={plugin.getKey()}
+        />
+      </GeneratorRowProvider>
+    </DataModelLocationProvider>
   );
 });
 
@@ -199,7 +204,7 @@ function MaintainRowUuid({
   return null;
 }
 
-interface MultiPageMapping {
+export interface MultiPageMapping {
   [childId: string]: number;
 }
 
@@ -212,27 +217,12 @@ function makeMultiPageMapping(children: string[] | undefined): MultiPageMapping 
   return mapping;
 }
 
-function mutateMultiPageIndex(multiPageMapping: MultiPageMapping | undefined): ChildMutator {
-  return (item) => {
-    if (!multiPageMapping) {
-      return;
-    }
-
-    const id = item.baseComponentId ?? item.id;
-    const multiPageIndex = multiPageMapping[id];
-    if (multiPageIndex !== undefined) {
-      item['multiPageIndex'] = multiPageIndex;
-    }
-  };
-}
-
 export function mutateComponentIdPlain(rowIndex: number): ChildIdMutator {
   return (id) => `${id}-${rowIndex}`;
 }
 
 export function mutateComponentId(rowIndex: number): ChildMutator {
   return (item) => {
-    item.baseComponentId = item.baseComponentId || item.id;
     item.id += `-${rowIndex}`;
   };
 }

@@ -14,14 +14,14 @@ import 'src/features/logging';
 import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
 
-import { AppWrapper } from '@altinn/altinn-design-system';
-
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ViewportWrapper } from 'src/components/ViewportWrapper';
 import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { DisplayErrorProvider } from 'src/core/errorHandling/DisplayErrorProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
@@ -29,7 +29,7 @@ import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvi
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
-import { LanguageProvider } from 'src/features/language/LanguageProvider';
+import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
@@ -40,6 +40,7 @@ import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
 
+import 'leaflet/dist/leaflet.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
@@ -64,19 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const root = container && createRoot(container);
   root?.render(
     <AppQueriesProvider {...queries}>
-      <AppPrefetcher />
       <ErrorBoundary>
-        <AppWrapper>
-          <LanguageProvider>
-            <LangToolsStoreProvider>
-              <ViewportWrapper>
-                <UiConfigProvider>
-                  <RouterProvider router={router} />
-                </UiConfigProvider>
-              </ViewportWrapper>
-            </LangToolsStoreProvider>
-          </LanguageProvider>
-        </AppWrapper>
+        <AppPrefetcher />
+        <LanguageProvider>
+          <LangToolsStoreProvider>
+            <ViewportWrapper>
+              <UiConfigProvider>
+                <RouterProvider router={router} />
+              </UiConfigProvider>
+            </ViewportWrapper>
+          </LangToolsStoreProvider>
+        </LanguageProvider>
       </ErrorBoundary>
     </AppQueriesProvider>,
   );
@@ -89,6 +88,7 @@ function Root() {
         <ApplicationMetadataProvider>
           <GlobalFormDataReadersProvider>
             <LayoutSetsProvider>
+              <SetShouldFetchAppLanguages />
               <ProfileProvider>
                 <TextResourcesProvider>
                   <OrgsProvider>
@@ -97,7 +97,11 @@ function Root() {
                         <KeepAliveProvider>
                           <HelmetProvider>
                             <TaskStoreProvider>
-                              <App />
+                              <DisplayErrorProvider>
+                                <ProcessingProvider>
+                                  <App />
+                                </ProcessingProvider>
+                              </DisplayErrorProvider>
                             </TaskStoreProvider>
                             <ToastContainer
                               position='top-center'

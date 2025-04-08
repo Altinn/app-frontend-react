@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 import { Alert, Button } from '@digdir/designsystemet-react';
-import { Close } from '@navikt/ds-icons';
+import { XMarkIcon } from '@navikt/aksel-icons';
 import { isAxiosError } from 'axios';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -23,7 +23,7 @@ export function FailedAttachments({ node }: { node: FileUploaderNode }) {
         <FileUploadError
           key={attachment.data.temporaryId}
           attachment={attachment}
-          handleClose={() => deleteFailedAttachment(node, attachment.data.temporaryId)}
+          handleClose={() => deleteFailedAttachment(node.id, attachment.data.temporaryId)}
         />
       ))}
     </div>
@@ -59,7 +59,7 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
           onClick={handleClose}
           aria-label={langAsString('general.close')}
         >
-          <Close
+          <XMarkIcon
             fontSize='1rem'
             aria-hidden='true'
           />
@@ -141,6 +141,12 @@ function ErrorDetails({ attachment: { data, error } }: { attachment: IFailedAtta
   }
 
   if (isRejectedFileError(error)) {
+    const { file, errors } = error.data.rejection;
+    window.logWarn(`Failed to upload attachment "${file.name}" of type "${file.type}":`);
+    for (const err of errors) {
+      window.logWarn(`- ${err.message}`);
+    }
+
     if (error.data.rejection.file.size > error.data.maxFileSizeInMB * bytesInOneMB) {
       return (
         <Lang

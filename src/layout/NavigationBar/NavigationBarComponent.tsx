@@ -1,9 +1,11 @@
 import React from 'react';
 
+import { Spinner } from '@digdir/designsystemet-react';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
@@ -22,6 +24,7 @@ interface INavigationButton {
   children: React.ReactNode;
   current: boolean;
   hidden?: boolean;
+  disabled?: boolean;
 }
 
 const NavigationButton = React.forwardRef(
@@ -54,35 +57,37 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const currentPageId = useNavigationParam('pageKey') ?? '';
   const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const onPageNavigationValidation = useOnPageNavigationValidation();
+  const { performProcess, isAnyProcessing, process } = useIsProcessing<string>();
 
   const firstPageLink = React.useRef<HTMLButtonElement>();
 
-  const handleNavigationClick = async (pageId: string) => {
-    setShowMenu(false);
-    const currentIndex = order.indexOf(currentPageId);
-    const newIndex = order.indexOf(pageId);
+  const handleNavigationClick = (pageId: string) =>
+    performProcess(pageId, async () => {
+      const currentIndex = order.indexOf(currentPageId);
+      const newIndex = order.indexOf(pageId);
 
-    const isForward = newIndex > currentIndex && currentIndex !== -1;
-    const isBackward = newIndex < currentIndex && currentIndex !== -1;
+      const isForward = newIndex > currentIndex && currentIndex !== -1;
+      const isBackward = newIndex < currentIndex && currentIndex !== -1;
 
-    if (pageId === currentPageId || newIndex === -1) {
-      return;
-    }
+      if (pageId === currentPageId || newIndex === -1) {
+        return;
+      }
 
-    maybeSaveOnPageChange();
+      await maybeSaveOnPageChange();
 
-    if (isForward && validateOnForward && (await onPageNavigationValidation(node.page, validateOnForward))) {
-      // Block navigation if validation fails
-      return;
-    }
+      if (isForward && validateOnForward && (await onPageNavigationValidation(node.page, validateOnForward))) {
+        // Block navigation if validation fails
+        return;
+      }
 
-    if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.page, validateOnBackward))) {
-      // Block navigation if validation fails
-      return;
-    }
+      if (isBackward && validateOnBackward && (await onPageNavigationValidation(node.page, validateOnBackward))) {
+        // Block navigation if validation fails
+        return;
+      }
 
-    navigateToPage(pageId, { skipAutoSave: true });
-  };
+      setShowMenu(false);
+      navigateToPage(pageId, { skipAutoSave: true });
+    });
 
   const shouldShowMenu = !isMobile || showMenu;
 
@@ -146,11 +151,22 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
                   className={classes.containerBase}
                 >
                   <NavigationButton
+                    disabled={isAnyProcessing}
                     current={currentPageId === pageId}
                     onClick={() => handleNavigationClick(pageId)}
                     ref={index === 0 ? firstPageLink : null}
                   >
-                    {index + 1}. <Lang id={pageId} />
+                    <div className={classes.buttonContent}>
+                      {process === pageId && (
+                        <Spinner
+                          className={classes.spinner}
+                          title={langAsString('general.loading')}
+                        />
+                      )}
+                      <span>
+                        {index + 1}. <Lang id={pageId} />
+                      </span>
+                    </div>
                   </NavigationButton>
                 </li>
               ))}

@@ -5,6 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
@@ -17,7 +18,6 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { promisify } from 'src/utils/promisify';
 import type { ButtonColor, ButtonVariant } from 'src/app-components/Button/Button';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -41,7 +41,8 @@ type UpdatedValidationIssues = {
   [dataModelGuid: string]: BackendValidationIssueGroups;
 };
 
-type FormDataLockTools = ReturnType<typeof FD.useLocking>;
+type FormDataLocking = ReturnType<typeof FD.useLocking>;
+type FormDataLock = Awaited<ReturnType<FormDataLocking>>;
 
 export type ActionResult = {
   instance: IInstance | undefined;
@@ -53,7 +54,7 @@ export type ActionResult = {
 
 type UseHandleClientActions = {
   handleClientActions: (actions: CBTypes.ClientAction[]) => Promise<void>;
-  handleDataModelUpdate: (lockTools: FormDataLockTools, result: ActionResult) => Promise<void>;
+  handleDataModelUpdate: (currentLock: FormDataLock, result: ActionResult) => Promise<void>;
 };
 
 /**
@@ -72,10 +73,10 @@ function useHandleClientActions(): UseHandleClientActions {
 
   const frontendActions: ClientActionHandlers = useMemo(
     () => ({
-      nextPage: promisify(navigateToNextPage),
-      previousPage: promisify(navigateToPreviousPage),
-      navigateToPage: promisify<ClientActionHandlers['navigateToPage']>(async ({ page }) => navigateToPage(page)),
-      closeSubform: promisify(exitSubform),
+      nextPage: navigateToNextPage,
+      previousPage: navigateToPreviousPage,
+      navigateToPage: async ({ page }) => navigateToPage(page),
+      closeSubform: exitSubform,
     }),
     [exitSubform, navigateToNextPage, navigateToPage, navigateToPreviousPage],
   );
@@ -111,7 +112,7 @@ function useHandleClientActions(): UseHandleClientActions {
   );
 
   const handleDataModelUpdate: UseHandleClientActions['handleDataModelUpdate'] = useCallback(
-    async (lockTools, result) => {
+    async (currentLock, result) => {
       const instance = result.instance;
       const updatedDataModels = result.updatedDataModels;
       const _updatedValidationIssues = result.updatedValidationIssues;
@@ -129,7 +130,7 @@ function useHandleClientActions(): UseHandleClientActions {
           }, {})
         : undefined;
 
-      lockTools.unlock({
+      currentLock.unlock({
         instance,
         updatedDataModels,
         updatedValidationIssues,
@@ -151,9 +152,9 @@ type UsePerformActionMutation = {
   handleServerAction: (props: PerformActionMutationProps) => Promise<void>;
 };
 
-function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerformActionMutation {
+function useHandleServerActionMutation(acquireLock: FormDataLocking): UsePerformActionMutation {
   const { doPerformAction } = useAppMutations();
-  const partyId = useNavigationParam('partyId');
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
   const markNotReady = NodesInternal.useMarkNotReady();
@@ -161,16 +162,16 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
 
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
-      if (!instanceGuid || !partyId) {
+      if (!instanceGuid || !instanceOwnerPartyId) {
         throw Error('Cannot perform action without partyId and instanceGuid');
       }
-      return doPerformAction(partyId, instanceGuid, { action: action.id, buttonId }, selectedLanguage);
+      return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: action.id, buttonId }, selectedLanguage);
     },
   });
 
   const handleServerAction = useCallback(
     async ({ action, buttonId }: PerformActionMutationProps) => {
-      await lockTools.lock();
+      const lock = await acquireLock();
       try {
         const result = await mutateAsync({ action, buttonId });
 
@@ -178,12 +179,14 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
         // it as not ready now will prevent some re-renders with stale data while the result is handled later.
         markNotReady();
 
-        await handleDataModelUpdate(lockTools, result);
+        await handleDataModelUpdate(lock, result);
         if (result.clientActions) {
           await handleClientActions(result.clientActions);
         }
       } catch (error) {
-        lockTools.unlock();
+        if (lock.isLocked()) {
+          lock.unlock();
+        }
         if (error?.response?.data?.error?.message !== undefined) {
           toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
         } else {
@@ -191,7 +194,7 @@ function useHandleServerActionMutation(lockTools: FormDataLockTools): UsePerform
         }
       }
     },
-    [handleClientActions, handleDataModelUpdate, lockTools, mutateAsync, markNotReady],
+    [handleClientActions, handleDataModelUpdate, acquireLock, mutateAsync, markNotReady],
   );
 
   return { handleServerAction, isPending };
@@ -235,11 +238,12 @@ function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' {
 export const CustomButtonComponent = ({ node }: Props) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useNodeItem(node);
 
-  const lockTools = FD.useLocking(id);
+  const acquireLock = FD.useLocking(id);
   const { isAuthorized } = useActionAuthorization();
   const { handleClientActions } = useHandleClientActions();
-  const { handleServerAction, isPending } = useHandleServerActionMutation(lockTools);
+  const { handleServerAction } = useHandleServerActionMutation(acquireLock);
   const onPageNavigationValidation = useOnPageNavigationValidation();
+  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -250,7 +254,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const isPermittedToPerformActions = actions
     .filter((action) => action.type === 'ServerAction')
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
-  const disabled = !isPermittedToPerformActions || isPending;
+  const disabled = !isPermittedToPerformActions || isAnyProcessing;
 
   const isSubformCloseButton = actions.filter((action) => action.id === 'closeSubform').length > 0;
   let interceptedButtonStyle = buttonStyle ?? 'secondary';
@@ -264,27 +268,25 @@ export const CustomButtonComponent = ({ node }: Props) => {
     buttonText = 'general.done';
   }
 
-  const onClick = async () => {
-    if (disabled) {
-      return;
-    }
-    for (const action of actions) {
-      if (action.validation) {
-        const prevScrollPosition = getScrollPosition();
-        const hasErrors = await onPageNavigationValidation(node.page, action.validation);
-        if (hasErrors) {
-          resetScrollPosition(prevScrollPosition);
-          return;
+  const onClick = () =>
+    performProcess(async () => {
+      for (const action of actions) {
+        if (action.validation) {
+          const prevScrollPosition = getScrollPosition();
+          const hasErrors = await onPageNavigationValidation(node.page, action.validation);
+          if (hasErrors) {
+            resetScrollPosition(prevScrollPosition);
+            return;
+          }
+        }
+
+        if (isClientAction(action)) {
+          await handleClientActions([action]);
+        } else if (isServerAction(action)) {
+          await handleServerAction({ action, buttonId: id });
         }
       }
-
-      if (isClientAction(action)) {
-        await handleClientActions([action]);
-      } else if (isServerAction(action)) {
-        await handleServerAction({ action, buttonId: id });
-      }
-    }
-  };
+    });
 
   const style = buttonStyles[interceptedButtonStyle];
 
@@ -297,7 +299,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
         size={toShorthandSize(buttonSize)}
         color={buttonColor ?? style.color}
         variant={style.variant}
-        isLoading={isPending}
+        isLoading={isThisProcessing}
       >
         <Lang id={buttonText} />
       </Button>

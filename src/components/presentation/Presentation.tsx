@@ -5,8 +5,8 @@ import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { LogoColor } from 'src/components/logo/AltinnLogo';
-import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
-import { AltinnAppHeader } from 'src/components/organisms/AltinnAppHeader';
+import { AltinnSubstatus } from 'src/components/molecules/AltinnSubstatus';
+import { AppHeader } from 'src/components/presentation/AppHeader/AppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
 import classes from 'src/components/presentation/Presentation.module.css';
@@ -18,8 +18,8 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useProfile } from 'src/features/profile/ProfileProvider';
+import { SideBarNavigation } from 'src/features/navigation/SidebarNavigation';
+import { useHasGroupedNavigation } from 'src/features/navigation/utils';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import type { PresentationType } from 'src/types';
@@ -27,14 +27,20 @@ import type { PresentationType } from 'src/types';
 export interface IPresentationProvidedProps extends PropsWithChildren {
   header?: React.ReactNode;
   type: ProcessTaskType | PresentationType;
-  renderNavBar?: boolean;
+  showNavbar?: boolean;
+  showNavigation?: boolean;
 }
 
-export const PresentationComponent = ({ header, type, children, renderNavBar = true }: IPresentationProvidedProps) => {
-  const party = useCurrentParty();
+export const PresentationComponent = ({
+  header,
+  type,
+  children,
+  showNavbar = true,
+  showNavigation = true,
+}: IPresentationProvidedProps) => {
   const instanceStatus = useLaxInstanceStatus();
-  const userParty = useProfile()?.party;
   const { expandedWidth } = useUiConfigContext();
+  const hasGroupedNavigation = useHasGroupedNavigation();
 
   const realHeader = header || (type === ProcessTaskType.Archived ? <Lang id='receipt.receipt' /> : undefined);
 
@@ -48,22 +54,27 @@ export const PresentationComponent = ({ header, type, children, renderNavBar = t
         <div
           data-testid='presentation'
           data-expanded={JSON.stringify(expandedWidth)}
-          className={cn(classes.container, { [classes.expanded]: expandedWidth })}
+          className={cn(classes.container, {
+            [classes.withNavigation]: hasGroupedNavigation,
+            [classes.expanded]: expandedWidth,
+          })}
         >
-          <AltinnAppHeader
-            party={party}
-            userParty={userParty}
+          <AppHeader
             logoColor={LogoColor.blueDarker}
             headerBackgroundColor={backgroundColor}
           />
-          <main className={classes.page}>
+          {showNavbar && <NavBar showNavigation={showNavigation} />}
+          {showNavigation && <SideBarNavigation />}
+          <main
+            className={classes.page}
+            style={!showNavbar ? { marginTop: 54 } : undefined}
+          >
             {isProcessStepsArchived && instanceStatus?.substatus && (
-              <AltinnSubstatusPaper
+              <AltinnSubstatus
                 label={<Lang id={instanceStatus.substatus.label} />}
                 description={<Lang id={instanceStatus.substatus.description} />}
               />
             )}
-            {renderNavBar && <NavBar type={type} />}
             <section
               id='main-content'
               className={classes.modal}

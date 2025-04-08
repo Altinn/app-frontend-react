@@ -3,7 +3,6 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import { typedBoolean } from 'src/utils/typing';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
   DefPluginChildClaimerProps,
@@ -13,7 +12,6 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { BaseRow } from 'src/utils/layout/types';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface LikertRow extends BaseRow {
   itemNodeId: string | undefined;
@@ -70,7 +68,7 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
 
   claimChildren(_props: DefPluginChildClaimerProps<Config>) {}
 
-  pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction | undefined): string[] {
+  pickDirectChildren(state: DefPluginState<Config>, restriction?: number | undefined): string[] {
     if (restriction !== undefined) {
       const nodeId = state.item?.rows[restriction]?.itemNodeId;
       return nodeId ? [nodeId] : [];
@@ -79,7 +77,7 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
     return state.item?.rows.map((row) => row?.itemNodeId).filter(typedBoolean) ?? [];
   }
 
-  isChildHidden(_state: DefPluginState<Config>, _childNode: LayoutNode): boolean {
+  isChildHidden(_state: DefPluginState<Config>, _childId: string): boolean {
     return false;
   }
 

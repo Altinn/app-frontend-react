@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 
 import { Spinner, Table } from '@digdir/designsystemet-react';
-import { Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon } from '@navikt/ds-icons';
+import { PencilIcon, PlusIcon, TrashIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
-import dot from 'dot-object';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useStrictDataElements, useStrictInstanceId } from 'src/features/instance/InstanceContext';
+import { FD } from 'src/features/formData/FormDataWrite';
+import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsSubformPage, useNavigate } from 'src/features/routing/AppRoutingContext';
@@ -18,9 +18,10 @@ import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subfor
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
+import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -52,23 +53,24 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
   const addEntryMutation = useAddEntryMutation(dataType);
   const dataElements = useStrictDataElements(dataType);
   const navigate = useNavigate();
-  const [isAdding, setIsAdding] = useState(false);
+  const lock = FD.useLocking(id);
+  const { performProcess, isAnyProcessing: isAddingDisabled, isThisProcessing: isAdding } = useIsProcessing();
   const [subformEntries, updateSubformEntries] = useState(dataElements);
 
   const subformIdsWithError = useComponentValidationsForNode(node).find(isSubformValidation)?.subformDataElementIds;
 
-  const addEntry = async () => {
-    setIsAdding(true);
-
-    try {
-      const result = await addEntryMutation.mutateAsync({});
-      navigate(`${node.id}/${result.id}`);
-    } catch {
-      // NOTE: Handled by useAddEntryMutation
-    } finally {
-      setIsAdding(false);
-    }
-  };
+  const addEntry = () =>
+    performProcess(async () => {
+      const currentLock = await lock();
+      try {
+        const result = await addEntryMutation.mutateAsync({});
+        navigate(`${node.id}/${result.id}`);
+      } catch {
+        // NOTE: Handled by useAddEntryMutation
+      } finally {
+        currentLock.unlock();
+      }
+    });
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -145,7 +147,8 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
             <Button
               id={`subform-${id}-add-button`}
               size='md'
-              disabled={isAdding}
+              disabled={isAddingDisabled}
+              isLoading={isAdding}
               onClick={async () => await addEntry()}
               onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
                 const allowedKeys = ['enter', ' ', 'spacebar'];
@@ -156,10 +159,12 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
               variant='secondary'
               fullWidth
             >
-              <AddIcon
-                fontSize='1.5rem'
-                aria-hidden='true'
-              />
+              {!isAdding && (
+                <PlusIcon
+                  fontSize='1.5rem'
+                  aria-hidden='true'
+                />
+              )}
               {langAsString(textResourceBindings?.addButton)}
             </Button>
           </div>
@@ -186,9 +191,8 @@ function SubformTableRow({
 }) {
   const id = dataElement.id;
   const { tableColumns = [] } = useNodeItem(node);
-  const instanceId = useStrictInstanceId();
-  const url = getStatefulDataModelUrl(instanceId, id, true);
-  const { isFetching, data, error, failureCount } = useFormDataQuery(url);
+  const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
   const { langAsString } = useLanguage();
   const navigate = useNavigate();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -200,7 +204,7 @@ function SubformTableRow({
   const numColumns = tableColumns.length;
   const actualColumns = showDeleteButton ? numColumns + 1 : numColumns;
 
-  if (isFetching) {
+  if (isSubformDataFetching) {
     return (
       <Table.Row>
         <Table.Cell colSpan={actualColumns}>
@@ -208,8 +212,7 @@ function SubformTableRow({
         </Table.Cell>
       </Table.Row>
     );
-  } else if (error) {
-    console.error(`Error loading data element ${id} from server. Gave up after ${failureCount} attempt(s).`, error);
+  } else if (subformDataError) {
     return (
       <Table.Row>
         <Table.Cell colSpan={actualColumns}>
@@ -239,10 +242,11 @@ function SubformTableRow({
       {tableColumns.length ? (
         tableColumns.map((entry, index) => (
           <Table.Cell key={`subform-cell-${id}-${index}`}>
-            <DataQueryWithDefaultValue
-              data={data}
-              query={entry.cellContent.query}
-              defaultValue={entry.cellContent.default}
+            <SubformCellContent
+              cellContent={entry.cellContent}
+              reference={{ type: 'node', id: node.id }}
+              data={subformData}
+              dataSources={subformDataSources}
             />
           </Table.Cell>
         ))
@@ -260,7 +264,7 @@ function SubformTableRow({
             className={classes.tableButton}
           >
             {editButtonText}
-            <EditIcon
+            <PencilIcon
               fontSize='1rem'
               aria-hidden='true'
             />
@@ -279,7 +283,7 @@ function SubformTableRow({
               className={classes.tableButton}
             >
               {deleteButtonText}
-              <DeleteIcon
+              <TrashIcon
                 fontSize='1rem'
                 aria-hidden='true'
               />
@@ -289,27 +293,4 @@ function SubformTableRow({
       )}
     </Table.Row>
   );
-}
-
-export interface DataQueryParams {
-  data: unknown;
-  query: string;
-  defaultValue?: string;
-}
-
-export function DataQueryWithDefaultValue(props: DataQueryParams) {
-  const { data, query, defaultValue } = props;
-  const { langAsString } = useLanguage();
-  let content = dot.pick(query, data);
-
-  if (!content && defaultValue != undefined) {
-    const textLookup = langAsString(defaultValue);
-    content = textLookup ? textLookup : defaultValue;
-  }
-
-  if (typeof content === 'object' || content === undefined) {
-    return null;
-  }
-
-  return <>{String(content)}</>;
 }

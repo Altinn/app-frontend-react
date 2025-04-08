@@ -1,19 +1,21 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { runEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { DisplayDataProps } from 'src/features/displayData';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class MultipleSelect extends MultipleSelectDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'MultipleSelect'>>(
@@ -22,26 +24,16 @@ export class MultipleSelect extends MultipleSelectDef {
     },
   );
 
-  private getSummaryData(
-    node: LayoutNode<'MultipleSelect'>,
-    { nodeFormDataSelector, optionsSelector, langTools }: DisplayDataProps,
-  ): { [key: string]: string } {
-    const data = nodeFormDataSelector(node);
-    if (!data.simpleBinding) {
-      return {};
-    }
-
-    const value = String(data.simpleBinding ?? '');
-    const { options } = optionsSelector(node);
-    return getCommaSeparatedOptionsToText(value, options, langTools);
-  }
-
-  getDisplayData(node: LayoutNode<'MultipleSelect'>, props: DisplayDataProps): string {
-    return Object.values(this.getSummaryData(node, props)).join(', ');
+  useDisplayData(nodeId: string): string {
+    const formData = useNodeFormDataWhenType(nodeId, 'MultipleSelect');
+    const options = useNodeOptions(nodeId).options;
+    const langAsString = useLanguage().langAsString;
+    const data = getCommaSeparatedOptionsToText(formData?.simpleBinding, options, langAsString);
+    return Object.values(data).join(', ');
   }
 
   renderSummary({ targetNode }: SummaryRendererProps<'MultipleSelect'>): JSX.Element | null {
-    return <MultipleChoiceSummary getFormData={(props) => this.getSummaryData(targetNode, props)} />;
+    return <MultipleChoiceSummary targetNode={targetNode} />;
   }
 
   renderSummary2(props: Summary2Props<'MultipleSelect'>): JSX.Element | null {
@@ -55,11 +47,8 @@ export class MultipleSelect extends MultipleSelectDef {
     );
   }
 
-  runEmptyFieldValidation(
-    node: BaseLayoutNode<'MultipleSelect'>,
-    validationDataSources: ValidationDataSources,
-  ): ComponentValidation[] {
-    return runEmptyFieldValidationOnlySimpleBinding(node, validationDataSources);
+  useEmptyFieldValidation(node: LayoutNode<'MultipleSelect'>): ComponentValidation[] {
+    return useEmptyFieldValidationOnlySimpleBinding(node);
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {

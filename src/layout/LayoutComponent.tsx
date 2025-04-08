@@ -6,18 +6,17 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
-import { runEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { useEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
 import { NodeGenerator } from 'src/utils/layout/generator/NodeGenerator';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { DisplayData, DisplayDataProps } from 'src/features/displayData';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
-import type { ComponentValidation, ValidationDataSources } from 'src/features/validation';
+import type { ComponentValidation } from 'src/features/validation';
 import type {
   ComponentBase,
   FormComponentProps,
@@ -26,8 +25,8 @@ import type {
 } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
+  CompExternal,
   CompExternalExact,
-  CompIntermediate,
   CompIntermediateExact,
   CompTypes,
   ITextResourceBindingsExternal,
@@ -37,10 +36,9 @@ import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeDataSelector, NodesContext } from 'src/utils/layout/NodesContext';
+import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { NodeData, StateFactoryProps } from 'src/utils/layout/types';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface NodeGeneratorProps {
   externalItem: CompExternalExact<CompTypes>;
@@ -126,7 +124,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Picks all direct children of a node, returning an array of node IDs for each child. This must be implemented for
    * every component type that can adopt children.
    */
-  public pickDirectChildren(_state: NodeData<Type>, _restriction?: TraversalRestriction): string[] {
+  public pickDirectChildren(_state: NodeData<Type>, _restriction?: number | undefined): string[] {
     return [];
   }
 
@@ -166,16 +164,9 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return false;
   }
 
-  shouldRenderInAutomaticPDF(node: LayoutNode<Type>, nodeDataSelector: NodeDataSelector): boolean {
-    const renderAsSummary = nodeDataSelector(
-      (picker) => {
-        const item = picker(node)?.item;
-        return item && 'renderAsSummary' in item ? item.renderAsSummary : false;
-      },
-      [node],
-    );
-
-    return !renderAsSummary;
+  shouldRenderInAutomaticPDF(data: NodeData<Type>): boolean {
+    const item = data.item;
+    return !(item && 'renderAsSummary' in item ? item.renderAsSummary : false);
   }
 
   /**
@@ -221,21 +212,7 @@ export interface SummaryRendererProps<Type extends CompTypes> {
   overrides?: ISummaryComponent['overrides'];
 }
 
-abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type> implements DisplayData<Type> {
-  /**
-   * Given a node (with group-index-aware data model bindings), this method should return a proper 'value' for the
-   * current component/node. This value will be used to display form data in a repeating group table, and when rendering
-   * a Summary for the node inside a repeating group. It will probably also be useful when implementing renderSummary().
-   * @see renderSummary
-   * @see renderCompactSummary
-   */
-  abstract getDisplayData(node: LayoutNode<Type>, displayDataProps: DisplayDataProps): string;
-
-  useDisplayData(node: LayoutNode<Type>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
-  }
-
+abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type> {
   /**
    * Render a summary for this component. For most components, this will return a:
    * <SingleInputSummary formDataAsString={displayData} />
@@ -255,7 +232,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * rendered in a compact way. The default
    */
   public renderCompactSummary({ targetNode }: SummaryRendererProps<Type>): JSX.Element | null {
-    const displayData = this.useDisplayData(targetNode);
+    const displayData = useDisplayData(targetNode);
     return (
       <SummaryItemCompact
         targetNode={targetNode}
@@ -362,7 +339,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {
   readonly category = CompCategory.Action;
 
-  shouldRenderInAutomaticPDF(_node: LayoutNode<Type>, _nodeDataSelector: NodeDataSelector): boolean {
+  shouldRenderInAutomaticPDF(_data: NodeData<Type>): boolean {
     return false;
   }
 }
@@ -373,20 +350,16 @@ export abstract class FormComponent<Type extends CompTypes>
 {
   readonly category = CompCategory.Form;
 
-  runEmptyFieldValidation(node: LayoutNode<Type>, ValidationDataSources: ValidationDataSources): ComponentValidation[] {
-    return runEmptyFieldValidationAllBindings(node, ValidationDataSources);
+  useEmptyFieldValidation(node: LayoutNode<Type>): ComponentValidation[] {
+    return useEmptyFieldValidationAllBindings(node);
   }
 }
 
-export interface ComponentProto {
-  type: CompTypes;
-  capabilities: CompCapabilities;
-}
-
 export interface ChildClaimerProps<Type extends CompTypes> {
-  item: CompIntermediate<Type>;
+  item: CompExternal<Type>;
   claimChild: (pluginKey: string, id: string) => void;
-  getProto: (id: string) => ComponentProto | undefined;
+  getType: (id: string) => CompTypes | undefined;
+  getCapabilities: (type: CompTypes) => CompCapabilities;
 }
 
 export abstract class ContainerComponent<Type extends CompTypes> extends _FormComponent<Type> {
@@ -398,7 +371,7 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;
 
-  abstract pickDirectChildren(state: NodeData<Type>, restriction?: TraversalRestriction): string[];
+  abstract pickDirectChildren(state: NodeData<Type>, restriction?: number | undefined): string[];
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

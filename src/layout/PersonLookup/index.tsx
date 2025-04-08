@@ -4,17 +4,16 @@ import type { JSX } from 'react';
 import { PersonLookupDef } from 'src/layout/PersonLookup/config.def.generated';
 import { PersonLookupComponent } from 'src/layout/PersonLookup/PersonLookupComponent';
 import { PersonLookupSummary } from 'src/layout/PersonLookup/PersonLookupSummary';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { DisplayDataProps } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class PersonLookup extends PersonLookupDef {
-  getDisplayData(node: LayoutNode<'PersonLookup'>, { nodeFormDataSelector }: DisplayDataProps): string {
-    const data = nodeFormDataSelector(node);
-    return Object.values(data).join(', ');
+  useDisplayData(nodeId: string): string {
+    const formData = useNodeFormDataWhenType(nodeId, 'PersonLookup');
+    return Object.values(formData ?? {}).join(', ');
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'PersonLookup'>>(
