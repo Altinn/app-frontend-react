@@ -6,13 +6,13 @@ import dot from 'dot-object';
 import { useStore } from 'zustand';
 
 import { RenderLayout } from 'src/next/components/RenderLayout';
+import classes from 'src/next/components/RepeatingGroupNext/RepeatingGroupNext.module.css';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
-
 interface RepeatingGroupNextType {
   component: ResolvedCompExternal;
 }
-
+//     background-color: var(--repeating-group-edit-surface-color);
 export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component }) => {
   // @ts-ignore
   const binding = component.dataModelBindings?.group;
@@ -20,10 +20,13 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
     throw new Error('Tried to render repeating group without datamodel binding');
   }
 
-  const groupArray = useStore(layoutStore, (state) => dot.pick(binding, state.data));
-  if (!Array.isArray(groupArray)) {
-    throw new Error('Repeating group data must be an array');
-  }
+  const groupArray = useStore(layoutStore, (state) => dot.pick(binding, state.data)) || [];
+
+  const addRow = useStore(layoutStore, (state) => state.addRow);
+
+  // if (!Array.isArray(groupArray)) {
+  //   throw new Error('Repeating group data must be an array');
+  // }
 
   // @ts-ignore
   const parentBinding = component.dataModelBindings?.group;
@@ -43,12 +46,13 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
   }
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
       <div
         ref={parentRef}
+        className={classes.container}
         style={{
           width: '100%',
-          height: '2000px',
+          height: '500px',
           overflow: 'auto',
         }}
       >
@@ -89,14 +93,14 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
           })}
         </div>
       </div>
-
       <Button
         onClick={() => {
-          console.log('click');
+          console.log('add row');
+          addRow(binding);
         }}
       >
-        Legg til
+        Til rad
       </Button>
-    </>
+    </div>
   );
 };

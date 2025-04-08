@@ -2,10 +2,12 @@ import dot from 'dot-object';
 import { produce } from 'immer';
 import { createStore } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
+import type { JSONSchema7 } from 'json-schema';
 
-import { API_CLIENT } from 'src/next/app/App';
+import { API_CLIENT } from 'src/next/app/App/App';
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
 import { isFormComponentProps } from 'src/next/app/hooks/useValidateComponent';
+import { getSchemaProperty } from 'src/next/app/utils/getSchemaProperty';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
 import type { Expression, ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { AllComponents, ILayoutCollection } from 'src/layout/layout';
@@ -38,7 +40,7 @@ interface Layouts {
   layouts: ResolvedLayoutCollection;
   resolvedLayouts: ResolvedLayoutCollection;
   data: DataObject | undefined;
-
+  dataModelSchemas?: Record<string, JSONSchema7>;
   componentMap?: Record<string, ResolvedCompExternal>;
   options?: Record<string, any>;
   setLayoutSets: (schema: LayoutSetsSchema) => void;
@@ -68,6 +70,8 @@ interface Layouts {
     itemIndex?: number,
     childField?: string,
   ) => any;
+  setDataModelSchema: (dataModelName: string, dataModelSchema: JSONSchema7) => void;
+  addRow: (dataModelBinding) => void;
 }
 
 function buildComponentMap(collection: ResolvedLayoutCollection) {
@@ -235,7 +239,7 @@ export const layoutStore = createStore<Layouts>()(
           // @ts-ignore
           const simple = component.dataModelBindings?.simpleBinding;
           if (!simple) {
-            return; // or throw
+            return;
           }
 
           const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
@@ -254,6 +258,98 @@ export const layoutStore = createStore<Layouts>()(
               }
             });
           });
+        },
+
+        setDataModelSchema: (dataModelName: string, dataModelSchema: JSONSchema7) => {
+          set((state) =>
+            produce(state, (draft) => {
+              if (!draft.dataModelSchemas) {
+                draft.dataModelSchemas = {};
+              }
+              draft.dataModelSchemas[dataModelName] = dataModelSchema;
+            }),
+          );
+        },
+
+        // addRow: (dataModelBinding: string, parentBinding?: string, itemIndex?: number, childField?: string) => {
+        //   set((state) =>
+        //     produce(state, (draft) => {
+        //       if (!draft.dataModelSchemas) {
+        //         throw new Error('Tried to add a row without a data model schema loaded.');
+        //       }
+        //
+        //       // // 1) Get the "simple" binding from the component
+        //       // // @ts-ignore
+        //       // const simple = component.dataModelBindings?.simpleBinding;
+        //       // if (!simple) {
+        //       //   throw new Error('No simpleBinding found in component.dataModelBindings');
+        //       // }
+        //
+        //       // 2) Build the final dot-path (same as setBoundValue)
+        //       const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : dataModelBinding;
+        //
+        //       // 3) Look up the sub-schema for that binding
+        //       const schema = draft.dataModelSchemas['model'];
+        //       const property = getSchemaProperty(schema, binding);
+        //       if (!property?.properties) {
+        //         throw new Error(`Could not find a definition with 'properties' for '${binding}' in schema.`);
+        //       }
+        //
+        //       // 4) Ensure the data at 'binding' is an array
+        //       let currentValue = dot.pick(binding, draft.data);
+        //       if (!Array.isArray(currentValue)) {
+        //         currentValue = [];
+        //         dot.set(binding, currentValue, draft.data);
+        //       }
+        //
+        //       // 5) Create a new row object with each key = null
+        //       const newRow: Record<string, any> = {};
+        //       for (const key of Object.keys(property.properties)) {
+        //         newRow[key] = null;
+        //       }
+        //
+        //       // 6) Push the new row to the array
+        //       currentValue.push(newRow);
+        //     }),
+        //   );
+        // },
+
+        addRow: (dataModelBinding: string) => {
+          set((state) =>
+            produce(state, (draft) => {
+              if (!draft.dataModelSchemas) {
+                throw new Error('Tried to add a row without a data model schema loaded.');
+              }
+
+              // 1) Retrieve the schema, then lookup the property using getSchemaProperty
+              const schema = draft.dataModelSchemas['model'];
+              const property = getSchemaProperty(schema, dataModelBinding);
+              if (!property?.properties) {
+                throw new Error(`Could not find a definition with properties for '${dataModelBinding}' in schema.`);
+              }
+
+              // 2) Prepare the data path (similar to setBoundValue, though here it's direct)
+              // If you needed parentBinding / itemIndex / childField, you'd replicate that logic.
+              const binding = dataModelBinding;
+
+              // 3) Ensure the data at binding is an array
+              let currentValue = dot.pick(binding, draft.data);
+
+              if (!Array.isArray(currentValue)) {
+                currentValue = [];
+                dot.set(binding, currentValue, {});
+              }
+
+              // 4) Build a new row object with each key = null
+              const newRow: Record<string, any> = {};
+              for (const key of Object.keys(property.properties)) {
+                newRow[key] = null;
+              }
+
+              // 5) Push the new row to the array
+              currentValue.push(newRow);
+            }),
+          );
         },
       }),
       {

@@ -3,11 +3,11 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import { scan } from 'react-scan';
 
 import { Api } from 'src/next/app/api';
-import { AppLayout } from 'src/next/pages/AppLayout/AppLayout';
-import { initialLoader } from 'src/next/pages/AppLayout/initialLoader';
+import { AppLayout } from 'src/next/app/App/AppLayout/AppLayout';
+import { initialLoader } from 'src/next/app/App/AppLayout/initialLoader';
 import { Instance } from 'src/next/pages/Instance/Instance';
 import { instanceLoader } from 'src/next/pages/Instance/instanceLoader';
-import { Page } from 'src/next/pages/Page';
+import { Page } from 'src/next/pages/Page/Page';
 import { Task } from 'src/next/pages/Task/Task';
 
 const { org, app } = window;

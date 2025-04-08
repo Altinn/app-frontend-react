@@ -1,7 +1,7 @@
 // src/next/loaders/taskLoader.ts
 import type { LoaderFunctionArgs } from 'react-router-dom';
 
-import { API_CLIENT, APP, ORG } from 'src/next/app/App';
+import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
 export async function taskLoader({ params }: LoaderFunctionArgs) {

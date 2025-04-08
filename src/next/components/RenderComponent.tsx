@@ -6,7 +6,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { Navbar } from 'src/next/components/navbar/Navbar';
-import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext';
+import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext/RepeatingGroupNext';
 import { SummaryNext } from 'src/next/components/SummaryNext/SummaryNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';

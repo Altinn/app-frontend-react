@@ -4,7 +4,7 @@ import { Navigate, Outlet, useParams } from 'react-router-dom';
 import { useStore } from 'zustand';
 
 import { useApiClient } from 'src/next/app/ApiClientContext';
-import { APP, ORG } from 'src/next/app/App';
+import { APP, ORG } from 'src/next/app/App/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
 // Adjust to match your real shape:

@@ -6,7 +6,7 @@ import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.mod
 import { ButtonLink } from 'src/next/components/navbar/ButtonLink';
 import type { CommonProps } from 'src/layout/Input';
 import type { CompIntermediateExact } from 'src/layout/layout';
-import type { PageParams } from 'src/next/pages/Page';
+import type { PageParams } from 'src/next/pages/Page/Page';
 
 interface NavigationButtonsNextType {
   component: CompIntermediateExact<'NavigationButtons'>;

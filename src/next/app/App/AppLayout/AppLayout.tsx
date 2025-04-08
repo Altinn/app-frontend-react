@@ -3,6 +3,7 @@ import { Navigate, Outlet, useLoaderData, useParams } from 'react-router-dom';
 
 import { useStore } from 'zustand/index';
 
+import classes from 'src/next/app/App/AppLayout/AppLayout.module.css';
 import { Header } from 'src/next/components/Header';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 
@@ -24,10 +25,20 @@ export const AppLayout = () => {
     throw new Error('No valid parties');
   }
   return (
-    <div>
+    <div className={classes.container}>
       <Header />
       {!params.instanceGuid && instanceId && <Navigate to={`instance/${instanceId}`} />}
-      <Outlet />
+      <main className={classes.mainContent}>
+        <section
+          id='main-content'
+          className={classes.mainSection}
+          tabIndex={-1}
+        >
+          <div className={classes.contentPadding}>
+            <Outlet />
+          </div>
+        </section>
+      </main>
     </div>
   );
 };
