@@ -1,10 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useIsFetching } from '@tanstack/react-query';
 
-import { useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
 import { waitForAnimationFrames } from 'src/utils/waitForAnimationFrames';
-import type { DataLoading } from 'src/core/contexts/dataLoadingContext';
+
+export const loadingClassName = 'loading';
 
 type ReadyType = 'print' | 'load';
 const readyId: Record<ReadyType, string> = {
@@ -20,40 +20,25 @@ const readyId: Record<ReadyType, string> = {
  */
 export function ReadyForPrint({ type }: { type: ReadyType }) {
   const [assetsLoaded, setAssetsLoaded] = React.useState(false);
-  const dataLoadingIsDone = useDataLoadingStore((state) => state.isDone);
 
-  const queryClient = useQueryClient();
-  const queryCache = queryClient.getQueryCache();
-  const [fetchingQueries, setFetchingQueries] = React.useState(queryCache.findAll({ fetchStatus: 'fetching' }));
+  const isFetching = useIsFetching() > 0;
 
-  useEffect(() => {
-    // Subscribe to changes in fetching queries, if not subscribed, React will not recompute with new values
-    // see https://tanstack.com/query/v5/docs/reference/QueryCache/#querycachesubscribe for more info
-    const unsubscribe = queryCache.subscribe(() => {
-      const pendingQueries = queryCache.findAll({ fetchStatus: 'fetching' });
-      setFetchingQueries(pendingQueries);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [queryCache]);
+  const numLoaders = useClassCount(loadingClassName);
 
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
       return;
     }
 
-    const dataPromise = waitForDataLoading(dataLoadingIsDone);
     const imagePromise = waitForImages();
     const fontPromise = document.fonts.ready;
 
-    Promise.all([imagePromise, fontPromise, dataPromise]).then(() => {
+    Promise.all([imagePromise, fontPromise]).then(() => {
       setAssetsLoaded(true);
     });
-  }, [assetsLoaded, dataLoadingIsDone]);
+  }, [assetsLoaded]);
 
-  if (!assetsLoaded || fetchingQueries.length > 0) {
+  if (!assetsLoaded || numLoaders > 0 || isFetching) {
     return null;
   }
 
@@ -88,11 +73,28 @@ async function waitForImages() {
   } while (nodes.some((node) => !node.complete));
 }
 
-async function waitForDataLoading(dataLoadingIsDone: DataLoading['isDone']) {
-  let done: boolean = dataLoadingIsDone();
+export function useClassCount(className: string): number {
+  const [count, setCount] = useState(() => document.getElementsByClassName(className).length);
 
-  while (!done) {
-    await new Promise((resolve) => window.requestIdleCallback(resolve, { timeout: 100 }));
-    done = dataLoadingIsDone();
-  }
+  useEffect(() => {
+    const updateCount = () => {
+      const newCount = document.getElementsByClassName(className).length;
+      setCount(newCount);
+    };
+
+    const observer = new MutationObserver(updateCount);
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
+    updateCount();
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [className]);
+
+  return count;
 }
