@@ -189,7 +189,7 @@ export const useCurrentParty = () => useCurrentPartyCtx().party;
 export const useCurrentPartyIsValid = () => useCurrentPartyCtx().currentIsValid;
 export const useSetCurrentParty = () => useCurrentPartyCtx().setParty;
 
-export const useValidParties = () => usePartiesAllowedToInstantiateCtx()?.filter((party) => party.isDeleted === false);
+export const useValidParties = () => usePartiesAllowedToInstantiateCtx();
 
 export const useHasSelectedParty = () => useCurrentPartyCtx().userHasSelectedParty;
 
