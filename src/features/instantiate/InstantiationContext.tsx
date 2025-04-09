@@ -8,6 +8,7 @@ import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useNavigate } from 'src/features/routing/AppRoutingContext';
+import { HttpStatusCodes } from 'src/utils/network/networking';
 import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -36,6 +37,16 @@ interface InstantiationContext {
 
 const { Provider, useCtx } = createContext<InstantiationContext>({ name: 'InstantiationContext', required: true });
 
+function redirectToErrorPage(error: HttpClientError, navigate: ReturnType<typeof useNavigate>) {
+  window.logError('Instantiation failed:\n', error);
+
+  if (error.response?.status === HttpStatusCodes.Forbidden) {
+    navigate(`/instantiation/forbidden`);
+  } else {
+    navigate(`/instantiation/error`);
+  }
+}
+
 function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();
   const navigate = useNavigate();
@@ -46,7 +57,7 @@ function useInstantiateMutation() {
     mutationKey: ['instantiate', 'simple'],
     mutationFn: (instanceOwnerPartyId: number) => doInstantiate(instanceOwnerPartyId, currentLanguage),
     onError: (error: HttpClientError) => {
-      window.logError('Instantiation failed:\n', error);
+      redirectToErrorPage(error, navigate);
     },
     onSuccess: (data) => {
       navigate(`/instance/${data.id}`);
@@ -65,7 +76,7 @@ function useInstantiateWithPrefillMutation() {
     mutationKey: ['instantiate', 'withPrefill'],
     mutationFn: (instantiation: Instantiation) => doInstantiateWithPrefill(instantiation, currentLanguage),
     onError: (error: HttpClientError) => {
-      window.logError('Instantiation with prefill failed:\n', error);
+      redirectToErrorPage(error, navigate);
     },
     onSuccess: (data) => {
       navigate(`/instance/${data.id}`);

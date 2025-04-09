@@ -7,6 +7,7 @@ import { NavigateToStartUrl, ProcessWrapper } from 'src/components/wrappers/Proc
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
+import { InstantiationError } from 'src/features/instantiate/InstantiationError';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
@@ -32,12 +33,14 @@ export const App = () => (
       path='/instance-selection/*'
       element={<InstanceSelectionWrapper />}
     />
-
     <Route
       path='/party-selection/*'
       element={<PartySelection />}
     />
-
+    <Route
+      path='/instantiation/:error'
+      element={<InstantiationError />}
+    />
     <Route
       path='/instance/:instanceOwnerPartyId/:instanceGuid/*'
       element={
