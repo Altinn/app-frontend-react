@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { TZDate } from '@date-fns/tz';
 import { formatDate, formatISO } from 'date-fns';
 
 import type { PropsFromGenericComponent } from '..';
@@ -14,6 +13,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { toTimeZonedDate } from 'src/utils/dateUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
@@ -76,10 +76,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const instanceDateSent =
     lastChanged &&
     dateSent !== false &&
-    formatDate(
-      new TZDate(new Date(formatISO(lastChanged)), 'Europe/Oslo'),
-      getDateFormat(PrettyDateAndTime, selectedLanguage),
-    );
+    formatDate(toTimeZonedDate(formatISO(lastChanged)), getDateFormat(PrettyDateAndTime, selectedLanguage));
 
   const instanceSender =
     sender !== false &&

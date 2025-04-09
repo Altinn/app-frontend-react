@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 import type { PropsWithChildren } from 'react';
 
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMutations, useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
@@ -9,10 +10,10 @@ import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { instanceQueryKeys } from 'src/features/instance/InstanceContext';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import { useShouldFetchProfile } from 'src/features/profile/ProfileProvider';
-import type { IParty } from 'src/types/shared';
+import type { IInstance, IParty } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 const partyQueryKeys = {
@@ -197,7 +198,11 @@ export const useSetHasSelectedParty = () => useCurrentPartyCtx().setUserHasSelec
 
 export function useInstanceOwnerParty(): IParty | null {
   const parties = usePartiesAllowedToInstantiate() ?? [];
-  const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
+  const queryClient = useQueryClient();
+  const { instanceOwnerPartyId, instanceGuid } = useParams();
+  const instanceOwner = queryClient.getQueryData<IInstance>(
+    instanceQueryKeys.instanceData(instanceOwnerPartyId, instanceGuid),
+  )?.instanceOwner;
 
   if (!instanceOwner) {
     return null;

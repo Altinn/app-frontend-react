@@ -67,6 +67,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
   ref,
 ) {
   const { langAsString } = useLanguage();
+
   return (
     <DesignSystemButton
       id={id}
