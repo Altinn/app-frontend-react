@@ -3,5 +3,4 @@
   flex-direction: row-reverse;
   justify-content: flex-end;
   gap: var(--button-gap);
-  margin-top: var(--button-margin-top);
 }
