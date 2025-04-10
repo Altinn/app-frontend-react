@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -101,22 +102,32 @@ const {
     })),
 });
 
+const instanceQueryKeys = {
+  instanceData: (
+    instanceOwnerPartyId: string | undefined,
+    instanceGuid: string | undefined,
+    taskId: string | undefined,
+  ) => ['instanceData', instanceOwnerPartyId, instanceGuid, taskId],
+};
+
 // Also used for prefetching @see appPrefetcher.ts
 export function useInstanceDataQueryDef(
   hasResultFromInstantiation: boolean,
-  partyId?: string,
-  instanceGuid?: string,
+  partyId: string | undefined,
+  instanceGuid: string | undefined,
+  taskId: string | undefined,
 ): QueryDefinition<IInstance> {
   const { fetchInstanceData } = useAppQueries();
   return {
-    queryKey: ['fetchInstanceData', partyId, instanceGuid],
+    queryKey: instanceQueryKeys.instanceData(partyId, instanceGuid, taskId),
     queryFn: partyId && instanceGuid ? () => fetchInstanceData(partyId, instanceGuid) : skipToken,
     enabled: !!partyId && !!instanceGuid && !hasResultFromInstantiation,
   };
 }
 
 function useGetInstanceDataQuery(hasResultFromInstantiation: boolean, partyId: string, instanceGuid: string) {
-  const utils = useQuery(useInstanceDataQueryDef(hasResultFromInstantiation, partyId, instanceGuid));
+  const { taskId } = useParams();
+  const utils = useQuery(useInstanceDataQueryDef(hasResultFromInstantiation, partyId, instanceGuid, taskId));
 
   useEffect(() => {
     utils.error && window.logError('Fetching instance data failed:\n', utils.error);
