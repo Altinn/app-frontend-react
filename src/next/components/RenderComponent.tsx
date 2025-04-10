@@ -48,7 +48,7 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   }
 
   if (!components[component.type]) {
-    debugger;
+    throw new Error(`${component.type} was not in the component array.`);
   }
 
   const layoutComponent = components[component.type].def as unknown as LayoutComponent<Type>;
