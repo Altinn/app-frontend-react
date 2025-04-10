@@ -1,10 +1,12 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { getPartyMock, getPartyWithSubunitMock, getServiceOwnerPartyMock } from 'src/__mocks__/getPartyMock';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
+import { useCurrentParty, useCurrentPartyIsValid } from 'src/features/party/PartiesProvider';
 import { renderWithDefaultProviders } from 'src/test/renderWithProviders';
 
 const deletedParty = getPartyMock({
@@ -29,10 +31,26 @@ const parties = [
   getPartyMock({ ssn: '01017512353', partyId: 12353, name: 'Bjørn Nordmann' }),
 ];
 
+function TestWrapper(props: PropsWithChildren) {
+  const currentParty = useCurrentParty();
+  const partyIsValid = useCurrentPartyIsValid();
+  return (
+    <>
+      {props.children}
+      <div data-testid='valid-party'>{JSON.stringify(partyIsValid)}</div>
+      <div data-testid='current-party'>{JSON.stringify(currentParty?.partyId ?? false)}</div>
+    </>
+  );
+}
+
 describe('PartySelection', () => {
   function render(_parties = parties) {
     return renderWithDefaultProviders({
-      renderer: <PartySelection />,
+      renderer: (
+        <TestWrapper>
+          <PartySelection />
+        </TestWrapper>
+      ),
       queries: {
         fetchPartiesAllowedToInstantiate: async () => _parties,
       },
@@ -96,5 +114,48 @@ describe('PartySelection', () => {
     expect(screen.getByRole('checkbox', { name: /vis slettede/i })).toBeChecked();
     expect(screen.getAllByTestId('AltinnParty-PartyWrapper')).toHaveLength(1);
     expect(screen.getByRole('button', { name: 'Petter Nordmann (slettet) personnr. 01017512347' })).toBeInTheDocument();
+  });
+
+  describe('selecting parties', () => {
+    const testCases = [
+      {
+        parties: [getPartyMock({ ssn: '01017512346', partyId: 12346, name: 'Kari Nordmann' })],
+        expectedPartyId: 12346,
+        partyName: 'Kari Nordmann personnr. 01017512346',
+      },
+      {
+        parties: [getServiceOwnerPartyMock()],
+        expectedPartyId: 414234123,
+        partyName: 'Brønnøysundregistrene org.nr. 974760673',
+      },
+      { parties: [getPartyWithSubunitMock().org], expectedPartyId: 1, partyName: 'Root Org org.nr. 123456789' },
+      {
+        parties: [getPartyWithSubunitMock().org],
+        expectedPartyId: 2,
+        partyName: 'Subunit Org org.nr. 223456789',
+        expandSubunit: true,
+      },
+    ];
+
+    it.each(testCases)(
+      'should be possible to click on ($partyName)',
+      async ({ parties, expectedPartyId, partyName, expandSubunit }) => {
+        const user = userEvent.setup({ delay: null });
+        const { mutations } = await render(parties);
+
+        expect(screen.getByTestId('valid-party')).toHaveTextContent('false');
+
+        if (expandSubunit) {
+          await user.click(screen.getByRole('button', { name: '1 underenhet' }));
+        }
+
+        await user.click(screen.getByRole('button', { name: partyName }));
+        await waitFor(() => expect(mutations.doSetCurrentParty.mock).toHaveBeenCalled());
+        expect(mutations.doSetCurrentParty.mock).toHaveBeenCalledWith(expectedPartyId);
+        mutations.doSetCurrentParty.resolve('Party successfully updated');
+        await waitFor(() => expect(screen.getByTestId('current-party')).toHaveTextContent(`${expectedPartyId}`));
+        await waitFor(() => expect(screen.getByTestId('valid-party')).toHaveTextContent('true'));
+      },
+    );
   });
 });
