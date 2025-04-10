@@ -66,7 +66,7 @@ echo "-------------------------------------"
 if [[ -z "$AZURE_STORAGE_ACCOUNT_NAME" ]]; then
   echo "Skipping publish to azure cdn. As --azure-sa-name flag not defined"
 else
-  AZCOPY_OPTS=( --put-md5 --compare-hash=MD5 --delete-destination=true )
+  AZCOPY_OPTS=( --put-md5 --compare-hash=MD5 --recursive=true --delete-destination=true )
   if [[ "$SYNC_AZURE_CDN" == "no" ]]; then
     echo "Publish to azure cdn will run with --dry-run (toggle with --azure-sync-cdn). No files will actually be synced"
     AZCOPY_OPTS+=( --dry-run )
