@@ -58,7 +58,12 @@ export const RepeatingGroupTableSummary = ({
   if (rows.length === 0) {
     return (
       <SingleValueSummary
-        title={title}
+        title={
+          <Lang
+            id={title}
+            node={componentNode}
+          />
+        }
         componentNode={componentNode}
         errors={errors}
         isCompact={isCompact}
@@ -129,9 +134,6 @@ export const RepeatingGroupTableSummary = ({
 
 function HeaderCell({ nodeId, columnSettings }: { nodeId: string; columnSettings: ITableColumnFormatting }) {
   const node = useNode(nodeId);
-  if (!node) {
-    throw new Error(`Could not find node with id ${nodeId}`);
-  }
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   return (
     <Table.HeaderCell style={style}>

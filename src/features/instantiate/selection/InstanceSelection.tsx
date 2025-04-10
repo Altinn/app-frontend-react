@@ -3,13 +3,12 @@ import { Helmet } from 'react-helmet-async';
 import type { MouseEventHandler } from 'react';
 
 import { Heading, Paragraph, Table } from '@digdir/designsystemet-react';
-import { Edit as EditIcon } from '@navikt/ds-icons';
+import { PencilIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Pagination } from 'src/app-components/Pagination/Pagination';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
@@ -46,18 +45,14 @@ function getDateDisplayString(timeStamp: string) {
 
 export const InstanceSelectionWrapper = () => (
   <TaskStoreProvider>
-    <DataLoadingProvider>
-      <ActiveInstancesProvider>
-        <PresentationComponent
-          type={ProcessTaskType.Unknown}
-          showNavigation={false}
-        >
-          <DataLoadingProvider>
-            <InstanceSelection />
-          </DataLoadingProvider>
-        </PresentationComponent>
-      </ActiveInstancesProvider>
-    </DataLoadingProvider>
+    <ActiveInstancesProvider>
+      <PresentationComponent
+        type={ProcessTaskType.Unknown}
+        showNavigation={false}
+      >
+        <InstanceSelection />
+      </PresentationComponent>
+    </ActiveInstancesProvider>
   </TaskStoreProvider>
 );
 
@@ -139,7 +134,7 @@ function InstanceSelection() {
                       onMouseDown={handleOpenInstance}
                       aria-label={`${langAsString('instance_selection.continue')}`}
                     >
-                      <EditIcon fontSize='1rem' />
+                      <PencilIcon fontSize='1rem' />
                     </Button>
                   </div>
                 </Table.Cell>
@@ -209,7 +204,7 @@ function InstanceSelection() {
                     }}
                   >
                     <Lang id='instance_selection.continue' />
-                    <EditIcon
+                    <PencilIcon
                       fontSize='1rem'
                       title={langAsString('instance_selection.continue')}
                     />

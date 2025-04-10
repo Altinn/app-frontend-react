@@ -5,7 +5,7 @@ import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { LogoColor } from 'src/components/logo/AltinnLogo';
-import { AltinnSubstatusPaper } from 'src/components/molecules/AltinnSubstatusPaper';
+import { AltinnSubstatus } from 'src/components/molecules/AltinnSubstatus';
 import { AppHeader } from 'src/components/presentation/AppHeader/AppHeader';
 import { Header } from 'src/components/presentation/Header';
 import { NavBar } from 'src/components/presentation/NavBar';
@@ -20,8 +20,6 @@ import { useLaxInstanceStatus } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { SideBarNavigation } from 'src/features/navigation/SidebarNavigation';
 import { useHasGroupedNavigation } from 'src/features/navigation/utils';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useProfile } from 'src/features/profile/ProfileProvider';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
 import type { PresentationType } from 'src/types';
@@ -40,8 +38,6 @@ export const PresentationComponent = ({
   showNavbar = true,
   showNavigation = true,
 }: IPresentationProvidedProps) => {
-  const party = useCurrentParty();
-  const user = useProfile();
   const instanceStatus = useLaxInstanceStatus();
   const { expandedWidth } = useUiConfigContext();
   const hasGroupedNavigation = useHasGroupedNavigation();
@@ -64,8 +60,6 @@ export const PresentationComponent = ({
           })}
         >
           <AppHeader
-            party={party}
-            user={user}
             logoColor={LogoColor.blueDarker}
             headerBackgroundColor={backgroundColor}
           />
@@ -76,7 +70,7 @@ export const PresentationComponent = ({
             style={!showNavbar ? { marginTop: 54 } : undefined}
           >
             {isProcessStepsArchived && instanceStatus?.substatus && (
-              <AltinnSubstatusPaper
+              <AltinnSubstatus
                 label={<Lang id={instanceStatus.substatus.label} />}
                 description={<Lang id={instanceStatus.substatus.description} />}
               />

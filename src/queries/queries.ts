@@ -81,7 +81,7 @@ import type {
   IProfile,
 } from 'src/types/shared';
 
-export const doSetCurrentParty = (partyId: number) =>
+export const doSetCurrentParty = (partyId: number | string) =>
   putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation, language?: string): Promise<IInstance> =>
@@ -251,7 +251,7 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
 
-export const fetchParties = (): Promise<IParty[]> => httpGet(validPartiesUrl);
+export const fetchPartiesAllowedToInstantiate = (): Promise<IParty[]> => httpGet(validPartiesUrl);
 
 export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
 

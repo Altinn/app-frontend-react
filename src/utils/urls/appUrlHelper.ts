@@ -21,7 +21,7 @@ export const getInstantiateUrl = (language?: string) => {
   return `${appPath}/instances/create${queryString}`;
 };
 
-export const getSetCurrentPartyUrl = (partyId: number) => `${appPath}/api/v1/parties/${partyId}`;
+export const getSetCurrentPartyUrl = (partyId: string | number) => `${appPath}/api/v1/parties/${partyId}`;
 
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
@@ -52,6 +52,13 @@ export const getFileTagUrl = (instanceId: string, dataGuid: string, tag: string 
 
 export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+
+export const getStatelessDataModelUrlWithPrefill = (
+  dataType: string,
+  includeRowIds: boolean,
+  prefillFromQueryParams: string,
+) =>
+  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}&prefill=${prefillFromQueryParams}`;
 
 export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;

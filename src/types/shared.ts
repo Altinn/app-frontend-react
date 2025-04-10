@@ -96,6 +96,7 @@ export interface IInstanceOwner {
   personNumber?: string;
   organisationNumber?: string | null;
   username?: string;
+  party?: IParty | null;
 }
 
 export interface IInstanceState {
@@ -290,6 +291,7 @@ export interface IInstanceDataSources {
   appId: string;
   instanceOwnerPartyId: string;
   instanceOwnerPartyType: InstanceOwnerPartyType;
+  instanceOwnerName?: string;
 }
 
 export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject' | 'read' | 'write' | 'complete';
