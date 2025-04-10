@@ -131,7 +131,7 @@ else
     azcopy sync "$TARGET" "$AZURE_TARGET_URI/toolkits${AZURE_STORAGE_ACCOUNT_TOKEN}" "${AZCOPY_TOOLKITS_OPTS[@]}" "${AZCOPY_ADDITIONAL_OPTS[@]}"
     echo "-------------------------------------"
     if [[ "$SYNC_AZURE_CDN" == "yes" && "$PRE_RELEASE" == "no" ]]; then
-      bash "$PATH_TO_FRONTEND/.github/scripts/purge-frontdoor-cache.sh" --path "/toolkits/altinn-app-frontend/$APP_MAJOR/*" --path "/toolkits/altinn-app-frontend/$APP_MAJOR_MINOR/*"
+      bash ".github/scripts/purge-frontdoor-cache.sh" --path "/toolkits/altinn-app-frontend/$APP_MAJOR/*" --path "/toolkits/altinn-app-frontend/$APP_MAJOR_MINOR/*"
       echo "-------------------------------------"
     fi
   fi
