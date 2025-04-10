@@ -59,7 +59,7 @@ export const NavigationBarComponent = ({ node }: INavigationBar) => {
   const onPageNavigationValidation = useOnPageNavigationValidation();
   const { performProcess, isAnyProcessing, process } = useIsProcessing<string>();
 
-  const firstPageLink = React.useRef<HTMLButtonElement>();
+  const firstPageLink = React.useRef<HTMLButtonElement | undefined>(undefined);
 
   const handleNavigationClick = (pageId: string) =>
     performProcess(pageId, async () => {

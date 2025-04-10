@@ -152,7 +152,11 @@ function RepeatingGroupsEditContainerInternal({
           item
           spacing={6}
           style={{ flexBasis: 'auto' }}
-          ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
+          ref={(n) => {
+            if (editingRowIndex !== undefined) {
+              refSetter(editingRowIndex, 'editContainer', n);
+            }
+          }}
         >
           {row?.itemIds?.map((nodeId) => (
             <ChildComponent

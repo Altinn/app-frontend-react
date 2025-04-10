@@ -17,6 +17,7 @@ export interface AlertOnChange<Fn extends ChangeFn> {
  * @param onChange - The change handler
  * @param shouldAlert - Optional function to determine whether the alert should be shown based on the change event
  * @returns A new change handler, and the necessary props needed to control the DeleteWarningPopover
+ * @param generateMessage - Optional function to generate the message to be shown in the alert
  * @see DeleteWarningPopover
  */
 export function useAlertOnChange<Fn extends ChangeFn>(
@@ -27,7 +28,7 @@ export function useAlertOnChange<Fn extends ChangeFn>(
 ): AlertOnChange<Fn> {
   const [alertOpen, _setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState<ReactNode>('');
-  const argsRef = useRef<Parameters<Fn>>();
+  const argsRef = useRef<Parameters<Fn> | undefined>(undefined);
 
   const handleChange = useCallback(
     (...args: Parameters<Fn>) => {
