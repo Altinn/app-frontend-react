@@ -4,9 +4,9 @@ import { useParams } from 'react-router-dom';
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
 import { ButtonLink } from 'src/next/components/navbar/ButtonLink';
-import type { CommonProps } from 'src/layout/Input';
 import type { CompIntermediateExact } from 'src/layout/layout';
 import type { PageParams } from 'src/next/pages/Page/Page';
+import type { CommonProps } from 'src/next/types/CommonComponentProps';
 
 interface NavigationButtonsNextType {
   component: CompIntermediateExact<'NavigationButtons'>;

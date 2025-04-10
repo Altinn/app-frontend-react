@@ -5,8 +5,8 @@ import { NavigationButtonsDef } from 'src/layout/NavigationButtons/config.def.ge
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
 import { NavigationButtonsNext } from 'src/layout/NavigationButtons/NavigationButtonsNext';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CommonProps } from 'src/layout/Input';
 import type { CompIntermediateExact } from 'src/layout/layout';
+import type { CommonProps } from 'src/next/types/CommonComponentProps';
 
 export class NavigationButtons extends NavigationButtonsDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationButtons'>>(

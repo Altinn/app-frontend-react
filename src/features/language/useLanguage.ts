@@ -13,7 +13,6 @@ import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
 import {
   useDataModelBindingTranspose,
   useInnerDataModelBindingTranspose,
@@ -62,7 +61,7 @@ export interface IUseLanguage {
 }
 
 export interface TextResourceVariablesDataSources {
-  node: LayoutNode | undefined;
+  node: LayoutNode | string | undefined;
   applicationSettings: IApplicationSettings | null;
   instanceDataSources: IInstanceDataSources | null;
   dataModelPath?: IDataModelReference;
@@ -130,16 +129,6 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
   }, [sources, node, defaultDataType, formDataTypes, formDataSelector, transposeSelector]);
 }
 
-// Exactly the same as above, but returns a function accepting a node
-export function useLanguageWithForcedNodeSelector() {
-  const defaultDataType = DataModels.useLaxDefaultDataType();
-  const formDataTypes = DataModels.useLaxReadableDataTypes();
-  const formDataSelector = FD.useLaxDebouncedSelector();
-  const nodeDataSelector = NodesInternal.useLaxNodeDataSelector();
-
-  return useInnerLanguageWithForcedNodeSelector(defaultDataType, formDataTypes, formDataSelector, nodeDataSelector);
-}
-
 export function useInnerLanguageWithForcedNodeSelector(
   defaultDataType: string | typeof ContextNotProvided | undefined,
   formDataTypes: string[] | typeof ContextNotProvided,
@@ -150,7 +139,7 @@ export function useInnerLanguageWithForcedNodeSelector(
   const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
 
   return useCallback(
-    (node: LayoutNode | undefined) => {
+    (node: LayoutNode | string | undefined) => {
       const { textResources, language, selectedLanguage, ...dataSources } = sources || ({} as LangDataSources);
       if (!textResources || !language || !selectedLanguage) {
         throw new Error('useLanguage must be used inside a LangToolsStoreProvider');

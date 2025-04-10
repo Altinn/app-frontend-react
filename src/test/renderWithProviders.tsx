@@ -22,7 +22,6 @@ import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
-import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -36,7 +35,7 @@ import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteP
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
-import { LanguageProvider } from 'src/features/language/LanguageProvider';
+import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
@@ -142,8 +141,9 @@ const defaultQueryMocks: AppQueries = {
   fetchLayoutSets: async () => getLayoutSetsMock(),
   fetchOrgs: async () => ({ orgs: getOrgsMock() }),
   fetchUserProfile: async () => getProfileMock(),
+  fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
-  fetchParties: async () => [getPartyMock()],
+  fetchPartiesAllowedToInstantiate: async () => [getPartyMock()],
   fetchRefreshJwtToken: async () => ({}),
   fetchCustomValidationConfig: async () => null,
   fetchFormData: async () => ({}),
@@ -152,9 +152,9 @@ const defaultQueryMocks: AppQueries = {
   fetchPdfFormat: async () => ({ excludedPages: [], excludedComponents: [] }),
   fetchDynamics: async () => null,
   fetchRuleHandler: async () => null,
-  fetchTextResources: async () => ({ language: 'nb', resources: getTextResourcesMock() }),
+  fetchTextResources: async (language) => ({ language, resources: getTextResourcesMock() }),
   fetchLayoutSchema: async () => ({}) as JSONSchema7,
-  fetchAppLanguages: async () => [],
+  fetchAppLanguages: async () => [{ language: 'nb' }, { language: 'nn' }, { language: 'en' }],
   fetchProcessNextSteps: async () => [],
   fetchPostPlace: async () => ({ valid: true, result: 'OSLO' }),
   fetchLayoutSettings: async () => ({ pages: { order: [] } }),
@@ -203,6 +203,7 @@ export const makeFormDataMethodProxies = (
     appendToList: makeProxy('appendToList', ref),
     unlock: makeProxy('unlock', ref),
     lock: makeProxy('lock', ref),
+    nextLock: makeProxy('nextLock', ref),
     requestManualSave: makeProxy('requestManualSave', ref),
   };
 
@@ -255,11 +256,11 @@ export function InstanceRouter({
     >
       <Routes>
         <Route
-          path='instance/:partyId/:instanceGuid/:taskId/:pageId'
+          path='instance/:instanceOwnerPartyId/:instanceGuid/:taskId/:pageId'
           element={children}
         />
         <Route
-          path='instance/:partyId/:instanceGuid/:taskId'
+          path='instance/:instanceOwnerPartyId/:instanceGuid/:taskId'
           element={children}
         />
         <Route
@@ -284,37 +285,36 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
       queryClient={queryClient}
     >
       <LanguageProvider>
-        <DataLoadingProvider>
-          <TaskStoreProvider>
-            <LangToolsStoreProvider>
-              <UiConfigProvider>
-                <PageNavigationProvider>
-                  <Router>
-                    <AppRoutingProvider>
-                      <ApplicationMetadataProvider>
-                        <GlobalFormDataReadersProvider>
-                          <OrgsProvider>
-                            <ApplicationSettingsProvider>
-                              <LayoutSetsProvider>
-                                <ProfileProvider>
-                                  <PartyProvider>
-                                    <TextResourcesProvider>
-                                      <InstantiationProvider>{children}</InstantiationProvider>
-                                    </TextResourcesProvider>
-                                  </PartyProvider>
-                                </ProfileProvider>
-                              </LayoutSetsProvider>
-                            </ApplicationSettingsProvider>
-                          </OrgsProvider>
-                        </GlobalFormDataReadersProvider>
-                      </ApplicationMetadataProvider>
-                    </AppRoutingProvider>
-                  </Router>
-                </PageNavigationProvider>
-              </UiConfigProvider>
-            </LangToolsStoreProvider>
-          </TaskStoreProvider>
-        </DataLoadingProvider>
+        <TaskStoreProvider>
+          <LangToolsStoreProvider>
+            <UiConfigProvider>
+              <PageNavigationProvider>
+                <Router>
+                  <AppRoutingProvider>
+                    <ApplicationMetadataProvider>
+                      <GlobalFormDataReadersProvider>
+                        <OrgsProvider>
+                          <ApplicationSettingsProvider>
+                            <LayoutSetsProvider>
+                              <SetShouldFetchAppLanguages />
+                              <ProfileProvider>
+                                <PartyProvider>
+                                  <TextResourcesProvider>
+                                    <InstantiationProvider>{children}</InstantiationProvider>
+                                  </TextResourcesProvider>
+                                </PartyProvider>
+                              </ProfileProvider>
+                            </LayoutSetsProvider>
+                          </ApplicationSettingsProvider>
+                        </OrgsProvider>
+                      </GlobalFormDataReadersProvider>
+                    </ApplicationMetadataProvider>
+                  </AppRoutingProvider>
+                </Router>
+              </PageNavigationProvider>
+            </UiConfigProvider>
+          </LangToolsStoreProvider>
+        </TaskStoreProvider>
       </LanguageProvider>
     </AppQueriesProvider>
   );
@@ -344,13 +344,11 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       queryClient={queryClient}
     >
       <TaskStoreProvider>
-        <DataLoadingProvider>
-          <LangToolsStoreProvider>
-            <Router>
-              <AppRoutingProvider>{children}</AppRoutingProvider>
-            </Router>
-          </LangToolsStoreProvider>
-        </DataLoadingProvider>
+        <LangToolsStoreProvider>
+          <Router>
+            <AppRoutingProvider>{children}</AppRoutingProvider>
+          </Router>
+        </LangToolsStoreProvider>
       </TaskStoreProvider>
     </AppQueriesProvider>
   );

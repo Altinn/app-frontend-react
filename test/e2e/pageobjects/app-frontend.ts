@@ -28,6 +28,9 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/subform-test */
     subformTest: 'subform-test',
+
+    /** @see https://dev.altinn.studio/repos/ttd/navigation-test-subform */
+    navigationTest: 'navigation-test-subform',
   };
 
   //Start app instance page
@@ -35,6 +38,7 @@ export class AppFrontend {
   public startButton = '.btn';
 
   //Common
+  public appHeader = '[data-testid="AppHeader"]';
   public loadingAnimation = 'rect[role="presentation"]';
   public header = '#main-content > header';
   public attachmentIcon = '.reg-attachment';
@@ -108,7 +112,6 @@ export class AppFrontend {
   //Receipt
   public receipt = {
     container: '#ReceiptContainer',
-    linkToArchive: 'a[href$="/ui/messagebox/archive"]',
     pdf: '#attachment-list-pdf',
     uploadedAttachments: '[data-testid=attachment-list]',
   };
@@ -303,10 +306,12 @@ export class AppFrontend {
     idnumber: '#idnummer',
     idnummer2: '#idnummer2',
     dropdown: '#options',
+    jobTitle: '#jobTitle',
+    prefilledJobTitle: '#prefilledJobTitle',
   };
 
   public reporteeSelection = {
-    appHeader: '[data-testid="AltinnAppHeader"]',
+    appHeader: '[data-testid="InstantiateHeader"]',
     searchReportee: 'input[placeholder="Søk etter aktør"]',
     reportee: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
     subUnits: '[data-testid="AltinnParty-SubUnitWrapper"]',

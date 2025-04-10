@@ -8,7 +8,6 @@ import type { QueryObserverResult } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
@@ -21,11 +20,6 @@ import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IData, IInstance, IInstanceDataSources } from 'src/types/shared';
 
 export interface InstanceContext {
-  // Instance identifiers
-  partyId: string;
-  instanceGuid: string;
-  instanceId: string;
-
   // Data
   data: IInstance | undefined;
   dataSources: IInstanceDataSources | null;
@@ -42,8 +36,6 @@ export interface InstanceContext {
 
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
 
-type InstanceStoreProps = Pick<InstanceContext, 'partyId' | 'instanceGuid'>;
-
 const {
   Provider,
   useMemoSelector,
@@ -51,15 +43,12 @@ const {
   useLaxMemoSelector,
   useHasProvider,
   useLaxStore,
-  useLaxDelayedSelector,
   useLaxDelayedSelectorProps,
 } = createZustandContext({
   name: 'InstanceContext',
   required: true,
-  initialCreateStore: (props: InstanceStoreProps) =>
+  initialCreateStore: () =>
     createStore<InstanceContext>((set) => ({
-      ...props,
-      instanceId: `${props.partyId}/${props.instanceGuid}`,
       data: undefined,
       dataSources: null,
       appendDataElements: (elements) =>
@@ -136,48 +125,21 @@ function useGetInstanceDataQuery(hasResultFromInstantiation: boolean, partyId: s
   return utils;
 }
 
-export const InstanceProvider = ({ children }: { children: React.ReactNode }) => {
-  const partyId = useNavigationParam('partyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-
-  if (!partyId || !instanceGuid) {
-    return null;
-  }
-
-  return (
-    <DataLoadingProvider>
-      <InnerInstanceProvider
-        partyId={partyId}
-        instanceGuid={instanceGuid}
-      >
-        {children}
-      </InnerInstanceProvider>
-    </DataLoadingProvider>
-  );
-};
-
-const InnerInstanceProvider = ({
-  children,
-  partyId,
-  instanceGuid,
-}: {
-  children: React.ReactNode;
-  partyId: string;
-  instanceGuid: string;
-}) => (
-  <Provider
-    partyId={partyId}
-    instanceGuid={instanceGuid}
-  >
+export const InstanceProvider = ({ children }: { children: React.ReactNode }) => (
+  <Provider>
     <BlockUntilLoaded>
-      <ProcessProvider instanceId={`${partyId}/${instanceGuid}`}>{children}</ProcessProvider>
+      <ProcessProvider>{children}</ProcessProvider>
     </BlockUntilLoaded>
   </Provider>
 );
 
 const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
-  const partyId = useSelector((state) => state.partyId);
-  const instanceGuid = useSelector((state) => state.instanceGuid);
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  if (!instanceOwnerPartyId || !instanceGuid) {
+    throw new Error('Missing partyId or instanceGuid when creating instance context');
+  }
+
   const changeData = useSelector((state) => state.changeData);
   const setReFetch = useSelector((state) => state.setReFetch);
   const instantiation = useInstantiation();
@@ -186,11 +148,17 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
     isLoading,
     data: queryData,
     refetch,
-  } = useGetInstanceDataQuery(!!instantiation.lastResult, partyId, instanceGuid);
+  } = useGetInstanceDataQuery(!!instantiation.lastResult, instanceOwnerPartyId, instanceGuid);
   const isDataSet = useSelector((state) => state.data !== undefined);
 
   const error = instantiation.error ?? queryError;
   const data = instantiation.lastResult ?? queryData;
+
+  if (!window.inUnitTest && data && !data.id.endsWith(instanceGuid)) {
+    throw new Error(
+      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
+    );
+  }
 
   useEffect(() => {
     data && changeData(() => data);
@@ -224,7 +192,12 @@ export function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
 
 const emptyArray: never[] = [];
 
-export const useLaxInstanceId = () => useLaxInstance((state) => state.instanceId);
+export const useLaxInstanceId = () => {
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  return instanceOwnerPartyId && instanceGuid ? `${instanceOwnerPartyId}/${instanceGuid}` : undefined;
+};
+
 export const useLaxInstanceData = <U,>(selector: (data: IInstance) => U) =>
   useLaxInstance((state) => (state.data ? selector(state.data) : undefined));
 export const useLaxInstanceAllDataElements = () => useLaxInstance((state) => state.data?.data) ?? emptyArray;
@@ -242,13 +215,8 @@ export const useLaxInstanceDataElements = (dataType: string | undefined) =>
   useLaxInstance((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;
 
 export type DataElementSelector = <U>(selector: (data: IData[]) => U, deps: unknown[]) => U | typeof ContextNotProvided;
-const dataElementsInnerSelector = (state: InstanceContext) => [state.data?.data ?? emptyArray];
+const dataElementsInnerSelector = (state: InstanceContext): [IData[]] => [state.data?.data ?? emptyArray];
 
-export const useLaxDataElementsSelector = (): DataElementSelector =>
-  useLaxDelayedSelector({
-    mode: 'innerSelector',
-    makeArgs: dataElementsInnerSelector,
-  });
 export const useLaxDataElementsSelectorProps = () =>
   useLaxDelayedSelectorProps({
     mode: 'innerSelector',
@@ -265,10 +233,15 @@ export const useLaxInstanceAllDataElementsNow = () => {
 };
 
 export const useStrictInstanceRefetch = () => useSelector((state) => state.reFetch);
-export const useStrictInstanceId = () => useSelector((state) => state.instanceId);
+export const useStrictInstanceId = () => {
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  if (!instanceOwnerPartyId || !instanceGuid) {
+    throw new Error('Missing partyId or instanceGuid in URL');
+  }
+  return `${instanceOwnerPartyId}/${instanceGuid}`;
+};
 export const useStrictAppendDataElements = () => useSelector((state) => state.appendDataElements);
-export const useStrictMutateDataElement = () => useSelector((state) => state.mutateDataElement);
 export const useStrictRemoveDataElement = () => useSelector((state) => state.removeDataElement);
-export const useStrictAllDataElements = () => useMemoSelector((state) => state.data?.data) ?? emptyArray;
 export const useStrictDataElements = (dataType: string | undefined) =>
   useMemoSelector((state) => state.data?.data.filter((d) => d.dataType === dataType)) ?? emptyArray;

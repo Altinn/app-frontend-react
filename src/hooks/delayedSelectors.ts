@@ -58,11 +58,9 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
   private makeCacheKey: (args: unknown[]) => unknown[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private equalityFn: (a: any, b: any) => boolean;
-  private onlyReRenderWhen: OnlyReRenderWhen<TypeFromConf<C>, unknown> | undefined;
   private deps: unknown[] | undefined;
 
   protected selectorFunc = ((...args: unknown[]) => this.selector(...args)) as DSReturn<C>;
-  private lastReRenderValue: unknown = null;
   private selectorsCalled: SelectorMap<C> | null = null;
   private unsubscribeMethod: (() => void) | null = null;
 
@@ -72,7 +70,6 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
     mode,
     makeCacheKey = mode.mode === 'simple' ? defaultMakeCacheKey : defaultMakeCacheKeyForInnerSelector,
     equalityFn = deepEqual,
-    onlyReRenderWhen,
     deps,
   }: DSProps<C>) {
     this.store = store;
@@ -80,7 +77,6 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
     this.mode = mode;
     this.makeCacheKey = makeCacheKey;
     this.equalityFn = equalityFn;
-    this.onlyReRenderWhen = onlyReRenderWhen;
     this.deps = deps;
   }
 
@@ -92,7 +88,6 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
         mode,
         makeCacheKey = mode.mode === 'simple' ? defaultMakeCacheKey : defaultMakeCacheKeyForInnerSelector,
         equalityFn = deepEqual,
-        onlyReRenderWhen,
         deps,
       } = newProps;
 
@@ -101,7 +96,6 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
       this.mode = mode;
       this.makeCacheKey = makeCacheKey;
       this.equalityFn = equalityFn;
-      this.onlyReRenderWhen = onlyReRenderWhen;
       this.deps = deps;
 
       // No need to trigger re-render if no selectors have been called
@@ -134,16 +128,6 @@ abstract class BaseDelayedSelector<C extends DSConfig> {
     }
     return this.store.subscribe((state) => {
       if (!this.selectorsCalled) {
-        return;
-      }
-
-      let stateChanged = true;
-      if (this.onlyReRenderWhen) {
-        stateChanged = this.onlyReRenderWhen(state, this.lastReRenderValue, (v) => {
-          this.lastReRenderValue = v;
-        });
-      }
-      if (!stateChanged) {
         return;
       }
 
@@ -336,20 +320,12 @@ export enum SelectorStrictness {
   returnWhenNotProvided = 'returnWhenNotProvided',
 }
 
-export type OnlyReRenderWhen<Type, Internal> = (
-  state: Type,
-  lastValue: Internal | undefined,
-  setNewValue: (v: Internal) => void,
-) => boolean;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface SimpleArgMode<T = unknown, Args extends any[] = unknown[], RetVal = unknown> {
+export interface SimpleArgMode<T = unknown, Args extends unknown[] = unknown[], RetVal = unknown> {
   mode: 'simple';
   selector: (...args: Args) => (state: T) => RetVal;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export interface InnerSelectorMode<T = unknown, Args extends any[] = unknown[]> {
+export interface InnerSelectorMode<T = unknown, Args extends unknown[] = unknown[]> {
   mode: 'innerSelector';
   makeArgs: (state: T) => Args;
 }
@@ -372,23 +348,17 @@ export interface DSProps<C extends DSConfig> {
 
   // State selected from the delayed selector will be compared with this function. The default is deepEqual, meaning
   // that the state will be compared by value, not by reference.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  equalityFn?: (a: any, b: any) => boolean;
+  equalityFn?: (a: unknown, b: unknown) => boolean;
 
   // A function that will create a cache key for the delayed selector. This is used to cache the results of the
   // selector functions. Every argument to the selector function will be passed to this function.
   makeCacheKey?: (args: unknown[]) => unknown[];
 
-  // Optionally, you can pass a function that will determine if the selector functions should re-run. If this function
-  // returns false, an update to the store will not cause a re-render of the component.
-  onlyReRenderWhen?: OnlyReRenderWhen<TypeFromConf<C>, unknown>;
-
   mode: C['mode'];
 
   // Any dependencies that should be passed to the delayed selector. This is used to determine when the entire
   // selector should be re-created.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  deps?: any[];
+  deps?: unknown[];
 }
 
 type MultiDSProps = DSProps<DSConfig>[];
@@ -399,6 +369,26 @@ export type DSPropsForSimpleSelector<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Strictness extends SelectorStrictness = any,
 > = DSProps<DSConfig<Type, SimpleArgMode<Type, Parameters<SimpleSelector>, ReturnType<SimpleSelector>>, Strictness>>;
+
+type DSPropsMatchingSimple<Selector extends (...args: unknown[]) => unknown> = DSProps<
+  DSConfig<unknown, SimpleArgMode<unknown, Parameters<Selector>, ReturnType<Selector>>>
+>;
+type DSPropsMatchingInnerSelector<Args extends unknown[]> = DSProps<
+  DSConfig<
+    unknown,
+    InnerSelectorMode<unknown, Args>,
+    SelectorStrictness.returnWhenNotProvided | SelectorStrictness.throwWhenNotProvided
+  >
+>;
+
+export type DSPropsMatching<Selector> = Selector extends (
+  selector: (...args: infer Args) => unknown,
+  deps: unknown[],
+) => unknown
+  ? () => DSPropsMatchingInnerSelector<Args>
+  : Selector extends (...args: infer _Args) => unknown
+    ? () => DSPropsMatchingSimple<Selector>
+    : never;
 
 export type DSReturn<C extends DSConfig> =
   ModeFromConf<C> extends SimpleArgMode

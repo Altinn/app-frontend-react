@@ -25,7 +25,7 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
       spacing={6}
       alignItems='flex-start'
     >
-      {components.map((currentComponent, idx) => {
+      {components.map((currentComponent) => {
         const childMapping = currentComponent.dataModelBindings
           ? currentComponent.dataModelBindings['simpleBinding']
           : '';

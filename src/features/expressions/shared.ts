@@ -1,10 +1,9 @@
 import fs from 'node:fs';
 
-import type { IAttachmentsMap, UploadedAttachment } from 'src/features/attachments';
 import type { ExprPositionalArgs, ExprVal, ExprValToActualOrExpr, ExprValueArgs } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { IRawTextResource } from 'src/features/language/textResources';
-import type { RoleResult } from 'src/features/useCurrentPartyRoles';
+import type { IRawOption } from 'src/layout/common.generated';
 import type { ILayoutCollection } from 'src/layout/layout';
 import type { IApplicationSettings, IData, IInstance, IProcess, ITask } from 'src/types/shared';
 
@@ -29,7 +28,7 @@ interface SharedTest {
     language?: string;
   };
   externalApis?: ExternalApisResult;
-  roles: RoleResult;
+  codeLists?: Record<string, IRawOption[]>;
 }
 
 export interface SharedTestContext {
@@ -49,10 +48,16 @@ export interface ContextTest extends SharedTest {
   expectedContexts: SharedTestContextList[];
 }
 
-export interface FunctionTest extends SharedTest {
+export interface FunctionTestBase {
   expression: ExprValToActualOrExpr<ExprVal.Any>;
   expects?: unknown;
   expectsFailure?: string;
+}
+
+type FullFunctionTest = FunctionTestBase & SharedTest;
+
+export interface FunctionTest extends FullFunctionTest {
+  testCases?: FunctionTestBase[];
   context?: SharedTestFunctionContext;
   positionalArguments?: ExprPositionalArgs;
   valueArguments?: ExprValueArgs;
@@ -99,27 +104,6 @@ export function getSharedTests<Folder extends keyof TestFolders>(
       out.content.push(test);
     }
   });
-
-  return out;
-}
-
-export function convertInstanceDataToAttachments(
-  instanceData: IData[] | undefined,
-): IAttachmentsMap<UploadedAttachment> {
-  const out: IAttachmentsMap<UploadedAttachment> = {};
-  if (instanceData) {
-    for (const data of instanceData) {
-      const component = out[data.dataType] || [];
-      component.push({
-        updating: false,
-        deleting: false,
-        uploaded: true,
-        data,
-      });
-
-      out[data.dataType] = component;
-    }
-  }
 
   return out;
 }

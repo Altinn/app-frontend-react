@@ -2,6 +2,10 @@ import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 
 export function nn(): FixedLanguageList {
   return {
+    dateTime: {
+      am: 'a.m.',
+      pm: 'p.m.',
+    },
     altinn: {
       standard_validation: {
         file_content_type_not_allowed:
@@ -128,6 +132,12 @@ export function nn(): FixedLanguageList {
       form: 'Skjemanavigasjon',
       to_main_content: 'Hopp til hovedinnholdet',
       go_to_task: 'Gå til {0}',
+      form_pages: 'Skjemasider',
+      back_to_inbox: 'Tilbake til innboks',
+      inbox: 'Innboks',
+      back_to_main_form: 'Tilbake til {0}',
+      main_form: '{0}',
+      back: 'Tilbake',
     },
     general: {
       action: 'Handling',
@@ -141,7 +151,6 @@ export function nn(): FixedLanguageList {
       choose_label: 'Vel namn',
       choose_method: 'Vel metode',
       choose: 'Vel',
-      close_schema: 'Lukk skjema',
       close: 'Lukk',
       contains: 'Inneheld',
       control_submit: 'Kontroller og send inn',
@@ -160,7 +169,8 @@ export function nn(): FixedLanguageList {
       empty_summary: 'Du har ikkje lagt inn informasjon her',
       enabled: 'Aktivert',
       error_message_with_colon: 'Feilmelding:',
-      expand_form: 'Utvid skjema',
+      full_width: 'Utvid breidden',
+      standard_width: 'Reduser breidden',
       for: 'for',
       header_profile_icon_label: 'Profil ikon knapp',
       label: 'Namn',
@@ -242,6 +252,7 @@ export function nn(): FixedLanguageList {
       starting: 'Vent litt, vi hentar det du treng',
     },
     language: {
+      language_selection: 'Språkval',
       full_name: {
         nb: 'Norsk bokmål',
         en: 'Engelsk',
@@ -253,9 +264,10 @@ export function nn(): FixedLanguageList {
     },
     party_selection: {
       error_caption_prefix: 'Feil',
-      invalid_selection_first_part: 'Du har starta tenesta som',
-      invalid_selection_second_part: 'Denne tenesta er kun tilgjengeleg for',
-      invalid_selection_third_part: 'Vel ny aktør under.',
+      invalid_selection_non_existing_party:
+        'Du har starta tenesta med ein aktør som anten ikkje finst eller som du ikkje har tilgang til. Vel ein ny aktør nedanfor for å halde fram.',
+      invalid_selection_existing_party:
+        'Du har starta tenesta som {0}. Denne tenesta er kun tilgjengeleg for {1}. Vel ny aktør under.',
       no_valid_selection_first_part: 'Dette er ei teneste for {0}',
       no_valid_selection_second_part:
         'Det ser ut som du ikkje har tilgang til ein aktør som har lov til å starte <b>{0}</b>.',
@@ -451,6 +463,13 @@ export function nn(): FixedLanguageList {
     pdfPreview: {
       error: 'Kunne ikkje førehandsvise PDF',
       defaultButtonText: 'Førehandsvis PDF',
+    },
+    taskTypes: {
+      data: 'Utfylling',
+      signing: 'Signering',
+      confirmation: 'Bekreftelse',
+      payment: 'Betaling',
+      receipt: 'Kvittering',
     },
   } satisfies NestedTexts;
 }

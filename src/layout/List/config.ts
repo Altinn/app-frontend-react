@@ -15,7 +15,7 @@ export const Config = new CG.component({
     renderInButtonGroup: false,
     renderInAccordion: true,
     renderInAccordionGroup: false,
-    renderInCards: false,
+    renderInCards: true,
     renderInCardsMedia: false,
     renderInTabs: true,
   },
@@ -26,7 +26,20 @@ export const Config = new CG.component({
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'))
   .addDataModelBinding(
-    new CG.obj().optional().additionalProperties(new CG.dataModelBinding()).exportAs('IDataModelBindingsForList'),
+    new CG.obj(
+      new CG.prop(
+        'group',
+        new CG.dataModelBinding()
+          .setTitle('group binding')
+          .setDescription(
+            'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
+          )
+          .optional(),
+      ),
+    )
+      .optional()
+      .additionalProperties(new CG.dataModelBinding().optional())
+      .exportAs('IDataModelBindingsForList'),
   )
   .addProperty(
     new CG.prop(

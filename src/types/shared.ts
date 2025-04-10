@@ -96,6 +96,7 @@ export interface IInstanceOwner {
   personNumber?: string;
   organisationNumber?: string | null;
   username?: string;
+  party?: IParty | null;
 }
 
 export interface IInstanceState {
@@ -197,12 +198,7 @@ export interface IProcess {
   currentTask?: ITask;
   ended?: string | null;
   endEvent?: string | null;
-  processTasks?: ITask[];
-}
-
-export interface Role {
-  type: string;
-  value: string;
+  processTasks?: Pick<ITask, 'altinnTaskType' | 'elementId'>[];
 }
 
 export interface IProfile {

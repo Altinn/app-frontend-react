@@ -13,6 +13,7 @@ interface LayoutSetSummaryNextType {
 }
 
 const LayoutSetSummaryNext: React.FunctionComponent<LayoutSetSummaryNextType> = ({ pageKey }) => {
+  console.log('pageKey', pageKey);
   const layoutSet = useStore(layoutStore, (state) => state.layouts);
 
   return <pre>{JSON.stringify(layoutSet, null, 2)}</pre>;
@@ -44,6 +45,7 @@ interface SummaryNextProps extends RenderComponentType {
 }
 
 export const SummaryNext: FunctionComponent<SummaryNextProps> = ({ component, summaryComponent }) => {
+  console.log('component', component);
   const { target } = summaryComponent;
   if (!target?.id) {
     return <LayoutSetSummaryNext />;

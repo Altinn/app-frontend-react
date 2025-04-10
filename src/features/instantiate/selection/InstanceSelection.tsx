@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import type { MouseEventHandler } from 'react';
 
 import { Heading, Paragraph, Table } from '@digdir/designsystemet-react';
-import { Edit as EditIcon } from '@navikt/ds-icons';
+import { PencilIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Pagination } from 'src/app-components/Pagination/Pagination';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { DataLoadingProvider } from 'src/core/contexts/dataLoadingContext';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -44,15 +45,14 @@ function getDateDisplayString(timeStamp: string) {
 
 export const InstanceSelectionWrapper = () => (
   <TaskStoreProvider>
-    <DataLoadingProvider>
-      <ActiveInstancesProvider>
-        <PresentationComponent type={ProcessTaskType.Unknown}>
-          <DataLoadingProvider>
-            <InstanceSelection />
-          </DataLoadingProvider>
-        </PresentationComponent>
-      </ActiveInstancesProvider>
-    </DataLoadingProvider>
+    <ActiveInstancesProvider>
+      <PresentationComponent
+        type={ProcessTaskType.Unknown}
+        showNavigation={false}
+      >
+        <InstanceSelection />
+      </PresentationComponent>
+    </ActiveInstancesProvider>
   </TaskStoreProvider>
 );
 
@@ -67,6 +67,7 @@ function InstanceSelection() {
   const instantiate = useInstantiation().instantiate;
   const currentParty = useCurrentParty();
   const storeCallback = useSetNavigationEffect();
+  const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
 
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -105,7 +106,7 @@ function InstanceSelection() {
       >
         <Table.Body>
           {paginatedInstances.map((instance) => {
-            const handleOpenInstance = (ev) => {
+            const handleOpenInstance: MouseEventHandler<HTMLButtonElement> = (ev) => {
               storeCallback(focusMainContent);
               openInstance(instance.id, ev);
             };
@@ -133,7 +134,7 @@ function InstanceSelection() {
                       onMouseDown={handleOpenInstance}
                       aria-label={`${langAsString('instance_selection.continue')}`}
                     >
-                      <EditIcon fontSize='1rem' />
+                      <PencilIcon fontSize='1rem' />
                     </Button>
                   </div>
                 </Table.Cell>
@@ -203,7 +204,7 @@ function InstanceSelection() {
                     }}
                   >
                     <Lang id='instance_selection.continue' />
-                    <EditIcon
+                    <PencilIcon
                       fontSize='1rem'
                       title={langAsString('instance_selection.continue')}
                     />
@@ -269,13 +270,17 @@ function InstanceSelection() {
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <Button
+            disabled={isAnyProcessing}
+            isLoading={isLoading}
             size='md'
-            onClick={() => {
-              if (currentParty) {
-                storeCallback(focusMainContent);
-                instantiate(undefined, currentParty.partyId);
-              }
-            }}
+            onClick={() =>
+              performProcess(async () => {
+                if (currentParty) {
+                  storeCallback(focusMainContent);
+                  await instantiate(currentParty.partyId);
+                }
+              })
+            }
             id='new-instance-button'
           >
             <Lang id='instance_selection.new_instance' />

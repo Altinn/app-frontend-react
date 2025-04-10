@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { Back, Delete as DeleteIcon, Next } from '@navikt/ds-icons';
+import { ChevronLeftIcon, ChevronRightIcon, TrashIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -19,6 +19,7 @@ import {
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
@@ -87,7 +88,7 @@ function RepeatingGroupsEditContainerInternal({
   const freshUuid = FD.useFreshRowUuid(group.dataModelBindings?.group, row?.index);
   const isFresh = freshUuid === editId;
 
-  const isNested = typeof group.baseComponentId === 'string';
+  const isNested = node.parent instanceof LayoutNode;
   let saveButtonVisible =
     !forceHideSaveButton &&
     (editForRow?.saveButton !== false || (editForRow.saveAndNextButton === true && !moreVisibleRowsAfterEditIndex));
@@ -134,7 +135,7 @@ function RepeatingGroupsEditContainerInternal({
               data-testid='delete-button'
             >
               <Lang id='general.delete' />
-              <DeleteIcon fontSize='1rem' />
+              <TrashIcon fontSize='1rem' />
             </Button>
           </Flex>
         </Flex>
@@ -179,7 +180,7 @@ function RepeatingGroupsEditContainerInternal({
                     onClick={() => prevMultiPage()}
                     disabled={!isFresh}
                   >
-                    <Back
+                    <ChevronLeftIcon
                       fontSize='1rem'
                       aria-hidden='true'
                     />
@@ -196,7 +197,7 @@ function RepeatingGroupsEditContainerInternal({
                     disabled={!isFresh}
                   >
                     <Lang id='general.next' />
-                    <Next
+                    <ChevronRightIcon
                       fontSize='1rem'
                       aria-hidden='true'
                     />

@@ -2,7 +2,7 @@
 import React from 'react';
 
 import { Tabs } from '@digdir/designsystemet-react';
-import { Close } from '@navikt/ds-icons';
+import { XMarkIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import reusedClasses from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
@@ -13,15 +13,17 @@ import { SplitView } from 'src/features/devtools/components/SplitView/SplitView'
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { implementsAnyValidation } from 'src/layout';
-import { useGetPage, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
+import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 
 export const NodeInspector = () => {
   const pageKey = useCurrentView();
-  const currentPage = useGetPage(pageKey);
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
   const selectedNode = useNode(selectedId);
-  const children = useNodeTraversal((t) => (currentPage ? t.with(currentPage).children() : undefined));
+  const children = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData)
+      .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
+      .map((data) => data.layout.id),
+  );
   const setSelected = useDevToolsStore((state) => state.actions.nodeInspectorSet);
   const focusLayoutInspector = useDevToolsStore((state) => state.actions.focusLayoutInspector);
 
@@ -32,26 +34,29 @@ export const NodeInspector = () => {
     >
       <div className={reusedClasses.container}>
         <NodeHierarchy
-          nodeIds={children?.map((c) => c.id) ?? []}
+          nodeIds={children?.map((id) => id) ?? []}
           selected={selectedId}
           onClick={setSelected}
         />
       </div>
       {selectedId && selectedNode && (
         <>
-          <div className={reusedClasses.closeButton}>
-            <Button
-              onClick={() => setSelected(undefined)}
-              variant='tertiary'
-              color='second'
-              aria-label='close'
-              icon={true}
-            >
-              <Close
-                fontSize='1rem'
-                aria-hidden
-              />
-            </Button>
+          <div className={reusedClasses.closeButtonContainer}>
+            <div className={reusedClasses.closeButtonBackground}>
+              <Button
+                className={reusedClasses.closeButton}
+                onClick={() => setSelected(undefined)}
+                variant='tertiary'
+                color='second'
+                aria-label='close'
+                icon={true}
+              >
+                <XMarkIcon
+                  fontSize='1rem'
+                  aria-hidden
+                />
+              </Button>
+            </div>
           </div>
           <NodeInspectorContextProvider
             value={{
@@ -65,7 +70,7 @@ export const NodeInspector = () => {
               defaultValue='properties'
               className={reusedClasses.tabs}
             >
-              <Tabs.List>
+              <Tabs.List className={reusedClasses.tabList}>
                 <Tabs.Tab value='properties'>Egenskaper</Tabs.Tab>
                 {implementsAnyValidation(selectedNode.def) && <Tabs.Tab value='validation'>Validering</Tabs.Tab>}
               </Tabs.List>

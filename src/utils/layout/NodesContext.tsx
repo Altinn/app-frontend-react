@@ -8,15 +8,14 @@ import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
-import { DataLoadingState, useDataLoadingStore } from 'src/core/contexts/dataLoadingContext';
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { useLaxLayoutSettings, useLayoutSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePdfLayoutName, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { OptionsStorePlugin } from 'src/features/options/OptionsStorePlugin';
 import { useIsCurrentView } from 'src/features/routing/AppRoutingContext';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
@@ -26,7 +25,6 @@ import {
   Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { SelectorStrictness, useDelayedSelector } from 'src/hooks/delayedSelectors';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
@@ -42,21 +40,19 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
-import { BaseLayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
-import { TraversalTask } from 'src/utils/layout/useNodeTraversal';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
-import type { DSProps, DSReturn, InnerSelectorMode, OnlyReRenderWhen } from 'src/hooks/delayedSelectors';
+import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
 import type { WaitForState } from 'src/hooks/useWaitForState';
-import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
+import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
@@ -130,9 +126,6 @@ export enum NodesReadiness {
 export type NodesContext = {
   readiness: NodesReadiness;
 
-  // Counter to prevent re-rendering of NodeTraversal when expressions/options/validations change
-  addRemoveCounter: number;
-
   hasErrors: boolean;
   pagesData: PagesData;
   nodeData: { [key: string]: NodeData };
@@ -176,7 +169,6 @@ export type NodesContextStore = StoreApi<NodesContext>;
 export function createNodesDataStore({ registry, validationsProcessedLast }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
-    addRemoveCounter: 0,
     hasErrors: false,
     pagesData: {
       type: 'pages' as const,
@@ -215,7 +207,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
-          addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
     removeNodes: (requests) =>
@@ -246,7 +237,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
-          addRemoveCounter: state.addRemoveCounter + 1,
         };
       }),
     setNodeProps: (requests) =>
@@ -316,7 +306,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
             target: NodesReadiness.NotReady,
             reason: `New page added`,
             mutate: true,
-            newNodes: true,
           });
         }),
       ),
@@ -355,20 +344,13 @@ interface SetReadinessProps {
   state: NodesContext;
   target: NodesReadiness;
   reason: string;
-  newNodes?: boolean;
   mutate?: boolean;
 }
 
 /**
  * Helper function to set new readiness state. Never try to set a new readiness without going through this function.
  */
-export function setReadiness({
-  state,
-  target,
-  reason,
-  newNodes = false,
-  mutate = false,
-}: SetReadinessProps): Partial<NodesContext> {
+export function setReadiness({ state, target, reason, mutate = false }: SetReadinessProps): Partial<NodesContext> {
   const toSet: Partial<NodesContext> = {};
   if (state.readiness !== target) {
     generatorLog('logReadiness', `Marking state as ${target}: ${reason}`);
@@ -380,9 +362,6 @@ export function setReadiness({
       toSet.prevNodeData = state.nodeData;
     } else if (target === NodesReadiness.Ready) {
       toSet.prevNodeData = undefined;
-    }
-    if (newNodes) {
-      toSet.addRemoveCounter = state.addRemoveCounter + 1;
     }
   }
 
@@ -529,20 +508,6 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     }
   }, [latestLayouts, layouts, markNotReady, reset, getProcessedLast]);
 
-  const layoutMap = useMemo(() => {
-    const out: { [id: string]: CompExternal } = {};
-    for (const page of Object.values(latestLayouts)) {
-      if (!page) {
-        continue;
-      }
-      for (const component of page) {
-        out[component.id] = component;
-      }
-    }
-
-    return out;
-  }, [latestLayouts]);
-
   if (layouts !== latestLayouts) {
     // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
     return <NodesLoader />;
@@ -552,7 +517,6 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     <ProvideLayoutPages value={pagesRef.current}>
       <GeneratorGlobalProvider
         layouts={layouts}
-        layoutMap={layoutMap}
         registry={registry}
       >
         {children}
@@ -571,22 +535,7 @@ function IndicateReadiness() {
     return [s.readiness, s.hiddenViaRulesRan];
   });
 
-  const setDataElements = useDataLoadingStore((state) => state.setDataElements);
-  const dataElements = useDataLoadingStore((state) => state.dataElements);
-  const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
-
   useEffect(() => () => document.body.removeAttribute('data-nodes-ready'), []);
-
-  const ready = readiness === NodesReadiness.Ready;
-  useEffect(() => {
-    if (
-      ready &&
-      overriddenDataModelUuid &&
-      (!(overriddenDataModelUuid in dataElements) || dataElements[overriddenDataModelUuid] !== DataLoadingState.Ready)
-    ) {
-      setDataElements({ [overriddenDataModelUuid]: DataLoadingState.Ready });
-    }
-  }, [dataElements, overriddenDataModelUuid, ready, setDataElements]);
 
   if (!GeneratorDebug.displayReadiness) {
     return null;
@@ -765,7 +714,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): Layou
       return lastValue.current;
     }
 
-    const node = id instanceof BaseLayoutNode ? id : nodes.findById(id);
+    const node = id instanceof LayoutNode ? id : nodes.findById(id);
     lastValue.current = node;
     return node;
   });
@@ -774,7 +723,7 @@ export function useNode<T extends string | undefined | LayoutNode>(id: T): Layou
 
 export const useGetPage = (pageId: string | undefined) => {
   const nodes = useNodes();
-  return Store.useSelector((state) => {
+  return Store.useSelector(() => {
     if (!pageId) {
       return undefined;
     }
@@ -782,7 +731,7 @@ export const useGetPage = (pageId: string | undefined) => {
     if (!nodes) {
       return undefined;
     }
-    return nodes.findLayout(new TraversalTask(state, nodes, undefined, undefined), pageId);
+    return nodes.findLayout(pageId);
   });
 };
 
@@ -816,9 +765,9 @@ function withDefaults(options?: IsHiddenOptions): Required<IsHiddenOptions> {
   return { respectDevTools, respectTracks, forcedVisibleByDevTools };
 }
 
-function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined, _options?: IsHiddenOptions) {
+function isHiddenPage(state: NodesContext, pageKey: string | undefined, _options?: IsHiddenOptions) {
   const options = withDefaults(_options);
-  if (!page) {
+  if (!pageKey) {
     return true;
   }
 
@@ -826,7 +775,6 @@ function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined
     return false;
   }
 
-  const pageKey = typeof page === 'string' ? page : page.pageKey;
   const pageState = state.pagesData.pages[pageKey];
   const hidden = pageState?.hidden;
   if (hidden) {
@@ -838,16 +786,16 @@ function isHiddenPage(state: NodesContext, page: LayoutPage | string | undefined
 
 export function isHidden(
   state: NodesContext,
-  nodeOrId: LayoutNode | LayoutPage | undefined | string,
-  nodes: LayoutPages,
+  type: 'page' | 'node',
+  id: string | undefined,
   _options?: IsHiddenOptions,
 ): boolean | undefined {
-  if (!nodeOrId) {
+  if (!id) {
     return undefined;
   }
 
-  if (nodeOrId instanceof LayoutPage) {
-    return isHiddenPage(state, nodeOrId, _options);
+  if (type === 'page') {
+    return isHiddenPage(state, id, _options);
   }
 
   const options = withDefaults(_options);
@@ -855,31 +803,36 @@ export function isHidden(
     return false;
   }
 
-  const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
-  const node = nodes.findById(id);
-  const hidden = state.nodeData[id]?.hidden;
-  if (hidden === undefined) {
-    return undefined;
+  const pageKey = state.nodeData[id]?.pageKey;
+  if (pageKey && isHiddenPage(state, pageKey, _options)) {
+    return true;
   }
 
-  if (hidden) {
-    return true;
+  const hidden = state.nodeData[id]?.hidden;
+  if (hidden === undefined || hidden === true) {
+    return hidden;
   }
 
   if (state.hiddenViaRules[id]) {
     return true;
   }
 
-  const parent = node?.parent;
-  if (parent && parent instanceof BaseLayoutNode && 'isChildHidden' in parent.def && state.nodeData[parent.id]) {
+  const parentId = state.nodeData[id]?.parentId;
+  const parent = parentId ? state.nodeData[parentId] : undefined;
+  const parentDef = parent ? getComponentDef(parent.layout.type) : undefined;
+  if (parent && parentDef && 'isChildHidden' in parentDef) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const childHidden = parent.def.isChildHidden(state.nodeData[parent.id] as any, node);
+    const childHidden = parentDef.isChildHidden(parent as any, id);
     if (childHidden) {
       return true;
     }
   }
 
-  return isHidden(state, parent, nodes, options);
+  if (parent) {
+    return isHidden(state, 'node', parent.layout.id, options);
+  }
+
+  return false;
 }
 
 function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHiddenOptions): IsHiddenOptions {
@@ -889,57 +842,71 @@ function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHid
   };
 }
 
+function useIsForcedVisibleByDevTools() {
+  return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
+}
+
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    const nodes = useNodes();
-    return WhenReady.useSelector((s) => isHidden(s, node, nodes, makeOptions(forcedVisibleByDevTools, options)));
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
+    const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
+    const id = node instanceof LayoutPage ? node.pageKey : node?.id;
+    return WhenReady.useSelector((s) => isHidden(s, type, id, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    return WhenReady.useSelector((s) => isHiddenPage(s, page, makeOptions(forcedVisibleByDevTools, options)));
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
+    return WhenReady.useSelector((s) => {
+      const pageKey = page instanceof LayoutPage ? page.pageKey : page;
+      return isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options));
+    });
   },
   useIsHiddenPageSelector() {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (page: LayoutPage | string) => (state) =>
-          isHiddenPage(state, page, makeOptions(forcedVisibleByDevTools)),
+        selector: (page: LayoutPage | string) => (state) => {
+          const pageKey = page instanceof LayoutPage ? page.pageKey : page;
+          return isHiddenPage(state, pageKey, makeOptions(forcedVisibleByDevTools));
+        },
       },
       [forcedVisibleByDevTools],
     );
   },
   useHiddenPages(): Set<string> {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     const hiddenPages = WhenReady.useLaxMemoSelector((s) =>
       Object.keys(s.pagesData.pages).filter((key) => isHiddenPage(s, key, makeOptions(forcedVisibleByDevTools))),
     );
     return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector() {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    const nodes = useNodes();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) =>
-          isHidden(state, node, nodes, makeOptions(forcedVisibleByDevTools, options)),
+        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) => {
+          const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
+          const id = node instanceof LayoutPage ? node.pageKey : typeof node === 'string' ? node : node?.id;
+          return isHidden(state, type, id, makeOptions(forcedVisibleByDevTools, options));
+        },
       },
-      [forcedVisibleByDevTools, nodes],
+      [forcedVisibleByDevTools],
     );
   },
   useIsHiddenSelectorProps() {
-    const forcedVisibleByDevTools = GeneratorData.useIsForcedVisibleByDevTools();
-    const nodes = useNodes();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useDelayedSelectorProps(
       {
         mode: 'simple',
-        selector: (node: LayoutNode | LayoutPage, options?: IsHiddenOptions) => (state) =>
-          isHidden(state, node, nodes, makeOptions(forcedVisibleByDevTools, options)),
+        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) => {
+          const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
+          const id = node instanceof LayoutPage ? node.pageKey : typeof node === 'string' ? node : node?.id;
+          return isHidden(state, type, id, makeOptions(forcedVisibleByDevTools, options));
+        },
       },
-      [forcedVisibleByDevTools, nodes],
+      [forcedVisibleByDevTools],
     );
   },
 
@@ -948,9 +915,8 @@ export const Hidden = {
    */
   useIsPageInOrder(pageKey: string) {
     const isCurrentView = useIsCurrentView(pageKey);
-    const maybeLayoutSettings = useLaxLayoutSettings();
-    const orderWithHidden = maybeLayoutSettings === ContextNotProvided ? [] : maybeLayoutSettings.pages.order;
-    const layoutSettings = useLayoutSettings();
+    const orderWithHidden = useRawPageOrder();
+    const pdfLayoutName = usePdfLayoutName();
 
     if (isCurrentView) {
       // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
@@ -958,7 +924,7 @@ export const Hidden = {
       return true;
     }
 
-    if (layoutSettings.pages.pdfLayoutName && pageKey === layoutSettings.pages.pdfLayoutName) {
+    if (pdfLayoutName && pageKey === pdfLayoutName) {
       // If this is the pdf layout, then it's never hidden.
       return true;
     }
@@ -970,102 +936,50 @@ export const Hidden = {
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
 export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
-export type NodePicker = <N extends LayoutNode | undefined = LayoutNode | undefined>(
-  node: N | string,
-) => NodePickerReturns<N>;
-type NodePickerReturns<N extends LayoutNode | undefined> = NodeDataFromNode<N> | undefined;
+export type NodeIdPicker = <T extends CompTypes = CompTypes>(
+  id: string | undefined,
+  type: T | undefined,
+) => NodeData<T> | undefined;
 
-function selectNodeData<N extends LayoutNode | undefined>(
-  node: N | string,
+function selectNodeData<T extends CompTypes = CompTypes>(
+  id: string | undefined,
+  type: T | undefined,
   state: NodesContext,
   preferFreshData = false,
-): NodePickerReturns<N> {
-  const nodeId = typeof node === 'string' ? node : node?.id;
-  if (!nodeId) {
+): NodeData<T> | undefined {
+  if (!id) {
     return undefined;
   }
 
   const data =
     state.readiness === NodesReadiness.Ready
-      ? state.nodeData[nodeId] // Always use fresh data when ready
-      : preferFreshData && state.nodeData[nodeId]?.item?.id // Only allow getting fresh data when not ready if item is set
-        ? state.nodeData[nodeId]
-        : state.prevNodeData?.[nodeId]
-          ? state.prevNodeData[nodeId]
-          : state.nodeData[nodeId]; // Fall back to fresh data if prevNodeData is not set
+      ? state.nodeData[id] // Always use fresh data when ready
+      : preferFreshData && state.nodeData[id]?.item?.id // Only allow getting fresh data when not ready if item is set
+        ? state.nodeData[id]
+        : state.prevNodeData?.[id]
+          ? state.prevNodeData[id]
+          : state.nodeData[id]; // Fall back to fresh data if prevNodeData is not set
 
-  return data as NodePickerReturns<N>;
+  if (data && type && data.layout.type !== type) {
+    return undefined;
+  }
+
+  return data as NodeData<T>;
 }
 
 function getNodeData<N extends LayoutNode | undefined, Out>(
-  node: N | string,
+  node: N,
   state: NodesContext,
   selector: (nodeData: NodeDataFromNode<N>) => Out,
   preferFreshData = false,
 ) {
-  return node ? selector(selectNodeData(node, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
+  return node ? selector(selectNodeData(node.id, node.type, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
 }
 
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  /**
-   * This is a special selector that will only re-render when the number of nodes that have been added/removed
-   * increases AND the selector would return a different result.
-   *
-   * This is useful for node traversal, which only needs to re-run when a node is added or removed, but don't care about
-   * expressions that are solved within. Also, the selectors will always return ContextNotProvided when the nodes
-   * are not ready yet.
-   */
-  useDataSelectorForTraversal(): DSReturn<{
-    store: StoreApi<NodesContext>;
-    strictness: SelectorStrictness.returnWhenNotProvided;
-    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
-  }> {
-    return useDelayedSelector({
-      store: Store.useLaxStore(),
-      strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (state.readiness !== NodesReadiness.Ready) {
-          return false;
-        }
-        if (lastValue !== state.addRemoveCounter) {
-          setNewValue(state.addRemoveCounter);
-          return true;
-        }
-        return false;
-      }) satisfies OnlyReRenderWhen<NodesContext, number>,
-      mode: {
-        mode: 'innerSelector',
-        makeArgs: (state) => [state],
-      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
-    });
-  },
-  useDataSelectorForTraversalProps(): DSProps<{
-    store: StoreApi<NodesContext> | typeof ContextNotProvided;
-    strictness: SelectorStrictness.returnWhenNotProvided;
-    mode: InnerSelectorMode<NodesContext, [NodesContext]>;
-  }> {
-    return {
-      store: Store.useLaxStore(),
-      strictness: SelectorStrictness.returnWhenNotProvided,
-      onlyReRenderWhen: ((state, lastValue, setNewValue) => {
-        if (state.readiness !== NodesReadiness.Ready) {
-          return false;
-        }
-        if (lastValue !== state.addRemoveCounter) {
-          setNewValue(state.addRemoveCounter);
-          return true;
-        }
-        return false;
-      }) satisfies OnlyReRenderWhen<NodesContext, number>,
-      mode: {
-        mode: 'innerSelector',
-        makeArgs: (state) => [state],
-      } satisfies InnerSelectorMode<NodesContext, [NodesContext]>,
-    };
-  },
   useIsReady() {
     const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
     if (isReady === ContextNotProvided) {
@@ -1164,6 +1078,31 @@ export const NodesInternal = {
     });
   },
 
+  useNodeDataWhenType<T extends CompTypes, Out>(
+    nodeId: string | undefined,
+    type: T,
+    selector: (nodeData: NodeData<T>) => Out,
+  ) {
+    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
+    return Conditionally.useMemoSelector((s) => {
+      if (!nodeId) {
+        return undefined;
+      }
+
+      const data =
+        insideGenerator && s.nodeData[nodeId]
+          ? s.nodeData[nodeId]
+          : s.readiness === NodesReadiness.Ready
+            ? s.nodeData[nodeId]
+            : (s.prevNodeData?.[nodeId] ?? s.nodeData[nodeId]);
+
+      if (!data || data.layout.type !== type) {
+        return undefined;
+      }
+
+      return selector(data as NodeData<T>);
+    });
+  },
   useNodeData<N extends LayoutNode | undefined, Out>(
     node: N,
     selector: (nodeData: NodeDataFromNode<N>, readiness: NodesReadiness, fullState: NodesContext) => Out,
@@ -1220,21 +1159,27 @@ export const NodesInternal = {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+      makeArgs: (state) => [
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+      ],
     });
   },
   useLaxNodeDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+      makeArgs: (state) => [
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+      ],
     });
   },
   useNodeDataSelectorProps: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelectorProps({
       mode: 'innerSelector',
-      makeArgs: (state) => [((node) => selectNodeData(node, state, insideGenerator)) satisfies NodePicker],
+      makeArgs: (state) => [
+        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
+      ],
     });
   },
   useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),
@@ -1249,6 +1194,13 @@ export const NodesInternal = {
       return s.nodeData[node.id] !== undefined;
     }),
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
+
+  // Raw selectors, used when there are no other hooks that match your needs
+  useSelector: <T,>(selector: (state: NodesContext) => T) => Store.useSelector(selector),
+  useShallowSelector: <T extends ObjectOrArray>(selector: (state: NodesContext) => T) =>
+    Store.useShallowSelector(selector),
+  useMemoSelector: <T,>(selector: (state: NodesContext) => T) => Store.useMemoSelector(selector),
+  useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T) => Store.useLaxMemoSelector(selector),
 
   useStore: () => Store.useStore(),
   useSetNodeProps: () => Store.useStaticSelector((s) => s.setNodeProps),

@@ -3,27 +3,28 @@ import type { JSX } from 'react';
 
 import { formatNumericText } from '@digdir/design-system-react';
 
-import { useDisplayDataProps } from 'src/features/displayData/useDisplayData';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { evalFormatting } from 'src/layout/Input/formatting';
 import { NumberDef } from 'src/layout/Number/config.def.generated';
 import { NumberComponent } from 'src/layout/Number/NumberComponent';
 import { NumberSummary } from 'src/layout/Number/NumberSummary';
-import type { DisplayDataProps } from 'src/features/displayData';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Number extends NumberDef {
-  getDisplayData(node: LayoutNode<'Number'>, { currentLanguage, nodeDataSelector }: DisplayDataProps): string {
-    const number = nodeDataSelector((picker) => picker(node)?.item?.value, [node]);
+export class Number extends NumberDef implements DisplayData {
+  useDisplayData(nodeId: string): string {
+    const number = NodesInternal.useNodeDataWhenType(nodeId, 'Number', (data) => data.item?.value);
+    const formatting = NodesInternal.useNodeDataWhenType(nodeId, 'Number', (data) => data.item?.formatting);
+    const currentLanguage = useCurrentLanguage();
     if (number === undefined || isNaN(number)) {
       return '';
     }
 
     const text = number.toString();
-    const formatting = nodeDataSelector((picker) => picker(node)?.item?.formatting, [node]);
     const numberFormatting = getMapToReactNumberConfig(formatting, text, currentLanguage);
 
     if (numberFormatting?.number) {
@@ -31,11 +32,6 @@ export class Number extends NumberDef {
     }
 
     return text;
-  }
-
-  useDisplayData(node: LayoutNode<'Number'>): string {
-    const displayDataProps = useDisplayDataProps();
-    return this.getDisplayData(node, displayDataProps);
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Number'>>(

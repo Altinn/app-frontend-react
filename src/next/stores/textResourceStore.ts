@@ -10,7 +10,7 @@ interface TextResourceStore {
 
 export const textResourceStore = createStore<TextResourceStore>()(
   devtools(
-    (set, get) => ({
+    (set) => ({
       textResource: undefined,
       setTextResource: (textResource: TextResource) => {
         set(() => ({

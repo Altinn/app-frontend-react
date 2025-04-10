@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -61,9 +61,9 @@ interface FormDataContextInitialProps {
 const {
   Provider,
   useSelector,
+  useStaticSelector,
   useShallowSelector,
   useMemoSelector,
-  useSelectorAsRef,
   useLaxMemoSelector,
   useLaxDelayedSelector,
   useDelayedSelector,
@@ -115,6 +115,61 @@ function useFormDataSaveMutation() {
       }
       const queryKey = getFormDataQueryKey(url);
       queryClient.setQueryData(queryKey, data);
+    }
+  }
+
+  function checkForRunawaySaving() {
+    const lastRequests = queryClient
+      .getMutationCache()
+      .findAll({ status: 'success', mutationKey: ['saveFormData'] })
+      .sort((a, b) => a.state.submittedAt - b.state.submittedAt)
+      .map((request) => ({
+        data: request.state.data,
+        submittedAt: request.state.submittedAt,
+      }))
+      .slice(-10);
+
+    if (lastRequests.length < 10) {
+      return;
+    }
+
+    const allTheSame = lastRequests.every(
+      (request, index) => index === 0 || deepEqual(request.data, lastRequests[0].data),
+    );
+
+    const hasAlternatingPattern =
+      !allTheSame && lastRequests.every((request, index) => deepEqual(request.data, lastRequests[index % 2].data));
+
+    if (!allTheSame && !hasAlternatingPattern) {
+      return;
+    }
+
+    // Calculate time differences between consecutive requests
+    const timeDiffs = lastRequests
+      .slice(1)
+      .map((request, index) => request.submittedAt - lastRequests[index].submittedAt);
+
+    // Calculate standard deviation and mean of time differences
+    const mean = timeDiffs.reduce((sum, diff) => sum + diff, 0) / timeDiffs.length;
+    const variance = timeDiffs.reduce((sum, diff) => sum + Math.pow(diff - mean, 2), 0) / timeDiffs.length;
+    const stdDev = Math.sqrt(variance);
+
+    // Consider timing suspicious if standard deviation is low relative to the mean.
+    // This suggests very regular intervals between saves (i.e. not user initiated). We purposefully don't check the
+    // actual duration of a save, because that can vary a lot between apps, depending on what the backend needs
+    // to do to process a save request.
+    const stdDevLow = stdDev < mean * 0.3;
+
+    if (stdDevLow) {
+      const message =
+        'Runaway saving detected, a bug in the application or the saving logic is causing the ' +
+        'form data to save repeatedly without real changes. Check the saving requests (in the browser devtools) and ' +
+        'verify the app and data model is not configured in a way that causes frontend to attempt to overwrite the ' +
+        'same data as backend is sending back. If the issue persists, contact support.';
+
+      console.error(message);
+      window.logError(message);
+      throw new Error(message);
     }
   }
 
@@ -274,6 +329,7 @@ function useFormDataSaveMutation() {
       result && updateQueryCache(result);
       result && saveFinished(result);
       !result && cancelSave();
+      checkForRunawaySaving();
     },
   });
 
@@ -336,6 +392,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
       changeInstance={changeInstance}
     >
       <FormDataEffects />
+      <LockingEffects />
       {children}
     </Provider>
   );
@@ -435,6 +492,28 @@ function FormDataEffects() {
       window.CypressState = { ...window.CypressState, formData };
     }
   });
+
+  return null;
+}
+
+function LockingEffects() {
+  const store = useStore();
+  const hasNext = useSelector((s) => (s.lockedBy ? false : s.lockQueue.length > 0));
+
+  const hasUnsavedChangesNow = useHasUnsavedChangesNow();
+  const waitForSave = useWaitForSave();
+
+  useEffect(() => {
+    (async () => {
+      const state = store.getState();
+      if (!state.lockedBy && state.lockQueue.length > 0) {
+        if (hasUnsavedChangesNow()) {
+          await waitForSave(true);
+        }
+        state.nextLock();
+      }
+    })().then();
+  }, [hasNext, hasUnsavedChangesNow, store, waitForSave]);
 
   return null;
 }
@@ -642,19 +721,24 @@ export const FD = {
     });
   },
 
-  useInvalidDebouncedSelectorProps() {
-    return useDelayedSelectorProps({
-      mode: 'simple',
-      selector: invalidDebouncedSelector,
-    });
-  },
-
   /**
    * This will return the form data as a deep object, just like the server sends it to us (and the way we send it back).
    * This will always give you the debounced data, which may or may not be saved to the backend yet.
    */
   useDebounced(dataType: string): object {
     return useSelector((v) => v.dataModels[dataType].debouncedCurrentData);
+  },
+
+  /**
+   * Directly select some data from the debounced data model, process and return it. This is useful if you want to
+   * select a value from the data model, and then process it in some way before returning it.
+   */
+  useDebouncedSelect<O>(selector: (pick: (reference: IDataModelReference) => FDValue) => O): O {
+    return useMemoSelector((v) =>
+      selector((reference: IDataModelReference) =>
+        dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData),
+      ),
+    );
   },
 
   /**
@@ -753,6 +837,15 @@ export const FD = {
   },
 
   /**
+   * This returns the current invalid data which cannot be saved to backend
+   */
+  useInvalidDebouncedPick(reference: IDataModelReference | undefined): FDValue {
+    return useSelector((v) =>
+      reference ? dot.pick(reference.field, v.dataModels[reference.dataType].invalidDebouncedCurrentData) : undefined,
+    );
+  },
+
+  /**
    * This returns an object that can be used to generate a query string for parts of the current form data.
    * It is almost the same as usePickFreshStrings(), but with important differences:
    *   1. The _keys_ in the input are expected to contain the data model paths, not the values. Mappings are reversed
@@ -794,7 +887,7 @@ export const FD = {
    * consider using something like useDataModelBindings() instead.
    * @see useDataModelBindings
    */
-  useSetLeafValue: () => useSelector((s) => s.setLeafValue),
+  useSetLeafValue: () => useStaticSelector((s) => s.setLeafValue),
 
   /**
    * This returns the raw method for setting multiple leaf values in the form data at once. This is
@@ -802,67 +895,48 @@ export const FD = {
    * for what you really want to do, so consider using something like useDataModelBindings() instead.
    * @see useDataModelBindings
    */
-  useSetMultiLeafValues: () => useSelector((s) => s.setMultiLeafValues),
+  useSetMultiLeafValues: () => useStaticSelector((s) => s.setMultiLeafValues),
 
   /**
    * The locking functionality allows you to prevent form data from saving, even if the user stops typing (or navigates
    * to the next page). This is useful if you want to perform a server-side action that requires the form data to be
    * in a certain state. Locking will effectively ignore all saving until you unlock it again.
+   * @see LockingEffects
    */
   useLocking(lockId: string) {
-    const rawLock = useSelector((s) => s.lock);
-    const rawUnlock = useSelector((s) => s.unlock);
-
-    const lockedBy = useSelector((s) => s.lockedBy);
-    const lockedByRef = useSelectorAsRef((s) => s.lockedBy);
-    const isLocked = lockedBy !== undefined;
-    const isLockedRef = useAsRef(isLocked);
-    const isLockedByMe = lockedBy === lockId;
-    const isLockedByMeRef = useAsRef(isLockedByMe);
+    const store = useStore();
 
     const hasUnsavedChangesNow = useHasUnsavedChangesNow();
     const waitForSave = useWaitForSave();
 
-    const lock = useCallback(async () => {
-      if (isLockedRef.current && !isLockedByMeRef.current) {
-        window.logWarn(
-          `Form data is already locked by ${lockedByRef.current}, cannot lock it again (requested by ${lockId})`,
-        );
-      }
-      if (isLockedRef.current) {
-        return false;
-      }
+    return useCallback(async () => {
+      const { lock: rawLock, unlock: rawUnlock, lockedBy } = store.getState();
 
-      if (hasUnsavedChangesNow()) {
+      if (!lockedBy && hasUnsavedChangesNow()) {
+        // Always save before locking. If the lock is not acquired immediately, LockingEffects will do that for us.
         await waitForSave(true);
       }
 
-      rawLock(lockId);
-      return true;
-    }, [hasUnsavedChangesNow, isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawLock, waitForSave]);
+      const uuid = await new Promise<string>((resolve) =>
+        rawLock({
+          key: lockId,
+          whenAcquired: resolve,
+        }),
+      );
 
-    const unlock = useCallback(
-      (actionResult?: FDActionResult) => {
-        if (!isLockedRef.current) {
-          window.logWarn(`Form data is not locked, cannot unlock it (requested by ${lockId})`);
-        }
-        if (!isLockedByMeRef.current) {
-          window.logWarn(`Form data is locked by ${lockedByRef.current}, cannot unlock it (requested by ${lockId})`);
-        }
-        if (!isLockedRef.current || !isLockedByMeRef.current) {
-          return false;
-        }
+      const isLockedByMe = () => store.getState().lockedBy === `${lockId} (${uuid})`;
+      const isLocked = () => store.getState().lockedBy !== undefined;
+      const unlock = (actionResult?: FDActionResult) => rawUnlock(lockId, uuid, actionResult);
 
-        rawUnlock(actionResult);
-        return true;
-      },
-      [isLockedByMeRef, isLockedRef, lockId, lockedByRef, rawUnlock],
-    );
+      return { unlock, isLocked, isLockedByMe };
+    }, [hasUnsavedChangesNow, lockId, waitForSave, store]);
+  },
 
-    return useMemo(
-      () => ({ lock, unlock, isLocked, lockedBy, isLockedByMe }),
-      [isLocked, isLockedByMe, lock, lockedBy, unlock],
-    );
+  useLockStatus() {
+    const lockedBy = useSelector((s) => s.lockedBy);
+    const isLocked = lockedBy !== undefined;
+
+    return { lockedBy, isLocked };
   },
 
   /**
@@ -952,31 +1026,31 @@ export const FD = {
    * Returns a function to append a value to a list. It checks if the value is already in the list, and if not,
    * it will append it. If the value is already in the list, it will not be appended.
    */
-  useAppendToListUnique: () => useSelector((s) => s.appendToListUnique),
+  useAppendToListUnique: () => useStaticSelector((s) => s.appendToListUnique),
 
   /**
    * Returns a function to append a value to a list. It will always append the value, even if it is already in the list.
    */
-  useAppendToList: () => useSelector((s) => s.appendToList),
+  useAppendToList: () => useStaticSelector((s) => s.appendToList),
 
   /**
    * Returns a function to remove a value from a list, by use of a callback that lets you find the correct row to
    * remove. When the callback returns true, that row will be removed.
    */
-  useRemoveFromListCallback: () => useSelector((s) => s.removeFromListCallback),
+  useRemoveFromListCallback: () => useStaticSelector((s) => s.removeFromListCallback),
 
   /**
    * Returns a function to remove a value from a list, by value. If your list contains unique values, this is the
    * safer alternative to useRemoveIndexFromList().
    */
-  useRemoveValueFromList: () => useSelector((s) => s.removeValueFromList),
+  useRemoveValueFromList: () => useStaticSelector((s) => s.removeValueFromList),
 
   /**
    * Returns the latest validation issues from the backend, from the last time the form data was saved.
    */
   useLastSaveValidationIssues: () => useSelector((s) => s.validationIssues),
 
-  useRemoveIndexFromList: () => useSelector((s) => s.removeIndexFromList),
+  useRemoveIndexFromList: () => useStaticSelector((s) => s.removeIndexFromList),
 
   useGetDataTypeForElementId: () => {
     const map: Record<string, string | undefined> = useMemoSelector((s) =>

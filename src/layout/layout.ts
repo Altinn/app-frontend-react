@@ -1,17 +1,11 @@
 import type { $Keys, PickByValue } from 'utility-types';
 
-import type { CompBehaviors, CompCapabilities } from 'src/codegen/Config';
+import type { CompBehaviors } from 'src/codegen/Config';
 import type { CompCategory } from 'src/layout/common';
 import type { IDataModelReference, ILayoutFile } from 'src/layout/common.generated';
 import type { ComponentTypeConfigs, getComponentConfigs } from 'src/layout/components.generated';
 import type { CompClassMapCategories } from 'src/layout/index';
-import type {
-  ActionComponent,
-  ContainerComponent,
-  FormComponent,
-  PresentationComponent,
-} from 'src/layout/LayoutComponent';
-import type { BaseLayoutNode, LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ILayouts {
@@ -39,7 +33,6 @@ export type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
  *  const myImageComponent:CompExternal<'Image'> = ...
  *
  * @see CompInternal
- * @see LayoutNode
  */
 export type CompExternal<Type extends CompTypes = CompTypes> = Extract<AllComponents, { type: Type }>;
 
@@ -50,11 +43,11 @@ export type CompExternalExact<Type extends CompTypes> = ComponentTypeConfigs[Typ
 
 /**
  * When running hierarchy generation, an intermediate type is used. This will contain the same properties as
- * CompExternal, but also the hierarchy extensions (as applied when running hierarchy mutations). At this point
- * the ID property will be set to `<baseId>-<rowIndex>` as expected for repeating groups, etc.
+ * CompExternal. At this point the ID property will be set to `<baseId>-<rowIndex>` as expected for
+ * repeating groups, etc.
  */
-export type CompIntermediate<Type extends CompTypes = CompTypes> = CompExternal<Type> & HierarchyExtensions;
-export type CompIntermediateExact<Type extends CompTypes> = CompExternalExact<Type> & HierarchyExtensions;
+export type CompIntermediate<Type extends CompTypes = CompTypes> = CompExternal<Type>;
+export type CompIntermediateExact<Type extends CompTypes> = CompExternalExact<Type>;
 
 /**
  * This is the type you should use when referencing a specific component type, and will give
@@ -73,21 +66,10 @@ export type ITextResourceBindings<T extends CompTypes = CompTypes> = CompInterna
 export type ILayout = CompExternal[];
 
 /**
- * These keys are not defined anywhere in the actual form layout files, but are added by the hierarchy.
+ * The result of evaluating expressions for a component. This 'internal' item is what the layout configuration will
+ * look like once every expression within it has been evaluated.
  */
-interface HierarchyExtensions {
-  // These will be set if the component is inside a repeating group
-  baseComponentId?: string;
-  multiPageIndex?: number;
-}
-
-/**
- * Any item inside a hierarchy. Note that a LayoutNode _contains_ an item. The LayoutNode itself is an instance of the
- * LayoutNode class, while _an item_ is the object inside it that is somewhat similar to layout objects.
- */
-type NodeItem<T extends CompTypes> = ReturnType<ComponentConfigs[T]['def']['evalExpressions']>;
-
-export type CompInternal<T extends CompTypes = CompTypes> = NodeItem<T> & HierarchyExtensions;
+export type CompInternal<T extends CompTypes = CompTypes> = ReturnType<ComponentConfigs[T]['def']['evalExpressions']>;
 
 /**
  * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
@@ -95,23 +77,11 @@ export type CompInternal<T extends CompTypes = CompTypes> = NodeItem<T> & Hierar
  */
 export type ParentNode = LayoutNode | LayoutPage;
 
-export type TypeFromConfig<T extends CompInternal | CompExternal> = T extends { type: infer Type }
-  ? Type extends CompTypes
-    ? Type
-    : CompTypes
-  : CompTypes;
-
 export type TypeFromNode<N extends LayoutNode | undefined> = N extends undefined
   ? never
-  : N extends BaseLayoutNode<infer Type>
+  : N extends LayoutNode<infer Type>
     ? Type
     : CompTypes;
-
-export type LayoutNodeFromObj<T> = T extends { type: infer Type }
-  ? Type extends CompTypes
-    ? LayoutNode<Type>
-    : LayoutNode
-  : LayoutNode;
 
 export type TypesFromCategory<Cat extends CompCategory> = $Keys<PickByValue<CompClassMapCategories, Cat>>;
 
@@ -119,42 +89,9 @@ export type CompWithPlugin<Plugin> = {
   [Type in CompTypes]: Extract<ComponentTypeConfigs[Type]['plugins'], Plugin> extends never ? never : Type;
 }[CompTypes];
 
-export type DefFromCategory<C extends CompCategory> = C extends 'presentation'
-  ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    PresentationComponent<any>
-  : C extends 'form'
-    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      FormComponent<any>
-    : C extends 'action'
-      ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ActionComponent<any>
-      : C extends 'container'
-        ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ContainerComponent<any>
-        : never;
-
 export type LayoutNodeFromCategory<Type> = Type extends CompCategory ? LayoutNode<TypesFromCategory<Type>> : LayoutNode;
 
 export type ILayoutCollection = { [pageName: string]: ILayoutFile };
-
-export type IsContainerComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends CompCategory.Container
-  ? true
-  : false;
-
-export type IsActionComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends CompCategory.Action
-  ? true
-  : false;
-
-export type IsFormComp<T extends CompTypes> = ComponentTypeConfigs[T]['category'] extends CompCategory.Form
-  ? true
-  : false;
-
-export type IsPresentationComp<T extends CompTypes> =
-  ComponentTypeConfigs[T]['category'] extends CompCategory.Presentation ? true : false;
-
-export type CompWithCap<Capability extends keyof CompCapabilities> = {
-  [Type in CompTypes]: ComponentConfigs[Type]['capabilities'][Capability] extends true ? Type : never;
-}[CompTypes];
 
 export type CompWithBehavior<Behavior extends keyof CompBehaviors> = {
   [Type in CompTypes]: ComponentConfigs[Type]['behaviors'][Behavior] extends true ? Type : never;

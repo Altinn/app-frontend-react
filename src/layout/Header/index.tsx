@@ -6,9 +6,9 @@ import { Heading } from '@digdir/designsystemet-react';
 import { HeaderDef } from 'src/layout/Header/config.def.generated';
 import { getHeaderProps, HeaderComponent } from 'src/layout/Header/HeaderComponent';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CommonProps } from 'src/layout/Input';
 import type { CompIntermediateExact } from 'src/layout/layout';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { CommonProps } from 'src/next/types/CommonComponentProps';
 
 export type IHeaderProps = PropsFromGenericComponent<'Header'>;
 

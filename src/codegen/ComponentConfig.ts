@@ -40,15 +40,9 @@ const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any>
   }),
 };
 
-const baseLayoutNode = new GenerateImportedSymbol({
-  import: 'BaseLayoutNode',
-  from: 'src/utils/layout/LayoutNode',
-});
-
 export class ComponentConfig {
   public type: string;
   public typeSymbol: string;
-  public layoutNodeType = baseLayoutNode;
   readonly inner = new CG.obj();
   public behaviors: CompBehaviors = {
     isSummarizable: false,
@@ -182,14 +176,6 @@ export class ComponentConfig {
     return this;
   }
 
-  // This will not be used at the moment after we split the group to several components.
-  // However, this is nice to keep for future components that might need it.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public setLayoutNodeType(type: GenerateImportedSymbol<any>): this {
-    this.layoutNodeType = type;
-    return this;
-  }
-
   private beforeFinalizing(): void {
     // We have to add these to our typescript types in order for ITextResourceBindings<T>, and similar to work.
     // Components that doesn't have them, will always have the 'undefined' value.
@@ -216,8 +202,10 @@ export class ComponentConfig {
       from: `./index`,
     });
 
-    const nodeObj = this.layoutNodeType.toTypeScript();
-    const nodeSuffix = this.layoutNodeType === baseLayoutNode ? `<'${this.type}'>` : '';
+    const LayoutNode = new GenerateImportedSymbol({
+      import: 'LayoutNode',
+      from: 'src/utils/layout/LayoutNode',
+    });
 
     const CompCategory = new CG.import({
       import: 'CompCategory',
@@ -239,7 +227,7 @@ export class ComponentConfig {
       `export function getConfig() {
          return {
            def: new ${impl.toTypeScript()}(),
-           nodeConstructor: ${nodeObj},
+           nodeConstructor: ${LayoutNode},
            capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
            behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
          };
@@ -247,7 +235,7 @@ export class ComponentConfig {
       `export type TypeConfig = {
          category: ${CompCategory}.${this.config.category},
          layout: ${this.inner};
-         nodeObj: ${nodeObj}${nodeSuffix};
+         nodeObj: ${LayoutNode}<'${this.type}'>;
          plugins: ${pluginUnion};
        }`,
     ];
@@ -305,6 +293,11 @@ export class ComponentConfig {
       from: 'src/utils/layout/NodesContext',
     });
 
+    const DisplayData = new CG.import({
+      import: 'DisplayData',
+      from: 'src/features/displayData/index',
+    });
+
     const isFormComponent = this.config.category === CompCategory.Form;
     const isSummarizable = this.behaviors.isSummarizable;
 
@@ -314,6 +307,7 @@ export class ComponentConfig {
       { base: CG.common('SummarizableComponentProps'), condition: isSummarizable, evaluator: 'evalSummarizable' },
     ];
 
+    const implementsInterfaces: string[] = [];
     const evalLines: string[] = [];
     const itemLine: string[] = [];
     for (const { base, condition, evaluator } of evalCommonProps) {
@@ -374,11 +368,18 @@ export class ComponentConfig {
         `// You must implement this because the component has data model bindings defined
         abstract validateDataModelBindings(ctx: ${LayoutValidationCtx}<'${this.type}'>): string[];`,
       );
-    } else if (this.isFormLike()) {
+    }
+
+    if (
+      this.hasDataModelBindings() &&
+      this.config.category === CompCategory.Form &&
+      this.config.functionality.displayData !== false
+    ) {
       additionalMethods.push(
-        `// This component could have, but does not have any data model bindings defined
-        getDisplayData() { return ''; }`,
+        `// This component has data model bindings, so it should be able to produce a display string
+        abstract useDisplayData(nodeId: string): string;`,
       );
+      implementsInterfaces.push(`${DisplayData}`);
     }
 
     const readyCheckers: string[] = [];
@@ -411,11 +412,6 @@ export class ComponentConfig {
     if (childrenPlugins.length > 0) {
       const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
       const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
-      const TraversalRestriction = new CG.import({
-        import: 'TraversalRestriction',
-        from: 'src/utils/layout/useNodeTraversal',
-      });
-      const LayoutNode = new CG.import({ import: 'LayoutNode', from: 'src/utils/layout/LayoutNode' });
 
       const claimChildrenBody = childrenPlugins.map((plugin) =>
         `${pluginRef(plugin)}.claimChildren({
@@ -429,23 +425,24 @@ export class ComponentConfig {
       );
 
       const isChildHiddenBody = childrenPlugins.map(
-        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childNode)`,
+        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childId)`,
       );
 
       additionalMethods.push(
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
           ${claimChildrenBody.join('\n')}
         }`,
-        `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: ${TraversalRestriction}) {
+        `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: number) {
           return [${pickDirectChildrenBody.join(', ')}];
         }`,
-        `isChildHidden(state: ${NodeData}<'${this.type}'>, childNode: ${LayoutNode}) {
+        `isChildHidden(state: ${NodeData}<'${this.type}'>, childId: string) {
           return [${isChildHiddenBody.join(', ')}].some((h) => h);
         }`,
       );
     }
 
-    return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'> {
+    const implementing = implementsInterfaces.length ? ` implements ${implementsInterfaces.join(', ')}` : '';
+    return `export abstract class ${symbol}Def extends ${categorySymbol}<'${this.type}'>${implementing} {
       protected readonly type = '${this.type}';
       ${pluginMap}
 
@@ -463,6 +460,9 @@ export class ComponentConfig {
         const baseState: ${BaseNodeData}<'${this.type}'> = {
           type: 'node',
           pageKey: props.pageKey,
+          parentId: props.parentId,
+          depth: props.depth,
+          isValid: props.isValid,
           item: undefined,
           layout: props.item,
           hidden: undefined,
