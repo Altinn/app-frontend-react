@@ -65,18 +65,17 @@ export const PartySelection = () => {
     navigate('/');
   };
 
-  const filteredParties = partiesAllowedToInstantiate
-    .filter(
-      (party) => party.name.toUpperCase().includes(filterString.toUpperCase()) && !(party.isDeleted && !showDeleted),
-    )
-    .slice(0, numberOfPartiesShown);
+  const filteredParties = partiesAllowedToInstantiate.filter(
+    (party) => party.name.toUpperCase().includes(filterString.toUpperCase()) && !(party.isDeleted && !showDeleted),
+  );
 
-  const hasMoreParties = filteredParties.length < partiesAllowedToInstantiate.length;
+  const hasMoreParties = filteredParties.length > numberOfPartiesShown;
+  const partiesSubset = filteredParties.slice(0, numberOfPartiesShown);
 
   function renderParties() {
     return (
       <>
-        {filteredParties.map((party, index) => (
+        {partiesSubset.map((party, index) => (
           <AltinnParty
             key={index}
             party={party}
