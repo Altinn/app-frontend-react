@@ -14,7 +14,7 @@ interface RepeatingGroupNextType {
   parentBinding?: string;
   itemIndex?: number;
 }
-//     background-color: var(--repeating-group-edit-surface-color);
+
 export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component, parentBinding, itemIndex }) => {
   // @ts-ignore
   const binding = component.dataModelBindings?.group;
@@ -22,7 +22,10 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
     throw new Error('Tried to render repeating group without datamodel binding');
   }
 
-  const groupArray = useStore(layoutStore, (state) => dot.pick(binding, state.data)) || [];
+  const actualBinding =
+    itemIndex !== undefined ? `${parentBinding}[${itemIndex}].${binding.split('.')[1] || ''}` : binding;
+
+  const groupArray = useStore(layoutStore, (state) => dot.pick(actualBinding, state.data)) || [];
 
   const addRow = useStore(layoutStore, (state) => state.addRow);
 
@@ -33,7 +36,7 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
     getScrollElement: () => parentRef.current,
     estimateSize: () => 150, // just a rough estimate
     overscan: 2,
-    measureElement: (element, entry, instance) => element.getBoundingClientRect().height,
+    measureElement: (element, _, __) => element.getBoundingClientRect().height,
   });
   if (!component.children || !Array.isArray(component.children)) {
     return null;
