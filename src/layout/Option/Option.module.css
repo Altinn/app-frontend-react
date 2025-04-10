@@ -9,7 +9,7 @@
   margin: 0;
   width: 100%;
 }
-.label * {
+.label span {
   font-size: 16px;
 }
 
