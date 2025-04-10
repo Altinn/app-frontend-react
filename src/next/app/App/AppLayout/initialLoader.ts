@@ -3,6 +3,45 @@ import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
 
+/**
+ * Recursively resolves any $ref entries in a JSON schema that point into $defs.
+ * Returns a deep copy of the schema with references replaced by their definitions.
+ */
+export function resolveSchemaDefs(schema: any, root: any = schema): any {
+  // If it's not an object or array, just return as is.
+  if (typeof schema !== 'object' || schema === null) {
+    return schema;
+  }
+
+  // If it's a direct reference to something in $defs, resolve it.
+  if (schema.$ref && schema.$ref.startsWith('#/$defs/')) {
+    const refName = schema.$ref.replace('#/$defs/', '');
+    const definition = root.$defs?.[refName];
+
+    if (!definition) {
+      throw new Error(`Definition not found for reference: ${schema.$ref}`);
+    }
+
+    // Merge the referenced definition with the current node’s additional keys.
+    // Then resolve recursively in case the definition itself has nested refs.
+    const { $ref, ...rest } = schema;
+    return resolveSchemaDefs({ ...definition, ...rest }, root);
+  }
+
+  // If it's an array, resolve each item.
+  if (Array.isArray(schema)) {
+    return schema.map((item) => resolveSchemaDefs(item, root));
+  }
+
+  // Otherwise, recursively resolve all object properties.
+  const resolved: Record<string, any> = {};
+  for (const key of Object.keys(schema)) {
+    resolved[key] = resolveSchemaDefs(schema[key], root);
+  }
+
+  return resolved;
+}
+
 // @ts-ignore
 const xsrfCookie = document.cookie
   .split('; ')
@@ -25,9 +64,10 @@ export async function initialLoader() {
 
   const schemaData = await Promise.all(dataModelSchemaResponses.map(async (res) => await res.json()));
 
-  schemaData.forEach((data, idx) => setDataModelSchema(dataModelNames[idx], data));
+  schemaData.forEach((data, idx) => setDataModelSchema(dataModelNames[idx], resolveSchemaDefs(data)));
 
   const currentParty = validParties[0];
+
   if (!currentParty) {
     throw new Error('No valid parties');
   }

@@ -132,6 +132,7 @@
   },
   "dependencies": {
     "@altinn/altinn-design-system": "0.30.2",
+    "@apidevtools/json-schema-ref-parser": "^11.9.3",
     "@babel/polyfill": "7.12.1",
     "@date-fns/tz": "1.2.0",
     "@digdir/design-system-react": "0.54.0",

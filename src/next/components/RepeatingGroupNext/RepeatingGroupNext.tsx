@@ -11,9 +11,11 @@ import { layoutStore } from 'src/next/stores/layoutStore';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 interface RepeatingGroupNextType {
   component: ResolvedCompExternal;
+  parentBinding?: string;
+  itemIndex?: number;
 }
 //     background-color: var(--repeating-group-edit-surface-color);
-export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component }) => {
+export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component, parentBinding, itemIndex }) => {
   // @ts-ignore
   const binding = component.dataModelBindings?.group;
   if (!binding) {
@@ -24,16 +26,8 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
 
   const addRow = useStore(layoutStore, (state) => state.addRow);
 
-  // if (!Array.isArray(groupArray)) {
-  //   throw new Error('Repeating group data must be an array');
-  // }
-
-  // @ts-ignore
-  const parentBinding = component.dataModelBindings?.group;
-
   const parentRef = useRef<HTMLDivElement>(null);
 
-  // Set up the virtualizer
   const rowVirtualizer = useVirtualizer({
     count: groupArray.length,
     getScrollElement: () => parentRef.current,
@@ -85,7 +79,7 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
               >
                 <RenderLayout
                   components={component.children}
-                  parentBinding={parentBinding}
+                  parentBinding={binding}
                   itemIndex={index}
                 />
               </div>
@@ -95,8 +89,7 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
       </div>
       <Button
         onClick={() => {
-          console.log('add row');
-          addRow(binding);
+          addRow(binding, parentBinding, itemIndex);
         }}
       >
         Til rad

@@ -94,7 +94,13 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   }
 
   if (component.type === 'RepeatingGroup') {
-    return <RepeatingGroupNext component={component} />;
+    return (
+      <RepeatingGroupNext
+        component={component}
+        parentBinding={parentBinding}
+        itemIndex={itemIndex}
+      />
+    );
   }
 
   if (component.type === 'Summary2') {
