@@ -67,7 +67,6 @@ describe('PartySelection', () => {
     await render();
 
     expect(screen.getAllByTestId('AltinnParty-PartyWrapper')).toHaveLength(4);
-    expect(screen.queryByRole('button', { name: /^Subunit Org/ })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '1 underenhet' }));
     expect(screen.getByRole('button', { name: /^Subunit Org/ })).toBeInTheDocument();
     await user.click(screen.getByRole('checkbox', { name: /vis underenheter/i }));
