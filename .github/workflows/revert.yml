@@ -48,7 +48,7 @@ jobs:
           FD_PROFILE: ${{ vars.AZURE_PROFILE_FC }}
           FD_RESOURCEGROUP: ${{ vars.AZURE_RESOURCE_GROUP_FC }}
         run: |
-          bash app-frontend/.github/scripts/revert.sh \
+          bash .github/scripts/revert.sh \
            --tag "${{ inputs.tag }}" \
            --azure-sync-cdn \
            --azure-sa-name "${{ secrets.PRODUCTION_STORAGEACCOUNT_NAME }}" \
