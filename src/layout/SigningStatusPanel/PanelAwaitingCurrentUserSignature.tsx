@@ -72,7 +72,7 @@ export function AwaitingCurrentUserSignaturePanel({
   });
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
-  const [onBehalfOf, setOnBehalfOf] = useState('');
+  const [onBehalfOfOrg, setOnBehalfOfOrg] = useState('');
 
   // This shouldn't really happen, but if it does it indicates that our backend is out of sync with Autorisasjon somehow
   if (!canSign) {
@@ -80,7 +80,7 @@ export function AwaitingCurrentUserSignaturePanel({
   }
 
   function handleChange(event: ChangeEvent<HTMLInputElement>): void {
-    setOnBehalfOf(event.target.value);
+    setOnBehalfOfOrg(event.target.value);
   }
 
   if (isApiLoading) {
@@ -104,7 +104,7 @@ export function AwaitingCurrentUserSignaturePanel({
       actionButton={
         <>
           <Button
-            onClick={() => handleSign(onBehalfOf)}
+            onClick={() => handleSign(onBehalfOfOrg)}
             disabled={!confirmReadDocuments || isPending || isSuccess}
             size='md'
             color='success'

@@ -18,7 +18,6 @@ export type AuthorizedOrganisationDetails = z.infer<typeof authorizedOrganisatio
 export const authorizedOrganisationDetailsQuery = (partyId: string, instanceGuid: string) => ({
   queryKey: ['authorizedOrganisationDetails', partyId, instanceGuid],
   queryFn: () => fetchAuthorizedOrganisationDetails(partyId, instanceGuid),
-  refetchInterval: 1000 * 60, // 1 minute
 });
 
 export async function fetchAuthorizedOrganisationDetails(
