@@ -359,13 +359,17 @@ export function nb(): FixedLanguageList {
       unknown_error: 'Ukjent feil. Vennligst prøv igjen senere.',
     },
     signing: {
-      awaiting_signature_panel_title: 'Signer skjemaet',
+      awaiting_signature_panel_title: 'Signer dokumenter',
       checkbox_label: 'Jeg bekrefter at informasjonen og dokumentene er korrekte.',
-      sign_button: 'Signer skjemaet',
+      sign_button: 'Signer',
 
       submit_panel_title: 'Du kan nå sende inn skjemaet',
       submit_panel_description: 'Alle parter har signert! Velg "{0}" for å fullføre.',
       submit_button: 'Send inn skjemaet',
+
+      submit_panel_radio_group_legend: 'Hvem ønsker du å signere på vegne av?',
+      submit_panel_radio_group_description: 'Følgende er parter du har rettigheter til å signere på vegne av.',
+      submit_panel_single_org_choice: 'Du signerer på vegne av {0}.',
 
       awaiting_other_signatures_panel_title: 'Venter på signaturer',
       awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
