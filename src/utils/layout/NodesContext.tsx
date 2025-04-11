@@ -1199,7 +1199,6 @@ export const NodesInternal = {
       ],
     });
   },
-  useTypeFromId: (id: string) => Store.useSelector((s) => s.nodeData[id]?.layout.type),
   useIsAdded: (node: LayoutNode | LayoutPage | undefined) =>
     Store.useSelector((s) => {
       if (!node) {
