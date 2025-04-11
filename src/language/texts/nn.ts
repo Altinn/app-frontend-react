@@ -370,8 +370,7 @@ export function nn(): FixedLanguageList {
 
       submit_panel_radio_group_legend: 'Kven ønskjer du å signere på vegne av?',
       submit_panel_radio_group_description: 'Følgjande er partar du har rettar til å signere på vegne av.',
-      submit_panel_radio_org_help_text:
-        'Fordi du har ein nøkkelrolle i denne befriftinga, kan du velje å signere på vegne av denne parten.',
+      submit_panel_single_org_choice: 'Du signerer på vegne av {0}.',
 
       awaiting_other_signatures_panel_title: 'Vent på signaturar',
       awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle partar har signert.',

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { ChangeEvent } from 'react';
 
-import { Checkbox, Spinner } from '@digdir/designsystemet-react';
+import { Checkbox, Heading, Spinner } from '@digdir/designsystemet-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -117,30 +117,46 @@ export function AwaitingCurrentUserSignaturePanel({
       description={<Lang id={checkboxDescription} />}
       errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
     >
-      {!!authorizedOrganisationDetails?.organisations?.length && (
-        <Fieldset
-          legend={<Lang id='signing.sign_on_behalf_of' />}
-          description={<Lang id='signing.sign_on_behalf_of_description' />}
-          required={true}
-        >
-          <RadioButton
-            value=''
-            label='Meg selv'
-            name='onBehalfOf'
-            onChange={handleChange}
-          />
-          {authorizedOrganisationDetails.organisations.map((org) => (
-            <RadioButton
-              value={org.orgNumber}
-              label={org.orgName}
-              helpText={<Lang id='submit_panel_radio_org_help_text' />}
-              name='onBehalfOf'
-              key={org.partyId}
-              onChange={handleChange}
-            />
-          ))}
-        </Fieldset>
-      )}
+      {(() => {
+        const numberOfOrganisations = authorizedOrganisationDetails?.organisations?.length;
+        const firstOrgName = authorizedOrganisationDetails?.organisations?.[0]?.orgName;
+
+        if (!numberOfOrganisations) {
+          return null;
+        }
+
+        if (numberOfOrganisations === 1) {
+          return (
+            <Heading
+              level={1}
+              size='xs'
+            >
+              <Lang
+                id='signing.submit_panel_single_org_choice'
+                params={[firstOrgName]}
+              />
+            </Heading>
+          );
+        }
+
+        return (
+          <Fieldset
+            legend={<Lang id='signing.submit_panel_radio_group_legend' />}
+            description={<Lang id='signing.submit_panel_radio_group_description' />}
+            required={true}
+          >
+            {authorizedOrganisationDetails.organisations.map((org) => (
+              <RadioButton
+                value={org.orgNumber}
+                label={org.orgName}
+                name='onBehalfOf'
+                key={org.partyId}
+                onChange={handleChange}
+              />
+            ))}
+          </Fieldset>
+        );
+      })()}
       <Checkbox
         value={String(confirmReadDocuments)}
         checked={confirmReadDocuments}
