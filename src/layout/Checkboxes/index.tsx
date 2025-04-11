@@ -1,5 +1,7 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState } from 'react';
 import type { JSX } from 'react';
+
+import { Checkbox } from '@digdir/designsystemet-react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
@@ -13,9 +15,11 @@ import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { CompIntermediateExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { CommonProps } from 'src/next/types/CommonComponentProps';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Checkboxes extends CheckboxesDef {
@@ -24,6 +28,39 @@ export class Checkboxes extends CheckboxesDef {
       return <CheckboxContainerComponent {...props} />;
     },
   );
+
+  renderNext(component: CompIntermediateExact<'Checkboxes'>, commonProps: CommonProps): React.JSX.Element | null {
+    const options = component.options || commonProps.options;
+
+    const [localOptions, setLocalOptions] = useState(options);
+
+    // const updateOptions   () => {
+    //
+    // }
+
+    return (
+      <div>
+        <Checkbox.Group
+          legend=''
+          role='radiogroup'
+        >
+          {options?.map((option, idx) => (
+            <Checkbox
+              value={`${option.value}`}
+              description={option.description}
+              key={idx}
+              onChange={(e) => {
+                // commonProps.onChange(e.target.value);
+                console.log(e.target.value);
+              }}
+            >
+              {option.label}
+            </Checkbox>
+          ))}
+        </Checkbox.Group>
+      </div>
+    );
+  }
 
   useDisplayData(nodeId: string): string {
     const formData = useNodeFormDataWhenType(nodeId, 'Checkboxes');

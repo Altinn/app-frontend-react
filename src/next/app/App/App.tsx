@@ -33,7 +33,6 @@ const router = createHashRouter([
         children: [
           {
             path: ':taskId',
-            // loader: taskLoader,
             element: <Task />,
             children: [
               {
