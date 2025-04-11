@@ -8,6 +8,7 @@ import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { evalQueryParameters } from 'src/features/options/evalQueryParameters';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
+import { ListLayoutValidator } from 'src/layout/List/ListLayoutValidator';
 import { ListSummary } from 'src/layout/List/ListSummary';
 import { useValidateListIsEmpty } from 'src/layout/List/useValidateListIsEmpty';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
@@ -17,6 +18,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
+import type { NodeValidationProps } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -90,6 +92,10 @@ export class List extends ListDef {
 
   useEmptyFieldValidation(node: LayoutNode<'List'>): ComponentValidation[] {
     return useValidateListIsEmpty(node);
+  }
+
+  renderLayoutValidators(props: NodeValidationProps<'List'>): JSX.Element | null {
+    return <ListLayoutValidator {...props} />;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
