@@ -129,7 +129,7 @@ export function AwaitingCurrentUserSignaturePanel({
           return (
             <Heading
               level={1}
-              size='xs'
+              size='2xs'
             >
               <Lang
                 id='signing.submit_panel_single_org_choice'
