@@ -17,7 +17,7 @@ import { appSupportsIncrementalValidationFeatures } from 'src/features/validatio
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useNavigateToTask } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
@@ -72,7 +72,9 @@ export function useProcessNext() {
         await reFetchInstanceData();
         await refetchProcessData?.();
         await invalidateFormDataQueries(queryClient);
-        navigateToTask(processData?.currentTask?.elementId);
+        navigateToTask(
+          processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId,
+        );
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues, !appSupportsIncrementalValidationFeatures(applicationMetadata));

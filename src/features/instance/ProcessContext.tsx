@@ -9,7 +9,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
+import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
 import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
@@ -34,26 +34,8 @@ export function ProcessProvider({ children }: PropsWithChildren) {
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;
-  const taskId = useNavigationParam('taskId');
-  const layoutSets = useLayoutSets();
-  const navigateToTask = useNavigateToTask();
 
   const { isLoading, data, error, refetch } = useQuery<IProcess, HttpClientError>(getProcessQueryDef(instanceId));
-
-  useEffect(() => {
-    const elementId = data?.currentTask?.elementId;
-    if (data?.ended) {
-      const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-      if (hasCustomReceipt) {
-        navigateToTask(TaskKeys.CustomReceipt);
-      } else {
-        navigateToTask(TaskKeys.ProcessEnd);
-      }
-    } else if (elementId && elementId !== taskId) {
-      navigateToTask(elementId, { replace: true, runEffect: taskId !== undefined });
-    }
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
 
   useEffect(() => {
     error && window.logError('Fetching process state failed:\n', error);
