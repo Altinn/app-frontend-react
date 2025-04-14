@@ -151,7 +151,9 @@ type UserActionRequest = {
   buttonId?: string;
   metadata?: Record<string, string>;
   ignoredValidators?: string[];
+  onBehalfOf?: string;
 };
+
 export const doPerformAction = async (
   partyId: string,
   instanceGuid: string,
