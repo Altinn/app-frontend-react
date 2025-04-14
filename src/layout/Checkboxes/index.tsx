@@ -32,28 +32,12 @@ export class Checkboxes extends CheckboxesDef {
   renderNext(component: CompIntermediateExact<'Checkboxes'>, commonProps: CommonProps): React.JSX.Element | null {
     const options = component.options || commonProps.options;
 
-    // const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
-
     const [localOptions, setLocalOptions] = useState<string[]>(
       commonProps.currentValue ? commonProps.currentValue.split(',') : [],
     );
 
-    // if (component.queryParameters) {
-    //   Object.entries(component.queryParameters).forEach((key, value) => {
-    //     console.log(key, value);
-    //
-    //     const currentValue = evaluateExpression(value as unknown as Expression);
-    //
-    //     console.log(currentValue);
-    //   });
-    //
-    //   // component.queryParameters
-    // }
-
     return (
       <div>
-        <pre>{JSON.stringify(component, null, 2)}</pre>
-
         <Checkbox.Group
           legend=''
           role='radiogroup'

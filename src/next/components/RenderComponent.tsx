@@ -7,6 +7,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { CheckboxesNext } from 'src/next/components/CheckboxesNext/CheckboxesNext';
 import { Navbar } from 'src/next/components/navbar/Navbar';
+import { RadioButtonsNext } from 'src/next/components/RadioButtonsNext/RadioButtonsNext';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext/RepeatingGroupNext';
 import { SummaryNext } from 'src/next/components/SummaryNext/SummaryNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
@@ -78,16 +79,6 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
     }
   });
 
-  // if (component.type === 'Checkboxes' && component.queryParameters) {
-  //   Object.entries(component.queryParameters).forEach((key, value) => {
-  //     console.log(key, value);
-  //
-  //     const currentValue = evaluateExpression(value as unknown as Expression);
-  //
-  //     console.log(currentValue);
-  //   });
-  // }
-
   const textResource = useStore(textResourceStore, (state) =>
     component.textResourceBindings && component.textResourceBindings['title'] && state.textResource?.resources
       ? // @ts-ignore
@@ -114,13 +105,17 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
     );
   }
 
-  if (isHidden) {
+  if (component.type === 'RadioButtons') {
     return (
-      <div>
-        Im hidden!
-        {/*<pre>{JSON.stringify(component, null, 2)}</pre>*/}
-      </div>
+      <RadioButtonsNext
+        component={component}
+        commonProps={commonProps}
+      />
     );
+  }
+
+  if (isHidden) {
+    return <div>Im hidden!</div>;
   }
 
   if (component.type === 'RepeatingGroup') {
