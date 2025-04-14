@@ -2,19 +2,18 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { ChangeEvent } from 'react';
 
-import { Checkbox, Heading, Spinner } from '@digdir/designsystemet-react';
+import { Checkbox, Spinner } from '@digdir/designsystemet-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
-import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Panel } from 'src/app-components/Panel/Panel';
-import { RadioButton } from 'src/components/form/RadioButton';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { authorizedOrganisationDetailsQuery } from 'src/layout/SigningStatusPanel/api';
+import { OnBehalfOfChooser } from 'src/layout/SigningStatusPanel/OnBehalfOfChooser';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import { SubmitSigningButton } from 'src/layout/SigningStatusPanel/SubmitSigningButton';
@@ -46,11 +45,9 @@ export function AwaitingCurrentUserSignaturePanel({
   const checkboxDescription = textResourceBindings?.checkboxDescription;
   const signingButtonText = textResourceBindings?.signingButton ?? 'signing.sign_button';
 
-  const {
-    data: authorizedOrganisationDetails,
-    isLoading: isApiLoading,
-    error: apiError,
-  } = useQuery(authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!));
+  const { data: authorizedOrganisationDetails, isLoading: isApiLoading } = useQuery(
+    authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!),
+  );
 
   const {
     mutate: handleSign,
@@ -58,12 +55,12 @@ export function AwaitingCurrentUserSignaturePanel({
     isSuccess,
     isPending,
   } = useMutation({
-    mutationFn: async (onBehalfOf: string) => {
+    mutationFn: async (onBehalfOf: string | null) => {
       if (instanceOwnerPartyId && instanceGuid) {
         return doPerformAction(
           instanceOwnerPartyId,
           instanceGuid,
-          { action: 'sign', onBehalfOf },
+          { action: 'sign', ...(onBehalfOf ? { onBehalfOf } : {}) },
           selectedLanguage,
           queryClient,
         );
@@ -72,7 +69,7 @@ export function AwaitingCurrentUserSignaturePanel({
   });
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
-  const [onBehalfOfOrg, setOnBehalfOfOrg] = useState('');
+  const [onBehalfOfOrg, setOnBehalfOfOrg] = useState<string | null>(null);
 
   // This shouldn't really happen, but if it does it indicates that our backend is out of sync with Autorisasjon somehow
   if (!canSign) {
@@ -117,46 +114,11 @@ export function AwaitingCurrentUserSignaturePanel({
       description={<Lang id={checkboxDescription} />}
       errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
     >
-      {(() => {
-        const numberOfOrganisations = authorizedOrganisationDetails?.organisations?.length;
-        const firstOrgName = authorizedOrganisationDetails?.organisations?.[0]?.orgName;
-
-        if (!numberOfOrganisations) {
-          return null;
-        }
-
-        if (numberOfOrganisations === 1) {
-          return (
-            <Heading
-              level={1}
-              size='2xs'
-            >
-              <Lang
-                id='signing.submit_panel_single_org_choice'
-                params={[firstOrgName]}
-              />
-            </Heading>
-          );
-        }
-
-        return (
-          <Fieldset
-            legend={<Lang id='signing.submit_panel_radio_group_legend' />}
-            description={<Lang id='signing.submit_panel_radio_group_description' />}
-            required={true}
-          >
-            {authorizedOrganisationDetails.organisations.map((org) => (
-              <RadioButton
-                value={org.orgNumber}
-                label={org.orgName}
-                name='onBehalfOf'
-                key={org.partyId}
-                onChange={handleChange}
-              />
-            ))}
-          </Fieldset>
-        );
-      })()}
+      <OnBehalfOfChooser
+        authorizedOrganisationDetails={authorizedOrganisationDetails}
+        onBehalfOfOrg={onBehalfOfOrg}
+        onChange={handleChange}
+      />
       <Checkbox
         value={String(confirmReadDocuments)}
         checked={confirmReadDocuments}
