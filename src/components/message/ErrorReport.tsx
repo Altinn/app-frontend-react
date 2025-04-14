@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
@@ -25,35 +25,46 @@ const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24
 </svg>`;
 const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardSvg)}")`;
 
+// It is possible to render multiple error reports inside each other. If that happens, we should detect it and only
+// render the outermost one. This may be a case in stateless apps, where you can have both validation errors and
+// instantiation errors at the same time.
+const ErrorReportContext = createContext(false);
+
 export const ErrorReport = ({ children, errors }: IErrorReportProps) => {
-  if (errors === undefined) {
+  const hasErrorReport = useContext(ErrorReportContext);
+  if (errors === undefined || hasErrorReport) {
     return children;
   }
 
   return (
-    <div data-testid='ErrorReport'>
-      <FullWidthWrapper isOnBottom={true}>
-        <Panel
-          title={<Lang id='form_filler.error_report_header' />}
-          variant={PANEL_VARIANT.Error}
-        >
-          <Flex
-            container
-            item
-            spacing={6}
-            alignItems='flex-start'
+    <ErrorReportContext.Provider value={true}>
+      <div
+        data-testid='ErrorReport'
+        className={classes.errorReport}
+      >
+        <FullWidthWrapper isOnBottom={true}>
+          <Panel
+            title={<Lang id='form_filler.error_report_header' />}
+            variant={PANEL_VARIANT.Error}
           >
             <Flex
+              container
               item
-              size={{ xs: 12 }}
+              spacing={6}
+              alignItems='flex-start'
             >
-              <ul className={classes.errorList}>{errors}</ul>
+              <Flex
+                item
+                size={{ xs: 12 }}
+              >
+                <ul className={classes.errorList}>{errors}</ul>
+              </Flex>
+              {children}
             </Flex>
-            {children}
-          </Flex>
-        </Panel>
-      </FullWidthWrapper>
-    </div>
+          </Panel>
+        </FullWidthWrapper>
+      </div>
+    </ErrorReportContext.Provider>
   );
 };
 
