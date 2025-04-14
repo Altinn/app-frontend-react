@@ -42,16 +42,16 @@ export function evaluateExpression(
   switch (operator) {
     case 'dataModel': {
       // Usage: ["dataModel", "someField"]
-
+      // debugger;
       const fieldName = params[0];
       if (!formData) {
         throw new Error('cannot use dataModel expression without data');
       }
 
-      const value = formData[fieldName];
+      // const value = formData[fieldName];
       // debugger;
 
-      return formData[fieldName];
+      return dot.pick(fieldName, formData); //formData[fieldName];
     }
 
     case 'component': {

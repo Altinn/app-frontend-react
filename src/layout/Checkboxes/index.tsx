@@ -32,14 +32,28 @@ export class Checkboxes extends CheckboxesDef {
   renderNext(component: CompIntermediateExact<'Checkboxes'>, commonProps: CommonProps): React.JSX.Element | null {
     const options = component.options || commonProps.options;
 
-    const [localOptions, setLocalOptions] = useState(options);
+    // const evaluateExpression = useStore(layoutStore, (state) => state.evaluateExpression);
 
-    // const updateOptions   () => {
+    const [localOptions, setLocalOptions] = useState<string[]>(
+      commonProps.currentValue ? commonProps.currentValue.split(',') : [],
+    );
+
+    // if (component.queryParameters) {
+    //   Object.entries(component.queryParameters).forEach((key, value) => {
+    //     console.log(key, value);
     //
+    //     const currentValue = evaluateExpression(value as unknown as Expression);
+    //
+    //     console.log(currentValue);
+    //   });
+    //
+    //   // component.queryParameters
     // }
 
     return (
       <div>
+        <pre>{JSON.stringify(component, null, 2)}</pre>
+
         <Checkbox.Group
           legend=''
           role='radiogroup'
@@ -50,8 +64,15 @@ export class Checkboxes extends CheckboxesDef {
               description={option.description}
               key={idx}
               onChange={(e) => {
-                // commonProps.onChange(e.target.value);
-                console.log(e.target.value);
+                let nextOptions: string[] = [];
+                if (localOptions?.includes(e.target.value)) {
+                  nextOptions = localOptions.filter((val) => val !== e.target.value);
+                } else {
+                  localOptions.forEach((val) => nextOptions.push(val));
+                  nextOptions.push(e.target.value);
+                }
+                commonProps.onChange(nextOptions.join(','));
+                setLocalOptions(nextOptions);
               }}
             >
               {option.label}

@@ -5,6 +5,7 @@ import { useShallow } from 'zustand/react/shallow';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
+import { CheckboxesNext } from 'src/next/components/CheckboxesNext/CheckboxesNext';
 import { Navbar } from 'src/next/components/navbar/Navbar';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext/RepeatingGroupNext';
 import { SummaryNext } from 'src/next/components/SummaryNext/SummaryNext';
@@ -77,12 +78,41 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
     }
   });
 
+  // if (component.type === 'Checkboxes' && component.queryParameters) {
+  //   Object.entries(component.queryParameters).forEach((key, value) => {
+  //     console.log(key, value);
+  //
+  //     const currentValue = evaluateExpression(value as unknown as Expression);
+  //
+  //     console.log(currentValue);
+  //   });
+  // }
+
   const textResource = useStore(textResourceStore, (state) =>
     component.textResourceBindings && component.textResourceBindings['title'] && state.textResource?.resources
       ? // @ts-ignore
-        state.textResource.resources.find((r) => r.id === component.textResourceBindings['title']) //dot.pick(component.textResourceBindings['title'], state.textResource)
+        state.textResource.resources.find((r) => r.id === component.textResourceBindings['title'])
       : undefined,
   );
+
+  const commonProps = {
+    onChange: (nextValue) => {
+      setBoundValue(component, nextValue, parentBinding, itemIndex, childField);
+    },
+    currentValue: value,
+    label: textResource?.value || undefined,
+    options: optionsFromStore,
+    pageOrder: order.pages.order,
+  };
+
+  if (component.type === 'Checkboxes') {
+    return (
+      <CheckboxesNext
+        component={component}
+        commonProps={commonProps}
+      />
+    );
+  }
 
   if (isHidden) {
     return (
@@ -126,15 +156,7 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
       size={{ xs: 12, ...component.grid?.innerGrid }}
       item
     >
-      {RenderComponent(component as unknown as CompIntermediateExact<Type>, {
-        onChange: (nextValue) => {
-          setBoundValue(component, nextValue, parentBinding, itemIndex, childField);
-        },
-        currentValue: value,
-        label: textResource?.value || undefined,
-        options: optionsFromStore,
-        pageOrder: order.pages.order,
-      })}
+      {RenderComponent(component as unknown as CompIntermediateExact<Type>, commonProps)}
     </Flex>
   );
 });

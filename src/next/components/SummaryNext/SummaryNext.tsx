@@ -44,8 +44,7 @@ interface SummaryNextProps extends RenderComponentType {
   summaryComponent: CompIntermediateExact<'Summary2'>;
 }
 
-export const SummaryNext: FunctionComponent<SummaryNextProps> = ({ component, summaryComponent }) => {
-  console.log('component', component);
+export const SummaryNext: FunctionComponent<SummaryNextProps> = ({ summaryComponent }) => {
   const { target } = summaryComponent;
   if (!target?.id) {
     return <LayoutSetSummaryNext />;

@@ -48,7 +48,6 @@ export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams
 }
 
 export async function instanceLoader({ params }: LoaderFunctionArgs<InstanceParams>) {
-  console.log('instance loader');
   const { partyId, instanceGuid } = params;
   if (!partyId || !instanceGuid) {
     throw new Error('partyId, instanceGuid should be set');

@@ -38,6 +38,8 @@ export const Task = () => {
       const settings = JSON.parse(data.settings);
       const layoutsJson = JSON.parse(data.layouts);
 
+      // If we have option components, we need to resolve an expression
+
       setPageOrder(settings);
       setLayouts(layoutsJson);
       setIsLoading(false);
