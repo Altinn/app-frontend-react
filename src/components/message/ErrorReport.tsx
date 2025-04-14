@@ -1,4 +1,6 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+import type { PropsWithChildren } from 'react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
@@ -7,15 +9,15 @@ import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { isAxiosError } from 'src/utils/isAxiosError';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { HttpStatusCodes } from 'src/utils/network/networking';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 
-export interface IErrorReportProps {
-  renderIds: string[];
-  formErrors: NodeRefValidation<AnyValidation<'error'>>[];
-  taskErrors: BaseValidation<'error'>[];
+export interface IErrorReportProps extends PropsWithChildren {
+  errors: React.ReactNode | undefined;
 }
 
 const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16px" style="position: relative; top: 2px">
@@ -23,12 +25,9 @@ const ArrowForwardSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24
 </svg>`;
 const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardSvg)}")`;
 
-export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportProps) => {
-  const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
-  const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
-
-  if (!hasErrors) {
-    return null;
+export const ErrorReport = ({ children, errors }: IErrorReportProps) => {
+  if (errors === undefined) {
+    return children;
   }
 
   return (
@@ -48,32 +47,9 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
               item
               size={{ xs: 12 }}
             >
-              <ul className={classes.errorList}>
-                {taskErrors.map((error) => (
-                  <li
-                    key={getUniqueKeyFromObject(error)}
-                    style={{ listStyleImage: listStyleImg }}
-                  >
-                    <Lang
-                      id={error.message.key}
-                      params={error.message.params}
-                    />
-                  </li>
-                ))}
-                {formErrors.map((error) => (
-                  <Error
-                    key={getUniqueKeyFromObject(error)}
-                    error={error}
-                  />
-                ))}
-              </ul>
+              <ul className={classes.errorList}>{errors}</ul>
             </Flex>
-            {renderIds.map((id) => (
-              <GenericComponentById
-                key={id}
-                id={id}
-              />
-            ))}
+            {children}
           </Flex>
         </Panel>
       </FullWidthWrapper>
@@ -81,7 +57,79 @@ export const ErrorReport = ({ renderIds, formErrors, taskErrors }: IErrorReportP
   );
 };
 
-function Error({ error }: { error: NodeRefValidation }) {
+function ErrorReportListItem({ children }: PropsWithChildren) {
+  return <li style={{ listStyleImage: listStyleImg }}>{children}</li>;
+}
+
+interface ErrorReportListProps {
+  formErrors: NodeRefValidation<AnyValidation<'error'>>[];
+  taskErrors: BaseValidation<'error'>[];
+}
+
+export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps) {
+  const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
+
+  return (
+    <>
+      {taskErrors.map((error) => (
+        <ErrorReportListItem key={getUniqueKeyFromObject(error)}>
+          <Lang
+            id={error.message.key}
+            params={error.message.params}
+          />
+        </ErrorReportListItem>
+      ))}
+      {formErrors.map((error) => (
+        <ErrorWithLink
+          key={getUniqueKeyFromObject(error)}
+          error={error}
+        />
+      ))}
+    </>
+  );
+}
+
+/**
+ * @see InstantiateContainer Contains somewhat similar logic, but for a full-screen error page.
+ */
+export function ErrorListFromInstantiation({ error }: { error: unknown }) {
+  const selectedParty = useCurrentParty();
+
+  if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const message = (error.response?.data as any)?.message;
+    if (message) {
+      return (
+        <ErrorReportListItem>
+          <Lang id={message} />
+        </ErrorReportListItem>
+      );
+    }
+    return (
+      <ErrorReportListItem>
+        <span>
+          <Lang
+            id='instantiate.authorization_error_rights'
+            params={[selectedParty?.name]}
+          />{' '}
+          (
+          <Link to='/party-selection/'>
+            <Lang id='party_selection.change_party' />
+          </Link>
+          ).
+        </span>
+      </ErrorReportListItem>
+    );
+  }
+
+  return (
+    <ErrorReportListItem>
+      <Lang id='instantiate.unknown_error_text' />
+    </ErrorReportListItem>
+  );
+}
+
+function ErrorWithLink({ error }: { error: NodeRefValidation }) {
   const node = useNode(error.nodeId);
   const navigateTo = useNavigateToNode();
   const isHidden = Hidden.useIsHidden(node);
@@ -100,7 +148,7 @@ function Error({ error }: { error: NodeRefValidation }) {
   };
 
   return (
-    <li style={{ listStyleImage: listStyleImg }}>
+    <ErrorReportListItem>
       <button
         className={classes.buttonAsInvisibleLink}
         onClick={handleErrorClick}
@@ -112,6 +160,6 @@ function Error({ error }: { error: NodeRefValidation }) {
           node={node}
         />
       </button>
-    </li>
+    </ErrorReportListItem>
   );
 }

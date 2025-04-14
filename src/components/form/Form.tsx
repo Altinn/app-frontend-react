@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
-import { ErrorReport } from 'src/components/message/ErrorReport';
+import { ErrorReport, ErrorReportList } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
@@ -114,18 +114,30 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
             id={id}
           />
         ))}
-        <Flex
-          item={true}
-          size={{ xs: 12 }}
-          aria-live='polite'
-          className={classes.errorReport}
-        >
-          <ErrorReport
-            renderIds={errorReportIds}
-            formErrors={formErrors}
-            taskErrors={taskErrors}
-          />
-        </Flex>
+        {formErrors.length > 0 || taskErrors.length > 0 ? (
+          <Flex
+            item={true}
+            size={{ xs: 12 }}
+            aria-live='polite'
+            className={classes.errorReport}
+          >
+            <ErrorReport
+              errors={
+                <ErrorReportList
+                  formErrors={formErrors}
+                  taskErrors={taskErrors}
+                />
+              }
+            >
+              {errorReportIds.map((id) => (
+                <GenericComponentById
+                  key={id}
+                  id={id}
+                />
+              ))}
+            </ErrorReport>
+          </Flex>
+        ) : null}
       </Flex>
       <ReadyForPrint type='load' />
       <HandleNavigationFocusComponent />
