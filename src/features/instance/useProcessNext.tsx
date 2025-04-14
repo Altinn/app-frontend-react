@@ -1,12 +1,13 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useDisplayError } from 'src/core/errorHandling/DisplayErrorProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instance/InstanceContext';
 import { useReFetchProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
@@ -40,6 +41,7 @@ export function useProcessNext() {
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
   const displayError = useDisplayError();
+  const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
@@ -69,6 +71,7 @@ export function useProcessNext() {
       if (processData) {
         await reFetchInstanceData();
         await refetchProcessData?.();
+        await invalidateFormDataQueries(queryClient);
         navigateToTask(processData?.currentTask?.elementId);
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible

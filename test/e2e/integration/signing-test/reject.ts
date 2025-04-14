@@ -30,7 +30,15 @@ describe('Rejecting a signing task', () => {
     cy.get(appFrontend.signingTest.rejectButton).click();
     cy.get(appFrontend.signingTest.incomeField).should('be.visible');
 
+    // Deleting a repeating group row failed before: https://github.com/Altinn/app-frontend-react/issues/3245
     cy.get('tbody tr').should('have.length', 2);
     cy.findByRole('button', { name: /slett-varesalg/i }).click();
+    cy.get('tbody tr').should('have.length', 1);
+    cy.get(appFrontend.signingTest.submitButton).click();
+
+    cy.get(appFrontend.signingTest.managerConfirmPanel).should('be.visible');
+    cy.get(appFrontend.signingTest.incomeSummary).should('contain.text', '84 567 000 NOK');
+    cy.findByTestId('summary-repeating-row').should('have.length', 1);
+    cy.findByTestId('summary-repeating-row').should('contain.text', 'Kryptosvindel');
   });
 });

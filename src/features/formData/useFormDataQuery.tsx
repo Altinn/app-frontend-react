@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 import type { AxiosRequestConfig } from 'axios';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -42,6 +43,10 @@ export function useFormDataQueryKey(url: string | undefined) {
 
 export function getFormDataQueryKey(url: string | undefined) {
   return ['fetchFormData', getFormDataCacheKeyUrl(url)];
+}
+
+export async function invalidateFormDataQueries(queryClient: QueryClient) {
+  await queryClient.invalidateQueries({ queryKey: ['fetchFormData'] });
 }
 
 export function useFormDataQueryOptions() {
