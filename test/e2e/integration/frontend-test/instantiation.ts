@@ -17,6 +17,8 @@ describe('Instantiation', () => {
     });
     cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'manager' });
     cy.findByRole('button', { name: invalidParty }).click();
+
+    cy.findByText('Du kan ikke starte denne tjenesten').should('be.visible');
     assertErrorMessage();
   });
 
@@ -34,11 +36,12 @@ describe('Instantiation', () => {
 
     cy.findByText('Du har allerede startet å fylle ut dette skjemaet.').should('be.visible');
     cy.findByRole('button', { name: 'Start på nytt' }).click();
+
     assertErrorMessage();
+    cy.findByText('Du kan ikke starte denne tjenesten').should('not.exist');
   });
 
   function assertErrorMessage() {
-    cy.findByText('Du kan ikke starte denne tjenesten').should('be.visible');
     cy.findByText(
       /Aktøren du valgte kan ikke opprette en instans av dette skjemaet. Dette er en egendefinert feilmelding for akkurat denne appen./,
     ).should('be.visible');
