@@ -9,7 +9,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { TaskKeys } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
 import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
@@ -34,8 +34,25 @@ export function ProcessProvider({ children }: PropsWithChildren) {
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;
+  const taskId = useNavigationParam('taskId');
+  const layoutSets = useLayoutSets();
+  const navigateToTask = useNavigateToTask();
 
   const { isLoading, data, error, refetch } = useQuery<IProcess, HttpClientError>(getProcessQueryDef(instanceId));
+
+  const ended = data?.ended;
+  useEffect(() => {
+    if (ended) {
+      // Catch cases where there is a custom receipt, but we've navigated
+      // to the wrong one (i.e. mocking in all-process-steps.ts)
+      const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
+      if (taskId === TaskKeys.ProcessEnd && hasCustomReceipt) {
+        navigateToTask(TaskKeys.CustomReceipt);
+      } else if (taskId === TaskKeys.CustomReceipt && !hasCustomReceipt) {
+        navigateToTask(TaskKeys.ProcessEnd);
+      }
+    }
+  }, [ended, layoutSets, navigateToTask, taskId]);
 
   useEffect(() => {
     error && window.logError('Fetching process state failed:\n', error);
