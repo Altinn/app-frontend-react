@@ -66,15 +66,15 @@ export function SigneeListSummary({ componentNode, titleOverride }: SigneeListSu
       <ul className={classes.signeeList}>
         {signatures.map((item, index) => (
           <li
-            key={`${item.name}-${item.organisation}-${item.signedTime}`}
+            key={`${item.name}-${item.organization}-${item.signedTime}`}
             className={classes.signeeListItem}
           >
             <Paragraph key={index}>
               {item.name ?? <Lang id='signee_list_summary.name_placeholder' />}
-              {item.organisation && (
+              {item.organization && (
                 <>
                   , <Lang id='signee_list_summary.on_behalf_of' />
-                  {` ${item.organisation}`}
+                  {` ${item.organization}`}
                 </>
               )}
             </Paragraph>

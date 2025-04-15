@@ -18,7 +18,7 @@ describe('fetchSigneeList', () => {
       signeeStates: [
         {
           name: '',
-          organisation: 'ACME',
+          organization: 'ACME',
           signedTime,
           hasSigned: true,
           delegationSuccessful: true,
@@ -27,7 +27,7 @@ describe('fetchSigneeList', () => {
         },
         {
           name: 'Jane Doe',
-          organisation: 'ACME',
+          organization: 'ACME',
           signedTime: null,
           hasSigned: false,
           delegationSuccessful: false,
@@ -42,7 +42,7 @@ describe('fetchSigneeList', () => {
     expect(result).toEqual([
       {
         name: null,
-        organisation: 'ACME',
+        organization: 'ACME',
         signedTime,
         hasSigned: true,
         delegationSuccessful: true,
@@ -51,7 +51,7 @@ describe('fetchSigneeList', () => {
       },
       {
         name: 'Jane Doe',
-        organisation: 'ACME',
+        organization: 'ACME',
         signedTime: null,
         hasSigned: false,
         delegationSuccessful: false,
@@ -66,7 +66,7 @@ describe('fetchSigneeList', () => {
       signeeStates: [
         {
           name: '',
-          organisation: 'ACME',
+          organization: 'ACME',
         },
       ],
     });
@@ -75,12 +75,12 @@ describe('fetchSigneeList', () => {
     return fetchSigneeList(partyId, instanceGuid).catch((error) => expect(error).toBeInstanceOf(ZodError));
   });
 
-  it('should throw error if name and organisation is missing/empty', async () => {
+  it('should throw error if name and organization is missing/empty', async () => {
     mockedGet.mockResolvedValue({
       signeeStates: [
         {
           name: '',
-          organisation: '',
+          organization: '',
           hasSigned: true,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Failed,
@@ -108,7 +108,7 @@ describe('fetchSigneeList', () => {
       signeeStates: [
         {
           name: 'Sylvester Stallone',
-          organisation: 'ACME',
+          organization: 'ACME',
           signedTime,
           hasSigned: true,
           delegationSuccessful: true,
@@ -117,7 +117,7 @@ describe('fetchSigneeList', () => {
         },
         {
           name: 'Mary Jane',
-          organisation: 'ACME',
+          organization: 'ACME',
           signedTime: null,
           hasSigned: false,
           delegationSuccessful: false,
@@ -131,7 +131,7 @@ describe('fetchSigneeList', () => {
     expect(result).toEqual([
       {
         name: 'Mary Jane',
-        organisation: 'ACME',
+        organization: 'ACME',
         signedTime: null,
         hasSigned: false,
         delegationSuccessful: false,
@@ -140,7 +140,7 @@ describe('fetchSigneeList', () => {
       },
       {
         name: 'Sylvester Stallone',
-        organisation: 'ACME',
+        organization: 'ACME',
         signedTime,
         hasSigned: true,
         delegationSuccessful: true,

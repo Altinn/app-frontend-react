@@ -15,7 +15,7 @@ describe('SigneeStateTag', () => {
       <SigneeStateTag
         state={{
           name: null,
-          organisation: null,
+          organization: null,
           hasSigned: true,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Sent,
@@ -33,7 +33,7 @@ describe('SigneeStateTag', () => {
       <SigneeStateTag
         state={{
           name: null,
-          organisation: null,
+          organization: null,
           hasSigned: false,
           delegationSuccessful: false,
           notificationStatus: NotificationStatus.NotSent,
@@ -51,7 +51,7 @@ describe('SigneeStateTag', () => {
       <SigneeStateTag
         state={{
           name: null,
-          organisation: null,
+          organization: null,
           hasSigned: false,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Failed,
@@ -69,7 +69,7 @@ describe('SigneeStateTag', () => {
       <SigneeStateTag
         state={{
           name: null,
-          organisation: null,
+          organization: null,
           hasSigned: false,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Sent,

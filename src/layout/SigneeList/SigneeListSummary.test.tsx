@@ -122,7 +122,7 @@ describe('SigneeListSummary', () => {
       data: [
         {
           name: 'Signee 1',
-          organisation: null,
+          organization: null,
           partyId: 1,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.NotSent,
@@ -131,7 +131,7 @@ describe('SigneeListSummary', () => {
         },
         {
           name: 'Signee 2',
-          organisation: "Signee 2's organisation",
+          organization: "Signee 2's organization",
           partyId: 2,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Sent,
@@ -140,7 +140,7 @@ describe('SigneeListSummary', () => {
         },
         {
           name: 'Signee 3',
-          organisation: "Signee 3's organisation",
+          organization: "Signee 3's organization",
           partyId: 3,
           delegationSuccessful: true,
           notificationStatus: NotificationStatus.Failed,
@@ -164,7 +164,7 @@ describe('SigneeListSummary', () => {
     expect(mockedUseQuery).toHaveBeenCalledTimes(1);
     screen.getByText('title');
     screen.getByText('Signee 1');
-    screen.getByText("Signee 2, signee_list_summary.on_behalf_of Signee 2's organisation");
+    screen.getByText("Signee 2, signee_list_summary.on_behalf_of Signee 2's organization");
     expect(screen.queryByText(/Signee 3/i)).not.toBeInTheDocument();
   });
 

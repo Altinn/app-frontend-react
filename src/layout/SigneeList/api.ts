@@ -23,16 +23,16 @@ const signeeStateSchema = z
       .string()
       .nullish()
       .transform((name) => (name ? makePascalCase(name) : null)),
-    organisation: z
+    organization: z
       .string()
       .nullish()
-      .transform((organisation) => (organisation ? makePascalCase(organisation) : null)),
+      .transform((organization) => (organization ? makePascalCase(organization) : null)),
     signedTime: z.string().datetime().nullable(),
     delegationSuccessful: z.boolean(),
     notificationStatus: z.nativeEnum(NotificationStatus),
     partyId: z.number(),
   })
-  .refine(({ name, organisation }) => name || organisation, 'Either name or organisation must be present.')
+  .refine(({ name, organization }) => name || organization, 'Either name or organization must be present.')
   .transform((it) => ({ ...it, hasSigned: !!it.signedTime }));
 
 export type SigneeState = z.infer<typeof signeeStateSchema>;
