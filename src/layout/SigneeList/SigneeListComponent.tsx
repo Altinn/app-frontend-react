@@ -54,7 +54,7 @@ export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeL
         },
         {
           header: langAsString('signee_list.header_on_behalf_of'),
-          accessors: ['organisation'],
+          accessors: ['organization'],
           renderCell: (value) => value.toString(),
         },
         {

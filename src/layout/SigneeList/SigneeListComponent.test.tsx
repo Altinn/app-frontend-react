@@ -30,7 +30,7 @@ jest.mock('src/layout/SigneeList/SigneeListError');
 const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
   {
     name: 'name',
-    organisation: 'organisation',
+    organization: 'organization',
     hasSigned: true,
     delegationSuccessful: true,
     notificationStatus: NotificationStatus.Sent,
@@ -39,7 +39,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
   },
   {
     name: 'name2',
-    organisation: 'organisation2',
+    organization: 'organization2',
     hasSigned: false,
     delegationSuccessful: false,
     notificationStatus: NotificationStatus.Failed,
@@ -48,7 +48,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
   },
   {
     name: 'name3',
-    organisation: 'organisation3',
+    organization: 'organization3',
     hasSigned: false,
     delegationSuccessful: true,
     notificationStatus: NotificationStatus.Failed,
@@ -57,7 +57,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
   },
   {
     name: 'name4',
-    organisation: 'organisation4',
+    organization: 'organization4',
     hasSigned: false,
     delegationSuccessful: true,
     notificationStatus: NotificationStatus.NotSent,
@@ -115,10 +115,10 @@ describe('SigneeListComponent', () => {
 
     expect(screen.getAllByRole('row')).toHaveLength(5);
 
-    screen.getByRole('row', { name: 'name organisation signee_list.signee_status_signed' });
-    screen.getByRole('row', { name: 'name2 organisation2 signee_list.signee_status_delegation_failed' });
-    screen.getByRole('row', { name: 'name3 organisation3 signee_list.signee_status_notification_failed' });
-    screen.getByRole('row', { name: 'name4 organisation4 signee_list.signee_status_waiting' });
+    screen.getByRole('row', { name: 'name organization signee_list.signee_status_signed' });
+    screen.getByRole('row', { name: 'name2 organization2 signee_list.signee_status_delegation_failed' });
+    screen.getByRole('row', { name: 'name3 organization3 signee_list.signee_status_notification_failed' });
+    screen.getByRole('row', { name: 'name4 organization4 signee_list.signee_status_waiting' });
   });
 
   it('should render error message when API call fails', () => {
