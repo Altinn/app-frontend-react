@@ -89,8 +89,7 @@ export function en() {
       file_uploader_list_header_status: 'Status',
       file_uploader_list_header_delete_sr: 'Delete',
       file_uploader_list_status_done: 'Uploaded',
-      file_uploader_max_size: 'Maximum file size',
-      file_uploader_mb: 'MB',
+      file_uploader_max_size_mb: 'Maximum file size {0} MB',
       file_uploader_upload: 'Upload file',
       file_uploader_number_of_files: 'Number of files {0}.',
       file_uploader_show_more_errors: 'Show {0} more',
@@ -157,8 +156,10 @@ export function en() {
       create_new: 'Create new',
       create: 'Create',
       customer_service_phone_number: '+47 75 00 60 00',
-      customer_service_slack: 'https://altinn.slack.com/',
+      customer_service_slack: 'https://altinn.slack.com',
       customer_service_email: 'servicedesk@altinn.no',
+      customer_service_error_message:
+        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/><ul><li>Phone: <a href="tel:{0}">{0}</a></li><li>Email: {1}</li><li>Slack: {2}</li></ul>',
       delete: 'Delete',
       download: 'Download {0}',
       disabled: 'Disabled',
@@ -167,6 +168,7 @@ export function en() {
       edit_alt: 'Edit',
       edit: 'Edit',
       empty_summary: 'You have not entered any information here',
+      empty_table: 'No data found.',
       enabled: 'Enabled',
       error_message_with_colon: 'Error message:',
       full_width: 'Expand width',
@@ -355,6 +357,85 @@ export function en() {
       validation_invalid_response_from_server: 'An error occurred. Please try again later.',
       unknown_error: 'An unknown error occurred. Please try again later.',
     },
+    signing: {
+      loading: 'Loading signing state...',
+      checkbox_label: 'I confirm that the information and documents are correct.',
+      awaiting_signature_panel_title: 'Sign the form',
+      sign_button: 'Sign the form',
+
+      submit_panel_title: 'You can now submit the form',
+      submit_panel_description: 'All parties have signed! Select "{0}" to complete.',
+      submit_button: 'Submit form',
+
+      submit_panel_radio_group_legend: 'Who do you want to sign on behalf of?',
+      submit_panel_radio_group_description: 'The following are parties you may sign on behalf of.',
+      submit_panel_single_org_choice: 'You are signing on behalf of {0}.',
+
+      awaiting_other_signatures_panel_title: 'Waiting for signatures',
+      awaiting_other_signatures_panel_description_not_signing: 'You can submit the form when all parties have signed.',
+      awaiting_other_signatures_panel_description_signed:
+        'Thank you for signing! You can submit the form when all parties have signed.',
+
+      no_action_required_panel_title_has_signed: 'You have signed the form',
+      no_action_required_panel_title_not_signed: 'Nothing to sign',
+      no_action_required_panel_description_has_signed: "You're all set! You can now go back to your inbox.",
+      no_action_required_panel_description_not_signed: 'You do not have access to sign this form.',
+      no_action_required_button: 'Go to inbox',
+
+      api_error_panel_title: 'Could not fetch signing status',
+      api_error_panel_description:
+        'An error occurred while retrieving the status of signatures. Please try again later or contact the form owner to resolve the issue.',
+
+      delegation_error_panel_title: 'Could not grant access to form',
+      delegation_error_panel_description:
+        'One or more of the signees are invalid and have not been granted access to the form. Go back to try to correct the issue or contact the form owner.',
+
+      reject_modal_title: 'Cancel the signing process',
+      reject_modal_description:
+        'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',
+      reject_modal_button: 'Cancel the signing process',
+      reject_modal_trigger_button: 'Cancel signing',
+
+      wrong_task_error: 'The {0} component is only available in a signing task.',
+      error_missing_signing_rights:
+        'Something went wrong. Current user should sign, but does not have rights to do so.',
+      error_signing: 'Something went wrong when signing. Please try again.',
+    },
+    signee_list: {
+      parse_error: 'Error loading signee list.',
+      unknown_api_error: 'An error occurred when fetching signees.',
+      api_error_display: 'An error occurred when fetching signees. See devtool logs for more information.',
+      no_signees: 'No signees found.',
+      signee_status_signed: 'Signed',
+      signee_status_waiting: 'Waiting for signing',
+      signee_status_delegation_failed: 'Delegation failed',
+      signee_status_notification_failed: 'Notification failed',
+      header_name: 'Name',
+      header_on_behalf_of: 'On behalf of',
+      header_status: 'Status',
+    },
+    signee_list_summary: {
+      name_placeholder: 'Unknown name',
+      on_behalf_of: 'on behalf of',
+      loading: 'Loading signature data...',
+      error: 'Failed to load signature data.',
+      no_data: 'No signature data found.',
+      no_signatures: 'No signatures found.',
+      signed_time: 'Digitally signed through Altinn {0}',
+    },
+    signing_document_list: {
+      parse_error: 'Error loading signee document list.',
+      unknown_api_error: 'An error occurred when fetching documents.',
+      api_error_display: 'An error occurred when fetching documents. See devtool logs for more information.',
+      header_filename: 'Name',
+      header_attachment_type: 'Attachment type',
+      header_size: 'Size',
+      attachment_type_form: 'Form',
+      download: 'Download',
+    },
+    signing_document_list_summary: {
+      header: 'Signed documents',
+    },
     helptext: {
       button_title: 'Help',
       button_title_prefix: 'Helptext for',
@@ -425,8 +506,6 @@ export function en() {
       nextPageAriaLabel: 'Next page in the table',
     },
     config_error: {
-      layoutset_subform_config_error_customer_support:
-        'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/><ul><li>Phone: <a href="tel:{0}">{0}</a></li><li>Email: {1}</li><li>Slack: {2}</li></ul>',
       layoutset_subform_config_error:
         'Layout set with id <strong>{0}</strong> is configured incorrectly.<br /><br />The layout set cannot have both <strong>type</strong> <em>and</em> <strong>tasks</strong> defined.',
       layoutset_error: 'Layout set error',
