@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import type { ChangeEvent } from 'react';
 
@@ -70,6 +70,14 @@ export function AwaitingCurrentUserSignaturePanel({
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
   const [onBehalfOfOrg, setOnBehalfOfOrg] = useState<string | null>(null);
+
+  // Set the organization number automatically when there's only one organization
+  useEffect(() => {
+    if (authorizedOrganisationDetails?.organisations?.length === 1) {
+      const singleOrg = authorizedOrganisationDetails.organisations[0];
+      setOnBehalfOfOrg(singleOrg.orgNumber);
+    }
+  }, [authorizedOrganisationDetails]);
 
   // This shouldn't really happen, but if it does it indicates that our backend is out of sync with Autorisasjon somehow
   if (!canSign) {
