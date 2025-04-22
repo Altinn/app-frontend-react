@@ -85,17 +85,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
   );
 };
 
-function TabHeader({
-  id,
-  title,
-  icon,
-  isActive,
-}: {
-  id: string;
-  title: string;
-  icon: string | undefined;
-  isActive?: boolean;
-}) {
+function TabHeader({ id, title, icon }: { id: string; title: string; icon: string | undefined; isActive?: boolean }) {
   const { langAsString } = useLanguage();
   const translatedTitle = langAsString(title);
 

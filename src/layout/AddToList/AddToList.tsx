@@ -50,7 +50,6 @@ export function AddToListModal({
   onChange,
   initialData,
   dataModelReference,
-  backdropClose,
   onClose,
   modalRef,
   DropdownCaption,
