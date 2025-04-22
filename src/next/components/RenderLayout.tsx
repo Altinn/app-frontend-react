@@ -14,6 +14,17 @@ interface RenderLayoutType {
   itemIndex?: number;
 }
 
+const getBinding = (component: ResolvedCompExternal): string | undefined => {
+  if (component.type === 'RepeatingGroup') {
+    // @ts-ignore
+    return component.dataModelBindings['group'];
+  }
+
+  return component.dataModelBindings && component.dataModelBindings['simpleBinding']
+    ? component.dataModelBindings['simpleBinding']
+    : undefined;
+};
+
 export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ components, parentBinding, itemIndex }) => {
   if (!components) {
     return null;
@@ -26,10 +37,13 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
       alignItems='flex-start'
     >
       {components.map((currentComponent) => {
-        const childMapping = currentComponent.dataModelBindings
-          ? currentComponent.dataModelBindings['simpleBinding']
-          : '';
-        const childField = childMapping ? childMapping.replace(parentBinding, '') : undefined;
+        // const childMapping = currentComponent.dataModelBindings
+        //   ? currentComponent.dataModelBindings['simpleBinding']
+        //   : '';
+
+        const childMapping = getBinding(currentComponent);
+
+        const childField = childMapping && parentBinding ? childMapping.replace(parentBinding, '') : undefined;
         const id = `item-${currentComponent.id}`;
 
         return (
@@ -43,6 +57,14 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
             key={`grid-${id}`}
             className={classNames(classes.container, gridToClasses(currentComponent.grid?.labelGrid, classes))}
           >
+            {/*<pre>{JSON.stringify(currentComponent.type, null, 2)}</pre>*/}
+            {/*<h4>Here comes the layout</h4>*/}
+
+            {/*<ul>*/}
+            {/*  <li>childMapping: {childMapping}</li>*/}
+            {/*  <li>childField: {childField}</li>*/}
+            {/*</ul>*/}
+
             <RenderComponent
               component={currentComponent}
               parentBinding={parentBinding}

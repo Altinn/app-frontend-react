@@ -218,7 +218,7 @@ export const layoutStore = createStore<Layouts>()(
           return errors;
         },
 
-        getBoundValue: (component, parentBinding, itemIndex, childField) => {
+        getBoundValue: (component, parentBinding, itemIndex, _) => {
           const data = get().data;
           if (!data) {
             return undefined;
@@ -229,18 +229,29 @@ export const layoutStore = createStore<Layouts>()(
           if (!simple) {
             return undefined;
           }
-          const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
+
+          const splittedBinding = simple ? simple.split('.') : [];
+
+          const binding =
+            parentBinding !== undefined
+              ? `${parentBinding}[${itemIndex}].${splittedBinding[splittedBinding.length - 1] || ''}`
+              : simple;
 
           return dot.pick(binding, data);
         },
-        setBoundValue: (component, newValue, parentBinding, itemIndex, childField) => {
+        setBoundValue: (component, newValue, parentBinding, itemIndex, _) => {
           // @ts-ignore
           const simple = component.dataModelBindings?.simpleBinding;
           if (!simple) {
             return;
           }
 
-          const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
+          const splittedBinding = simple ? simple.split('.') : [];
+
+          const binding =
+            parentBinding !== undefined
+              ? `${parentBinding}[${itemIndex}].${splittedBinding[splittedBinding.length - 1] || ''}`
+              : simple;
 
           set((state) => {
             if (!state.data) {

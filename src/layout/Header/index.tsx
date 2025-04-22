@@ -29,6 +29,11 @@ export class Header extends HeaderDef {
   }
 
   renderNext(props: CompIntermediateExact<'Header'>, commonProps: CommonProps): React.JSX.Element | null {
+    // debugger;
+    // if (!commonProps.label) {
+    //   debugger;
+    // }
+
     return (
       <Heading
         id={props.id}

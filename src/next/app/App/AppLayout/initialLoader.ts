@@ -101,11 +101,9 @@ export async function initialLoader() {
     layoutStore.getState().setLayoutSets(data);
   }
 
-  if (user.profileSettingPreference.language) {
-    const res = await API_CLIENT.org.v1TextsDetail(ORG, APP, user.profileSettingPreference.language);
-    const data = await res.json();
-    textResourceStore.setState({ textResource: data });
-  }
+  const langRes = await API_CLIENT.org.v1TextsDetail(ORG, APP, user.profileSettingPreference.language ?? 'nb');
+  const data = await langRes.json();
+  textResourceStore.setState({ textResource: data });
 
   return { instanceId };
 }
