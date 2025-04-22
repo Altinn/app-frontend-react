@@ -3,6 +3,7 @@ import escapeRegex from 'escape-string-regexp';
 import type { SinonSpy } from 'cypress/types/sinon';
 
 import { type CyUser, cyUserCredentials } from 'test/e2e/support/auth';
+import { tenorLogin } from 'test/e2e/support/tenor-auth';
 
 function login(user: CyUser, authenticationLevel: string = '1') {
   cy.clearCookies();
@@ -63,10 +64,13 @@ function tt02_loginSelfIdentified(user: string, pwd: string) {
 }
 
 Cypress.Commands.add('startAppInstance', (appName, options) => {
-  const { user = 'default', evaluateBefore, urlSuffix = '', authenticationLevel } = options || {};
+  const { user = 'default', tenorUser = null, evaluateBefore, urlSuffix = '', authenticationLevel } = options || {};
   const env = dotenv.config().parsed || {};
   cy.log(`Starting app instance: ${appName}`);
-  if (user) {
+
+  if (tenorUser) {
+    cy.log(`Logging in as Tenor user: ${tenorUser.name}`);
+  } else if (user) {
     cy.log(`Logging in as user: ${user}`);
   }
 
@@ -153,10 +157,18 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
     throw new Error('Requested asset from altinncdn.no, our rewrite code is apparently not working, aborting test');
   });
 
-  user && login(user, authenticationLevel);
-  !user && cy.clearCookies();
-
-  cy.visit(targetUrlRaw, visitOptions);
+  if (tenorUser) {
+    // For Tenor users, we need to visit the page first without a user
+    tenorLogin(appName, tenorUser, options);
+  } else if (user) {
+    // Use standard login
+    login(user, authenticationLevel);
+    cy.visit(targetUrlRaw, visitOptions);
+  } else {
+    // No user provided
+    cy.clearCookies();
+    cy.visit(targetUrlRaw, visitOptions);
+  }
 
   if (evaluateBefore) {
     cy.get('#cy-evaluating-js').should('not.exist');

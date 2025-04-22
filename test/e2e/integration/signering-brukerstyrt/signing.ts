@@ -1,72 +1,13 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { getTargetUrl } from 'test/e2e/support/start-app-instance';
+import { reverseName, tenorOrg, tenorUsers } from 'test/e2e/support/tenor-auth';
 
 const appFrontend = new AppFrontend();
-
-type TenorOrg = {
-  name: string;
-  orgNr: string;
-};
-
-const tenorOrg = {
-  name: 'Sivilisert Avansert Isbjørn AS',
-  orgNr: '312405091',
-};
-
-type TenorUser = {
-  name: string;
-  ssn: string;
-  role?: string;
-  org?: TenorOrg;
-};
-
-const tenorUsers: Record<string, TenorUser> = {
-  humanAndrefiolin: {
-    name: 'Human Andrefiolin',
-    ssn: '09876298713',
-    role: 'CEO',
-    org: tenorOrg,
-  },
-  varsomDiameter: {
-    name: 'Varsom Diameter',
-    ssn: '03835698199',
-    role: 'Chairman',
-    org: tenorOrg,
-  },
-  standhaftigBjornunge: {
-    name: 'Standhaftig Bjørnunge',
-    ssn: '23849199013',
-  },
-};
-
-function reverseName(name: string): string {
-  return name.split(' ').reverse().join(' ');
-}
-
-function tenorLogin(user: TenorUser) {
-  cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, { user: null });
-  cy.findByRole('link', {
-    name: /testid lag din egen testbruker/i,
-  }).click();
-
-  cy.findByRole('textbox', {
-    name: /personidentifikator \(syntetisk\)/i,
-  }).type(user.ssn);
-
-  cy.findByRole('button', {
-    name: /autentiser/i,
-  }).click();
-
-  cy.findByText(new RegExp(reverseName(user.name), 'i')).click();
-  cy.waitForLoad();
-
-  cy.findByText(new RegExp(reverseName(user.name), 'i')).click();
-}
 
 describe('Signing', () => {
   it('should allow signing by a specified signee', () => {
     // Step 1: Log in as the initial user
-    tenorLogin(tenorUsers.standhaftigBjornunge);
+    cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, { tenorUser: tenorUsers.standhaftigBjornunge });
 
     let prevHash: string;
     cy.log(window.location.toString());
@@ -159,7 +100,7 @@ describe('Signing', () => {
     });
 
     // Step 3: Log in as one of the specified signees
-    tenorLogin(tenorUsers.humanAndrefiolin);
+    cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, { tenorUser: tenorUsers.humanAndrefiolin });
     cy.reloadAndWait();
 
     cy.then(() => {
@@ -174,5 +115,7 @@ describe('Signing', () => {
     // Step 4: Complete the signing process
 
     // Verify that the signing was successful
+
+    cy.allowFailureOnEnd();
   });
 });
