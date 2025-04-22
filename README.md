@@ -1,5 +1,7 @@
 # Altinn 3 app frontend
 
+This is a test
+
 This is the default frontend for Altinn 3 apps developed in Altinn Studio
 (visit [altinn.studio](https://altinn.studio) or see the [code repository](https://github.com/Altinn/altinn-studio)).
 
