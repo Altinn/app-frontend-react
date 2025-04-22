@@ -1,11 +1,12 @@
 import React from 'react';
 import { toast } from 'react-toastify';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instance/InstanceContext';
 import { useReFetchProcessData } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
@@ -15,7 +16,7 @@ import { appSupportsIncrementalValidationFeatures } from 'src/features/validatio
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
-import { useNavigateToTask } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
@@ -38,6 +39,7 @@ export function useProcessNext() {
   const setShowAllBackendErrors = Validation.useSetShowAllBackendErrors();
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
+  const queryClient = useQueryClient();
 
   const { mutateAsync } = useMutation({
     mutationFn: async ({ action }: ProcessNextProps = {}) => {
@@ -67,7 +69,10 @@ export function useProcessNext() {
       if (processData) {
         await reFetchInstanceData();
         await refetchProcessData?.();
-        navigateToTask(processData?.currentTask?.elementId);
+        await invalidateFormDataQueries(queryClient);
+        navigateToTask(
+          processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId,
+        );
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues, !appSupportsIncrementalValidationFeatures(applicationMetadata));
