@@ -8,6 +8,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | undefined;
 export type ButtonColor = 'first' | 'second' | 'success' | 'danger' | undefined;
+export type TextAlign = 'left' | 'center' | 'right';
 
 export type ButtonProps = {
   variant?: ButtonVariant;
@@ -16,6 +17,7 @@ export type ButtonProps = {
   size?: 'sm' | 'md' | 'lg';
   className?: string;
   fullWidth?: boolean;
+  textAlign?: TextAlign;
 } & Pick<
   DesignSystemButtonProps,
   | 'id'
@@ -56,6 +58,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
     onMouseDown,
     onKeyUp,
     asChild,
+    textAlign,
     'aria-label': ariaLabel,
     'aria-busy': ariaBusy,
     'aria-controls': ariaControls,
@@ -67,6 +70,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
   ref,
 ) {
   const { langAsString } = useLanguage();
+  const expandedStyle = { ...style, justifyContent: textAlign ? textAlign : undefined };
   return (
     <DesignSystemButton
       id={id}
@@ -80,7 +84,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
       title={title}
       icon={icon}
       onClick={onClick}
-      style={style}
+      style={expandedStyle}
       tabIndex={tabIndex}
       onMouseDown={onMouseDown}
       onKeyUp={onKeyUp}
