@@ -85,6 +85,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
           <ComponentStructureWrapper node={node}>
             <EXPERIMENTAL_MultiSuggestion
               id={id}
+              data-testid='multiple-select-component'
               filter={optionFilter}
               data-size='sm'
               value={selectedValues}
