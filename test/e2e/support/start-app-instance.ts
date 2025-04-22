@@ -2,8 +2,7 @@ import dotenv from 'dotenv';
 import escapeRegex from 'escape-string-regexp';
 import type { SinonSpy } from 'cypress/types/sinon';
 
-import { cyUserCredentials } from 'test/e2e/support/auth';
-import type { CyUser } from 'test/e2e/support/auth';
+import { type CyUser, cyUserCredentials } from 'test/e2e/support/auth';
 
 function login(user: CyUser, authenticationLevel: string = '1') {
   cy.clearCookies();
