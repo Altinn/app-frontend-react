@@ -24,7 +24,7 @@ exports[`SummaryRepeatingGroup SummaryRepeatingGroup -- should match snapshot 1`
       <button
         aria-label="Change: Mock group"
         class="ds-button editButton"
-        color="second"
+        data-color="second"
         data-size="sm"
         data-variant="tertiary"
         type="button"
