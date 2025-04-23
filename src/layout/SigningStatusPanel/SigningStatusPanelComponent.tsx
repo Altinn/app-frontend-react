@@ -11,6 +11,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { signeeListQuery } from 'src/layout/SigneeList/api';
+import { authorizedOrganisationDetailsQuery } from 'src/layout/SigningStatusPanel/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
 import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
@@ -19,12 +20,20 @@ import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SigneeState } from 'src/layout/SigneeList/api';
+import type { AuthorizedOrganisationDetails } from 'src/layout/SigningStatusPanel/api';
 
 const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
-  const { data: signeeList, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
+  const {
+    data: signeeList,
+    isLoading: isSigneeListLoading,
+    error: signeeListError,
+  } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
+  const { data: authorizedOrganisationDetails, isLoading: isOrgDetailsLoading } = useQuery(
+    authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!),
+  );
   const currentUserPartyId = useCurrentParty()?.partyId;
   const { langAsString } = useLanguage();
 
@@ -32,7 +41,8 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   const canSign = isAuthorised('sign');
   const canWrite = isAuthorised('write');
 
-  const currentUserStatus = getCurrentUserStatus(signeeList, currentUserPartyId, canSign);
+  const userSignees = findUserSignees(signeeList, currentUserPartyId, authorizedOrganisationDetails);
+  const currentUserStatus = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
   const hasSigned = currentUserStatus === 'signed';
 
   const { refetch: refetchBackendValidations, data: hasMissingSignatures } = useBackendValidationQuery(
@@ -46,7 +56,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     refetchBackendValidations();
   }, [refetchBackendValidations, signeeList]);
 
-  if (isLoading) {
+  if (isSigneeListLoading || isOrgDetailsLoading) {
     return (
       <Panel
         variant='info'
@@ -59,7 +69,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     );
   }
 
-  if (error) {
+  if (signeeListError) {
     return (
       <SigningPanel
         node={node}
@@ -91,6 +101,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     );
   }
 
+  // user either has signed or is not signing
   if (!canWrite) {
     return (
       <NoActionRequiredPanel
@@ -114,19 +125,68 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 
 export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
 
-function getCurrentUserStatus(
+/**
+ * Finds all signees in the signee list that the user can sign on behalf of.
+ * This includes the user itself and any organizations the user is authorized to sign for.
+ */
+function findUserSignees(
   signeeList: SigneeState[] | undefined,
-  partyId: number | undefined,
-  canSign: boolean,
-): CurrentUserStatus {
-  const currentUserSignee = signeeList?.find((signee) => signee.partyId === partyId);
-  if (currentUserSignee?.hasSigned) {
-    return 'signed';
+  userPartyId: number | undefined,
+  authorizedOrganisationDetails: AuthorizedOrganisationDetails | undefined,
+): SigneeState[] {
+  if (!signeeList || !userPartyId) {
+    return [];
   }
 
-  if (canSign) {
+  // Get all party IDs the user can sign on behalf of (user + authorized organizations)
+  const authorizedPartyIds = [userPartyId];
+
+  // Add organization party IDs if available
+  if (authorizedOrganisationDetails?.organisations) {
+    authorizedOrganisationDetails.organisations.forEach((org) => {
+      authorizedPartyIds.push(org.partyId);
+    });
+  }
+
+  // Find all signees that match the authorized party IDs
+  return signeeList.filter((signee) => authorizedPartyIds.includes(signee.partyId));
+}
+
+/**
+ * Calculates the current user's signing status based on the signees they can sign for.
+ * Rules:
+ * - If the user doesn't have permission for signing: "notSigning"
+ * - If the user has one or more signees in the list that haven't already signed: "awaitingSignature"
+ * - If the user doesn't have any signees that they can sign on behalf of: "notSigning"
+ * - If the user has signed on behalf of all signees they can sign on behalf of: "signed"
+ */
+function getCurrentUserStatus(
+  currentUserPartyId: number | undefined,
+  userSignees: SigneeState[],
+  canSign: boolean,
+): CurrentUserStatus {
+  // If the user doesn't have permission for signing
+  if (!canSign) {
+    return 'notSigning';
+  }
+
+  // If the current user is not listed as a signee, but they have sign permission, they should still be able to sign
+  const currentUserIsInList = userSignees.some((signee) => signee.partyId === currentUserPartyId);
+  if (!currentUserIsInList) {
     return 'awaitingSignature';
   }
 
-  return 'notSigning';
+  // If the user doesn't have any signees they can sign on behalf of, but they have sign permission
+  if (userSignees.length === 0) {
+    return 'notSigning';
+  }
+
+  // Check if there are any signees that haven't signed yet
+  const hasUnsignedSignees = userSignees.some((signee) => !signee.hasSigned);
+  if (hasUnsignedSignees) {
+    return 'awaitingSignature';
+  }
+
+  // If all signees have signed
+  return 'signed';
 }
