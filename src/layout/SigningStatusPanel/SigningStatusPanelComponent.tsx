@@ -20,7 +20,6 @@ import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SigneeState } from 'src/layout/SigneeList/api';
-import type { AuthorizedOrganisationDetails } from 'src/layout/SigningStatusPanel/api';
 
 const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 
@@ -31,9 +30,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     isLoading: isSigneeListLoading,
     error: signeeListError,
   } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
-  const { data: authorizedOrganisationDetails, isLoading: isOrgDetailsLoading } = useQuery(
-    authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!),
-  );
+
   const currentUserPartyId = useCurrentParty()?.partyId;
   const { langAsString } = useLanguage();
 
@@ -41,7 +38,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   const canSign = isAuthorised('sign');
   const canWrite = isAuthorised('write');
 
-  const userSignees = findUserSignees(signeeList, currentUserPartyId, authorizedOrganisationDetails);
+  const userSignees = useUserSignees();
   const currentUserStatus = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
   const hasSigned = currentUserStatus === 'signed';
 
@@ -56,7 +53,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     refetchBackendValidations();
   }, [refetchBackendValidations, signeeList]);
 
-  if (isSigneeListLoading || isOrgDetailsLoading) {
+  if (isSigneeListLoading) {
     return (
       <Panel
         variant='info'
@@ -129,17 +126,20 @@ export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
  * Finds all signees in the signee list that the user can sign on behalf of.
  * This includes the user itself and any organizations the user is authorized to sign for.
  */
-function findUserSignees(
-  signeeList: SigneeState[] | undefined,
-  userPartyId: number | undefined,
-  authorizedOrganisationDetails: AuthorizedOrganisationDetails | undefined,
-): SigneeState[] {
-  if (!signeeList || !userPartyId) {
+export function useUserSignees() {
+  const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
+  const { data: signeeList } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
+  const { data: authorizedOrganisationDetails } = useQuery(
+    authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!),
+  );
+  const currentUserPartyId = useCurrentParty()?.partyId;
+
+  if (!signeeList || !currentUserPartyId) {
     return [];
   }
 
   // Get all party IDs the user can sign on behalf of (user + authorized organizations)
-  const authorizedPartyIds = [userPartyId];
+  const authorizedPartyIds = [currentUserPartyId];
 
   // Add organization party IDs if available
   if (authorizedOrganisationDetails?.organisations) {
