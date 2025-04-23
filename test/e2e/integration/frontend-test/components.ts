@@ -25,9 +25,11 @@ describe('UI Components', () => {
       cy.wrap(image).find('img').should('have.attr', 'alt', 'Altinn logo').should('exist');
     });
     cy.findByRole('button', { name: /Hjelpetekst for Altinn logo/i }).click();
-    cy.get(appFrontend.helpText.alert).should('contain.text', 'Altinn logo');
-    cy.get(appFrontend.helpText.alert).trigger('keydown', { keyCode: 27 }); // Press ESC key
-    cy.get(appFrontend.helpText.alert).should('not.exist');
+    cy.get(appFrontend.helpText.alert).eq(1).should('be.visible');
+    cy.get(appFrontend.helpText.alert).eq(1).should('contain.text', 'Altinn logo');
+    cy.findByRole('button', { name: /Hjelpetekst for Altinn logo/i }).click();
+    cy.get('body').type('{esc}'); // Press ESC key
+    cy.get(appFrontend.helpText.alert).eq(1).should('not.be.visible');
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
   });
 
@@ -35,11 +37,13 @@ describe('UI Components', () => {
     cy.goto('message');
     cy.findByRole('button', { name: /Hjelpetekst for Appen for test av app frontend/i }).click();
     // check that the markdown is rendered correctly with a list, bold text and a link
-    cy.get(appFrontend.helpText.alert).then((alert) => {
-      cy.wrap(alert).find('li').should('have.length', 5);
-      cy.wrap(alert).find('b').should('have.length', 1);
-      cy.wrap(alert).find('a').should('have.length', 1);
-    });
+    cy.get(appFrontend.helpText.alert)
+      .eq(2)
+      .then((alert) => {
+        cy.wrap(alert).find('li').should('have.length', 5);
+        cy.wrap(alert).find('b').should('have.length', 1);
+        cy.wrap(alert).find('a').should('have.length', 1);
+      });
     cy.snapshot('helptext');
   });
 
