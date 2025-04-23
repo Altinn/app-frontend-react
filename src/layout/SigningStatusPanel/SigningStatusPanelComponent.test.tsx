@@ -192,7 +192,7 @@ describe('SigningStatusPanelComponent', () => {
   });
 
   it('should render awaiting signature panel when user is not in signee list, but has sign access', () => {
-    mockedUseIsAuthorised.mockImplementation(() => (action: IActionType) => (action === 'sign' ? true : false));
+    mockedUseIsAuthorised.mockImplementation(() => (action: IActionType) => action === 'sign');
 
     mockedUseQuery.mockReturnValue({
       data: [],
