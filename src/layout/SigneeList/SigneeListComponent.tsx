@@ -14,8 +14,6 @@ import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-// TODO: Cypress tests: Needs finished APIs.
-
 export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeList'>) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const { langAsString } = useLanguage();
