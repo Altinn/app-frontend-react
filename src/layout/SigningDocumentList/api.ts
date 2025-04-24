@@ -26,7 +26,7 @@ const signingDocumentSchema = z
     size: it.size,
   }));
 
-type SigningDocument = z.infer<typeof signingDocumentSchema>;
+export type SigningDocument = z.infer<typeof signingDocumentSchema>;
 
 export async function fetchDocumentList(partyId: string, instanceGuid: string): Promise<SigningDocument[]> {
   const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/data-elements`;

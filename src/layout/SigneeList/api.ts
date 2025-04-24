@@ -38,7 +38,7 @@ const signeeStateSchema = z
 export type SigneeState = z.infer<typeof signeeStateSchema>;
 
 export const signingQueries = {
-  all: ['signing'],
+  all: ['signing'] as const,
   signeeList: (partyId: string | undefined, instanceGuid: string | undefined, taskId: string | undefined) =>
     queryOptions({
       queryKey: [...signingQueries.all, 'signeeList', partyId, instanceGuid, taskId],

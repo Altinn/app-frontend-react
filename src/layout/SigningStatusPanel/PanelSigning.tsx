@@ -79,7 +79,7 @@ function RejectButton({ node }: RejectTextProps) {
 
   const isAnyProcessing = useIsMutating() > 0;
 
-  const { mutate: handleReject } = useMutation({
+  const { mutate: handleReject, isPending: isRejecting } = useMutation({
     mutationFn: async () => {
       if (rejectButtonRef.current) {
         rejectButtonRef.current.disabled = true;
@@ -106,9 +106,7 @@ function RejectButton({ node }: RejectTextProps) {
       </Modal.Trigger>
       <Modal.Dialog ref={modalRef}>
         <Modal.Header>
-          <Heading size='xs'>
-            <Lang id={modalTitle} />
-          </Heading>
+          <Lang id={modalTitle} />
         </Modal.Header>
         <Modal.Content>
           <Paragraph>
@@ -121,6 +119,7 @@ function RejectButton({ node }: RejectTextProps) {
             disabled={isAnyProcessing}
             size='md'
             ref={rejectButtonRef}
+            isLoading={isRejecting}
             onClick={() => handleReject()}
           >
             <Lang id={modalButton} />

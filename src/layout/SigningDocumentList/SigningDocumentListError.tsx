@@ -10,8 +10,8 @@ import { problemDetailsSchema } from 'src/layout/SigneeList/SigneeListError';
 export function SigningDocumentListError({ error }: { error: Error }) {
   const { langAsString } = useLanguage();
 
+  // TODO: alarm? telemetri?
   if (error instanceof ZodError) {
-    //   // TODO: alarm? telemetri?
     window.logErrorOnce(
       `Did not get the expected response from the server. The response didn't match the expected schema: \n${error}`,
     );
