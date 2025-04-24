@@ -38,8 +38,8 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
   const canSign = isAuthorised('sign');
   const canWrite = isAuthorised('write');
 
-  const userSignees = useUserSignees();
-  const currentUserStatus = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
+  const userSigneeParties = useUserSigneeParties();
+  const currentUserStatus = getCurrentUserStatus(currentUserPartyId, userSigneeParties, canSign);
   const hasSigned = currentUserStatus === 'signed';
 
   const { refetch: refetchBackendValidations, data: hasMissingSignatures } = useBackendValidationQuery(
@@ -126,7 +126,7 @@ export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
  * Finds all signees in the signee list that the user can sign on behalf of.
  * This includes the user itself and any organizations the user is authorized to sign for.
  */
-export function useUserSignees() {
+export function useUserSigneeParties() {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const { data: signeeList } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
   const { data: authorizedOrganisationDetails } = useQuery(
@@ -154,11 +154,6 @@ export function useUserSignees() {
 
 /**
  * Calculates the current user's signing status based on the signees they can sign for.
- * Rules:
- * - If the user doesn't have permission for signing: "notSigning"
- * - If the user has one or more signees in the list that haven't already signed: "awaitingSignature"
- * - If the user doesn't have any signees that they can sign on behalf of: "notSigning"
- * - If the user has signed on behalf of all signees they can sign on behalf of: "signed"
  */
 function getCurrentUserStatus(
   currentUserPartyId: number | undefined,

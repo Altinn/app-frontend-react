@@ -370,6 +370,7 @@ export function en() {
       submit_panel_radio_group_legend: 'Who do you want to sign on behalf of?',
       submit_panel_radio_group_description: 'The following are parties you may sign on behalf of.',
       submit_panel_single_org_choice: 'You are signing on behalf of {0}.',
+      submit_panel_myself_choice: 'Myself',
 
       awaiting_other_signatures_panel_title: 'Waiting for signatures',
       awaiting_other_signatures_panel_description_not_signing: 'You can submit the form when all parties have signed.',

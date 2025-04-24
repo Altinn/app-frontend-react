@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import type { ChangeEvent } from 'react';
 
 import { Checkbox, Heading, Spinner } from '@digdir/designsystemet-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,7 +17,7 @@ import { authorizedOrganisationDetailsQuery } from 'src/layout/SigningStatusPane
 import { OnBehalfOfChooser } from 'src/layout/SigningStatusPanel/OnBehalfOfChooser';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
-import { useUserSignees } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
+import { useUserSigneeParties } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 import { SubmitSigningButton } from 'src/layout/SigningStatusPanel/SubmitSigningButton';
 import { doPerformAction } from 'src/queries/queries';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -51,20 +50,24 @@ export function AwaitingCurrentUserSignaturePanel({
   const checkboxDescription = textResourceBindings?.checkboxDescription;
   const signingButtonText = textResourceBindings?.signingButton ?? 'signing.sign_button';
 
+  const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
+  // Set the org number automatically when there's only unsigned party and it is an org
+  const [onBehalfOf, setOnBehalfOf] = useState<string | null>(null);
+
   const { data: authorizedOrganizationDetails, isLoading: isApiLoading } = useQuery(
     authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!),
   );
 
-  const userSignees = useUserSignees();
-  const unSignedUserSignees = userSignees.filter((s) => !s.hasSigned);
+  const userSigneeParties = useUserSigneeParties();
+  const unsignedUserSigneeParties = userSigneeParties.filter((party) => !party.hasSigned);
   const unsignedAuthorizedOrgSignees =
     authorizedOrganizationDetails?.organisations.filter((org) =>
-      unSignedUserSignees.some((s) => s.partyId === org.partyId),
+      unsignedUserSigneeParties.some((s) => s.partyId === org.partyId),
     ) ?? emptyArray;
 
   const {
     mutate: handleSign,
-    error,
+    error: signingError,
     isPending,
   } = useMutation({
     mutationFn: async (onBehalfOf: string | null) => {
@@ -82,31 +85,23 @@ export function AwaitingCurrentUserSignaturePanel({
       // Refetch all queries related to signing to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: signingQueries.all });
       setConfirmReadDocuments(false);
-      setOnBehalfOfOrg(null);
-    },
-    onError: () => {
-      // TODO: handle error
+      setOnBehalfOf(null);
     },
   });
 
-  const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
-  const [onBehalfOfOrg, setOnBehalfOfOrg] = useState<string | null>(null);
-
-  // Set the organization number automatically when there's only one organization
+  // if last party is an org, set the org number automatically
   useEffect(() => {
-    if (unsignedAuthorizedOrgSignees?.length === 1) {
-      const singleOrg = unsignedAuthorizedOrgSignees[0];
-      setOnBehalfOfOrg(singleOrg.orgNumber);
+    if (
+      unsignedUserSigneeParties.length === 1 &&
+      unsignedUserSigneeParties[0].partyId === unsignedAuthorizedOrgSignees.at(0)?.partyId
+    ) {
+      setOnBehalfOf(unsignedAuthorizedOrgSignees[0].orgNumber);
     }
-  }, [unsignedAuthorizedOrgSignees]);
+  }, [unsignedUserSigneeParties, unsignedAuthorizedOrgSignees]);
 
   // This shouldn't really happen, but if it does it indicates that our backend is out of sync with Autorisasjon somehow
   if (!canSign) {
     return <UnknownError />;
-  }
-
-  function handleChange(event: ChangeEvent<HTMLInputElement>): void {
-    setOnBehalfOfOrg(event.target.value);
   }
 
   if (isApiLoading) {
@@ -130,7 +125,7 @@ export function AwaitingCurrentUserSignaturePanel({
       actionButton={
         <>
           <Button
-            onClick={() => handleSign(onBehalfOfOrg)}
+            onClick={() => handleSign(onBehalfOf)}
             disabled={!confirmReadDocuments || isPending}
             size='md'
             color='success'
@@ -141,24 +136,24 @@ export function AwaitingCurrentUserSignaturePanel({
         </>
       }
       description={<Lang id={checkboxDescription} />}
-      errorMessage={error ? <Lang id='signing.error_signing' /> : undefined}
+      errorMessage={signingError ? <Lang id='signing.error_signing' /> : undefined}
     >
-      {(unsignedAuthorizedOrgSignees?.length ?? 0) > 1 && (
+      {unsignedUserSigneeParties.length > 1 && (
         <OnBehalfOfChooser
-          currentUserSignee={unSignedUserSignees.find((s) => s.partyId === currentUserPartyId)}
+          currentUserSignee={unsignedUserSigneeParties.find((s) => s.partyId === currentUserPartyId)}
           authorizedOrganizationDetails={unsignedAuthorizedOrgSignees}
-          onBehalfOfOrg={onBehalfOfOrg}
-          onChange={handleChange}
+          onBehalfOfOrg={onBehalfOf}
+          onChange={(e) => setOnBehalfOf(e.target.value)}
         />
       )}
-      {unSignedUserSignees.length === 1 && unSignedUserSignees.at(0)?.organization && (
+      {unsignedUserSigneeParties.length === 1 && unsignedUserSigneeParties.at(0)?.organization && (
         <Heading
           level={1}
           size='2xs'
         >
           <Lang
             id='signing.submit_panel_single_org_choice'
-            params={[unSignedUserSignees.at(0)?.organization ?? '']}
+            params={[unsignedUserSigneeParties.at(0)?.organization ?? '']}
           />
         </Heading>
       )}
