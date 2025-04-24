@@ -2,7 +2,7 @@ import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
-  category: CompCategory.Presentation,
+  category: CompCategory.Action,
   capabilities: {
     renderInTable: false,
     renderInButtonGroup: false,
