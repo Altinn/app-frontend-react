@@ -1,5 +1,4 @@
-import { forwardRef, type JSX } from 'react';
-import React from 'react';
+import React, { forwardRef, type JSX } from 'react';
 
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -8,9 +7,9 @@ import { SigneeListComponent } from 'src/layout/SigneeList/SigneeListComponent';
 import { SigneeListSummary } from 'src/layout/SigneeList/SigneeListSummary';
 import { ProcessTaskType } from 'src/types';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
-import type { SigneeListSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class SigneeList extends SigneeListDef {
@@ -34,11 +33,13 @@ export class SigneeList extends SigneeListDef {
     return null;
   }
 
-  renderSummary2({ target, override }: Summary2Props<'SigneeList'>): JSX.Element | null {
+  renderSummary2({ target }: Summary2Props<'SigneeList'>): JSX.Element | null {
+    const textResourceBindings = useNodeItem(target, (i) => i.textResourceBindings);
+
     return (
       <SigneeListSummary
         componentNode={target}
-        titleOverride={(override as SigneeListSummaryOverrideProps)?.title}
+        titleOverride={textResourceBindings?.summaryTitle}
       />
     );
   }

@@ -33,13 +33,16 @@ export class SigningDocumentList extends SigningDocumentListDef {
 
     return null;
   }
-  renderSummary2(props: Summary2Props<'SigningDocumentList'>): JSX.Element | null {
-    const textResourceBindings = useNodeItem(props.target, (i) => i.textResourceBindings);
+
+  renderSummary2({ target }: Summary2Props<'SigningDocumentList'>): JSX.Element | null {
+    const textResourceBindings = useNodeItem(target, (i) => i.textResourceBindings);
+
     return (
       <SigningDocumentListComponent
         textResourceBindings={{
           ...textResourceBindings,
-          title: textResourceBindings?.summary_title ?? 'signing_document_list_summary.header',
+          title:
+            textResourceBindings?.summaryTitle ?? textResourceBindings?.title ?? 'signing_document_list_summary.header',
           description: undefined,
         }}
       />

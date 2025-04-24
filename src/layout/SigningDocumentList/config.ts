@@ -39,7 +39,7 @@ export const Config = new CG.component({
   )
   .addTextResource(
     new CG.trb({
-      name: 'summary_title',
+      name: 'summaryTitle',
       title: 'Summary title',
       description: 'Header/title of the summary',
     }),

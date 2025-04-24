@@ -17,7 +17,6 @@ import { PARAGRAPH_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Paragraph/config';
 import { PAYMENT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Payment/config';
 import { RADIO_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RadioButtons/config';
 import { REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS } from 'src/layout/RepeatingGroup/config';
-import { SIGNEE_LIST_OVERRIDE_PROPS } from 'src/layout/SigneeList/config';
 import { SUBFORM_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Subform/config';
 import { TABS_SUMMARY_PROPS } from 'src/layout/Tabs/config';
 import { TEXT_SUMMARY_OVERRIDE_PROPS } from 'src/layout/Text/config';
@@ -92,7 +91,6 @@ export const Config = new CG.component({
           PAYMENT_SUMMARY_OVERRIDE_PROPS,
           RADIO_SUMMARY_OVERRIDE_PROPS,
           REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS,
-          SIGNEE_LIST_OVERRIDE_PROPS,
           SUBFORM_SUMMARY_OVERRIDE_PROPS,
           TABS_SUMMARY_PROPS,
           TEXTAREA_SUMMARY_PROPS,
