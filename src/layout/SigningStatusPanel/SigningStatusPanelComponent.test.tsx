@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useMutation, useQuery, UseQueryResult } from '@tanstack/react-query';
+import { useMutation, UseQueryResult } from '@tanstack/react-query';
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
@@ -12,7 +12,8 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { NotificationStatus, SigneeState } from 'src/layout/SigneeList/api';
+import { NotificationStatus, SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
+import { useAuthorizedOrganizationDetails } from 'src/layout/SigningStatusPanel/api';
 import { SigningStatusPanelComponent } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
 import { IActionType } from 'src/types/shared';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -20,7 +21,6 @@ import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 jest.mock('src/utils/layout/useNodeItem');
 jest.mock('react-router-dom');
-jest.mock('src/layout/SigneeList/api');
 jest.mock('src/features/instance/useProcessNext.tsx');
 jest.mock('src/core/contexts/AppQueriesProvider');
 jest.mock('src/features/party/PartiesProvider');
@@ -28,11 +28,14 @@ jest.mock('src/features/language/useLanguage');
 jest.mock('src/features/language/Lang');
 jest.mock('src/features/instance/ProcessContext');
 jest.mock('src/features/validation/backendValidation/backendValidationQuery');
+jest.mock('src/layout/SigneeList/api');
+jest.mock('src/layout/SigningStatusPanel/api');
 jest.mock('@tanstack/react-query');
 
-const mockedUseQuery = jest.mocked(useQuery);
 const mockedUseIsAuthorised = jest.mocked(useIsAuthorised);
 const mockedBackendValidationQuery = jest.mocked(useBackendValidationQuery);
+const mockedUseAuthorizedOrganizationDetails = jest.mocked(useAuthorizedOrganizationDetails);
+const mockedUseSigneeList = jest.mocked(useSigneeList);
 
 const failedDelegationSignee: SigneeState = {
   name: 'name2',
@@ -75,6 +78,10 @@ const notSignedSignee: SigneeState = {
 };
 
 describe('SigningStatusPanelComponent', () => {
+  const instanceGuid = randomUUID();
+  const partyId = '123';
+  const taskId = 'task_1';
+
   beforeEach(() => {
     // resets all mocked functions to jest.fn()
     jest.resetAllMocks();
@@ -87,21 +94,10 @@ describe('SigningStatusPanelComponent', () => {
       },
     } as unknown as ReturnType<typeof useNodeItem>);
 
-    jest.mocked(useQuery).mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: null,
-    } as unknown as UseQueryResult);
-
-    jest.mocked(useMutation).mockReturnValue({
-      mutate: jest.fn(),
-      error: null,
-    } as unknown as ReturnType<typeof useMutation>);
-
     jest.mocked(useParams).mockReturnValue({
-      partyId: '123',
-      instanceGuid: randomUUID(),
-      taskId: 'task_1',
+      partyId,
+      instanceGuid,
+      taskId,
     });
     jest.mocked(useIsAuthorised).mockReturnValue(() => true);
 
@@ -119,14 +115,35 @@ describe('SigningStatusPanelComponent', () => {
     jest.mocked(useCurrentParty).mockReturnValue({ partyId: 123 } as unknown as ReturnType<typeof useCurrentParty>);
 
     jest.mocked(useProcessNext).mockReturnValue(jest.fn());
+
+    jest.mocked(useMutation).mockReturnValue({
+      mutate: jest.fn(),
+      error: null,
+    } as unknown as ReturnType<typeof useMutation>);
+
+    mockedUseSigneeList.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof useSigneeList>);
+
+    mockedUseAuthorizedOrganizationDetails.mockReturnValue({
+      data: {
+        organisations: [],
+      },
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof useAuthorizedOrganizationDetails>);
   });
 
   it('should render loading spinner when loading is true', () => {
-    mockedUseQuery.mockReturnValue({
+    // Set up the loading state for the signeeListQuery
+
+    mockedUseSigneeList.mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
-    } as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigningStatusPanelComponent
@@ -139,11 +156,11 @@ describe('SigningStatusPanelComponent', () => {
   });
 
   it('should render error panel when any signee has delegation failed', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [failedDelegationSignee, failedNotificationSignee],
       isLoading: false,
       error: undefined,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigningStatusPanelComponent
@@ -157,11 +174,11 @@ describe('SigningStatusPanelComponent', () => {
   });
 
   it('should render error panel on API error', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: undefined,
       isLoading: false,
       error: new Error('API error'),
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigningStatusPanelComponent
@@ -175,11 +192,11 @@ describe('SigningStatusPanelComponent', () => {
   });
 
   it('should render awaiting signature panel when user is awaiting signature', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [notSignedSignee],
       isLoading: false,
       error: undefined,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigningStatusPanelComponent
@@ -194,12 +211,6 @@ describe('SigningStatusPanelComponent', () => {
   it('should render awaiting signature panel when user is not in signee list, but has sign access', () => {
     mockedUseIsAuthorised.mockImplementation(() => (action: IActionType) => action === 'sign');
 
-    mockedUseQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: undefined,
-    } as unknown as UseQueryResult);
-
     render(
       <SigningStatusPanelComponent
         node={{} as LayoutNode<'SigningStatusPanel'>}
@@ -213,11 +224,6 @@ describe('SigningStatusPanelComponent', () => {
   it('should render awaiting signature panel with submit button when user is awaiting signature, there are no missing signatures and the user has write access', () => {
     mockedUseIsAuthorised.mockReturnValue(() => true);
     mockedBackendValidationQuery.mockReturnValue({ data: false, refetch: jest.fn() } as unknown as UseQueryResult);
-    mockedUseQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: undefined,
-    } as unknown as UseQueryResult);
 
     render(
       <SigningStatusPanelComponent
@@ -234,11 +240,11 @@ describe('SigningStatusPanelComponent', () => {
   it('should render no action required panel with correct text when user has signed and does not have write access', () => {
     mockedUseIsAuthorised.mockImplementation(() => (action: IActionType) => (action === 'write' ? false : true));
 
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [signedSignee],
       isLoading: false,
       error: undefined,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigningStatusPanelComponent
@@ -253,12 +259,6 @@ describe('SigningStatusPanelComponent', () => {
   it('should render no action required panel with correct text when user should not sign and does not have write access', () => {
     mockedUseIsAuthorised.mockImplementation(() => () => false);
 
-    mockedUseQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-      error: undefined,
-    } as unknown as UseQueryResult);
-
     render(
       <SigningStatusPanelComponent
         node={{} as LayoutNode<'SigningStatusPanel'>}
@@ -272,11 +272,11 @@ describe('SigningStatusPanelComponent', () => {
   it('should render awaiting other signatures panel when user has signed, has write access and there are missing signatures', () => {
     mockedUseIsAuthorised.mockImplementation(() => () => true);
 
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [signedSignee, { ...notSignedSignee, partyId: 124 }],
       isLoading: false,
       error: undefined,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigningStatusPanelComponent
@@ -291,11 +291,11 @@ describe('SigningStatusPanelComponent', () => {
   it('should render awaiting other signatures panel when user is not signing, has write access and validator returns missing signatures', () => {
     mockedUseIsAuthorised.mockImplementation(() => (action: IActionType) => (action === 'sign' ? false : true));
 
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [{ ...notSignedSignee, partyId: 124 }],
       isLoading: false,
       error: undefined,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigningStatusPanelComponent
@@ -308,11 +308,12 @@ describe('SigningStatusPanelComponent', () => {
   });
 
   it('should render submit panel when validator does not return missing signatures', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [signedSignee],
       isLoading: false,
       error: undefined,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
+
     mockedBackendValidationQuery.mockReturnValue({ data: false, refetch: jest.fn() } as unknown as UseQueryResult);
 
     render(

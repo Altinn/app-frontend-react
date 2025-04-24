@@ -1,4 +1,4 @@
-import { queryOptions, skipToken } from '@tanstack/react-query';
+import { queryOptions, skipToken, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -48,8 +48,6 @@ export const signingQueries = {
     }),
 };
 
-export const signeeListQuery = signingQueries.signeeList;
-
 export async function fetchSigneeList(partyId: string, instanceGuid: string): Promise<SigneeState[]> {
   const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing`;
 
@@ -57,4 +55,12 @@ export async function fetchSigneeList(partyId: string, instanceGuid: string): Pr
   const parsed = z.object({ signeeStates: z.array(signeeStateSchema) }).parse(response);
 
   return parsed.signeeStates.toSorted((a, b) => (a.name ?? '').localeCompare(b.name ?? ''));
+}
+
+export function useSigneeList(
+  partyId: string | undefined,
+  instanceGuid: string | undefined,
+  taskId: string | undefined,
+) {
+  return useQuery(signingQueries.signeeList(partyId, instanceGuid, taskId));
 }

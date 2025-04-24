@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Checkbox, Heading, Spinner } from '@digdir/designsystemet-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
@@ -13,7 +13,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { signingQueries } from 'src/layout/SigneeList/api';
-import { authorizedOrganisationDetailsQuery } from 'src/layout/SigningStatusPanel/api';
+import { useAuthorizedOrganizationDetails } from 'src/layout/SigningStatusPanel/api';
 import { OnBehalfOfChooser } from 'src/layout/SigningStatusPanel/OnBehalfOfChooser';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
@@ -54,8 +54,9 @@ export function AwaitingCurrentUserSignaturePanel({
   // Set the org number automatically when there's only unsigned party and it is an org
   const [onBehalfOf, setOnBehalfOf] = useState<string | null>(null);
 
-  const { data: authorizedOrganizationDetails, isLoading: isApiLoading } = useQuery(
-    authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!),
+  const { data: authorizedOrganizationDetails, isLoading: isApiLoading } = useAuthorizedOrganizationDetails(
+    instanceOwnerPartyId!,
+    instanceGuid!,
   );
 
   const userSigneeParties = useUserSigneeParties();

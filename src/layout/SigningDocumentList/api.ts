@@ -1,4 +1,6 @@
+import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
+import type { UseQueryResult } from '@tanstack/react-query';
 
 import { DataTypeReference } from 'src/utils/attachmentsUtils';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -28,13 +30,22 @@ const signingDocumentSchema = z
 
 export type SigningDocument = z.infer<typeof signingDocumentSchema>;
 
-export async function fetchDocumentList(partyId: string, instanceGuid: string): Promise<SigningDocument[]> {
-  const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/data-elements`;
+export function useDocumentList(
+  instanceOwnerPartyId: string | undefined,
+  instanceGuid: string | undefined,
+): UseQueryResult<SigningDocument[]> {
+  return useQuery({
+    queryKey: ['signingDocumentList', instanceOwnerPartyId, instanceGuid],
+    queryFn: async () => {
+      const url = `${appPath}/instances/${instanceOwnerPartyId}/${instanceGuid}/signing/data-elements`;
 
-  const response = await httpGet(url);
+      const response = await httpGet(url);
 
-  return z
-    .object({ dataElements: z.array(signingDocumentSchema) })
-    .parse(response)
-    .dataElements.toSorted((a, b) => (a.filename ?? '').localeCompare(b.filename ?? ''));
+      return z
+        .object({ dataElements: z.array(signingDocumentSchema) })
+        .parse(response)
+        .dataElements.toSorted((a, b) => (a.filename ?? '').localeCompare(b.filename ?? ''));
+    },
+    staleTime: 1000 * 60 * 30, // 30 minutes
+  });
 }

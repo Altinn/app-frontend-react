@@ -1,15 +1,13 @@
 import React from 'react';
 
 import { jest } from '@jest/globals';
-import { useQuery } from '@tanstack/react-query';
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
-import type { UseQueryResult } from '@tanstack/react-query';
 
+import { type SigningDocument, useDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListComponent } from 'src/layout/SigningDocumentList/SigningDocumentListComponent';
 import { ProcessTaskType } from 'src/types';
-import type { SigningDocument } from 'src/layout/SigningDocumentList/api';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeItemFromNode } from 'src/utils/layout/types';
 
@@ -61,33 +59,28 @@ jest.mock('src/features/instance/ProcessContext', () => ({
 
 jest.mock('src/layout/SigningDocumentList/api');
 
-jest.mock('@tanstack/react-query', () => {
-  const actual = jest.requireActual<typeof import('@tanstack/react-query')>('@tanstack/react-query');
-
-  return {
-    useQuery: jest.fn(() => ({
-      ...actual.useQuery,
-      data: mockDocumentList,
-      isLoading: false,
-      error: undefined,
-    })),
-  };
-});
-
 jest.mock('src/layout/SigningDocumentList/SigningDocumentListError', () => ({
   SigningDocumentListError: jest.fn(({ error }: { error: Error }) => error.message),
 }));
 
 describe('SigningDocumentList', () => {
-  const mockedUseQuery = jest.mocked(useQuery);
+  const mockedUseDocumentList = jest.mocked(useDocumentList);
+
   const textResourceBindings: NodeItemFromNode<LayoutNode<'SigningDocumentList'>>['textResourceBindings'] = {
     title: 'Signing Document List',
     description: 'description',
     help: 'help',
   };
 
-  afterEach(() => {
+  beforeEach(() => {
+    // resets all mocked functions to jest.fn()
     jest.clearAllMocks();
+
+    mockedUseDocumentList.mockReturnValue({
+      data: mockDocumentList,
+      isLoading: false,
+      error: null,
+    } as unknown as ReturnType<typeof useDocumentList>);
   });
 
   it('should render correctly', () => {
@@ -107,11 +100,11 @@ describe('SigningDocumentList', () => {
   });
 
   it('should render error message when API call fails', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseDocumentList.mockReturnValue({
       data: undefined,
       isLoading: false,
       error: new Error('API error'),
-    } as UseQueryResult);
+    } as unknown as ReturnType<typeof useDocumentList>);
 
     render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
 
@@ -119,11 +112,11 @@ describe('SigningDocumentList', () => {
   });
 
   it('should render spinner when loading', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseDocumentList.mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
-    } as UseQueryResult);
+    } as unknown as ReturnType<typeof useDocumentList>);
 
     render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
 

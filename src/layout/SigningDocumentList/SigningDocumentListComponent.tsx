@@ -3,14 +3,13 @@ import { useParams } from 'react-router-dom';
 
 import { Link } from '@digdir/designsystemet-react';
 import { DownloadIcon } from '@navikt/aksel-icons';
-import { useQuery } from '@tanstack/react-query';
 
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
-import { fetchDocumentList } from 'src/layout/SigningDocumentList/api';
+import { useDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
 import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -24,11 +23,7 @@ export function SigningDocumentListComponent({
   const { instanceOwnerPartyId, instanceGuid } = useParams();
   const { langAsString } = useLanguage();
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['signingDocumentList', instanceOwnerPartyId, instanceGuid],
-    queryFn: () => fetchDocumentList(instanceOwnerPartyId!, instanceGuid!),
-    staleTime: 1000 * 60 * 30, // 30 minutes
-  });
+  const { data, isLoading, error } = useDocumentList(instanceOwnerPartyId, instanceGuid);
 
   if (error) {
     return <SigningDocumentListError error={error} />;

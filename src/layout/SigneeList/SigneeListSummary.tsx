@@ -3,17 +3,15 @@ import { useParams } from 'react-router-dom';
 import type { PropsWithChildren, ReactElement } from 'react';
 
 import { Divider, Paragraph } from '@digdir/designsystemet-react';
-import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { nb } from 'date-fns/locale/nb';
 
 import { Label } from 'src/app-components/Label/Label';
 import { Lang } from 'src/features/language/Lang';
-import { signeeListQuery } from 'src/layout/SigneeList/api';
+import { type SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListSummary.module.css';
 import { toTimeZonedDate } from 'src/utils/dateUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { SigneeState } from 'src/layout/SigneeList/api';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface SigneeListSummaryProps {
@@ -23,7 +21,7 @@ interface SigneeListSummaryProps {
 
 export function SigneeListSummary({ componentNode, titleOverride }: SigneeListSummaryProps) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
-  const { data, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
+  const { data, isLoading, error } = useSigneeList(instanceOwnerPartyId, instanceGuid, taskId);
 
   const originalTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const title = titleOverride === undefined ? originalTitle : titleOverride;

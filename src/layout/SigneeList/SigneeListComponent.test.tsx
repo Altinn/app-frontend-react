@@ -2,16 +2,14 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { jest } from '@jest/globals';
-import { useQuery } from '@tanstack/react-query';
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
-import type { UseQueryResult } from '@tanstack/react-query';
 
 import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { type fetchSigneeList, NotificationStatus } from 'src/layout/SigneeList/api';
+import { type fetchSigneeList, NotificationStatus, useSigneeList } from 'src/layout/SigneeList/api';
 import { SigneeListComponent } from 'src/layout/SigneeList/SigneeListComponent';
 import { SigneeListError } from 'src/layout/SigneeList/SigneeListError';
 import { ProcessTaskType } from 'src/types';
@@ -24,7 +22,6 @@ jest.mock('src/features/language/useLanguage');
 jest.mock('src/features/language/Lang');
 jest.mock('src/features/instance/ProcessContext');
 jest.mock('src/layout/SigneeList/api');
-jest.mock('@tanstack/react-query');
 jest.mock('src/layout/SigneeList/SigneeListError');
 
 const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
@@ -66,7 +63,7 @@ const mockSigneeStates: Awaited<ReturnType<typeof fetchSigneeList>> = [
   },
 ];
 
-const mockedUseQuery = jest.mocked(useQuery);
+const mockedUseSigneeList = jest.mocked(useSigneeList);
 
 describe('SigneeListComponent', () => {
   beforeEach(() => {
@@ -95,11 +92,11 @@ describe('SigneeListComponent', () => {
   });
 
   it('should render correctly', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: mockSigneeStates,
       isLoading: false,
       error: undefined,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
       <SigneeListComponent
@@ -122,11 +119,11 @@ describe('SigneeListComponent', () => {
   });
 
   it('should render error message when API call fails', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: undefined,
       isLoading: false,
       error: new Error('API error'),
-    } as UseQueryResult);
+    } as ReturnType<typeof useSigneeList>);
 
     render(
       <SigneeListComponent
@@ -139,11 +136,11 @@ describe('SigneeListComponent', () => {
   });
 
   it('should render spinner when loading', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: undefined,
       isLoading: true,
       error: null,
-    } as UseQueryResult);
+    } as ReturnType<typeof useSigneeList>);
 
     render(
       <SigneeListComponent
