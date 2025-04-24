@@ -35,16 +35,12 @@ function SummaryBody({ target }: SummaryBodyProps) {
 }
 
 export function SummaryComponent2({ summaryNode }: ISummaryComponent2) {
-  const item = useNodeItem(summaryNode);
-
+  const target = useNodeItem(summaryNode, (i) => i.target);
   return (
     <TaskStoreProvider>
-      <Summary2StoreProvider
-        summaryNode={summaryNode}
-        summaryItem={item}
-      >
-        <TaskSummaryWrapper taskId={item?.target?.taskId}>
-          <SummaryBody target={item?.target} />
+      <Summary2StoreProvider node={summaryNode}>
+        <TaskSummaryWrapper taskId={target?.taskId}>
+          <SummaryBody target={target} />
         </TaskSummaryWrapper>
       </Summary2StoreProvider>
     </TaskStoreProvider>

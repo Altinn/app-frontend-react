@@ -6,7 +6,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { getComponentDef } from 'src/layout';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
-import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
+import { useSummary2Prop } from 'src/layout/Summary2/summaryStoreContext';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -36,9 +36,11 @@ export function ComponentSummaryById({
 }
 
 export function ComponentSummary<T extends CompTypes>({ componentNode }: ComponentSummaryProps<T>) {
-  const summaryNodeItem = useSummary2Store((state) => state.summaryItem);
+  const isCompact = useSummary2Prop('isCompact');
+  const overrides = useSummary2Prop('overrides');
+  const hideEmptyFields = useSummary2Prop('hideEmptyFields');
   const componentNodeItem = useNodeItem(componentNode);
-  const override = summaryNodeItem?.overrides?.find((override) => override.componentId === componentNode.id);
+  const override = overrides?.find((override) => override.componentId === componentNode.id);
   const isRequired = 'required' in componentNodeItem && componentNodeItem['required'] === true;
   const { formData } = useDataModelBindings(componentNodeItem.dataModelBindings);
   const isHidden = Hidden.useIsHidden(componentNode);
@@ -49,7 +51,7 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
     ? def.renderSummary2({
         target: componentNode as never,
         override,
-        isCompact: summaryNodeItem.isCompact,
+        isCompact,
       })
     : null;
 
@@ -65,7 +67,7 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
     return null;
   }
 
-  if (noUserInput && summaryNodeItem?.hideEmptyFields && !isRequired && !componentNodeItem['forceShowInSummary']) {
+  if (noUserInput && hideEmptyFields && !isRequired && !componentNodeItem['forceShowInSummary']) {
     return null;
   }
 
