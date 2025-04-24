@@ -1,9 +1,10 @@
+import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
-const authorizedOrganisationDetailsSchema = z.object({
+const authorizedOrganizationDetailsSchema = z.object({
   organisations: z.array(
     z.object({
       orgNumber: z.string(),
@@ -13,18 +14,17 @@ const authorizedOrganisationDetailsSchema = z.object({
   ),
 });
 
-export type AuthorizedOrganisationDetails = z.infer<typeof authorizedOrganisationDetailsSchema>;
+export type AuthorizedOrganizationDetails = z.infer<typeof authorizedOrganizationDetailsSchema>;
 
-export const authorizedOrganisationDetailsQuery = (partyId: string, instanceGuid: string) => ({
-  queryKey: ['authorizedOrganisationDetails', partyId, instanceGuid],
-  queryFn: () => fetchAuthorizedOrganisationDetails(partyId, instanceGuid),
+const authorizedOrganizationDetailsQuery = (partyId: string, instanceGuid: string) => ({
+  queryKey: ['authorizedOrganizationDetails', partyId, instanceGuid],
+  queryFn: async () => {
+    const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/organisations`;
+    const response = await httpGet(url);
+    return authorizedOrganizationDetailsSchema.parse(response);
+  },
 });
 
-export async function fetchAuthorizedOrganisationDetails(
-  partyId: string,
-  instanceGuid: string,
-): Promise<AuthorizedOrganisationDetails> {
-  const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/organisations`;
-  const response = await httpGet(url);
-  return authorizedOrganisationDetailsSchema.parse(response);
+export function useAuthorizedOrganizationDetails(partyId: string | undefined, instanceGuid: string | undefined) {
+  return useQuery(authorizedOrganizationDetailsQuery(partyId!, instanceGuid!));
 }

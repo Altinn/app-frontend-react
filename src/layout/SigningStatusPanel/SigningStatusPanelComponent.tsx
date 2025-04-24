@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 import { Spinner } from '@digdir/designsystemet-react';
-import { useQuery } from '@tanstack/react-query';
 
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
@@ -10,8 +9,8 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { signeeListQuery } from 'src/layout/SigneeList/api';
-import { authorizedOrganisationDetailsQuery } from 'src/layout/SigningStatusPanel/api';
+import { type SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
+import { useAuthorizedOrganizationDetails } from 'src/layout/SigningStatusPanel/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
 import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
@@ -19,7 +18,6 @@ import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { SigneeState } from 'src/layout/SigneeList/api';
 
 const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 
@@ -29,7 +27,7 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     data: signeeList,
     isLoading: isSigneeListLoading,
     error: signeeListError,
-  } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
+  } = useSigneeList(instanceOwnerPartyId, instanceGuid, taskId);
 
   const currentUserPartyId = useCurrentParty()?.partyId;
   const { langAsString } = useLanguage();
@@ -128,10 +126,12 @@ export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
  */
 export function useUserSigneeParties() {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
-  const { data: signeeList } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
-  const { data: authorizedOrganisationDetails } = useQuery(
-    authorizedOrganisationDetailsQuery(instanceOwnerPartyId!, instanceGuid!),
+  const { data: signeeList } = useSigneeList(instanceOwnerPartyId, instanceGuid, taskId);
+  const { data: authorizedOrganizationDetails } = useAuthorizedOrganizationDetails(
+    instanceOwnerPartyId!,
+    instanceGuid!,
   );
+
   const currentUserPartyId = useCurrentParty()?.partyId;
 
   if (!signeeList || !currentUserPartyId) {
@@ -142,8 +142,8 @@ export function useUserSigneeParties() {
   const authorizedPartyIds = [currentUserPartyId];
 
   // Add organization party IDs if available
-  if (authorizedOrganisationDetails?.organisations) {
-    authorizedOrganisationDetails.organisations.forEach((org) => {
+  if (authorizedOrganizationDetails?.organisations) {
+    authorizedOrganizationDetails.organisations.forEach((org) => {
       authorizedPartyIds.push(org.partyId);
     });
   }

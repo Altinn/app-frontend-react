@@ -6,11 +6,11 @@ import { RadioButton } from 'src/components/form/RadioButton';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import type { SigneeState } from 'src/layout/SigneeList/api';
-import type { AuthorizedOrganisationDetails } from 'src/layout/SigningStatusPanel/api';
+import type { AuthorizedOrganizationDetails } from 'src/layout/SigningStatusPanel/api';
 
 interface OnBehalfOfChooserProps {
   currentUserSignee: SigneeState | undefined;
-  authorizedOrganizationDetails: AuthorizedOrganisationDetails['organisations'];
+  authorizedOrganizationDetails: AuthorizedOrganizationDetails['organisations'];
   onBehalfOfOrg: string | null;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }

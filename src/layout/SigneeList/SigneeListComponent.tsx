@@ -1,13 +1,11 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useQuery } from '@tanstack/react-query';
-
 import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { signeeListQuery } from 'src/layout/SigneeList/api';
+import { useSigneeList } from 'src/layout/SigneeList/api';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { SigneeListError } from 'src/layout/SigneeList/SigneeListError';
 import { SigneeStateTag } from 'src/layout/SigneeList/SigneeStateTag';
@@ -20,7 +18,7 @@ export function SigneeListComponent({ node }: PropsFromGenericComponent<'SigneeL
 
   const { textResourceBindings } = useNodeItem(node);
 
-  const { data, isLoading, error } = useQuery(signeeListQuery(instanceOwnerPartyId, instanceGuid, taskId));
+  const { data, isLoading, error } = useSigneeList(instanceOwnerPartyId, instanceGuid, taskId);
 
   if (error) {
     return <SigneeListError error={error} />;

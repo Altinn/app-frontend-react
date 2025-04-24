@@ -2,12 +2,11 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 
 import { jest } from '@jest/globals';
-import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 
 import { Lang } from 'src/features/language/Lang';
-import { NotificationStatus, SigneeState } from 'src/layout/SigneeList/api';
+import { NotificationStatus, SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
 import { SigneeListSummary } from 'src/layout/SigneeList/SigneeListSummary';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -16,10 +15,9 @@ jest.mock('src/layout/SigneeList/api');
 jest.mock('react-router-dom');
 jest.mock('src/utils/layout/useNodeItem');
 jest.mock('src/features/language/Lang');
-jest.mock('@tanstack/react-query');
 
 describe('SigneeListSummary', () => {
-  const mockedUseQuery = jest.mocked(useQuery);
+  const mockedUseSigneeList = jest.mocked(useSigneeList);
   const mockedUseNodeItem = jest.mocked(useNodeItem);
 
   beforeEach(() => {
@@ -35,11 +33,11 @@ describe('SigneeListSummary', () => {
   });
 
   it('should render loading state', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       date: undefined,
       isLoading: true,
       error: null,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     // Test case
     render(
@@ -50,16 +48,16 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('signee_list_summary.loading');
   });
 
   it('should render error state', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       date: undefined,
       isLoading: false,
       error: new Error('error'),
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     // Test case
     render(
@@ -70,16 +68,16 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('signee_list_summary.error');
   });
 
   it('should render no signatures state when loading is false, error is null and data is undefined', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       date: undefined,
       isLoading: false,
       error: null,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     // Test case
     render(
@@ -90,16 +88,16 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('signee_list_summary.no_signatures');
   });
 
   it('should render no signatures state when loading is false, error is null and data is an empty array', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       date: [],
       isLoading: false,
       error: null,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     // Test case
     render(
@@ -110,7 +108,7 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('signee_list_summary.no_signatures');
   });
 
@@ -118,7 +116,7 @@ describe('SigneeListSummary', () => {
     const signedTime1 = new Date().toISOString();
     const signedTime2 = new Date().toISOString();
 
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [
         {
           name: 'Signee 1',
@@ -150,7 +148,7 @@ describe('SigneeListSummary', () => {
       ] satisfies SigneeState[],
       isLoading: false,
       error: null,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     // Test case
     render(
@@ -161,7 +159,7 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('title');
     screen.getByText('Signee 1');
     screen.getByText("Signee 2, signee_list_summary.on_behalf_of Signee 2's organization");
@@ -169,11 +167,11 @@ describe('SigneeListSummary', () => {
   });
 
   it('should render original title if summary override title is undefined', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [] satisfies SigneeState[],
       isLoading: false,
       error: null,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     mockedUseNodeItem.mockReturnValue('originalTitle' as unknown as ReturnType<typeof useNodeItem>);
 
@@ -186,16 +184,16 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('originalTitle');
   });
 
   it('should not render title if originalTitle and overrideTitle are not set', () => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [] satisfies SigneeState[],
       isLoading: false,
       error: null,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     mockedUseNodeItem.mockReturnValue(undefined);
 
@@ -208,17 +206,17 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('signee_list_summary.no_signatures');
     expect(screen.queryByText('title')).not.toBeInTheDocument();
   });
 
   it.each([null, ''])('should not render title if summary title override is null or empty string', (titleOverride) => {
-    mockedUseQuery.mockReturnValue({
+    mockedUseSigneeList.mockReturnValue({
       data: [] satisfies SigneeState[],
       isLoading: false,
       error: null,
-    } as unknown as UseQueryResult);
+    } as unknown as ReturnType<typeof useSigneeList>);
 
     // Test case
     render(
@@ -229,7 +227,7 @@ describe('SigneeListSummary', () => {
     );
 
     // Assertion
-    expect(mockedUseQuery).toHaveBeenCalledTimes(1);
+    expect(mockedUseSigneeList).toHaveBeenCalledTimes(1);
     screen.getByText('signee_list_summary.no_signatures');
     expect(screen.queryByText('title')).not.toBeInTheDocument();
   });
