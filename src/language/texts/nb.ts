@@ -370,6 +370,7 @@ export function nb(): FixedLanguageList {
       submit_panel_radio_group_legend: 'Hvem ønsker du å signere på vegne av?',
       submit_panel_radio_group_description: 'Følgende er parter du har rettigheter til å signere på vegne av.',
       submit_panel_single_org_choice: 'Du signerer på vegne av {0}.',
+      submit_panel_myself_choice: 'Meg selv',
 
       awaiting_other_signatures_panel_title: 'Venter på signaturer',
       awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
