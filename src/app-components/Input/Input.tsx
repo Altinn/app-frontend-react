@@ -2,16 +2,19 @@ import React from 'react';
 import type { InputHTMLAttributes, ReactNode } from 'react';
 
 import { Paragraph, Textfield } from '@digdir/designsystemet-react';
-import type { CharacterLimitProps } from '@digdir/designsystemet-react/dist/types/components/form/CharacterCounter';
 
 import classes from 'src/app-components/Input/Input.module.css';
 import type { InputType } from 'src/app-components/Input/constants';
+
+type LabelRequired =
+  | { 'aria-label': string; 'aria-labelledby'?: never; label?: never }
+  | { 'aria-label'?: never; 'aria-labelledby'?: never; label: ReactNode }
+  | { 'aria-label'?: never; 'aria-labelledby': string; label?: never };
 
 export type InputProps = {
   size?: 'sm' | 'md' | 'lg';
   prefix?: string;
   suffix?: string;
-  characterLimit?: CharacterLimitProps;
   error?: ReactNode;
   disabled?: boolean;
   id?: string;
@@ -31,10 +34,11 @@ export type InputProps = {
   | 'placeholder'
   | 'inputMode'
   | 'style'
->;
+> &
+  LabelRequired;
 
 export function Input(props: InputProps) {
-  const { size = 'sm', readOnly, textonly, ...rest } = props;
+  const { size = 'sm', readOnly, error, textonly, ...rest } = props;
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     if (readOnly) {
@@ -51,7 +55,7 @@ export function Input(props: InputProps) {
     return (
       <Paragraph
         id={id}
-        size={size}
+        data-size={size}
         className={`${classes.textPadding} ${classes.focusable} ${className}`}
         tabIndex={0}
       >
@@ -62,8 +66,9 @@ export function Input(props: InputProps) {
 
   return (
     <Textfield
+      data-size={size}
       onPaste={handlePaste}
-      size={size}
+      aria-invalid={!!error}
       readOnly={readOnly}
       {...rest}
     />

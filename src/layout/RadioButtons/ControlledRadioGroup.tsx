@@ -1,15 +1,19 @@
 import React from 'react';
 
-import { Radio } from '@digdir/designsystemet-react';
+import { Fieldset, useRadioGroup } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
+import utilClasses from 'src/styles/utils.module.css';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -33,6 +37,12 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     ? lang('form_filler.radiobutton_alert_label', [`<strong>${selectedLabelTranslated}</strong>`])
     : null;
   const confirmChangeText = langAsString('form_filler.alert_confirm');
+  const { getRadioProps } = useRadioGroup({
+    name: id,
+    value: selectedValues[0],
+    onChange: () => handleChange,
+    error: !isValid,
+  });
 
   const leftColumnHeader = useNodeItem(node.parent instanceof LayoutNode ? node.parent : undefined, (i) =>
     i.type === 'Likert' ? i.textResourceBindings?.leftColumnHeader : undefined,
@@ -74,35 +84,37 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   return (
     <ComponentStructureWrapper node={node}>
       <div id={id}>
-        <Radio.Group
-          legend={labelText}
-          hideLegend={overrideDisplay?.renderLegend === false}
-          description={<Lang id={textResourceBindings?.description} />}
-          error={!isValid}
-          readOnly={readOnly}
-          inline={shouldDisplayHorizontally}
-          role='radiogroup'
-        >
-          {calculatedOptions.map((option) => (
-            <RadioButton
-              value={option.value}
-              label={langAsString(option.label)}
-              description={option.description && <Lang id={option.description} />}
-              helpText={option.helpText && <Lang id={option.helpText} />}
-              name={id}
-              key={option.value}
-              checked={option.value === selectedValues[0]}
-              showAsCard={showAsCard}
-              readOnly={readOnly}
-              onChange={handleChange}
-              hideLabel={hideLabel}
-              size='small'
-              alertOnChange={alertOnChange}
-              alertText={alertText}
-              confirmChangeText={confirmChangeText}
-            />
-          ))}
-        </Radio.Group>
+        <Fieldset role='radiogroup'>
+          <Fieldset.Legend className={cn({ [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}>
+            {labelText}
+          </Fieldset.Legend>
+          <Fieldset.Description>
+            <Lang id={textResourceBindings?.description} />
+          </Fieldset.Description>
+          <ConditionalWrapper
+            condition={shouldDisplayHorizontally}
+            wrapper={(children) => <div className={classes.inlineRadioGroup}>{children}</div>}
+          >
+            {calculatedOptions.map((option) => (
+              <RadioButton
+                key={option.value}
+                label={langAsString(option.label)}
+                description={option.description && <Lang id={option.description} />}
+                helpText={option.helpText && <Lang id={option.helpText} />}
+                {...getRadioProps({ value: option.value })}
+                checked={option.value === selectedValues[0]}
+                showAsCard={showAsCard}
+                readOnly={readOnly}
+                onChange={handleChange}
+                hideLabel={hideLabel}
+                data-size='sm'
+                alertOnChange={alertOnChange}
+                alertText={alertText}
+                confirmChangeText={confirmChangeText}
+              />
+            ))}
+          </ConditionalWrapper>
+        </Fieldset>
       </div>
     </ComponentStructureWrapper>
   );

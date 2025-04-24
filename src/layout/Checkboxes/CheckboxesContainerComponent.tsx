@@ -1,9 +1,9 @@
 import React from 'react';
 
-import { Checkbox } from '@digdir/designsystemet-react';
-import cn from 'classnames';
+import { Fieldset, useCheckboxGroup } from '@digdir/designsystemet-react';
 
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -44,6 +44,13 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
 
+  const { getCheckboxProps } = useCheckboxGroup({
+    name: id,
+    readOnly,
+    value: selectedValues,
+    error: !isValid,
+  });
+
   return (
     <ComponentStructureWrapper node={node}>
       {isFetching ? (
@@ -53,34 +60,46 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
           id={id}
           key={`checkboxes_group_${id}`}
         >
-          <Checkbox.Group
-            className={cn({ [classes.horizontal]: horizontal }, classes.checkboxGroup)}
-            legend={labelTextGroup}
-            description={textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
-            readOnly={readOnly}
-            hideLegend={overrideDisplay?.renderLegend === false}
-            error={!isValid}
+          <Fieldset
+            className={classes.checkboxGroup}
             aria-label={ariaLabel}
-            value={selectedValues}
-            data-testid='checkboxes-fieldset'
           >
-            {calculatedOptions.map((option) => (
-              <WrappedCheckbox
-                key={option.value}
-                id={id}
-                option={option}
-                hideLabel={hideLabel}
-                alertOnChange={alertOnChange}
-                checked={selectedValues.includes(option.value)}
-                setChecked={(isChecked) => {
-                  const newData = isChecked
-                    ? [...selectedValues, option.value]
-                    : selectedValues.filter((o) => o !== option.value);
-                  setData(newData);
-                }}
-              />
-            ))}
-          </Checkbox.Group>
+            {overrideDisplay?.renderLegend !== false && <Fieldset.Legend>{labelTextGroup}</Fieldset.Legend>}
+            {textResourceBindings?.description && (
+              <Fieldset.Description>
+                <Lang id={textResourceBindings?.description} />
+              </Fieldset.Description>
+            )}
+            <ConditionalWrapper
+              condition={horizontal}
+              wrapper={(children) => (
+                <div
+                  data-testid='horizontalWrapper'
+                  className={classes.horizontal}
+                >
+                  {children}
+                </div>
+              )}
+            >
+              {calculatedOptions.map((option) => (
+                <WrappedCheckbox
+                  key={option.value}
+                  id={id}
+                  option={option}
+                  hideLabel={hideLabel}
+                  alertOnChange={alertOnChange}
+                  {...getCheckboxProps(option.value)}
+                  checked={selectedValues.includes(option.value)}
+                  setChecked={(isChecked) => {
+                    const newData = isChecked
+                      ? [...selectedValues, option.value]
+                      : selectedValues.filter((o) => o !== option.value);
+                    setData(newData);
+                  }}
+                />
+              ))}
+            </ConditionalWrapper>
+          </Fieldset>
         </div>
       )}
     </ComponentStructureWrapper>

@@ -58,6 +58,7 @@ export function DatePickerInput({
     <PatternFormat
       format={formatPattern}
       customInput={Textfield}
+      data-size='sm'
       mask='_'
       className={styles.calendarInput}
       type='text'

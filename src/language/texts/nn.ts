@@ -212,9 +212,8 @@ export function nn(): FixedLanguageList {
         'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
     },
     input_components: {
-      character_limit_sr_label: 'Tekstfeltet kan innehalde maks {0} teikn.',
-      remaining_characters: 'Du har {0} av {1} teikn igjen',
-      exceeded_max_limit: 'Du har overskride maks teikn med {0}',
+      remaining_characters: 'Du har %d teikn igjen',
+      exceeded_max_limit: 'Du har overskride maks teikn med %d',
     },
     instance_selection: {
       changed_by: 'Endra av',
@@ -349,7 +348,7 @@ export function nn(): FixedLanguageList {
       validation_error_name_too_short: 'Etternamn kan ikkje vere tomt.',
       validation_error_ssn: 'Fødselsnummeret/D-nummeret er ugyldig.',
       validation_error_not_found:
-        'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
+        'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. <br> Merk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
       validation_error_too_many_requests: 'Du har gjort for mange søk. Ver venleg, prøv igjen seinare.',
       validation_error_forbidden:
         'Du har ikkje tilgang til å gjere dette søket. Sikkerheitsnivå 2 eller høgare er påkravd.',

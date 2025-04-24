@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import type { AriaAttributes } from 'react';
 
-import { Checkbox, Heading, Radio, Table } from '@digdir/designsystemet-react';
+import {
+  Checkbox,
+  Fieldset,
+  Heading,
+  Radio,
+  Table,
+  useCheckboxGroup,
+  useRadioGroup,
+} from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -43,13 +51,13 @@ export const ListComponent = ({ node }: IListProps) => {
   } = item;
 
   const [pageSize, setPageSize] = useState<number>(pagination?.default ?? 0);
-  const [pageNumber, setPageNumber] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState<number>(1);
   const [sortColumn, setSortColumn] = useState<string | undefined>();
   const [sortDirection, setSortDirection] = useState<AriaAttributes['aria-sort']>('none');
 
   const filter: Filter = {
     pageSize,
-    pageNumber,
+    pageNumber: currentPage - 1,
     sortColumn,
     sortDirection,
   };
@@ -140,70 +148,82 @@ export const ListComponent = ({ node }: IListProps) => {
       </div>
     ));
 
-  const options = groupBinding ? (
-    <Checkbox.Group
-      legend={
-        <Heading
-          level={2}
-          size='sm'
-        >
-          <Lang id={title} />
-          <RequiredIndicator required={required} />
-        </Heading>
-      }
-      description={description && <Lang id={description} />}
-    >
-      {data?.listItems.map((row) => (
-        <Checkbox
-          key={JSON.stringify(row)}
-          onClick={() => handleRowClick(row)}
-          value={JSON.stringify(row)}
-          className={cn(classes.mobile)}
-          checked={isRowSelected(row)}
-        >
-          {renderListItems(row, tableHeaders)}
-        </Checkbox>
-      ))}
-    </Checkbox.Group>
-  ) : (
-    <Radio.Group
-      role='radiogroup'
-      required={required}
-      legend={
-        <Heading
-          level={2}
-          size='sm'
-        >
-          <Lang id={title} />
-          <RequiredIndicator required={required} />
-        </Heading>
-      }
-      description={description && <Lang id={description} />}
-      className={classes.mobileGroup}
-      value={JSON.stringify(selectedRow)}
-    >
-      {data?.listItems.map((row) => (
-        <Radio
-          key={JSON.stringify(row)}
-          value={JSON.stringify(row)}
-          className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
-          onClick={() => handleSelectedRadioRow({ selectedValue: row })}
-        >
-          {renderListItems(row, tableHeaders)}
-        </Radio>
-      ))}
-    </Radio.Group>
-  );
+  const { getRadioProps } = useRadioGroup({
+    name: node.id,
+    value: JSON.stringify(selectedRow),
+    required,
+  });
+
+  const { getCheckboxProps } = useCheckboxGroup({
+    name: node.id,
+    required,
+  });
 
   if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
-        {options}
+        {groupBinding ? (
+          <Fieldset>
+            <Fieldset.Legend>
+              {description && (
+                <Fieldset.Description>
+                  <Lang id={description} />
+                </Fieldset.Description>
+              )}
+              <Heading
+                level={2}
+                data-size='sm'
+              >
+                <Lang id={title} />
+                <RequiredIndicator required={required} />
+              </Heading>
+            </Fieldset.Legend>
+            {data?.listItems.map((row) => (
+              <Checkbox
+                key={JSON.stringify(row)}
+                className={cn(classes.mobile)}
+                {...getCheckboxProps({ value: JSON.stringify(row) })}
+                onClick={() => handleRowClick(row)}
+                value={JSON.stringify(row)}
+                checked={isRowSelected(row)}
+                label={renderListItems(row, tableHeaders)}
+              />
+            ))}
+          </Fieldset>
+        ) : (
+          <Fieldset className={classes.mobileGroup}>
+            <Fieldset.Legend>
+              <Heading
+                level={2}
+                data-size='sm'
+              >
+                <Lang id={title} />
+                <RequiredIndicator required={required} />
+              </Heading>
+            </Fieldset.Legend>
+            {description && (
+              <Fieldset.Description>
+                <Lang id={description} />
+              </Fieldset.Description>
+            )}
+
+            {data?.listItems.map((row) => (
+              <Radio
+                key={JSON.stringify(row)}
+                {...getRadioProps({ value: JSON.stringify(row) })}
+                value={JSON.stringify(row)}
+                className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
+                onClick={() => handleSelectedRadioRow({ selectedValue: row })}
+                label={renderListItems(row, tableHeaders)}
+              />
+            ))}
+          </Fieldset>
+        )}
         <Pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
-          pageNumber={pageNumber}
-          setPageNumber={setPageNumber}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
           numberOfRows={data?._metaData.totaltItemsCount}
           rowsPerPageOptions={pagination?.alternatives}
         />
@@ -218,7 +238,7 @@ export const ListComponent = ({ node }: IListProps) => {
           <caption id={getLabelId(node.id)}>
             <Heading
               level={2}
-              size='sm'
+              data-size='sm'
             >
               <Lang id={title} />
               <RequiredIndicator required={required} />
@@ -237,16 +257,7 @@ export const ListComponent = ({ node }: IListProps) => {
             {Object.entries(tableHeaders).map(([key, value]) => (
               <Table.HeaderCell
                 key={key}
-                sortable={sortableColumns?.includes(key)}
-                sort={sortColumn === key ? sortDirection : undefined}
-                onSortClick={() => {
-                  if (sortColumn === key) {
-                    setSortDirection(sortDirection === 'ascending' ? 'descending' : 'ascending');
-                  } else {
-                    setSortDirection('descending');
-                    setSortColumn(key);
-                  }
-                }}
+                sort={sortableColumns?.includes(key) && sortColumn === key ? sortDirection : undefined}
               >
                 <Lang id={value} />
               </Table.HeaderCell>
@@ -304,8 +315,8 @@ export const ListComponent = ({ node }: IListProps) => {
         <Pagination
           pageSize={pageSize}
           setPageSize={setPageSize}
-          pageNumber={pageNumber}
-          setPageNumber={setPageNumber}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
           numberOfRows={data?._metaData.totaltItemsCount}
           rowsPerPageOptions={pagination?.alternatives}
         />
@@ -317,8 +328,8 @@ export const ListComponent = ({ node }: IListProps) => {
 type PaginationProps = {
   pageSize: number;
   setPageSize: (pageSize: number) => void;
-  pageNumber: number;
-  setPageNumber: (pageNumber: number) => void;
+  currentPage: number;
+  setCurrentPage: (pageNumber: number) => void;
   numberOfRows: number | undefined;
   rowsPerPageOptions: number[] | undefined;
 };
@@ -326,8 +337,8 @@ type PaginationProps = {
 function Pagination({
   pageSize,
   setPageSize,
-  pageNumber,
-  setPageNumber,
+  currentPage,
+  setCurrentPage,
   numberOfRows = 0,
   rowsPerPageOptions = [],
 }: PaginationProps) {
@@ -335,13 +346,13 @@ function Pagination({
   const isMobile = useIsMobile();
 
   function handlePageSizeChange(newSize: number) {
-    setPageNumber(0);
+    setCurrentPage(1);
     setPageSize(newSize);
   }
   const textStrings = language?.['list_component'];
 
   return (
-    <div className={cn({ [classes.paginationMobile]: isMobile }, classes.pagination, 'fds-table__header__cell')}>
+    <div className={cn({ [classes.paginationMobile]: isMobile }, classes.pagination, 'ds-table__header__cell')}>
       <CustomPagination
         nextLabel={textStrings['nextPage']}
         nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
@@ -349,10 +360,10 @@ function Pagination({
         previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
         rowsPerPageText={textStrings['rowsPerPage']}
         size='sm'
-        currentPage={pageNumber}
+        currentPage={currentPage}
         numberOfRows={numberOfRows}
         pageSize={pageSize}
-        onChange={setPageNumber}
+        setCurrentPage={setCurrentPage}
         showRowsPerPageDropdown
         onPageSizeChange={(value) => handlePageSizeChange(+value)}
         rowsPerPageOptions={rowsPerPageOptions}
