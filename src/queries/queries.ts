@@ -14,7 +14,6 @@ import {
   applicationMetadataApiUrl,
   applicationSettingsApiUrl,
   appPath,
-  currentPartyUrl,
   getActionsUrl,
   getActiveInstancesUrl,
   getCreateInstancesUrl,
@@ -40,11 +39,12 @@ import {
   getProcessStateUrl,
   getRedirectUrl,
   getRulehandlerUrl,
-  getSetCurrentPartyUrl,
+  getSetSelectedPartyUrl,
   getValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
+  selectedPartyUrl,
   textResourcesUrl,
   validPartiesUrl,
 } from 'src/utils/urls/appUrlHelper';
@@ -81,8 +81,8 @@ import type {
   IProfile,
 } from 'src/types/shared';
 
-export const doSetCurrentParty = (partyId: number | string) =>
-  putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(partyId));
+export const doSetSelectedParty = (partyId: number | string) =>
+  putWithoutConfig<'Party successfully updated' | string | null>(getSetSelectedPartyUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation, language?: string): Promise<IInstance> =>
   cleanUpInstanceData((await httpPost(getInstantiateUrl(language), undefined, data)).data);
@@ -231,7 +231,7 @@ export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadat
 
 export const fetchApplicationSettings = (): Promise<IApplicationSettings> => httpGet(applicationSettingsApiUrl);
 
-export const fetchCurrentParty = (): Promise<IParty | undefined> => httpGet(currentPartyUrl);
+export const fetchSelectedParty = (): Promise<IParty | undefined> => httpGet(selectedPartyUrl);
 
 export const fetchFooterLayout = (): Promise<IFooterLayout | null> => httpGet(getFooterLayoutUrl());
 

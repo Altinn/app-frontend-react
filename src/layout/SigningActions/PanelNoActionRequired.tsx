@@ -4,7 +4,7 @@ import { Link } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Lang } from 'src/features/language/Lang';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
 import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -17,7 +17,7 @@ type NoActionRequiredPanelProps = {
 };
 
 export function NoActionRequiredPanel({ node, hasSigned }: NoActionRequiredPanelProps) {
-  const currentUserPartyId = useCurrentParty()?.partyId;
+  const currentUserPartyId = useProfile()?.partyId;
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
 
   const titleHasSigned =

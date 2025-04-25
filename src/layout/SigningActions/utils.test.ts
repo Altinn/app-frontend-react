@@ -109,6 +109,19 @@ describe('getCurrentUserStatus', () => {
       // Since there's at least one unsigned signee, it should return 'awaitingSignature'
       expect(result).toBe('awaitingSignature');
     });
+
+    it('should return "awaitingSignature" if the current user is not in the list, but has signed for other orgs', () => {
+      const currentUserPartyId = 789; // Not in the list
+      const userSignees = [
+        { organization: 'Org 1', partyId: 'org1', hasSigned: true },
+        { organization: 'Org 2', partyId: 'org2', hasSigned: true },
+      ] as unknown as SigneeState[];
+      const canSign = true;
+
+      const result = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
+
+      expect(result).toBe('awaitingSignature');
+    });
   });
 
   describe('comprehensive test matrix', () => {

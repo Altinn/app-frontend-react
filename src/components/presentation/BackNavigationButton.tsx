@@ -11,7 +11,7 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -20,7 +20,7 @@ import { getMessageBoxUrl } from 'src/utils/urls/urlHelper';
 export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
-  const party = useCurrentParty();
+  const party = useSelectedParty();
   const mainPageKey = useNavigationParam('mainPageKey');
   const isSubform = useIsSubformPage();
   const { returnUrl, isFetchingReturnUrl } = useReturnUrl();
