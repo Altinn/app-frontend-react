@@ -37,11 +37,14 @@ export function ComponentSummaryById({
 
 export function ComponentSummary<T extends CompTypes>({ componentNode }: ComponentSummaryProps<T>) {
   const isCompact = useSummary2Prop('isCompact');
-  const override = useSummary2Overrides(componentNode.id);
+  const override = useSummary2Overrides(componentNode.baseId);
   const hideEmptyFields = useSummary2Prop('hideEmptyFields');
-  const componentNodeItem = useNodeItem(componentNode);
-  const isRequired = 'required' in componentNodeItem && componentNodeItem['required'] === true;
-  const { formData } = useDataModelBindings(componentNodeItem.dataModelBindings);
+  const isRequired = useNodeItem(componentNode, (i) => ('required' in i ? i.required : false));
+  const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
+  const forceShowInSummary = useNodeItem(componentNode, (i) => i['forceShowInSummary']);
+  const pageBreak = useNodeItem(componentNode, (i) => i.pageBreak);
+  const grid = useNodeItem(componentNode, (i) => i.grid);
+  const { formData } = useDataModelBindings(dataModelBindings);
   const isHidden = Hidden.useIsHidden(componentNode);
   const noUserInput = Object.values(formData).every((value) => value?.length < 1);
   const def = getComponentDef(componentNode.type);
@@ -66,15 +69,15 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
     return null;
   }
 
-  if (noUserInput && hideEmptyFields && !isRequired && !componentNodeItem['forceShowInSummary']) {
+  if (noUserInput && hideEmptyFields && !isRequired && !forceShowInSummary) {
     return null;
   }
 
   return (
     <Flex
       item
-      className={cn(pageBreakStyles(componentNodeItem?.pageBreak), classes.summaryItem)}
-      size={componentNodeItem.grid}
+      className={cn(pageBreakStyles(pageBreak), classes.summaryItem)}
+      size={grid}
     >
       {renderedComponent}
     </Flex>
