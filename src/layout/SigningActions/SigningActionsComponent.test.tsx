@@ -6,7 +6,7 @@ import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 
-import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { useIsAuthorized } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
@@ -41,7 +41,7 @@ jest.mock('src/layout/SigningActions/PanelAwaitingCurrentUserSignature');
 jest.mock('src/layout/SigningActions/PanelSubmit');
 jest.mock('src/layout/SigningActions/PanelSigning');
 
-const mockedUseIsAuthorised = jest.mocked(useIsAuthorised);
+const mockedUseisAuthorized = jest.mocked(useIsAuthorized);
 const mockedUseSigneeList = jest.mocked(useSigneeList);
 const mockedUserSigneeParties = jest.mocked(useUserSigneeParties);
 const mockedUseSignaturesValidation = jest.mocked(useSignaturesValidation);
@@ -81,7 +81,7 @@ describe('SigningActionsComponent', () => {
       instanceGuid,
       taskId,
     });
-    jest.mocked(useIsAuthorised).mockReturnValue(() => true);
+    jest.mocked(useIsAuthorized).mockReturnValue(() => true);
 
     jest.mocked(useLanguage).mockReturnValue({
       langAsString: (inputString: string) => inputString,
@@ -230,7 +230,7 @@ describe('SigningActionsComponent', () => {
 
   it('should render NoActionRequiredPanel with correct text when user does not have write access and has signed', () => {
     mockedGetCurrentUserStatus.mockReturnValue('signed');
-    mockedUseIsAuthorised.mockReturnValue(() => false);
+    mockedUseisAuthorized.mockReturnValue(() => false);
 
     render(
       <SigningActionsComponent
@@ -244,7 +244,7 @@ describe('SigningActionsComponent', () => {
   });
 
   it('should render NoActionRequiredPanel with correct text when user does not have write access and is not signing', () => {
-    mockedUseIsAuthorised.mockReturnValue(() => false);
+    mockedUseisAuthorized.mockReturnValue(() => false);
     mockedGetCurrentUserStatus.mockReturnValue('notSigning');
 
     render(
@@ -259,7 +259,7 @@ describe('SigningActionsComponent', () => {
   });
 
   it('should render AwaitingOtherSignaturesPanel with correct text when user has write access, has signed, and there are missing signatures', () => {
-    mockedUseIsAuthorised.mockReturnValue(() => true);
+    mockedUseisAuthorized.mockReturnValue(() => true);
     mockedGetCurrentUserStatus.mockReturnValue('signed');
     mockedUseSignaturesValidation.mockReturnValue({
       refetchValidations: jest.fn() as unknown as ReturnType<typeof useSignaturesValidation>['refetchValidations'],
@@ -280,7 +280,7 @@ describe('SigningActionsComponent', () => {
   });
 
   it('should render AwaitingOtherSignaturesPanel with correct text when user has write access, is not signing, and there are missing signatures', () => {
-    mockedUseIsAuthorised.mockReturnValue(() => true);
+    mockedUseisAuthorized.mockReturnValue(() => true);
     mockedGetCurrentUserStatus.mockReturnValue('notSigning');
     mockedUseSignaturesValidation.mockReturnValue({
       refetchValidations: jest.fn() as unknown as ReturnType<typeof useSignaturesValidation>['refetchValidations'],
@@ -301,7 +301,7 @@ describe('SigningActionsComponent', () => {
   it.each<Extract<CurrentUserStatus, 'notSigning' | 'signed'>>(['notSigning', 'signed'])(
     'should render SubmitPanel when user has write access and there are no missing signatures',
     (currentUserStatus) => {
-      mockedUseIsAuthorised.mockReturnValue(() => true);
+      mockedUseisAuthorized.mockReturnValue(() => true);
       mockedGetCurrentUserStatus.mockReturnValue(currentUserStatus);
       mockedUseSignaturesValidation.mockReturnValue({
         refetchValidations: jest.fn() as unknown as ReturnType<typeof useSignaturesValidation>['refetchValidations'],

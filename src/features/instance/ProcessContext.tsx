@@ -73,7 +73,7 @@ export const useHasProcessProvider = () => useContext(ProcessContext) !== undefi
 export const useLaxProcessData = () => useContext(ProcessContext)?.data;
 export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 
-export const useIsAuthorised = () => {
+export const useIsAuthorized = () => {
   const processData = useLaxProcessData();
 
   return (action: string): boolean => {

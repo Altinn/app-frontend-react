@@ -6,7 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
-import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { useIsAuthorized } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -34,9 +34,9 @@ export function AwaitingCurrentUserSignaturePanel({
   hasMissingSignatures,
 }: Readonly<AwaitingCurrentUserSignaturePanelProps>) {
   const { instanceOwnerPartyId, instanceGuid } = useParams();
-  const isAuthorised = useIsAuthorised();
-  const canSign = isAuthorised('sign');
-  const canWrite = isAuthorised('write');
+  const isAuthorized = useIsAuthorized();
+  const canSign = isAuthorized('sign');
+  const canWrite = isAuthorized('write');
 
   const selectedLanguage = useCurrentLanguage();
   const currentUserPartyId = useCurrentParty()?.partyId;

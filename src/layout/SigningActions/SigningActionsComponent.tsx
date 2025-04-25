@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Spinner } from '@digdir/designsystemet-react';
 
 import { Panel } from 'src/app-components/Panel/Panel';
-import { useIsAuthorised } from 'src/features/instance/ProcessContext';
+import { useIsAuthorized } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
@@ -30,9 +30,9 @@ export function SigningActionsComponent({ node }: PropsFromGenericComponent<'Sig
   const currentUserPartyId = useCurrentParty()?.partyId;
   const { langAsString } = useLanguage();
 
-  const isAuthorised = useIsAuthorised();
-  const canSign = isAuthorised('sign');
-  const canWrite = useIsAuthorised()('write');
+  const isAuthorized = useIsAuthorized();
+  const canSign = isAuthorized('sign');
+  const canWrite = useIsAuthorized()('write');
 
   const userSigneeParties = useUserSigneeParties();
   const currentUserStatus = getCurrentUserStatus(currentUserPartyId, userSigneeParties, canSign);
