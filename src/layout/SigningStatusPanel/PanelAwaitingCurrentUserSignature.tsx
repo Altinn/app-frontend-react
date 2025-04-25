@@ -50,7 +50,6 @@ export function AwaitingCurrentUserSignaturePanel({
   const signingButtonText = textResourceBindings?.signingButton ?? 'signing.sign_button';
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
-  // Set the org number automatically when there's only unsigned party and it is an org
   const [onBehalfOf, setOnBehalfOf] = useState<string | null>(null);
 
   const { data: authorizedOrganizationDetails, isLoading: isApiLoading } = useAuthorizedOrganizationDetails(
@@ -89,7 +88,7 @@ export function AwaitingCurrentUserSignaturePanel({
     },
   });
 
-  // if last party is an org, set the org number automatically
+  // Set the org number automatically when there's only unsigned party and it is an org
   useEffect(() => {
     if (
       unsignedUserSigneeParties.length === 1 &&

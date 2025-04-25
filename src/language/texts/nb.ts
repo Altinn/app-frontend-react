@@ -376,6 +376,8 @@ export function nb(): FixedLanguageList {
       awaiting_other_signatures_panel_description_not_signing: 'Du kan sende inn skjemaet når alle parter har signert.',
       awaiting_other_signatures_panel_description_signed:
         'Takk for at du signerte! Du kan sende inn skjemaet når alle parter har signert.',
+      awaiting_other_signatures_panel_error_message:
+        'Det mangler signaturer. Du kan sende inn skjemaet når alle parter har signert.',
 
       no_action_required_panel_title_has_signed: 'Du har signert skjemaet',
       no_action_required_panel_title_not_signed: 'Ingenting å signere',
