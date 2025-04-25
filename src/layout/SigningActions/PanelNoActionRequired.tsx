@@ -5,14 +5,14 @@ import { Link } from '@digdir/designsystemet-react';
 import { Button } from 'src/app-components/Button/Button';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
-import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
+import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
+import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getMessageBoxUrl } from 'src/utils/urls/urlHelper';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type NoActionRequiredPanelProps = {
-  node: LayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningActions'>;
   hasSigned: boolean;
 };
 

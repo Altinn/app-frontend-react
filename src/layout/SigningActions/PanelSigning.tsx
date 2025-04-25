@@ -9,13 +9,13 @@ import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
-import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
+import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PanelProps } from 'src/app-components/Panel/Panel';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SigningPanelProps = {
-  node: LayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningActions'>;
   heading: React.ReactElement;
   description?: React.ReactElement;
   variant?: PanelProps['variant'];
@@ -63,7 +63,7 @@ export function SigningPanel({
 }
 
 type RejectTextProps = {
-  node: LayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningActions'>;
 };
 
 function RejectButton({ node }: RejectTextProps) {

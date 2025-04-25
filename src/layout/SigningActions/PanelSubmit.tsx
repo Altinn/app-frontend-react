@@ -1,13 +1,13 @@
 import React from 'react';
 
 import { Lang } from 'src/features/language/Lang';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
-import { SubmitSigningButton } from 'src/layout/SigningStatusPanel/SubmitSigningButton';
+import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
+import { SubmitSigningButton } from 'src/layout/SigningActions/SubmitSigningButton';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SubmitPanelProps = {
-  node: LayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningActions'>;
 };
 
 export function SubmitPanel({ node }: SubmitPanelProps) {
