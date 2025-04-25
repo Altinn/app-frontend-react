@@ -58,7 +58,7 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const groupBinding = item.dataModelBindings?.group;
-  const { setList, isRowChecked } = useSaveObjectToGroup(node);
+  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(node);
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
@@ -91,7 +91,7 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const handleRowClick = (row: Row) => {
     if (groupBinding) {
-      setList(row);
+      toggleRowSelectionInList(row);
       //handleSelectedCheckboxRow(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });

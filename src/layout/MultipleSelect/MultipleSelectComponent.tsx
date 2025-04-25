@@ -33,7 +33,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
   const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'multi');
   const { formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const groupBinding = dataModelBindings.group;
-  const { isRowChecked, setList } = useSaveObjectToGroup(node);
+  const { isRowChecked, toggleRowSelectionInList } = useSaveObjectToGroup(node);
   const rowKey = dataModelBindings.simpleBinding.field.split('.').pop();
   const selectedGroupItems = (formData?.group as Row[])
     ?.map((row) => {
@@ -68,7 +68,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
           ? values.find((value) => !selectedGroupItems.includes(value))
           : selectedGroupItems.find((value) => !values.includes(value));
       if (rowKey && newValue) {
-        setList({ [rowKey]: newValue });
+        toggleRowSelectionInList({ [rowKey]: newValue });
       }
     } else {
       setData(values);

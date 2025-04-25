@@ -1,3 +1,4 @@
+import dot from 'dot-object';
 import { v4 as uuidv4 } from 'uuid';
 
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -12,92 +13,75 @@ type Row = Record<string, string | number | boolean>;
 
 export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'MultipleSelect'>) => {
   const bindings = useNodeItem(node, (i) => i.dataModelBindings) as IDataModelBindingsForGroupCheckbox;
-  const checkedBinding = bindings.checked;
-  const checkedBindingSegments = checkedBinding?.field.split('.');
-  const checkedBindingKey = checkedBindingSegments?.pop();
-
   const setLeafValue = FD.useSetLeafValue();
-  const { formData } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveIndexFromList();
+  const { formData } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
+
+  const checkedBindingPath = bindings.group
+    ? bindings.checked?.field.substring(bindings.group.field.length + 1)
+    : undefined;
+
+  const objectHasAllProperties = (row: Row, formDataRow: Row): boolean =>
+    Object.keys(row).every((key) => {
+      const binding = bindings[key];
+      if (!binding || !bindings.group) {
+        return false;
+      }
+
+      const path = binding.field.substring(bindings.group.field.length + 1);
+      return row[key] === dot.pick(path, formDataRow);
+    });
 
   const getObjectFromFormDataRow = (row: Row): Row | undefined =>
-    (formData?.group as Row[])?.find((selectedRow) =>
-      Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
-    );
+    (formData?.group as Row[])?.find((selectedRow) => objectHasAllProperties(row, selectedRow));
 
-  const getIndexFromFormDataRow = (row: Row) =>
-    (formData?.group as Row[]).findIndex((selectedRow) => {
-      const { altinnRowId: _ } = selectedRow;
-      return Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]);
-    });
+  const getIndexFromFormDataRow = (row: Row): number =>
+    (formData?.group as Row[]).findIndex((selectedRow) => objectHasAllProperties(row, selectedRow));
 
   const isRowChecked = (row: Row): boolean => {
     const formDataObject = getObjectFromFormDataRow(row);
-    if (checkedBindingKey) {
-      return !!formDataObject && !!formDataObject[checkedBindingKey];
-    }
-    return !!formDataObject;
+    return !!(checkedBindingPath && formDataObject && dot.pick(checkedBindingPath, formDataObject));
   };
 
-  const setList = (row: Row) => {
+  const toggleRowSelectionInList = (row: Row): void => {
     if (!bindings.group) {
       return;
     }
+
+    const index = getIndexFromFormDataRow(row);
+    const formDataObject = getObjectFromFormDataRow(row);
+
     if (isRowChecked(row)) {
-      const index = getIndexFromFormDataRow(row);
-      if (checkedBinding && checkedBindingSegments) {
-        setLeafValue({
-          reference: {
-            ...bindings.checked,
-            field: `${checkedBindingSegments.join('.')}[${index}].${checkedBindingKey}`,
-          } as IDataModelReference,
-          newValue: false,
-        });
-      } else {
-        if (index >= 0) {
-          removeFromList({
-            reference: bindings.group,
-            index,
-          });
-        }
+      if (index >= 0) {
+        const newField = `${bindings.group.field}[${index}].${checkedBindingPath}`;
+        setLeafValue({ reference: { ...bindings.checked, field: newField } as IDataModelReference, newValue: false });
+        removeFromList({ reference: bindings.group, index });
       }
     } else {
-      const formDataObject = getObjectFromFormDataRow(row);
-
-      if (formDataObject && checkedBindingKey && checkedBindingKey in formDataObject) {
-        const index = getIndexFromFormDataRow(row);
-        setLeafValue({
-          reference: {
-            ...bindings.checked,
-            field: `${checkedBindingSegments?.join('.')}[${index}].${checkedBindingKey}`,
-          } as IDataModelReference,
-          newValue: true,
-        });
+      if (checkedBindingPath && formDataObject && dot.pick(checkedBindingPath, formDataObject) !== 'undefined') {
+        const newField = `${bindings.group.field}[${index}].${checkedBindingPath}`;
+        setLeafValue({ reference: { ...bindings.checked, field: newField } as IDataModelReference, newValue: true });
       } else {
         const uuid = uuidv4();
-        const next: Row = { [ALTINN_ROW_ID]: uuid };
-        if (checkedBindingKey) {
-          next[checkedBindingKey] = true;
-        }
-        for (const binding of Object.keys(bindings)) {
-          if (binding === 'simpleBinding') {
-            const propertyName = bindings.simpleBinding.field.split('.').pop();
-            if (propertyName) {
-              next[propertyName] = row[propertyName];
-            }
-            //TODO: excluding from List now??
-          } else if (binding !== 'group' && binding !== 'checked' && binding !== 'label' && binding !== 'metadata') {
-            next[binding] = row[binding];
+        const newRow: Row = { [ALTINN_ROW_ID]: uuid };
+
+        Object.entries(bindings).forEach(([key, binding]) => {
+          if (!bindings.group) {
+            return;
           }
-        }
-        appendToList({
-          reference: bindings.group,
-          newValue: next,
+          const path = binding.field.substring(bindings.group.field.length + 1);
+          if (key === 'checked') {
+            dot.str(path, true, newRow);
+          } else if (key !== 'group' && key !== 'label' && key !== 'metadata') {
+            dot.str(path, row[key], newRow);
+          }
         });
+
+        appendToList({ reference: bindings.group, newValue: newRow });
       }
     }
   };
 
-  return { setList, isRowChecked };
+  return { toggleRowSelectionInList, isRowChecked };
 };

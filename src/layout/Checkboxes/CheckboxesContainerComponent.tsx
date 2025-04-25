@@ -34,7 +34,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
-  const { setList, isRowChecked } = useSaveObjectToGroup(node);
+  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(node);
   const group = dataModelBindings?.group;
 
   const isValid = useIsValid(node);
@@ -49,7 +49,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const setChecked = (isChecked: boolean, option) => {
     if (group) {
-      setList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
+      toggleRowSelectionInList({ [dataModelBindings.simpleBinding.field.split('.')[1]]: option.value });
     } else {
       const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
       setData(newData);

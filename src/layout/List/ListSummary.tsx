@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Heading, Table } from '@digdir/designsystemet-react';
+import dot from 'dot-object';
 
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
@@ -76,14 +77,18 @@ export const ListSummary = ({ componentNode, isCompact, emptyFieldText }: ListCo
               const rowItem = row;
               return (
                 <Table.Row key={rowIndex}>
-                  {Object.entries(tableHeaders).map(([key]) => (
-                    <Table.Cell
-                      key={key}
-                      align='left'
-                    >
-                      {rowItem[key]}
-                    </Table.Cell>
-                  ))}
+                  {Object.entries(tableHeaders).map(([key]) => {
+                    const property = dataModelBindings?.[key]?.field.split('.').slice(1).join('.') || '';
+                    const data = dot.pick(property, rowItem);
+                    return (
+                      <Table.Cell
+                        key={key}
+                        align='left'
+                      >
+                        {data} {/*rowItem[key]*/}
+                      </Table.Cell>
+                    );
+                  })}
                 </Table.Row>
               );
             })}
