@@ -19,15 +19,7 @@ export const buttonStyles: {
 export type ILinkComponent = PropsFromGenericComponent<'Link'>;
 
 export function LinkComponent({ node }: ILinkComponent) {
-  const {
-    id,
-    style: linkStyle,
-    openInNewTab,
-    textResourceBindings,
-    size,
-    fullWidth,
-    linkButtonTextAlign,
-  } = useNodeItem(node);
+  const { id, style: linkStyle, openInNewTab, textResourceBindings, size, fullWidth, textAlign } = useNodeItem(node);
   const { langAsString } = useLanguage();
 
   const downloadName = textResourceBindings?.download;
@@ -48,7 +40,7 @@ export function LinkComponent({ node }: ILinkComponent) {
 
   const LinkButton = () => (
     <Button
-      textAlign={linkButtonTextAlign}
+      textAlign={textAlign}
       id={`link-${id}`}
       color={buttonStyles[linkStyle].color}
       variant={buttonStyles[linkStyle].variant}
