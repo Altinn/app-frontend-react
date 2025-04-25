@@ -11,14 +11,14 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { NotificationStatus, SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
-import { useSignaturesValidation, useUserSigneeParties } from 'src/layout/SigningStatusPanel/api';
-import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
-import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
-import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
-import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
-import { SigningStatusPanelComponent } from 'src/layout/SigningStatusPanel/SigningStatusPanelComponent';
-import { CurrentUserStatus, getCurrentUserStatus } from 'src/layout/SigningStatusPanel/utils';
+import { useSignaturesValidation, useUserSigneeParties } from 'src/layout/SigningActions/api';
+import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningActions/PanelAwaitingCurrentUserSignature';
+import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningActions/PanelAwaitingOtherSignatures';
+import { NoActionRequiredPanel } from 'src/layout/SigningActions/PanelNoActionRequired';
+import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
+import { SubmitPanel } from 'src/layout/SigningActions/PanelSubmit';
+import { SigningActionsComponent } from 'src/layout/SigningActions/SigningActionsComponent';
+import { CurrentUserStatus, getCurrentUserStatus } from 'src/layout/SigningActions/utils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 jest.mock('src/utils/layout/useNodeItem');
@@ -31,15 +31,15 @@ jest.mock('src/features/language/Lang');
 jest.mock('src/features/instance/ProcessContext');
 jest.mock('src/features/validation/backendValidation/backendValidationQuery');
 jest.mock('src/layout/SigneeList/api');
-jest.mock('src/layout/SigningStatusPanel/api');
-jest.mock('src/layout/SigningStatusPanel/utils');
+jest.mock('src/layout/SigningActions/api');
+jest.mock('src/layout/SigningActions/utils');
 jest.mock('@tanstack/react-query');
 
-jest.mock('src/layout/SigningStatusPanel/PanelNoActionRequired');
-jest.mock('src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures');
-jest.mock('src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature');
-jest.mock('src/layout/SigningStatusPanel/PanelSubmit');
-jest.mock('src/layout/SigningStatusPanel/PanelSigning');
+jest.mock('src/layout/SigningActions/PanelNoActionRequired');
+jest.mock('src/layout/SigningActions/PanelAwaitingOtherSignatures');
+jest.mock('src/layout/SigningActions/PanelAwaitingCurrentUserSignature');
+jest.mock('src/layout/SigningActions/PanelSubmit');
+jest.mock('src/layout/SigningActions/PanelSigning');
 
 const mockedUseIsAuthorised = jest.mocked(useIsAuthorised);
 const mockedUseSigneeList = jest.mocked(useSigneeList);
@@ -67,7 +67,7 @@ const failedNotificationSignee: SigneeState = {
   partyId: 123,
 };
 
-describe('SigningStatusPanelComponent', () => {
+describe('SigningActionsComponent', () => {
   const instanceGuid = randomUUID();
   const partyId = '123';
   const taskId = 'task_1';
@@ -147,8 +147,8 @@ describe('SigningStatusPanelComponent', () => {
     } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -164,8 +164,8 @@ describe('SigningStatusPanelComponent', () => {
     } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -182,8 +182,8 @@ describe('SigningStatusPanelComponent', () => {
     } as unknown as ReturnType<typeof useSigneeList>);
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -200,8 +200,8 @@ describe('SigningStatusPanelComponent', () => {
     });
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -218,8 +218,8 @@ describe('SigningStatusPanelComponent', () => {
     });
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -233,8 +233,8 @@ describe('SigningStatusPanelComponent', () => {
     mockedUseIsAuthorised.mockReturnValue(() => false);
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -248,8 +248,8 @@ describe('SigningStatusPanelComponent', () => {
     mockedGetCurrentUserStatus.mockReturnValue('notSigning');
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -267,8 +267,8 @@ describe('SigningStatusPanelComponent', () => {
     });
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -288,8 +288,8 @@ describe('SigningStatusPanelComponent', () => {
     });
 
     render(
-      <SigningStatusPanelComponent
-        node={{} as LayoutNode<'SigningStatusPanel'>}
+      <SigningActionsComponent
+        node={{} as LayoutNode<'SigningActions'>}
         containerDivRef={React.createRef()}
       />,
     );
@@ -309,8 +309,8 @@ describe('SigningStatusPanelComponent', () => {
       });
 
       render(
-        <SigningStatusPanelComponent
-          node={{} as LayoutNode<'SigningStatusPanel'>}
+        <SigningActionsComponent
+          node={{} as LayoutNode<'SigningActions'>}
           containerDivRef={React.createRef()}
         />,
       );

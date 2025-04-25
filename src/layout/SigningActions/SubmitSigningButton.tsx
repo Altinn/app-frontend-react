@@ -9,7 +9,7 @@ import { signingQueries } from 'src/layout/SigneeList/api';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function SubmitSigningButton({ node }: { node: LayoutNode<'SigningStatusPanel'> }) {
+export function SubmitSigningButton({ node }: { node: LayoutNode<'SigningActions'> }) {
   const processNext = useProcessNext();
 
   const { textResourceBindings } = useNodeItem(node, (i) => ({

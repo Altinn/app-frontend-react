@@ -1,5 +1,5 @@
 import { NotificationStatus, SigneeState } from 'src/layout/SigneeList/api';
-import { type CurrentUserStatus, getCurrentUserStatus } from 'src/layout/SigningStatusPanel/utils';
+import { type CurrentUserStatus, getCurrentUserStatus } from 'src/layout/SigningActions/utils';
 
 describe('getCurrentUserStatus', () => {
   // Mock data for signees

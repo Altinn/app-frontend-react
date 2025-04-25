@@ -9,17 +9,17 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { useSigneeList } from 'src/layout/SigneeList/api';
-import { useSignaturesValidation, useUserSigneeParties } from 'src/layout/SigningStatusPanel/api';
-import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
-import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
-import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
-import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
-import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
-import { getCurrentUserStatus } from 'src/layout/SigningStatusPanel/utils';
+import { useSignaturesValidation, useUserSigneeParties } from 'src/layout/SigningActions/api';
+import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningActions/PanelAwaitingCurrentUserSignature';
+import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningActions/PanelAwaitingOtherSignatures';
+import { NoActionRequiredPanel } from 'src/layout/SigningActions/PanelNoActionRequired';
+import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
+import { SubmitPanel } from 'src/layout/SigningActions/PanelSubmit';
+import classes from 'src/layout/SigningActions/SigningActions.module.css';
+import { getCurrentUserStatus } from 'src/layout/SigningActions/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
+export function SigningActionsComponent({ node }: PropsFromGenericComponent<'SigningActions'>) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const {
     data: signeeList,

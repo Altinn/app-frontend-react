@@ -13,17 +13,17 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { signingQueries } from 'src/layout/SigneeList/api';
-import { useAuthorizedOrganizationDetails, useUserSigneeParties } from 'src/layout/SigningStatusPanel/api';
-import { OnBehalfOfChooser } from 'src/layout/SigningStatusPanel/OnBehalfOfChooser';
-import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
-import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
-import { SubmitSigningButton } from 'src/layout/SigningStatusPanel/SubmitSigningButton';
+import { useAuthorizedOrganizationDetails, useUserSigneeParties } from 'src/layout/SigningActions/api';
+import { OnBehalfOfChooser } from 'src/layout/SigningActions/OnBehalfOfChooser';
+import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
+import classes from 'src/layout/SigningActions/SigningActions.module.css';
+import { SubmitSigningButton } from 'src/layout/SigningActions/SubmitSigningButton';
 import { doPerformAction } from 'src/queries/queries';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type AwaitingCurrentUserSignaturePanelProps = {
-  node: LayoutNode<'SigningStatusPanel'>;
+  node: LayoutNode<'SigningActions'>;
   hasMissingSignatures: boolean;
 };
 
