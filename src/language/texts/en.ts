@@ -376,6 +376,8 @@ export function en() {
       awaiting_other_signatures_panel_description_not_signing: 'You can submit the form when all parties have signed.',
       awaiting_other_signatures_panel_description_signed:
         'Thank you for signing! You can submit the form when all parties have signed.',
+      awaiting_other_signatures_panel_error_message:
+        'There are missing signatures. You can submit the form when all parties have signed.',
 
       no_action_required_panel_title_has_signed: 'You have signed the form',
       no_action_required_panel_title_not_signed: 'Nothing to sign',
