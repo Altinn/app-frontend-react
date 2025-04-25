@@ -92,7 +92,6 @@ export const ListComponent = ({ node }: IListProps) => {
   const handleRowClick = (row: Row) => {
     if (groupBinding) {
       toggleRowSelectionInList(row);
-      //handleSelectedCheckboxRow(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });
     }

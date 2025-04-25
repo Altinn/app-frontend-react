@@ -35,7 +35,6 @@ describe('Checkboxes component', () => {
 
     const checkboxes = '[data-componentid=CheckboxesPage-Checkboxes2]';
     const repGroup = '[data-componentid=CheckboxesPage-RepeatingGroup]';
-    //const summary1 = '[data-componentid=ListPage-Summary-Component2]';
 
     // Define the text for the last three checkboxes
     const checkboxText1 = 'Karoline';
