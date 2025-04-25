@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
+import type { AnySummaryOverrideProps, CompSummary2External } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Summary2State = Pick<CompSummary2External, 'hideEmptyFields' | 'showPageInAccordion' | 'overrides' | 'isCompact'>;
@@ -21,11 +21,16 @@ export function Summary2StoreProvider({ children, node }: PropsWithChildren<{ no
   );
 }
 
-export const useSummary2Prop = <K extends keyof Summary2State>(prop: K): Summary2State[K] | undefined => {
+export function useSummary2Prop<K extends keyof Summary2State>(prop: K): Summary2State[K] | undefined {
   const state = useContext(StoreContext);
   if (!state) {
     throw new Error('useSummary2Prop must be used within a Summary2StoreProvider');
   }
 
   return state[prop];
-};
+}
+
+export function useSummary2Overrides(componentId: string): AnySummaryOverrideProps | undefined {
+  const overrides = useSummary2Prop('overrides');
+  return overrides?.find((o) => o.componentId === componentId);
+}
