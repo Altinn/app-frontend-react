@@ -37,6 +37,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     ? lang('form_filler.radiobutton_alert_label', [`<strong>${selectedLabelTranslated}</strong>`])
     : null;
   const confirmChangeText = langAsString('form_filler.alert_confirm');
+
   const { getRadioProps } = useRadioGroup({
     name: id,
     value: selectedValues[0],
@@ -95,24 +96,28 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
             condition={shouldDisplayHorizontally}
             wrapper={(children) => <div className={classes.inlineRadioGroup}>{children}</div>}
           >
-            {calculatedOptions.map((option) => (
-              <RadioButton
-                key={option.value}
-                label={langAsString(option.label)}
-                description={option.description && <Lang id={option.description} />}
-                helpText={option.helpText && <Lang id={option.helpText} />}
-                {...getRadioProps({ value: option.value })}
-                checked={option.value === selectedValues[0]}
-                showAsCard={showAsCard}
-                readOnly={readOnly}
-                onChange={handleChange}
-                hideLabel={hideLabel}
-                data-size='sm'
-                alertOnChange={alertOnChange}
-                alertText={alertText}
-                confirmChangeText={confirmChangeText}
-              />
-            ))}
+            {calculatedOptions.map((option) => {
+              const radioProps = getRadioProps({ value: option.value });
+              return (
+                <RadioButton
+                  key={option.value}
+                  label={langAsString(option.label)}
+                  description={option.description && <Lang id={option.description} />}
+                  helpText={option.helpText && <Lang id={option.helpText} />}
+                  value={radioProps.value}
+                  name={id}
+                  checked={option.value === selectedValues[0]}
+                  showAsCard={showAsCard}
+                  readOnly={readOnly}
+                  onChange={handleChange}
+                  hideLabel={hideLabel}
+                  data-size='sm'
+                  alertOnChange={alertOnChange}
+                  alertText={alertText}
+                  confirmChangeText={confirmChangeText}
+                />
+              );
+            })}
           </ConditionalWrapper>
         </Fieldset>
       </div>
