@@ -1,11 +1,13 @@
 import React from 'react';
 
+import { Table } from '@digdir/designsystemet-react';
 import classNames from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { gridToClasses } from 'src/layout/GenericComponent';
 import classes from 'src/layout/GenericComponent.module.css';
 import { RenderComponent } from 'src/next/components/RenderComponent';
+import type { Expression } from 'src/features/expressions/types';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
 interface RenderLayoutType {
@@ -37,10 +39,6 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
       alignItems='flex-start'
     >
       {components.map((currentComponent) => {
-        // const childMapping = currentComponent.dataModelBindings
-        //   ? currentComponent.dataModelBindings['simpleBinding']
-        //   : '';
-
         const childMapping = getBinding(currentComponent);
 
         const childField = childMapping && parentBinding ? childMapping.replace(parentBinding, '') : undefined;
@@ -57,14 +55,6 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
             key={`grid-${id}`}
             className={classNames(classes.container, gridToClasses(currentComponent.grid?.labelGrid, classes))}
           >
-            {/*<pre>{JSON.stringify(currentComponent.type, null, 2)}</pre>*/}
-            {/*<h4>Here comes the layout</h4>*/}
-
-            {/*<ul>*/}
-            {/*  <li>childMapping: {childMapping}</li>*/}
-            {/*  <li>childField: {childField}</li>*/}
-            {/*</ul>*/}
-
             <RenderComponent
               component={currentComponent}
               parentBinding={parentBinding}
@@ -75,5 +65,57 @@ export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ compon
         );
       })}
     </Flex>
+  );
+};
+
+interface RenderLayoutRowType {
+  components?: ResolvedCompExternal[];
+  parentBinding?: string;
+  itemIndex?: number;
+  isRowHiddenExpression?: Expression;
+}
+
+export const RenderLayoutRow: React.FunctionComponent<RenderLayoutRowType> = ({
+  components,
+  parentBinding,
+  itemIndex,
+  isRowHiddenExpression,
+}) => {
+  console.log('isRowHiddenExpression', isRowHiddenExpression);
+  // const isHidden = useStore(layoutStore, (state) => {
+  //   if (!isRowHiddenExpression) {
+  //     return false;
+  //   }
+  //   // @ts-ignore
+  //   return state.evaluateExpression(isRowHiddenExpression, parentBinding, itemIndex);
+  // });
+  //
+  // if (isHidden) {
+  //   return null;
+  // }
+
+  if (!components) {
+    return null;
+  }
+
+  return (
+    <Table.Row>
+      {components.map((currentComponent) => {
+        const childMapping = getBinding(currentComponent);
+
+        const childField = childMapping && parentBinding ? childMapping.replace(parentBinding, '') : undefined;
+
+        return (
+          <Table.Cell key={currentComponent.id}>
+            <RenderComponent
+              component={currentComponent}
+              parentBinding={parentBinding}
+              itemIndex={itemIndex}
+              childField={childField}
+            />
+          </Table.Cell>
+        );
+      })}
+    </Table.Row>
   );
 };
