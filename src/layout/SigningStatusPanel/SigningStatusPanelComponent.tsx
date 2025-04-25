@@ -8,18 +8,16 @@ import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { type SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
-import { useAuthorizedOrganizationDetails } from 'src/layout/SigningStatusPanel/api';
+import { useSigneeList } from 'src/layout/SigneeList/api';
+import { useSignaturesValidation, useUserSigneeParties } from 'src/layout/SigningStatusPanel/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningStatusPanel/PanelAwaitingCurrentUserSignature';
 import { AwaitingOtherSignaturesPanel } from 'src/layout/SigningStatusPanel/PanelAwaitingOtherSignatures';
 import { NoActionRequiredPanel } from 'src/layout/SigningStatusPanel/PanelNoActionRequired';
 import { SigningPanel } from 'src/layout/SigningStatusPanel/PanelSigning';
 import { SubmitPanel } from 'src/layout/SigningStatusPanel/PanelSubmit';
 import classes from 'src/layout/SigningStatusPanel/SigningStatusPanel.module.css';
+import { getCurrentUserStatus } from 'src/layout/SigningStatusPanel/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
-
-const MissingSignaturesErrorCode = 'MissingSignatures' as const;
 
 export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<'SigningStatusPanel'>) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
@@ -34,22 +32,16 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
 
   const isAuthorised = useIsAuthorised();
   const canSign = isAuthorised('sign');
-  const canWrite = isAuthorised('write');
+  const canWrite = useIsAuthorised()('write');
 
   const userSigneeParties = useUserSigneeParties();
   const currentUserStatus = getCurrentUserStatus(currentUserPartyId, userSigneeParties, canSign);
-  const hasSigned = currentUserStatus === 'signed';
 
-  const { refetch: refetchBackendValidations, data: hasMissingSignatures } = useBackendValidationQuery(
-    {
-      select: (data) => data?.some((validation) => validation.code === MissingSignaturesErrorCode),
-    },
-    false,
-  );
+  const { refetchValidations, hasMissingSignatures } = useSignaturesValidation();
 
   useEffect(() => {
-    refetchBackendValidations();
-  }, [refetchBackendValidations, signeeList]);
+    refetchValidations();
+  }, [refetchValidations, signeeList]);
 
   if (isSigneeListLoading) {
     return (
@@ -96,12 +88,11 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     );
   }
 
-  // user either has signed or is not signing
   if (!canWrite) {
     return (
       <NoActionRequiredPanel
         node={node}
-        hasSigned={hasSigned}
+        hasSigned={currentUserStatus === 'signed'}
       />
     );
   }
@@ -110,78 +101,10 @@ export function SigningStatusPanelComponent({ node }: PropsFromGenericComponent<
     return (
       <AwaitingOtherSignaturesPanel
         node={node}
-        hasSigned={hasSigned}
+        hasSigned={currentUserStatus === 'signed'}
       />
     );
   }
 
   return <SubmitPanel node={node} />;
-}
-
-export type CurrentUserStatus = 'awaitingSignature' | 'signed' | 'notSigning';
-
-/**
- * Finds all signees in the signee list that the user can sign on behalf of.
- * This includes the user itself and any organizations the user is authorized to sign for.
- */
-export function useUserSigneeParties() {
-  const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
-  const { data: signeeList } = useSigneeList(instanceOwnerPartyId, instanceGuid, taskId);
-  const { data: authorizedOrganizationDetails } = useAuthorizedOrganizationDetails(
-    instanceOwnerPartyId!,
-    instanceGuid!,
-  );
-
-  const currentUserPartyId = useCurrentParty()?.partyId;
-
-  if (!signeeList || !currentUserPartyId) {
-    return [];
-  }
-
-  // Get all party IDs the user can sign on behalf of (user + authorized organizations)
-  const authorizedPartyIds = [currentUserPartyId];
-
-  // Add organization party IDs if available
-  if (authorizedOrganizationDetails?.organisations) {
-    authorizedOrganizationDetails.organisations.forEach((org) => {
-      authorizedPartyIds.push(org.partyId);
-    });
-  }
-
-  // Find all signees that match the authorized party IDs
-  return signeeList.filter((signee) => authorizedPartyIds.includes(signee.partyId));
-}
-
-/**
- * Calculates the current user's signing status based on the signees they can sign for.
- */
-function getCurrentUserStatus(
-  currentUserPartyId: number | undefined,
-  userSignees: SigneeState[],
-  canSign: boolean,
-): CurrentUserStatus {
-  // If the user doesn't have permission for signing
-  if (!canSign) {
-    return 'notSigning';
-  }
-
-  // If the current user is not listed as a signee, but they have sign permission, they should still be able to sign
-  const currentUserIsInList = userSignees.some((signee) => signee.partyId === currentUserPartyId);
-  if (!currentUserIsInList) {
-    return 'awaitingSignature';
-  }
-
-  // If the user doesn't have any signees they can sign on behalf of, but they have sign permission
-  if (userSignees.length === 0) {
-    return 'notSigning';
-  }
-
-  // Check if there are any signees that haven't signed yet
-  const hasUnsignedSignees = userSignees.some((signee) => !signee.hasSigned);
-  if (hasUnsignedSignees) {
-    return 'awaitingSignature';
-  }
-
-  // If all signees have signed
-  return 'signed';
 }
