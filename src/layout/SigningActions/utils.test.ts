@@ -13,8 +13,8 @@ describe('getCurrentUserStatus', () => {
     partyId: 123,
   };
 
-  const unsignedSignee = {
-    name: 'Jane Smith',
+  const unsignedOrgSignee = {
+    name: null,
     organization: 'Organization B',
     signedTime: null,
     hasSigned: false,
@@ -23,9 +23,19 @@ describe('getCurrentUserStatus', () => {
     partyId: 456,
   };
 
+  const signedOrgSignee = {
+    name: 'Jane Smith',
+    organization: 'Organization C',
+    signedTime: new Date().toISOString(),
+    hasSigned: true,
+    delegationSuccessful: true,
+    notificationStatus: NotificationStatus.Sent,
+    partyId: 457,
+  };
+
   const currentUserSignee = {
     name: 'Current User',
-    organization: 'Organization C',
+    organization: null,
     signedTime: null,
     hasSigned: false,
     delegationSuccessful: true,
@@ -36,7 +46,7 @@ describe('getCurrentUserStatus', () => {
   describe('getCurrentUserStatus', () => {
     it('should return "notSigning" when user does not have permission to sign', () => {
       const currentUserPartyId = 789;
-      const userSignees = [currentUserSignee, unsignedSignee];
+      const userSignees = [currentUserSignee, unsignedOrgSignee];
       const canSign = false;
 
       const result = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
@@ -46,7 +56,7 @@ describe('getCurrentUserStatus', () => {
 
     it('should return "awaitingSignature" when the current user is not in the signee list, but has permission to sign', () => {
       const currentUserPartyId = 999; // Not in the list
-      const userSignees = [unsignedSignee, signedSignee];
+      const userSignees = [unsignedOrgSignee, signedSignee];
       const canSign = true;
 
       const result = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
@@ -66,7 +76,7 @@ describe('getCurrentUserStatus', () => {
 
     it('should return "awaitingSignature" if any signee has not signed', () => {
       const currentUserPartyId = 789;
-      const userSignees = [{ ...currentUserSignee, partyId: 789 }, unsignedSignee, signedSignee];
+      const userSignees = [{ ...currentUserSignee, partyId: 789 }, unsignedOrgSignee, signedSignee];
       const canSign = true;
 
       const result = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
@@ -74,23 +84,22 @@ describe('getCurrentUserStatus', () => {
       expect(result).toBe('awaitingSignature');
     });
 
-    it('should return "signed" if all signees have signed', () => {
-      const currentUserPartyId = 789;
+    it('should return "signed" if all signees have signed and the current user (person) is in the signed list', () => {
       const userSignees = [
         { ...currentUserSignee, hasSigned: true, signedTime: new Date().toISOString() },
-        { ...unsignedSignee, hasSigned: true, signedTime: new Date().toISOString() },
+        { ...unsignedOrgSignee, hasSigned: true, signedTime: new Date().toISOString() },
         signedSignee,
       ];
       const canSign = true;
 
-      const result = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
+      const result = getCurrentUserStatus(currentUserSignee.partyId, userSignees, canSign);
 
       expect(result).toBe('signed');
     });
 
     it('should handle undefined currentUserPartyId correctly', () => {
       const currentUserPartyId = undefined;
-      const userSignees = [unsignedSignee, signedSignee];
+      const userSignees = [unsignedOrgSignee, signedSignee];
       const canSign = true;
 
       const result = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
@@ -101,7 +110,7 @@ describe('getCurrentUserStatus', () => {
 
     it('should handle a mix of signed and unsigned signees correctly', () => {
       const currentUserPartyId = 789;
-      const userSignees = [{ ...currentUserSignee, partyId: 789 }, signedSignee, unsignedSignee];
+      const userSignees = [{ ...currentUserSignee, partyId: 789 }, signedSignee, unsignedOrgSignee];
       const canSign = true;
 
       const result = getCurrentUserStatus(currentUserPartyId, userSignees, canSign);
@@ -135,14 +144,14 @@ describe('getCurrentUserStatus', () => {
       {
         description: 'User cannot sign',
         currentUserPartyId: 123,
-        userSignees: [unsignedSignee],
+        userSignees: [unsignedOrgSignee],
         canSign: false,
         expected: 'notSigning',
       },
       {
         description: 'User not in list but can sign',
         currentUserPartyId: 999,
-        userSignees: [unsignedSignee],
+        userSignees: [unsignedOrgSignee],
         canSign: true,
         expected: 'awaitingSignature',
       },
@@ -156,14 +165,21 @@ describe('getCurrentUserStatus', () => {
       {
         description: 'Has unsigned signees',
         currentUserPartyId: 123,
-        userSignees: [signedSignee, unsignedSignee],
+        userSignees: [signedSignee, unsignedOrgSignee],
         canSign: true,
         expected: 'awaitingSignature',
       },
       {
-        description: 'All signees have signed',
+        description: 'All signees signed and current user person is not in the list',
         currentUserPartyId: 123,
-        userSignees: [signedSignee, { ...unsignedSignee, hasSigned: true, signedTime: new Date().toISOString() }],
+        userSignees: [signedSignee, signedOrgSignee],
+        canSign: true,
+        expected: 'awaitingSignature',
+      },
+      {
+        description: 'All signees have signed including current user as person',
+        currentUserPartyId: currentUserSignee.partyId,
+        userSignees: [{ ...currentUserSignee, hasSigned: true }, signedSignee, signedOrgSignee],
         canSign: true,
         expected: 'signed',
       },
