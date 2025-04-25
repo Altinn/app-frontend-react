@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useSigneeList } from 'src/layout/SigneeList/api';
 import { httpGet } from 'src/utils/network/sharedNetworking';
@@ -58,7 +58,7 @@ export function useUserSigneeParties() {
     instanceGuid!,
   );
 
-  const currentUserPartyId = useCurrentParty()?.partyId;
+  const currentUserPartyId = useProfile()?.partyId;
 
   if (!signeeList || !currentUserPartyId) {
     return [];

@@ -95,7 +95,7 @@ export const CyPartyMocks = {
 
 interface Mockable {
   preSelectedParty?: number;
-  currentParty?: IParty;
+  selectedParty?: IParty;
   allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
   doNotPromptForParty?: boolean;
   appPromptForPartyOverride?: IncomingApplicationMetadata['promptForParty'];
@@ -109,10 +109,10 @@ export function cyMockResponses(whatToMock: Mockable) {
     cy.setCookie('AltinnPartyId', whatToMock.preSelectedParty.toString());
   }
 
-  if (whatToMock.currentParty) {
+  if (whatToMock.selectedParty) {
     cy.intercept('GET', `**/api/authorization/parties/current?returnPartyObject=true`, (req) => {
       req.on('response', (res) => {
-        res.body = whatToMock.currentParty;
+        res.body = whatToMock.selectedParty;
       });
     });
   }

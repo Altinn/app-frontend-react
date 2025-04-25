@@ -9,7 +9,7 @@ import { randomUUID } from 'crypto';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import { NotificationStatus, SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
 import { useSignaturesValidation, useUserSigneeParties } from 'src/layout/SigningActions/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningActions/PanelAwaitingCurrentUserSignature';
@@ -25,7 +25,7 @@ jest.mock('src/utils/layout/useNodeItem');
 jest.mock('react-router-dom');
 jest.mock('src/features/instance/useProcessNext.tsx');
 jest.mock('src/core/contexts/AppQueriesProvider');
-jest.mock('src/features/party/PartiesProvider');
+jest.mock('src/features/profile/ProfileProvider');
 jest.mock('src/features/language/useLanguage');
 jest.mock('src/features/language/Lang');
 jest.mock('src/features/instance/ProcessContext');
@@ -88,7 +88,7 @@ describe('SigningActionsComponent', () => {
     } as unknown as ReturnType<typeof useLanguage>);
     jest.mocked(Lang).mockImplementation(({ id }: { id: string }) => id);
 
-    jest.mocked(useCurrentParty).mockReturnValue({ partyId: 123 } as unknown as ReturnType<typeof useCurrentParty>);
+    jest.mocked(useProfile).mockReturnValue({ partyId: 123 } as unknown as ReturnType<typeof useProfile>);
 
     mockedUseSigneeList.mockReturnValue({
       data: [],

@@ -7,7 +7,7 @@ import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorised } from 'src/features/instance/ProcessContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useSigneeList } from 'src/layout/SigneeList/api';
 import { useSignaturesValidation, useUserSigneeParties } from 'src/layout/SigningActions/api';
 import { AwaitingCurrentUserSignaturePanel } from 'src/layout/SigningActions/PanelAwaitingCurrentUserSignature';
@@ -27,7 +27,7 @@ export function SigningActionsComponent({ node }: PropsFromGenericComponent<'Sig
     error: signeeListError,
   } = useSigneeList(instanceOwnerPartyId, instanceGuid, taskId);
 
-  const currentUserPartyId = useCurrentParty()?.partyId;
+  const currentUserPartyId = useProfile()?.partyId;
   const { langAsString } = useLanguage();
 
   const isAuthorised = useIsAuthorised();

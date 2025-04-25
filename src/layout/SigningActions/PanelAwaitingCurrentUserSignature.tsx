@@ -11,7 +11,7 @@ import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useProfile } from 'src/features/profile/ProfileProvider';
 import { signingQueries } from 'src/layout/SigneeList/api';
 import { useAuthorizedOrganizationDetails, useUserSigneeParties } from 'src/layout/SigningActions/api';
 import { OnBehalfOfChooser } from 'src/layout/SigningActions/OnBehalfOfChooser';
@@ -39,7 +39,7 @@ export function AwaitingCurrentUserSignaturePanel({
   const canWrite = isAuthorised('write');
 
   const selectedLanguage = useCurrentLanguage();
-  const currentUserPartyId = useCurrentParty()?.partyId;
+  const currentUserPartyId = useProfile()?.partyId;
   const queryClient = useQueryClient();
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
   const { langAsString } = useLanguage();
