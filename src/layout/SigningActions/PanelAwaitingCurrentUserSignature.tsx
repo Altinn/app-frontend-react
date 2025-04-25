@@ -60,7 +60,7 @@ export function AwaitingCurrentUserSignaturePanel({
   const userSigneeParties = useUserSigneeParties();
   const unsignedUserSigneeParties = userSigneeParties.filter((party) => !party.hasSigned);
   const unsignedAuthorizedOrgSignees =
-    authorizedOrganizationDetails?.organisations.filter((org) =>
+    authorizedOrganizationDetails?.organizations.filter((org) =>
       unsignedUserSigneeParties.some((s) => s.partyId === org.partyId),
     ) ?? emptyArray;
 

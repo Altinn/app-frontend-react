@@ -10,7 +10,7 @@ import { httpGet } from 'src/utils/network/sharedNetworking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
 const authorizedOrganizationDetailsSchema = z.object({
-  organisations: z.array(
+  organizations: z.array(
     z.object({
       orgNumber: z.string(),
       orgName: z.string(),
@@ -24,7 +24,7 @@ export type AuthorizedOrganizationDetails = z.infer<typeof authorizedOrganizatio
 const authorizedOrganizationDetailsQuery = (partyId: string, instanceGuid: string) => ({
   queryKey: ['authorizedOrganizationDetails', partyId, instanceGuid],
   queryFn: async () => {
-    const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/organisations`;
+    const url = `${appPath}/instances/${partyId}/${instanceGuid}/signing/organizations`;
     const response = await httpGet(url);
     return authorizedOrganizationDetailsSchema.parse(response);
   },
@@ -68,8 +68,8 @@ export function useUserSigneeParties() {
   const authorizedPartyIds = [currentUserPartyId];
 
   // Add organization party IDs if available
-  if (authorizedOrganizationDetails?.organisations) {
-    authorizedOrganizationDetails.organisations.forEach((org) => {
+  if (authorizedOrganizationDetails?.organizations) {
+    authorizedOrganizationDetails.organizations.forEach((org) => {
       authorizedPartyIds.push(org.partyId);
     });
   }
