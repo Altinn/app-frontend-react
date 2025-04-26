@@ -4,6 +4,7 @@ import ReactDOMServer from 'react-dom/server';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { useLegacyNestedTexts } from 'src/layout/Custom/useLegacyNestedTexts';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -32,7 +33,8 @@ export function CustomWebComponent({
   ...passThroughPropsFromGenericComponent
 }: ICustomComponentProps) {
   const langTools = useLanguage();
-  const { language, langAsString } = langTools;
+  const langAsString = langTools.langAsString;
+  const legacyLanguage = useLegacyNestedTexts();
   const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = useNodeItem(node);
 
   const { containerDivRef: _unused, ...restFromGeneric } = passThroughPropsFromGenericComponent;
@@ -79,9 +81,9 @@ export function CustomWebComponent({
     if (current) {
       current.texts = getTextsForComponent(textResourceBindings, langTools);
       current.dataModelBindings = dataModelBindings;
-      current.language = language;
+      current.language = legacyLanguage;
     }
-  }, [wcRef, textResourceBindings, dataModelBindings, langTools, language]);
+  }, [wcRef, textResourceBindings, dataModelBindings, langTools, legacyLanguage]);
 
   React.useLayoutEffect(() => {
     const { current } = wcRef;
