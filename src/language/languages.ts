@@ -23,8 +23,12 @@ export function getLanguageFromCode(languageCode: string) {
     return cachedLanguages[languageCode];
   }
 
-  cachedLanguages[languageCode] = en();
-  return cachedLanguages[languageCode];
+  if (cachedLanguages['en']) {
+    return cachedLanguages['en'];
+  }
+
+  cachedLanguages['en'] = en();
+  return cachedLanguages['en'];
 }
 
 export const rightToLeftISOLanguageCodes = [
