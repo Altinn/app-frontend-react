@@ -13,6 +13,8 @@ import globals from 'globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
+
+// eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
 import langKey from './src/language/eslint.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -62,8 +64,8 @@ export default tseslint.config(
       local: {
         rules: {
           'language-key': langKey,
-        }
-      }
+        },
+      },
     },
     languageOptions: {
       globals: {
