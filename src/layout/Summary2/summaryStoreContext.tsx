@@ -24,7 +24,8 @@ export function Summary2StoreProvider({ children, node }: PropsWithChildren<{ no
 export function useSummary2Prop<K extends keyof Summary2State>(prop: K): Summary2State[K] | undefined {
   const state = useContext(StoreContext);
   if (!state) {
-    throw new Error('useSummary2Prop must be used within a Summary2StoreProvider');
+    // This may happen in, for example, subform summaries (where we don't always have the Summary2 component)
+    return undefined;
   }
 
   return state[prop];
