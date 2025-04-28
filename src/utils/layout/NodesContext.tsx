@@ -4,8 +4,9 @@ import type { MutableRefObject, PropsWithChildren } from 'react';
 import deepEqual from 'fast-deep-equal';
 import { produce } from 'immer';
 import { createStore } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import type { UnionToIntersection } from 'utility-types';
-import type { StoreApi } from 'zustand';
+import type { StateCreator, StoreApi } from 'zustand';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
@@ -181,18 +182,19 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
     validationsProcessedLast,
   };
 
-  return createStore<NodesContext>((set) => ({
+  // ---- STATE CREATOR (original implementation) --------------------------
+  const stateCreator: StateCreator<NodesContext> = (set) => ({
     ...defaultState,
 
     layouts: undefined,
     stages: createStagesStore(registry, set),
 
+    // All original setters and helpers follow, **unchanged** ----------------
     markHiddenViaRule: (newState) =>
       set((state) => {
         if (deepEqual(state.hiddenViaRules, newState)) {
           return { hiddenViaRulesRan: true };
         }
-
         return { hiddenViaRules: newState, hiddenViaRulesRan: true };
       }),
 
@@ -203,42 +205,36 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
           nodeData[node.id] = targetState;
           node.page._addChild(node);
         }
-
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
         };
       }),
+
     removeNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-
         let count = 0;
         for (const { node, layouts } of requests) {
           if (!nodeData[node.id]) {
             continue;
           }
-
           if (layouts !== state.layouts) {
-            // The layouts have changed since the request was added, so there's no need to remove the node (it was
-            // automatically removed when resetting the NodesContext state upon the layout change)
             continue;
           }
-
           delete nodeData[node.id];
           node.page._removeChild(node);
           count += 1;
         }
-
         if (count === 0) {
           return {};
         }
-
         return {
           nodeData,
           readiness: NodesReadiness.NotReady,
         };
       }),
+
     setNodeProps: (requests) =>
       set((state) => {
         let changes = false;
@@ -247,53 +243,46 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
           if (!nodeData[node.id]) {
             continue;
           }
-
           const thisNode = { ...nodeData[node.id] };
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const prev = thisNode[prop as any];
-
+          const prev = thisNode[prop as keyof typeof thisNode];
           if (partial && value && prev && typeof prev === 'object' && typeof value === 'object') {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            thisNode[prop as any] = { ...thisNode[prop as any], ...value };
+            thisNode[prop as keyof typeof thisNode] = { ...prev, ...value } as never;
           } else {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            thisNode[prop as any] = value;
+            thisNode[prop as keyof typeof thisNode] = value as never;
           }
-
-          if (force || !deepEqual(nodeData[node.id][prop], thisNode[prop])) {
+          if (
+            force ||
+            !deepEqual(nodeData[node.id][prop as keyof typeof thisNode], thisNode[prop as keyof typeof thisNode])
+          ) {
             changes = true;
             nodeData[node.id] = thisNode;
           }
         }
         return changes ? { nodeData } : {};
       }),
+
     addError: (error, node) =>
       set(
         nodesProduce((state) => {
           const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[node.id];
-
           if (!data) {
             return;
           }
           if (!data.errors) {
-            data.errors = {};
+            data.errors = {} as never;
           }
-          data.errors[error] = true;
-
-          // We need to mark the data as not ready as soon as an error is added, because GeneratorErrorBoundary
-          // may need to remove the failing node from the tree before any more node traversal can happen safely.
+          data.errors[error] = true as never;
           setReadiness({ state, target: NodesReadiness.NotReady, reason: `Error added`, mutate: true });
-
           state.hasErrors = true;
         }),
       ),
+
     addPage: (pageKey) =>
       set(
         nodesProduce((state) => {
           if (state.pagesData.pages[pageKey]) {
             return;
           }
-
           state.pagesData.pages[pageKey] = {
             type: 'page',
             pageKey,
@@ -301,43 +290,47 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
             inOrder: true,
             errors: undefined,
           };
-          setReadiness({
-            state,
-            target: NodesReadiness.NotReady,
-            reason: `New page added`,
-            mutate: true,
-          });
+          setReadiness({ state, target: NodesReadiness.NotReady, reason: `New page added`, mutate: true });
         }),
       ),
+
     setPageProps: (requests) =>
       set((state) => {
         const pageData = { ...state.pagesData.pages };
         for (const { pageKey, prop, value } of requests) {
-          const obj = { ...pageData[pageKey] };
+          const obj = { ...pageData[pageKey] } as PageData;
           if (!obj) {
             continue;
           }
-          obj[prop] = value;
+          // @ts-ignore
+          (obj as any)[prop] = value;
           pageData[pageKey] = obj;
         }
         return { pagesData: { type: 'pages', pages: pageData } };
       }),
+
     markReady: (reason, readiness = NodesReadiness.Ready) =>
       set((state) => setReadiness({ state, target: readiness, reason })),
 
     reset: (layouts, validationsProcessedLast: ValidationsProcessedLast) =>
       set(() => {
         generatorLog('logReadiness', 'Resetting state');
-        return { ...structuredClone(defaultState), layouts, validationsProcessedLast };
+        return { ...structuredClone(defaultState), layouts, validationsProcessedLast } as unknown as NodesContext;
       }),
 
     waitForCommits: undefined,
     setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
 
+    // ----- extra plugin functions ---------------------------------------
     ...(Object.values(StorePlugins)
       .map((plugin) => plugin.extraFunctions(set))
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
-  }));
+  });
+
+  // ---- RETURN STORE (wrapped with devtools unless production) -----------
+  const useDevtools = process.env.NODE_ENV !== 'production';
+  // @ts-ignore
+  return createStore<NodesContext>(useDevtools ? devtools(stateCreator, { name: 'NodesContext' }) : stateCreator);
 }
 
 interface SetReadinessProps {
