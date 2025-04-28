@@ -15,7 +15,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps<T extends CompTypes = CompTypes> {
   componentNode: LayoutNode<T>;
-  isCompact?: boolean;
 }
 
 export function ComponentSummaryById({

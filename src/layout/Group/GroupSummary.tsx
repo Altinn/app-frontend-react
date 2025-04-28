@@ -8,7 +8,6 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { useSummary2Overrides, useSummary2Prop } from 'src/layout/Summary2/summaryStoreContext';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -34,10 +33,9 @@ function getHeadingLevel(hierarchyLevel: number): HeadingLevel {
 
 interface ChildComponentProps extends Pick<GroupComponentSummaryProps, 'hierarchyLevel'> {
   id: string;
-  isCompact: boolean;
 }
 
-function ChildComponent({ id, hierarchyLevel, isCompact }: ChildComponentProps) {
+function ChildComponent({ id, hierarchyLevel }: ChildComponentProps) {
   const child = useNode(id);
   if (!child) {
     return null;
@@ -54,12 +52,7 @@ function ChildComponent({ id, hierarchyLevel, isCompact }: ChildComponentProps) 
     );
   }
 
-  return (
-    <ComponentSummary
-      componentNode={child}
-      isCompact={isCompact}
-    />
-  );
+  return <ComponentSummary componentNode={child} />;
 }
 
 export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupComponentSummaryProps) => {
@@ -67,9 +60,6 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupCompone
   const summaryTitle = useNodeItem(componentNode, (i) => i.textResourceBindings?.summaryTitle);
   const headingLevel = getHeadingLevel(hierarchyLevel);
   const isNestedGroup = hierarchyLevel > 0;
-  const isCompactGlobal = useSummary2Prop('isCompact');
-  const overrides = useSummary2Overrides(componentNode.baseId);
-  const isCompact = overrides && 'isCompact' in overrides ? overrides.isCompact : isCompactGlobal;
 
   const dataTestId = hierarchyLevel > 0 ? `summary-group-component-${hierarchyLevel}` : 'summary-group-component';
   const childComponents = useNodeItem(componentNode, (i) => i.childComponents);
@@ -100,7 +90,6 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupCompone
             key={childId}
             id={childId}
             hierarchyLevel={hierarchyLevel}
-            isCompact={isCompact ?? false}
           />
         ))}
       </Flex>
