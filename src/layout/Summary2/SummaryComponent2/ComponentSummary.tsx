@@ -49,6 +49,11 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
   const noUserInput = Object.values(formData).every((value) => value?.length < 1);
   const def = getComponentDef(componentNode.type);
 
+  const hiddenBecauseNoUserInput = noUserInput ? hideEmptyFields && !isRequired && !forceShowInSummary : false;
+  if (isHidden || override?.hidden || hiddenBecauseNoUserInput) {
+    return null;
+  }
+
   const renderedComponent = def.renderSummary2
     ? def.renderSummary2({
         target: componentNode as never,
@@ -58,18 +63,6 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
     : null;
 
   if (!renderedComponent) {
-    return null;
-  }
-
-  if (isHidden) {
-    return null;
-  }
-
-  if (override?.hidden) {
-    return null;
-  }
-
-  if (noUserInput && hideEmptyFields && !isRequired && !forceShowInSummary) {
     return null;
   }
 
