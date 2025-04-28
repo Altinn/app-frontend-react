@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Checkbox, Heading, Spinner } from '@digdir/designsystemet-react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Checkbox, ErrorMessage, Heading, Spinner } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { useIsAuthorized } from 'src/features/instance/ProcessContext';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useProfile } from 'src/features/profile/ProfileProvider';
-import { signingQueries } from 'src/layout/SigneeList/api';
-import { useAuthorizedOrganizationDetails, useUserSigneeParties } from 'src/layout/SigningActions/api';
+import {
+  useAuthorizedOrganizationDetails,
+  useSigningMutation,
+  useUserSigneeParties,
+} from 'src/layout/SigningActions/api';
 import { OnBehalfOfChooser } from 'src/layout/SigningActions/OnBehalfOfChooser';
 import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
 import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { SubmitSigningButton } from 'src/layout/SigningActions/SubmitSigningButton';
-import { doPerformAction } from 'src/queries/queries';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -38,9 +38,7 @@ export function AwaitingCurrentUserSignaturePanel({
   const canSign = isAuthorized('sign');
   const canWrite = isAuthorized('write');
 
-  const selectedLanguage = useCurrentLanguage();
   const currentUserPartyId = useProfile()?.partyId;
-  const queryClient = useQueryClient();
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
   const { langAsString } = useLanguage();
 
@@ -51,6 +49,8 @@ export function AwaitingCurrentUserSignaturePanel({
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
   const [onBehalfOf, setOnBehalfOf] = useState<string | null>(null);
+  const [onBehalfOfError, setOnBehalfOfError] = useState(false);
+  const [confirmReadDocumentsError, setConfirmReadDocumentsError] = useState(false);
 
   const { data: authorizedOrganizationDetails, isLoading: isApiLoading } = useAuthorizedOrganizationDetails(
     instanceOwnerPartyId!,
@@ -64,29 +64,31 @@ export function AwaitingCurrentUserSignaturePanel({
       unsignedUserSigneeParties.some((s) => s.partyId === org.partyId),
     ) ?? emptyArray;
 
-  const {
-    mutate: handleSign,
-    error: signingError,
-    isPending,
-  } = useMutation({
-    mutationFn: async (onBehalfOf: string | null) => {
-      if (instanceOwnerPartyId && instanceGuid) {
-        return doPerformAction(
-          instanceOwnerPartyId,
-          instanceGuid,
-          { action: 'sign', ...(onBehalfOf ? { onBehalfOf } : {}) },
-          selectedLanguage,
-          queryClient,
-        );
-      }
-    },
-    onSuccess: () => {
-      // Refetch all queries related to signing to ensure we have the latest data
-      queryClient.invalidateQueries({ queryKey: signingQueries.all });
-      setConfirmReadDocuments(false);
-      setOnBehalfOf(null);
-    },
-  });
+  const { mutate: signingMutation, error: signingError, isPending } = useSigningMutation();
+
+  function validate() {
+    const hasReadDocuments = confirmReadDocuments;
+    const hasChosenOnBehalfOf = unsignedUserSigneeParties.length <= 1 || onBehalfOf !== null;
+
+    setConfirmReadDocumentsError(!hasReadDocuments);
+    setOnBehalfOfError(!hasChosenOnBehalfOf);
+
+    return hasReadDocuments && hasChosenOnBehalfOf;
+  }
+
+  function handleSigning() {
+    // Validate fields before submitting
+    const isValid = validate();
+
+    if (isValid) {
+      signingMutation(onBehalfOf, {
+        onSuccess: () => {
+          setConfirmReadDocuments(false);
+          setOnBehalfOf(null);
+        },
+      });
+    }
+  }
 
   // Set the org number automatically when there's only unsigned party and it is an org
   useEffect(() => {
@@ -124,8 +126,8 @@ export function AwaitingCurrentUserSignaturePanel({
       actionButton={
         <>
           <Button
-            onClick={() => handleSign(onBehalfOf)}
-            disabled={!confirmReadDocuments || isPending}
+            onClick={handleSigning}
+            disabled={isPending}
             size='md'
             color='success'
           >
@@ -142,7 +144,11 @@ export function AwaitingCurrentUserSignaturePanel({
           currentUserSignee={unsignedUserSigneeParties.find((s) => s.partyId === currentUserPartyId)}
           authorizedOrganizationDetails={unsignedAuthorizedOrgSignees}
           onBehalfOfOrg={onBehalfOf}
-          onChange={(e) => setOnBehalfOf(e.target.value)}
+          error={onBehalfOfError}
+          onChange={(e) => {
+            setOnBehalfOf(e.target.value);
+            setOnBehalfOfError(false);
+          }}
         />
       )}
       {unsignedUserSigneeParties.length === 1 && unsignedUserSigneeParties.at(0)?.organization && (
@@ -156,19 +162,30 @@ export function AwaitingCurrentUserSignaturePanel({
           />
         </Heading>
       )}
-      <Checkbox
-        value={String(confirmReadDocuments)}
-        checked={confirmReadDocuments}
-        onChange={() => setConfirmReadDocuments(!confirmReadDocuments)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') {
+      <div>
+        <Checkbox
+          value={checkboxLabel}
+          checked={confirmReadDocuments}
+          onChange={() => {
             setConfirmReadDocuments(!confirmReadDocuments);
-          }
-        }}
-        className={classes.checkbox}
-      >
-        <Lang id={checkboxLabel} />
-      </Checkbox>
+            setConfirmReadDocumentsError(false);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              setConfirmReadDocuments(!confirmReadDocuments);
+              setConfirmReadDocumentsError(false);
+            }
+          }}
+          className={classes.checkbox}
+        >
+          <Lang id={checkboxLabel} />
+        </Checkbox>
+        {confirmReadDocumentsError && (
+          <ErrorMessage size='small'>
+            <Lang id='signing.error_signing_not_confirmed_documents' />
+          </ErrorMessage>
+        )}
+      </div>
     </SigningPanel>
   );
 }

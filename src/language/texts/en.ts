@@ -403,6 +403,8 @@ export function en() {
       error_missing_signing_rights:
         'Something went wrong. Current user should sign, but does not have rights to do so.',
       error_signing: 'Something went wrong when signing. Please try again.',
+      error_signing_not_confirmed_documents: 'You have to confirm that you have read the documents before signing.',
+      error_signing_no_on_behalf_of: 'You have to choose who you are signing on behalf of before signing.',
     },
     signee_list: {
       parse_error: 'Error loading signee list.',

@@ -404,6 +404,8 @@ export function nn(): FixedLanguageList {
       error_missing_signing_rights:
         'Noko gjekk gale. Den noverande brukaren skal signere, men har ikkje rettar til å gjere det.',
       error_signing: 'Noko gjekk gale under signeringa. Prøv på nytt.',
+      error_signing_not_confirmed_documents: 'Du må stadfeste at du har lese dokumenta før du signerer.',
+      error_signing_no_on_behalf_of: 'Du må velje kven du signerer på vegner av før du signerer.',
     },
     signee_list: {
       parse_error: 'Feil ved lasting av signatarliste.',

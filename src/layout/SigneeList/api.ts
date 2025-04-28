@@ -2,6 +2,7 @@ import { queryOptions, skipToken, useQuery } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { httpGet } from 'src/utils/network/sharedNetworking';
+import { capitalizeName } from 'src/utils/stringHelper';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
 export enum NotificationStatus {
@@ -10,23 +11,16 @@ export enum NotificationStatus {
   Failed = 'Failed',
 }
 
-function makePascalCase(input: string) {
-  return input
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-}
-
 const signeeStateSchema = z
   .object({
     name: z
       .string()
       .nullish()
-      .transform((name) => (name ? makePascalCase(name) : null)),
+      .transform((name) => (name ? capitalizeName(name) : null)),
     organization: z
       .string()
       .nullish()
-      .transform((organization) => (organization ? makePascalCase(organization) : null)),
+      .transform((organization) => (organization ? capitalizeName(organization) : null)),
     signedTime: z.string().datetime().nullable(),
     delegationSuccessful: z.boolean(),
     notificationStatus: z.nativeEnum(NotificationStatus),
