@@ -42,7 +42,7 @@ describe('fetchSigneeList', () => {
     expect(result).toEqual([
       {
         name: null,
-        organization: 'ACME',
+        organization: 'Acme',
         signedTime,
         hasSigned: true,
         delegationSuccessful: true,
@@ -51,7 +51,7 @@ describe('fetchSigneeList', () => {
       },
       {
         name: 'Jane Doe',
-        organization: 'ACME',
+        organization: 'Acme',
         signedTime: null,
         hasSigned: false,
         delegationSuccessful: false,
@@ -66,7 +66,7 @@ describe('fetchSigneeList', () => {
       signeeStates: [
         {
           name: '',
-          organization: 'ACME',
+          organization: 'Acme',
         },
       ],
     });
@@ -131,7 +131,7 @@ describe('fetchSigneeList', () => {
     expect(result).toEqual([
       {
         name: 'Mary Jane',
-        organization: 'ACME',
+        organization: 'Acme',
         signedTime: null,
         hasSigned: false,
         delegationSuccessful: false,
@@ -140,7 +140,7 @@ describe('fetchSigneeList', () => {
       },
       {
         name: 'Sylvester Stallone',
-        organization: 'ACME',
+        organization: 'Acme',
         signedTime,
         hasSigned: true,
         delegationSuccessful: true,
