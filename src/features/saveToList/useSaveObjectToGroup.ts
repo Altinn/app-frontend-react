@@ -53,10 +53,13 @@ export const useSaveObjectToGroup = (node: LayoutNode<'List' | 'Checkboxes' | 'M
     const formDataObject = getObjectFromFormDataRow(row);
 
     if (isRowChecked(row)) {
-      if (index >= 0) {
-        const newField = `${bindings.group.field}[${index}].${checkedBindingPath}`;
+      const newField = `${bindings.group.field}[${index}].${checkedBindingPath}`;
+      if (newField) {
         setLeafValue({ reference: { ...bindings.checked, field: newField } as IDataModelReference, newValue: false });
-        removeFromList({ reference: bindings.group, index });
+      } else {
+        if (index >= 0) {
+          removeFromList({ reference: bindings.group, index });
+        }
       }
     } else {
       if (checkedBindingPath && formDataObject && dot.pick(checkedBindingPath, formDataObject) !== 'undefined') {
