@@ -239,33 +239,31 @@ export const layoutStore = createStore<Layouts>()(
 
           return dot.pick(binding, data);
         },
-        setBoundValue: (component, newValue, parentBinding, itemIndex, _) => {
+
+        setBoundValue: (component, newValue, parentBinding, itemIndex) => {
           // @ts-ignore
           const simple = component.dataModelBindings?.simpleBinding;
           if (!simple) {
             return;
           }
 
-          const splittedBinding = simple ? simple.split('.') : [];
-
-          const binding =
-            parentBinding !== undefined
-              ? `${parentBinding}[${itemIndex}].${splittedBinding[splittedBinding.length - 1] || ''}`
-              : simple;
+          const parts = simple.split('.');
+          const binding = parentBinding !== undefined ? `${parentBinding}[${itemIndex}].${parts.at(-1) ?? ''}` : simple;
 
           set((state) => {
             if (!state.data) {
               throw new Error('No data object');
             }
-            return produce(state, (draft) => {
-              const currentVal = dot.pick(binding, draft.data);
-              if (!draft.data) {
-                throw new Error('no draft data');
-              }
-              if (currentVal !== newValue) {
-                dot.set(binding, newValue, draft.data);
-              }
-            });
+
+            const currentVal = dot.pick(binding, state.data);
+            if (currentVal === newValue) {
+              return {};
+            }
+
+            const nextData = { ...state.data };
+            dot.set(binding, newValue, nextData);
+
+            return { data: nextData };
           });
         },
 
