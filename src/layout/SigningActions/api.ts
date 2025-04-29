@@ -1,19 +1,22 @@
 import { useParams } from 'react-router-dom';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useBackendValidationQuery } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { useSigneeList } from 'src/layout/SigneeList/api';
+import { signingQueries, useSigneeList } from 'src/layout/SigneeList/api';
+import { doPerformAction } from 'src/queries/queries';
 import { httpGet } from 'src/utils/network/sharedNetworking';
+import { capitalizeName } from 'src/utils/stringHelper';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
 const authorizedOrganizationDetailsSchema = z.object({
   organizations: z.array(
     z.object({
       orgNumber: z.string(),
-      orgName: z.string(),
+      orgName: z.string().transform((name) => capitalizeName(name)),
       partyId: z.number(),
     }),
   ),
@@ -76,4 +79,28 @@ export function useUserSigneeParties() {
 
   // Find all signees that match the authorized party IDs
   return signeeList.filter((signee) => authorizedPartyIds.includes(signee.partyId));
+}
+
+export function useSigningMutation() {
+  const { instanceOwnerPartyId, instanceGuid } = useParams();
+  const selectedLanguage = useCurrentLanguage();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (onBehalfOf: string | null) => {
+      if (instanceOwnerPartyId && instanceGuid) {
+        return doPerformAction(
+          instanceOwnerPartyId,
+          instanceGuid,
+          { action: 'sign', ...(onBehalfOf ? { onBehalfOf } : {}) },
+          selectedLanguage,
+          queryClient,
+        );
+      }
+    },
+    onSuccess: () => {
+      // Refetch all queries related to signing to ensure we have the latest data
+      queryClient.invalidateQueries({ queryKey: signingQueries.all });
+    },
+  });
 }

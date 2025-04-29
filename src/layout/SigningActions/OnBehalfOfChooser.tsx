@@ -1,11 +1,14 @@
 import React from 'react';
 import type { ChangeEvent } from 'react';
 
+import { ErrorMessage } from '@digdir/designsystemet-react';
+
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { RadioButton } from 'src/components/form/RadioButton';
+import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import type { SigneeState } from 'src/layout/SigneeList/api';
+import { type SigneeState } from 'src/layout/SigneeList/api';
 import type { AuthorizedOrganizationDetails } from 'src/layout/SigningActions/api';
 
 interface OnBehalfOfChooserProps {
@@ -13,6 +16,7 @@ interface OnBehalfOfChooserProps {
   authorizedOrganizationDetails: AuthorizedOrganizationDetails['organizations'];
   onBehalfOfOrg: string | null;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  error: boolean;
 }
 
 export const OnBehalfOfChooser = ({
@@ -20,6 +24,7 @@ export const OnBehalfOfChooser = ({
   authorizedOrganizationDetails,
   onBehalfOfOrg,
   onChange,
+  error = false,
 }: Readonly<OnBehalfOfChooserProps>) => {
   const mySelf = useLanguage().langAsString('signing.submit_panel_myself_choice');
 
@@ -28,8 +33,7 @@ export const OnBehalfOfChooser = ({
       legend={<Lang id='signing.submit_panel_radio_group_legend' />}
       description={<Lang id='signing.submit_panel_radio_group_description' />}
       required={true}
-      legendSize='md'
-      size='sm'
+      requiredIndicator={<RequiredIndicator />}
     >
       {currentUserSignee && (
         <RadioButton
@@ -38,6 +42,7 @@ export const OnBehalfOfChooser = ({
           name='onBehalfOf'
           key={currentUserSignee.partyId}
           onChange={onChange}
+          checked={onBehalfOfOrg === ''}
         />
       )}
 
@@ -51,6 +56,11 @@ export const OnBehalfOfChooser = ({
           checked={onBehalfOfOrg === org.orgNumber}
         />
       ))}
+      {error && (
+        <ErrorMessage size='small'>
+          <Lang id='signing.error_signing_no_on_behalf_of' />
+        </ErrorMessage>
+      )}
     </Fieldset>
   );
 };

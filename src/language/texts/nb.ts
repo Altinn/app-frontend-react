@@ -404,6 +404,8 @@ export function nb(): FixedLanguageList {
       error_missing_signing_rights:
         'Noe gikk galt. Nåværende bruker skal signere, men har ikke rettigheter til å gjøre det.',
       error_signing: 'Noe gikk galt under signeringen. Prøv igjen.',
+      error_signing_not_confirmed_documents: 'Du må bekrefte at du har lest dokumentene før du signerer.',
+      error_signing_no_on_behalf_of: 'Du må velge hvem du signerer på vegne av før du signerer.',
     },
     signee_list: {
       parse_error: 'Feil ved lasting av signatarliste.',
