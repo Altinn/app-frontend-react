@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import ReactDOMServer from 'react-dom/server';
+
+import dot from 'dot-object';
 
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { useLegacyNestedTexts } from 'src/layout/Custom/useLegacyNestedTexts';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -128,4 +129,9 @@ function getTextsForComponent(textResourceBindings: ITextResourceBindings<'Custo
     result[key] = langTools.langAsString(bindings[key]);
   });
   return result;
+}
+
+export function useLegacyNestedTexts() {
+  const { language } = useLanguage();
+  return useMemo(() => dot.object(language), [language]);
 }
