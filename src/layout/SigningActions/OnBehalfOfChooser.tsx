@@ -10,7 +10,7 @@ import type { AuthorizedOrganizationDetails } from 'src/layout/SigningActions/ap
 
 interface OnBehalfOfChooserProps {
   currentUserSignee: SigneeState | undefined;
-  authorizedOrganizationDetails: AuthorizedOrganizationDetails['organisations'];
+  authorizedOrganizationDetails: AuthorizedOrganizationDetails['organizations'];
   onBehalfOfOrg: string | null;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 }
