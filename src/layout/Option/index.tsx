@@ -7,11 +7,13 @@ import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { OptionDef } from 'src/layout/Option/config.def.generated';
 import { OptionComponent } from 'src/layout/Option/OptionComponent';
 import { OptionSummary } from 'src/layout/Option/OptionSummary';
+import { useIsEmptyPresentationComponent } from 'src/layout/Text/useIsEmptyPresentationComponent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Option extends OptionDef implements DisplayData {
   useDisplayData(nodeId: string): string {
@@ -34,5 +36,9 @@ export class Option extends OptionDef implements DisplayData {
       ...this.evalDefaultExpressions(props),
       value: props.evalStr(props.item.value, ''),
     };
+  }
+
+  useIsEmpty(node: LayoutNode<'Option'>): boolean {
+    return useIsEmptyPresentationComponent(node);
   }
 }

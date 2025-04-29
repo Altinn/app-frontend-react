@@ -20,4 +20,8 @@ export class Accordion extends AccordionDef {
   renderSummaryBoilerplate(): boolean {
     return false;
   }
+
+  useIsEmpty(): boolean {
+    return false;
+  }
 }

@@ -10,6 +10,7 @@ import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { DatepickerSummary } from 'src/layout/Datepicker/DatepickerSummary';
 import { useDatepickerValidation } from 'src/layout/Datepicker/useDatepickerValidation';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -124,5 +125,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     }
 
     return errors;
+  }
+
+  useIsEmpty(node: LayoutNode<'Datepicker'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

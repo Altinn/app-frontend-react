@@ -6,11 +6,13 @@ import { MapComponent } from 'src/layout/Map/MapComponent';
 import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import { MapSummary } from 'src/layout/Map/Summary2/MapSummary';
 import { parseLocation } from 'src/layout/Map/utils';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Map extends MapDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Map'>>(
@@ -57,5 +59,9 @@ export class Map extends MapDef {
     }
 
     return errors;
+  }
+
+  useIsEmpty(node: LayoutNode<'Map'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

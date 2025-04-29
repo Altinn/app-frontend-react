@@ -3,7 +3,6 @@ import React from 'react';
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { getComponentDef } from 'src/layout';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
@@ -38,17 +37,15 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
   const override = useSummaryOverrides(componentNode);
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const isRequired = useNodeItem(componentNode, (i) => ('required' in i ? i.required : false));
-  const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
   const forceShowInSummary = useNodeItem(componentNode, (i) => i['forceShowInSummary']);
   const pageBreak = useNodeItem(componentNode, (i) => i.pageBreak);
   const grid = useNodeItem(componentNode, (i) => i.grid);
-  const { formData } = useDataModelBindings(dataModelBindings);
   const isHidden = Hidden.useIsHidden(componentNode);
-  const noUserInput = Object.values(formData).every((value) => value?.length < 1);
   const def = getComponentDef(componentNode.type);
+  const isEmpty = def.useIsEmpty(componentNode as never);
 
   const hiddenByOverride = override?.hidden === true;
-  const hiddenBecauseNoUserInput = noUserInput ? hideEmptyFields && !isRequired && !forceShowInSummary : false;
+  const hiddenBecauseNoUserInput = isEmpty ? hideEmptyFields && !isRequired && !forceShowInSummary : false;
   if (isHidden || hiddenByOverride || hiddenBecauseNoUserInput) {
     return null;
   }
