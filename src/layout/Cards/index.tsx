@@ -27,4 +27,8 @@ export class Cards extends CardsDef {
       />
     );
   }
+
+  useIsEmpty(): boolean {
+    return false;
+  }
 }

@@ -8,18 +8,21 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
+import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useStrictInstanceId } from 'src/features/instance/InstanceContext';
+import { useStrictDataElements, useStrictInstanceId } from 'src/features/instance/InstanceContext';
 import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
 import {
   type DataSourceOverrides,
   type ExpressionDataSources,
   useExpressionDataSources,
 } from 'src/utils/layout/useExpressionDataSources';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { ExprConfig, ExprValToActualOrExpr, NodeReference } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useSubformFormData(dataElementId: string) {
   const instanceId = useStrictInstanceId();
@@ -125,4 +128,12 @@ export function getSubformEntryDisplayName(
 
   const resolvedValue = evalExpr(entryDisplayName, reference, dataSources, { config, errorIntroText });
   return resolvedValue ? String(resolvedValue) : null;
+}
+
+export function useHasSubformElements(node: LayoutNode<'Subform'>) {
+  const layoutSet = useNodeItem(node, (i) => i.layoutSet);
+  const dataType = useDataTypeFromLayoutSet(layoutSet);
+  const dataElements = useStrictDataElements(dataType);
+
+  return !!(dataType && dataElements.length > 0);
 }

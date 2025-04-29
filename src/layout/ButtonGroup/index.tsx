@@ -20,4 +20,8 @@ export class ButtonGroup extends ButtonGroupDef {
   renderSummary(): JSX.Element | null {
     return null;
   }
+
+  useIsEmpty(): boolean {
+    return false;
+  }
 }

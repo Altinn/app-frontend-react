@@ -10,6 +10,7 @@ import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/Repe
 import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
+import { useRepeatingGroupHasNoRows } from 'src/layout/RepeatingGroup/Summary2/useHasNoRows';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -184,5 +185,9 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     }
 
     return state.item?.rows?.every((row) => row && row.groupExpressions !== undefined) ?? false;
+  }
+
+  useIsEmpty(node: LayoutNode<'RepeatingGroup'>): boolean {
+    return useRepeatingGroupHasNoRows(node);
   }
 }

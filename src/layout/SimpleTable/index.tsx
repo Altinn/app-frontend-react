@@ -5,12 +5,14 @@ import { SimpleTableDef } from 'src/layout/SimpleTable/config.def.generated';
 import { SimpleTableComponent } from 'src/layout/SimpleTable/SimpleTableComponent';
 import { SimpleTableFeatureFlagLayoutValidator } from 'src/layout/SimpleTable/SimpleTableFeatureFlagLayoutValidator';
 import { SimpleTableSummary } from 'src/layout/SimpleTable/SimpleTableSummary';
+import { useSimpleTableHasNoRows } from 'src/layout/SimpleTable/useHasNoRows';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class SimpleTable extends SimpleTableDef {
   validateDataModelBindings(ctx: LayoutValidationCtx<'SimpleTable'>): string[] {
@@ -72,5 +74,9 @@ export class SimpleTable extends SimpleTableDef {
 
   renderSummary(_: SummaryRendererProps<'SimpleTable'>): React.JSX.Element | null {
     return null;
+  }
+
+  useIsEmpty(node: LayoutNode<'SimpleTable'>): boolean {
+    return useSimpleTableHasNoRows(node);
   }
 }

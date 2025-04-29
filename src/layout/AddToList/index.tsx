@@ -24,4 +24,7 @@ export class AddToList extends AddToListDef {
       return <AddToListComponent {...props} />;
     },
   );
+  useIsEmpty(): boolean {
+    return false;
+  }
 }

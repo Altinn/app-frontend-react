@@ -7,10 +7,12 @@ import { LikertDef } from 'src/layout/Likert/config.def.generated';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummaryComponent } from 'src/layout/Likert/Summary/LikertSummaryComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary2/LikertSummary';
+import { useLikertHasNoRows } from 'src/layout/Likert/Summary2/useLikertHasNoRows';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Likert extends LikertDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Likert'>>(
@@ -55,5 +57,9 @@ export class Likert extends LikertDef {
     }
 
     return errors;
+  }
+
+  useIsEmpty(node: LayoutNode<'Likert'>): boolean {
+    return useLikertHasNoRows(node);
   }
 }

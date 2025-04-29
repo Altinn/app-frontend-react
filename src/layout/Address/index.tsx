@@ -7,6 +7,7 @@ import { AddressSummary } from 'src/layout/Address/AddressSummary/AddressSummary
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { useAddressValidation } from 'src/layout/Address/useAddressValidation';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
@@ -66,5 +67,9 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     }
 
     return errors;
+  }
+
+  useIsEmpty(node: LayoutNode<'Address'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

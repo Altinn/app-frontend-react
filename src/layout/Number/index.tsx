@@ -9,11 +9,13 @@ import { evalFormatting } from 'src/layout/Input/formatting';
 import { NumberDef } from 'src/layout/Number/config.def.generated';
 import { NumberComponent } from 'src/layout/Number/NumberComponent';
 import { NumberSummary } from 'src/layout/Number/NumberSummary';
+import { useIsEmptyPresentationComponent } from 'src/layout/Text/useIsEmptyPresentationComponent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Number extends NumberDef implements DisplayData {
   useDisplayData(nodeId: string): string {
@@ -50,5 +52,9 @@ export class Number extends NumberDef implements DisplayData {
       formatting: evalFormatting(props),
       value: props.evalNum(props.item.value, NaN),
     };
+  }
+
+  useIsEmpty(node: LayoutNode<'Number'>): boolean {
+    return useIsEmptyPresentationComponent(node);
   }
 }

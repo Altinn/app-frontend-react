@@ -21,4 +21,8 @@ export class AccordionGroup extends AccordionGroupDef {
   renderSummaryBoilerplate(): boolean {
     return false;
   }
+
+  useIsEmpty(): boolean {
+    return false;
+  }
 }

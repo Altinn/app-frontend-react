@@ -11,12 +11,14 @@ import { evalFormatting } from 'src/layout/Input/formatting';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { InputSummary } from 'src/layout/Input/InputSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Input'>>(
@@ -60,5 +62,9 @@ export class Input extends InputDef {
       ...this.evalDefaultExpressions(props),
       formatting: evalFormatting(props),
     };
+  }
+
+  useIsEmpty(node: LayoutNode<'Input'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }
