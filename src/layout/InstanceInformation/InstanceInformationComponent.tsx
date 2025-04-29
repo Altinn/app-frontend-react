@@ -1,19 +1,18 @@
 import React from 'react';
 
+import { TZDate } from '@date-fns/tz';
 import { formatDate, formatISO } from 'date-fns';
 
 import type { PropsFromGenericComponent } from '..';
 
-import { getDateFormat, PrettyDateAndTime } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { PrettyDateAndTime } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
 import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { toTimeZonedDate } from 'src/utils/dateUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
@@ -65,7 +64,6 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const { dateSent, sender, receiver, referenceNumber } = elements || {};
 
   const langTools = useLanguage();
-  const selectedLanguage = useCurrentLanguage();
 
   const lastChanged = useLaxInstanceData((data) => data.lastChanged);
   const instanceId = useLaxInstanceId();
@@ -76,7 +74,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const instanceDateSent =
     lastChanged &&
     dateSent !== false &&
-    formatDate(toTimeZonedDate(formatISO(lastChanged)), getDateFormat(PrettyDateAndTime, selectedLanguage));
+    formatDate(new TZDate(new Date(formatISO(lastChanged)), 'Europe/Oslo'), PrettyDateAndTime);
 
   const instanceSender =
     sender !== false &&
