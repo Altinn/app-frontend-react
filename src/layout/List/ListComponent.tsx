@@ -14,7 +14,7 @@ import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useSaveObjectToGroup } from 'src/features/saveToList/useSaveObjectToGroup';
+import { useSaveObjectToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/List/ListComponent.module.css';
@@ -57,15 +57,13 @@ export const ListComponent = ({ node }: IListProps) => {
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
 
   const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
-  const groupBinding = item.dataModelBindings?.group;
-
-  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(bindings);
+  const groupBinding = useSaveObjectToGroup(bindings);
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
 
-  const selectedRow = !groupBinding
+  const selectedRow = !groupBinding.enabled
     ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
     : '';
 
@@ -78,11 +76,8 @@ export const ListComponent = ({ node }: IListProps) => {
   }
 
   function isRowSelected(row: Row): boolean {
-    if (groupBinding) {
-      const rows = (formData?.group as Row[] | undefined) ?? [];
-      return rows.some((selectedRow) =>
-        Object.keys(row).every((key) => Object.hasOwn(selectedRow, key) && row[key] === selectedRow[key]),
-      );
+    if (groupBinding.enabled) {
+      return groupBinding.isChecked(row);
     }
     return JSON.stringify(selectedRow) === JSON.stringify(row);
   }
@@ -91,8 +86,8 @@ export const ListComponent = ({ node }: IListProps) => {
   const description = item.textResourceBindings?.description;
 
   const handleRowClick = (row: Row) => {
-    if (groupBinding) {
-      toggleRowSelectionInList(row);
+    if (groupBinding.enabled) {
+      groupBinding.toggle(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });
     }
@@ -108,7 +103,7 @@ export const ListComponent = ({ node }: IListProps) => {
       </div>
     ));
 
-  const options = groupBinding ? (
+  const options = groupBinding.enabled ? (
     <Checkbox.Group
       legend={
         <Heading
@@ -121,20 +116,17 @@ export const ListComponent = ({ node }: IListProps) => {
       }
       description={description && <Lang id={description} />}
     >
-      {data?.listItems.map((row) => {
-        console.log(row);
-        return (
-          <Checkbox
-            key={JSON.stringify(row)}
-            onClick={() => handleRowClick(row)}
-            value={JSON.stringify(row)}
-            className={cn(classes.mobile)}
-            checked={isRowChecked(row)}
-          >
-            {renderListItems(row, tableHeaders)}
-          </Checkbox>
-        );
-      })}
+      {data?.listItems.map((row) => (
+        <Checkbox
+          key={JSON.stringify(row)}
+          onClick={() => handleRowClick(row)}
+          value={JSON.stringify(row)}
+          className={cn(classes.mobile)}
+          checked={groupBinding.isChecked(row)}
+        >
+          {renderListItems(row, tableHeaders)}
+        </Checkbox>
+      ))}
     </Checkbox.Group>
   ) : (
     <Radio.Group
@@ -235,13 +227,13 @@ export const ListComponent = ({ node }: IListProps) => {
                   [classes.selectedRowCell]: isRowSelected(row),
                 })}
               >
-                {groupBinding ? (
+                {groupBinding.enabled ? (
                   <Checkbox
                     className={classes.toggleControl}
                     aria-label={JSON.stringify(row)}
                     onChange={() => {}}
                     value={JSON.stringify(row)}
-                    checked={isRowChecked(row)}
+                    checked={groupBinding.isChecked(row)}
                     name={node.id}
                   />
                 ) : (

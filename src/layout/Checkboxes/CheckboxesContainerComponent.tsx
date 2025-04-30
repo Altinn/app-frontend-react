@@ -8,13 +8,14 @@ import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { useSaveObjectToGroup } from 'src/features/saveToList/useSaveObjectToGroup';
+import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.css';
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type ICheckboxContainerProps = PropsFromGenericComponent<'Checkboxes'>;
@@ -33,12 +34,14 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
     dataModelBindings,
   } = item;
   const { langAsString } = useLanguage();
-  const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
-  const group = dataModelBindings?.group;
-  const objectToGroupBindings = { ...dataModelBindings };
-  delete objectToGroupBindings.label;
-  delete objectToGroupBindings.metadata;
-  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(objectToGroupBindings);
+  const {
+    options: calculatedOptions,
+    isFetching,
+    setData,
+    selectedValues: selectedFromSimpleBinding,
+  } = useGetOptions(node, 'multi');
+  const groupBinding = useSaveValueToGroup(dataModelBindings);
+  const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
 
   const isValid = useIsValid(node);
   const horizontal = shouldUseRowLayout({
@@ -48,24 +51,13 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
   const ariaLabel = overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined;
-  const rowKey = dataModelBindings.simpleBinding.field.split('.').pop();
 
-  const setChecked = (isChecked: boolean, option) => {
-    if (group && rowKey) {
-      //List { prop1: 'value', prop2: 'value2' ...}
-      //Checkboxes {prop1: 'value' }
-      toggleRowSelectionInList({ [rowKey]: option.value });
+  const setChecked = (isChecked: boolean, option: IOptionInternal) => {
+    if (groupBinding.enabled) {
+      groupBinding.toggleValue(option.value);
     } else {
       const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
       setData(newData);
-    }
-  };
-
-  const isChecked = (rowKey, option) => {
-    if (group && rowKey) {
-      return isRowChecked({ [rowKey]: option.value });
-    } else {
-      return selectedValues.includes(option.value);
     }
   };
 
@@ -99,20 +91,17 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
             aria-label={ariaLabel}
             data-testid='checkboxes-fieldset'
           >
-            {calculatedOptions.map((option) => {
-              console.log(option, rowKey);
-              return (
-                <WrappedCheckbox
-                  key={option.value}
-                  id={id}
-                  option={option}
-                  hideLabel={hideLabel}
-                  alertOnChange={alertOnChange}
-                  checked={isChecked(rowKey, option)}
-                  setChecked={(isChecked) => setChecked(isChecked, option)}
-                />
-              );
-            })}
+            {calculatedOptions.map((option) => (
+              <WrappedCheckbox
+                key={option.value}
+                id={id}
+                option={option}
+                hideLabel={hideLabel}
+                alertOnChange={alertOnChange}
+                checked={selectedValues.includes(option.value)}
+                setChecked={(isChecked) => setChecked(isChecked, option)}
+              />
+            ))}
           </Checkbox.Group>
         </div>
       )}
