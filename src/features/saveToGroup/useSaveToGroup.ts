@@ -13,7 +13,7 @@ type Row = Record<string, unknown>;
 interface Bindings {
   group?: IDataModelReference;
   checked?: IDataModelReference;
-  valueBindings: IDataModelReference[];
+  values: Record<string, IDataModelReference>;
 }
 
 function toRelativePath(group: IDataModelReference | undefined, binding: IDataModelReference | undefined) {
@@ -23,10 +23,10 @@ function toRelativePath(group: IDataModelReference | undefined, binding: IDataMo
   return undefined;
 }
 
-function isEqual({ group, valueBindings }: Bindings, row1: Row, row2: Row) {
-  for (const valueBinding of valueBindings) {
-    const path = toRelativePath(group, valueBinding);
-    if (path && dot.pick(path, row1) !== dot.pick(path, row2)) {
+function isEqual({ group, values }: Bindings, source: Row, formDataRow: Row) {
+  for (const key in values) {
+    const path = toRelativePath(group, values[key]);
+    if (path && source[key] !== dot.pick(path, formDataRow)) {
       return false;
     }
   }
@@ -49,7 +49,7 @@ function findRowInFormData(
 }
 
 function useSaveToGroup(bindings: Bindings) {
-  const { group, checked, valueBindings } = bindings;
+  const { group, checked, values } = bindings;
   const formData = FD.useFreshBindings(group ? { group } : {}, 'raw').group as Row[] | undefined;
   const setLeafValue = FD.useSetLeafValue();
   const appendToList = FD.useAppendToList();
@@ -80,10 +80,10 @@ function useSaveToGroup(bindings: Bindings) {
         if (checkedPath) {
           dot.str(checkedPath, true, newRow);
         }
-        for (const valueBinding of valueBindings) {
-          const path = toRelativePath(group, valueBinding);
+        for (const key in values) {
+          const path = toRelativePath(group, values[key]);
           if (path) {
-            dot.str(path, dot.pick(path, row), newRow);
+            dot.str(path, row[key], newRow);
           }
         }
         appendToList({ reference: group, newValue: newRow });
@@ -99,14 +99,14 @@ function useSaveToGroup(bindings: Bindings) {
  * structure in the data model (aka object[])
  */
 export function useSaveObjectToGroup(listBindings: IDataModelBindingsForList) {
-  const valueBindings: IDataModelReference[] = [];
+  const values: Record<string, IDataModelReference> = {};
   for (const key in listBindings) {
     const binding = listBindings[key];
     if (key !== 'group' && key !== 'checked' && binding) {
-      valueBindings.push(binding);
+      values[key] = binding;
     }
   }
-  const bindings: Bindings = { group: listBindings.group, checked: listBindings.checked, valueBindings };
+  const bindings: Bindings = { group: listBindings.group, checked: listBindings.checked, values };
   const { formData, enabled, toggle, checkedPath } = useSaveToGroup(bindings);
 
   function isChecked(row: Row) {
@@ -129,7 +129,7 @@ export function useSaveValueToGroup(
   const { formData, enabled, toggle, checkedPath } = useSaveToGroup({
     group: bindings.group,
     checked: bindings.checked,
-    valueBindings: bindings.simpleBinding ? [bindings.simpleBinding] : [],
+    values: bindings.simpleBinding ? { value: bindings.simpleBinding } : {},
   });
   const valuePath = toRelativePath(bindings.group, bindings.simpleBinding);
 
@@ -141,17 +141,11 @@ export function useSaveValueToGroup(
       : [];
 
   function toggleValue(value: string) {
-    if (!valuePath || !enabled) {
-      return;
-    }
-
-    const asRow: Row = {};
-    dot.str(valuePath, value, asRow);
-    toggle(asRow);
+    enabled && toggle({ value });
   }
 
   function setCheckedValues(values: string[]) {
-    if (!valuePath || !enabled) {
+    if (!enabled) {
       return;
     }
 
@@ -160,9 +154,7 @@ export function useSaveValueToGroup(
     const valuesToToggle = [...valuesToSet, ...valuesToRemove];
 
     for (const value of valuesToToggle) {
-      const asRow: Row = {};
-      dot.str(valuePath, value, asRow);
-      toggle(asRow);
+      toggle({ value });
     }
   }
 
