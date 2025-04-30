@@ -58,7 +58,8 @@ export const ListComponent = ({ node }: IListProps) => {
 
   const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
   const groupBinding = item.dataModelBindings?.group;
-  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(node);
+
+  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(bindings);
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
@@ -120,17 +121,20 @@ export const ListComponent = ({ node }: IListProps) => {
       }
       description={description && <Lang id={description} />}
     >
-      {data?.listItems.map((row) => (
-        <Checkbox
-          key={JSON.stringify(row)}
-          onClick={() => handleRowClick(row)}
-          value={JSON.stringify(row)}
-          className={cn(classes.mobile)}
-          checked={isRowChecked(row)}
-        >
-          {renderListItems(row, tableHeaders)}
-        </Checkbox>
-      ))}
+      {data?.listItems.map((row) => {
+        console.log(row);
+        return (
+          <Checkbox
+            key={JSON.stringify(row)}
+            onClick={() => handleRowClick(row)}
+            value={JSON.stringify(row)}
+            className={cn(classes.mobile)}
+            checked={isRowChecked(row)}
+          >
+            {renderListItems(row, tableHeaders)}
+          </Checkbox>
+        );
+      })}
     </Checkbox.Group>
   ) : (
     <Radio.Group

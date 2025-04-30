@@ -4,12 +4,12 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { NodeValidationProps } from 'src/layout/layout';
 
-export function MultipleSelectLayoutValidator(props: NodeValidationProps<'MultipleSelect'>) {
+export function ObjectToGroupLayoutValidator(props: NodeValidationProps<'List' | 'Checkboxes' | 'MultipleSelect'>) {
   const { node, externalItem } = props;
   const { langAsString } = useLanguage();
-  const group = externalItem.dataModelBindings.group;
+  const group = externalItem.dataModelBindings?.group;
   const deletionStrategy = externalItem.deletionStrategy;
-  const checkedBinding = externalItem.dataModelBindings.checked;
+  const checkedBinding = externalItem.dataModelBindings?.checked;
 
   const addError = NodesInternal.useAddError();
 

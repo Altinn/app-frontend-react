@@ -1,15 +1,16 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
-import { CheckboxesLayoutValidator } from 'src/layout/Checkboxes/CheckboxesLayoutValidator';
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
+import { ObjectToGroupLayoutValidator } from 'src/layout/List/ObjectToGroupLayoutValidator';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
@@ -55,39 +56,40 @@ export class Checkboxes extends CheckboxesDef {
   }
 
   renderLayoutValidators(props: NodeValidationProps<'Checkboxes'>): JSX.Element | null {
-    return <CheckboxesLayoutValidator {...props} />;
+    return <ObjectToGroupLayoutValidator {...props} />;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Checkboxes'>): string[] {
     const errors: string[] = [];
+    const allowedLeafTypes = ['string', 'boolean', 'number', 'integer'];
     const dataModelBindings = ctx.item.dataModelBindings ?? {};
+    const groupBinding = dataModelBindings?.group;
+    const simpleBinding = dataModelBindings?.simpleBinding;
 
-    if (!dataModelBindings?.group) {
+    if (groupBinding) {
+      const [groupErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
+      errors.push(...(groupErrors || []));
+
+      if (!simpleBinding.field.startsWith(`${groupBinding.field}.`)) {
+        errors.push(
+          `simpleBinding must start with the group binding field (must point to a property inside the group)`,
+        );
+      }
+      const simpleBindingsWithoutGroup = simpleBinding.field.replace(`${groupBinding.field}.`, '');
+      const fieldWithIndex = `${groupBinding.field}[0].${simpleBindingsWithoutGroup}`;
+      const [schema, err] = ctx.lookupBinding({
+        field: fieldWithIndex,
+        dataType: simpleBinding.dataType,
+      });
+
+      if (err) {
+        errors.push(lookupErrorAsText(err));
+      } else if (typeof schema?.type !== 'string' || !allowedLeafTypes.includes(schema.type)) {
+        errors.push(`Field ${simpleBinding} in group must be one of types ${allowedLeafTypes.join(', ')}`);
+      }
+    } else {
       const [newErrors] = this.validateDataModelBindingsSimple(ctx);
       errors.push(...(newErrors || []));
-    }
-
-    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
-    errors.push(...(newErrors || []));
-
-    if (dataModelBindings?.group) {
-      const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.group.field}.`);
-
-      if (!isCompatible) {
-        errors.push(`simpleBinding must reference a field in group`);
-      }
-
-      const simpleBindingPath = dataModelBindings.simpleBinding?.field.split('.');
-      const groupBinding = ctx.lookupBinding(dataModelBindings?.group);
-      const items = groupBinding[0]?.items;
-      const properties =
-        items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
-          ? items.properties
-          : undefined;
-
-      if (!(properties && simpleBindingPath[1] in properties)) {
-        errors.push(`The property ${simpleBindingPath[1]} must be present in group`);
-      }
     }
 
     return errors;

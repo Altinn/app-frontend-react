@@ -34,8 +34,11 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
   } = item;
   const { langAsString } = useLanguage();
   const { options: calculatedOptions, isFetching, setData, selectedValues } = useGetOptions(node, 'multi');
-  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(node);
   const group = dataModelBindings?.group;
+  const objectToGroupBindings = { ...dataModelBindings };
+  delete objectToGroupBindings.label;
+  delete objectToGroupBindings.metadata;
+  const { toggleRowSelectionInList, isRowChecked } = useSaveObjectToGroup(objectToGroupBindings);
 
   const isValid = useIsValid(node);
   const horizontal = shouldUseRowLayout({
@@ -49,10 +52,20 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const setChecked = (isChecked: boolean, option) => {
     if (group && rowKey) {
+      //List { prop1: 'value', prop2: 'value2' ...}
+      //Checkboxes {prop1: 'value' }
       toggleRowSelectionInList({ [rowKey]: option.value });
     } else {
       const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
       setData(newData);
+    }
+  };
+
+  const isChecked = (rowKey, option) => {
+    if (group && rowKey) {
+      return isRowChecked({ [rowKey]: option.value });
+    } else {
+      return selectedValues.includes(option.value);
     }
   };
 
@@ -86,19 +99,20 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
             aria-label={ariaLabel}
             data-testid='checkboxes-fieldset'
           >
-            {calculatedOptions.map((option) => (
-              <WrappedCheckbox
-                key={option.value}
-                id={id}
-                option={option}
-                hideLabel={hideLabel}
-                alertOnChange={alertOnChange}
-                checked={
-                  group && rowKey ? isRowChecked({ [rowKey]: option.value }) : selectedValues.includes(option.value)
-                }
-                setChecked={(isChecked) => setChecked(isChecked, option)}
-              />
-            ))}
+            {calculatedOptions.map((option) => {
+              console.log(option, rowKey);
+              return (
+                <WrappedCheckbox
+                  key={option.value}
+                  id={id}
+                  option={option}
+                  hideLabel={hideLabel}
+                  alertOnChange={alertOnChange}
+                  checked={isChecked(rowKey, option)}
+                  setChecked={(isChecked) => setChecked(isChecked, option)}
+                />
+              );
+            })}
           </Checkbox.Group>
         </div>
       )}

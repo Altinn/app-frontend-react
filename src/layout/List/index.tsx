@@ -8,8 +8,8 @@ import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { evalQueryParameters } from 'src/features/options/evalQueryParameters';
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
-import { ListLayoutValidator } from 'src/layout/List/ListLayoutValidator';
 import { ListSummary } from 'src/layout/List/ListSummary';
+import { ObjectToGroupLayoutValidator } from 'src/layout/List/ObjectToGroupLayoutValidator';
 import { useValidateListIsEmpty } from 'src/layout/List/useValidateListIsEmpty';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -95,7 +95,7 @@ export class List extends ListDef {
   }
 
   renderLayoutValidators(props: NodeValidationProps<'List'>): JSX.Element | null {
-    return <ListLayoutValidator {...props} />;
+    return <ObjectToGroupLayoutValidator {...props} />;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {

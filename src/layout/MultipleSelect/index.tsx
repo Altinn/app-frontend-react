@@ -6,9 +6,9 @@ import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSep
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
+import { ObjectToGroupLayoutValidator } from 'src/layout/List/ObjectToGroupLayoutValidator';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
-import { MultipleSelectLayoutValidator } from 'src/layout/MultipleSelect/MultipleSelectLayoutValidator';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -54,7 +54,7 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   renderLayoutValidators(props: NodeValidationProps<'MultipleSelect'>): JSX.Element | null {
-    return <MultipleSelectLayoutValidator {...props} />;
+    return <ObjectToGroupLayoutValidator {...props} />;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {
