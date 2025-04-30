@@ -4,6 +4,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react';
 import { Paragraph, Textfield } from '@digdir/designsystemet-react';
 
 import classes from 'src/app-components/Input/Input.module.css';
+import { useCharacterLimit } from 'src/utils/inputUtils';
 import type { InputType } from 'src/app-components/Input/constants';
 
 type LabelRequired =
@@ -21,6 +22,7 @@ export type InputProps = {
   readOnly?: boolean;
   type?: InputType;
   textonly?: boolean;
+  maxLength?: number;
 } & Pick<
   InputHTMLAttributes<HTMLInputElement>,
   | 'value'
@@ -38,7 +40,9 @@ export type InputProps = {
   LabelRequired;
 
 export function Input(props: InputProps) {
-  const { size = 'sm', readOnly, error, textonly, ...rest } = props;
+  const { size = 'sm', readOnly, error, textonly, maxLength, ...rest } = props;
+
+  const characterLimit = useCharacterLimit(maxLength);
 
   const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
     if (readOnly) {
@@ -70,6 +74,7 @@ export function Input(props: InputProps) {
       onPaste={handlePaste}
       aria-invalid={!!error}
       readOnly={readOnly}
+      counter={characterLimit}
       {...rest}
     />
   );

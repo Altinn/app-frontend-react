@@ -1,7 +1,5 @@
 import React from 'react';
 
-import { Field } from '@digdir/designsystemet-react';
-
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
@@ -103,87 +101,66 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     case 'search':
     case 'text':
       return (
-        <Field>
-          <Input
-            {...inputProps}
-            value={formValue}
-            type={variant.type}
-            onChange={(event) => {
-              setValue('simpleBinding', event.target.value);
-            }}
-          />
-          {characterLimit && !readOnly && (
-            <Field.Counter
-              {...characterLimit}
-              data-size='sm'
-            />
-          )}
-        </Field>
+        <Input
+          {...inputProps}
+          value={formValue}
+          type={variant.type}
+          onChange={(event) => {
+            setValue('simpleBinding', event.target.value);
+          }}
+          maxLength={maxLength}
+        />
       );
     case 'pattern':
       return (
-        <Field>
-          <FormattedInput
-            {...inputProps}
-            {...variant.format}
-            value={formValue}
-            type='text'
-            onValueChange={(values, sourceInfo) => {
-              if (sourceInfo.source === 'prop') {
-                return;
-              }
-              setValue('simpleBinding', values.value);
-            }}
-          />
-          {characterLimit && !readOnly && (
-            <Field.Counter
-              {...characterLimit}
-              data-size='sm'
-            />
-          )}
-        </Field>
+        <FormattedInput
+          {...inputProps}
+          {...variant.format}
+          value={formValue}
+          type='text'
+          onValueChange={(values, sourceInfo) => {
+            if (sourceInfo.source === 'prop') {
+              return;
+            }
+            setValue('simpleBinding', values.value);
+          }}
+          maxLength={maxLength}
+        />
       );
     case 'number':
       return (
-        <Field>
-          <NumericInput
-            {...inputProps}
-            {...variant.format}
-            value={formValue}
-            type='text'
-            onValueChange={(values, sourceInfo) => {
-              if (sourceInfo.source === 'prop') {
-                // Do not update the value if the change is from props (i.e. let's not send form data updates when
-                // visual-only decimalScale changes)
-                return;
-              }
-              setValue('simpleBinding', values.value);
-            }}
-            onPaste={(event: React.ClipboardEvent<HTMLInputElement>) => {
-              /* This is a workaround for a react-number-format bug that
-               * removes the decimal on paste.
-               * We should be able to remove it when this issue gets fixed:
-               * https://github.com/s-yadav/react-number-format/issues/349
-               *  */
-              event.preventDefault();
-              if (inputProps.readOnly) {
-                return;
-              }
-              const pastedText = event.clipboardData.getData('Text');
-              if (pastedText.indexOf(',') !== -1) {
-                setValue('simpleBinding', pastedText.replace(',', '.'));
-              } else {
-                setValue('simpleBinding', pastedText);
-              }
-            }}
-          />
-          {characterLimit && !readOnly && (
-            <Field.Counter
-              {...characterLimit}
-              data-size='sm'
-            />
-          )}
-        </Field>
+        <NumericInput
+          {...inputProps}
+          {...variant.format}
+          value={formValue}
+          type='text'
+          onValueChange={(values, sourceInfo) => {
+            if (sourceInfo.source === 'prop') {
+              // Do not update the value if the change is from props (i.e. let's not send form data updates when
+              // visual-only decimalScale changes)
+              return;
+            }
+            setValue('simpleBinding', values.value);
+          }}
+          onPaste={(event: React.ClipboardEvent<HTMLInputElement>) => {
+            /* This is a workaround for a react-number-format bug that
+             * removes the decimal on paste.
+             * We should be able to remove it when this issue gets fixed:
+             * https://github.com/s-yadav/react-number-format/issues/349
+             *  */
+            event.preventDefault();
+            if (inputProps.readOnly) {
+              return;
+            }
+            const pastedText = event.clipboardData.getData('Text');
+            if (pastedText.indexOf(',') !== -1) {
+              setValue('simpleBinding', pastedText.replace(',', '.'));
+            } else {
+              setValue('simpleBinding', pastedText);
+            }
+          }}
+          maxLength={maxLength}
+        />
       );
   }
 };
