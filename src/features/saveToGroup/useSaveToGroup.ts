@@ -61,8 +61,8 @@ function useSaveToGroup(bindings: Bindings) {
       return;
     }
 
-    const [index] = findRowInFormData(bindings, row, formData);
-    const isChecked = !!(checkedPath ? dot.pick(checkedPath, row) : true);
+    const [index, formDataRow] = findRowInFormData(bindings, row, formData);
+    const isChecked = !!(checkedPath ? dot.pick(checkedPath, formDataRow) : true);
     if (isChecked) {
       if (checked && checkedPath) {
         const field = `${group.field}[${index}].${checkedPath}`;
