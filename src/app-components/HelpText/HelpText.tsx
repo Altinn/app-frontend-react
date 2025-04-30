@@ -79,6 +79,7 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
         </button>
       </Popover.Trigger>
       <Popover
+        data-testid='helptext'
         className={classes.helpTextContent}
         data-color='info'
         placement={placement}

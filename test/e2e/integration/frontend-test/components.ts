@@ -25,11 +25,11 @@ describe('UI Components', () => {
       cy.wrap(image).find('img').should('have.attr', 'alt', 'Altinn logo').should('exist');
     });
     cy.findByRole('button', { name: /Hjelpetekst for Altinn logo/i }).click();
-    cy.get(appFrontend.helpText.alert).eq(1).should('be.visible');
-    cy.get(appFrontend.helpText.alert).eq(1).should('contain.text', 'Altinn logo');
+    cy.get(appFrontend.helpText.alert).eq(0).should('be.visible');
+    cy.get(appFrontend.helpText.alert).eq(0).should('contain.text', 'Altinn logo');
     cy.findByRole('button', { name: /Hjelpetekst for Altinn logo/i }).click();
     cy.get('body').type('{esc}'); // Press ESC key
-    cy.get(appFrontend.helpText.alert).eq(1).should('not.be.visible');
+    cy.get(appFrontend.helpText.alert).eq(0).should('not.be.visible');
     cy.get('body').should('have.css', 'background-color', 'rgb(239, 239, 239)');
   });
 
@@ -38,7 +38,7 @@ describe('UI Components', () => {
     cy.findByRole('button', { name: /Hjelpetekst for Appen for test av app frontend/i }).click();
     // check that the markdown is rendered correctly with a list, bold text and a link
     cy.get(appFrontend.helpText.alert)
-      .eq(2)
+      .eq(1)
       .then((alert) => {
         cy.wrap(alert).find('li').should('have.length', 5);
         cy.wrap(alert).find('b').should('have.length', 1);
@@ -379,17 +379,16 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.newLastName).blur();
 
     cy.get(appFrontend.changeOfName.confirmChangeName).findByText('Dette er en beskrivelse.').should('be.visible');
+    cy.get(appFrontend.helpText.alert).eq(1).should('not.be.visible');
     cy.get(appFrontend.changeOfName.confirmChangeName).findByRole('button').click();
-    cy.get(appFrontend.changeOfName.confirmChangeName)
-      .findByRole('dialog')
-      .should('contain.text', 'Dette er en hjelpetekst.');
+    cy.get(appFrontend.helpText.alert).eq(1).should('be.visible');
 
     cy.get(appFrontend.changeOfName.confirmChangeName).find('label').click();
     cy.get(appFrontend.changeOfName.reasons).should('be.visible');
 
     cy.get(appFrontend.changeOfName.reasons).findByText('Dette er en beskrivelse.').should('be.visible');
     cy.get(appFrontend.changeOfName.reasons).findByRole('button').click();
-    cy.get(appFrontend.changeOfName.reasons).findByRole('dialog').should('contain.text', 'Dette er en hjelpetekst.');
+    cy.get(appFrontend.helpText.alert).eq(2).should('be.visible');
   });
 
   it('should display alert on changing radio button', () => {

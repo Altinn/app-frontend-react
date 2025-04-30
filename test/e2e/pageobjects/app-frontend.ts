@@ -55,7 +55,7 @@ export class AppFrontend {
 
   public helpText = {
     button: 'button[class^="ds-helptext"]',
-    alert: 'div[popover="manual"]',
+    alert: 'div[data-testid="helptext"]',
   };
 
   public navMenu = '#navigation-menu';
