@@ -1,16 +1,14 @@
 import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
-import { Flex } from 'src/app-components/Flex/Flex';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
 import { useReturnToView, useSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
-import { useIsProcessing } from 'src/hooks/useIsProcessing';
 import { useNavigatePage, useNextPageKey, usePreviousPageKey } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 export type INavigationButtons = PropsFromGenericComponent<'NavigationButtons'>;
@@ -22,8 +20,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const hasPrevious = !!usePreviousPageKey();
   const returnToView = useReturnToView();
   const summaryItem = useNodeItem(useSummaryNodeOfOrigin());
-  const [isProcessing, processing] = useIsProcessing<'next' | 'previous' | 'backToSummary'>();
-  const parentIsPage = node.parent instanceof LayoutPage;
+  const { performProcess, isAnyProcessing, process } = useIsProcessing<'next' | 'previous' | 'backToSummary'>();
 
   const nextTextKey = textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
@@ -48,13 +45,13 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
   const resetScrollPosition = useResetScrollPosition(getScrollPosition, '[data-testid="ErrorReport"]');
 
   const onClickPrevious = () =>
-    processing('previous', async () => {
+    performProcess('previous', async () => {
       await maybeSaveOnPageChange();
 
       const prevScrollPosition = getScrollPosition();
       if (validateOnPrevious) {
-        const hasError = await onPageNavigationValidation(node.page, validateOnPrevious);
-        if (hasError) {
+        const hasErrors = await onPageNavigationValidation(node.page, validateOnPrevious);
+        if (hasErrors) {
           // Block navigation if validation fails
           resetScrollPosition(prevScrollPosition);
           return;
@@ -65,7 +62,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     });
 
   const onClickNext = () =>
-    processing('next', async () => {
+    performProcess('next', async () => {
       await maybeSaveOnPageChange();
 
       const prevScrollPosition = getScrollPosition();
@@ -82,7 +79,7 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
     });
 
   const onClickBackToSummary = () =>
-    processing('backToSummary', async () => {
+    performProcess('backToSummary', async () => {
       await maybeSaveOnPageChange();
       await navigateToPage(returnToView, { skipAutoSave: true });
     });
@@ -97,46 +94,36 @@ export function NavigationButtonsComponent({ node }: INavigationButtons) {
       <div
         data-testid='NavigationButtons'
         className={classes.container}
-        style={{ marginTop: parentIsPage ? 'var(--button-margin-top)' : undefined }}
       >
         {showBackToSummaryButton && (
-          <Flex item>
-            <Button
-              disabled={!!isProcessing}
-              isLoading={isProcessing === 'backToSummary'}
-              onClick={onClickBackToSummary}
-            >
-              <Lang id={returnToViewText} />
-            </Button>
-          </Flex>
+          <Button
+            disabled={isAnyProcessing}
+            isLoading={process === 'backToSummary'}
+            onClick={onClickBackToSummary}
+          >
+            <Lang id={returnToViewText} />
+          </Button>
         )}
         {showNextButton && (
-          <Flex item>
-            <Button
-              disabled={!!isProcessing}
-              isLoading={isProcessing === 'next'}
-              onClick={onClickNext}
-              // If we are showing a back to summary button, we want the "next" button to be secondary
-              variant={showBackToSummaryButton ? 'secondary' : 'primary'}
-            >
-              <Lang id={nextTextKey} />
-            </Button>
-          </Flex>
+          <Button
+            disabled={isAnyProcessing}
+            isLoading={process === 'next'}
+            onClick={onClickNext}
+            // If we are showing a back to summary button, we want the "next" button to be secondary
+            variant={showBackToSummaryButton ? 'secondary' : 'primary'}
+          >
+            <Lang id={nextTextKey} />
+          </Button>
         )}
         {hasPrevious && showBackButton && (
-          <Flex
-            item
-            style={{ flex: 0 }}
+          <Button
+            disabled={isAnyProcessing}
+            isLoading={process === 'previous'}
+            variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
+            onClick={onClickPrevious}
           >
-            <Button
-              disabled={!!isProcessing}
-              isLoading={isProcessing === 'previous'}
-              variant={showNextButton || showBackToSummaryButton ? 'secondary' : 'primary'}
-              onClick={onClickPrevious}
-            >
-              <Lang id={backTextKey} />
-            </Button>
-          </Flex>
+            <Lang id={backTextKey} />
+          </Button>
         )}
       </div>
     </ComponentStructureWrapper>

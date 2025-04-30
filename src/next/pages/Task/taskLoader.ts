@@ -1,11 +1,18 @@
 // src/next/loaders/taskLoader.ts
 import type { LoaderFunctionArgs } from 'react-router-dom';
 
+<<<<<<< HEAD
 import { API_CLIENT, APP, ORG } from 'src/next/app/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
 export async function taskLoader({ params }: LoaderFunctionArgs) {
   console.log('task loader');
+=======
+import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
+import { layoutStore } from 'src/next/stores/layoutStore';
+
+export async function taskLoader({ params }: LoaderFunctionArgs) {
+>>>>>>> next-poc-expressions
   const taskId = params.taskId;
   if (!taskId) {
     throw new Error('Missing taskId param');
@@ -13,7 +20,11 @@ export async function taskLoader({ params }: LoaderFunctionArgs) {
 
   // We need the layoutSetsConfig from the store
   const lstate = layoutStore.getState();
+<<<<<<< HEAD
   debugger;
+=======
+
+>>>>>>> next-poc-expressions
   const { layoutSetsConfig } = lstate;
 
   if (!layoutSetsConfig) {
@@ -35,6 +46,11 @@ export async function taskLoader({ params }: LoaderFunctionArgs) {
   const settings = JSON.parse(data.settings);
   const layouts = JSON.parse(data.layouts);
 
+<<<<<<< HEAD
+=======
+  debugger;
+
+>>>>>>> next-poc-expressions
   // Update the layout store
   layoutStore.getState().setPageOrder(settings);
   layoutStore.getState().setLayouts(layouts);

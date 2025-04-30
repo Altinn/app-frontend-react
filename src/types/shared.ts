@@ -96,6 +96,7 @@ export interface IInstanceOwner {
   personNumber?: string;
   organisationNumber?: string | null;
   username?: string;
+  party?: IParty | null;
 }
 
 export interface IInstanceState {
@@ -155,7 +156,7 @@ export interface IParty {
 }
 
 /**
- * @see https://github.com/Altinn/altinn-platform/blob/main/Altinn.Platform.Models/src/Register/Enums/PartyType.cs
+ * @see https://github.com/Altinn/altinn-register/blob/main/src/Altinn.Platform.Models/src/Altinn.Platform.Models/Register/PartyType.cs
  */
 export enum PartyType {
   Person = 1,
@@ -197,12 +198,7 @@ export interface IProcess {
   currentTask?: ITask;
   ended?: string | null;
   endEvent?: string | null;
-  processTasks?: ITask[];
-}
-
-export interface Role {
-  type: string;
-  value: string;
+  processTasks?: Pick<ITask, 'altinnTaskType' | 'elementId'>[];
 }
 
 export interface IProfile {

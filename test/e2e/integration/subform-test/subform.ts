@@ -1,5 +1,8 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import type { ILayoutSettings } from 'src/layout/common.generated';
+import type { ILayoutCollection } from 'src/layout/layout';
+
 const appFrontend = new AppFrontend();
 
 describe('Subform test', () => {
@@ -94,6 +97,59 @@ describe('Subform test', () => {
       cy.wrap($toast).should('contain', 'Maks antall moped oppføringer har blitt nådd');
       cy.wrap($toast).should('have.class', 'Toastify__toast--error');
     });
+
+    cy.get('#Input-Age').type('30');
+    cy.get(appFrontend.errorReport).should('not.exist');
+
+    // Delete the last two mopeds (those with errors)
+    cy.get('#subform-subform-mopeder-table tbody tr').should('have.length', 3);
+    cy.get('#subform-subform-mopeder-table tbody tr').eq(1).findByText('Slett').clickAndGone();
+    cy.get('#subform-subform-mopeder-table tbody tr').should('have.length', 2);
+    cy.get('#subform-subform-mopeder-table tbody tr').eq(1).findByText('Slett').clickAndGone();
+    cy.get('#subform-subform-mopeder-table tbody tr').should('have.length', 1);
+    cy.get('[data-testid="NavigationButtons"] button.fds-btn--primary').clickAndGone();
+
+    // Verify summary fields
+    cy.get('[data-testid=summary-single-value-component]').eq(0).should('contain.text', name);
+    cy.get('[data-testid=summary-single-value-component]').eq(1).should('contain.text', '30 år');
+    cy.get('#label-attachment-summary2-attachments')
+      .next()
+      .should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.get('#form-content-subform-mopeder table tbody tr').should('have.length', 1);
+    cy.get('#form-content-subform-mopeder table tbody tr').within(() => {
+      cy.get('td').eq(0).should('have.text', regno);
+      cy.get('td').eq(1).should('have.text', merke);
+      cy.get('td').eq(2).should('have.text', extrainfo);
+    });
+
+    cy.get('#label-subform-boker').next().should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.findByRole('button', { name: 'Vis Summary2 for hele steget' }).clickAndGone();
+
+    cy.get('.fds-paragraph')
+      .eq(0)
+      .should(
+        'contain.text',
+        'Subform komponentene finner du nederst på denne siden, under et par felter med personalia.',
+      );
+    cy.get('[data-testid=summary-single-value-component]').eq(0).should('contain.text', name);
+    cy.get('[data-testid=summary-single-value-component]').eq(1).should('contain.text', '30 år');
+    cy.get('#label-attachment-summary2-attachments')
+      .next()
+      .should('contain.text', 'Du har ikke lagt inn informasjon her');
+
+    cy.get('#label-subform-mopeder').should('contain.text', 'Dine mopeder');
+
+    cy.get('[data-testid=summary-single-value-component]').eq(2).should('contain.text', regno);
+    cy.get('[data-testid=summary-single-value-component]').eq(3).should('contain.text', merke);
+    cy.get('[data-testid=summary-single-value-component]').eq(4).should('contain.text', model);
+    cy.get('[data-testid=summary-single-value-component]').eq(5).should('contain.text', 'Har du ekstra info?');
+    cy.get('[data-testid=summary-single-value-component]').eq(5).should('contain.text', 'Ja');
+    cy.get('[data-testid=summary-single-value-component]').eq(6).should('contain.text', extrainfo);
+    cy.get('[data-testid=summary-single-value-component]').eq(7).should('contain.text', year);
+
+    cy.get('#label-subform-boker').next().should('contain.text', 'Du har ikke lagt inn informasjon her');
   });
 
   it('subform validation', () => {
@@ -202,6 +258,92 @@ describe('Subform test', () => {
         cy.getSummary('Merke').eq(1).should('contain.text', 'Altinn');
         cy.getSummary('Modell').eq(1).should('contain.text', '3.0');
         cy.getSummary('Produksjonsår').eq(1).should('contain.text', '2030');
+      },
+    });
+  });
+
+  it('should render PDF with summary2 layoutset with subform and subform table', () => {
+    const pdfLayoutName = 'CustomPDF';
+    cy.intercept('GET', '**/layoutsettings/**', (req) =>
+      req.on('response', (res) => {
+        const body: ILayoutSettings = JSON.parse(res.body);
+        res.send({
+          ...body,
+          pages: { ...body.pages, pdfLayoutName },
+        });
+      }),
+    );
+
+    cy.intercept('GET', '**/layouts/**', (req) =>
+      req.on('response', (res) => {
+        const body: ILayoutCollection = JSON.parse(res.body);
+        res.send({
+          ...body,
+          [pdfLayoutName]: {
+            data: {
+              layout: [
+                {
+                  id: 'title',
+                  type: 'Header',
+                  textResourceBindings: { title: 'This is a custom PDF' },
+                  size: 'L',
+                },
+                {
+                  id: 'summary2-layoutset',
+                  type: 'Summary2',
+                  target: {
+                    taskId: 'Task_1',
+                    type: 'layoutSet',
+                  },
+                  showPageInAccordion: false,
+                  overrides: [
+                    {
+                      componentId: 'subform-mopeder',
+                      display: 'table',
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        });
+      }),
+    );
+
+    cy.waitUntilSaved();
+
+    cy.findByRole('textbox', { name: /navn/i }).type('Per');
+    cy.findByRole('textbox', { name: /alder/i }).type('28');
+
+    cy.findByRole('button', { name: /legg til moped/i }).clickAndGone();
+    cy.findByRole('textbox', { name: /registreringsnummer/i }).type('ABC123');
+    cy.findByRole('textbox', { name: /merke/i }).type('Digdir');
+    cy.findByRole('textbox', { name: /modell/i }).type('Scooter2000');
+    cy.findByRole('textbox', { name: /produksjonsår/i }).type('2024');
+    cy.findByRole('button', { name: /ferdig/i }).clickAndGone();
+
+    cy.findByRole('button', { name: /legg til moped/i }).clickAndGone();
+    cy.findByRole('textbox', { name: /registreringsnummer/i }).type('XYZ987');
+    cy.findByRole('textbox', { name: /merke/i }).type('Altinn');
+    cy.findByRole('textbox', { name: /modell/i }).type('3.0');
+    cy.findByRole('textbox', { name: /produksjonsår/i }).type('2030');
+    cy.findByRole('button', { name: /ferdig/i }).clickAndGone();
+
+    cy.testPdf({
+      snapshotName: 'subform',
+      enableResponseFuzzing: true,
+      callback: () => {
+        cy.getSummary('Navn').should('contain.text', 'Per');
+        cy.getSummary('Alder').should('contain.text', '28 år');
+
+        cy.findByRole('columnheader', { name: 'Regnummer' });
+        cy.findByRole('columnheader', { name: 'Merke' });
+        cy.findByRole('columnheader', { name: 'Ekstra info' });
+
+        cy.findByRole('cell', { name: 'ABC123' });
+        cy.findByRole('cell', { name: 'Digdir' });
+        cy.findByRole('cell', { name: 'XYZ987' });
+        cy.findByRole('cell', { name: 'Altinn' });
       },
     });
   });

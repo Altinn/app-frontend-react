@@ -1,6 +1,6 @@
 import type { LoaderFunctionArgs } from 'react-router-dom';
 
-import { API_CLIENT, APP, ORG } from 'src/next/app/App';
+import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
 import { instanceStore } from 'src/next/stores/instanceStore';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
@@ -25,7 +25,7 @@ export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams
   }
 
   if (!instance) {
-    const res = await API_CLIENT.org.instancesDetail(ORG, APP, parseInt(partyId), instanceGuid); //fetch('/api/users');
+    const res = await API_CLIENT.org.instancesDetail(ORG, APP, parseInt(partyId), instanceGuid);
     const instance = await res.json();
     instanceStore.setState({ instance });
     localInstance = instance;
@@ -48,7 +48,6 @@ export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams
 }
 
 export async function instanceLoader({ params }: LoaderFunctionArgs<InstanceParams>) {
-  console.log('instance loader');
   const { partyId, instanceGuid } = params;
   if (!partyId || !instanceGuid) {
     throw new Error('partyId, instanceGuid should be set');

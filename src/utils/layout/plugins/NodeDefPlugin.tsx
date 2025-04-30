@@ -4,12 +4,10 @@ import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImpor
 import type { SerializableSetting } from 'src/codegen/SerializableSetting';
 import type { CompInternal, CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type { BaseNodeData, StateFactoryProps } from 'src/utils/layout/types';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
-export interface DefPluginConfig {
+interface DefPluginConfig {
   componentType: CompTypes;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   expectedFromExternal?: Record<string, any>;
@@ -37,12 +35,12 @@ export type DefPluginExtraInItemFromPlugin<Plugin extends NodeDefPlugin<any>> =
       : Record<string, never>
     : never;
 
-export type DefPluginCompType<Config extends DefPluginConfig> = Config['componentType'];
+type DefPluginCompType<Config extends DefPluginConfig> = Config['componentType'];
 export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraState'] extends undefined
   ? unknown
   : Config['extraState'];
 export type DefPluginExtraInItem<Config extends DefPluginConfig> = Config['extraInItem'];
-export type DefPluginCompInternal<Config extends DefPluginConfig> = CompInternal<DefPluginCompType<Config>>;
+type DefPluginCompInternal<Config extends DefPluginConfig> = CompInternal<DefPluginCompType<Config>>;
 export type DefPluginState<Config extends DefPluginConfig> = DefPluginBaseNodeData<Config> &
   DefPluginExtraState<Config>;
 export type DefPluginStateFactoryProps<Config extends DefPluginConfig> = StateFactoryProps<DefPluginCompType<Config>>;
@@ -60,9 +58,6 @@ export type DefPluginChildClaimerProps<Config extends DefPluginConfig> = Omit<
   item: DefPluginCompExternal<Config>;
   claimChild(childId: string): void;
 };
-export type DefPluginSettings<Config extends DefPluginConfig> = Config['settings'];
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ConfigFromDefPlugin<C extends NodeDefPlugin<any>> = C extends NodeDefPlugin<infer Config> ? Config : never;
 
 /**
  * A node state plugin work when generating code for a component. Adding such a plugin to your component
@@ -260,8 +255,8 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
  */
 export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
   claimChildren(props: DefPluginChildClaimerProps<Config>): void;
-  pickDirectChildren(state: DefPluginState<Config>, restriction?: TraversalRestriction): string[];
-  isChildHidden(state: DefPluginState<Config>, childNode: LayoutNode): boolean;
+  pickDirectChildren(state: DefPluginState<Config>, restriction?: number | undefined): string[];
+  isChildHidden(state: DefPluginState<Config>, childId: string): boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

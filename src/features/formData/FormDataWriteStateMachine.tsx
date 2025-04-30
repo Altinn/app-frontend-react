@@ -1,6 +1,7 @@
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 import { applyPatch } from 'fast-json-patch';
+import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
@@ -58,6 +59,11 @@ export interface DataModelState {
   isDefault: boolean;
 }
 
+interface LockRequest {
+  key: string;
+  whenAcquired: (uuid: string) => void;
+}
+
 type FormDataState = {
   // Data model state
   dataModels: { [dataType: string]: DataModelState };
@@ -86,6 +92,7 @@ type FormDataState = {
   // respond. The server might read the data model, change it, and return changes back to the client, which could
   // cause data loss if we were to auto-save the data model while the server is still processing the request.
   lockedBy: string | undefined;
+  lockQueue: LockRequest[];
 };
 
 export interface FDChange {
@@ -93,6 +100,7 @@ export interface FDChange {
   // timeout is used. The debouncing may also happen sooner than you think, if the user continues typing in
   // a form field that has a lower timeout. This is because the debouncing is global, not per field.
   debounceTimeout?: number;
+  callback?: (result: FDSetValueResult) => void;
 }
 
 export interface FDNewValue extends FDChange {
@@ -162,6 +170,23 @@ export interface FDSaveFinished extends FDSaveResult {
   };
 }
 
+export interface FDSetValueSuccessful {
+  newValue: FDLeafValue;
+  convertedValue: FDLeafValue;
+  error: boolean;
+  hadError: boolean;
+}
+
+export const FDSetValueReadOnly = Symbol('FDSetValueReadOnly');
+export const FDSetValueEqual = Symbol('FDSetValueEqual');
+export const FDSetValueUnset = Symbol('FDSetValueUnset');
+
+export type FDSetValueResult =
+  | FDSetValueSuccessful
+  | typeof FDSetValueEqual
+  | typeof FDSetValueReadOnly
+  | typeof FDSetValueUnset;
+
 export interface FormDataMethods {
   // Methods used for updating the data model. These methods will update the currentData model, and after
   // the debounce() method is called, the debouncedCurrentData model will be updated as well.
@@ -178,8 +203,9 @@ export interface FormDataMethods {
   cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
-  lock: (lockName: string) => void;
-  unlock: (saveResult?: FDActionResult) => void;
+  lock: (request: LockRequest) => void;
+  nextLock: () => void;
+  unlock: (key: string, uuid: string, saveResult?: FDActionResult) => void;
 }
 
 export type FormDataContext = FormDataState & FormDataMethods;
@@ -295,7 +321,11 @@ function makeActions(
     }
   }
 
-  function setValue(props: { reference: IDataModelReference; newValue: FDLeafValue; state: FormDataContext }) {
+  function setValue(props: {
+    reference: IDataModelReference;
+    newValue: FDLeafValue;
+    state: FormDataContext;
+  }): FDSetValueSuccessful | typeof FDSetValueUnset {
     const { reference, newValue, state } = props;
     if (newValue === '' || newValue === null || newValue === undefined) {
       const prevValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
@@ -309,7 +339,9 @@ function makeActions(
       if (prevInvalidValue !== null && prevInvalidValue !== undefined) {
         dot.delete(reference.field, state.dataModels[reference.dataType].invalidCurrentData);
       }
+      return FDSetValueUnset;
     } else {
+      const hadError = dot.pick(reference.field, state.dataModels[reference.dataType].invalidCurrentData) !== undefined;
       const schema = schemaLookup[reference.dataType].getSchemaForPath(reference.field)[0];
       const { newValue: convertedValue, error } = convertData(newValue, schema);
       if (error) {
@@ -319,6 +351,7 @@ function makeActions(
         dot.delete(reference.field, state.dataModels[reference.dataType].invalidCurrentData);
         dot.str(reference.field, convertedValue, state.dataModels[reference.dataType].currentData);
       }
+      return { newValue, convertedValue, error, hadError };
     }
   }
 
@@ -336,19 +369,22 @@ function makeActions(
       set((state) => {
         processChanges(state, props);
       }),
-    setLeafValue: ({ reference, newValue, ...rest }) =>
+    setLeafValue: ({ reference, newValue, callback, ...rest }) =>
       set((state) => {
         if (state.dataModels[reference.dataType].readonly) {
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
+          callback?.(FDSetValueReadOnly);
           return;
         }
         const existingValue = dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
         if (existingValue === newValue) {
+          callback?.(FDSetValueEqual);
           return;
         }
 
         setDebounceTimeout(state, rest);
-        setValue({ newValue, reference, state });
+        const result = setValue({ newValue, reference, state });
+        callback?.(result);
       }),
 
     // All the list methods perform their work immediately, without debouncing, so that UI updates for new/removed
@@ -481,13 +517,34 @@ function makeActions(
       set((state) => {
         state.manualSaveRequested = setTo;
       }),
-    lock: (lockName) =>
+    lock: (request) =>
       set((state) => {
-        state.lockedBy = lockName;
+        if (state.lockedBy) {
+          state.lockQueue.push(request);
+          return;
+        }
+        const uuid = uuidv4();
+        state.lockedBy = `${request.key} (${uuid})`;
+        request.whenAcquired(uuid);
       }),
-    unlock: (actionResult) =>
+    nextLock: () =>
       set((state) => {
-        state.lockedBy = undefined;
+        const next = state.lockQueue.shift();
+        if (next) {
+          const uuid = uuidv4();
+          state.lockedBy = `${next.key} (${uuid})`;
+          next.whenAcquired(uuid);
+        }
+      }),
+    unlock: (key, uuid, actionResult) =>
+      set((state) => {
+        const expected = `${key} (${uuid})`;
+        if (state.lockedBy !== expected) {
+          throw new Error(
+            `Tried to unlock with an invalid UUID (state is locked by ${state.lockedBy}, but ${expected} tried to unlock)`,
+          );
+        }
+
         // Update form data
         if (actionResult?.updatedDataModels) {
           const newDataModels: UpdatedDataModel[] = [];
@@ -511,6 +568,11 @@ function makeActions(
             validationIssues: actionResult.updatedValidationIssues,
           });
         }
+
+        /** Unlock. If there are more locks in the queue, the next one will be processed by
+         * @see FormDataEffects
+         */
+        state.lockedBy = undefined;
       }),
   };
 }
@@ -542,6 +604,7 @@ export const createFormDataWriteStore = (
         dataModels: initialDataModels,
         autoSaving,
         lockedBy: undefined,
+        lockQueue: [],
         debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
         manualSaveRequested: false,
         validationIssues: undefined,

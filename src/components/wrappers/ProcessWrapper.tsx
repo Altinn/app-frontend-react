@@ -13,7 +13,6 @@ import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { ProcessNavigationProvider } from 'src/features/instance/ProcessNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
@@ -137,7 +136,10 @@ export const ProcessWrapper = () => {
 
   if (!isValidTaskId(taskIdParam)) {
     return (
-      <PresentationComponent type={ProcessTaskType.Unknown}>
+      <PresentationComponent
+        type={ProcessTaskType.Unknown}
+        showNavigation={false}
+      >
         <NavigationError label='general.invalid_task_id' />
       </PresentationComponent>
     );
@@ -145,7 +147,10 @@ export const ProcessWrapper = () => {
 
   if (!isCurrentTask) {
     return (
-      <PresentationComponent type={ProcessTaskType.Unknown}>
+      <PresentationComponent
+        type={ProcessTaskType.Unknown}
+        showNavigation={false}
+      >
         <NavigationError label='general.part_of_form_completed' />
       </PresentationComponent>
     );
@@ -153,11 +158,9 @@ export const ProcessWrapper = () => {
 
   if (taskType === ProcessTaskType.Confirm) {
     return (
-      <ProcessNavigationProvider>
-        <PresentationComponent type={ProcessTaskType.Confirm}>
-          <Confirm />
-        </PresentationComponent>
-      </ProcessNavigationProvider>
+      <PresentationComponent type={ProcessTaskType.Confirm}>
+        <Confirm />
+      </PresentationComponent>
     );
   }
 
@@ -210,7 +213,7 @@ export const ComponentRouting = () => {
   }
 
   function isSubroutingNode(node: LayoutNode): node is LayoutNode<'Subform'> {
-    return node.type === 'Subform' && !!node.def.subRouting;
+    return node.isType('Subform') && !!node.def.subRouting;
   }
 
   if (isSubroutingNode(node)) {

@@ -2,7 +2,9 @@ import dot from 'dot-object';
 import { produce } from 'immer';
 import { createStore } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
+import type { JSONSchema7 } from 'json-schema';
 
+import { API_CLIENT } from 'src/next/app/App/App';
 import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression';
 import { isFormComponentProps } from 'src/next/app/hooks/useValidateComponent';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
@@ -19,7 +21,6 @@ export interface DataObject {
 export type ResolvedCompExternal = AllComponents & ExtraProps;
 
 interface ExtraProps {
-  //  isHidden: boolean;
   children: ResolvedCompExternal[] | undefined;
 }
 
@@ -37,9 +38,9 @@ interface Layouts {
   layouts: ResolvedLayoutCollection;
   resolvedLayouts: ResolvedLayoutCollection;
   data: DataObject | undefined;
-
+  dataModelSchemas?: Record<string, JSONSchema7>;
   componentMap?: Record<string, ResolvedCompExternal>;
-
+  options?: Record<string, any>;
   setLayoutSets: (schema: LayoutSetsSchema) => void;
   setProcess: (proc: ProcessSchema) => void;
   setPageOrder: (order: PageOrderDTO) => void;
@@ -67,6 +68,8 @@ interface Layouts {
     itemIndex?: number,
     childField?: string,
   ) => any;
+  setDataModelSchema: (dataModelName: string, dataModelSchema: JSONSchema7) => void;
+  addRow: (dataModelBinding: string, parentBinding?: string, itemIndex?: number, childField?: string) => void;
 }
 
 function buildComponentMap(collection: ResolvedLayoutCollection) {
@@ -97,6 +100,16 @@ function buildComponentMap(collection: ResolvedLayoutCollection) {
   return map;
 }
 
+function getDistinctOptionsIds(data: Record<string, any>): string[] {
+  const results = new Set<string>();
+  for (const key in data) {
+    if (data[key]?.optionsId) {
+      results.add(data[key].optionsId);
+    }
+  }
+  return Array.from(results);
+}
+
 export const layoutStore = createStore<Layouts>()(
   subscribeWithSelector(
     devtools(
@@ -106,12 +119,13 @@ export const layoutStore = createStore<Layouts>()(
         setProcess: (proc) => set({ process: proc }),
         setPageOrder: (order) => set({ pageOrder: order }),
 
-        setLayouts: (newLayouts) => {
+        setLayouts: async (newLayouts) => {
           if (!newLayouts) {
             throw new Error('no layouts');
           }
-          const resolvedLayoutCollection: ResolvedLayoutCollection = {};
 
+          // 1) Wrap and restructure your incoming layouts, same as before
+          const resolvedLayoutCollection: any = {};
           Object.keys(newLayouts).forEach((key) => {
             resolvedLayoutCollection[key] = {
               ...newLayouts[key],
@@ -121,7 +135,37 @@ export const layoutStore = createStore<Layouts>()(
               },
             };
           });
+
           const compMap = buildComponentMap(resolvedLayoutCollection);
+
+          const distinctOptionIds = getDistinctOptionsIds(compMap);
+
+          const fetchPromises = distinctOptionIds.map(async (id) => {
+            // Adjust org/app to whatever you have in your context
+            const org = 'krt';
+            const app = 'krt-3010a-1';
+
+            // Possibly also pass language/queryParams:
+            const response = await API_CLIENT.org.optionsDetail(
+              id,
+              org,
+              app,
+              { language: 'nb' }, // example
+            );
+            const data = await response.json();
+            set((state) =>
+              produce(state, (draft) => {
+                if (!draft.options) {
+                  draft.options = {};
+                }
+                draft.options[id] = data;
+              }),
+            );
+          });
+
+          if (fetchPromises.length > 0) {
+            await Promise.all(fetchPromises);
+          }
 
           set({
             layouts: resolvedLayoutCollection,
@@ -174,7 +218,7 @@ export const layoutStore = createStore<Layouts>()(
           return errors;
         },
 
-        getBoundValue: (component, parentBinding, itemIndex, childField) => {
+        getBoundValue: (component, parentBinding, itemIndex, _) => {
           const data = get().data;
           if (!data) {
             return undefined;
@@ -185,33 +229,96 @@ export const layoutStore = createStore<Layouts>()(
           if (!simple) {
             return undefined;
           }
-          const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
+
+          const splittedBinding = simple ? simple.split('.') : [];
+
+          const binding =
+            parentBinding !== undefined
+              ? `${parentBinding}[${itemIndex}].${splittedBinding[splittedBinding.length - 1] || ''}`
+              : simple;
 
           return dot.pick(binding, data);
         },
-        setBoundValue: (component, newValue, parentBinding, itemIndex, childField) => {
+
+        setBoundValue: (component, newValue, parentBinding, itemIndex) => {
           // @ts-ignore
           const simple = component.dataModelBindings?.simpleBinding;
           if (!simple) {
-            return; // or throw
+            return;
           }
 
-          const binding = parentBinding ? `${parentBinding}[${itemIndex}]${childField || ''}` : simple;
+          const parts = simple.split('.');
+          const binding = parentBinding !== undefined ? `${parentBinding}[${itemIndex}].${parts.at(-1) ?? ''}` : simple;
 
           set((state) => {
             if (!state.data) {
               throw new Error('No data object');
             }
-            return produce(state, (draft) => {
-              const currentVal = dot.pick(binding, draft.data);
-              if (!draft.data) {
-                throw new Error('no draft data');
-              }
-              if (currentVal !== newValue) {
-                dot.set(binding, newValue, draft.data);
-              }
-            });
+
+            const currentVal = dot.pick(binding, state.data);
+            if (currentVal === newValue) {
+              return {};
+            }
+
+            const nextData = { ...state.data };
+            dot.set(binding, newValue, nextData);
+
+            return { data: nextData };
           });
+        },
+
+        setDataModelSchema: (dataModelName: string, dataModelSchema: JSONSchema7) => {
+          set((state) =>
+            produce(state, (draft) => {
+              if (!draft.dataModelSchemas) {
+                draft.dataModelSchemas = {};
+              }
+              draft.dataModelSchemas[dataModelName] = dataModelSchema;
+            }),
+          );
+        },
+
+        addRow: (dataModelBinding: string, parentBinding?: string, itemIndex?: number) => {
+          set((state) =>
+            produce(state, (draft) => {
+              if (!state.dataModelSchemas) {
+                throw new Error('Tried to add a row without a data model schema loaded.');
+              }
+
+              if (!draft.data) {
+                throw new Error('tried to set data before data is loaded, this is an error');
+              }
+
+              const schema = state.dataModelSchemas['model'];
+
+              let path = '';
+
+              if (parentBinding) {
+                path = `properties.${dataModelBinding.replace('.', '.items.properties.')}.items.properties`;
+              } else {
+                path = `properties.${dataModelBinding}.items.properties`;
+              }
+
+              const propsToAdd = dot.pick(path, schema);
+
+              const binding = parentBinding
+                ? `${parentBinding}[${itemIndex}].${dataModelBinding.split('.')[1] || ''}`
+                : dataModelBinding;
+
+              let currentValue = dot.pick(binding, draft.data);
+              if (!Array.isArray(currentValue)) {
+                currentValue = [];
+                dot.set(binding, currentValue, draft.data);
+              }
+
+              const newRow: Record<string, any> = {};
+              for (const key of Object.keys(propsToAdd)) {
+                newRow[key] = null;
+              }
+
+              currentValue.push(newRow);
+            }),
+          );
         },
       }),
       {

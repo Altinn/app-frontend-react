@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import { Helmet } from 'react-helmet-async';
-
-import { useStore } from 'zustand';
-import { useShallow } from 'zustand/react/shallow';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
@@ -12,7 +9,7 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useExpandedWidthLayouts } from 'src/features/form/layout/LayoutsContext';
+import {useExpandedWidthLayouts, useLayoutLookups} from 'src/features/form/layout/LayoutsContext';
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -30,18 +27,16 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { layoutStore } from 'src/next/stores/layoutStore';
-import { extractBottomButtons } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
-import { NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
+import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 import type { NodeData } from 'src/utils/layout/types';
+import {getComponentCapabilities} from "src/layout";
 
 interface FormState {
   hasRequired: boolean;
-  mainIds: string[] | undefined;
+  mainIds: string[];
   errorReportIds: string[];
   formErrors: NodeRefValidation<AnyValidation<'error'>>[];
   taskErrors: BaseValidation<'error'>[];
@@ -58,26 +53,8 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const appName = useAppName();
   const appOwner = useAppOwner();
   const { langAsString } = useLanguage();
-  const [formState, setFormState] = useState<FormState>({
-    hasRequired: false,
-    mainIds: undefined,
-    errorReportIds: [],
-    formErrors: [],
-    taskErrors: [],
-  });
-  const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = formState;
+  const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = useFormState(currentPageId);
   const requiredFieldsMissing = NodesInternal.usePageHasVisibleRequiredValidations(currentPageId);
-
-  if (!currentPageId) {
-    throw new Error('no currentPageId');
-  }
-
-  const currentPage = useStore(
-    layoutStore,
-    useShallow((state) => state.layouts?.[currentPageId]),
-  );
-
-  const componentIds = currentPage.data.layout.map((comp) => comp.id);
 
   useRedirectToStoredPage();
   useSetExpandedWidth();
@@ -101,15 +78,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
     return <FormFirstPage />;
   }
 
-  // if (mainIds === undefined) {
-  //   return (
-  //     <>
-  //       <ErrorProcessing setFormState={setFormState} />
-  //       <Loader reason='form-ids' />
-  //     </>
-  //   );
-  // }
-
   const hasSetCurrentPageId = langAsString(currentPageId) !== currentPageId;
 
   if (!hasSetCurrentPageId) {
@@ -129,7 +97,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       <Helmet>
         <title>{`${getPageTitle(appName, hasSetCurrentPageId ? langAsString(currentPageId) : undefined, appOwner)}`}</title>
       </Helmet>
-      <ErrorProcessing setFormState={setFormState} />
       {hasRequired && (
         <MessageBanner
           error={requiredFieldsMissing}
@@ -141,7 +108,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
         spacing={6}
         alignItems='flex-start'
       >
-        {componentIds?.map((id) => (
+        {mainIds.map((id) => (
           <GenericComponentById
             key={id}
             id={id}
@@ -188,12 +155,12 @@ export function FormFirstPage() {
  */
 function useRedirectToStoredPage() {
   const pageKey = useCurrentView();
-  const partyId = useNavigationParam('partyId');
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const applicationMetadataId = useApplicationMetadata()?.id;
 
-  const instanceId = `${partyId}/${instanceGuid}`;
+  const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;
   const currentViewCacheKey = instanceId || applicationMetadataId;
 
   useEffect(() => {
@@ -228,64 +195,55 @@ function useSetExpandedWidth() {
 }
 
 const emptyArray = [];
-interface ErrorProcessingProps {
-  setFormState: React.Dispatch<React.SetStateAction<FormState>>;
-}
 
 function nodeDataIsRequired(n: NodeData) {
   const item = n.item;
   return !!(item && 'required' in item && item.required === true);
 }
 
-/**
- * Instead of re-rendering the entire Form component when any of this changes, we just report the
- * state to the parent component.
- */
-function ErrorProcessing({ setFormState }: ErrorProcessingProps) {
-  const currentPageId = useCurrentView();
-  const page = useGetPage(currentPageId);
-  const traversalSelector = useNodeTraversalSelector();
-
-  const topLevelNodeIds = traversalSelector(
-    (traverser) => {
-      if (!page) {
-        return emptyArray;
-      }
-
-      const all = traverser.with(page).children();
-      return all.map((n) => n.id);
-    },
-    [currentPageId],
-  );
-
-  const hasRequired = traversalSelector(
-    (traverser) => {
-      if (!page) {
-        return false;
-      }
-      return traverser.with(page).flat((n) => n.type === 'node' && nodeDataIsRequired(n)).length > 0;
-    },
-    [currentPageId],
-  );
-
+function useFormState(currentPageId: string | undefined): FormState {
+  const lookups = useLayoutLookups();
+  const topLevelIds = currentPageId ? (lookups.topLevelComponents[currentPageId] ?? emptyArray) : emptyArray;
   const { formErrors, taskErrors } = useTaskErrors();
   const hasErrors = Boolean(formErrors.length) || Boolean(taskErrors.length);
 
-  const [mainIds, errorReportIds] = traversalSelector(
-    (traverser) => {
-      if (!hasErrors || !page) {
-        return [topLevelNodeIds, emptyArray];
+  const [mainIds, errorReportIds] = useMemo(() => {
+    if (!hasErrors) {
+      return [topLevelIds, emptyArray];
+    }
+
+    const toMainLayout: string[] = [];
+    const toErrorReport: string[] = [];
+
+    for (const id of [...topLevelIds].reverse()) {
+      const type = lookups.allComponents[id]?.type;
+      if (!type) {
+        continue;
       }
-      return extractBottomButtons(traverser.with(page).children());
-    },
-    [currentPageId, hasErrors],
+
+      const capabilities = getComponentCapabilities(type);
+      const isButtonLike = type === 'ButtonGroup' || (capabilities.renderInButtonGroup && type !== 'Custom');
+      if (isButtonLike && toMainLayout.length === 0) {
+        toErrorReport.push(id);
+      } else {
+        toMainLayout.push(id);
+      }
+    }
+
+    return [toMainLayout.reverse(), toErrorReport.reverse()];
+  }, [hasErrors, lookups.allComponents, topLevelIds]);
+
+  const hasRequired = NodesInternal.useSelector((state) =>
+    Object.values(state.nodeData).some((node) => node.pageKey === currentPageId && nodeDataIsRequired(node)),
   );
 
-  useEffect(() => {
-    setFormState({ hasRequired, mainIds, errorReportIds, formErrors, taskErrors });
-  }, [setFormState, hasRequired, mainIds, errorReportIds, formErrors, taskErrors]);
-
-  return null;
+  return {
+    hasRequired,
+    mainIds,
+    errorReportIds,
+    formErrors,
+    taskErrors,
+  };
 }
 
 function HandleNavigationFocusComponent() {

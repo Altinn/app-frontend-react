@@ -6,18 +6,16 @@ import { Heading } from '@digdir/designsystemet-react';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Likert/Summary/LikertSummaryComponent.module.css';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversal } from 'src/utils/layout/useNodeTraversal';
 import type { HeadingLevel } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { TraversalRestriction } from 'src/utils/layout/useNodeTraversal';
 
 export interface IDisplayLikertContainer {
   groupNode: LayoutNode<'Likert'>;
   divRef?: React.Ref<HTMLDivElement>;
   id?: string;
-  restriction?: TraversalRestriction;
+  restriction?: number | undefined;
   renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
 }
 
@@ -39,7 +37,7 @@ export function LargeLikertSummaryContainer({
   const container = useNodeItem(groupNode);
   const { title, summaryTitle } = container.textResourceBindings ?? {};
   const isHidden = Hidden.useIsHidden(groupNode);
-  const depth = useNodeTraversal((t) => t.parents().length, groupNode);
+  const depth = NodesInternal.useSelector((state) => state.nodeData?.[groupNode.id]?.depth);
   const children = useNodeDirectChildren(groupNode, restriction);
 
   if (isHidden) {
@@ -63,8 +61,8 @@ export function LargeLikertSummaryContainer({
         )
       }
       className={classes.summary}
-      data-componentid={container.id}
-      data-componentbaseid={container.baseComponentId || container.id}
+      data-componentid={groupNode.id}
+      data-componentbaseid={groupNode.baseId}
     >
       <div
         ref={divRef}

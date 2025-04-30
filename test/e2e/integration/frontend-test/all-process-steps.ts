@@ -6,14 +6,13 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { customReceiptPageAnother, customReceiptPageReceipt } from 'test/e2e/support/customReceipt';
 
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
+import type { ILayoutCollection } from 'src/layout/layout';
 import type { IInstance } from 'src/types/shared';
 
 const appFrontend = new AppFrontend();
 
 describe('All process steps', () => {
   it('Should be possible to fill out all steps from beginning to end', () => {
-    interceptAndAddCustomReceipt();
-
     cy.goto('message');
 
     // Later in this test we will make sure PDFs are created, so we need to set the cookie to
@@ -35,14 +34,13 @@ describe('All process steps', () => {
 
     testConfirmationPage();
 
+    interceptAndAddInstanceSubstatus();
     cy.get(appFrontend.confirm.sendIn).click();
+    testReceipt();
 
+    interceptAndAddCustomReceipt();
+    cy.reloadAndWait();
     testCustomReceiptPage();
-
-    cy.reload();
-
-    // Assert that the custom receipt is still visible after a page reload.
-    cy.findByText('Custom kvittering').should('exist');
 
     // When the instance has been sent in, we'll test that the data models submitted are correct, and what we expect
     // according to what we filled out during all the previous steps.
@@ -83,6 +81,43 @@ function testConfirmationPage() {
   });
 }
 
+function interceptAndAddInstanceSubstatus() {
+  cy.intercept('**/instances/*/*', (req) => {
+    req.on('response', (res) => {
+      const instance = res.body as IInstance;
+      instance.status = {
+        substatus: {
+          label: 'substatus.label',
+          description: 'substatus.description',
+        },
+      };
+    });
+  }).as('Instance');
+}
+
+function testReceipt() {
+  cy.get(appFrontend.receipt.container).should('be.visible');
+  cy.findByText('Skjemaet er sendt inn').should('be.visible');
+  cy.findByRole('link', { name: 'Kopi av din kvittering er sendt til ditt arkiv' }).should('be.visible');
+
+  cy.findAllByRole('link', { name: 'Nedlasting frontend-test.pdf' }).should('have.length', 5);
+  cy.findAllByRole('link', { name: /^Nedlasting attachment-in-.*?\.pdf$/ }).should('have.length', 4);
+  cy.findByRole('link', { name: 'Nedlasting test.pdf' }).should('be.visible');
+  cy.findAllByRole('link', { name: /pdf$/ }).should('have.length', 5 + 4 + 1);
+
+  testReceiptSubStatus();
+
+  cy.snapshot('receipt');
+}
+
+function testReceiptSubStatus() {
+  cy.findByText('Godkjent').should('be.visible');
+  cy.findByText(
+    'Søknaden er godkjent og sendt til Folkeregisteret for behandling. ' +
+      'Du vil motta en bekreftelse når søknaden er behandlet.',
+  ).should('be.visible');
+}
+
 function interceptAndAddCustomReceipt() {
   cy.intercept('**/layoutsets', (req) => {
     req.on('response', (res) => {
@@ -101,7 +136,7 @@ function interceptAndAddCustomReceipt() {
   cy.intercept('**/layouts/custom-receipt', (req) => {
     req.on('response', (res) => {
       // Layouts are returned as text/plain for some reason
-      const layouts = JSON.parse(res.body);
+      const layouts = JSON.parse(res.body) as ILayoutCollection;
       layouts.receipt = { data: { layout: customReceiptPageReceipt } };
       layouts.another = { data: { layout: customReceiptPageAnother } };
       res.body = JSON.stringify(layouts);
@@ -113,6 +148,8 @@ export function testCustomReceiptPage() {
   cy.get(appFrontend.receipt.container).should('not.exist');
   cy.findByText('Custom kvittering').should('be.visible');
   cy.findByText('Takk for din innsending, dette er en veldig fin custom kvittering.').should('be.visible');
+
+  testReceiptSubStatus();
 
   const checkAttachmentSection = (sectionId: string, title: string, attachmentCount: number) => {
     cy.get(`#form-content-${sectionId}-header`).should('contain.text', title);
@@ -357,8 +394,11 @@ const knownDataModels: { [key: string]: unknown } = {
         { data: 'POLYGON ((16.0843931889725 67.1442078419132,16.0914055727082 67.1441601320718,16.0912573849201 67.1408776044743,16.0842459528488 67.1409253067063,16.0843931889725 67.1442078419132))', label: 'Hankabakken 3' },
         { data: 'POLYGON ((16.091294225332 67.1416937521884,16.1095151961509 67.1415683466908,16.109477740932 67.1407522039498,16.0912573849201 67.1408776044743,16.091294225332 67.1416937521884))', label: 'Hankabakken 4' },
         { data: 'POLYGON ((16.0957778974798 67.1408466860878,16.118841539588 67.1406869499763,16.1186340551949 67.1362026617326,16.0955746880334 67.1363623630455,16.0957778974798 67.1408466860878))', label: 'Hankabakken 5' },
+        { data: 'POINT (16.098 67.140)', label: 'Hankabakken 6' },
+        { data: 'POINT (16.092 67.138)', label: 'Hankabakken 7' },
+        { data: 'POINT (16.100 67.1365)', label: 'Hankabakken 8' },
       ],
-      Selected: '1,2,3,4,5',
+      Selected: '1,2,3,4,5,6,7,8',
     },
     TestCustomButtonInput: null,
     TestCustomButtonReadOnlyInput: null,

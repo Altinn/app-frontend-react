@@ -1,6 +1,6 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
-import { cyMockResponses, CyPartyMocks } from 'test/e2e/pageobjects/party-mocks';
+import { cyMockResponses, CyPartyMocks, removeAllButOneOrg } from 'test/e2e/pageobjects/party-mocks';
 
 import type { IParty } from 'src/types/shared';
 
@@ -12,13 +12,13 @@ describe('Party selection', () => {
     cy.startAppInstance(appFrontend.apps.frontendTest);
     cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
     cy.get(appFrontend.reporteeSelection.error).contains(texts.selectNewReportee);
-    cy.findByText('underenheter').click();
+    cy.findByText('underenhet').click();
     cy.contains(appFrontend.reporteeSelection.subUnits, 'Bergen').should('be.visible');
     cy.contains(appFrontend.reporteeSelection.reportee, 'slettet').should('not.exist');
     cy.findByRole('checkbox', { name: /Vis slettede/i }).dsCheck();
     cy.contains(appFrontend.reporteeSelection.reportee, 'slettet').should('be.visible');
     cy.findByRole('checkbox', { name: /Vis underenheter/i }).dsCheck();
-    cy.findByText('underenheter').click();
+    cy.findByText('underenhet').click();
     cy.get(appFrontend.reporteeSelection.searchReportee).type('DDG');
     cy.get(appFrontend.reporteeSelection.reportee).should('have.length', 1).contains('DDG');
   });
@@ -125,9 +125,9 @@ describe('Party selection', () => {
         doNotPromptForParty,
       });
       cy.startAppInstance(appFrontend.apps.frontendTest);
-      cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
 
       if (!doNotPromptForParty) {
+        cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
         cy.get('[id^="party-"]').should('be.visible');
         cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' }).should('be.visible');
         cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' })
@@ -144,6 +144,7 @@ describe('Party selection', () => {
         cy.get('[id^="party-"]').eq(0).click();
       }
 
+      cy.get(appFrontend.appHeader).should('be.visible');
       cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
 
@@ -205,7 +206,7 @@ describe('Party selection', () => {
       );
 
       cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
-      cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
+      cy.get(appFrontend.appHeader).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
 
       cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
@@ -223,9 +224,9 @@ describe('Party selection', () => {
         allowedToInstantiate: (parties) => [...parties, CyPartyMocks.ExamplePerson1],
       });
       cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
-      cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
 
       if (appPromptForPartyOverride === 'always') {
+        cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
         cy.get('[id^="party-"]').should('be.visible');
         cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' }).should('be.visible');
         cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' })
@@ -237,9 +238,58 @@ describe('Party selection', () => {
         cy.get('[id^="party-"]').eq(0).click();
       }
 
+      cy.get(appFrontend.appHeader).should('be.visible');
       cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
       cy.findByRole('heading', { name: 'Hvorfor ser jeg dette?' }).should('not.exist');
     });
+  });
+
+  it('Should be possible to select another party if instantiation fails, and go back to party selection and instantiate again', () => {
+    cy.allowFailureOnEnd();
+    cyMockResponses({
+      allowedToInstantiate: removeAllButOneOrg,
+      doNotPromptForParty: false,
+    });
+    cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'accountant' });
+
+    // Select the first organisation. This is not allowed to instantiate in this app, so it will throw an error.
+    cy.findAllByText(/org\.nr\. \d+/)
+      .first()
+      .click();
+    cy.get(appFrontend.altinnError).should('contain.text', texts.missingRights);
+
+    // Try again with another party
+    cy.findByRole('link', { name: 'skift aktør her' }).click();
+    cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
+
+    /** We need to wait for the instantiation to be cleared before we can instantiate again.
+     * @see InstantiateContainer */
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+
+    // The person on the other hand is allowed to instantiate
+    cy.findAllByText(/personnr\. \d+/)
+      .first()
+      .click();
+    cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
+
+    // To make sure this instance is different from the next, we navigate to the next process step in this one
+    cy.findByRole('button', { name: 'Send inn' }).click();
+    cy.get(appFrontend.changeOfName.newFirstName).should('be.visible');
+
+    // Navigate directly to /#/party-selection to test that instantiation once more works
+    cy.window().then((win) => {
+      win.location.hash = '#/party-selection';
+    });
+    cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
+
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(500);
+
+    cy.findAllByText(/personnr\. \d+/)
+      .first()
+      .click();
+    cy.findByRole('heading', { name: 'Appen for test av app frontend' }).should('be.visible');
   });
 });

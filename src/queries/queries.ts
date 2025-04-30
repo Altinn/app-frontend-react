@@ -36,7 +36,7 @@ import {
   getPdfFormatUrl,
   getProcessNextUrl,
   getProcessStateUrl,
-  getRolesUrl,
+  getRedirectUrl,
   getRulehandlerUrl,
   getSetCurrentPartyUrl,
   getValidationUrl,
@@ -77,10 +77,9 @@ import type {
   IParty,
   IProcess,
   IProfile,
-  Role,
 } from 'src/types/shared';
 
-export const doSetCurrentParty = (partyId: number) =>
+export const doSetCurrentParty = (partyId: number | string) =>
   putWithoutConfig<'Party successfully updated' | string | null>(getSetCurrentPartyUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation, language?: string): Promise<IInstance> =>
@@ -91,8 +90,6 @@ export const doInstantiate = async (partyId: number, language?: string): Promise
 
 export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType) =>
   httpPut<IProcess>(getProcessNextUrl(instanceId, language), action ? { action } : null);
-
-export const fetchRoles = async () => httpGet<Role[]>(getRolesUrl());
 
 export const doAttachmentUploadOld = async (instanceId: string, dataTypeId: string, file: File): Promise<IData> => {
   const url = getFileUploadUrlOld(instanceId, dataTypeId);
@@ -239,9 +236,12 @@ export const fetchOrgs = (): Promise<{ orgs: IAltinnOrgs }> =>
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
   });
 
-export const fetchParties = (): Promise<IParty[]> => httpGet(validPartiesUrl);
+export const fetchPartiesAllowedToInstantiate = (): Promise<IParty[]> => httpGet(validPartiesUrl);
 
 export const fetchAppLanguages = (): Promise<IAppLanguage[]> => httpGet(applicationLanguagesUrl);
+
+export const fetchReturnUrl = (queryParameterReturnUrl: string): Promise<string> =>
+  httpGet(getRedirectUrl(queryParameterReturnUrl));
 
 export const fetchRefreshJwtToken = (): Promise<unknown> => httpGet(refreshJwtTokenUrl);
 

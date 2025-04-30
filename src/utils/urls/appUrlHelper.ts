@@ -21,7 +21,7 @@ export const getInstantiateUrl = (language?: string) => {
   return `${appPath}/instances/create${queryString}`;
 };
 
-export const getSetCurrentPartyUrl = (partyId: number) => `${appPath}/api/v1/parties/${partyId}`;
+export const getSetCurrentPartyUrl = (partyId: string | number) => `${appPath}/api/v1/parties/${partyId}`;
 
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
@@ -52,6 +52,13 @@ export const getFileTagUrl = (instanceId: string, dataGuid: string, tag: string 
 
 export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+
+export const getStatelessDataModelUrlWithPrefill = (
+  dataType: string,
+  includeRowIds: boolean,
+  prefillFromQueryParams: string,
+) =>
+  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}&prefill=${prefillFromQueryParams}`;
 
 export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
   `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
@@ -178,14 +185,13 @@ export const getLayoutsUrl = (layoutSetId: string) => `${appPath}/api/layouts/${
 export const getRulehandlerUrl = (layoutSet: string) => `${appPath}/api/rulehandler/${layoutSet}`;
 export const getActiveInstancesUrl = (partyId: number) => `${appPath}/instances/${partyId}/active`;
 export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${instanceId}`;
-export const getRolesUrl = () => `${appPath}/api/authorization/roles`;
 
 export const appFrontendCDNPath = 'https://altinncdn.no/toolkits/altinn-app-frontend';
 export const frontendVersionsCDN = `${appFrontendCDNPath}/index.json`;
 
 export type ParamValue = string | number | boolean | null;
 
-export interface IGetOptionsUrlParams {
+interface IGetOptionsUrlParams {
   optionsId: string;
   queryParameters?: Record<string, ParamValue>;
   language?: string;
@@ -213,7 +219,7 @@ export const getOptionsUrl = ({ optionsId, queryParameters, language, secure, in
 
   return url.toString();
 };
-export interface IGetDataListsUrlParams {
+interface IGetDataListsUrlParams {
   dataListId: string;
   queryParameters?: Record<string, ParamValue>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

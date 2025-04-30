@@ -1,64 +1,21 @@
-// src/next/pages/Task.tsx
-// import React from 'react';
-// import { Navigate, Outlet, useParams } from 'react-router-dom';
-//
-// import { useStore } from 'zustand';
-//
-// import { layoutStore } from 'src/next/stores/layoutStore';
-//
-// type TaskParams = {
-//   taskId: string;
-// };
-//
-// export const Task = () => {
-//   // We only need the taskId to figure out which layoutSet belongs here
-//   const { taskId } = useParams<TaskParams>() as Required<TaskParams>;
-//
-//   // Grab whatever you need from the store
-//   const { layoutSetsConfig, pageOrder, layouts } = useStore(layoutStore, (state) => ({
-//     layoutSetsConfig: state.layoutSetsConfig,
-//     pageOrder: state.pageOrder,
-//     layouts: state.layouts,
-//   }));
-//
-//   // Identify the layoutSet for the given taskId
-//   const currentLayoutSet = layoutSetsConfig?.sets.find((layoutSet) => layoutSet.tasks.includes(taskId));
-//   if (!currentLayoutSet) {
-//     throw new Error(`Layoutset for task "${taskId}" not found`);
-//   }
-//
-//   if (!pageOrder?.pages?.order?.length) {
-//     return <h1>No pages found in pageOrder</h1>;
-//   }
-//
-//   if (!layouts) {
-//     return <h1>No layouts loaded</h1>;
-//   }
-//
-//   return (
-//     <div>
-//       <Navigate to={pageOrder.pages.order[0]} />
-//       <Outlet />
-//     </div>
-//   );
-// };
-
 import React, { useEffect, useState } from 'react';
-import { Navigate, Outlet, useParams } from 'react-router-dom';
+import { Navigate, Outlet, useNavigate, useParams } from 'react-router-dom';
 
 import { useStore } from 'zustand';
 
 import { useApiClient } from 'src/next/app/ApiClientContext';
-import { APP, ORG } from 'src/next/app/App';
+import { APP, ORG } from 'src/next/app/App/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
-// Adjust to match your real shape:
 type TaskParams = {
   taskId: string;
+  pageId?: string;
 };
 
 export const Task = () => {
-  const { taskId } = useParams<TaskParams>() as Required<TaskParams>;
+  const { taskId, pageId } = useParams<TaskParams>() as Required<TaskParams>;
+
+  const navigate = useNavigate();
 
   const layoutSetsConfig = useStore(layoutStore, (state) => state.layoutSetsConfig);
 
@@ -89,7 +46,13 @@ export const Task = () => {
     if (currentLayoutSet?.id) {
       void getLayoutDetails(currentLayoutSet.id);
     }
-  }, [apiClient.org, currentLayoutSet?.id, setLayouts, setPageOrder]);
+  }, [apiClient.org, currentLayoutSet?.id, setLayouts, setPageOrder, pageId, navigate]);
+
+  useEffect(() => {
+    if (pageId) {
+      navigate(pageId);
+    }
+  }, [navigate, pageId]);
 
   if (!currentLayoutSet) {
     throw new Error('Layoutset for task not found');
@@ -109,7 +72,7 @@ export const Task = () => {
 
   return (
     <div>
-      <Navigate to={`${pageOrder.pages.order[0]}`} />
+      {!pageId && <Navigate to={`${pageOrder.pages.order[0]}`} />}
       <Outlet />
     </div>
   );

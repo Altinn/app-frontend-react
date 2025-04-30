@@ -9,8 +9,8 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Tabs/Tabs.module.css';
+import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { useNodeTraversalSelector } from 'src/utils/layout/useNodeTraversal';
 import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -20,10 +20,9 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
   const tabs = useNodeItem(node, (i) => i.tabsInternal);
   const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
 
-  const traversalSelector = useNodeTraversalSelector();
   useRegisterNodeNavigationHandler(async (targetNode) => {
-    const parents = traversalSelector((t) => t.with(targetNode).parents(), [targetNode]);
-    for (const parent of parents ?? []) {
+    const parents = parentNodes(targetNode);
+    for (const parent of parents) {
       if (parent === node) {
         const targetTabId = tabs.find((tab) => tab.childIds.some((childId) => childId === targetNode.id))?.id;
         if (targetTabId) {
@@ -124,4 +123,18 @@ function TabHeader({
       <Lang id={translatedTitle} />
     </DesignsystemetTabs.Tab>
   );
+}
+
+function parentNodes(node: LayoutNode): LayoutNode[] {
+  const parents: LayoutNode[] = [];
+  let parent = node.parent;
+  while (parent) {
+    if (!(parent instanceof LayoutNode)) {
+      break;
+    }
+    parents.push(parent);
+    parent = parent.parent;
+  }
+
+  return parents;
 }

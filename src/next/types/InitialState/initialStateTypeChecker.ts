@@ -18,7 +18,7 @@ const isArray = <T>(value: unknown, checkFn: (item: unknown) => item is T, path:
     console.error(`Validation Error: Expected ${path} to be an array, but got ${typeof value}`);
     return false;
   }
-  return value.every((item, index) => checkFn(item));
+  return value.every((item) => checkFn(item));
 };
 
 const isTitle = (value: unknown): value is ITitle => {

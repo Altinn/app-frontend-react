@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { Alert } from '@digdir/designsystemet-react';
-import { Close } from '@navikt/ds-icons';
+import { XMarkIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
@@ -124,7 +124,21 @@ export const LayoutInspector = () => {
       {selectedComponent && (
         <div className={classes.properties}>
           <div className={classes.header}>
-            <h3>Konfigurasjon</h3>
+            <div className={classes.title}>
+              <h3>Konfigurasjon</h3>
+              <Button
+                onClick={() => setSelectedComponent(undefined)}
+                variant='tertiary'
+                color='second'
+                aria-label='close'
+                icon={true}
+              >
+                <XMarkIcon
+                  fontSize='1rem'
+                  aria-hidden
+                />
+              </Button>
+            </div>
             {validationErrorsForPage[selectedComponent] && validationErrorsForPage[selectedComponent].length > 0 && (
               <Alert
                 className={classes.errorAlert}
@@ -143,18 +157,6 @@ export const LayoutInspector = () => {
               {!matchingNode && 'Ingen aktive komponenter funnet'}
               {matchingNode && <NodeLink nodeId={matchingNode.id} />}
             </div>
-            <Button
-              onClick={() => setSelectedComponent(undefined)}
-              variant='tertiary'
-              color='second'
-              aria-label='close'
-              icon={true}
-            >
-              <Close
-                fontSize='1rem'
-                aria-hidden
-              />
-            </Button>
           </div>
           <textarea
             ref={textAreaRef}

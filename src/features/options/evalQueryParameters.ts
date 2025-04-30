@@ -1,9 +1,9 @@
 import { evalExpr } from 'src/features/expressions';
-import { type ExprResolved, ExprVal } from 'src/features/expressions/types';
+import { ExprVal, refAsSuffix } from 'src/features/expressions/types';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { ExprResolved, LayoutReference } from 'src/features/expressions/types';
 import type { IQueryParameters } from 'src/layout/common.generated';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 export function evalQueryParameters(props: ExprResolver<'List'>) {
   if (!props.item.queryParameters) {
@@ -18,19 +18,19 @@ export function evalQueryParameters(props: ExprResolver<'List'>) {
   return out;
 }
 
-export function resolveQueryParameters(
+export function useResolvedQueryParameters(
   queryParameters: IQueryParameters | undefined,
-  node: LayoutNode,
-  dataSources: ExpressionDataSources,
+  reference: LayoutReference,
 ): Record<string, string> | undefined {
+  const dataSources = useExpressionDataSources(queryParameters);
   return queryParameters
     ? Object.entries(queryParameters).reduce((obj, [key, expr]) => {
-        obj[key] = evalExpr(expr, node, dataSources, {
+        obj[key] = evalExpr(expr, reference, dataSources, {
           config: {
             returnType: ExprVal.String,
             defaultValue: '',
           },
-          errorIntroText: `Invalid expression for component '${node.baseId}'`,
+          errorIntroText: `Invalid expression${refAsSuffix(reference)}`,
         });
         return obj;
       }, {})
