@@ -9,7 +9,7 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 import type { IDataModelBindingsForGroupMultiselect } from 'src/layout/MultipleSelect/config.generated';
 
-type Row = Record<string, string | number | boolean>;
+type Row = Record<string, unknown>;
 
 export const useSaveObjectToGroup = (
   bindings: IDataModelBindingsForGroupCheckbox | IDataModelBindingsForGroupMultiselect | IDataModelBindingsForList,
@@ -23,55 +23,59 @@ export const useSaveObjectToGroup = (
     ? bindings.checked?.field.substring(bindings.group.field.length + 1)
     : undefined;
 
-  const objectHasAllProperties = (row: Row, formDataRow: Row): boolean => {
-    console.log(row);
-    return Object.keys(row).every((key) => {
-      const binding = bindings[key];
-      if (!binding || !bindings.group) {
+  function isTheSameRow(row1: Row, row2: Row) {
+    if (!bindings.group) {
+      return false;
+    }
+
+    for (const key of Object.keys(row1)) {
+      // TODO: This should loop all the relevant bindings, not the row keys
+      const binding = bindings[key] as IDataModelReference | undefined;
+      if (!binding) {
         return false;
       }
 
       const path = binding.field.substring(bindings.group.field.length + 1);
-      return row[key] === dot.pick(path, formDataRow);
-    });
-  };
+      if (dot.pick(path, row1) !== dot.pick(path, row2)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-  const getObjectFromFormDataRow = (row: Row): Row | undefined => {
-    console.log(formData?.group);
-    return (formData?.group as Row[])?.find((selectedRow) => {
-      console.log(selectedRow);
-      return objectHasAllProperties(row, selectedRow);
-    });
-  };
+  function findRowInFormData(row: Row): [number | undefined, Row | undefined] {
+    const list = formData?.group as Row[] | undefined;
+    for (const [index, formDataRow] of list?.entries() ?? []) {
+      if (isTheSameRow(row, formDataRow)) {
+        return [index, formDataRow];
+      }
+    }
 
-  const getIndexFromFormDataRow = (row: Row): number =>
-    (formData?.group as Row[]).findIndex((selectedRow) => objectHasAllProperties(row, selectedRow));
+    return [undefined, undefined];
+  }
 
-  const isRowChecked = (row: Row): boolean => {
-    console.log('isRowChecked');
-    const formDataObject = getObjectFromFormDataRow(row);
-    return !!(checkedBindingPath && formDataObject && dot.pick(checkedBindingPath, formDataObject));
-  };
+  function isRowChecked(row: Row) {
+    const [, formDataObject] = findRowInFormData(row);
+    if (checkedBindingPath && formDataObject) {
+      return !!dot.pick(checkedBindingPath, formDataObject);
+    }
+    return false;
+  }
 
-  const toggleRowSelectionInList = (row: Row): void => {
+  function toggleRowSelectionInList(row: Row): void {
     if (!bindings.group) {
       return;
     }
 
-    const index = getIndexFromFormDataRow(row);
-    const formDataObject = getObjectFromFormDataRow(row);
-
+    const [index, formDataObject] = findRowInFormData(row);
     if (isRowChecked(row)) {
       const newField = `${bindings.group.field}[${index}].${checkedBindingPath}`;
       if (newField) {
         setLeafValue({ reference: { ...bindings.checked, field: newField } as IDataModelReference, newValue: false });
-      } else {
-        if (index >= 0) {
-          removeFromList({ reference: bindings.group, index });
-        }
+      } else if (index !== undefined) {
+        removeFromList({ reference: bindings.group, index });
       }
     } else {
-      console.log(row);
       if (checkedBindingPath && formDataObject && dot.pick(checkedBindingPath, formDataObject) !== 'undefined') {
         const newField = `${bindings.group.field}[${index}].${checkedBindingPath}`;
         setLeafValue({ reference: { ...bindings.checked, field: newField } as IDataModelReference, newValue: true });
@@ -79,23 +83,22 @@ export const useSaveObjectToGroup = (
         const uuid = uuidv4();
         const newRow: Row = { [ALTINN_ROW_ID]: uuid };
 
-        Object.entries(bindings).forEach(([key, binding]) => {
+        for (const [key, binding] of Object.entries(bindings)) {
+          // TODO: Only loop the relevant bindings here (which is only simpleBinding for checkboxes/multipleselect
           if (!bindings.group) {
-            return;
+            continue;
           }
           const path = binding.field.substring(bindings.group.field.length + 1);
-          console.log(key, path);
           if (key === 'checked') {
             dot.str(path, true, newRow);
           } else if (key !== 'group') {
             dot.str(path, row[key], newRow);
           }
-        });
-        console.log(newRow);
+        }
         appendToList({ reference: bindings.group, newValue: newRow });
       }
     }
-  };
+  }
 
   return { toggleRowSelectionInList, isRowChecked };
 };
