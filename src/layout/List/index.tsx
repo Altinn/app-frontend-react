@@ -33,6 +33,7 @@ export class List extends ListDef {
   useDisplayData(nodeId: string): string {
     const dmBindings = NodesInternal.useNodeDataWhenType(nodeId, 'List', (data) => data.layout.dataModelBindings);
     const groupBinding = dmBindings?.group;
+    const checkedBinding = dmBindings?.checked;
     const summaryBinding = NodesInternal.useNodeDataWhenType(nodeId, 'List', (data) => data.item?.summaryBinding);
     const legacySummaryBinding = NodesInternal.useNodeDataWhenType(
       nodeId,
@@ -46,9 +47,13 @@ export class List extends ListDef {
       // values are undefined. This is because useNodeFormDataWhenType doesn't know the intricacies of the group
       // binding and how it works in the List component. We need to find the values inside the rows ourselves.
       const rows = (formData?.group as unknown[] | undefined) ?? [];
+      const relativeCheckedBinding = checkedBinding?.field.replace(`${groupBinding.field}.`, '');
       if (summaryBinding && dmBindings) {
         const summaryReference = dmBindings[summaryBinding];
-        const rowData = rows.map((row) => (summaryReference ? findDataInRow(row, summaryReference, groupBinding) : ''));
+        const rowData = rows
+          .filter((row) => !relativeCheckedBinding || dot.pick(relativeCheckedBinding, row) === true)
+          .map((row) => (summaryReference ? findDataInRow(row, summaryReference, groupBinding) : ''));
+
         return Object.values(rowData).join(', ');
       }
 
