@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { validateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
 import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { ObjectToGroupLayoutValidator } from 'src/layout/List/ObjectToGroupLayoutValidator';
@@ -58,37 +59,6 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {
-    const errors: string[] = [];
-    const dataModelBindings = ctx.item.dataModelBindings ?? {};
-
-    if (!dataModelBindings?.group) {
-      const [newErrors] = this.validateDataModelBindingsSimple(ctx);
-      errors.push(...(newErrors || []));
-    }
-
-    const [newErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
-    errors.push(...(newErrors || []));
-
-    if (dataModelBindings?.group) {
-      const isCompatible = dataModelBindings?.simpleBinding?.field.includes(`${dataModelBindings.group.field}.`);
-
-      if (!isCompatible) {
-        errors.push(`simpleBinding must reference a field in group`);
-      }
-
-      const simpleBindingPath = dataModelBindings.simpleBinding?.field.split('.');
-      const groupBinding = ctx.lookupBinding(dataModelBindings?.group);
-      const items = groupBinding[0]?.items;
-      const properties =
-        items && !Array.isArray(items) && typeof items === 'object' && 'properties' in items
-          ? items.properties
-          : undefined;
-
-      if (!(properties && simpleBindingPath[1] in properties)) {
-        errors.push(`The property ${simpleBindingPath[1]} must be present in group`);
-      }
-    }
-
-    return errors;
+    return validateSimpleBindingWithOptionalGroup(this, ctx);
   }
 }
