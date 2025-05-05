@@ -1,5 +1,3 @@
-import type { FixedLanguageList } from 'src/language/languages';
-
 export interface IAltinnOrg {
   name: ITitle;
   logo: string;
@@ -105,13 +103,6 @@ export interface IInstanceState {
   isArchived: boolean;
 }
 
-// Language translations for altinn
-export type ILanguage =
-  | FixedLanguageList
-  | {
-      [key: string]: string | ILanguage;
-    };
-
 // Language for the rendered altinn app
 export interface IAppLanguage {
   language: string; // Language code
@@ -156,7 +147,7 @@ export interface IParty {
 }
 
 /**
- * @see https://github.com/Altinn/altinn-platform/blob/main/Altinn.Platform.Models/src/Register/Enums/PartyType.cs
+ * @see https://github.com/Altinn/altinn-register/blob/main/src/Altinn.Platform.Models/src/Altinn.Platform.Models/Register/PartyType.cs
  */
 export enum PartyType {
   Person = 1,

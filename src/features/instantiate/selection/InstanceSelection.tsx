@@ -62,7 +62,7 @@ function InstanceSelection() {
   const applicationMetadata = useApplicationMetadata();
   const instanceSelectionOptions = applicationMetadata?.onEntry.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
-  const { langAsString, language } = useLanguage();
+  const { langAsString } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const instantiation = useInstantiation();
@@ -83,12 +83,10 @@ function InstanceSelection() {
   const instances = instanceSelectionOptions?.sortDirection === 'desc' ? [..._instances].reverse() : _instances;
   const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
 
-  const textStrings = language?.['list_component'];
-
   const hadInstantiationError = !!instantiation.error;
   const clearInstantiation = instantiation.clear;
   instantiation.cancelClearTimeout();
-  // Clear the instantiation when the component is unmounted, to allow users to start a new instance later (without
+  // Clear the instantiation when the component is unmounted to allow users to start a new instance later (without
   // having the baggage of the previous instantiation error).
   useEffect(
     () => () => (hadInstantiationError ? clearInstantiation() : undefined),
@@ -159,11 +157,11 @@ function InstanceSelection() {
               <Table.Cell colSpan={2}>
                 <div className={classes.paginationWrapperMobile}>
                   <Pagination
-                    nextLabel={textStrings['nextPage']}
-                    nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
-                    previousLabel={textStrings['previousPage']}
-                    previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
-                    rowsPerPageText={textStrings['rowsPerPage']}
+                    nextLabel={langAsString('list_component.nextPage')}
+                    nextLabelAriaLabel={langAsString('list_component.nextPageAriaLabel')}
+                    previousLabel={langAsString('list_component.previousPage')}
+                    previousLabelAriaLabel={langAsString('list_component.previousPageAriaLabel')}
+                    rowsPerPageText={langAsString('list_component.rowsPerPage')}
                     size='sm'
                     currentPage={currentPage}
                     numberOfRows={instances.length}
@@ -231,11 +229,11 @@ function InstanceSelection() {
               <Table.Cell colSpan={3}>
                 <div className={classes.paginationWrapper}>
                   <Pagination
-                    nextLabel={textStrings['nextPage']}
-                    nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
-                    previousLabel={textStrings['previousPage']}
-                    previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
-                    rowsPerPageText={textStrings['rowsPerPage']}
+                    nextLabel={langAsString('list_component.nextPage')}
+                    nextLabelAriaLabel={langAsString('list_component.nextPageAriaLabel')}
+                    previousLabel={langAsString('list_component.previousPage')}
+                    previousLabelAriaLabel={langAsString('list_component.previousPageAriaLabel')}
+                    rowsPerPageText={langAsString('list_component.rowsPerPage')}
                     size='sm'
                     hideLabels={false}
                     currentPage={currentPage}

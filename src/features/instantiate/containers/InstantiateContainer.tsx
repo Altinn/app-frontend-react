@@ -19,7 +19,7 @@ export const InstantiateContainer = () => {
   // If we render this again before the cleanup timeout has run, we should clear it to avoid the cleanup.
   instantiation.cancelClearTimeout();
 
-  // Clear the instantiation when the component is unmounted, to allow users to start a new instance later
+  // Clear the instantiation when the component is unmounted to allow users to start a new instance later
   const clear = instantiation.clear;
   useEffect(() => () => clear(), [clear]);
 
