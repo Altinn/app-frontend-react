@@ -3,6 +3,7 @@ import deepEqual from 'fast-deep-equal';
 import { applyPatch } from 'fast-json-patch';
 import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
+import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
 import { convertData } from 'src/features/formData/convertData';
@@ -586,29 +587,33 @@ export const createFormDataWriteStore = (
   changeInstance: ChangeInstanceData | undefined,
 ) =>
   createStore<FormDataContext>()(
-    immer((set) => {
-      const actions = makeActions(set, changeInstance, ruleConnections, schemaLookup);
-      for (const name of Object.keys(actions)) {
-        const fnName = name as keyof FormDataMethods;
-        const original = actions[fnName];
-        const proxyFn = proxies[fnName] as Proxy<keyof FormDataMethods>;
-        const { proxy, method } = proxyFn(original);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        actions[fnName] = (...args: any[]) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          proxy({ args: args as any, toCall: method });
-        };
-      }
+    devtools(
+      immer((set /* get */) => {
+        const actions = makeActions(set, changeInstance, ruleConnections, schemaLookup);
 
-      return {
-        dataModels: initialDataModels,
-        autoSaving,
-        lockedBy: undefined,
-        lockQueue: [],
-        debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
-        manualSaveRequested: false,
-        validationIssues: undefined,
-        ...actions,
-      };
-    }),
+        // Inject proxies exactly like before
+        for (const name of Object.keys(actions)) {
+          const fnName = name as keyof FormDataMethods;
+          const original = actions[fnName];
+          const proxyFn = proxies[fnName] as Proxy<keyof FormDataMethods>;
+          const { proxy, method } = proxyFn(original);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          actions[fnName] = (...args: any[]) => proxy({ args: args as any, toCall: method });
+        }
+
+        return {
+          dataModels: initialDataModels,
+          autoSaving,
+          lockedBy: undefined,
+          lockQueue: [],
+          debounceTimeout: DEFAULT_DEBOUNCE_TIMEOUT,
+          manualSaveRequested: false,
+          validationIssues: undefined,
+          ...actions,
+        };
+      }),
+      {
+        name: 'FormDataWriteStore',
+      },
+    ),
   );
