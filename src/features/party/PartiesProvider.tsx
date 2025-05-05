@@ -95,7 +95,7 @@ interface SelectedParty {
   setParty: (party: IParty) => Promise<IParty | undefined>;
 }
 
-const { Provider: RealCSelectedPartyProvider, useCtx: useSelectedPartyCtx } = createContext<SelectedParty>({
+const { Provider: RealSelectedPartyProvider, useCtx: useSelectedPartyCtx } = createContext<SelectedParty>({
   name: 'SelectedParty',
   required: false,
   default: {
@@ -141,7 +141,7 @@ const SelectedPartyProvider = ({ children }: PropsWithChildren) => {
   const selectedIsValid = selectedParty && validParties?.some((party) => party.partyId === selectedParty.partyId);
 
   return (
-    <RealCSelectedPartyProvider
+    <RealSelectedPartyProvider
       value={{
         party: selectedParty,
         selectedIsValid,
@@ -162,7 +162,7 @@ const SelectedPartyProvider = ({ children }: PropsWithChildren) => {
       }}
     >
       {children}
-    </RealCSelectedPartyProvider>
+    </RealSelectedPartyProvider>
   );
 };
 
