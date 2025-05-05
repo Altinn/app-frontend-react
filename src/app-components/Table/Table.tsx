@@ -8,7 +8,6 @@ import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
 import classes from 'src/app-components/Table/Table.module.css';
-import { Lang } from 'src/features/language/Lang';
 import type { FormDataValue } from 'src/app-components/DynamicForm/DynamicForm';
 
 interface Column<T> {
@@ -39,7 +38,7 @@ interface DataTableProps<T> {
   zebra?: boolean;
   stickyHeader?: boolean;
   isLoading?: boolean;
-  emptyText?: ReactElement;
+  emptyText: ReactElement | undefined;
   tableClassName?: string;
   headerClassName?: string;
 }
@@ -88,7 +87,7 @@ export function AppTable<T>({
   const defaultButtonVariant = mobile ? 'secondary' : 'tertiary';
   return (
     <Table
-      size={size || 'sm'}
+      size={size ?? 'sm'}
       className={cn(classes.table, tableClassName, { [classes.mobileTable]: mobile })}
       zebra={zebra}
       stickyHeader={stickyHeader}
@@ -133,7 +132,7 @@ export function AppTable<T>({
               colSpan={columns.length + (actionButtons ? 1 : 0)}
               className={classes.emptyCell}
             >
-              <em>{emptyText ?? <Lang id='general.empty_table' />}</em>
+              <em>{emptyText}</em>
             </Table.Cell>
           </Table.Row>
         ) : (

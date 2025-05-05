@@ -36,6 +36,7 @@ export function SigningDocumentListComponent({
       headerClassName={classes.header}
       tableClassName={classes.table}
       data={data ?? []}
+      emptyText={<Lang id='general.empty_table' />}
       caption={
         textResourceBindings?.title ? (
           <Caption
