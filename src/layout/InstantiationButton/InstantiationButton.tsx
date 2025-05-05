@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { ErrorListFromInstantiation, ErrorReport } from 'src/components/message/ErrorReport';
@@ -17,16 +17,6 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useCurrentParty();
-
-  const hadInstantiationError = !!instantiation.error;
-  const clearInstantiation = instantiation.clear;
-  instantiation.cancelClearTimeout();
-  // Clear the instantiation when the component is unmounted to allow users to start a new instance later (without
-  // having the baggage of the previous instantiation error).
-  useEffect(
-    () => () => (hadInstantiationError ? clearInstantiation() : undefined),
-    [clearInstantiation, hadInstantiationError],
-  );
 
   return (
     <ErrorReport errors={instantiation.error ? <ErrorListFromInstantiation error={instantiation.error} /> : undefined}>

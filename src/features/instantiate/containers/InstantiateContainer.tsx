@@ -4,7 +4,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { InstantiateValidationError } from 'src/features/instantiate/containers/InstantiateValidationError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useClearInstantiation, useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useCurrentParty } from 'src/features/party/PartiesProvider';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
@@ -16,12 +16,7 @@ export const InstantiateContainer = () => {
   const party = useCurrentParty();
   const instantiation = useInstantiation();
 
-  // If we render this again before the cleanup timeout has run, we should clear it to avoid the cleanup.
-  instantiation.cancelClearTimeout();
-
-  // Clear the instantiation when the component is unmounted to allow users to start a new instance later
-  const clear = instantiation.clear;
-  useEffect(() => () => clear(), [clear]);
+  useClearInstantiation();
 
   useEffect(() => {
     const shouldCreateInstance = !!party;

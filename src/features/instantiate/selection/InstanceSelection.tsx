@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import type { MouseEventHandler } from 'react';
 
@@ -14,7 +14,7 @@ import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useClearInstantiation, useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
   ActiveInstancesProvider,
   useActiveInstances,
@@ -83,15 +83,7 @@ function InstanceSelection() {
   const instances = instanceSelectionOptions?.sortDirection === 'desc' ? [..._instances].reverse() : _instances;
   const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
 
-  const hadInstantiationError = !!instantiation.error;
-  const clearInstantiation = instantiation.clear;
-  instantiation.cancelClearTimeout();
-  // Clear the instantiation when the component is unmounted to allow users to start a new instance later (without
-  // having the baggage of the previous instantiation error).
-  useEffect(
-    () => () => (hadInstantiationError ? clearInstantiation() : undefined),
-    [clearInstantiation, hadInstantiationError],
-  );
+  useClearInstantiation();
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
     setRowsPerPage(newRowsPerPage);

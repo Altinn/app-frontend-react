@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { MutableRefObject } from 'react';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -140,3 +140,17 @@ function removeMutations(queryClient: QueryClient) {
  * cases we want to avoid clearing the instantiation too soon (and cause a bug we had for a while where two instances
  * would be created in quick succession). */
 const TIMEOUT = 500;
+
+export function useClearInstantiation() {
+  const instantiation = useInstantiation();
+  const hadInstantiationError = !!instantiation.error;
+  const clearInstantiation = instantiation.clear;
+  instantiation.cancelClearTimeout();
+
+  // Clear the instantiation when the component is unmounted to allow users to start a new instance later (without
+  // having the baggage of the previous instantiation error).
+  useEffect(
+    () => () => (hadInstantiationError ? clearInstantiation() : undefined),
+    [clearInstantiation, hadInstantiationError],
+  );
+}
