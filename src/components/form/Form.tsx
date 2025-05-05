@@ -114,30 +114,29 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
             id={id}
           />
         ))}
-        {formErrors.length > 0 || taskErrors.length > 0 ? (
-          <Flex
-            item={true}
-            size={{ xs: 12 }}
-            aria-live='polite'
-            className={classes.errorReport}
+        <Flex
+          item={true}
+          size={{ xs: 12 }}
+          aria-live='polite'
+          className={classes.errorReport}
+        >
+          <ErrorReport
+            show={formErrors.length > 0 || taskErrors.length > 0}
+            errors={
+              <ErrorReportList
+                formErrors={formErrors}
+                taskErrors={taskErrors}
+              />
+            }
           >
-            <ErrorReport
-              errors={
-                <ErrorReportList
-                  formErrors={formErrors}
-                  taskErrors={taskErrors}
-                />
-              }
-            >
-              {errorReportIds.map((id) => (
-                <GenericComponentById
-                  key={id}
-                  id={id}
-                />
-              ))}
-            </ErrorReport>
-          </Flex>
-        ) : null}
+            {errorReportIds.map((id) => (
+              <GenericComponentById
+                key={id}
+                id={id}
+              />
+            ))}
+          </ErrorReport>
+        </Flex>
       </Flex>
       <ReadyForPrint type='load' />
       <HandleNavigationFocusComponent />

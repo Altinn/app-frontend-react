@@ -17,6 +17,7 @@ import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 
 export interface IErrorReportProps extends PropsWithChildren {
+  show: boolean;
   errors: React.ReactNode | undefined;
 }
 
@@ -30,9 +31,9 @@ const listStyleImg = `url("data:image/svg+xml,${encodeURIComponent(ArrowForwardS
 // instantiation errors at the same time.
 const ErrorReportContext = createContext(false);
 
-export const ErrorReport = ({ children, errors }: IErrorReportProps) => {
+export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
   const hasErrorReport = useContext(ErrorReportContext);
-  if (errors === undefined || hasErrorReport) {
+  if (errors === undefined || hasErrorReport || !show) {
     return children;
   }
 

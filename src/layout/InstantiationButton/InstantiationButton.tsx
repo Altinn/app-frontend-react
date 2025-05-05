@@ -19,7 +19,10 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const party = useCurrentParty();
 
   return (
-    <ErrorReport errors={instantiation.error ? <ErrorListFromInstantiation error={instantiation.error} /> : undefined}>
+    <ErrorReport
+      show={instantiation.error !== undefined}
+      errors={instantiation.error ? <ErrorListFromInstantiation error={instantiation.error} /> : undefined}
+    >
       <Button
         {...props}
         id={props.node.id}

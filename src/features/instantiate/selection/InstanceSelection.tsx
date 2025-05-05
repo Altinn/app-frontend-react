@@ -271,6 +271,7 @@ function InstanceSelection() {
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
           <ErrorReport
+            show={instantiation.error !== undefined}
             errors={instantiation.error ? <ErrorListFromInstantiation error={instantiation.error} /> : undefined}
           >
             <Button
