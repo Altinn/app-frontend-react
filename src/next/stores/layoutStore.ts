@@ -226,6 +226,7 @@ export const layoutStore = createStore<Layouts>()(
 
           // @ts-ignore
           const simple = component.dataModelBindings?.simpleBinding;
+
           if (!simple) {
             return undefined;
           }

@@ -146,16 +146,12 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   }
 
   return (
-    <>
-      {/*<pre>{JSON.stringify(binding, null, 2)}</pre>*/}
-
-      <Flex
-        id={`form-content-${component.id}`}
-        size={{ xs: 12, ...component.grid?.innerGrid }}
-        item
-      >
-        {RenderComponent(component as unknown as CompIntermediateExact<Type>, commonProps)}
-      </Flex>
-    </>
+    <Flex
+      id={`form-content-${component.id}`}
+      size={{ xs: 12, ...component.grid?.innerGrid }}
+      item
+    >
+      {RenderComponent(component as unknown as CompIntermediateExact<Type>, commonProps)}
+    </Flex>
   );
 });

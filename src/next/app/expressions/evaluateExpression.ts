@@ -48,15 +48,10 @@ export function evaluateExpression(
         throw new Error('cannot use dataModel expression without data');
       }
 
-      // const value = formData[fieldName];
-      // debugger;
-
       return dot.pick(fieldName, formData); //formData[fieldName];
     }
 
     case 'component': {
-      //debugger;
-      // Usage: ["component", "someComponentId"]
       const componentId = params[0];
       if (!componentMap) {
         throw new Error('No componentMap provided to evaluate "component"');
@@ -65,7 +60,7 @@ export function evaluateExpression(
       if (!comp) {
         throw new Error(`Component with ID '${componentId}' not found in componentMap`);
       }
-      // For example, assume we want the `simpleBinding` if it exists:
+
       // @ts-ignore
       const binding = comp.dataModelBindings?.simpleBinding;
       if (!binding) {

@@ -67,6 +67,8 @@ export const RepeatingGroupNext: React.FC<RepeatingGroupNextType> = ({ component
   if (groupArray.length < 100) {
     return (
       <div style={{ border: '1px solid green' }}>
+        <h1>actualBinding {actualBinding}</h1>
+
         <Table>
           <Table.Head id={`group-${component.id}-table-header`}>
             <Table.Row>
