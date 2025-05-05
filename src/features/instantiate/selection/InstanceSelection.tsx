@@ -7,13 +7,14 @@ import { PencilIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Pagination } from 'src/app-components/Pagination/Pagination';
+import { ErrorListFromInstantiation, ErrorReport } from 'src/components/message/ErrorReport';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useClearInstantiation, useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
   ActiveInstancesProvider,
   useActiveInstances,
@@ -61,10 +62,10 @@ function InstanceSelection() {
   const applicationMetadata = useApplicationMetadata();
   const instanceSelectionOptions = applicationMetadata?.onEntry.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
-  const { langAsString, language } = useLanguage();
+  const { langAsString } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
-  const instantiate = useInstantiation().instantiate;
+  const instantiation = useInstantiation();
   const selectedParty = useSelectedParty();
   const storeCallback = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
@@ -82,7 +83,7 @@ function InstanceSelection() {
   const instances = instanceSelectionOptions?.sortDirection === 'desc' ? [..._instances].reverse() : _instances;
   const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
 
-  const textStrings = language?.['list_component'];
+  useClearInstantiation();
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
     setRowsPerPage(newRowsPerPage);
@@ -148,11 +149,11 @@ function InstanceSelection() {
               <Table.Cell colSpan={2}>
                 <div className={classes.paginationWrapperMobile}>
                   <Pagination
-                    nextLabel={textStrings['nextPage']}
-                    nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
-                    previousLabel={textStrings['previousPage']}
-                    previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
-                    rowsPerPageText={textStrings['rowsPerPage']}
+                    nextLabel={langAsString('list_component.nextPage')}
+                    nextLabelAriaLabel={langAsString('list_component.nextPageAriaLabel')}
+                    previousLabel={langAsString('list_component.previousPage')}
+                    previousLabelAriaLabel={langAsString('list_component.previousPageAriaLabel')}
+                    rowsPerPageText={langAsString('list_component.rowsPerPage')}
                     size='sm'
                     currentPage={currentPage}
                     numberOfRows={instances.length}
@@ -220,11 +221,11 @@ function InstanceSelection() {
               <Table.Cell colSpan={3}>
                 <div className={classes.paginationWrapper}>
                   <Pagination
-                    nextLabel={textStrings['nextPage']}
-                    nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
-                    previousLabel={textStrings['previousPage']}
-                    previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
-                    rowsPerPageText={textStrings['rowsPerPage']}
+                    nextLabel={langAsString('list_component.nextPage')}
+                    nextLabelAriaLabel={langAsString('list_component.nextPageAriaLabel')}
+                    previousLabel={langAsString('list_component.previousPage')}
+                    previousLabelAriaLabel={langAsString('list_component.previousPageAriaLabel')}
+                    rowsPerPageText={langAsString('list_component.rowsPerPage')}
                     size='sm'
                     hideLabels={false}
                     currentPage={currentPage}
@@ -269,22 +270,27 @@ function InstanceSelection() {
         {mobileView && renderMobileTable()}
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
-          <Button
-            disabled={isAnyProcessing}
-            isLoading={isLoading}
-            size='md'
-            onClick={() =>
-              performProcess(async () => {
-                if (selectedParty) {
-                  storeCallback(focusMainContent);
-                  await instantiate(selectedParty.partyId);
-                }
-              })
-            }
-            id='new-instance-button'
+          <ErrorReport
+            show={instantiation.error !== undefined}
+            errors={instantiation.error ? <ErrorListFromInstantiation error={instantiation.error} /> : undefined}
           >
-            <Lang id='instance_selection.new_instance' />
-          </Button>
+            <Button
+              disabled={isAnyProcessing}
+              isLoading={isLoading}
+              size='md'
+              onClick={() =>
+                performProcess(async () => {
+                  if (selectedParty) {
+                    storeCallback(focusMainContent);
+                    await instantiation.instantiate(selectedParty.partyId);
+                  }
+                })
+              }
+              id='new-instance-button'
+            >
+              <Lang id='instance_selection.new_instance' />
+            </Button>
+          </ErrorReport>
         </div>
       </div>
       <ReadyForPrint type='load' />
