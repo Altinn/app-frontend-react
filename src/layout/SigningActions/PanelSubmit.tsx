@@ -11,10 +11,7 @@ type SubmitPanelProps = {
 };
 
 export function SubmitPanel({ node }: SubmitPanelProps) {
-  const { textResourceBindings } = useNodeItem(node, (i) => ({
-    nodeId: i.id,
-    textResourceBindings: i.textResourceBindings,
-  }));
+  const { textResourceBindings } = useNodeItem(node, (i) => ({ textResourceBindings: i.textResourceBindings }));
 
   const titleReadyForSubmit = textResourceBindings?.submitPanelTitle ?? 'signing.submit_panel_title';
   const descriptionReadyForSubmit = textResourceBindings?.submitPanelDescription ?? 'signing.submit_panel_description';
