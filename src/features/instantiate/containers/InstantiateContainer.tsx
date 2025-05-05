@@ -16,7 +16,7 @@ export const InstantiateContainer = () => {
   const party = useCurrentParty();
   const instantiation = useInstantiation();
 
-  useClearInstantiation();
+  useClearInstantiation(true);
 
   useEffect(() => {
     const shouldCreateInstance = !!party;

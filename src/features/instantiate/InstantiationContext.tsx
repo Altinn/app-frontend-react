@@ -141,16 +141,13 @@ function removeMutations(queryClient: QueryClient) {
  * would be created in quick succession). */
 const TIMEOUT = 500;
 
-export function useClearInstantiation() {
+export function useClearInstantiation(force: boolean = false) {
   const instantiation = useInstantiation();
-  const hadInstantiationError = !!instantiation.error;
+  const shouldClear = !!instantiation.error || force;
   const clearInstantiation = instantiation.clear;
   instantiation.cancelClearTimeout();
 
   // Clear the instantiation when the component is unmounted to allow users to start a new instance later (without
   // having the baggage of the previous instantiation error).
-  useEffect(
-    () => () => (hadInstantiationError ? clearInstantiation() : undefined),
-    [clearInstantiation, hadInstantiationError],
-  );
+  useEffect(() => () => (shouldClear ? clearInstantiation() : undefined), [clearInstantiation, shouldClear]);
 }
