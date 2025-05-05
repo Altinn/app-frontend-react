@@ -393,89 +393,76 @@ export function en() {
     'taskTypes.confirmation': 'Confirmation',
     'taskTypes.payment': 'Payment',
     'taskTypes.receipt': 'Receipt',
-    signing: {
-      loading: 'Loading signing state...',
-      checkbox_label: 'I confirm that the information and documents are correct.',
-      awaiting_signature_panel_title: 'Sign the form',
-      sign_button: 'Sign the form',
+    'signing.loading': 'Loading signing state...',
+    'signing.checkbox_label': 'I confirm that the information and documents are correct.',
+    'signing.awaiting_signature_panel_title': 'Sign the form',
+    'signing.sign_button': 'Sign the form',
+    'signing.submit_panel_title': 'You can now submit the form',
+    'signing.submit_panel_description': 'All parties have signed! Select "{0}" to complete.',
+    'signing.submit_button': 'Submit form',
+    'signing.submit_panel_radio_group_legend': 'Who do you want to sign on behalf of?',
+    'signing.submit_panel_radio_group_description': 'The following are parties you may sign on behalf of.',
+    'signing.submit_panel_single_org_choice': 'You are signing on behalf of {0}.',
+    'signing.submit_panel_myself_choice': 'Myself',
+    'signing.awaiting_other_signatures_panel_title': 'Waiting for signatures',
+    'signing.awaiting_other_signatures_panel_description_not_signing':
+      'You can submit the form when all parties have signed.',
+    'signing.awaiting_other_signatures_panel_description_signed':
+      'Thank you for signing! You can submit the form when all parties have signed.',
+    'signing.awaiting_other_signatures_panel_error_message':
+      'There are missing signatures. You can submit the form when all parties have signed.',
+    'signing.no_action_required_panel_title_has_signed': 'You have signed the form',
+    'signing.no_action_required_panel_title_not_signed': 'Nothing to sign',
+    'signing.no_action_required_panel_description_has_signed': "You're all set! You can now go back to your inbox.",
+    'signing.no_action_required_panel_description_not_signed': 'You do not have access to sign this form.',
+    'signing.no_action_required_button': 'Go to inbox',
+    'signing.api_error_panel_title': 'Could not fetch signing status',
+    'signing.api_error_panel_description':
+      'An error occurred while retrieving the status of signatures. Please try again later or contact the form owner to resolve the issue.',
+    'signing.delegation_error_panel_title': 'Could not grant access to form',
+    'signing.delegation_error_panel_description':
+      'One or more of the signees are invalid and have not been granted access to the form. Go back to try to correct the issue or contact the form owner.',
+    'signing.reject_modal_title': 'Cancel the signing process',
+    'signing.reject_modal_description':
+      'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',
+    'signing.reject_modal_button': 'Cancel the signing process',
+    'signing.reject_modal_trigger_button': 'Cancel signing',
+    'signing.wrong_task_error': 'The {0} component is only available in a signing task.',
+    'signing.error_missing_signing_rights':
+      'Something went wrong. Current user should sign, but does not have rights to do so.',
+    'signing.error_signing': 'Something went wrong when signing. Please try again.',
+    'signing.error_signing_not_confirmed_documents':
+      'You have to confirm that you have read the documents before signing.',
+    'signing.error_signing_no_on_behalf_of': 'You have to choose who you are signing on behalf of before signing.',
+    'signee_list.parse_error': 'Error loading signee list.',
+    'signee_list.unknown_api_error': 'An error occurred when fetching signees.',
+    'signee_list.api_error_display': 'An error occurred when fetching signees. See devtool logs for more information.',
+    'signee_list.no_signees': 'No signees found.',
+    'signee_list.signee_status_signed': 'Signed',
+    'signee_list.signee_status_waiting': 'Waiting for signing',
+    'signee_list.signee_status_delegation_failed': 'Delegation failed',
+    'signee_list.signee_status_notification_failed': 'Notification failed',
+    'signee_list.header_name': 'Name',
+    'signee_list.header_on_behalf_of': 'On behalf of',
+    'signee_list.header_status': 'Status',
 
-      submit_panel_title: 'You can now submit the form',
-      submit_panel_description: 'All parties have signed! Select "{0}" to complete.',
-      submit_button: 'Submit form',
+    'signee_list_summary.name_placeholder': 'Unknown name',
+    'signee_list_summary.on_behalf_of': 'on behalf of',
+    'signee_list_summary.loading': 'Loading signature data...',
+    'signee_list_summary.error': 'Failed to load signature data.',
+    'signee_list_summary.no_data': 'No signature data found.',
+    'signee_list_summary.no_signatures': 'No signatures found.',
+    'signee_list_summary.signed_time': 'Digitally signed through Altinn {0}',
 
-      submit_panel_radio_group_legend: 'Who do you want to sign on behalf of?',
-      submit_panel_radio_group_description: 'The following are parties you may sign on behalf of.',
-      submit_panel_single_org_choice: 'You are signing on behalf of {0}.',
-      submit_panel_myself_choice: 'Myself',
-
-      awaiting_other_signatures_panel_title: 'Waiting for signatures',
-      awaiting_other_signatures_panel_description_not_signing: 'You can submit the form when all parties have signed.',
-      awaiting_other_signatures_panel_description_signed:
-        'Thank you for signing! You can submit the form when all parties have signed.',
-      awaiting_other_signatures_panel_error_message:
-        'There are missing signatures. You can submit the form when all parties have signed.',
-
-      no_action_required_panel_title_has_signed: 'You have signed the form',
-      no_action_required_panel_title_not_signed: 'Nothing to sign',
-      no_action_required_panel_description_has_signed: "You're all set! You can now go back to your inbox.",
-      no_action_required_panel_description_not_signed: 'You do not have access to sign this form.',
-      no_action_required_button: 'Go to inbox',
-
-      api_error_panel_title: 'Could not fetch signing status',
-      api_error_panel_description:
-        'An error occurred while retrieving the status of signatures. Please try again later or contact the form owner to resolve the issue.',
-
-      delegation_error_panel_title: 'Could not grant access to form',
-      delegation_error_panel_description:
-        'One or more of the signees are invalid and have not been granted access to the form. Go back to try to correct the issue or contact the form owner.',
-
-      reject_modal_title: 'Cancel the signing process',
-      reject_modal_description:
-        'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',
-      reject_modal_button: 'Cancel the signing process',
-      reject_modal_trigger_button: 'Cancel signing',
-
-      wrong_task_error: 'The {0} component is only available in a signing task.',
-      error_missing_signing_rights:
-        'Something went wrong. Current user should sign, but does not have rights to do so.',
-      error_signing: 'Something went wrong when signing. Please try again.',
-      error_signing_not_confirmed_documents: 'You have to confirm that you have read the documents before signing.',
-      error_signing_no_on_behalf_of: 'You have to choose who you are signing on behalf of before signing.',
-    },
-    signee_list: {
-      parse_error: 'Error loading signee list.',
-      unknown_api_error: 'An error occurred when fetching signees.',
-      api_error_display: 'An error occurred when fetching signees. See devtool logs for more information.',
-      no_signees: 'No signees found.',
-      signee_status_signed: 'Signed',
-      signee_status_waiting: 'Waiting for signing',
-      signee_status_delegation_failed: 'Delegation failed',
-      signee_status_notification_failed: 'Notification failed',
-      header_name: 'Name',
-      header_on_behalf_of: 'On behalf of',
-      header_status: 'Status',
-    },
-    signee_list_summary: {
-      name_placeholder: 'Unknown name',
-      on_behalf_of: 'on behalf of',
-      loading: 'Loading signature data...',
-      error: 'Failed to load signature data.',
-      no_data: 'No signature data found.',
-      no_signatures: 'No signatures found.',
-      signed_time: 'Digitally signed through Altinn {0}',
-    },
-    signing_document_list: {
-      parse_error: 'Error loading signee document list.',
-      unknown_api_error: 'An error occurred when fetching documents.',
-      api_error_display: 'An error occurred when fetching documents. See devtool logs for more information.',
-      header_filename: 'Name',
-      header_attachment_type: 'Attachment type',
-      header_size: 'Size',
-      attachment_type_form: 'Form',
-      download: 'Download',
-    },
-    signing_document_list_summary: {
-      header: 'Signed documents',
-    },
+    'signing_document_list.parse_error': 'Error loading signee document list.',
+    'signing_document_list.unknown_api_error': 'An error occurred when fetching documents.',
+    'signing_document_list.api_error_display':
+      'An error occurred when fetching documents. See devtool logs for more information.',
+    'signing_document_list.header_filename': 'Name',
+    'signing_document_list.header_attachment_type': 'Attachment type',
+    'signing_document_list.header_size': 'Size',
+    'signing_document_list.attachment_type_form': 'Form',
+    'signing_document_list.download': 'Download',
+    'signing_document_list_summary.header': 'Signed documents',
   };
 }
