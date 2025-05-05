@@ -67,6 +67,6 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'>,
   }
 
   useIsEmpty(node: LayoutNode<'Subform'>): boolean {
-    return useHasSubformElements(node);
+    return !useHasSubformElements(node);
   }
 }
