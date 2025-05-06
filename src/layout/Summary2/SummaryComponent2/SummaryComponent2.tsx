@@ -18,11 +18,7 @@ interface SummaryBodyProps {
 }
 
 function SummaryBody({ target }: SummaryBodyProps) {
-  if (!target?.id) {
-    return <LayoutSetSummary />;
-  }
-
-  if (target.type === 'layoutSet') {
+  if (!target || target.type === 'layoutSet') {
     return <LayoutSetSummary />;
   }
 
