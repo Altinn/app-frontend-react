@@ -202,8 +202,18 @@ type DataCellProps = {
 function DataCell({ nodeId, columnSettings }: DataCellProps) {
   const node = useNode(nodeId);
   if (!node) {
-    throw new Error(`Could not find node with id ${nodeId}`);
+    return null;
   }
+
+  return (
+    <NodeDataCell
+      node={node}
+      columnSettings={columnSettings}
+    />
+  );
+}
+
+function NodeDataCell({ node, columnSettings }: { node: LayoutNode } & Pick<DataCellProps, 'columnSettings'>) {
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(node));
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
