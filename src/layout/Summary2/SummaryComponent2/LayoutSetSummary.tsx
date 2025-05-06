@@ -3,7 +3,7 @@ import React from 'react';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { LayoutSetSummaryAccordion } from 'src/layout/Summary2/CommonSummaryComponents/LayoutSetSummaryAccordion';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
-import { useSummary2Prop } from 'src/layout/Summary2/summaryStoreContext';
+import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 
 type LayoutSetSummaryProps = {
   pageKey?: string;
@@ -11,7 +11,7 @@ type LayoutSetSummaryProps = {
 
 export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
   const pageOrder = usePageOrder();
-  const showPageInAccordion = useSummary2Prop('showPageInAccordion');
+  const showPageInAccordion = useSummaryProp('showPageInAccordion');
 
   const filteredPages = pageOrder.filter((layoutId) => {
     if (!pageKey) {

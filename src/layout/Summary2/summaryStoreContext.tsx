@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { AnySummaryOverride } from 'src/layout/common.generated';
+import type { CompSummaryOverrides, CompTypes } from 'src/layout/layout';
 import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -22,7 +22,7 @@ export function Summary2StoreProvider({ children, node }: PropsWithChildren<{ no
   );
 }
 
-export function useSummary2Prop<K extends keyof Summary2State>(prop: K): Summary2State[K] | undefined {
+export function useSummaryProp<K extends keyof Summary2State>(prop: K): Summary2State[K] | undefined {
   const state = useContext(StoreContext);
   if (!state) {
     // This may happen in, for example, subform summaries (where we don't always have the Summary2 component)
@@ -32,7 +32,9 @@ export function useSummary2Prop<K extends keyof Summary2State>(prop: K): Summary
   return state[prop];
 }
 
-export function useSummary2Overrides(componentId: string): AnySummaryOverride | undefined {
-  const overrides = useSummary2Prop('overrides');
-  return overrides?.find((o) => o.componentId === componentId);
+export function useSummaryOverrides<Type extends CompTypes>(
+  node: LayoutNode<Type>,
+): CompSummaryOverrides<Type> | undefined {
+  const overrides = useSummaryProp('overrides');
+  return overrides?.find((o) => o.componentId === node.baseId);
 }

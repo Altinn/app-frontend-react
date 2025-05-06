@@ -19,6 +19,7 @@ export const Config = new CG.component({
   },
 })
   .makeSummarizable()
+  .addSummaryOverrides()
   .extendTextResources(CG.common('TRBLabel'))
   .addPlugin(
     new OptionsPlugin({

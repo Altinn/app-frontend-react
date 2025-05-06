@@ -53,7 +53,7 @@ export class ComponentConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: NodeDefPlugin<any>[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected createSummary2Overrides: (() => GenerateObject<any>) | undefined;
+  protected createSummaryOverrides: (() => GenerateObject<any>) | undefined;
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -191,15 +191,15 @@ export class ComponentConfig {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public addSummaryOverrides(extender?: (arg: GenerateObject<any>) => void): this {
-    if (this.createSummary2Overrides) {
-      throw new Error(`Component already has summary2 overrides! Do not call this twice.`);
+    if (this.createSummaryOverrides) {
+      throw new Error(`Component already has Summary2 overrides! Do not call this twice.`);
     }
 
-    this.createSummary2Overrides = () => {
+    this.createSummaryOverrides = () => {
       if (!this.behaviors.isSummarizable) {
         throw new Error(
-          `Component '${this.type}' is not summarizable, so it cannot have summary2 overrides. ` +
-            `If you want to add summary2 overrides, make sure the component is summarizable ` +
+          `Component '${this.type}' is not summarizable, so it cannot have Summary2 overrides. ` +
+            `If you want to add Summary2 overrides, make sure the component is summarizable ` +
             `(call makeSummarizable() on the component config).`,
         );
       }
@@ -220,7 +220,7 @@ export class ComponentConfig {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public getSummaryOverridesImport(): GenerateImportedSymbol<any> | undefined {
-    if (!this.createSummary2Overrides) {
+    if (!this.createSummaryOverrides) {
       return undefined;
     }
     return new GenerateImportedSymbol({
@@ -283,7 +283,7 @@ export class ComponentConfig {
          category: ${CompCategory}.${this.config.category},
          layout: ${this.inner};
          plugins: ${pluginUnion};
-         summary2Overrides: ${this.createSummary2Overrides?.().toTypeScript() ?? 'undefined'};
+         summaryOverrides: ${this.createSummaryOverrides?.().toTypeScript() ?? 'undefined'};
        }`,
     ];
 

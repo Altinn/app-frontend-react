@@ -1,9 +1,8 @@
-import type { AnySummaryOverride } from 'src/layout/common.generated';
-import type { CompTypes } from 'src/layout/layout';
+import type { CompSummaryOverrides, CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface Summary2Props<T extends CompTypes> {
   target: LayoutNode<T>;
-  override: AnySummaryOverride | undefined;
+  override: CompSummaryOverrides<T> | undefined;
   isCompact: boolean | undefined;
 }

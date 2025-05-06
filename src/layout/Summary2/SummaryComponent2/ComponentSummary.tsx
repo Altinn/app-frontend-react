@@ -6,7 +6,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { getComponentDef } from 'src/layout';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
-import { useSummary2Overrides, useSummary2Prop } from 'src/layout/Summary2/summaryStoreContext';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -35,9 +35,9 @@ export function ComponentSummaryById({
 }
 
 export function ComponentSummary<T extends CompTypes>({ componentNode }: ComponentSummaryProps<T>) {
-  const isCompact = useSummary2Prop('isCompact');
-  const override = useSummary2Overrides(componentNode.baseId);
-  const hideEmptyFields = useSummary2Prop('hideEmptyFields');
+  const isCompact = useSummaryProp('isCompact');
+  const override = useSummaryOverrides(componentNode);
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const isRequired = useNodeItem(componentNode, (i) => ('required' in i ? i.required : false));
   const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
   const forceShowInSummary = useNodeItem(componentNode, (i) => i['forceShowInSummary']);
@@ -56,7 +56,7 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
   const renderedComponent = def.renderSummary2
     ? def.renderSummary2({
         target: componentNode as never,
-        override,
+        override: override as never,
         isCompact,
       })
     : null;
