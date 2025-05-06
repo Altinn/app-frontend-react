@@ -18,9 +18,9 @@ import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { CheckboxesSummaryOverrides } from 'src/layout/Checkboxes/config.generated';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -76,7 +76,7 @@ export class Checkboxes extends CheckboxesDef {
     return (
       <CheckboxesSummary
         componentNode={props.target}
-        summaryOverride={props.override as CheckboxSummaryOverrideProps}
+        summaryOverride={props.override as CheckboxesSummaryOverrides}
         isCompact={props.isCompact}
         emptyFieldText={props.override?.emptyFieldText}
       />

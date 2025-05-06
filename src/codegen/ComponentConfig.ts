@@ -41,7 +41,7 @@ const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any>
 };
 
 export class ComponentConfig {
-  public type: string;
+  public type: string | undefined;
   public typeSymbol: string;
   readonly inner = new CG.obj();
   public behaviors: CompBehaviors = {
@@ -52,6 +52,8 @@ export class ComponentConfig {
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: NodeDefPlugin<any>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected createSummary2Overrides: (() => GenerateObject<any>) | undefined;
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -176,6 +178,41 @@ export class ComponentConfig {
     return this;
   }
 
+  makeSummarizable(): this {
+    this.extends(CG.common('SummarizableComponentProps'));
+    this.behaviors.isSummarizable = true;
+    return this;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public addSummaryOverrides(extender?: (arg: GenerateObject<any>) => void): this {
+    if (this.createSummary2Overrides) {
+      throw new Error(`Component already has summary2 overrides! Do not call this twice.`);
+    }
+
+    this.createSummary2Overrides = () => {
+      if (!this.behaviors.isSummarizable) {
+        throw new Error(
+          `Component '${this.type}' is not summarizable, so it cannot have summary2 overrides. ` +
+            `If you want to add summary2 overrides, make sure the component is summarizable ` +
+            `(call makeSummarizable() on the component config).`,
+        );
+      }
+
+      const out = new CG.obj()
+        .extends(CG.common('ISummaryOverridesCommon'))
+        .setTitle('Summary properties')
+        .setDescription('Properties for how to display the summary of the component')
+        .exportAs(`${this.type}SummaryOverrides`);
+
+      extender && extender(out);
+
+      return out;
+    };
+
+    return this;
+  }
+
   private beforeFinalizing(): void {
     // We have to add these to our typescript types in order for ITextResourceBindings<T>, and similar to work.
     // Components that doesn't have them, will always have the 'undefined' value.
@@ -202,11 +239,6 @@ export class ComponentConfig {
       from: `./index`,
     });
 
-    const LayoutNode = new GenerateImportedSymbol({
-      import: 'LayoutNode',
-      from: 'src/utils/layout/LayoutNode',
-    });
-
     const CompCategory = new CG.import({
       import: 'CompCategory',
       from: `src/layout/common`,
@@ -227,7 +259,6 @@ export class ComponentConfig {
       `export function getConfig() {
          return {
            def: new ${impl.toTypeScript()}(),
-           nodeConstructor: ${LayoutNode},
            capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
            behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
          };
@@ -235,8 +266,8 @@ export class ComponentConfig {
       `export type TypeConfig = {
          category: ${CompCategory}.${this.config.category},
          layout: ${this.inner};
-         nodeObj: ${LayoutNode}<'${this.type}'>;
          plugins: ${pluginUnion};
+         summary2Overrides: ${this.createSummary2Overrides?.().toTypeScript() ?? 'undefined'};
        }`,
     ];
 

@@ -4,7 +4,7 @@ import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { MultipleSelectSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { MultipleSelectSummaryOverrides } from 'src/layout/MultipleSelect/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function MultipleSelectSummary({
@@ -14,7 +14,7 @@ export function MultipleSelectSummary({
   isCompact,
 }: {
   componentNode: LayoutNode<'MultipleSelect'>;
-  summaryOverride?: MultipleSelectSummaryOverrideProps;
+  summaryOverride?: MultipleSelectSummaryOverrides;
   emptyFieldText?: string;
   isCompact?: boolean;
 }) {

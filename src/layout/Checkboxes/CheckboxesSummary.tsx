@@ -4,7 +4,7 @@ import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
 import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { CheckboxesSummaryOverrides } from 'src/layout/Checkboxes/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function CheckboxesSummary({
@@ -14,7 +14,7 @@ export function CheckboxesSummary({
   emptyFieldText,
 }: {
   componentNode: LayoutNode<'Checkboxes'>;
-  summaryOverride?: CheckboxSummaryOverrideProps;
+  summaryOverride?: CheckboxesSummaryOverrides;
   isCompact?: boolean;
   emptyFieldText?: string;
 }) {

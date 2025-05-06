@@ -14,7 +14,7 @@ import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSumm
 import { useValidateSubform } from 'src/layout/Subform/useValidateSubform';
 import type { PropsFromGenericComponent, SubRouting, ValidateComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
-import type { SubformSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { SubformSummaryOverrides } from 'src/layout/Subform/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -61,7 +61,7 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'>,
   renderSummary2(props: Summary2Props<'Subform'>) {
     return (
       <SubformSummaryComponent2
-        displayType={(props.override as SubformSummaryOverrideProps)?.display}
+        displayType={(props.override as SubformSummaryOverrides)?.display}
         subformId={props.target?.id}
         componentNode={props.target}
       />
