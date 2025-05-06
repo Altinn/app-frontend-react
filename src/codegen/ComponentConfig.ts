@@ -218,6 +218,17 @@ export class ComponentConfig {
     return this;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public getSummaryOverridesImport(): GenerateImportedSymbol<any> | undefined {
+    if (!this.createSummary2Overrides) {
+      return undefined;
+    }
+    return new GenerateImportedSymbol({
+      import: `${this.type}SummaryOverrides`,
+      from: `src/layout/${this.type}/config.generated.ts`,
+    });
+  }
+
   private beforeFinalizing(): void {
     // We have to add these to our typescript types in order for ITextResourceBindings<T>, and similar to work.
     // Components that doesn't have them, will always have the 'undefined' value.

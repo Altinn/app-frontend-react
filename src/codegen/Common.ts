@@ -2,6 +2,8 @@ import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { ComponentConfig } from 'src/codegen/ComponentConfig';
+import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 
 const common = {
   IButtonProps: () =>
@@ -945,6 +947,10 @@ const common = {
           suffix: ' kr',
         },
       }),
+  AnySummaryOverride: () =>
+    // This is calculated as a union of all possible component-level overrides. Because it needs the full list of
+    // components to generate, it is instead implemented in generateCommonTypeScript() below.
+    CG.false,
 };
 
 export type ValidCommonKeys = keyof typeof common;
@@ -969,8 +975,7 @@ function makeTRB(keys: { [key: string]: TRB }) {
   return obj;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const implementationsCache: { [key: string]: MaybeSymbolizedCodeGenerator<any> } = {};
+const implementationsCache: { [key: string]: MaybeSymbolizedCodeGenerator<unknown> } = {};
 export function getSourceForCommon(key: ValidCommonKeys) {
   if (implementationsCache[key]) {
     return implementationsCache[key];
@@ -988,8 +993,23 @@ export function generateAllCommonTypes() {
   }
 }
 
-export function generateCommonTypeScript() {
+export function generateCommonTypeScript(map: { [key: string]: ComponentConfig }) {
   for (const key in common) {
+    if (key === 'AnySummaryOverride') {
+      const objects: GenerateImportedSymbol<unknown>[] = [];
+      for (const componentKey in map) {
+        const component = map[componentKey];
+        const summaryOverrides = component.getSummaryOverridesImport();
+        if (summaryOverrides) {
+          objects.push(summaryOverrides);
+        }
+      }
+
+      const val = new CG.union(...objects).exportAs(key);
+      val.toTypeScript();
+      continue;
+    }
+
     const val = getSourceForCommon(key as ValidCommonKeys);
 
     // Calling toTypeScript() on an exported symbol will register it in the currently

@@ -114,7 +114,7 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
     saveTsFile(
       commonTsPath,
       CodeGeneratorContext.generateTypeScript(commonTsPath, () => {
-        generateCommonTypeScript();
+        generateCommonTypeScript(configMap);
         return ''; // Empty content, because all symbols are exported and registered in the context
       }),
     ),

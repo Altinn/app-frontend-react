@@ -48,12 +48,4 @@ export const Config = new CG.component({
         .setDescription("Set this to true if you don't want to show fields that have not been filled out."),
     ),
   )
-  // TODO: Implement this again
-  .addProperty(
-    new CG.prop(
-      'overrides',
-      new CG.union(
-        new CG.obj(new CG.prop('componentId', new CG.str().optional())).exportAs('AnySummaryOverride'),
-      ).optional(),
-    ),
-  );
+  .addProperty(new CG.prop('overrides', new CG.arr(CG.common('AnySummaryOverride')).optional()));
