@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { getComponentDef } from 'src/layout';
+import { useRegisterSummary2Child } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
@@ -42,16 +43,23 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
   const grid = useNodeItem(componentNode, (i) => i.grid);
   const isHidden = Hidden.useIsHidden(componentNode);
   const def = getComponentDef(componentNode.type);
-  const isEmpty = def.useIsEmpty(componentNode as never);
+  const registry = useRegisterSummary2Child();
 
-  const hiddenByOverride = override?.hidden === true;
-  const hiddenBecauseNoUserInput = isEmpty ? hideEmptyFields && !isRequired && !forceShowInSummary : false;
-  if (isHidden || hiddenByOverride || hiddenBecauseNoUserInput) {
-    return null;
-  }
+  const hideIfEmpty = hideEmptyFields && !isRequired && !forceShowInSummary;
+  const contentIsEmpty = def.useIsEmpty(componentNode as never);
 
   const renderedComponent = def.renderSummary2 ? def.renderSummary2({ target: componentNode as never }) : null;
-  if (!renderedComponent) {
+  const hiddenOrNotRendered = isHidden || !renderedComponent || override?.hidden;
+
+  useEffect(() => {
+    if (hiddenOrNotRendered || contentIsEmpty) {
+      registry.renderedEmptyComponent();
+    } else {
+      registry.renderedNotEmptyComponent();
+    }
+  }, [contentIsEmpty, hiddenOrNotRendered, registry]);
+
+  if (hiddenOrNotRendered || (hideIfEmpty && contentIsEmpty)) {
     return null;
   }
 
