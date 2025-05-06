@@ -372,6 +372,8 @@ function makeActions(
       }),
     setLeafValue: ({ reference, newValue, callback, ...rest }) =>
       set((state) => {
+        console.log(JSON.stringify({ reference, newValue, callback }, null, 2));
+
         if (state.dataModels[reference.dataType].readonly) {
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           callback?.(FDSetValueReadOnly);

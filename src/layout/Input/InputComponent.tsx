@@ -71,6 +71,9 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     autocomplete,
     maxLength,
   } = useNodeItem(node);
+
+  console.log('dataModelBindings', dataModelBindings);
+
   const {
     formData: { simpleBinding: realFormValue },
     setValue,

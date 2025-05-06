@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 import { Flex } from 'src/app-components/Flex/Flex';
@@ -9,7 +9,7 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import {useExpandedWidthLayouts, useLayoutLookups} from 'src/features/form/layout/LayoutsContext';
+import { useExpandedWidthLayouts, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -26,13 +26,14 @@ import {
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import { getComponentCapabilities } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
+import { RenderComponentById } from 'src/next/components/RenderComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 import type { NodeData } from 'src/utils/layout/types';
-import {getComponentCapabilities} from "src/layout";
 
 interface FormState {
   hasRequired: boolean;
@@ -108,6 +109,13 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
         spacing={6}
         alignItems='flex-start'
       >
+        {mainIds.map((id) => (
+          <RenderComponentById
+            id={id}
+            key={id}
+          />
+        ))}
+
         {mainIds.map((id) => (
           <GenericComponentById
             key={id}

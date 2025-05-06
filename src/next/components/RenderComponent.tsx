@@ -4,6 +4,12 @@ import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
 import { Flex } from 'src/app-components/Flex/Flex';
+import { FD } from 'src/features/formData/FormDataWrite';
+// 👇  pull the hooks that createZustandContext gave you
+// import {
+//   // the raw StoreApi if you need .getState() / .setState() etc.
+//   useStore as useFdStore,
+// } from 'src/features/formData/FormDataWrite';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { CheckboxesNext } from 'src/next/components/CheckboxesNext/CheckboxesNext';
 import { Navbar } from 'src/next/components/navbar/Navbar';
@@ -25,6 +31,20 @@ export interface RenderComponentType {
   renderAsSummary?: boolean;
 }
 
+export interface RenderComponentByIdType {
+  id: string;
+}
+
+export function RenderComponentById({ id }: { id: string }) {
+  const component = useStore(layoutStore, (state) => state.componentMap && state.componentMap[id]);
+
+  if (!component) {
+    throw new Error('could no find component');
+  }
+
+  return <RenderComponent component={component} />;
+}
+
 export const RenderComponent = memo(function RenderComponentMemo<Type extends CompTypes = CompTypes>({
   component,
   parentBinding,
@@ -33,6 +53,9 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   renderAsSummary,
 }: RenderComponentType) {
   const setBoundValue = useStore(layoutStore, (state) => state.setBoundValue);
+
+  // const fdStore = useFdStore();
+  const setLeafValue = FD.useSetLeafValue();
 
   const storeOptions = useStore(layoutStore, (state) => state.options);
 
@@ -88,7 +111,18 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
 
   const commonProps = {
     onChange: (nextValue) => {
+      console.log('nextValue', nextValue);
+
       setBoundValue(component, nextValue, parentBinding, itemIndex, childField);
+
+      setLeafValue({
+        reference: {
+          dataType: 'model',
+          // @ts-ignore
+          field: component.dataModelBindings.simpleBinding,
+        },
+        newValue: nextValue,
+      });
     },
     currentValue: value,
     label: textResource?.value || undefined,
