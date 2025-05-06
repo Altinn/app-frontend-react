@@ -12,6 +12,7 @@ import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/R
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { useHasOnlyEmptyChildren } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
@@ -32,6 +33,12 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
   const isNested = componentNode.parent instanceof LayoutNode;
+  const onlyEmptyChildren = useHasOnlyEmptyChildren();
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
+
+  if (hideEmptyFields && onlyEmptyChildren) {
+    return null;
+  }
 
   if (rows.length === 0) {
     return (
