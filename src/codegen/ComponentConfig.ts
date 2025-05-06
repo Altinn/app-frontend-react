@@ -179,6 +179,11 @@ export class ComponentConfig {
   }
 
   makeSummarizable(): this {
+    if (this.isFormLike()) {
+      throw new Error(`Component is a form or container component, it is always summarizable`);
+    }
+
+    this.extendTextResources(CG.common('TRBSummarizable'));
     this.extends(CG.common('SummarizableComponentProps'));
     this.behaviors.isSummarizable = true;
     return this;
