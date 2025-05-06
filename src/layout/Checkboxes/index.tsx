@@ -13,8 +13,8 @@ import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesCont
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataWhenType, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -42,8 +42,10 @@ export class Checkboxes extends CheckboxesDef {
     if (!node) {
       return '';
     }
-
-    const dataModelBindings = useNodeItem(node as LayoutNode<'Checkboxes'>, (i) => i.dataModelBindings);
+    const dataModelBindings = NodesInternal.useNodeData(
+      node as LayoutNode<'Checkboxes'>,
+      (data) => data.layout.dataModelBindings,
+    );
 
     const relativeCheckedPath =
       dataModelBindings?.checked && dataModelBindings?.group

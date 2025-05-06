@@ -13,8 +13,8 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
-import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataWhenType, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -41,8 +41,10 @@ export class MultipleSelect extends MultipleSelectDef {
     if (!node) {
       return '';
     }
-
-    const dataModelBindings = useNodeItem(node as LayoutNode<'MultipleSelect'>, (i) => i.dataModelBindings);
+    const dataModelBindings = NodesInternal.useNodeData(
+      node as LayoutNode<'MultipleSelect'>,
+      (data) => data.layout.dataModelBindings,
+    );
 
     const relativeCheckedPath =
       dataModelBindings?.checked && dataModelBindings?.group
