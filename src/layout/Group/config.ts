@@ -55,14 +55,4 @@ export const Config = new CG.component({
         .setDescription('The heading level of the group title.'),
     ),
   )
-  .addSummaryOverrides((obj) => {
-    obj.addProperty(
-      new CG.prop(
-        'isCompact',
-        new CG.bool()
-          .optional()
-          .setTitle('Compact summary')
-          .setDescription('Boolean value indicating if the summary should be compact'),
-      ),
-    );
-  });
+  .addSummaryOverrides();
