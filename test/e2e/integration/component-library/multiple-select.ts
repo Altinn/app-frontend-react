@@ -98,4 +98,45 @@ describe('Multiple select component', () => {
     cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).should('exist');
     cy.get(repGroup).findAllByRole('cell', { name: '20' }).should('exist');
   });
+  it('Renders the summary2 component with correct text for MultipleSelext with group and soft deletion', () => {
+    cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
+    cy.gotoNavPage('Flervalg');
+
+    const multiselect = '#form-content-MultipleSelectPage-Checkboxes2';
+    const multiselectList = 'div[role="listbox"]';
+    const summary2 = '[data-componentid=MultipleSelectPage-Header-Summary2-Component2]';
+
+    const checkboxText1 = 'Karoline';
+    const checkboxText2 = 'Kåre';
+    const checkboxText3 = 'Johanne';
+    const checkboxText4 = 'Kari';
+    const checkboxText5 = 'Petter';
+
+    cy.get(multiselect).click();
+
+    //Check options in checkboxes component
+    cy.get(multiselectList).contains('span', checkboxText1).click();
+    cy.get(multiselectList).contains('span', checkboxText2).click();
+    cy.get(multiselectList).contains('span', checkboxText3).click();
+    cy.get(multiselectList).contains('span', checkboxText4).click();
+    cy.get(multiselectList).contains('span', checkboxText5).click();
+
+    //Uncheck
+    cy.get(multiselectList).contains('span', checkboxText4).click();
+    cy.get(multiselectList).contains('span', checkboxText5).click();
+
+    //Check that checkboxes is correct
+    cy.get(multiselect).contains('span', checkboxText1).should('exist');
+    cy.get(multiselect).contains('span', checkboxText2).should('exist');
+    cy.get(multiselect).contains('span', checkboxText3).should('exist');
+    cy.get(multiselect).contains('span', checkboxText4).should('not.exist');
+    cy.get(multiselect).contains('span', checkboxText5).should('not.exist');
+
+    const expectedText = [checkboxText1, checkboxText2, checkboxText3].join(', ');
+
+    cy.get(`div${summary2}`)
+      .next()
+      .find('span.fds-paragraph') // Targets the span with the summary text
+      .should('have.text', expectedText);
+  });
 });
