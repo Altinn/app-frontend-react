@@ -70,10 +70,6 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
   const promises: Promise<void>[] = [];
   promises.push(saveFile('src/layout/components.generated.ts', componentIndex.join('\n')));
 
-  // Make sure all common types has been generated first, so that they don't start extending
-  // each other after being frozen
-  generateAllCommonTypes();
-
   const configMap: { [key: string]: ComponentConfig } = {};
   for (const key of sortedKeys) {
     const tsPathConfig = `src/layout/${key}/config.generated.ts`;
@@ -102,6 +98,10 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
     new LayoutSettingsSchemaV1(schemaProps),
   ];
 
+  // Make sure all common types has been generated first, so that they don't start extending
+  // each other after being frozen
+  generateAllCommonTypes(configMap);
+
   const schemaPathBase = 'schemas/json/';
   for (const file of schemas) {
     const schemaPath = schemaPathBase + file.getFileName();
@@ -114,7 +114,7 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
     saveTsFile(
       commonTsPath,
       CodeGeneratorContext.generateTypeScript(commonTsPath, () => {
-        generateCommonTypeScript(configMap);
+        generateCommonTypeScript();
         return ''; // Empty content, because all symbols are exported and registered in the context
       }),
     ),

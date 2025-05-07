@@ -7,6 +7,7 @@ import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
 import { CompCategory } from 'src/layout/common';
 import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CompBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
@@ -53,7 +54,8 @@ export class ComponentConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: NodeDefPlugin<any>[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected createSummaryOverrides: (() => GenerateUnion<any>) | undefined;
+  protected createSummaryOverrides: (() => MaybeOptionalCodeGenerator<any>) | undefined;
+  protected hasSummaryOverridesExtender = false;
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -189,12 +191,16 @@ export class ComponentConfig {
     return this;
   }
 
+  /**
+   * @see generateSummaryOverrides
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public addSummaryOverrides(extender?: (arg: GenerateObject<any>) => void): this {
     if (this.createSummaryOverrides) {
       throw new Error(`Component already has Summary2 overrides! Do not call this twice.`);
     }
 
+    this.hasSummaryOverridesExtender = !!extender;
     this.createSummaryOverrides = () => {
       if (!this.type) {
         throw new Error('Type not specified yet');
@@ -207,36 +213,40 @@ export class ComponentConfig {
         );
       }
 
-      const oneComponent = new CG.obj(new CG.prop('componentId', new CG.str()))
+      if (!extender) {
+        return CG.common('ISummaryOverridesCommon');
+      }
+
+      const overrides = new CG.obj()
         .extends(CG.common('ISummaryOverridesCommon'))
-        .setTitle(`Summary overrides for ${this.type}`)
-        .setDescription(`Properties for how to display the summary of this ${this.type} component`);
-
-      const allComponents = new CG.obj(new CG.prop('componentType', new CG.const(this.type)))
-        .extends(CG.common('ISummaryOverridesCommon'))
-        .setTitle(`Summary overrides for all ${this.type}`)
-        .setDescription(`Properties for how to display the summary of all ${this.type} components`);
-
-      extender && extender(oneComponent);
-      extender && extender(allComponents);
-
-      return new CG.union(oneComponent, allComponents)
-        .setUnionType('discriminated')
         .exportAs(`${this.type}SummaryOverrides`);
+
+      extender && extender(overrides);
+
+      return overrides;
     };
 
     return this;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  public getSummaryOverridesImport(): GenerateImportedSymbol<any> | undefined {
+  public getSummaryOverridesImport(): // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  GenerateImportedSymbol<any> | GenerateCommonImport<'ISummaryOverridesCommon'> | undefined {
     if (!this.createSummaryOverrides) {
       return undefined;
     }
+    if (!this.hasSummaryOverridesExtender) {
+      return CG.common('ISummaryOverridesCommon');
+    }
+
     return new GenerateImportedSymbol({
       import: `${this.type}SummaryOverrides`,
       from: `src/layout/${this.type}/config.generated.ts`,
     });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public getSummaryOverrides(): MaybeOptionalCodeGenerator<any> | undefined {
+    return this.createSummaryOverrides?.();
   }
 
   private beforeFinalizing(): void {

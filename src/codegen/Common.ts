@@ -1,9 +1,10 @@
+import type { JSONSchema7 } from 'json-schema';
+
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
-import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { MaybeOptionalCodeGenerator, MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
-import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 
 const common = {
   IButtonProps: () =>
@@ -943,8 +944,11 @@ const common = {
       }),
   AnySummaryOverride: () =>
     // This is calculated as a union of all possible component-level overrides. Because it needs the full list of
-    // components to generate, it is instead implemented in generateCommonTypeScript() below.
-    CG.false,
+    // components to generate, it is instead implemented in generateSummaryOverrides() below.
+    new CG.raw({
+      typeScript: 'BROKEN! Check that AnySummaryOverride is generated correctly',
+      jsonSchema: 'BROKEN! Check that AnySummaryOverride is generated correctly' as JSONSchema7,
+    }),
 };
 
 export type ValidCommonKeys = keyof typeof common;
@@ -970,40 +974,42 @@ function makeTRB(keys: { [key: string]: TRB }) {
 }
 
 const implementationsCache: { [key: string]: MaybeSymbolizedCodeGenerator<unknown> } = {};
-export function getSourceForCommon(key: ValidCommonKeys) {
-  if (implementationsCache[key]) {
-    return implementationsCache[key];
+export function getSourceForCommon(key: ValidCommonKeys, fromImport = true, map?: { [key: string]: ComponentConfig }) {
+  const cacheKey = key + (fromImport ? 1 : 0);
+  if (implementationsCache[cacheKey]) {
+    return implementationsCache[cacheKey];
+  }
+
+  if (key === 'AnySummaryOverride') {
+    if (map === undefined) {
+      throw new Error('Full component map needed when generating AnySummaryOverride');
+    }
+    const impl = generateSummaryOverrides(fromImport, map);
+    impl.exportAs(key);
+    implementationsCache[cacheKey] = impl;
+    return impl;
   }
 
   const impl = common[key]();
   impl.exportAs(key);
-  implementationsCache[key] = impl;
+  implementationsCache[cacheKey] = impl;
   return impl;
 }
 
-export function generateAllCommonTypes() {
+export function generateAllCommonTypes(map: { [key: string]: ComponentConfig }) {
   for (const key in common) {
+    if (key === 'AnySummaryOverride') {
+      getSourceForCommon(key, true, map);
+      getSourceForCommon(key, false, map);
+      continue;
+    }
+
     getSourceForCommon(key as ValidCommonKeys);
   }
 }
 
-export function generateCommonTypeScript(map: { [key: string]: ComponentConfig }) {
+export function generateCommonTypeScript() {
   for (const key in common) {
-    if (key === 'AnySummaryOverride') {
-      const objects: GenerateImportedSymbol<unknown>[] = [];
-      for (const componentKey in map) {
-        const component = map[componentKey];
-        const summaryOverrides = component.getSummaryOverridesImport();
-        if (summaryOverrides) {
-          objects.push(summaryOverrides);
-        }
-      }
-
-      const val = new CG.union(...objects).exportAs(key);
-      val.toTypeScript();
-      continue;
-    }
-
     const val = getSourceForCommon(key as ValidCommonKeys);
 
     // Calling toTypeScript() on an exported symbol will register it in the currently
@@ -1014,7 +1020,48 @@ export function generateCommonTypeScript(map: { [key: string]: ComponentConfig }
 
 export function generateCommonSchema() {
   for (const key in common) {
-    const val = getSourceForCommon(key as ValidCommonKeys);
+    const val = getSourceForCommon(key as ValidCommonKeys, false);
     val.toJsonSchema();
   }
+}
+
+function generateSummaryOverrides(fromImport: boolean, map: { [key: string]: ComponentConfig }) {
+  const objects: MaybeOptionalCodeGenerator<unknown>[] = [];
+  for (const componentKey in map) {
+    const component = map[componentKey];
+    const componentLevelOverrides = fromImport
+      ? component.getSummaryOverridesImport()
+      : component.getSummaryOverrides();
+
+    if (componentLevelOverrides) {
+      objects.push(componentLevelOverrides);
+    }
+  }
+
+  if (!fromImport) {
+    return new CG.union(...objects);
+  }
+
+  const rawUnion = new CG.union(...objects).exportAs('AnySummaryOverrideRaw');
+  const oneComponent = new CG.intersection(new CG.obj(new CG.prop('componentId', new CG.str())), rawUnion);
+  const allComponents = new CG.intersection(
+    new CG.obj(
+      new CG.prop(
+        'componentType',
+        new CG.raw({
+          typeScript: new CG.import({
+            import: 'CompTypes',
+            from: 'src/layout/layout',
+          }),
+          jsonSchema: () => ({
+            type: 'string',
+            enum: Object.keys(map),
+          }),
+        }),
+      ),
+    ),
+    rawUnion,
+  );
+
+  return new CG.union(oneComponent, allComponents);
 }
