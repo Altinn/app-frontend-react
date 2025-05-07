@@ -33,8 +33,11 @@ export function useSummaryProp<K extends keyof Summary2State>(prop: K): Summary2
 }
 
 export function useSummaryOverrides<Type extends CompTypes>(
-  node: LayoutNode<Type>,
+  node: LayoutNode<Type> | undefined,
 ): CompSummaryOverrides<Type> | undefined {
   const overrides = useSummaryProp('overrides');
+  if (!node || !overrides) {
+    return undefined;
+  }
   return overrides?.find((o) => o.componentId === node.baseId);
 }

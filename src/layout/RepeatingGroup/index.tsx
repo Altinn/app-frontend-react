@@ -16,7 +16,6 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RepeatingGroupSummaryOverrides } from 'src/layout/RepeatingGroup/config.generated';
 import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -83,12 +82,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   renderSummary2(props: Summary2Props<'RepeatingGroup'>): JSX.Element | null {
     return (
       <RepeatingGroupProvider node={props.target}>
-        <RepeatingGroupSummary
-          componentNode={props.target}
-          isCompact={props.isCompact}
-          emptyFieldText={props.override?.emptyFieldText}
-          display={(props.override as RepeatingGroupSummaryOverrides)?.display}
-        />
+        <RepeatingGroupSummary {...props} />
       </RepeatingGroupProvider>
     );
   }

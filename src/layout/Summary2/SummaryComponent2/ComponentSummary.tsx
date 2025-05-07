@@ -35,7 +35,6 @@ export function ComponentSummaryById({
 }
 
 export function ComponentSummary<T extends CompTypes>({ componentNode }: ComponentSummaryProps<T>) {
-  const isCompact = useSummaryProp('isCompact');
   const override = useSummaryOverrides(componentNode);
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const isRequired = useNodeItem(componentNode, (i) => ('required' in i ? i.required : false));
@@ -53,14 +52,7 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
     return null;
   }
 
-  const renderedComponent = def.renderSummary2
-    ? def.renderSummary2({
-        target: componentNode as never,
-        override: override as never,
-        isCompact,
-      })
-    : null;
-
+  const renderedComponent = def.renderSummary2 ? def.renderSummary2({ target: componentNode as never }) : null;
   if (!renderedComponent) {
     return null;
   }
