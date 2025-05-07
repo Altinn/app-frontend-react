@@ -975,7 +975,7 @@ function makeTRB(keys: { [key: string]: TRB }) {
 
 const implementationsCache: { [key: string]: MaybeSymbolizedCodeGenerator<unknown> } = {};
 export function getSourceForCommon(key: ValidCommonKeys, fromImport = true, map?: { [key: string]: ComponentConfig }) {
-  const cacheKey = key + (fromImport ? 1 : 0);
+  const cacheKey = key === 'AnySummaryOverride' ? key + (fromImport ? 1 : 0) : key;
   if (implementationsCache[cacheKey]) {
     return implementationsCache[cacheKey];
   }

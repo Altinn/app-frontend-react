@@ -72,22 +72,29 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
 
   const configMap: { [key: string]: ComponentConfig } = {};
   for (const key of sortedKeys) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const config = require(`src/layout/${key}/config`).Config;
+    config.setType(componentList[key], key);
+    configMap[key] = config;
+  }
+
+  // Make sure all common types has been generated first, so that they don't start extending
+  // each other after being frozen
+  generateAllCommonTypes(configMap);
+
+  for (const key of sortedKeys) {
     const tsPathConfig = `src/layout/${key}/config.generated.ts`;
     const tsPathDef = `src/layout/${key}/config.def.generated.tsx`;
 
-    const config = await CodeGeneratorContext.generateTypeScript(tsPathConfig, () => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const config = require(`src/layout/${key}/config`).Config;
-      config.setType(componentList[key], key);
-      configMap[key] = config;
-      return config.generateConfigFile();
-    });
+    const result = await CodeGeneratorContext.generateTypeScript(tsPathConfig, () =>
+      configMap[key].generateConfigFile(),
+    );
     const defClass = await CodeGeneratorContext.generateTypeScript(tsPathDef, () => {
       const def = configMap[key].generateDefClass();
       return `import React from 'react';\n\n${def}`;
     });
 
-    promises.push(saveTsFile(tsPathConfig, config));
+    promises.push(saveTsFile(tsPathConfig, result));
     promises.push(saveTsFile(tsPathDef, defClass));
   }
 
@@ -97,10 +104,6 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
     new LayoutSetsSchemaV1(schemaProps),
     new LayoutSettingsSchemaV1(schemaProps),
   ];
-
-  // Make sure all common types has been generated first, so that they don't start extending
-  // each other after being frozen
-  generateAllCommonTypes(configMap);
 
   const schemaPathBase = 'schemas/json/';
   for (const file of schemas) {
