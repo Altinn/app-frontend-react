@@ -41,13 +41,7 @@ const common = {
       ),
     ),
   ISummaryOverridesCommon: () =>
-    new CG.obj(
-      new CG.prop('componentId', new CG.str()),
-      new CG.prop('hidden', new CG.bool().optional()),
-      new CG.prop('forceShow', new CG.bool().optional()),
-      new CG.prop('emptyFieldText', new CG.str().optional()),
-    ),
-
+    new CG.obj(new CG.prop('hidden', new CG.bool().optional()), new CG.prop('emptyFieldText', new CG.str().optional())),
   ILayoutFile: () =>
     new CG.obj(
       new CG.prop('$schema', new CG.str().optional()),

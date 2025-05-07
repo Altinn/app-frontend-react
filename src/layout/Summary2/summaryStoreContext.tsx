@@ -32,12 +32,28 @@ export function useSummaryProp<K extends keyof Summary2State>(prop: K): Summary2
   return state[prop];
 }
 
-export function useSummaryOverrides<Type extends CompTypes>(
-  node: LayoutNode<Type> | undefined,
-): CompSummaryOverrides<Type> | undefined {
+export function useSummaryOverrides<Type extends CompTypes>(node: LayoutNode<Type> | undefined) {
   const overrides = useSummaryProp('overrides');
   if (!node || !overrides) {
     return undefined;
   }
-  return overrides?.find((o) => o.componentId === node.baseId);
+  const specificOverrides = overrides.find((o) => 'componentId' in o && o.componentId === node.baseId);
+  const typeOverrides = overrides.find((o) => 'componentType' in o && o.componentType === node.type);
+
+  if (!typeOverrides && !specificOverrides) {
+    return undefined;
+  }
+
+  const output = {} as Omit<CompSummaryOverrides<Type>, 'componentId' | 'componentType'>;
+  for (const override of [typeOverrides, specificOverrides]) {
+    if (!override) {
+      continue;
+    }
+    for (const key in override) {
+      if (key !== 'componentId' && key !== 'componentType') {
+        output[key] = override[key];
+      }
+    }
+  }
+  return output;
 }

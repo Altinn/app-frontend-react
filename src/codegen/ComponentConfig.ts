@@ -53,7 +53,7 @@ export class ComponentConfig {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: NodeDefPlugin<any>[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  protected createSummaryOverrides: (() => GenerateObject<any>) | undefined;
+  protected createSummaryOverrides: (() => GenerateUnion<any>) | undefined;
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -196,6 +196,9 @@ export class ComponentConfig {
     }
 
     this.createSummaryOverrides = () => {
+      if (!this.type) {
+        throw new Error('Type not specified yet');
+      }
       if (!this.behaviors.isSummarizable) {
         throw new Error(
           `Component '${this.type}' is not summarizable, so it cannot have Summary2 overrides. ` +
@@ -204,15 +207,22 @@ export class ComponentConfig {
         );
       }
 
-      const out = new CG.obj()
+      const oneComponent = new CG.obj(new CG.prop('componentId', new CG.str()))
         .extends(CG.common('ISummaryOverridesCommon'))
-        .setTitle('Summary properties')
-        .setDescription('Properties for how to display the summary of the component')
+        .setTitle(`Summary overrides for ${this.type}`)
+        .setDescription(`Properties for how to display the summary of this ${this.type} component`);
+
+      const allComponents = new CG.obj(new CG.prop('componentType', new CG.const(this.type)))
+        .extends(CG.common('ISummaryOverridesCommon'))
+        .setTitle(`Summary overrides for all ${this.type}`)
+        .setDescription(`Properties for how to display the summary of all ${this.type} components`);
+
+      extender && extender(oneComponent);
+      extender && extender(allComponents);
+
+      return new CG.union(oneComponent, allComponents)
+        .setUnionType('discriminated')
         .exportAs(`${this.type}SummaryOverrides`);
-
-      extender && extender(out);
-
-      return out;
     };
 
     return this;
