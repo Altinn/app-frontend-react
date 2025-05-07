@@ -389,7 +389,7 @@ export function useNavigatePage() {
     const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page ?? pageKey}/${nodeId}/${dataElementId}${validate ? '?validate=true' : ''}`;
 
     await maybeSaveOnPageChange();
-    await refetchInitialValidations();
+    refetchInitialValidations();
     return navigate(url, undefined, undefined, () => focusMainContent());
   };
 
