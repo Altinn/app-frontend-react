@@ -345,4 +345,4 @@ export const Config = new CG.component({
   )
   .addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()))
 
-  .addProperty(new CG.prop('addButtonSettings', new CG.obj().extends(CG.common('IButtonProps')).optional()));
+  .addProperty(new CG.prop('addButton', new CG.obj().extends(CG.common('IButtonProps')).optional()));

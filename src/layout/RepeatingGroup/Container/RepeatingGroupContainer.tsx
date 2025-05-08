@@ -163,7 +163,7 @@ function AddButton() {
   }));
 
   const item = useNodeItem(node);
-  const { textResourceBindings, id, edit, addButtonSettings } = item;
+  const { textResourceBindings, id, edit, addButton } = item;
   const { add_button, add_button_full } = textResourceBindings || {};
 
   const numRows = visibleRows.length;
@@ -171,9 +171,9 @@ function AddButton() {
   const forceShow = editingAll || editingNone || edit?.alwaysShowAddButton === true;
 
   // Making sure the default width for the add button is full:
-  const fullWidth = addButtonSettings?.fullWidth === undefined ? true : addButtonSettings?.fullWidth;
+  const fullWidth = addButton?.fullWidth === undefined ? true : addButton?.fullWidth;
 
-  const size = addButtonSettings?.size === undefined ? 'md' : addButtonSettings?.size;
+  const size = addButton?.size === undefined ? 'md' : addButton?.size;
 
   if (edit?.addButton === false) {
     return null;
@@ -189,11 +189,11 @@ function AddButton() {
 
   return (
     <Button
-      textAlign={addButtonSettings?.textAlign}
+      textAlign={addButton?.textAlign}
       fullWidth={fullWidth}
       id={`add-button-${id}`}
       size={size}
-      style={addButtonSettings?.position ? { ...alignStyle(addButtonSettings?.position) } : {}}
+      style={addButton?.position ? { ...alignStyle(addButton?.position) } : {}}
       onClick={async () => {
         const newRow = await addRow();
         newRow.index !== undefined && triggerFocus(newRow.index);
