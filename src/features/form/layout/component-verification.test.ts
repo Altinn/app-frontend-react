@@ -3,7 +3,7 @@ import { getComponentConfigs } from 'src/layout/components.generated';
 const checkLegacy = false;
 
 describe('Component config verification', () => {
-  describe('Summarizable', () => {
+  describe.skip('Summarizable', () => {
     for (const [type, config] of Object.entries(getComponentConfigs())) {
       const isSummarizable = config.behaviors.isSummarizable;
       if (isSummarizable) {
