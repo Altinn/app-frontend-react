@@ -9,6 +9,7 @@ import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validatio
 import { LikertItemDef } from 'src/layout/LikertItem/config.def.generated';
 import { LikertItemComponent } from 'src/layout/LikertItem/LikertItemComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -72,5 +73,9 @@ export class LikertItem extends LikertItemDef {
     }
 
     return errors;
+  }
+
+  useIsEmpty(node: LayoutNode<'LikertItem'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

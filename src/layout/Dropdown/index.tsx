@@ -10,6 +10,7 @@ import { DropdownDef } from 'src/layout/Dropdown/config.def.generated';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { DropdownSummary } from 'src/layout/Dropdown/DropdownSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
@@ -43,13 +44,7 @@ export class Dropdown extends DropdownDef {
   }
 
   renderSummary2(props: Summary2Props<'Dropdown'>): JSX.Element | null {
-    return (
-      <DropdownSummary
-        componentNode={props.target}
-        isCompact={props.isCompact}
-        emptyFieldText={props.override?.emptyFieldText}
-      />
-    );
+    return <DropdownSummary {...props} />;
   }
 
   useEmptyFieldValidation(node: LayoutNode<'Dropdown'>): ComponentValidation[] {
@@ -58,5 +53,9 @@ export class Dropdown extends DropdownDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Dropdown'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
+  }
+
+  useIsEmpty(node: LayoutNode<'Dropdown'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

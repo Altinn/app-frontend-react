@@ -6,11 +6,13 @@ import { formatDate, isValid, parseISO } from 'date-fns';
 import { DateDef } from 'src/layout/Date/config.def.generated';
 import { DateComponent } from 'src/layout/Date/DateComponent';
 import { DateSummary } from 'src/layout/Date/DateSummary';
+import { useIsEmptyPresentationComponent } from 'src/layout/Text/useIsEmptyPresentationComponent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Date extends DateDef implements DisplayData {
   useDisplayData(nodeId: string): string {
@@ -39,13 +41,7 @@ export class Date extends DateDef implements DisplayData {
   );
 
   renderSummary2(props: Summary2Props<'Date'>): JSX.Element | null {
-    return (
-      <DateSummary
-        componentNode={props.target}
-        isCompact={props.isCompact}
-        emptyFieldText={props.override?.emptyFieldText}
-      />
-    );
+    return <DateSummary {...props} />;
   }
 
   evalExpressions(props: ExprResolver<'Date'>) {
@@ -53,5 +49,9 @@ export class Date extends DateDef implements DisplayData {
       ...this.evalDefaultExpressions(props),
       value: props.evalStr(props.item.value, ''),
     };
+  }
+
+  useIsEmpty(node: LayoutNode<'Date'>): boolean {
+    return useIsEmptyPresentationComponent(node);
   }
 }

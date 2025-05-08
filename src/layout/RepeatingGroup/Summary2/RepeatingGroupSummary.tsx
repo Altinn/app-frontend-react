@@ -12,22 +12,19 @@ import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/R
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { useHasOnlyEmptyChildren } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export const RepeatingGroupSummary = ({
-  componentNode,
-  isCompact,
-  display,
-  emptyFieldText,
-}: {
-  componentNode: LayoutNode<'RepeatingGroup'>;
-  isCompact?: boolean;
-  display?: 'table' | 'full';
-  emptyFieldText?: string;
-}) => {
+export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'>) => {
+  const componentNode = target;
+  const overrides = useSummaryOverrides(componentNode);
+  const display = overrides?.display ?? 'list';
+  const isCompact = useSummaryProp('isCompact');
   const { visibleRows } = useRepeatingGroupRowState();
   const rowsToDisplaySet = new Set(visibleRows.map((row) => row.uuid));
   const rows = useNodeItem(componentNode, (i) => i.rows).filter((row) => row && rowsToDisplaySet.has(row.uuid));
@@ -36,6 +33,12 @@ export const RepeatingGroupSummary = ({
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
   const isNested = componentNode.parent instanceof LayoutNode;
+  const onlyEmptyChildren = useHasOnlyEmptyChildren();
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
+
+  if (hideEmptyFields && onlyEmptyChildren) {
+    return null;
+  }
 
   if (rows.length === 0) {
     return (
@@ -49,7 +52,7 @@ export const RepeatingGroupSummary = ({
         componentNode={componentNode}
         errors={errors}
         isCompact={isCompact}
-        emptyFieldText={emptyFieldText}
+        emptyFieldText={overrides?.emptyFieldText}
       />
     );
   }

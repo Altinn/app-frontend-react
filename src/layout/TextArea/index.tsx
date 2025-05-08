@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { TextAreaDef } from 'src/layout/TextArea/config.def.generated';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
 import { TextAreaSummary } from 'src/layout/TextArea/TextAreaSummary';
@@ -11,6 +12,7 @@ import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class TextArea extends TextAreaDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'TextArea'>>(
@@ -30,16 +32,14 @@ export class TextArea extends TextAreaDef {
   }
 
   renderSummary2(props: Summary2Props<'TextArea'>): JSX.Element | null {
-    return (
-      <TextAreaSummary
-        componentNode={props.target}
-        isCompact={props.isCompact}
-        emptyFieldText={props.override?.emptyFieldText}
-      />
-    );
+    return <TextAreaSummary {...props} />;
   }
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'TextArea'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
+  }
+
+  useIsEmpty(node: LayoutNode<'TextArea'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

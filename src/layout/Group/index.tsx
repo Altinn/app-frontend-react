@@ -32,15 +32,14 @@ export class Group extends GroupDef {
   }
 
   renderSummary2(props: Summary2Props<'Group'>): JSX.Element | null {
-    return (
-      <GroupSummary
-        componentNode={props.target}
-        summaryOverride={props.override}
-      />
-    );
+    return <GroupSummary componentNode={props.target} />;
   }
 
   renderSummaryBoilerplate(): boolean {
+    return false;
+  }
+
+  useIsEmpty(): boolean {
     return false;
   }
 }

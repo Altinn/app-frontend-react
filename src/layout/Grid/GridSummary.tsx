@@ -474,7 +474,7 @@ function getComponentCellData(node: LayoutNode, displayData: string, textResourc
   if (node?.type === 'Custom') {
     return <ComponentSummary componentNode={node} />;
   } else if (implementsDisplayData(node.def)) {
-    return displayData || '-';
+    return displayData || '';
   } else if (textResourceBindings && 'title' in textResourceBindings) {
     return <Lang id={textResourceBindings.title} />;
   } else {

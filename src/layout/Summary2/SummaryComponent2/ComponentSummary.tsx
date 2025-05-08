@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { getComponentDef } from 'src/layout';
+import { useRegisterSummary2Child } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import classes from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2.module.css';
-import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -15,7 +15,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps<T extends CompTypes = CompTypes> {
   componentNode: LayoutNode<T>;
-  isCompact?: boolean;
 }
 
 export function ComponentSummaryById({
@@ -36,44 +35,39 @@ export function ComponentSummaryById({
 }
 
 export function ComponentSummary<T extends CompTypes>({ componentNode }: ComponentSummaryProps<T>) {
-  const summaryNodeItem = useSummary2Store((state) => state.summaryItem);
-  const componentNodeItem = useNodeItem(componentNode);
-  const override = summaryNodeItem?.overrides?.find((override) => override.componentId === componentNode.id);
-  const isRequired = 'required' in componentNodeItem && componentNodeItem['required'] === true;
-  const { formData } = useDataModelBindings(componentNodeItem.dataModelBindings);
+  const override = useSummaryOverrides(componentNode);
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
+  const isRequired = useNodeItem(componentNode, (i) => ('required' in i ? i.required : false));
+  const forceShowInSummary = useNodeItem(componentNode, (i) => i['forceShowInSummary']);
+  const pageBreak = useNodeItem(componentNode, (i) => i.pageBreak);
+  const grid = useNodeItem(componentNode, (i) => i.grid);
   const isHidden = Hidden.useIsHidden(componentNode);
-  const noUserInput = Object.values(formData).every((value) => value?.length < 1);
   const def = getComponentDef(componentNode.type);
+  const registry = useRegisterSummary2Child();
 
-  const renderedComponent = def.renderSummary2
-    ? def.renderSummary2({
-        target: componentNode as never,
-        override,
-        isCompact: summaryNodeItem.isCompact,
-      })
-    : null;
+  const hideIfEmpty = hideEmptyFields && !isRequired && !forceShowInSummary;
+  const contentIsEmpty = def.useIsEmpty(componentNode as never);
 
-  if (!renderedComponent) {
-    return null;
-  }
+  const renderedComponent = def.renderSummary2 ? def.renderSummary2({ target: componentNode as never }) : null;
+  const hiddenOrNotRendered = isHidden || !renderedComponent || override?.hidden;
 
-  if (isHidden) {
-    return null;
-  }
+  useEffect(() => {
+    if (hiddenOrNotRendered || contentIsEmpty) {
+      registry.renderedEmptyComponent();
+    } else {
+      registry.renderedNotEmptyComponent();
+    }
+  }, [contentIsEmpty, hiddenOrNotRendered, registry]);
 
-  if (override?.hidden) {
-    return null;
-  }
-
-  if (noUserInput && summaryNodeItem?.hideEmptyFields && !isRequired && !componentNodeItem['forceShowInSummary']) {
+  if (hiddenOrNotRendered || (hideIfEmpty && contentIsEmpty)) {
     return null;
   }
 
   return (
     <Flex
       item
-      className={cn(pageBreakStyles(componentNodeItem?.pageBreak), classes.summaryItem)}
-      size={componentNodeItem.grid}
+      className={cn(pageBreakStyles(pageBreak), classes.summaryItem)}
+      size={grid}
     >
       {renderedComponent}
     </Flex>

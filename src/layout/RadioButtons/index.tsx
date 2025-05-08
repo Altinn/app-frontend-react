@@ -10,6 +10,7 @@ import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { RadioButtonsSummary } from 'src/layout/RadioButtons/RadioButtonsSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
@@ -39,13 +40,7 @@ export class RadioButtons extends RadioButtonsDef {
   }
 
   renderSummary2(props: Summary2Props<'RadioButtons'>): JSX.Element | null {
-    return (
-      <RadioButtonsSummary
-        componentNode={props.target}
-        emptyFieldText={props.override?.emptyFieldText}
-        isCompact={props.isCompact}
-      />
-    );
+    return <RadioButtonsSummary {...props} />;
   }
 
   useEmptyFieldValidation(node: LayoutNode<'RadioButtons'>): ComponentValidation[] {
@@ -54,5 +49,9 @@ export class RadioButtons extends RadioButtonsDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'RadioButtons'>): string[] {
     return this.validateDataModelBindingsSimple(ctx);
+  }
+
+  useIsEmpty(node: LayoutNode<'RadioButtons'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

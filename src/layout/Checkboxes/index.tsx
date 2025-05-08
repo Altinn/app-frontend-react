@@ -13,6 +13,7 @@ import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesCont
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -20,7 +21,6 @@ import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -73,14 +73,7 @@ export class Checkboxes extends CheckboxesDef {
   }
 
   renderSummary2(props: Summary2Props<'Checkboxes'>): JSX.Element | null {
-    return (
-      <CheckboxesSummary
-        componentNode={props.target}
-        summaryOverride={props.override as CheckboxSummaryOverrideProps}
-        isCompact={props.isCompact}
-        emptyFieldText={props.override?.emptyFieldText}
-      />
-    );
+    return <CheckboxesSummary {...props} />;
   }
 
   useEmptyFieldValidation(node: LayoutNode<'Checkboxes'>): ComponentValidation[] {
@@ -93,5 +86,9 @@ export class Checkboxes extends CheckboxesDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Checkboxes'>): string[] {
     return validateSimpleBindingWithOptionalGroup(this, ctx);
+  }
+
+  useIsEmpty(node: LayoutNode<'Checkboxes'>): boolean {
+    return useHasNoDataInBindings(node);
   }
 }

@@ -12,9 +12,9 @@ import { RedirectBackToMainForm, SubformForm, SubformWrapper } from 'src/layout/
 import { SubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
 import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { useValidateSubform } from 'src/layout/Subform/useValidateSubform';
+import { useHasSubformElements } from 'src/layout/Subform/utils';
 import type { PropsFromGenericComponent, SubRouting, ValidateComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
-import type { SubformSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -59,16 +59,14 @@ export class Subform extends SubformDef implements ValidateComponent<'Subform'>,
   }
 
   renderSummary2(props: Summary2Props<'Subform'>) {
-    return (
-      <SubformSummaryComponent2
-        displayType={(props.override as SubformSummaryOverrideProps)?.display}
-        subformId={props.target?.id}
-        componentNode={props.target}
-      />
-    );
+    return <SubformSummaryComponent2 {...props} />;
   }
 
   useComponentValidation(node: LayoutNode<'Subform'>): ComponentValidation[] {
     return useValidateSubform(node);
+  }
+
+  useIsEmpty(node: LayoutNode<'Subform'>): boolean {
+    return !useHasSubformElements(node);
   }
 }
