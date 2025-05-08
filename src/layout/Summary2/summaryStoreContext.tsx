@@ -33,6 +33,10 @@ export function useSummaryProp<K extends keyof Summary2State>(prop: K): Summary2
   return state[prop];
 }
 
+/**
+ * Finds summary overrides for the given node. It will read component type level overrides first, then more specific
+ * component-level overrides, and merge them into one object.
+ */
 export function useSummaryOverrides<Type extends CompTypes>(node: LayoutNode<Type> | undefined) {
   const overrides = useSummaryProp('overrides');
   if (!node || !overrides) {
