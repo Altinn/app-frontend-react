@@ -23,10 +23,8 @@ export function getCurrentUserStatus(
     return 'awaitingSignature';
   }
 
-  // If the current user is not listed as a person signee, but they have sign permission, they should still be able to sign
-  const currentUserIsInList = userSignees.some(
-    (signee) => signee.partyId === currentUserPartyId && !signee.organization,
-  );
+  // If the current user is not listed as a signee, but they have sign permission, they should still be able to sign
+  const currentUserIsInList = userSignees.some((signee) => signee.partyId === currentUserPartyId);
 
   if (!currentUserIsInList) {
     return 'awaitingSignature';
