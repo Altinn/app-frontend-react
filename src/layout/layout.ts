@@ -53,6 +53,8 @@ export type CompIntermediateExact<Type extends CompTypes> = CompExternalExact<Ty
  * Gets the possible Summary2 overrides for a given component type
  */
 export type CompSummaryOverrides<Type extends CompTypes = CompTypes> = ComponentTypeConfigs[Type]['summaryOverrides'];
+export type CompSummaryOverridesWithRef<Type extends CompTypes = CompTypes> =
+  ComponentTypeConfigs[Type]['summaryOverridesWithRef'];
 
 /**
  * This is the type you should use when referencing a specific component type, and will give

@@ -2,6 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
 import { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
@@ -10,7 +11,6 @@ import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/plugins
 import type { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CompBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import type { CompTypes } from 'src/layout/layout';
@@ -213,33 +213,62 @@ export class ComponentConfig {
         );
       }
 
-      if (!extender) {
-        return CG.common('ISummaryOverridesCommon');
+      const overrides = extender
+        ? new CG.obj().extends(CG.common('ISummaryOverridesCommon')).exportAs(`${this.type}SummaryOverrides`)
+        : CG.common('ISummaryOverridesCommon');
+
+      if (extender && overrides instanceof GenerateObject) {
+        extender(overrides);
       }
 
-      const overrides = new CG.obj()
-        .extends(CG.common('ISummaryOverridesCommon'))
-        .exportAs(`${this.type}SummaryOverrides`);
-
-      extender && extender(overrides);
-
-      return overrides;
+      return this.makeSummaryOverridesUnion(overrides).exportAs(`${this.type}SummaryOverridesWithRef`);
     };
 
     return this;
   }
 
-  public getSummaryOverridesImport(): // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  GenerateImportedSymbol<any> | GenerateCommonImport<'ISummaryOverridesCommon'> | undefined {
+  protected makeSummaryOverridesUnion(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    overrides: GenerateObject<any> | GenerateCommonImport<'ISummaryOverridesCommon'>,
+  ) {
+    if (!this.type) {
+      throw new Error('Type not specified yet');
+    }
+
+    const oneComponent = new CG.obj(new CG.prop('componentId', new CG.str()))
+      .extends(overrides)
+      .setTitle(`Summary overrides for ${this.type}`)
+      .setDescription(`Properties for how to display the summary of this ${this.type} component`);
+
+    const allComponents = new CG.obj(new CG.prop('componentType', new CG.const(this.type)))
+      .extends(overrides)
+      .setTitle(`Summary overrides for all ${this.type}`)
+      .setDescription(`Properties for how to display the summary of all ${this.type} components`);
+
+    return new CG.union(oneComponent, allComponents);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public getSummaryOverridesImport(variant: 'plain' | 'withRef'): MaybeOptionalCodeGenerator<any> | undefined {
     if (!this.createSummaryOverrides) {
       return undefined;
     }
-    if (!this.hasSummaryOverridesExtender) {
+
+    if (variant === 'plain' && !this.hasSummaryOverridesExtender) {
       return CG.common('ISummaryOverridesCommon');
     }
+    if (variant === 'plain') {
+      return new CG.raw({
+        typeScript: `${this.type}SummaryOverrides`,
+      });
+    }
 
-    return new GenerateImportedSymbol({
-      import: `${this.type}SummaryOverrides`,
+    if (!this.hasSummaryOverridesExtender) {
+      return this.makeSummaryOverridesUnion(CG.common('ISummaryOverridesCommon'));
+    }
+
+    return new CG.import({
+      import: `${this.type}SummaryOverridesWithRef`,
       from: `src/layout/${this.type}/config.generated.ts`,
     });
   }
@@ -303,7 +332,8 @@ export class ComponentConfig {
          category: ${CompCategory}.${this.config.category},
          layout: ${this.inner};
          plugins: ${pluginUnion};
-         summaryOverrides: ${this.createSummaryOverrides?.().toTypeScript() ?? 'undefined'};
+         summaryOverrides: ${this.getSummaryOverridesImport('plain')?.toTypeScript() ?? 'undefined'};
+         summaryOverridesWithRef: ${this.getSummaryOverrides()?.toTypeScript() ?? 'undefined'};
        }`,
     ];
 

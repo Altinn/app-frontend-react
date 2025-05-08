@@ -47,7 +47,7 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
   const noUserInput = Object.values(formData).every((value) => value?.length < 1);
   const def = getComponentDef(componentNode.type);
 
-  const hiddenByOverride = override && 'hidden' in override ? override.hidden === true : false;
+  const hiddenByOverride = override?.hidden === true;
   const hiddenBecauseNoUserInput = noUserInput ? hideEmptyFields && !isRequired && !forceShowInSummary : false;
   if (isHidden || hiddenByOverride || hiddenBecauseNoUserInput) {
     return null;

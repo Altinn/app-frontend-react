@@ -2,6 +2,7 @@ import React, { createContext, useContext } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { ISummaryOverridesCommon } from 'src/layout/common.generated';
 import type { CompSummaryOverrides, CompTypes } from 'src/layout/layout';
 import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -44,14 +45,14 @@ export function useSummaryOverrides<Type extends CompTypes>(node: LayoutNode<Typ
     return undefined;
   }
 
-  const output = {} as Omit<CompSummaryOverrides<Type>, 'componentId' | 'componentType'>;
+  const output = {} as CompSummaryOverrides<Type>;
   for (const override of [typeOverrides, specificOverrides]) {
     if (!override) {
       continue;
     }
     for (const key in override) {
       if (key !== 'componentId' && key !== 'componentType') {
-        output[key] = override[key];
+        (output as ISummaryOverridesCommon)[key] = override[key];
       }
     }
   }
