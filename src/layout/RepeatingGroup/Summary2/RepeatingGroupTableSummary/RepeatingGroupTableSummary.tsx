@@ -22,6 +22,7 @@ import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGro
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { EditButtonById } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { useReportSummaryEmptyRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
@@ -218,6 +219,7 @@ function NodeDataCell({ node, columnSettings }: { node: LayoutNode } & Pick<Data
   const headerTitle = langAsString(useTableTitle(node));
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   const displayData = useDisplayData(node);
+  useReportSummaryEmptyRender(displayData.trim() === '');
 
   return (
     <Table.Cell

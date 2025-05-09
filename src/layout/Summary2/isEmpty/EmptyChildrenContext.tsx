@@ -1,30 +1,31 @@
-import React, { createContext, useState } from 'react';
-import type { PropsWithChildren } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
+import type { FunctionComponent, PropsWithChildren } from 'react';
 
 export interface EmptyChildrenContext {
+  parent?: EmptyChildrenContext;
   empty: number;
   notEmpty: number;
   total: number;
-  renderedEmptyComponent: () => void;
-  renderedNotEmptyComponent: () => void;
+  setNumEmpty: React.Dispatch<React.SetStateAction<number>>;
+  setNumNotEmpty: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Context = createContext<EmptyChildrenContext | undefined>(undefined);
 
 export function EmptyChildrenProvider({ children }: PropsWithChildren) {
+  const parent = React.useContext(Context);
   const [empty, setNumEmpty] = useState(0);
   const [notEmpty, setNumNotEmpty] = useState(0);
-  const renderedEmptyComponent = () => setNumEmpty((n) => n + 1);
-  const renderedNotEmptyComponent = () => setNumNotEmpty((n) => n + 1);
 
   return (
     <Context.Provider
       value={{
+        parent,
         empty,
         notEmpty,
         total: empty + notEmpty,
-        renderedEmptyComponent,
-        renderedNotEmptyComponent,
+        setNumEmpty,
+        setNumNotEmpty,
       }}
     >
       {children}
@@ -48,21 +49,57 @@ export function useHasOnlyEmptyChildren() {
   return context.empty === context.total;
 }
 
-export function useRegisterSummary2Child(): Pick<
-  EmptyChildrenContext,
-  'renderedEmptyComponent' | 'renderedNotEmptyComponent'
-> {
-  const context = React.useContext(Context);
+interface HideWhenAllChildrenEmptyProps extends PropsWithChildren {
+  when?: boolean;
+  tag?: FunctionComponent<{ style?: React.CSSProperties }>;
+}
 
-  if (context) {
-    return {
-      renderedEmptyComponent: context.renderedEmptyComponent,
-      renderedNotEmptyComponent: context.renderedNotEmptyComponent,
-    };
+export function HideWhenAllChildrenEmpty({ children, when, tag }: HideWhenAllChildrenEmptyProps) {
+  const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
+
+  // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
+  // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
+  // could never report changes and go from being empty to not being empty anymore.
+
+  if (hasOnlyEmptyChildren && (when === undefined || when) && !tag) {
+    return <div style={{ display: 'none' }}>{children}</div>;
   }
 
-  return {
-    renderedEmptyComponent: () => {},
-    renderedNotEmptyComponent: () => {},
-  };
+  if (hasOnlyEmptyChildren && (when === undefined || when) && tag) {
+    return React.createElement(tag, { style: { display: 'none' } }, children);
+  }
+
+  return children;
+}
+
+function useMarkRendering(ctx: EmptyChildrenContext | undefined, isEmpty: boolean) {
+  const setNumEmpty = ctx?.setNumEmpty;
+  const setNumNotEmpty = ctx?.setNumNotEmpty;
+
+  useEffect(() => {
+    if (isEmpty) {
+      setNumEmpty?.((e) => e + 1);
+    } else {
+      setNumNotEmpty?.((e) => e + 1);
+    }
+
+    // Revert changes when unmounting, in case data changes
+    return () => {
+      if (isEmpty) {
+        setNumEmpty?.((e) => e - 1);
+      } else {
+        setNumNotEmpty?.((e) => e - 1);
+      }
+    };
+  }, [setNumEmpty, setNumNotEmpty, isEmpty]);
+}
+
+export function useReportSummaryEmptyRender(isEmpty: boolean) {
+  const ctx = React.useContext(Context);
+  useMarkRendering(ctx, isEmpty);
+}
+
+export function useReportSummaryEmptyRenderOnParent(isEmpty: boolean) {
+  const ctx = React.useContext(Context);
+  useMarkRendering(ctx?.parent, isEmpty);
 }

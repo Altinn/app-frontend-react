@@ -18,7 +18,15 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
+import {
+  EmptyChildrenProvider,
+  HideWhenAllChildrenEmpty,
+  useHasOnlyEmptyChildren,
+  useReportSummaryEmptyRender,
+  useReportSummaryEmptyRenderOnParent,
+} from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -45,6 +53,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
   const pdfModeActive = usePdfModeActive();
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
 
   const isSmall = isMobile && !pdfModeActive;
 
@@ -59,12 +68,13 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
         tableSections.push(
           <Table.Body key={`tbody-${index}`}>
             {currentBodyRows.map((bodyRow, bodyIndex) => (
-              <SummaryGridRowRenderer
-                key={bodyIndex}
-                row={bodyRow}
-                mutableColumnSettings={columnSettings}
-                node={componentNode}
-              />
+              <EmptyChildrenProvider key={bodyIndex}>
+                <SummaryGridRowRenderer
+                  row={bodyRow}
+                  mutableColumnSettings={columnSettings}
+                  node={componentNode}
+                />
+              </EmptyChildrenProvider>
             ))}
           </Table.Body>,
         );
@@ -73,13 +83,14 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
       // Add the header row
       tableSections.push(
         <Table.Head key={`thead-${index}`}>
-          <SummaryGridRowRenderer
-            key={index}
-            row={row}
-            mutableColumnSettings={columnSettings}
-            node={componentNode}
-            headerRow={currentHeaderRow}
-          />
+          <EmptyChildrenProvider key={index}>
+            <SummaryGridRowRenderer
+              row={row}
+              mutableColumnSettings={columnSettings}
+              node={componentNode}
+              headerRow={currentHeaderRow}
+            />
+          </EmptyChildrenProvider>
         </Table.Head>,
       );
       currentHeaderRow = row;
@@ -94,46 +105,49 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
     tableSections.push(
       <tbody key={`tbody-${rowsInternal.length}`}>
         {currentBodyRows.map((bodyRow, bodyIndex) => (
-          <SummaryGridRowRenderer
-            key={bodyIndex}
-            row={bodyRow}
-            mutableColumnSettings={columnSettings}
-            node={componentNode}
-            headerRow={currentHeaderRow}
-          />
+          <EmptyChildrenProvider key={bodyIndex}>
+            <SummaryGridRowRenderer
+              row={bodyRow}
+              mutableColumnSettings={columnSettings}
+              node={componentNode}
+              headerRow={currentHeaderRow}
+            />
+          </EmptyChildrenProvider>
         ))}
       </tbody>,
     );
   }
 
   return (
-    <Table
-      id={componentNode.id}
-      className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
-      data-testid={`summary-${componentNode.id}`}
-    >
-      {title && (
-        <caption className={classes.tableCaption}>
-          <Heading
-            size='xs'
-            level={4}
-          >
-            <Lang
-              id={title}
-              node={componentNode}
-            />
-          </Heading>
-        </caption>
-      )}
-      {tableSections}
-    </Table>
+    <HideWhenAllChildrenEmpty when={hideEmptyFields}>
+      <Table
+        id={componentNode.id}
+        className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
+        data-testid={`summary-${componentNode.id}`}
+      >
+        {title && (
+          <caption className={classes.tableCaption}>
+            <Heading
+              size='xs'
+              level={4}
+            >
+              <Lang
+                id={title}
+                node={componentNode}
+              />
+            </Heading>
+          </caption>
+        )}
+        {tableSections}
+      </Table>
+    </HideWhenAllChildrenEmpty>
   );
 };
 
 interface GridRowProps {
   row: GridRowInternal;
   mutableColumnSettings: ITableColumnFormatting;
-  node: LayoutNode;
+  node: LayoutNode<'Grid'>;
   headerRow?: GridRowInternal;
 }
 
@@ -141,46 +155,50 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   const { row } = props;
   const isMobile = useIsMobile();
   const isHiddenSelector = Hidden.useIsHiddenSelector();
-
   const pdfModeActive = usePdfModeActive();
-
   const isSmall = isMobile && !pdfModeActive;
-
   const firstNodeId = useFirstFormNodeId(row);
+
+  const onlyEmptyChildren = useHasOnlyEmptyChildren();
+  const isHeaderWithoutComponents = !!(row.header && row.cells.every((cell) => !cell || !('nodeId' in cell)));
+  const hideEmptyRows = useSummaryOverrides(props.node)?.hideEmptyRows;
+  useReportSummaryEmptyRenderOnParent(onlyEmptyChildren || isHeaderWithoutComponents);
 
   if (isGridRowHidden(row, isHiddenSelector)) {
     return null;
   }
 
   return (
-    <SummaryInternalRow readOnly={row.readOnly}>
-      {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
-        <SummaryCell
-          key={cellIdx}
-          cell={cell}
-          idx={cellIdx}
-          isSmall={isSmall}
-          {...props}
-        />
-      ))}
-      {!pdfModeActive && row.header && !isSmall && (
-        <Table.HeaderCell>
-          <span className={classes.visuallyHidden}>
-            <Lang id='general.edit' />
-          </span>
-        </Table.HeaderCell>
-      )}
-      {!pdfModeActive && !row.header && !isSmall && (
-        <Table.Cell align='right'>
-          {firstNodeId && !row.readOnly && (
-            <WrappedEditButton
-              componentNodeId={firstNodeId}
-              summaryComponentId=''
-            />
-          )}
-        </Table.Cell>
-      )}
-    </SummaryInternalRow>
+    <HideWhenAllChildrenEmpty when={hideEmptyRows}>
+      <SummaryInternalRow readOnly={row.readOnly}>
+        {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
+          <SummaryCell
+            key={cellIdx}
+            cell={cell}
+            idx={cellIdx}
+            isSmall={isSmall}
+            {...props}
+          />
+        ))}
+        {!pdfModeActive && row.header && !isSmall && (
+          <Table.HeaderCell>
+            <span className={classes.visuallyHidden}>
+              <Lang id='general.edit' />
+            </span>
+          </Table.HeaderCell>
+        )}
+        {!pdfModeActive && !row.header && !isSmall && (
+          <Table.Cell align='right'>
+            {firstNodeId && !row.readOnly && (
+              <WrappedEditButton
+                componentNodeId={firstNodeId}
+                summaryComponentId=''
+              />
+            )}
+          </Table.Cell>
+        )}
+      </SummaryInternalRow>
+    </HideWhenAllChildrenEmpty>
   );
 }
 
@@ -369,6 +387,8 @@ function SummaryCellWithComponent({
   const isHidden = Hidden.useIsHidden(node);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { textResourceBindings } = useNodeItem(node) ?? {};
+  const content = getComponentCellData(node, displayData, textResourceBindings);
+  useReportSummaryEmptyRender(typeof content === 'string' && content.trim() === '');
 
   if (isHidden) {
     return <CellComponent />;
@@ -381,7 +401,7 @@ function SummaryCellWithComponent({
       data-header-title={isSmall ? headerTitle : ''}
     >
       <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
-        {getComponentCellData(node, displayData, textResourceBindings)}
+        {content}
         {isSmall && !rowReadOnly && (
           <EditButton
             className={classes.mobileEditButton}
