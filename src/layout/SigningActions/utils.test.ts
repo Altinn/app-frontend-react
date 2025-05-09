@@ -174,6 +174,13 @@ describe('getCurrentUserStatus', () => {
         currentUserPartyId: 123,
         userSignees: [signedSignee, signedOrgSignee],
         canSign: true,
+        expected: 'signed',
+      },
+      {
+        description: 'No matching signee current user person is not in the list',
+        currentUserPartyId: 123,
+        userSignees: [],
+        canSign: true,
         expected: 'awaitingSignature',
       },
       {
