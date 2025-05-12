@@ -1,0 +1,11 @@
+.greyedOut,
+.greyedOut * {
+  background-color: #dfdfdf !important;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+}

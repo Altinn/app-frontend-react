@@ -23,7 +23,6 @@ import {
   HideWhenAllChildrenEmpty,
   useHasOnlyEmptyChildren,
   useReportSummaryEmptyRender,
-  useReportSummaryEmptyRenderOnParent,
 } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummary, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
@@ -121,10 +120,10 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   return (
     <HideWhenAllChildrenEmpty
       when={hideEmptyFields}
-      render={(style) => (
+      render={(className) => (
         <SummaryFlex
           target={componentNode}
-          style={style}
+          className={className}
         >
           <Table
             id={componentNode.id}
@@ -170,7 +169,7 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   const onlyEmptyChildren = useHasOnlyEmptyChildren();
   const isHeaderWithoutComponents = !!(row.header && row.cells.every((cell) => !cell || !('nodeId' in cell)));
   const hideEmptyRows = useSummaryOverrides(props.node)?.hideEmptyRows;
-  useReportSummaryEmptyRenderOnParent(onlyEmptyChildren || isHeaderWithoutComponents);
+  useReportSummaryEmptyRender(onlyEmptyChildren || isHeaderWithoutComponents);
 
   if (isGridRowHidden(row, isHiddenSelector)) {
     return null;
@@ -179,10 +178,10 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   return (
     <HideWhenAllChildrenEmpty
       when={hideEmptyRows}
-      render={(style) => (
+      render={(className) => (
         <SummaryInternalRow
           readOnly={row.readOnly}
-          style={style}
+          className={className}
         >
           {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
             <SummaryCell
@@ -249,31 +248,17 @@ function WrappedEditButton({
 }
 
 interface InternalRowProps extends PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>> {
-  style: React.CSSProperties;
+  className: string;
 }
 
-function SummaryInternalRow({ header, readOnly, children, style }: InternalRowProps) {
-  const className = readOnly ? classes.rowReadOnly : undefined;
+function SummaryInternalRow({ header, readOnly, children, className }: InternalRowProps) {
+  const extraClassName = readOnly ? classes.rowReadOnly : undefined;
 
   if (header) {
-    return (
-      <Table.Row
-        className={className}
-        style={style}
-      >
-        {children}
-      </Table.Row>
-    );
+    return <Table.Row className={cn(className, extraClassName)}>{children}</Table.Row>;
   }
 
-  return (
-    <Table.Row
-      className={className}
-      style={style}
-    >
-      {children}
-    </Table.Row>
-  );
+  return <Table.Row className={cn(className, extraClassName)}>{children}</Table.Row>;
 }
 
 function useHeaderText(headerRow: GridRowInternal | undefined, cellIdx: number) {

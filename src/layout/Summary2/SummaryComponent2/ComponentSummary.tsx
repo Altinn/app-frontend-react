@@ -60,19 +60,20 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
 
 interface SummaryFlexProps extends PropsWithChildren {
   target: LayoutNode;
-  style?: React.CSSProperties;
+  className?: string;
 }
 
-export function SummaryFlex({ target, style, children }: SummaryFlexProps) {
+export function SummaryFlex({ target, className, children }: SummaryFlexProps) {
   const pageBreak = useNodeItem(target, (i) => i.pageBreak);
   const grid = useNodeItem(target, (i) => i.grid);
 
   return (
     <Flex
       item
-      className={cn(pageBreakStyles(pageBreak), classes.summaryItem)}
+      className={cn(pageBreakStyles(pageBreak), classes.summaryItem, className)}
       size={grid}
-      style={style}
+      data-summary-target={target.id}
+      data-summary-target-type={target.type}
     >
       {children}
     </Flex>

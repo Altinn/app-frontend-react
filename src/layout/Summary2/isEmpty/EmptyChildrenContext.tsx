@@ -1,6 +1,9 @@
 import React, { createContext, useEffect, useState } from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
+import classes from 'src/layout/Summary2/isEmpty/emptyChildren.module.css';
+
 export interface EmptyChildrenContext {
   parent?: EmptyChildrenContext;
   empty: number;
@@ -51,56 +54,48 @@ export function useHasOnlyEmptyChildren() {
 
 interface HideWhenAllChildrenEmptyProps extends PropsWithChildren {
   when?: boolean;
-  render?: (style: React.CSSProperties) => JSX.Element;
+  render?: (className: string) => JSX.Element;
 }
 
 export function HideWhenAllChildrenEmpty({ children, when, render }: HideWhenAllChildrenEmptyProps) {
+  const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
 
-  if (hasOnlyEmptyChildren && (when === undefined || when)) {
+  if (hasOnlyEmptyChildren && (when === undefined || when) && hiddenOverride !== 'show') {
     // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
     // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
     // could never report changes and go from being empty to not being empty anymore.
-    if (render) {
-      return render({ display: 'none', visibility: 'hidden' });
+
+    if (hiddenOverride === 'disabled') {
+      return render ? render(classes.greyedOut) : <div className={classes.greyedOut}>{children}</div>;
     }
-    return <div style={{ display: 'none', visibility: 'hidden' }}>{children}</div>;
+
+    return render ? render(classes.hidden) : <div className={classes.hidden}>{children}</div>;
   }
 
-  if (render) {
-    return render({});
-  }
-
-  return <div>{children}</div>;
+  return render ? render(classes.visible) : <div className={classes.visible}>{children}</div>;
 }
 
 function useMarkRendering(ctx: EmptyChildrenContext | undefined, isEmpty: boolean) {
   const setNumEmpty = ctx?.setNumEmpty;
   const setNumNotEmpty = ctx?.setNumNotEmpty;
 
-  // Using setTimeout instead of useEffect because it's faster and will have a better chance to set this state before
-  // rendering has finished. By setting this state earlier, we get a chance to add more to the render queue and delay
-  // the flush to DOM, which makes sure we reach the correct state before rendering the PDF.
-  setTimeout(() => {
+  useEffect(() => {
     if (isEmpty) {
       setNumEmpty?.((e) => e + 1);
     } else {
       setNumNotEmpty?.((e) => e + 1);
     }
-  }, 4);
 
-  useEffect(
-    () =>
-      // Revert changes when unmounting, in case data changes
-      () => {
-        if (isEmpty) {
-          setNumEmpty?.((e) => e - 1);
-        } else {
-          setNumNotEmpty?.((e) => e - 1);
-        }
-      },
-    [setNumEmpty, setNumNotEmpty, isEmpty],
-  );
+    // Revert changes when unmounting, in case data changes
+    return () => {
+      if (isEmpty) {
+        setNumEmpty?.((e) => e - 1);
+      } else {
+        setNumNotEmpty?.((e) => e - 1);
+      }
+    };
+  }, [setNumEmpty, setNumNotEmpty, isEmpty]);
 }
 
 export function useReportSummaryEmptyRender(isEmpty: boolean) {
