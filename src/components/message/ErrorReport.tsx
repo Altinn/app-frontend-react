@@ -39,20 +39,23 @@ export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
   return (
     <ErrorReportContext.Provider value={true}>
       <FullWidthWrapper isOnBottom={true}>
-        <ErrorSummary data-testid='ErrorReport'>
+        <ErrorSummary
+          data-testid='ErrorReport'
+          className={classes.errorSummary}
+        >
           <Flex
             container
             item
             spacing={6}
             alignItems='flex-start'
           >
-            <ErrorSummary.Heading>
-              <Lang id='form_filler.error_report_header' />
-            </ErrorSummary.Heading>
             <Flex
               item
               size={{ xs: 12 }}
             >
+              <ErrorSummary.Heading>
+                <Lang id='form_filler.error_report_header' />
+              </ErrorSummary.Heading>
               <ErrorSummary.List className={classes.errorList}>{errors}</ErrorSummary.List>
             </Flex>
             {children}
