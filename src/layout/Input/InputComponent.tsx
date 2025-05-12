@@ -13,7 +13,6 @@ import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
-import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
@@ -76,7 +75,6 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     setValue,
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const { langAsString } = useLanguage();
-  const characterLimit = useCharacterLimit(maxLength);
 
   const [localValue, setLocalValue] = React.useState<string | undefined>(undefined);
   const formValue = localValue ?? realFormValue;
