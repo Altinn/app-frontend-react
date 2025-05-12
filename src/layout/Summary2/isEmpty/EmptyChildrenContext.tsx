@@ -1,5 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import type { FunctionComponent, PropsWithChildren } from 'react';
+import type { JSX, PropsWithChildren } from 'react';
 
 export interface EmptyChildrenContext {
   parent?: EmptyChildrenContext;
@@ -51,47 +51,56 @@ export function useHasOnlyEmptyChildren() {
 
 interface HideWhenAllChildrenEmptyProps extends PropsWithChildren {
   when?: boolean;
-  tag?: FunctionComponent<{ style?: React.CSSProperties }>;
+  render?: (style: React.CSSProperties) => JSX.Element;
 }
 
-export function HideWhenAllChildrenEmpty({ children, when, tag }: HideWhenAllChildrenEmptyProps) {
+export function HideWhenAllChildrenEmpty({ children, when, render }: HideWhenAllChildrenEmptyProps) {
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
 
-  // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
-  // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
-  // could never report changes and go from being empty to not being empty anymore.
-
-  if (hasOnlyEmptyChildren && (when === undefined || when) && !tag) {
-    return <div style={{ display: 'none' }}>{children}</div>;
+  if (hasOnlyEmptyChildren && (when === undefined || when)) {
+    // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
+    // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
+    // could never report changes and go from being empty to not being empty anymore.
+    if (render) {
+      return render({ display: 'none', visibility: 'hidden' });
+    }
+    return <div style={{ display: 'none', visibility: 'hidden' }}>{children}</div>;
   }
 
-  if (hasOnlyEmptyChildren && (when === undefined || when) && tag) {
-    return React.createElement(tag, { style: { display: 'none' } }, children);
+  if (render) {
+    return render({});
   }
 
-  return children;
+  return <div>{children}</div>;
 }
 
 function useMarkRendering(ctx: EmptyChildrenContext | undefined, isEmpty: boolean) {
   const setNumEmpty = ctx?.setNumEmpty;
   const setNumNotEmpty = ctx?.setNumNotEmpty;
 
-  useEffect(() => {
+  // Using setTimeout instead of useEffect because it's faster and will have a better chance to set this state before
+  // rendering has finished. By setting this state earlier, we get a chance to add more to the render queue and delay
+  // the flush to DOM, which makes sure we reach the correct state before rendering the PDF.
+  setTimeout(() => {
     if (isEmpty) {
       setNumEmpty?.((e) => e + 1);
     } else {
       setNumNotEmpty?.((e) => e + 1);
     }
+  }, 4);
 
-    // Revert changes when unmounting, in case data changes
-    return () => {
-      if (isEmpty) {
-        setNumEmpty?.((e) => e - 1);
-      } else {
-        setNumNotEmpty?.((e) => e - 1);
-      }
-    };
-  }, [setNumEmpty, setNumNotEmpty, isEmpty]);
+  useEffect(
+    () =>
+      // Revert changes when unmounting, in case data changes
+      () => {
+        if (isEmpty) {
+          setNumEmpty?.((e) => e - 1);
+        } else {
+          setNumNotEmpty?.((e) => e - 1);
+        }
+      },
+    [setNumEmpty, setNumNotEmpty, isEmpty],
+  );
 }
 
 export function useReportSummaryEmptyRender(isEmpty: boolean) {

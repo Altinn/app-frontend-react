@@ -119,28 +119,32 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   }
 
   return (
-    <HideWhenAllChildrenEmpty when={hideEmptyFields}>
-      <Table
-        id={componentNode.id}
-        className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
-        data-testid={`summary-${componentNode.id}`}
-      >
-        {title && (
-          <caption className={classes.tableCaption}>
-            <Heading
-              size='xs'
-              level={4}
-            >
-              <Lang
-                id={title}
-                node={componentNode}
-              />
-            </Heading>
-          </caption>
-        )}
-        {tableSections}
-      </Table>
-    </HideWhenAllChildrenEmpty>
+    <HideWhenAllChildrenEmpty
+      when={hideEmptyFields}
+      render={(style) => (
+        <Table
+          id={componentNode.id}
+          className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
+          data-testid={`summary-${componentNode.id}`}
+          style={style}
+        >
+          {title && (
+            <caption className={classes.tableCaption}>
+              <Heading
+                size='xs'
+                level={4}
+              >
+                <Lang
+                  id={title}
+                  node={componentNode}
+                />
+              </Heading>
+            </caption>
+          )}
+          {tableSections}
+        </Table>
+      )}
+    />
   );
 };
 
@@ -169,36 +173,42 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   }
 
   return (
-    <HideWhenAllChildrenEmpty when={hideEmptyRows}>
-      <SummaryInternalRow readOnly={row.readOnly}>
-        {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
-          <SummaryCell
-            key={cellIdx}
-            cell={cell}
-            idx={cellIdx}
-            isSmall={isSmall}
-            {...props}
-          />
-        ))}
-        {!pdfModeActive && row.header && !isSmall && (
-          <Table.HeaderCell>
-            <span className={classes.visuallyHidden}>
-              <Lang id='general.edit' />
-            </span>
-          </Table.HeaderCell>
-        )}
-        {!pdfModeActive && !row.header && !isSmall && (
-          <Table.Cell align='right'>
-            {firstNodeId && !row.readOnly && (
-              <WrappedEditButton
-                componentNodeId={firstNodeId}
-                summaryComponentId=''
-              />
-            )}
-          </Table.Cell>
-        )}
-      </SummaryInternalRow>
-    </HideWhenAllChildrenEmpty>
+    <HideWhenAllChildrenEmpty
+      when={hideEmptyRows}
+      render={(style) => (
+        <SummaryInternalRow
+          readOnly={row.readOnly}
+          style={style}
+        >
+          {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
+            <SummaryCell
+              key={cellIdx}
+              cell={cell}
+              idx={cellIdx}
+              isSmall={isSmall}
+              {...props}
+            />
+          ))}
+          {!pdfModeActive && row.header && !isSmall && (
+            <Table.HeaderCell>
+              <span className={classes.visuallyHidden}>
+                <Lang id='general.edit' />
+              </span>
+            </Table.HeaderCell>
+          )}
+          {!pdfModeActive && !row.header && !isSmall && (
+            <Table.Cell align='right'>
+              {firstNodeId && !row.readOnly && (
+                <WrappedEditButton
+                  componentNodeId={firstNodeId}
+                  summaryComponentId=''
+                />
+              )}
+            </Table.Cell>
+          )}
+        </SummaryInternalRow>
+      )}
+    />
   );
 }
 
@@ -234,16 +244,32 @@ function WrappedEditButton({
   );
 }
 
-type InternalRowProps = PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>>;
+interface InternalRowProps extends PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>> {
+  style: React.CSSProperties;
+}
 
-function SummaryInternalRow({ header, readOnly, children }: InternalRowProps) {
+function SummaryInternalRow({ header, readOnly, children, style }: InternalRowProps) {
   const className = readOnly ? classes.rowReadOnly : undefined;
 
   if (header) {
-    return <Table.Row className={className}>{children}</Table.Row>;
+    return (
+      <Table.Row
+        className={className}
+        style={style}
+      >
+        {children}
+      </Table.Row>
+    );
   }
 
-  return <Table.Row className={className}>{children}</Table.Row>;
+  return (
+    <Table.Row
+      className={className}
+      style={style}
+    >
+      {children}
+    </Table.Row>
+  );
 }
 
 function useHeaderText(headerRow: GridRowInternal | undefined, cellIdx: number) {
