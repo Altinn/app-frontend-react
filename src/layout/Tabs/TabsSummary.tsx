@@ -4,7 +4,7 @@ import { Heading } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
-import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummaryById, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import classes from 'src/layout/Tabs/TabsSummary.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
@@ -22,46 +22,48 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
   }
 
   return (
-    <div
-      className={classes.summaryContent}
-      data-testid='summary-tabs-component'
-    >
-      {tabs.map((tab, index) => (
-        <div key={index}>
-          {index != 0 && (
-            <hr
-              key={`${tab.title}-${index}-divider`}
-              className={classes.tabDivider}
-            />
-          )}
-          <div
-            key={`${tab.title}-${index}`}
-            className={classes.tabWrapper}
-          >
-            <Heading
-              size='xs'
-              level={4}
-            >
-              <Lang
-                id={tab.title}
-                node={componentNode}
+    <SummaryFlex target={componentNode}>
+      <div
+        className={classes.summaryContent}
+        data-testid='summary-tabs-component'
+      >
+        {tabs.map((tab, index) => (
+          <div key={index}>
+            {index != 0 && (
+              <hr
+                key={`${tab.title}-${index}-divider`}
+                className={classes.tabDivider}
               />
-            </Heading>
-            <Flex
-              container
-              spacing={6}
-              alignItems='flex-start'
+            )}
+            <div
+              key={`${tab.title}-${index}`}
+              className={classes.tabWrapper}
             >
-              {tab.childIds.filter(typedBoolean).map((nodeId) => (
-                <ComponentSummaryById
-                  key={nodeId}
-                  componentId={nodeId}
+              <Heading
+                size='xs'
+                level={4}
+              >
+                <Lang
+                  id={tab.title}
+                  node={componentNode}
                 />
-              ))}
-            </Flex>
+              </Heading>
+              <Flex
+                container
+                spacing={6}
+                alignItems='flex-start'
+              >
+                {tab.childIds.filter(typedBoolean).map((nodeId) => (
+                  <ComponentSummaryById
+                    key={nodeId}
+                    componentId={nodeId}
+                  />
+                ))}
+              </Flex>
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </SummaryFlex>
   );
 };

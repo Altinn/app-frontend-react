@@ -25,7 +25,7 @@ import {
   useReportSummaryEmptyRender,
   useReportSummaryEmptyRenderOnParent,
 } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummary, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -122,27 +122,31 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
     <HideWhenAllChildrenEmpty
       when={hideEmptyFields}
       render={(style) => (
-        <Table
-          id={componentNode.id}
-          className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
-          data-testid={`summary-${componentNode.id}`}
+        <SummaryFlex
+          target={componentNode}
           style={style}
         >
-          {title && (
-            <caption className={classes.tableCaption}>
-              <Heading
-                size='xs'
-                level={4}
-              >
-                <Lang
-                  id={title}
-                  node={componentNode}
-                />
-              </Heading>
-            </caption>
-          )}
-          {tableSections}
-        </Table>
+          <Table
+            id={componentNode.id}
+            className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
+            data-testid={`summary-${componentNode.id}`}
+          >
+            {title && (
+              <caption className={classes.tableCaption}>
+                <Heading
+                  size='xs'
+                  level={4}
+                >
+                  <Lang
+                    id={title}
+                    node={componentNode}
+                  />
+                </Heading>
+              </caption>
+            )}
+            {tableSections}
+          </Table>
+        </SummaryFlex>
       )}
     />
   );

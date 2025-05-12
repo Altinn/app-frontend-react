@@ -1,4 +1,5 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
 import cn from 'classnames';
 
@@ -39,8 +40,6 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const isRequired = useNodeItem(componentNode, (i) => ('required' in i ? i.required : false));
   const forceShowInSummary = useNodeItem(componentNode, (i) => i['forceShowInSummary']);
-  const pageBreak = useNodeItem(componentNode, (i) => i.pageBreak);
-  const grid = useNodeItem(componentNode, (i) => i.grid);
   const isHidden = Hidden.useIsHidden(componentNode);
   const def = getComponentDef(componentNode.type);
 
@@ -56,13 +55,26 @@ export function ComponentSummary<T extends CompTypes>({ componentNode }: Compone
     return null;
   }
 
+  return renderedComponent;
+}
+
+interface SummaryFlexProps extends PropsWithChildren {
+  target: LayoutNode;
+  style?: React.CSSProperties;
+}
+
+export function SummaryFlex({ target, style, children }: SummaryFlexProps) {
+  const pageBreak = useNodeItem(target, (i) => i.pageBreak);
+  const grid = useNodeItem(target, (i) => i.grid);
+
   return (
     <Flex
       item
       className={cn(pageBreakStyles(pageBreak), classes.summaryItem)}
       size={grid}
+      style={style}
     >
-      {renderedComponent}
+      {children}
     </Flex>
   );
 }

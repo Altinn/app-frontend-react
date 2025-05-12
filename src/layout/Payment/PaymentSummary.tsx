@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { PaymentReceiptDetails } from 'src/layout/Payment/PaymentReceiptDetails/PaymentReceiptDetails';
+import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -10,5 +11,10 @@ export type PaymentSummaryProps = {
 
 export function PaymentSummary({ componentNode }: PaymentSummaryProps) {
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  return <PaymentReceiptDetails title={title} />;
+
+  return (
+    <SummaryFlex target={componentNode}>
+      <PaymentReceiptDetails title={title} />
+    </SummaryFlex>
+  );
 }

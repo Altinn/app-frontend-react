@@ -13,7 +13,7 @@ import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.mo
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { HideWhenAllChildrenEmpty } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
-import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummaryById, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -37,90 +37,114 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
 
   if (rows.length === 0) {
     return (
-      <HideWhenAllChildrenEmpty when={hideEmptyFields}>
-        <SingleValueSummary
-          title={
-            <Lang
-              id={title}
-              node={componentNode}
+      <HideWhenAllChildrenEmpty
+        when={hideEmptyFields}
+        render={(style) => (
+          <SummaryFlex
+            target={target}
+            style={style}
+          >
+            <SingleValueSummary
+              title={
+                <Lang
+                  id={title}
+                  node={componentNode}
+                />
+              }
+              componentNode={componentNode}
+              errors={errors}
+              isCompact={isCompact}
+              emptyFieldText={overrides?.emptyFieldText}
             />
-          }
-          componentNode={componentNode}
-          errors={errors}
-          isCompact={isCompact}
-          emptyFieldText={overrides?.emptyFieldText}
-        />
-      </HideWhenAllChildrenEmpty>
+          </SummaryFlex>
+        )}
+      />
     );
   }
 
   if (display === 'table' && componentNode) {
     return (
-      <HideWhenAllChildrenEmpty when={hideEmptyFields}>
-        <RepeatingGroupTableSummary componentNode={componentNode} />
-      </HideWhenAllChildrenEmpty>
+      <HideWhenAllChildrenEmpty
+        when={hideEmptyFields}
+        render={(style) => (
+          <SummaryFlex
+            target={target}
+            style={style}
+          >
+            <RepeatingGroupTableSummary componentNode={componentNode} />
+          </SummaryFlex>
+        )}
+      />
     );
   }
 
   return (
-    <HideWhenAllChildrenEmpty when={hideEmptyFields}>
-      <div
-        className={cn(classes.summaryWrapper, { [classes.nestedSummaryWrapper]: isNested })}
-        data-testid='summary-repeating-group-component'
-      >
-        <Heading
-          size='xs'
-          level={4}
+    <HideWhenAllChildrenEmpty
+      when={hideEmptyFields}
+      render={(style) => (
+        <SummaryFlex
+          target={target}
+          style={style}
         >
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        </Heading>
-        <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
-          {rows.map((row) => {
-            if (!row) {
-              return null;
-            }
-
-            return (
-              <DataModelLocationProvider
-                key={row?.uuid}
-                groupBinding={dataModelBindings.group}
-                rowIndex={row.index}
-              >
-                {row.index != 0 && <hr className={classes.rowDivider} />}
-                <Flex
-                  key={row?.uuid}
-                  container
-                  spacing={6}
-                  alignItems='flex-start'
-                >
-                  {row?.itemIds?.map((nodeId) => (
-                    <ComponentSummaryById
-                      key={nodeId}
-                      componentId={nodeId}
-                    />
-                  ))}
-                </Flex>
-              </DataModelLocationProvider>
-            );
-          })}
-        </div>
-        {errors?.map(({ message }) => (
-          <ErrorMessage
-            key={message.key}
-            className={classes.errorMessage}
+          <div
+            className={cn(classes.summaryWrapper, { [classes.nestedSummaryWrapper]: isNested })}
+            data-testid='summary-repeating-group-component'
           >
-            <ExclamationmarkTriangleIcon fontSize='1.5rem' />
-            <Lang
-              id={message.key}
-              params={message.params}
-              node={componentNode}
-            />
-          </ErrorMessage>
-        ))}
-      </div>
-    </HideWhenAllChildrenEmpty>
+            <Heading
+              size='xs'
+              level={4}
+            >
+              <Lang
+                id={title}
+                node={componentNode}
+              />
+            </Heading>
+            <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
+              {rows.map((row) => {
+                if (!row) {
+                  return null;
+                }
+
+                return (
+                  <DataModelLocationProvider
+                    key={row?.uuid}
+                    groupBinding={dataModelBindings.group}
+                    rowIndex={row.index}
+                  >
+                    {row.index != 0 && <hr className={classes.rowDivider} />}
+                    <Flex
+                      key={row?.uuid}
+                      container
+                      spacing={6}
+                      alignItems='flex-start'
+                    >
+                      {row?.itemIds?.map((nodeId) => (
+                        <ComponentSummaryById
+                          key={nodeId}
+                          componentId={nodeId}
+                        />
+                      ))}
+                    </Flex>
+                  </DataModelLocationProvider>
+                );
+              })}
+            </div>
+            {errors?.map(({ message }) => (
+              <ErrorMessage
+                key={message.key}
+                className={classes.errorMessage}
+              >
+                <ExclamationmarkTriangleIcon fontSize='1.5rem' />
+                <Lang
+                  id={message.key}
+                  params={message.params}
+                  node={componentNode}
+                />
+              </ErrorMessage>
+            ))}
+          </div>
+        </SummaryFlex>
+      )}
+    />
   );
 };

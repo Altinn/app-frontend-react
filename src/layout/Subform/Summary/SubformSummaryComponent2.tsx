@@ -18,6 +18,7 @@ import {
   useSubformFormData,
 } from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
+import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { useSummaryOverrides } from 'src/layout/Summary2/summaryStoreContext';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -146,18 +147,23 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
       .map((data) => data.layout.id),
   );
 
-  if (displayType === 'table' && target) {
-    return <SubformSummaryTable targetNode={target} />;
+  const inner =
+    displayType === 'table' && target ? (
+      <SubformSummaryTable targetNode={target} />
+    ) : (
+      <>
+        {allOrOneSubformId.map((childId, idx) => (
+          <SummarySubformWrapper
+            key={idx}
+            nodeId={childId}
+          />
+        ))}
+      </>
+    );
+
+  if (target) {
+    return <SummaryFlex target={target}>{inner}</SummaryFlex>;
   }
 
-  return (
-    <>
-      {allOrOneSubformId.map((childId, idx) => (
-        <SummarySubformWrapper
-          key={idx}
-          nodeId={childId}
-        />
-      ))}
-    </>
-  );
+  return inner;
 }

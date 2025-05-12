@@ -5,9 +5,10 @@ import cn from 'classnames';
 import type { HeadingProps } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
+import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummary, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -65,34 +66,39 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupCompone
   const childComponents = useNodeItem(componentNode, (i) => i.childComponents);
 
   return (
-    <section
-      className={cn(classes.groupContainer, { [classes.nested]: isNestedGroup })}
-      data-testid={dataTestId}
+    <ConditionalWrapper
+      condition={hierarchyLevel === 0}
+      wrapper={(children) => <SummaryFlex target={componentNode}>{children}</SummaryFlex>}
     >
-      {(summaryTitle || title) && (
-        <Heading
-          size={isNestedGroup ? 'xsmall' : 'small'}
-          level={headingLevel}
-        >
-          <Lang
-            id={summaryTitle ?? title}
-            node={componentNode}
-          />
-        </Heading>
-      )}
-      <Flex
-        container
-        spacing={6}
-        alignItems='flex-start'
+      <section
+        className={cn(classes.groupContainer, { [classes.nested]: isNestedGroup })}
+        data-testid={dataTestId}
       >
-        {childComponents.map((childId) => (
-          <ChildComponent
-            key={childId}
-            id={childId}
-            hierarchyLevel={hierarchyLevel}
-          />
-        ))}
-      </Flex>
-    </section>
+        {(summaryTitle || title) && (
+          <Heading
+            size={isNestedGroup ? 'xsmall' : 'small'}
+            level={headingLevel}
+          >
+            <Lang
+              id={summaryTitle ?? title}
+              node={componentNode}
+            />
+          </Heading>
+        )}
+        <Flex
+          container
+          spacing={6}
+          alignItems='flex-start'
+        >
+          {childComponents.map((childId) => (
+            <ChildComponent
+              key={childId}
+              id={childId}
+              hierarchyLevel={hierarchyLevel}
+            />
+          ))}
+        </Flex>
+      </section>
+    </ConditionalWrapper>
   );
 };
