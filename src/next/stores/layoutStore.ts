@@ -9,7 +9,7 @@ import { evaluateExpression } from 'src/next/app/expressions/evaluateExpression'
 import { isFormComponentProps } from 'src/next/app/hooks/useValidateComponent';
 import { moveChildren } from 'src/next/app/utils/moveChildren';
 import type { Expression, ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
-import type { AllComponents, ILayoutCollection } from 'src/layout/layout';
+import type { CompExternal, CompTypes, ILayoutCollection } from 'src/layout/layout';
 import type { LayoutSetsSchema } from 'src/next/types/LayoutSetsDTO';
 import type { PageOrderDTO } from 'src/next/types/PageOrderDTO';
 import type { ProcessSchema } from 'src/next/types/ProcessDTO';
@@ -18,7 +18,7 @@ export interface DataObject {
   [key: string]: string | null | object | DataObject | undefined;
 }
 
-export type ResolvedCompExternal = AllComponents & ExtraProps;
+export type ResolvedCompExternal<T extends CompTypes = CompTypes> = CompExternal<T> & ExtraProps;
 
 interface ExtraProps {
   children: ResolvedCompExternal[] | undefined;
