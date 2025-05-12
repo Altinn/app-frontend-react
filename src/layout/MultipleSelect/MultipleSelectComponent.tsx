@@ -63,39 +63,48 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     changeMessageGenerator,
   );
 
+  const [componentKey, setComponentKey] = React.useState(0);
+
+  // This is a workaround to force the component to update its internal state, when the user cancels the alert on change
+  const onCancelClick = () => {
+    cancelChange();
+    setComponentKey((prevKey) => prevKey + 1);
+  };
+
   if (isFetching) {
     return <AltinnSpinner />;
   }
 
   return (
-    <ConditionalWrapper
-      condition={Boolean(alertOnChange)}
-      wrapper={(children) => (
-        <DeleteWarningPopover
-          deleteButtonText={langAsString('form_filler.alert_confirm')}
-          messageText={alertMessage}
-          onCancelClick={cancelChange}
-          onPopoverDeleteClick={confirmChange}
-          open={alertOpen}
-          setOpen={setAlertOpen}
-        >
-          {children}
-        </DeleteWarningPopover>
-      )}
-    >
-      <Field style={{ width: '100%' }}>
-        <Label
-          htmlFor={id}
-          label={labelText}
-          grid={grid?.labelGrid}
-          required={required}
-          requiredIndicator={getRequiredComponent()}
-          optionalIndicator={getOptionalComponent()}
-          help={getHelpTextComponent()}
-          description={getDescriptionComponent()}
+    <Field style={{ width: '100%' }}>
+      <Label
+        htmlFor={id}
+        label={labelText}
+        grid={grid?.labelGrid}
+        required={required}
+        requiredIndicator={getRequiredComponent()}
+        optionalIndicator={getOptionalComponent()}
+        help={getHelpTextComponent()}
+        description={getDescriptionComponent()}
+      >
+        <ConditionalWrapper
+          condition={Boolean(alertOnChange)}
+          wrapper={(children) => (
+            <DeleteWarningPopover
+              deleteButtonText={langAsString('form_filler.alert_confirm')}
+              messageText={alertMessage}
+              onCancelClick={onCancelClick}
+              onPopoverDeleteClick={confirmChange}
+              open={alertOpen}
+              setOpen={setAlertOpen}
+            >
+              {children}
+            </DeleteWarningPopover>
+          )}
         >
           <ComponentStructureWrapper node={node}>
             <EXPERIMENTAL_MultiSuggestion
+              key={componentKey}
               id={id}
               data-testid='multiple-select-component'
               filter={optionFilter}
@@ -145,8 +154,8 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
               </EXPERIMENTAL_MultiSuggestion.List>
             </EXPERIMENTAL_MultiSuggestion>
           </ComponentStructureWrapper>
-        </Label>
-      </Field>
-    </ConditionalWrapper>
+        </ConditionalWrapper>
+      </Label>
+    </Field>
   );
 }
