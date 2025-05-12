@@ -12,6 +12,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useLabel } from 'src/utils/layout/useLabel';
@@ -23,8 +24,11 @@ export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSelectProps) {
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
-  const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
-  const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'multi');
+  const { id, readOnly, textResourceBindings, alertOnChange, grid, required, dataModelBindings } = item;
+  const { options, isFetching, selectedValues: selectedFromSimpleBinding, setData } = useGetOptions(node, 'multi');
+  const groupBinding = useSaveValueToGroup(dataModelBindings);
+  const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
+
   const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage(node);
 
@@ -43,9 +47,17 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     [lang, langAsString, options, selectedValues],
   );
 
+  const handleOnChange = (values: string[]) => {
+    if (groupBinding.enabled) {
+      groupBinding.setCheckedValues(values);
+    } else {
+      setData(values);
+    }
+  };
+
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange, alertMessage } = useAlertOnChange(
     Boolean(alertOnChange),
-    setData,
+    handleOnChange,
     // Only alert when removing values
     (values) => values.length < selectedValues.length,
     changeMessageGenerator,

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX, PropsWithChildren, ReactElement } from 'react';
 
 import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
@@ -23,20 +23,23 @@ type LabelProps = {
   style?: DesignsystemetLabelProps['style'];
 };
 
-export function Label({
-  id,
-  label,
-  htmlFor,
-  required,
-  requiredIndicator,
-  optionalIndicator,
-  help,
-  description,
-  className,
-  grid,
-  style,
-  children,
-}: PropsWithChildren<LabelProps>) {
+export const Label = forwardRef<HTMLLabelElement, PropsWithChildren<LabelProps>>(function Label(
+  {
+    id,
+    label,
+    htmlFor,
+    required,
+    requiredIndicator,
+    optionalIndicator,
+    help,
+    description,
+    className,
+    grid,
+    style,
+    children,
+  },
+  ref,
+) {
   if (!label) {
     return children;
   }
@@ -55,6 +58,7 @@ export function Label({
           <span className={classes.labelAndHelpWrapper}>
             <DesignsystemetLabel
               id={id}
+              ref={ref}
               weight='medium'
               data-size='md'
               htmlFor={htmlFor}
@@ -75,4 +79,4 @@ export function Label({
       {children}
     </Flex>
   );
-}
+});

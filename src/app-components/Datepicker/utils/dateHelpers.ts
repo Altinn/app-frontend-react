@@ -9,7 +9,7 @@ import { DateFlags } from 'src/types';
 export const DatepickerMinDateDefault = '1900-01-01T00:00:00Z';
 export const DatepickerMaxDateDefault = '2100-01-01T23:59:59Z';
 export const DatepickerFormatDefault = 'dd.MM.yyyy';
-export const PrettyDateAndTime = 'dd.MM.yyyy HH.mm.ss';
+export const PrettyDateAndTime = 'dd.MM.yyyy / HH:mm';
 
 /**
  * Moment used a non-standard format for dates, this is a work-around to prevent breaking changes
@@ -49,6 +49,26 @@ export function getDateConstraint(dateOrFlag: string | DateFlags | undefined, co
 
   if (dateOrFlag === DateFlags.Today) {
     return shiftTime(new Date());
+  }
+  if (dateOrFlag === DateFlags.Yesterday) {
+    const date = new Date();
+    date.setDate(date.getDate() - 1);
+    return shiftTime(date);
+  }
+  if (dateOrFlag === DateFlags.Tomorrow) {
+    const date = new Date();
+    date.setDate(date.getDate() + 1);
+    return shiftTime(date);
+  }
+  if (dateOrFlag === DateFlags.OneYearAgo) {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() - 1);
+    return shiftTime(date);
+  }
+  if (dateOrFlag === DateFlags.OneYearFromNow) {
+    const date = new Date();
+    date.setFullYear(date.getFullYear() + 1);
+    return shiftTime(date);
   }
 
   const date = strictParseISO(dateOrFlag);
