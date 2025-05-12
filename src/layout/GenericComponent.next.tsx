@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useStore } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { layoutStore, type ResolvedCompExternal } from 'src/next/stores/layoutStore';
@@ -68,13 +69,13 @@ function RenderInputComponent({ component }: InputComponent) {
       textResources={textResources}
       onChange={handleChange}
     />
-  ); // Placeholder for the actual input component rendering
+  );
 }
 
 function DumbInputComponent({
   data,
   textResources,
-  // onChange,
+  onChange,
 }: {
   data: ResolvedData<'Input'>;
   textResources: ResolvedTexts<'Input'>;
@@ -84,6 +85,13 @@ function DumbInputComponent({
     <div>
       <pre>data: {JSON.stringify(data, null, 2)}</pre>
       <pre>textResources: {JSON.stringify(textResources, null, 2)}</pre>
+      <input
+        type='text'
+        value={data?.simpleBinding}
+        onChange={(event) => {
+          onChange(event);
+        }}
+      />
     </div>
   );
 }
@@ -96,16 +104,20 @@ function useResolvedData<T extends CompTypes>(
   dataModelBindings: CompExternal<T>['dataModelBindings'],
 ): ResolvedData<T> {
   if (!dataModelBindings) {
-    return undefined;
+    throw new Error('no bindings');
   }
 
-  const resolvedData = {};
-
-  Object.entries(dataModelBindings).forEach(([key, value]) => {
-    resolvedData[key] = value; // TODO: Placeholder for actual data resolution logic
-  });
-
-  return resolvedData as ResolvedData<T>; // FIXME:
+  const value = useStore(
+    layoutStore,
+    useShallow((state) => {
+      const resolvedData = {};
+      Object.entries(dataModelBindings).forEach(([key, value]) => {
+        resolvedData[key] = state.data ? state.data[value] : undefined;
+      });
+      return resolvedData;
+    }),
+  );
+  return value as ResolvedData<T>; // FIXME:
 }
 
 type ResolvedTexts<T extends CompTypes> =
