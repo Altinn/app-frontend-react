@@ -58,6 +58,8 @@ export class AppFrontend {
     alert: 'div[data-testid="helptext"]',
   };
 
+  public deleteWarningPopover = 'div[data-testid="delete-warning-popover"]';
+
   public navMenu = '#navigation-menu';
   public navMenuButtons = '#navigation-menu li > button';
   public navMenuCurrent = '#navigation-menu li > button[aria-current=page]';

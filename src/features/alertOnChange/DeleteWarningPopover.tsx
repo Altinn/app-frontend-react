@@ -36,6 +36,7 @@ export function DeleteWarningPopover({
         {children}
       </Popover.Trigger>
       <Popover
+        data-testid='delete-warning-popover'
         open={open}
         placement={placement}
         data-color='warning'
