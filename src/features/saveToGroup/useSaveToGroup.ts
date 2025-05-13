@@ -26,7 +26,8 @@ function toRelativePath(group: IDataModelReference | undefined, binding: IDataMo
 function isEqual({ group, values }: Bindings, source: Row, formDataRow: Row) {
   for (const key in values) {
     const path = toRelativePath(group, values[key]);
-    if (path && source[key] !== dot.pick(path, formDataRow)) {
+
+    if (path && source[key] != dot.pick(path, formDataRow)) {
       return false;
     }
   }
