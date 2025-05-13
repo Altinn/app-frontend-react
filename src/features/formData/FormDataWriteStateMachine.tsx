@@ -422,6 +422,7 @@ function makeActions(
             const value = flatObject[path];
             setValue({ reference: { ...reference, field: fullPath }, newValue: value, state });
           }
+          debounce(state);
           return;
         }
 
