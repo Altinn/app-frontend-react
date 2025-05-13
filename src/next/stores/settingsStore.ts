@@ -1,7 +1,6 @@
 import { createStore } from 'zustand';
 import { devtools } from 'zustand/middleware';
 
-import { getComponentConfigs } from 'src/layout/components.generated';
 import { isInitialState } from 'src/next/types/InitialState/initialStateTypeChecker';
 import type { InitialState } from 'src/next/types/InitialState/InitialState';
 
@@ -32,7 +31,6 @@ export const initialStateStore = createStore<InitialState>()(
       setApplicationMetadata: (metadata) => set({ applicationMetadata: metadata }),
       setUser: (user) => set({ user }),
       setValidParties: (parties) => set({ validParties: parties }),
-      componentConfigs: getComponentConfigs(),
     }),
     { name: 'InitialStateStore' },
   ),

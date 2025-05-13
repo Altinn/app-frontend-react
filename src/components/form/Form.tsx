@@ -1,8 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 
-import { useStore } from 'zustand';
-
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
@@ -30,13 +28,10 @@ import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { RenderComponentById } from 'src/layout/GenericComponent.next';
-import { layoutStore } from 'src/next/stores/layoutStore';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
-import type { CompTypes } from 'src/layout/layout';
 import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
@@ -53,8 +48,6 @@ export function Form() {
   return <FormPage currentPageId={currentPageId} />;
 }
 
-const implementedNextComponents: CompTypes[] = ['Input'];
-
 export function FormPage({ currentPageId }: { currentPageId: string | undefined }) {
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const appName = useAppName();
@@ -62,7 +55,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const { langAsString } = useLanguage();
   const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = useFormState(currentPageId);
   const requiredFieldsMissing = NodesInternal.usePageHasVisibleRequiredValidations(currentPageId);
-  const componentMap = useStore(layoutStore, (state) => state.componentMap);
 
   useRedirectToStoredPage();
   useSetExpandedWidth();
@@ -116,16 +108,12 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
         spacing={6}
         alignItems='flex-start'
       >
-        {mainIds.map((id) => {
-          const component = componentMap?.[id];
-
-          return (
-            <React.Fragment key={id}>
-              {component && implementedNextComponents.includes(component.type) && <RenderComponentById id={id} />}
-              <GenericComponentById id={id} />
-            </React.Fragment>
-          );
-        })}
+        {mainIds.map((id) => (
+          <React.Fragment key={id}>
+            {/*{component && implementedNextComponents.includes(component.type) && <RenderComponentById id={id} />}*/}
+            <GenericComponentById id={id} />
+          </React.Fragment>
+        ))}
         <Flex
           item={true}
           size={{ xs: 12 }}

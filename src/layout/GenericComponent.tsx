@@ -1,13 +1,16 @@
 import React, { useMemo } from 'react';
 
 import classNames from 'classnames';
+import { useStore } from 'zustand/index';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
+import { RenderComponentById } from 'src/layout/GenericComponent.next';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { layoutStore } from 'src/next/stores/layoutStore';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { isDev } from 'src/utils/isDev';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
@@ -33,6 +36,8 @@ export interface IGenericComponentByIdProps<Type extends CompTypes> extends Over
   id: string;
 }
 
+const implementedNextComponents: CompTypes[] = ['Input'];
+
 /**
  * Lazily renders a component referenced by a component ID. This is useful when you want to optimize rendering
  * (for example in Form.tsx) where it's important that a component does not re-render when other nodes in the
@@ -54,6 +59,41 @@ export function GenericComponentById<Type extends CompTypes = CompTypes>(props: 
   );
 }
 
+// export function GenericComponentById<Type extends CompTypes = CompTypes>(props: IGenericComponentByIdProps<Type>) {
+//   const node = useNode(props.id);
+//
+//   const componentMap = useStore(layoutStore, (state) => state.componentMap);
+//
+//   const component = componentMap?.[props.id];
+//
+//   if (!node) {
+//     return false;
+//   }
+//
+//   console.log('component', component?.type);
+//
+//   console.log('implementedNextComponents.includes(component.type)', implementedNextComponents);
+//
+//   if (component && implementedNextComponents.includes(component.type)) {
+//     return (
+//       <>
+//         <h1>Hallo</h1>
+//         <RenderComponentById id={props.id} />
+//       </>
+//     );
+//   }
+//
+//   return (
+//     <GenericComponent
+//       node={node}
+//       overrideItemProps={props.overrideItemProps}
+//       overrideDisplay={props.overrideDisplay}
+//     />
+//   );
+// }
+//
+//
+
 function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
   node,
   overrideItemProps,
@@ -61,12 +101,33 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
 }: IGenericComponentProps<Type>) {
   const itemExists = useNodeItem(node, (i) => !!i);
   const generatorErrors = NodesInternal.useNodeData(node, (node) => node.errors);
+
+  const componentMap = useStore(layoutStore, (state) => state.componentMap);
+
+  console.log('node.id', node.id);
+
+  const component = componentMap?.[node.baseId];
+
+  console.log('component', component);
+
+  console.log('node.baseId', node.baseId);
+
+  console.log(node);
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
       <ErrorList
         node={node}
         errors={Object.keys(generatorErrors)}
       />
+    );
+  }
+
+  if (component && implementedNextComponents.includes(component.type)) {
+    return (
+      <>
+        <h1>Hallo</h1>
+        <RenderComponentById id={node.baseId} />
+      </>
     );
   }
 
