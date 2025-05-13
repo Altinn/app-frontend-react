@@ -34,7 +34,10 @@ export function ComponentSummary<T extends CompTypes>({ target }: ComponentSumma
 
 function useIsHidden<T extends CompTypes>(node: LayoutNode<T>) {
   const hiddenInOverride = useSummaryOverrides(node)?.hidden;
-  const hidden = Hidden.useIsHidden(node);
+
+  // We say that we're not respecting DevTools here, but that's just because Summary2 implements that support
+  // on its own, by also supporting 'greying out' hidden components from Summary2.
+  const hidden = Hidden.useIsHidden(node, { respectDevTools: false });
 
   return !!(hidden || hiddenInOverride);
 }
