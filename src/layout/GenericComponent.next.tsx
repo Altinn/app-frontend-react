@@ -14,10 +14,15 @@ export interface RenderComponentType {
 
   childField?: string;
   renderAsSummary?: boolean;
-  indices: number[] | undefined;
+  indices: number[];
 }
 
-export function RenderComponentById({ id, indices }: { id: string; indices }) {
+type RenderComponentByIdProps = {
+  id: string;
+  indices: number[];
+};
+
+export function RenderComponentById({ id, indices }: RenderComponentByIdProps) {
   const component = useStore(layoutStore, (state) => state.componentMap && state.componentMap[id]);
 
   if (!component) {
@@ -35,8 +40,6 @@ export function RenderComponentById({ id, indices }: { id: string; indices }) {
 export function NextGenericComponent({ component, indices }: RenderComponentType) {
   const isHidden = false;
   const renderAsSummary = false;
-
-  console.log('component', component.dataModelBindings);
 
   if (isHidden) {
     return null;
@@ -62,7 +65,7 @@ export function NextGenericComponent({ component, indices }: RenderComponentType
 
 type CommonInputProps = {
   renderAsSummary: boolean;
-  indices: number[] | undefined;
+  indices: number[];
 };
 type InputComponent = {
   component: ResolvedCompExternal<'Input'>;
@@ -115,40 +118,22 @@ type ResolvedData<T extends CompTypes> =
   | Record<keyof NonNullable<CompExternal<T>['dataModelBindings']>, string>
   | undefined;
 
-const getDataModelPath = (binding: string, itemIndex?: number) => {
-  console.log('itemIndex', itemIndex);
-
-  if (!itemIndex) {
-    return binding;
-  }
-  const splittedBinding = binding.split('.');
-
-  if (splittedBinding.length === 0) {
-    return binding;
-  }
-
-  const base = splittedBinding.slice(0, splittedBinding.length - 1).join('.');
-
-  return `${base}[${itemIndex}].${splittedBinding.at(-1)}`;
-};
-
-const getDataModelPathIndeces = (binding: string, indices?: number[]) => {
-  if (!indices) {
-    return binding;
-  }
-
+const getDataModelPathWithIndices = (binding: string, indices: number[]) => {
   if (indices.length === 0) {
     return binding;
   }
 
   const splittedBinding = binding.split('.');
 
-  return `${indices.map((index, idx) => `${splittedBinding[idx]}[${index}]`).join('.')}.${splittedBinding.at(-1)}`;
+  const indexedBinding = indices.map((index, idx) => `${splittedBinding[idx]}[${index}]`).join('.');
+  const lastSegment = splittedBinding.at(-1);
+
+  return `${indexedBinding}.${lastSegment}`;
 };
 
 function useResolvedData<T extends CompTypes>(
   dataModelBindings: CompExternal<T>['dataModelBindings'],
-  indices: number[] | undefined,
+  indices: number[],
 ): ResolvedData<T> {
   const value = useStore(
     layoutStore,
@@ -159,7 +144,7 @@ function useResolvedData<T extends CompTypes>(
 
       const resolvedData = {};
       Object.entries(dataModelBindings).forEach(([key, value]) => {
-        resolvedData[key] = state.data ? dot.pick(getDataModelPathIndeces(value, indices), state.data) : undefined;
+        resolvedData[key] = state.data ? dot.pick(getDataModelPathWithIndices(value, indices), state.data) : undefined;
       });
       return resolvedData;
     }),

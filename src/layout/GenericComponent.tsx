@@ -60,18 +60,14 @@ export function GenericComponentById<Type extends CompTypes = CompTypes>(props: 
   );
 }
 
-export const collectRowIndices = (node: LayoutNode | LayoutPage | undefined): number[] => {
-  if (!node) {
-    return [];
-  }
-
+const collectRowIndices = (node: LayoutNode | LayoutPage): number[] => {
   if (node instanceof LayoutPage) {
     return [];
   }
 
-  const here = typeof node.rowIndex === 'number' ? [node.rowIndex] : [];
+  const currentIndex = typeof node.rowIndex === 'number' ? [node.rowIndex] : [];
 
-  return [...collectRowIndices(node.parent), ...here];
+  return [...collectRowIndices(node.parent), ...currentIndex];
 };
 
 function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
