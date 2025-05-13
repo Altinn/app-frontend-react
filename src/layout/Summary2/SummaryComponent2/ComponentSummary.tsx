@@ -15,30 +15,21 @@ import type { CompTypes } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps<T extends CompTypes = CompTypes> {
-  componentNode: LayoutNode<T>;
+  target: LayoutNode<T>;
 }
 
-export function ComponentSummaryById({
-  componentId,
-  ...rest
-}: { componentId: string } & Omit<ComponentSummaryProps, 'componentNode'>) {
-  const componentNode = useNode(componentId);
-  if (!componentNode) {
+export function ComponentSummaryById({ componentId }: { componentId: string }) {
+  const target = useNode(componentId);
+  if (!target) {
     return null;
   }
 
-  return (
-    <ComponentSummary
-      componentNode={componentNode}
-      {...rest}
-    />
-  );
+  return <ComponentSummary target={target} />;
 }
 
-export function ComponentSummary<T extends CompTypes>({ componentNode }: ComponentSummaryProps<T>) {
-  const def = componentNode.def;
-  // TODO: Verify that SummaryFlex is the returned component
-  return def.renderSummary2 ? def.renderSummary2({ target: componentNode as never }) : null;
+export function ComponentSummary<T extends CompTypes>({ target }: ComponentSummaryProps<T>) {
+  const def = target.def;
+  return def.renderSummary2 ? def.renderSummary2({ target: target as never }) : null;
 }
 
 function useIsHidden<T extends CompTypes>(node: LayoutNode<T>) {

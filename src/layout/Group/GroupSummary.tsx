@@ -53,7 +53,7 @@ function ChildComponent({ id, hierarchyLevel }: ChildComponentProps) {
     );
   }
 
-  return <ComponentSummary componentNode={child} />;
+  return <ComponentSummary target={child} />;
 }
 
 export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupComponentSummaryProps) => {

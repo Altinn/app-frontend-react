@@ -509,7 +509,7 @@ function SummaryCellWithLabel({
 
 function getComponentCellData(node: LayoutNode, displayData: string, textResourceBindings?: ITextResourceBindings) {
   if (node?.type === 'Custom') {
-    return <ComponentSummary componentNode={node} />;
+    return <ComponentSummary target={node} />;
   } else if (implementsDisplayData(node.def)) {
     return displayData || '';
   } else if (textResourceBindings && 'title' in textResourceBindings) {
