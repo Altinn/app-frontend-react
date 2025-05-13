@@ -19,30 +19,30 @@ export function RenderComponentById({ id }: { id: string }) {
   const component = useStore(layoutStore, (state) => state.componentMap && state.componentMap[id]);
 
   if (!component) {
-    throw new Error('could no find component');
+    throw new Error('could not find component');
   }
 
   return <NextGenericComponent component={component} />;
 }
 
-export function NextGenericComponent(props: RenderComponentType) {
-  const isHidden = false; // TODO: Implement logic to determine if the component is hidden
-  const renderAsSummary = false; // TODO: Implement logic to determine if the component should be rendered as a summary
+export function NextGenericComponent({ component }: RenderComponentType) {
+  const isHidden = false;
+  const renderAsSummary = false;
 
   if (isHidden) {
     return null;
   }
 
-  switch (props.component.type) {
+  switch (component.type) {
     case 'Input':
       return (
         <RenderInputComponent
-          component={props.component}
+          component={component}
           renderAsSummary={renderAsSummary}
         />
       );
     default:
-      return <div>Unknown component type: {props.component.type}</div>;
+      return <div>Unknown component type: {component.type}</div>;
   }
 }
 
@@ -103,13 +103,13 @@ type ResolvedData<T extends CompTypes> =
 function useResolvedData<T extends CompTypes>(
   dataModelBindings: CompExternal<T>['dataModelBindings'],
 ): ResolvedData<T> {
-  if (!dataModelBindings) {
-    throw new Error('no bindings');
-  }
-
   const value = useStore(
     layoutStore,
     useShallow((state) => {
+      if (!dataModelBindings) {
+        return {};
+      }
+
       const resolvedData = {};
       Object.entries(dataModelBindings).forEach(([key, value]) => {
         resolvedData[key] = state.data ? state.data[value] : undefined;
@@ -117,7 +117,7 @@ function useResolvedData<T extends CompTypes>(
       return resolvedData;
     }),
   );
-  return value as ResolvedData<T>; // FIXME:
+  return value as ResolvedData<T>;
 }
 
 type ResolvedTexts<T extends CompTypes> =

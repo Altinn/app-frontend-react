@@ -2,10 +2,11 @@
 // all the polyfills we need and inject them here
 import 'core-js';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { HelmetProvider } from 'react-helmet-async';
 import { createHashRouter, RouterProvider, ScrollRestoration } from 'react-router-dom';
+import { scan } from 'react-scan';
 import { Slide, ToastContainer } from 'react-toastify';
 
 import 'src/features/baseurlinjection';
@@ -86,6 +87,12 @@ export function legacyEntry() {
 }
 
 function Root() {
+  useEffect(() => {
+    // Make sure to run react-scan only after hydration
+    scan({
+      enabled: true,
+    });
+  }, []);
   return (
     <InstantiationProvider>
       <TaskStoreProvider>
