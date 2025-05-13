@@ -1,5 +1,6 @@
 import React from 'react';
 
+import dot from 'dot-object';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
@@ -10,24 +11,32 @@ import type { CompExternal, CompTypes } from 'src/layout/layout';
 export interface RenderComponentType {
   component: ResolvedCompExternal;
   parentBinding?: string;
-  itemIndex?: number;
+
   childField?: string;
   renderAsSummary?: boolean;
+  indices: number[] | undefined;
 }
 
-export function RenderComponentById({ id }: { id: string }) {
+export function RenderComponentById({ id, indices }: { id: string; indices }) {
   const component = useStore(layoutStore, (state) => state.componentMap && state.componentMap[id]);
 
   if (!component) {
     throw new Error('could not find component');
   }
 
-  return <NextGenericComponent component={component} />;
+  return (
+    <NextGenericComponent
+      component={component}
+      indices={indices}
+    />
+  );
 }
 
-export function NextGenericComponent({ component }: RenderComponentType) {
+export function NextGenericComponent({ component, indices }: RenderComponentType) {
   const isHidden = false;
   const renderAsSummary = false;
+
+  console.log('component', component.dataModelBindings);
 
   if (isHidden) {
     return null;
@@ -36,10 +45,15 @@ export function NextGenericComponent({ component }: RenderComponentType) {
   switch (component.type) {
     case 'Input':
       return (
-        <RenderInputComponent
-          component={component}
-          renderAsSummary={renderAsSummary}
-        />
+        <>
+          <span>{`component.dataModelBindings: ${JSON.stringify(component.dataModelBindings, null, 2)} `}</span>
+
+          <RenderInputComponent
+            component={component}
+            renderAsSummary={renderAsSummary}
+            indices={indices}
+          />
+        </>
       );
     default:
       return <div>Unknown component type: {component.type}</div>;
@@ -48,13 +62,14 @@ export function NextGenericComponent({ component }: RenderComponentType) {
 
 type CommonInputProps = {
   renderAsSummary: boolean;
+  indices: number[] | undefined;
 };
 type InputComponent = {
   component: ResolvedCompExternal<'Input'>;
 } & CommonInputProps;
 
-function RenderInputComponent({ component }: InputComponent) {
-  const data = useResolvedData<'Input'>(component.dataModelBindings);
+function RenderInputComponent({ component, indices }: InputComponent) {
+  const data = useResolvedData<'Input'>(component.dataModelBindings, indices);
   const textResources = useResolvedTexts<'Input'>(component.textResourceBindings);
   const setBoundValue = useStore(layoutStore, (state) => state.setBoundValue);
 
@@ -100,8 +115,40 @@ type ResolvedData<T extends CompTypes> =
   | Record<keyof NonNullable<CompExternal<T>['dataModelBindings']>, string>
   | undefined;
 
+const getDataModelPath = (binding: string, itemIndex?: number) => {
+  console.log('itemIndex', itemIndex);
+
+  if (!itemIndex) {
+    return binding;
+  }
+  const splittedBinding = binding.split('.');
+
+  if (splittedBinding.length === 0) {
+    return binding;
+  }
+
+  const base = splittedBinding.slice(0, splittedBinding.length - 1).join('.');
+
+  return `${base}[${itemIndex}].${splittedBinding.at(-1)}`;
+};
+
+const getDataModelPathIndeces = (binding: string, indices?: number[]) => {
+  if (!indices) {
+    return binding;
+  }
+
+  if (indices.length === 0) {
+    return binding;
+  }
+
+  const splittedBinding = binding.split('.');
+
+  return `${indices.map((index, idx) => `${splittedBinding[idx]}[${index}]`).join('.')}.${splittedBinding.at(-1)}`;
+};
+
 function useResolvedData<T extends CompTypes>(
   dataModelBindings: CompExternal<T>['dataModelBindings'],
+  indices: number[] | undefined,
 ): ResolvedData<T> {
   const value = useStore(
     layoutStore,
@@ -112,7 +159,7 @@ function useResolvedData<T extends CompTypes>(
 
       const resolvedData = {};
       Object.entries(dataModelBindings).forEach(([key, value]) => {
-        resolvedData[key] = state.data ? state.data[value] : undefined;
+        resolvedData[key] = state.data ? dot.pick(getDataModelPathIndeces(value, indices), state.data) : undefined;
       });
       return resolvedData;
     }),

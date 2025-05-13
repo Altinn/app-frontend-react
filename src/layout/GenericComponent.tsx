@@ -14,6 +14,7 @@ import { layoutStore } from 'src/next/stores/layoutStore';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { isDev } from 'src/utils/isDev';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
@@ -59,40 +60,19 @@ export function GenericComponentById<Type extends CompTypes = CompTypes>(props: 
   );
 }
 
-// export function GenericComponentById<Type extends CompTypes = CompTypes>(props: IGenericComponentByIdProps<Type>) {
-//   const node = useNode(props.id);
-//
-//   const componentMap = useStore(layoutStore, (state) => state.componentMap);
-//
-//   const component = componentMap?.[props.id];
-//
-//   if (!node) {
-//     return false;
-//   }
-//
-//   console.log('component', component?.type);
-//
-//   console.log('implementedNextComponents.includes(component.type)', implementedNextComponents);
-//
-//   if (component && implementedNextComponents.includes(component.type)) {
-//     return (
-//       <>
-//         <h1>Hallo</h1>
-//         <RenderComponentById id={props.id} />
-//       </>
-//     );
-//   }
-//
-//   return (
-//     <GenericComponent
-//       node={node}
-//       overrideItemProps={props.overrideItemProps}
-//       overrideDisplay={props.overrideDisplay}
-//     />
-//   );
-// }
-//
-//
+export const collectRowIndices = (node: LayoutNode | LayoutPage | undefined): number[] => {
+  if (!node) {
+    return [];
+  }
+
+  if (node instanceof LayoutPage) {
+    return [];
+  }
+
+  const here = typeof node.rowIndex === 'number' ? [node.rowIndex] : [];
+
+  return [...collectRowIndices(node.parent), ...here];
+};
 
 function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
   node,
@@ -103,16 +83,9 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
   const generatorErrors = NodesInternal.useNodeData(node, (node) => node.errors);
 
   const componentMap = useStore(layoutStore, (state) => state.componentMap);
-
-  console.log('node.id', node.id);
-
   const component = componentMap?.[node.baseId];
+  const indices = collectRowIndices(node);
 
-  console.log('component', component);
-
-  console.log('node.baseId', node.baseId);
-
-  console.log(node);
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
       <ErrorList
@@ -126,7 +99,10 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
     return (
       <>
         <h1>Hallo</h1>
-        <RenderComponentById id={node.baseId} />
+        <RenderComponentById
+          id={node.baseId}
+          indices={indices}
+        />
       </>
     );
   }
