@@ -2,7 +2,10 @@ import React from 'react';
 
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
-import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
+import {
+  MultipleValueSummary,
+  useMultipleValuesForSummary,
+} from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -19,9 +22,13 @@ export function CheckboxesSummary({ target }: Summary2Props<'Checkboxes'>) {
     summaryOverride?.displayType === 'list' ||
     (!summaryOverride?.displayType && displayData?.length >= maxStringLength);
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const displayValues = useMultipleValuesForSummary(target);
 
   return (
-    <SummaryFlex target={target}>
+    <SummaryFlex
+      target={target}
+      isEmpty={displayValues.length === 0}
+    >
       <MultipleValueSummary
         title={
           <Lang
@@ -30,6 +37,7 @@ export function CheckboxesSummary({ target }: Summary2Props<'Checkboxes'>) {
           />
         }
         componentNode={componentNode}
+        displayValues={displayValues}
         isCompact={isCompact}
         showAsList={showAsList}
         emptyFieldText={emptyFieldText}

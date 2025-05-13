@@ -68,7 +68,14 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupCompone
   return (
     <ConditionalWrapper
       condition={hierarchyLevel === 0}
-      wrapper={(children) => <SummaryFlex target={componentNode}>{children}</SummaryFlex>}
+      wrapper={(children) => (
+        <SummaryFlex
+          target={componentNode}
+          isEmpty={false}
+        >
+          {children}
+        </SummaryFlex>
+      )}
     >
       <section
         className={cn(classes.groupContainer, { [classes.nested]: isNestedGroup })}

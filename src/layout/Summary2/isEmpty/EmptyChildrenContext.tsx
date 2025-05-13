@@ -54,7 +54,7 @@ export function useHasOnlyEmptyChildren() {
 
 interface HideWhenAllChildrenEmptyProps {
   when: boolean | undefined;
-  render: (className: string) => JSX.Element;
+  render: (className: string, isEmpty: boolean) => JSX.Element;
 }
 
 export function HideWhenAllChildrenEmpty({ when, render }: HideWhenAllChildrenEmptyProps) {
@@ -65,10 +65,12 @@ export function HideWhenAllChildrenEmpty({ when, render }: HideWhenAllChildrenEm
     // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
     // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
     // could never report changes and go from being empty to not being empty anymore.
-    return hiddenOverride === 'disabled' ? render(classes.greyedOut) : render(classes.hidden);
+    return hiddenOverride === 'disabled'
+      ? render(classes.greyedOut, hasOnlyEmptyChildren)
+      : render(classes.hidden, hasOnlyEmptyChildren);
   }
 
-  return render(classes.visible);
+  return render(classes.visible, hasOnlyEmptyChildren);
 }
 
 function useMarkRendering(ctx: EmptyChildrenContext | undefined, isEmpty: boolean) {

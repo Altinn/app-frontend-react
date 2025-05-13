@@ -39,10 +39,11 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
     return (
       <HideWhenAllChildrenEmpty
         when={hideEmptyFields}
-        render={(className) => (
+        render={(className, isEmpty) => (
           <SummaryFlex
             target={target}
             className={className}
+            isEmpty={isEmpty}
           >
             <SingleValueSummary
               title={
@@ -66,10 +67,11 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
     return (
       <HideWhenAllChildrenEmpty
         when={hideEmptyFields}
-        render={(className) => (
+        render={(className, isEmpty) => (
           <SummaryFlex
             target={target}
             className={className}
+            isEmpty={isEmpty}
           >
             <RepeatingGroupTableSummary componentNode={componentNode} />
           </SummaryFlex>
@@ -81,10 +83,11 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   return (
     <HideWhenAllChildrenEmpty
       when={hideEmptyFields}
-      render={(className) => (
+      render={(className, isEmpty) => (
         <SummaryFlex
           target={target}
           className={className}
+          isEmpty={isEmpty}
         >
           <div
             className={cn(classes.summaryWrapper, { [classes.nestedSummaryWrapper]: isNested })}

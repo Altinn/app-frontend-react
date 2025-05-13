@@ -32,9 +32,13 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
     }
     return attachment.data.tags && attachment.data.tags?.length > 0;
   });
+  const isEmpty = filteredAttachments.length === 0;
 
   return (
-    <SummaryFlex target={targetNode}>
+    <SummaryFlex
+      target={targetNode}
+      isEmpty={isEmpty}
+    >
       <Label
         node={targetNode}
         overrideId={`attachment-summary2-${targetNode.id}`}

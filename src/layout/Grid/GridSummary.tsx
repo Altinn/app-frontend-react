@@ -121,10 +121,11 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   return (
     <HideWhenAllChildrenEmpty
       when={hideEmptyFields}
-      render={(className) => (
+      render={(className, isEmpty) => (
         <SummaryFlex
           target={componentNode}
           className={className}
+          isEmpty={isEmpty}
         >
           <Table
             id={componentNode.id}

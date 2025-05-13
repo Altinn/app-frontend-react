@@ -19,7 +19,10 @@ export const DropdownSummary = ({ target }: Summary2Props<'Dropdown'>) => {
   const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
 
   return (
-    <SummaryFlex target={target}>
+    <SummaryFlex
+      target={target}
+      isEmpty={!displayData}
+    >
       <SingleValueSummary
         title={
           title && (

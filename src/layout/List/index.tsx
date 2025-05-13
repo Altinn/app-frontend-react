@@ -10,7 +10,6 @@ import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToG
 import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { ListSummary } from 'src/layout/List/ListSummary';
-import { useIsListEmpty } from 'src/layout/List/useIsListEmpty';
 import { useValidateListIsEmpty } from 'src/layout/List/useValidateListIsEmpty';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -147,10 +146,6 @@ export class List extends ListDef {
       ...this.evalDefaultExpressions(props),
       queryParameters: evalQueryParameters(props),
     };
-  }
-
-  useIsEmpty(node: LayoutNode<'List'>): boolean {
-    return useIsListEmpty(node);
   }
 }
 

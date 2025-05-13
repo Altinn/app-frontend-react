@@ -38,8 +38,4 @@ export class Group extends GroupDef {
   renderSummaryBoilerplate(): boolean {
     return false;
   }
-
-  useIsEmpty(): boolean {
-    return false;
-  }
 }

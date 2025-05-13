@@ -82,8 +82,4 @@ export class Grid extends GridDef {
 
     return errors;
   }
-
-  useIsEmpty(): boolean {
-    return false;
-  }
 }

@@ -17,7 +17,10 @@ export class Divider extends DividerDef {
 
   renderSummary2(props: Summary2Props<'Divider'>): JSX.Element | null {
     return (
-      <SummaryFlex target={props.target}>
+      <SummaryFlex
+        target={props.target}
+        isEmpty={false}
+      >
         <DividerComponent
           node={props.target}
           containerDivRef={React.createRef()}

@@ -93,8 +93,4 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
 
     return [];
   }
-
-  useIsEmpty(node: LayoutNode<'FileUpload'>): boolean {
-    return useAttachmentsFor(node).length === 0;
-  }
 }

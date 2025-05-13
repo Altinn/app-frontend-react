@@ -33,7 +33,10 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
 
   if (markerBinding && !markerLocationIsValid) {
     return (
-      <SummaryFlex target={target}>
+      <SummaryFlex
+        target={target}
+        isEmpty={true}
+      >
         <SingleValueSummary
           title={
             <Lang
@@ -52,7 +55,10 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
   }
 
   return (
-    <SummaryFlex target={target}>
+    <SummaryFlex
+      target={target}
+      isEmpty={!markerLocation}
+    >
       <div className={classes.summaryItemWrapper}>
         <div className={classes.summaryItem}>
           <Label

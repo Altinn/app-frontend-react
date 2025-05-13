@@ -27,9 +27,13 @@ export function PersonLookupSummary({ componentNode }: PersonLookupSummaryProps)
   const emptyFieldText = useSummaryOverrides(componentNode)?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
   const bindingValidations = useBindingValidationsForNode(componentNode);
+  const isEmpty = !(person_lookup_name || person_lookup_ssn);
 
   return (
-    <SummaryFlex target={componentNode}>
+    <SummaryFlex
+      target={componentNode}
+      isEmpty={isEmpty}
+    >
       <div className={classes.personSummaryWrapper}>
         <Heading
           size='sm'

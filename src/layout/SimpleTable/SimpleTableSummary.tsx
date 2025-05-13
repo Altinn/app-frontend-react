@@ -15,6 +15,8 @@ type TableSummaryProps = {
   componentNode: LayoutNode<'SimpleTable'>;
 };
 
+const emptyArray: never[] = [];
+
 export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
   const { dataModelBindings, textResourceBindings, columns } = useNodeItem(componentNode, (item) => ({
     dataModelBindings: item.dataModelBindings,
@@ -38,14 +40,6 @@ export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
 
   const data = formData.tableData;
 
-  if (!Array.isArray(data)) {
-    return null;
-  }
-
-  if (data.length < 1) {
-    return null;
-  }
-
   if (!schema?.items) {
     return null;
   }
@@ -55,11 +49,14 @@ export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
   }
 
   return (
-    <SummaryFlex target={componentNode}>
+    <SummaryFlex
+      target={componentNode}
+      isEmpty={!Array.isArray(data) || data.length === 0}
+    >
       <AppTable
         schema={schema}
         caption={title && <Caption title={<Lang id={title} />} />}
-        data={data}
+        data={Array.isArray(data) ? data : emptyArray}
         columns={columns.map((config) => ({
           ...config,
           header: <Lang id={config.header} />,

@@ -6,11 +6,11 @@ import { CustomDef } from 'src/layout/Custom/config.def.generated';
 import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { useHasBindingsAndNoData } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
+import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNodeFormData, useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Custom extends CustomDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Custom'>>(
@@ -31,21 +31,23 @@ export class Custom extends CustomDef {
 
   renderSummary2(props: Summary2Props<'Custom'>): JSX.Element | null {
     const formData = useNodeFormData(props.target);
+    const isEmpty = useHasBindingsAndNoData(props.target);
     return (
-      <CustomWebComponent
-        summaryMode={true}
-        formData={formData}
-        node={props.target}
-        containerDivRef={React.createRef()}
-      />
+      <SummaryFlex
+        target={props.target}
+        isEmpty={isEmpty}
+      >
+        <CustomWebComponent
+          summaryMode={true}
+          formData={formData}
+          node={props.target}
+          containerDivRef={React.createRef()}
+        />
+      </SummaryFlex>
     );
   }
 
   validateDataModelBindings(): string[] {
     return [];
-  }
-
-  useIsEmpty(node: LayoutNode<'Custom'>): boolean {
-    return useHasBindingsAndNoData(node);
   }
 }

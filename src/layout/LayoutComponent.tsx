@@ -198,15 +198,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
     const schemaPointer = '#/definitions/AnyComponent';
     return validate(schemaPointer, component);
   }
-
-  /**
-   * Hook used by Summary2 to discern if the node should be considered 'empty' (have no user input, hidden
-   * when 'hideEmptyFields' is turned on). Form components have to implement this, but all other components
-   * can override it if needed.
-   */
-  useIsEmpty(_node: LayoutNode<Type>): boolean {
-    return false;
-  }
 }
 
 export abstract class PresentationComponent<Type extends CompTypes> extends AnyComponent<Type> {
@@ -343,11 +334,6 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 
     return [];
   }
-
-  /**
-   * An implementation is required for form components
-   */
-  abstract useIsEmpty(node: LayoutNode<Type>): boolean;
 }
 
 export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {

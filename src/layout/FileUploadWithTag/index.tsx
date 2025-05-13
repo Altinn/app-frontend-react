@@ -89,8 +89,4 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
 
     return [];
   }
-
-  useIsEmpty(node: LayoutNode<'FileUploadWithTag'>): boolean {
-    return useAttachmentsFor(node).length > 0;
-  }
 }

@@ -27,9 +27,13 @@ export function OrganisationLookupSummary({ componentNode }: OrganisationLookupS
   const emptyFieldText = useSummaryOverrides(componentNode)?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
   const bindingValidations = useBindingValidationsForNode(componentNode);
+  const isEmpty = !(organisation_lookup_orgnr || organisation_lookup_name);
 
   return (
-    <SummaryFlex target={componentNode}>
+    <SummaryFlex
+      target={componentNode}
+      isEmpty={isEmpty}
+    >
       <div className={classes.organisationSummaryWrapper}>
         <Heading
           size='sm'

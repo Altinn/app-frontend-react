@@ -15,6 +15,7 @@ import { SubformSummaryTable } from 'src/layout/Subform/Summary/SubformSummaryTa
 import {
   getSubformEntryDisplayName,
   useExpressionDataSourcesForSubform,
+  useHasSubformElements,
   useSubformFormData,
 } from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
@@ -149,6 +150,7 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
       })
       .map((data) => data.layout.id),
   );
+  const hasElements = useHasSubformElements(target);
 
   const inner =
     displayType === 'table' && target ? (
@@ -165,7 +167,14 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
     );
 
   if (target) {
-    return <SummaryFlex target={target}>{inner}</SummaryFlex>;
+    return (
+      <SummaryFlex
+        target={target}
+        isEmpty={!hasElements}
+      >
+        {inner}
+      </SummaryFlex>
+    );
   }
 
   return inner;

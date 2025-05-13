@@ -13,7 +13,6 @@ import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesCont
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -86,9 +85,5 @@ export class Checkboxes extends CheckboxesDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'Checkboxes'>): string[] {
     return validateSimpleBindingWithOptionalGroup(this, ctx);
-  }
-
-  useIsEmpty(node: LayoutNode<'Checkboxes'>): boolean {
-    return useHasNoDataInBindings(node);
   }
 }

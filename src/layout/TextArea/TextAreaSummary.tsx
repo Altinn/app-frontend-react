@@ -19,7 +19,10 @@ export const TextAreaSummary = ({ target }: Summary2Props<'TextArea'>) => {
   const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
 
   return (
-    <SummaryFlex target={target}>
+    <SummaryFlex
+      target={target}
+      isEmpty={!displayData}
+    >
       <SingleValueSummary
         title={
           title && (

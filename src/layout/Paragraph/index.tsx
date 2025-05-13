@@ -16,7 +16,10 @@ export class Paragraph extends ParagraphDef {
 
   renderSummary2(props: Summary2Props<'Paragraph'>): JSX.Element | null {
     return (
-      <SummaryFlex target={props.target}>
+      <SummaryFlex
+        target={props.target}
+        isEmpty={false}
+      >
         <ParagraphComponent
           node={props.target}
           containerDivRef={React.createRef()}

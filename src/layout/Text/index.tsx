@@ -4,13 +4,11 @@ import type { JSX } from 'react';
 import { TextDef } from 'src/layout/Text/config.def.generated';
 import { TextComponent } from 'src/layout/Text/TextComponent';
 import { TextSummary } from 'src/layout/Text/TextSummary';
-import { useIsEmptyPresentationComponent } from 'src/layout/Text/useIsEmptyPresentationComponent';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Text extends TextDef implements DisplayData {
   useDisplayData(nodeId: string): string {
@@ -36,9 +34,5 @@ export class Text extends TextDef implements DisplayData {
       ...this.evalDefaultExpressions(props),
       value: props.evalStr(props.item.value, ''),
     };
-  }
-
-  useIsEmpty(node: LayoutNode<'Text'>): boolean {
-    return useIsEmptyPresentationComponent(node);
   }
 }

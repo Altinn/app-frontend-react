@@ -13,7 +13,10 @@ export function PaymentSummary({ componentNode }: PaymentSummaryProps) {
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
 
   return (
-    <SummaryFlex target={componentNode}>
+    <SummaryFlex
+      target={componentNode}
+      isEmpty={false}
+    >
       <PaymentReceiptDetails title={title} />
     </SummaryFlex>
   );

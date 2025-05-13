@@ -29,7 +29,10 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
 
   if (!rows.length || rows.length <= 0) {
     return (
-      <SummaryFlex target={target}>
+      <SummaryFlex
+        target={target}
+        isEmpty={true}
+      >
         <SingleValueSummary
           title={
             <Lang
@@ -48,7 +51,10 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
   }
 
   return (
-    <SummaryFlex target={target}>
+    <SummaryFlex
+      target={target}
+      isEmpty={false}
+    >
       <div className={classes.summaryItemWrapper}>
         <div className={classes.summaryItem}>
           <Heading

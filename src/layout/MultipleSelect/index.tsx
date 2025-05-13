@@ -13,7 +13,6 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
-import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -86,9 +85,5 @@ export class MultipleSelect extends MultipleSelectDef {
 
   validateDataModelBindings(ctx: LayoutValidationCtx<'MultipleSelect'>): string[] {
     return validateSimpleBindingWithOptionalGroup(this, ctx);
-  }
-
-  useIsEmpty(node: LayoutNode<'MultipleSelect'>): boolean {
-    return useHasNoDataInBindings(node);
   }
 }

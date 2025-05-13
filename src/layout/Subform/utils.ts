@@ -130,7 +130,7 @@ export function getSubformEntryDisplayName(
   return resolvedValue ? String(resolvedValue) : null;
 }
 
-export function useHasSubformElements(node: LayoutNode<'Subform'>) {
+export function useHasSubformElements(node: LayoutNode<'Subform'> | undefined) {
   const layoutSet = useNodeItem(node, (i) => i.layoutSet);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictDataElements(dataType);

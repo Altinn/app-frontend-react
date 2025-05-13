@@ -3,11 +3,9 @@ import ReactDOMServer from 'react-dom/server';
 
 import dot from 'dot-object';
 
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -115,18 +113,13 @@ export function CustomWebComponent({
   });
 
   return (
-    <ConditionalWrapper
-      condition={summaryMode}
-      wrapper={(children) => <SummaryFlex target={node}>{children}</SummaryFlex>}
-    >
-      <ComponentStructureWrapper node={node}>
-        <HtmlTag
-          ref={wcRef}
-          data-testid={tagName}
-          {...propsAsAttributes}
-        />
-      </ComponentStructureWrapper>
-    </ConditionalWrapper>
+    <ComponentStructureWrapper node={node}>
+      <HtmlTag
+        ref={wcRef}
+        data-testid={tagName}
+        {...propsAsAttributes}
+      />
+    </ComponentStructureWrapper>
   );
 }
 

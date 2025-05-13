@@ -22,7 +22,10 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
   }
 
   return (
-    <SummaryFlex target={componentNode}>
+    <SummaryFlex
+      target={componentNode}
+      isEmpty={tabs.length === 0}
+    >
       <div
         className={classes.summaryContent}
         data-testid='summary-tabs-component'

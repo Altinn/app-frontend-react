@@ -44,7 +44,10 @@ export const ListSummary = ({ target }: Summary2Props<'List'>) => {
 
   if (displayRows?.length > 0) {
     return (
-      <SummaryFlex target={target}>
+      <SummaryFlex
+        target={target}
+        isEmpty={false}
+      >
         <div className={classes.listContainer}>
           <div className={classes.headerContainer}>
             <EditButton
@@ -106,7 +109,10 @@ export const ListSummary = ({ target }: Summary2Props<'List'>) => {
   }
 
   return (
-    <SummaryFlex target={target}>
+    <SummaryFlex
+      target={target}
+      isEmpty={true}
+    >
       <SingleValueSummary
         title={
           title && (

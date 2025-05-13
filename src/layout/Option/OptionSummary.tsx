@@ -21,7 +21,10 @@ export const OptionSummary = ({ target }: Summary2Props<'Option'>) => {
   const compact = (direction === 'horizontal' && isCompact == undefined) || isCompact;
 
   return (
-    <SummaryFlex target={target}>
+    <SummaryFlex
+      target={target}
+      isEmpty={!displayData}
+    >
       <SingleValueSummary
         title={
           title && (

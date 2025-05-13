@@ -6,6 +6,7 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
 import classes from 'src/layout/Address/AddressSummary/AddressSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -26,11 +27,15 @@ export function AddressSummary({ componentNode }: AddressSummaryProps) {
   const { address, postPlace, zipCode, careOf, houseNumber } = formData;
   const emptyFieldText = useSummaryOverrides(componentNode)?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
+  const isEmpty = useHasNoDataInBindings(componentNode);
 
   const bindingValidations = useBindingValidationsForNode(componentNode);
 
   return (
-    <SummaryFlex target={componentNode}>
+    <SummaryFlex
+      target={componentNode}
+      isEmpty={isEmpty}
+    >
       <div className={classes.addressSummaryComponent}>
         <div>
           <SingleValueSummary

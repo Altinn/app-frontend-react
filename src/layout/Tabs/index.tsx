@@ -37,8 +37,4 @@ export class Tabs extends TabsDef {
   public validateDataModelBindings(): string[] {
     return [];
   }
-
-  useIsEmpty(): boolean {
-    return false;
-  }
 }
