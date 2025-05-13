@@ -2,7 +2,7 @@ import React, { createContext, useEffect, useState } from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import classes from 'src/layout/Summary2/isEmpty/emptyChildren.module.css';
+import classes from 'src/layout/Summary2/Summary2.module.css';
 
 export interface EmptyChildrenContext {
   parent?: EmptyChildrenContext;

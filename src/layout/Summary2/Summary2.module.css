@@ -1,3 +1,7 @@
+.summaryItem {
+  width: 100%;
+}
+
 .greyedOut,
 .greyedOut * {
   background-color: #dfdfdf !important;
