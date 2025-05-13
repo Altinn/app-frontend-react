@@ -28,7 +28,7 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: string }>) => {
+const SummarySubformWrapperInner = ({ nodeId }: PropsWithChildren<{ nodeId: string }>) => {
   const node = useNode(nodeId) as LayoutNode<'Subform'>;
   const { layoutSet, id, textResourceBindings, entryDisplayName } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
@@ -69,6 +69,9 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
     </>
   );
 };
+
+export const SummarySubformWrapper = React.memo(SummarySubformWrapperInner);
+SummarySubformWrapper.displayName = 'SummarySubformWrapper';
 
 const DoSummaryWrapper = ({
   dataElement,
