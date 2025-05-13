@@ -23,6 +23,7 @@ import {
   HideWhenAllChildrenEmpty,
   useHasOnlyEmptyChildren,
   useReportSummaryEmptyRender,
+  useReportSummaryEmptyRenderOnParent,
 } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummary, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
@@ -167,9 +168,9 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   const firstNodeId = useFirstFormNodeId(row);
 
   const onlyEmptyChildren = useHasOnlyEmptyChildren();
-  const isHeaderWithoutComponents = !!(row.header && row.cells.every((cell) => !cell || !('nodeId' in cell)));
+  const isHeaderWithoutComponents = row.header === true && !row.cells.some((cell) => cell && 'nodeId' in cell);
   const hideEmptyRows = useSummaryOverrides(props.node)?.hideEmptyRows;
-  useReportSummaryEmptyRender(onlyEmptyChildren || isHeaderWithoutComponents);
+  useReportSummaryEmptyRenderOnParent(onlyEmptyChildren || isHeaderWithoutComponents);
 
   if (isGridRowHidden(row, isHiddenSelector)) {
     return null;
