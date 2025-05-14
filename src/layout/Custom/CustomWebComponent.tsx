@@ -111,7 +111,6 @@ export function CustomWebComponent({
     }
     propsAsAttributes[key] = prop;
   });
-
   return (
     <ComponentStructureWrapper node={node}>
       <HtmlTag
