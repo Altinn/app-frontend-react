@@ -8,7 +8,11 @@ import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/Condit
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
-import { ComponentSummary, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import {
+  ComponentSummary,
+  SummaryFlexHideWhenAllChildrenEmpty,
+} from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -64,17 +68,18 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupCompone
 
   const dataTestId = hierarchyLevel > 0 ? `summary-group-component-${hierarchyLevel}` : 'summary-group-component';
   const childComponents = useNodeItem(componentNode, (i) => i.childComponents);
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
 
   return (
     <ConditionalWrapper
       condition={hierarchyLevel === 0}
       wrapper={(children) => (
-        <SummaryFlex
+        <SummaryFlexHideWhenAllChildrenEmpty
+          when={hideEmptyFields}
           target={componentNode}
-          isEmpty={false}
         >
           {children}
-        </SummaryFlex>
+        </SummaryFlexHideWhenAllChildrenEmpty>
       )}
     >
       <section
