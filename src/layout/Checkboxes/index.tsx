@@ -8,11 +8,11 @@ import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSep
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { validateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
 import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToGroupLayoutValidator';
-import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
+import { useValidateCheckboxIsEmpty } from 'src/layout/Checkboxes/useValidateCheckboxesIsEmpty';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -84,7 +84,7 @@ export class Checkboxes extends CheckboxesDef {
   }
 
   useEmptyFieldValidation(node: LayoutNode<'Checkboxes'>): ComponentValidation[] {
-    return useEmptyFieldValidationOnlySimpleBinding(node);
+    return useValidateCheckboxIsEmpty(node);
   }
 
   renderLayoutValidators(props: NodeValidationProps<'Checkboxes'>): JSX.Element | null {

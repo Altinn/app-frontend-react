@@ -8,11 +8,11 @@ import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSep
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { validateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
 import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToGroupLayoutValidator';
-import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
+import { useValidateMultipleSelectIsEmpty } from 'src/layout/MultipleSelect/useValidateMultiselectIsEmpty';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
@@ -83,7 +83,7 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   useEmptyFieldValidation(node: LayoutNode<'MultipleSelect'>): ComponentValidation[] {
-    return useEmptyFieldValidationOnlySimpleBinding(node);
+    return useValidateMultipleSelectIsEmpty(node);
   }
 
   renderLayoutValidators(props: NodeValidationProps<'MultipleSelect'>): JSX.Element | null {
