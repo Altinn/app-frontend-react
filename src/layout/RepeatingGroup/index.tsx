@@ -11,7 +11,7 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Provider
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
-import { EmptyChildrenProvider } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
@@ -83,9 +83,9 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   renderSummary2(props: Summary2Props<'RepeatingGroup'>): JSX.Element | null {
     return (
       <RepeatingGroupProvider node={props.target}>
-        <EmptyChildrenProvider>
+        <EmptyChildrenBoundary>
           <RepeatingGroupSummary {...props} />
-        </EmptyChildrenProvider>
+        </EmptyChildrenBoundary>
       </RepeatingGroupProvider>
     );
   }

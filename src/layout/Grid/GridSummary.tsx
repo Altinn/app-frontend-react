@@ -19,7 +19,7 @@ import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import {
-  EmptyChildrenProvider,
+  EmptyChildrenBoundary,
   useHasOnlyEmptyChildren,
   useReportSummaryEmptyRender,
   useReportSummaryEmptyRenderOnParent,
@@ -71,13 +71,13 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
         tableSections.push(
           <Table.Body key={`tbody-${index}`}>
             {currentBodyRows.map((bodyRow, bodyIndex) => (
-              <EmptyChildrenProvider key={bodyIndex}>
+              <EmptyChildrenBoundary key={bodyIndex}>
                 <SummaryGridRowRenderer
                   row={bodyRow}
                   mutableColumnSettings={columnSettings}
                   node={componentNode}
                 />
-              </EmptyChildrenProvider>
+              </EmptyChildrenBoundary>
             ))}
           </Table.Body>,
         );
@@ -86,14 +86,14 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
       // Add the header row
       tableSections.push(
         <Table.Head key={`thead-${index}`}>
-          <EmptyChildrenProvider key={index}>
+          <EmptyChildrenBoundary key={index}>
             <SummaryGridRowRenderer
               row={row}
               mutableColumnSettings={columnSettings}
               node={componentNode}
               headerRow={currentHeaderRow}
             />
-          </EmptyChildrenProvider>
+          </EmptyChildrenBoundary>
         </Table.Head>,
       );
       currentHeaderRow = row;
@@ -108,14 +108,14 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
     tableSections.push(
       <tbody key={`tbody-${rowsInternal.length}`}>
         {currentBodyRows.map((bodyRow, bodyIndex) => (
-          <EmptyChildrenProvider key={bodyIndex}>
+          <EmptyChildrenBoundary key={bodyIndex}>
             <SummaryGridRowRenderer
               row={bodyRow}
               mutableColumnSettings={columnSettings}
               node={componentNode}
               headerRow={currentHeaderRow}
             />
-          </EmptyChildrenProvider>
+          </EmptyChildrenBoundary>
         ))}
       </tbody>,
     );

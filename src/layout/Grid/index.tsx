@@ -7,7 +7,7 @@ import { GridDef } from 'src/layout/Grid/config.def.generated';
 import { RenderGrid } from 'src/layout/Grid/GridComponent';
 import { GridSummary } from 'src/layout/Grid/GridSummary';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
-import { EmptyChildrenProvider } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -26,9 +26,9 @@ export class Grid extends GridDef {
 
   renderSummary2(props: Summary2Props<'Grid'>): JSX.Element | null {
     return (
-      <EmptyChildrenProvider>
+      <EmptyChildrenBoundary>
         <GridSummary componentNode={props.target} />
-      </EmptyChildrenProvider>
+      </EmptyChildrenBoundary>
     );
   }
 

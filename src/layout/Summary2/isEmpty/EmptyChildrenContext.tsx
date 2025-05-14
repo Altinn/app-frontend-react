@@ -12,7 +12,7 @@ export interface EmptyChildrenContext {
 
 const Context = createContext<EmptyChildrenContext | undefined>(undefined);
 
-export function EmptyChildrenProvider({ children }: PropsWithChildren) {
+export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
   const parent = React.useContext(Context);
   const [empty, setNumEmpty] = useState(0);
   const [notEmpty, setNumNotEmpty] = useState(0);
