@@ -18,10 +18,10 @@ export function useValidateMultipleSelectIsEmpty(node: LayoutNode<'MultipleSelec
 
   const validations: ComponentValidation[] = [];
 
-  let listHasErrors = false;
+  let multiSelectHasErrors = false;
   if (dataModelBindings.group) {
     const numRows = (formData?.group as unknown[] | undefined) ?? [];
-    listHasErrors = numRows.length === 0;
+    multiSelectHasErrors = numRows.length === 0;
   } else {
     for (const key of Object.keys(dataModelBindings)) {
       const reference = dataModelBindings[key];
@@ -31,13 +31,13 @@ export function useValidateMultipleSelectIsEmpty(node: LayoutNode<'MultipleSelec
           typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 
         if (!dataAsString?.length) {
-          listHasErrors = true;
+          multiSelectHasErrors = true;
         }
       }
     }
   }
 
-  if (listHasErrors) {
+  if (multiSelectHasErrors) {
     const key = textResourceBindings?.requiredValidation
       ? textResourceBindings?.requiredValidation
       : 'form_filler.error_required';

@@ -18,10 +18,10 @@ export function useValidateCheckboxIsEmpty(node: LayoutNode<'Checkboxes'>): Comp
 
   const validations: ComponentValidation[] = [];
 
-  let listHasErrors = false;
+  let checkboxesHasErrors = false;
   if (dataModelBindings.group) {
     const numRows = (formData?.group as unknown[] | undefined) ?? [];
-    listHasErrors = numRows.length === 0;
+    checkboxesHasErrors = numRows.length === 0;
   } else {
     for (const key of Object.keys(dataModelBindings)) {
       const reference = dataModelBindings[key];
@@ -31,13 +31,13 @@ export function useValidateCheckboxIsEmpty(node: LayoutNode<'Checkboxes'>): Comp
           typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 
         if (!dataAsString?.length) {
-          listHasErrors = true;
+          checkboxesHasErrors = true;
         }
       }
     }
   }
 
-  if (listHasErrors) {
+  if (checkboxesHasErrors) {
     const key = textResourceBindings?.requiredValidation
       ? textResourceBindings?.requiredValidation
       : 'form_filler.error_required';
