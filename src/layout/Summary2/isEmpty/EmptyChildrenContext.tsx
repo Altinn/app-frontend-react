@@ -1,8 +1,5 @@
 import React, { createContext, useEffect, useState } from 'react';
-import type { JSX, PropsWithChildren } from 'react';
-
-import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
-import classes from 'src/layout/Summary2/Summary2.module.css';
+import type { PropsWithChildren } from 'react';
 
 export interface EmptyChildrenContext {
   parent?: EmptyChildrenContext;
@@ -50,27 +47,6 @@ export function useHasOnlyEmptyChildren() {
   }
 
   return context.empty === context.total;
-}
-
-interface HideWhenAllChildrenEmptyProps {
-  when: boolean | undefined;
-  render: (className: string, isEmpty: boolean) => JSX.Element;
-}
-
-export function HideWhenAllChildrenEmpty({ when, render }: HideWhenAllChildrenEmptyProps) {
-  const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
-  const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
-
-  if (hasOnlyEmptyChildren && when === true && hiddenOverride !== 'show') {
-    // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
-    // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
-    // could never report changes and go from being empty to not being empty anymore.
-    return hiddenOverride === 'disabled'
-      ? render(classes.greyedOut, hasOnlyEmptyChildren)
-      : render(classes.hidden, hasOnlyEmptyChildren);
-  }
-
-  return render(classes.visible, hasOnlyEmptyChildren);
 }
 
 function useMarkRendering(ctx: EmptyChildrenContext | undefined, isEmpty: boolean) {

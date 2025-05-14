@@ -20,12 +20,15 @@ import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import {
   EmptyChildrenProvider,
-  HideWhenAllChildrenEmpty,
   useHasOnlyEmptyChildren,
   useReportSummaryEmptyRender,
   useReportSummaryEmptyRenderOnParent,
 } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
-import { ComponentSummary, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import {
+  ComponentSummary,
+  HideWhenAllChildrenEmpty,
+  SummaryFlexHideWhenAllChildrenEmpty,
+} from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -119,37 +122,31 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   }
 
   return (
-    <HideWhenAllChildrenEmpty
+    <SummaryFlexHideWhenAllChildrenEmpty
       when={hideEmptyFields}
-      render={(className, isEmpty) => (
-        <SummaryFlex
-          target={componentNode}
-          className={className}
-          isEmpty={isEmpty}
-        >
-          <Table
-            id={componentNode.id}
-            className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
-            data-testid={`summary-${componentNode.id}`}
-          >
-            {title && (
-              <caption className={classes.tableCaption}>
-                <Heading
-                  size='xs'
-                  level={4}
-                >
-                  <Lang
-                    id={title}
-                    node={componentNode}
-                  />
-                </Heading>
-              </caption>
-            )}
-            {tableSections}
-          </Table>
-        </SummaryFlex>
-      )}
-    />
+      target={componentNode}
+    >
+      <Table
+        id={componentNode.id}
+        className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
+        data-testid={`summary-${componentNode.id}`}
+      >
+        {title && (
+          <caption className={classes.tableCaption}>
+            <Heading
+              size='xs'
+              level={4}
+            >
+              <Lang
+                id={title}
+                node={componentNode}
+              />
+            </Heading>
+          </caption>
+        )}
+        {tableSections}
+      </Table>
+    </SummaryFlexHideWhenAllChildrenEmpty>
   );
 };
 
