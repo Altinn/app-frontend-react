@@ -140,7 +140,7 @@ export function HideWhenAllChildrenEmpty({ when, render }: HideWhenAllChildrenEm
   const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
 
-  if (hasOnlyEmptyChildren && when === true && hiddenOverride !== 'show') {
+  if (hasOnlyEmptyChildren && when === true && (hiddenOverride === false || hiddenOverride !== 'show')) {
     // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
     // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
     // could never report changes and go from being empty to not being empty anymore.
