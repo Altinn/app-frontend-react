@@ -62,7 +62,8 @@ export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
           header: <Lang id={config.header} />,
         }))}
         mobile={isMobile}
-      emptyText={<Lang id='general.empty_table' />}/>
+        emptyText={<Lang id='general.empty_table' />}
+      />
     </SummaryFlex>
   );
 }
