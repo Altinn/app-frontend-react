@@ -8,7 +8,7 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -32,7 +32,7 @@ export function OrganisationLookupSummary({ componentNode }: OrganisationLookupS
   return (
     <SummaryFlex
       target={componentNode}
-      isEmpty={isEmpty}
+      content={isEmpty ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
     >
       <div className={classes.organisationSummaryWrapper}>
         <Heading

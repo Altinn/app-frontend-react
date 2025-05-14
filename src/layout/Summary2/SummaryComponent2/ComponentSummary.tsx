@@ -6,7 +6,7 @@ import cn from 'classnames';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { CompCategory } from 'src/layout/common';
-import { useHasOnlyEmptyChildren, useReportSummaryEmptyRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { useHasOnlyEmptyChildren, useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import classes from 'src/layout/Summary2/Summary2.module.css';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
@@ -17,6 +17,12 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ComponentSummaryProps<T extends CompTypes = CompTypes> {
   target: LayoutNode<T>;
+}
+
+export enum SummaryContains {
+  EmptyValue = 'empty',
+  SomeUserContent = 'notEmpty',
+  Presentational = 'presentational',
 }
 
 export function ComponentSummaryById({ componentId }: { componentId: string }) {
@@ -43,21 +49,21 @@ function useIsHidden<T extends CompTypes>(node: LayoutNode<T>) {
   return !!(hidden || hiddenInOverride);
 }
 
-function useIsHiddenBecauseEmpty<T extends CompTypes>(node: LayoutNode<T>, isEmpty: boolean) {
+function useIsHiddenBecauseEmpty<T extends CompTypes>(node: LayoutNode<T>, content: SummaryContains) {
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const isRequired = useNodeItem(node, (i) => ('required' in i ? i.required : false));
   const forceShowInSummary = useNodeItem(node, (i) => i['forceShowInSummary']);
 
-  return hideEmptyFields && !isRequired && !forceShowInSummary && isEmpty;
+  return hideEmptyFields && !isRequired && !forceShowInSummary && content === SummaryContains.EmptyValue;
 }
 
 interface SummaryFlexProps extends PropsWithChildren {
   target: LayoutNode;
-  isEmpty: boolean;
+  content: SummaryContains;
   className?: string;
 }
 
-function SummaryFlexInternal({ target, children, className }: Omit<SummaryFlexProps, 'isEmpty'>) {
+function SummaryFlexInternal({ target, children, className }: Omit<SummaryFlexProps, 'content'>) {
   const pageBreak = useNodeItem(target, (i) => i.pageBreak);
   const grid = useNodeItem(target, (i) => i.grid);
 
@@ -83,8 +89,8 @@ function SummaryFlexInternal({ target, children, className }: Omit<SummaryFlexPr
  * @see SummaryFlexForContainer
  * @see HideWhenAllChildrenEmpty
  */
-export function SummaryFlex({ target, className, isEmpty, children }: SummaryFlexProps) {
-  if (target.def.category === CompCategory.Container && !isEmpty) {
+export function SummaryFlex({ target, className, content, children }: SummaryFlexProps) {
+  if (target.def.category === CompCategory.Container && content !== SummaryContains.EmptyValue) {
     throw new Error(
       `SummaryFlex rendered with ${target.type} target. Use SummaryFlexForContainer or HideWhenAllChildrenEmpty instead.`,
     );
@@ -92,11 +98,11 @@ export function SummaryFlex({ target, className, isEmpty, children }: SummaryFle
 
   const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const isHidden = useIsHidden(target);
-  const isHiddenBecauseEmpty = useIsHiddenBecauseEmpty(target, isEmpty);
+  const isHiddenBecauseEmpty = useIsHiddenBecauseEmpty(target, content);
   const hiddenClass =
     isHidden || isHiddenBecauseEmpty ? (hiddenOverride === 'disabled' ? classes.greyedOut : classes.hidden) : undefined;
 
-  useReportSummaryEmptyRender(isHidden || isEmpty);
+  useReportSummaryRender(isHidden ? SummaryContains.EmptyValue : content);
 
   if ((isHidden || isHiddenBecauseEmpty) && (hiddenOverride === false || hiddenOverride === 'hide')) {
     return null;

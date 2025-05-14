@@ -6,7 +6,7 @@ import {
   MultipleValueSummary,
   useMultipleValuesForSummary,
 } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -27,7 +27,7 @@ export function CheckboxesSummary({ target }: Summary2Props<'Checkboxes'>) {
   return (
     <SummaryFlex
       target={target}
-      isEmpty={displayValues.length === 0}
+      content={displayValues.length === 0 ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
     >
       <MultipleValueSummary
         title={

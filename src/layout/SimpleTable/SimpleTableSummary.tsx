@@ -7,7 +7,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { isJSONSchema7Definition } from 'src/layout/AddToList/AddToList';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -51,7 +51,7 @@ export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
   return (
     <SummaryFlex
       target={componentNode}
-      isEmpty={!Array.isArray(data) || data.length === 0}
+      content={!Array.isArray(data) || data.length === 0 ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
     >
       <AppTable
         schema={schema}

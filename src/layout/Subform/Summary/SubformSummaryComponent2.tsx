@@ -19,7 +19,7 @@ import {
   useSubformFormData,
 } from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { useSummaryOverrides } from 'src/layout/Summary2/summaryStoreContext';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -170,7 +170,7 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
     return (
       <SummaryFlex
         target={target}
-        isEmpty={!hasElements}
+        content={hasElements ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
       >
         {inner}
       </SummaryFlex>

@@ -12,7 +12,7 @@ import classes from 'src/layout/Map/Summary2/MapSummary.module.css';
 import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeFormData, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { RawGeometry } from 'src/layout/Map/types';
@@ -35,7 +35,7 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
     return (
       <SummaryFlex
         target={target}
-        isEmpty={true}
+        content={SummaryContains.EmptyValue}
       >
         <SingleValueSummary
           title={
@@ -57,7 +57,7 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
   return (
     <SummaryFlex
       target={target}
-      isEmpty={!markerLocation}
+      content={markerLocation ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
     >
       <div className={classes.summaryItemWrapper}>
         <div className={classes.summaryItem}>

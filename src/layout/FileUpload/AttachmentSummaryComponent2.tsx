@@ -10,7 +10,7 @@ import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IAttachmentSummaryComponent {
@@ -37,7 +37,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
   return (
     <SummaryFlex
       target={targetNode}
-      isEmpty={isEmpty}
+      content={isEmpty ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
     >
       <Label
         node={targetNode}

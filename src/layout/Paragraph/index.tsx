@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import { ParagraphDef } from 'src/layout/Paragraph/config.def.generated';
 import { ParagraphComponent } from 'src/layout/Paragraph/ParagraphComponent';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
@@ -18,7 +18,7 @@ export class Paragraph extends ParagraphDef {
     return (
       <SummaryFlex
         target={props.target}
-        isEmpty={false}
+        content={SummaryContains.Presentational}
       >
         <ParagraphComponent
           node={props.target}

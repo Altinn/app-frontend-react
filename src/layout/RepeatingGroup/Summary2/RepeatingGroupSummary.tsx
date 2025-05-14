@@ -14,6 +14,7 @@ import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/R
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import {
   ComponentSummaryById,
+  SummaryContains,
   SummaryFlex,
   SummaryFlexForContainer,
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -42,7 +43,7 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
     return (
       <SummaryFlex
         target={target}
-        isEmpty={true}
+        content={SummaryContains.EmptyValue}
       >
         <SingleValueSummary
           title={

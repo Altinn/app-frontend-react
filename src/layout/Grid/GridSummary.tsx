@@ -21,12 +21,13 @@ import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButt
 import {
   EmptyChildrenBoundary,
   useHasOnlyEmptyChildren,
-  useReportSummaryEmptyRender,
-  useReportSummaryEmptyRenderOnParent,
+  useReportSummaryRender,
+  useReportSummaryRenderToParent,
 } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import {
   ComponentSummary,
   HideWhenAllChildrenEmpty,
+  SummaryContains,
   SummaryFlexForContainer,
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
@@ -168,7 +169,10 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   const onlyEmptyChildren = useHasOnlyEmptyChildren();
   const isHeaderWithoutComponents = row.header === true && !row.cells.some((cell) => cell && 'nodeId' in cell);
   const hideEmptyRows = useSummaryOverrides(props.node)?.hideEmptyRows;
-  useReportSummaryEmptyRenderOnParent(onlyEmptyChildren || isHeaderWithoutComponents);
+
+  useReportSummaryRenderToParent(
+    onlyEmptyChildren || isHeaderWithoutComponents ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent,
+  );
 
   if (isGridRowHidden(row, isHiddenSelector)) {
     return null;
@@ -402,7 +406,10 @@ function SummaryCellWithComponent({
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { textResourceBindings } = useNodeItem(node) ?? {};
   const content = getComponentCellData(node, displayData, textResourceBindings);
-  useReportSummaryEmptyRender(typeof content === 'string' && content.trim() === '');
+
+  useReportSummaryRender(
+    typeof content === 'string' && content.trim() === '' ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent,
+  );
 
   if (isHidden) {
     return <CellComponent />;

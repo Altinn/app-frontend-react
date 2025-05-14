@@ -8,7 +8,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import classes from 'src/layout/Likert/Summary2/LikertSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -31,7 +31,7 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
     return (
       <SummaryFlex
         target={target}
-        isEmpty={true}
+        content={SummaryContains.EmptyValue}
       >
         <SingleValueSummary
           title={
@@ -53,7 +53,7 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
   return (
     <SummaryFlex
       target={target}
-      isEmpty={false}
+      content={SummaryContains.SomeUserContent}
     >
       <div className={classes.summaryItemWrapper}>
         <div className={classes.summaryItem}>

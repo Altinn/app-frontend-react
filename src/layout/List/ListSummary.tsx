@@ -12,7 +12,7 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import classes from 'src/layout/List/ListComponent.module.css';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -46,7 +46,7 @@ export const ListSummary = ({ target }: Summary2Props<'List'>) => {
     return (
       <SummaryFlex
         target={target}
-        isEmpty={false}
+        content={SummaryContains.SomeUserContent}
       >
         <div className={classes.listContainer}>
           <div className={classes.headerContainer}>
@@ -111,7 +111,7 @@ export const ListSummary = ({ target }: Summary2Props<'List'>) => {
   return (
     <SummaryFlex
       target={target}
-      isEmpty={true}
+      content={SummaryContains.EmptyValue}
     >
       <SingleValueSummary
         title={

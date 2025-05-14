@@ -1,7 +1,9 @@
 import React, { createContext, useEffect, useReducer, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
-type Action = 'INCREMENT_EMPTY' | 'DECREMENT_EMPTY' | 'INCREMENT_NOT_EMPTY' | 'DECREMENT_NOT_EMPTY';
+import { SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+
+type Action = { when: 'mount'; content: SummaryContains } | { when: 'unmount'; content: SummaryContains };
 
 export interface EmptyChildrenContext {
   parent?: EmptyChildrenContext;
@@ -20,30 +22,33 @@ const Context = createContext<EmptyChildrenContext | undefined>(undefined);
  */
 export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
   const parent = React.useContext(Context);
-  const countsRef = useRef({ empty: 0, notEmpty: 0 });
+  const countsRef = useRef({ empty: 0, notEmpty: 0, presentational: 0, initialRender: true });
 
   const [onlyEmptyChildren, dispatch] = useReducer((_prevState: boolean, action: Action): boolean => {
-    switch (action) {
-      case 'INCREMENT_EMPTY':
-        countsRef.current.empty += 1;
+    const amountToAdd = action.when === 'mount' ? 1 : -1;
+    switch (action.content) {
+      case SummaryContains.EmptyValue:
+        countsRef.current.empty += amountToAdd;
         break;
-      case 'DECREMENT_EMPTY':
-        countsRef.current.empty -= 1;
+      case SummaryContains.SomeUserContent:
+        countsRef.current.notEmpty += amountToAdd;
         break;
-      case 'INCREMENT_NOT_EMPTY':
-        countsRef.current.notEmpty += 1;
-        break;
-      case 'DECREMENT_NOT_EMPTY':
-        countsRef.current.notEmpty -= 1;
+      case SummaryContains.Presentational:
+        countsRef.current.presentational += amountToAdd;
         break;
     }
 
-    const newEmpty = countsRef.current.empty;
-    const newNotEmpty = countsRef.current.notEmpty;
-    const total = newEmpty + newNotEmpty;
+    const totalWithContent = countsRef.current.empty + countsRef.current.notEmpty;
+    const isInitialRender = countsRef.current.initialRender;
+    countsRef.current.initialRender = false;
 
-    const isInitialRender = total === 0;
-    return !isInitialRender && newEmpty === total;
+    if (countsRef.current.presentational > 0 && totalWithContent === 0) {
+      // Do not hide groups with only presentational content in them. We only do that when there are additional
+      // components that could have had content in them.
+      return false;
+    }
+
+    return !isInitialRender && countsRef.current.empty === totalWithContent;
   }, false);
 
   return <Context.Provider value={{ parent, onlyEmptyChildren, dispatch }}>{children}</Context.Provider>;
@@ -58,24 +63,24 @@ export function useHasOnlyEmptyChildren() {
   return context.onlyEmptyChildren;
 }
 
-function useMarkRendering(ctx: EmptyChildrenContext | undefined, isEmpty: boolean) {
+function useMarkRendering(ctx: EmptyChildrenContext | undefined, content: SummaryContains) {
   const dispatch = ctx?.dispatch;
 
   useEffect(() => {
-    dispatch?.(isEmpty ? 'INCREMENT_EMPTY' : 'INCREMENT_NOT_EMPTY');
+    dispatch?.({ when: 'mount', content });
 
     return () => {
-      dispatch?.(isEmpty ? 'DECREMENT_EMPTY' : 'DECREMENT_NOT_EMPTY');
+      dispatch?.({ when: 'unmount', content });
     };
-  }, [dispatch, isEmpty]);
+  }, [dispatch, content]);
 }
 
-export function useReportSummaryEmptyRender(isEmpty: boolean) {
+export function useReportSummaryRender(content: SummaryContains) {
   const ctx = React.useContext(Context);
-  useMarkRendering(ctx, isEmpty);
+  useMarkRendering(ctx, content);
 }
 
-export function useReportSummaryEmptyRenderOnParent(isEmpty: boolean) {
+export function useReportSummaryRenderToParent(content: SummaryContains) {
   const ctx = React.useContext(Context);
-  useMarkRendering(ctx?.parent, isEmpty);
+  useMarkRendering(ctx?.parent, content);
 }
