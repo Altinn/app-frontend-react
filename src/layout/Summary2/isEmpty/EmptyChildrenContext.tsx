@@ -1,13 +1,12 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useReducer, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
+
+type Action = 'INCREMENT_EMPTY' | 'DECREMENT_EMPTY' | 'INCREMENT_NOT_EMPTY' | 'DECREMENT_NOT_EMPTY';
 
 export interface EmptyChildrenContext {
   parent?: EmptyChildrenContext;
-  empty: number;
-  notEmpty: number;
-  total: number;
-  setNumEmpty: React.Dispatch<React.SetStateAction<number>>;
-  setNumNotEmpty: React.Dispatch<React.SetStateAction<number>>;
+  onlyEmptyChildren: boolean;
+  dispatch: React.Dispatch<Action>;
 }
 
 const Context = createContext<EmptyChildrenContext | undefined>(undefined);
@@ -21,23 +20,33 @@ const Context = createContext<EmptyChildrenContext | undefined>(undefined);
  */
 export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
   const parent = React.useContext(Context);
-  const [empty, setNumEmpty] = useState(0);
-  const [notEmpty, setNumNotEmpty] = useState(0);
+  const countsRef = useRef({ empty: 0, notEmpty: 0 });
 
-  return (
-    <Context.Provider
-      value={{
-        parent,
-        empty,
-        notEmpty,
-        total: empty + notEmpty,
-        setNumEmpty,
-        setNumNotEmpty,
-      }}
-    >
-      {children}
-    </Context.Provider>
-  );
+  const [onlyEmptyChildren, dispatch] = useReducer((_prevState: boolean, action: Action): boolean => {
+    switch (action) {
+      case 'INCREMENT_EMPTY':
+        countsRef.current.empty += 1;
+        break;
+      case 'DECREMENT_EMPTY':
+        countsRef.current.empty -= 1;
+        break;
+      case 'INCREMENT_NOT_EMPTY':
+        countsRef.current.notEmpty += 1;
+        break;
+      case 'DECREMENT_NOT_EMPTY':
+        countsRef.current.notEmpty -= 1;
+        break;
+    }
+
+    const newEmpty = countsRef.current.empty;
+    const newNotEmpty = countsRef.current.notEmpty;
+    const total = newEmpty + newNotEmpty;
+
+    const isInitialRender = total === 0;
+    return !isInitialRender && newEmpty === total;
+  }, false);
+
+  return <Context.Provider value={{ parent, onlyEmptyChildren, dispatch }}>{children}</Context.Provider>;
 }
 
 export function useHasOnlyEmptyChildren() {
@@ -46,36 +55,19 @@ export function useHasOnlyEmptyChildren() {
     throw new Error('useHasOnlyEmptyChildren must be used within a EmptyChildrenBoundary');
   }
 
-  const isInitialRender = context.total === 0 && context.empty === 0 && context.notEmpty === 0;
-  if (isInitialRender) {
-    // If we returned true here, that would likely short-circuit the entire thing and we'd end up never rendering out
-    // any children after all.
-    return false;
-  }
-
-  return context.empty === context.total;
+  return context.onlyEmptyChildren;
 }
 
 function useMarkRendering(ctx: EmptyChildrenContext | undefined, isEmpty: boolean) {
-  const setNumEmpty = ctx?.setNumEmpty;
-  const setNumNotEmpty = ctx?.setNumNotEmpty;
+  const dispatch = ctx?.dispatch;
 
   useEffect(() => {
-    if (isEmpty) {
-      setNumEmpty?.((e) => e + 1);
-    } else {
-      setNumNotEmpty?.((e) => e + 1);
-    }
+    dispatch?.(isEmpty ? 'INCREMENT_EMPTY' : 'INCREMENT_NOT_EMPTY');
 
-    // Revert changes when unmounting, in case data changes
     return () => {
-      if (isEmpty) {
-        setNumEmpty?.((e) => e - 1);
-      } else {
-        setNumNotEmpty?.((e) => e - 1);
-      }
+      dispatch?.(isEmpty ? 'DECREMENT_EMPTY' : 'DECREMENT_NOT_EMPTY');
     };
-  }, [setNumEmpty, setNumNotEmpty, isEmpty]);
+  }, [dispatch, isEmpty]);
 }
 
 export function useReportSummaryEmptyRender(isEmpty: boolean) {
