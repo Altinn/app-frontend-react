@@ -218,6 +218,8 @@ function makeActions(
   schemaLookup: { [dataType: string]: SchemaLookupTool },
 ): FormDataMethods {
   function setDebounceTimeout(state: FormDataContext, change: FDChange) {
+    console.log('DEFAULT_DEBOUNCE_TIMEOUT', DEFAULT_DEBOUNCE_TIMEOUT);
+
     state.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
 

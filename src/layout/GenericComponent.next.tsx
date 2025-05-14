@@ -4,8 +4,12 @@ import dot from 'dot-object';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { FD } from 'src/features/formData/FormDataWrite';
+import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { layoutStore, type ResolvedCompExternal } from 'src/next/stores/layoutStore';
+import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal, CompTypes } from 'src/layout/layout';
 
 export interface RenderComponentType {
@@ -72,18 +76,35 @@ type InputComponent = {
 } & CommonInputProps;
 
 function RenderInputComponent({ component, indices }: InputComponent) {
-  const data = useResolvedData<'Input'>(component.dataModelBindings, indices);
   const textResources = useResolvedTexts<'Input'>(component.textResourceBindings);
-  const setBoundValue = useStore(layoutStore, (state) => state.setBoundValue);
+
+  const type = DataModels.useDefaultDataType();
+
+  const bindingAsString = component.dataModelBindings.simpleBinding as unknown as string;
+
+  const dataModelReference: IDataModelReference = {
+    dataType: type || '',
+    field: getDataModelPathWithIndices(bindingAsString, indices) as unknown as string, // component.dataModelBindings.simpleBinding as unknown as string,
+  };
+
+  const {
+    formData: { simpleBinding: realFormValue },
+    setValue: _,
+  } = useDataModelBindings({ simpleBinding: dataModelReference }, 400);
+
+  const setLeafValue = FD.useSetLeafValue();
 
   function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
-    setBoundValue(component, value);
+    setLeafValue({
+      reference: dataModelReference,
+      newValue: value,
+    });
   }
 
   return (
     <DumbInputComponent
-      data={data}
+      data={realFormValue}
       textResources={textResources}
       onChange={handleChange}
     />
@@ -95,7 +116,8 @@ function DumbInputComponent({
   textResources,
   onChange,
 }: {
-  data: ResolvedData<'Input'>;
+  data: string;
+
   textResources: ResolvedTexts<'Input'>;
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
@@ -105,7 +127,7 @@ function DumbInputComponent({
       <pre>textResources: {JSON.stringify(textResources, null, 2)}</pre>
       <input
         type='text'
-        value={data?.simpleBinding}
+        value={data}
         onChange={(event) => {
           onChange(event);
         }}

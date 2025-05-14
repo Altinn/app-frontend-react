@@ -91,24 +91,19 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
     );
   }
 
-  if (component && implementedNextComponents.includes(component.type)) {
-    return (
-      <>
-        <h1>Hallo</h1>
-        <RenderComponentById
-          id={node.baseId}
-          indices={indices}
-        />
-      </>
-    );
-  }
-
   if (!node || !itemExists) {
     return false;
   }
 
   return (
     <ComponentErrorBoundary node={node}>
+      {component && implementedNextComponents.includes(component.type) && (
+        <RenderComponentById
+          id={node.baseId}
+          indices={indices}
+        />
+      )}
+
       <ActualGenericComponent<Type>
         node={node}
         overrideItemProps={overrideItemProps}
