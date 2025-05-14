@@ -4,7 +4,8 @@ import { Heading } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
-import { ComponentSummaryById, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummaryById, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import classes from 'src/layout/Tabs/TabsSummary.module.css';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
@@ -15,6 +16,7 @@ type TabsSummaryProps = {
 };
 
 export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const tabs = useNodeItem(componentNode, (i) => i.tabsInternal);
 
   if (!tabs || tabs.length === 0) {
@@ -22,9 +24,9 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
   }
 
   return (
-    <SummaryFlex
+    <SummaryFlexForContainer
       target={componentNode}
-      isEmpty={tabs.length === 0}
+      hideWhen={hideEmptyFields}
     >
       <div
         className={classes.summaryContent}
@@ -67,6 +69,6 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
           </div>
         ))}
       </div>
-    </SummaryFlex>
+    </SummaryFlexForContainer>
   );
 };
