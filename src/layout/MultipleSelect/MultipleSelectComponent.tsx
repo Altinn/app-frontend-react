@@ -4,7 +4,6 @@ import { EXPERIMENTAL_MultiSuggestion, Field } from '@digdir/designsystemet-reac
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { getDescriptionId } from 'src/components/label/Label';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
@@ -15,6 +14,7 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import utilclasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
@@ -87,74 +87,75 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
         help={getHelpTextComponent()}
         description={getDescriptionComponent()}
       >
-        <ConditionalWrapper
-          condition={Boolean(alertOnChange)}
-          wrapper={(children) => (
-            <DeleteWarningPopover
-              deleteButtonText={langAsString('form_filler.alert_confirm')}
-              messageText={alertMessage}
-              onCancelClick={onCancelClick}
-              onPopoverDeleteClick={confirmChange}
-              open={alertOpen}
-              setOpen={setAlertOpen}
-            >
-              {children}
-            </DeleteWarningPopover>
-          )}
-        >
-          <ComponentStructureWrapper node={node}>
-            <EXPERIMENTAL_MultiSuggestion
-              key={componentKey}
-              id={id}
-              data-testid='multiple-select-component'
-              filter={optionFilter}
-              data-size='sm'
-              value={selectedValues}
-              onValueChange={handleChange}
-              onBlur={debounce}
-            >
-              <EXPERIMENTAL_MultiSuggestion.Chips render={(e) => e.text} />
-              <EXPERIMENTAL_MultiSuggestion.Input
-                aria-invalid={!isValid}
-                aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-                aria-describedby={
-                  overrideDisplay?.renderedInTable !== true &&
-                  textResourceBindings?.title &&
-                  textResourceBindings?.description
-                    ? getDescriptionId(id)
-                    : undefined
-                }
-                readOnly={readOnly}
-              />
-              <EXPERIMENTAL_MultiSuggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
-              <EXPERIMENTAL_MultiSuggestion.List>
-                <EXPERIMENTAL_MultiSuggestion.Empty>
-                  <Lang id='form_filler.no_options_found' />
-                </EXPERIMENTAL_MultiSuggestion.Empty>
-                {options.map((option) => (
-                  <EXPERIMENTAL_MultiSuggestion.Option
-                    key={option.value}
-                    value={option.value}
-                  >
-                    <span>
-                      <wbr />
+        <ComponentStructureWrapper node={node}>
+          <EXPERIMENTAL_MultiSuggestion
+            key={componentKey}
+            id={id}
+            data-testid='multiple-select-component'
+            filter={optionFilter}
+            data-size='sm'
+            value={selectedValues}
+            onValueChange={handleChange}
+            onBlur={debounce}
+          >
+            <EXPERIMENTAL_MultiSuggestion.Chips render={(e) => e.text} />
+            {alertOnChange && (
+              <DeleteWarningPopover
+                deleteButtonText={langAsString('form_filler.alert_confirm')}
+                messageText={alertMessage}
+                onCancelClick={onCancelClick}
+                onPopoverDeleteClick={confirmChange}
+                open={alertOpen}
+                setOpen={setAlertOpen}
+              >
+                <span
+                  className={utilclasses.visuallyHidden}
+                  aria-hidden='true'
+                >
+                  Trigger
+                </span>
+              </DeleteWarningPopover>
+            )}
+            <EXPERIMENTAL_MultiSuggestion.Input
+              aria-invalid={!isValid}
+              aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+              aria-describedby={
+                overrideDisplay?.renderedInTable !== true &&
+                textResourceBindings?.title &&
+                textResourceBindings?.description
+                  ? getDescriptionId(id)
+                  : undefined
+              }
+              readOnly={readOnly}
+            />
+            <EXPERIMENTAL_MultiSuggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
+            <EXPERIMENTAL_MultiSuggestion.List>
+              <EXPERIMENTAL_MultiSuggestion.Empty>
+                <Lang id='form_filler.no_options_found' />
+              </EXPERIMENTAL_MultiSuggestion.Empty>
+              {options.map((option) => (
+                <EXPERIMENTAL_MultiSuggestion.Option
+                  key={option.value}
+                  value={option.value}
+                >
+                  <span>
+                    <wbr />
+                    <Lang
+                      id={option.label}
+                      node={node}
+                    />
+                    {option.description && (
                       <Lang
-                        id={option.label}
+                        id={option.description}
                         node={node}
                       />
-                      {option.description && (
-                        <Lang
-                          id={option.description}
-                          node={node}
-                        />
-                      )}
-                    </span>
-                  </EXPERIMENTAL_MultiSuggestion.Option>
-                ))}
-              </EXPERIMENTAL_MultiSuggestion.List>
-            </EXPERIMENTAL_MultiSuggestion>
-          </ComponentStructureWrapper>
-        </ConditionalWrapper>
+                    )}
+                  </span>
+                </EXPERIMENTAL_MultiSuggestion.Option>
+              ))}
+            </EXPERIMENTAL_MultiSuggestion.List>
+          </EXPERIMENTAL_MultiSuggestion>
+        </ComponentStructureWrapper>
       </Label>
     </Field>
   );
