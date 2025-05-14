@@ -37,29 +37,23 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
 
   if (rows.length === 0) {
     return (
-      <HideWhenAllChildrenEmpty
-        when={hideEmptyFields}
-        render={(className, isEmpty) => (
-          <SummaryFlex
-            target={target}
-            className={className}
-            isEmpty={isEmpty}
-          >
-            <SingleValueSummary
-              title={
-                <Lang
-                  id={title}
-                  node={componentNode}
-                />
-              }
-              componentNode={componentNode}
-              errors={errors}
-              isCompact={isCompact}
-              emptyFieldText={overrides?.emptyFieldText}
+      <SummaryFlex
+        target={target}
+        isEmpty={true}
+      >
+        <SingleValueSummary
+          title={
+            <Lang
+              id={title}
+              node={componentNode}
             />
-          </SummaryFlex>
-        )}
-      />
+          }
+          componentNode={componentNode}
+          errors={errors}
+          isCompact={isCompact}
+          emptyFieldText={overrides?.emptyFieldText}
+        />
+      </SummaryFlex>
     );
   }
 

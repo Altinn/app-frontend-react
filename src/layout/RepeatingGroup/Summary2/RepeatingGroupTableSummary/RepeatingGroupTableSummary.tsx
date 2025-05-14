@@ -21,7 +21,6 @@ import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTable
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { EditButtonById } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { useReportSummaryEmptyRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
@@ -32,15 +31,7 @@ import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const RepeatingGroupTableSummary = ({
-  componentNode,
-  isCompact,
-  emptyFieldText,
-}: {
-  componentNode: LayoutNode<'RepeatingGroup'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-}) => {
+export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: LayoutNode<'RepeatingGroup'> }) => {
   const isMobile = useIsMobile();
   const pdfModeActive = usePdfModeActive();
   const isSmall = isMobile && !pdfModeActive;
@@ -55,23 +46,6 @@ export const RepeatingGroupTableSummary = ({
   const tableIds = useIndexedComponentIds(useTableComponentIds(componentNode), locationForFirstRow);
   const { tableColumns } = useNodeItem(componentNode);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
-
-  if (rows.length === 0) {
-    return (
-      <SingleValueSummary
-        title={
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        }
-        componentNode={componentNode}
-        errors={errors}
-        isCompact={isCompact}
-        emptyFieldText={emptyFieldText}
-      />
-    );
-  }
 
   return (
     <div
@@ -106,7 +80,6 @@ export const RepeatingGroupTableSummary = ({
               key={`${row?.uuid}-${index}`}
             >
               <DataRow
-                key={row?.uuid}
                 row={row}
                 node={componentNode}
                 pdfModeActive={pdfModeActive}
