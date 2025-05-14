@@ -27,7 +27,7 @@ import {
 import {
   ComponentSummary,
   HideWhenAllChildrenEmpty,
-  SummaryFlexHideWhenAllChildrenEmpty,
+  SummaryFlexForContainer,
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
@@ -122,8 +122,8 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   }
 
   return (
-    <SummaryFlexHideWhenAllChildrenEmpty
-      when={hideEmptyFields}
+    <SummaryFlexForContainer
+      hideWhen={hideEmptyFields}
       target={componentNode}
     >
       <Table
@@ -146,7 +146,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
         )}
         {tableSections}
       </Table>
-    </SummaryFlexHideWhenAllChildrenEmpty>
+    </SummaryFlexForContainer>
   );
 };
 
@@ -176,7 +176,7 @@ function SummaryGridRowRenderer(props: GridRowProps) {
 
   return (
     <HideWhenAllChildrenEmpty
-      when={hideEmptyRows}
+      hideWhen={hideEmptyRows}
       render={(className) => (
         <SummaryInternalRow
           readOnly={row.readOnly}

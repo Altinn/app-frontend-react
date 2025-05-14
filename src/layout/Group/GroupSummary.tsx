@@ -8,10 +8,7 @@ import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/Condit
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
-import {
-  ComponentSummary,
-  SummaryFlexHideWhenAllChildrenEmpty,
-} from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { ComponentSummary, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -74,12 +71,12 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupCompone
     <ConditionalWrapper
       condition={hierarchyLevel === 0}
       wrapper={(children) => (
-        <SummaryFlexHideWhenAllChildrenEmpty
-          when={hideEmptyFields}
+        <SummaryFlexForContainer
+          hideWhen={hideEmptyFields}
           target={componentNode}
         >
           {children}
-        </SummaryFlexHideWhenAllChildrenEmpty>
+        </SummaryFlexForContainer>
       )}
     >
       <section

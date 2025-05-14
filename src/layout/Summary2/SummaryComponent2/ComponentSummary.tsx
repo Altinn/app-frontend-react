@@ -5,6 +5,7 @@ import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
+import { CompCategory } from 'src/layout/common';
 import { useHasOnlyEmptyChildren, useReportSummaryEmptyRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import classes from 'src/layout/Summary2/Summary2.module.css';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
@@ -73,7 +74,22 @@ function SummaryFlexInternal({ target, children, className }: Omit<SummaryFlexPr
   );
 }
 
+/**
+ * The SummaryFlex component (or variants of it) should always be the first rendered component returned when a
+ * layout-component renders Summary2. This will add the proper Flex component, and will properly handle the 'empty'
+ * functionality that makes the 'hideEmptyFields' functionality work. If a component is a container that wraps other
+ * layout-components it should consider using one of these instead:
+ *
+ * @see SummaryFlexForContainer
+ * @see HideWhenAllChildrenEmpty
+ */
 export function SummaryFlex({ target, className, isEmpty, children }: SummaryFlexProps) {
+  if (target.def.category === CompCategory.Container && !isEmpty) {
+    throw new Error(
+      `SummaryFlex rendered with ${target.type} target. Use SummaryFlexForContainer or HideWhenAllChildrenEmpty instead.`,
+    );
+  }
+
   const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const isHidden = useIsHidden(target);
   const isHiddenBecauseEmpty = useIsHiddenBecauseEmpty(target, isEmpty);
@@ -97,18 +113,27 @@ export function SummaryFlex({ target, className, isEmpty, children }: SummaryFle
 }
 
 interface HideWhenAllChildrenEmptyProps {
-  when: boolean | undefined;
+  hideWhen: boolean | undefined;
 }
 
-export function SummaryFlexHideWhenAllChildrenEmpty({
-  when,
+/**
+ * This is an alternative to SummaryFlex, for use in container components. It will not register itself as empty in any
+ * way, but it will hide itself when `hideWhen` is true and all children are registered as empty.
+ * @see HideWhenAllChildrenEmpty
+ */
+export function SummaryFlexForContainer({
+  hideWhen,
   target,
   children,
 }: HideWhenAllChildrenEmptyProps & Pick<SummaryFlexProps, 'target' | 'children'>) {
+  if (target.def.category !== CompCategory.Container) {
+    throw new Error(`SummaryFlexForContainer rendered with ${target.type} target. Use SummaryFlex instead.`);
+  }
+
   const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
 
-  if (hasOnlyEmptyChildren && when === true && (hiddenOverride === false || hiddenOverride !== 'show')) {
+  if (hasOnlyEmptyChildren && hideWhen === true && (hiddenOverride === false || hiddenOverride !== 'show')) {
     // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
     // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
     // could never report changes and go from being empty to not being empty anymore.
@@ -136,11 +161,17 @@ interface ExtraRenderProp {
   render: (className: string, isEmpty: boolean) => JSX.Element;
 }
 
-export function HideWhenAllChildrenEmpty({ when, render }: HideWhenAllChildrenEmptyProps & ExtraRenderProp) {
+/**
+ * This is useful when you want to hide something when all children are empty, but you don't want a SummaryFlex
+ * component to be rendered as well. This lets you place a EmptyChildrenBoundary in the middle of your layout-component,
+ * for example to conditionally show a row in Grid only if any of the child-components are non-empty.
+ * @see EmptyChildrenBoundary
+ */
+export function HideWhenAllChildrenEmpty({ hideWhen, render }: HideWhenAllChildrenEmptyProps & ExtraRenderProp) {
   const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
 
-  if (hasOnlyEmptyChildren && when === true && (hiddenOverride === false || hiddenOverride !== 'show')) {
+  if (hasOnlyEmptyChildren && hideWhen === true && (hiddenOverride === false || hiddenOverride !== 'show')) {
     // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
     // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
     // could never report changes and go from being empty to not being empty anymore.

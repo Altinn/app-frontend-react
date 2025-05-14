@@ -15,7 +15,7 @@ import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/
 import {
   ComponentSummaryById,
   SummaryFlex,
-  SummaryFlexHideWhenAllChildrenEmpty,
+  SummaryFlexForContainer,
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
@@ -62,18 +62,18 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
 
   if (display === 'table' && componentNode) {
     return (
-      <SummaryFlexHideWhenAllChildrenEmpty
-        when={hideEmptyFields}
+      <SummaryFlexForContainer
+        hideWhen={hideEmptyFields}
         target={target}
       >
         <RepeatingGroupTableSummary componentNode={componentNode} />
-      </SummaryFlexHideWhenAllChildrenEmpty>
+      </SummaryFlexForContainer>
     );
   }
 
   return (
-    <SummaryFlexHideWhenAllChildrenEmpty
-      when={hideEmptyFields}
+    <SummaryFlexForContainer
+      hideWhen={hideEmptyFields}
       target={target}
     >
       <div
@@ -133,6 +133,6 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
           </ErrorMessage>
         ))}
       </div>
-    </SummaryFlexHideWhenAllChildrenEmpty>
+    </SummaryFlexForContainer>
   );
 };
