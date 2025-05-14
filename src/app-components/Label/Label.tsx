@@ -10,6 +10,7 @@ import classes from 'src/app-components/Label/Label.module.css';
 import type { IGridStyling } from 'src/layout/common.generated';
 
 type LabelProps = {
+  id?: string;
   label: string | ReactElement | undefined;
   htmlFor?: DesignsystemetLabelProps['htmlFor'];
   required?: boolean;
@@ -24,6 +25,7 @@ type LabelProps = {
 
 export const Label = forwardRef<HTMLLabelElement, PropsWithChildren<LabelProps>>(function Label(
   {
+    id,
     label,
     htmlFor,
     required,
@@ -55,9 +57,10 @@ export const Label = forwardRef<HTMLLabelElement, PropsWithChildren<LabelProps>>
         <span className={classes.labelAndDescWrapper}>
           <span className={classes.labelAndHelpWrapper}>
             <DesignsystemetLabel
+              id={id}
               ref={ref}
               weight='medium'
-              size='md'
+              data-size='md'
               htmlFor={htmlFor}
               className={cn(className, {
                 [classes.labelPadding]: !children,

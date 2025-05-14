@@ -96,7 +96,7 @@ export function AppNavigationHeading({
       <Heading
         id='app-navigation-heading'
         level={3}
-        size='xs'
+        data-size='xs'
       >
         <Lang id='navigation.form_pages' />
       </Heading>
@@ -104,7 +104,7 @@ export function AppNavigationHeading({
         <Button
           variant='tertiary'
           color='second'
-          size='sm'
+          data-size='sm'
           icon={true}
           onClick={onClose}
           aria-label={langAsString('general.close')}
