@@ -29,7 +29,7 @@ describe('Checkboxes component', () => {
       .should('have.text', expectedText);
   });
 
-  it('Adds and removes data properly when using group and soft deletion', () => {
+  it('Adds and removes data properly when using group and soft deletion and Number', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.gotoNavPage('Avkryssningsbokser');
 
@@ -42,6 +42,10 @@ describe('Checkboxes component', () => {
     const checkboxText3 = 'Johanne';
     const checkboxText4 = 'Kari';
     const checkboxText5 = 'Petter';
+
+    const checkboxValue1 = '1';
+    const checkboxValue2 = '2';
+    const checkboxValue3 = '3';
 
     //Check options in checkboxes component
     cy.get(checkboxes).contains('label', checkboxText1).prev('input[type="checkbox"]').click();
@@ -62,9 +66,9 @@ describe('Checkboxes component', () => {
     cy.get(checkboxes).contains('label', checkboxText5).prev('input[type="checkbox"]').should('not.be.checked');
 
     //Validate that the corresponding options in checkboxes is avaliable in repeating group<
-    cy.get(repGroup).findByRole('cell', { name: checkboxText1 }).should('exist');
-    cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).should('exist');
-    cy.get(repGroup).findByRole('cell', { name: checkboxText3 }).should('exist');
+    cy.get(repGroup).findByRole('cell', { name: checkboxValue1 }).should('exist');
+    cy.get(repGroup).findByRole('cell', { name: checkboxValue2 }).should('exist');
+    cy.get(repGroup).findByRole('cell', { name: checkboxValue3 }).should('exist');
 
     // Removing from RepeatingGroup should deselect from List
     cy.get(repGroup).findAllByRole('row').should('have.length', 4); // Header + 1 row
@@ -85,7 +89,7 @@ describe('Checkboxes component', () => {
     cy.findAllByRole('button', { name: /Lagre og lukk/ })
       .last()
       .click();
-    cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).parent().contains('td', '20');
+    cy.get(repGroup).findByRole('cell', { name: checkboxValue2 }).parent().contains('td', '20');
     cy.get(checkboxes).contains('label', checkboxText2).prev('input[type="checkbox"]').click();
 
     cy.get(repGroup).findAllByRole('row').should('have.length', 2);
@@ -93,7 +97,7 @@ describe('Checkboxes component', () => {
     // Checking 'Kåre' again should bring back the surname
     cy.get(checkboxes).contains('label', checkboxText2).prev('input[type="checkbox"]').click();
     cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 1 row
-    cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).should('exist');
+    cy.get(repGroup).findByRole('cell', { name: checkboxValue2 }).should('exist');
     cy.get(repGroup).findAllByRole('cell', { name: '20' }).should('exist');
   });
 
@@ -128,11 +132,9 @@ describe('Checkboxes component', () => {
     cy.get(checkboxes).contains('label', checkboxText4).prev('input[type="checkbox"]').should('not.be.checked');
     cy.get(checkboxes).contains('label', checkboxText5).prev('input[type="checkbox"]').should('not.be.checked');
 
-    const expectedText = [checkboxText1, checkboxText2, checkboxText3].join(', ');
-
     cy.get(`div${summary2}`)
       .next()
       .find('span.fds-paragraph') // Targets the span with the summary text
-      .should('have.text', expectedText);
+      .should('have.text', '1, 2, 3');
   });
 });
