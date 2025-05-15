@@ -22,7 +22,7 @@ const Context = createContext<EmptyChildrenContext | undefined>(undefined);
  */
 export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
   const parent = React.useContext(Context);
-  const countsRef = useRef({ empty: 0, notEmpty: 0, presentational: 0, initialRender: true });
+  const countsRef = useRef({ empty: 0, notEmpty: 0, presentational: 0 });
 
   const [onlyEmptyChildren, dispatch] = useReducer((_prevState: boolean, action: Action): boolean => {
     const amountToAdd = action.when === 'mount' ? 1 : -1;
@@ -38,17 +38,11 @@ export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
         break;
     }
 
-    const totalWithContent = countsRef.current.empty + countsRef.current.notEmpty;
-    const isInitialRender = countsRef.current.initialRender;
-    countsRef.current.initialRender = false;
+    const totalWithoutPresentational = countsRef.current.empty + countsRef.current.notEmpty;
 
-    if (countsRef.current.presentational > 0 && totalWithContent === 0) {
-      // Do not hide groups with only presentational content in them. We only do that when there are additional
-      // components that could have had content in them.
-      return false;
-    }
-
-    return !isInitialRender && countsRef.current.empty === totalWithContent;
+    // Do not hide groups with only presentational content in them. We only do that when there are additional
+    // components that could have had content in them.
+    return totalWithoutPresentational > 0 && countsRef.current.empty === totalWithoutPresentational;
   }, false);
 
   return <Context.Provider value={{ parent, onlyEmptyChildren, dispatch }}>{children}</Context.Provider>;

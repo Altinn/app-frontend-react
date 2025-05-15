@@ -407,9 +407,8 @@ function SummaryCellWithComponent({
   const { textResourceBindings } = useNodeItem(node) ?? {};
   const content = getComponentCellData(node, displayData, textResourceBindings);
 
-  useReportSummaryRender(
-    typeof content === 'string' && content.trim() === '' ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent,
-  );
+  const isEmpty = typeof content === 'string' && content.trim() === '';
+  useReportSummaryRender(isEmpty ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent);
 
   if (isHidden) {
     return <CellComponent />;
@@ -420,6 +419,8 @@ function SummaryCellWithComponent({
       className={classes.tableCellFormatting}
       style={columnStyles}
       data-header-title={isSmall ? headerTitle : ''}
+      data-is-empty={isEmpty ? 'yes' : 'no'}
+      data-cell-node={node.id}
     >
       <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
         {content}
