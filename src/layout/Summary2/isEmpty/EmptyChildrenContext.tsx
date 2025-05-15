@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useReducer, useRef } from 'react';
+import React, { createContext, useLayoutEffect, useReducer, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -60,12 +60,9 @@ export function useHasOnlyEmptyChildren() {
 function useMarkRendering(ctx: EmptyChildrenContext | undefined, content: SummaryContains) {
   const dispatch = ctx?.dispatch;
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     dispatch?.({ when: 'mount', content });
-
-    return () => {
-      dispatch?.({ when: 'unmount', content });
-    };
+    return () => dispatch?.({ when: 'unmount', content });
   }, [dispatch, content]);
 }
 
