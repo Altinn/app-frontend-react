@@ -59,32 +59,32 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
   }
 
   return (
-    <ConditionalWrapper
-      condition={Boolean(alertOnChange)}
-      wrapper={(children) => (
-        <DeleteWarningPopover
-          onPopoverDeleteClick={confirmChange}
-          onCancelClick={cancelChange}
-          deleteButtonText={langAsString('form_filler.alert_confirm')}
-          messageText={alertMessage}
-          open={alertOpen}
-          setOpen={setAlertOpen}
-        >
-          {children}
-        </DeleteWarningPopover>
-      )}
+    <Label
+      htmlFor={id}
+      label={labelText}
+      grid={grid?.labelGrid}
+      required={required}
+      requiredIndicator={getRequiredComponent()}
+      optionalIndicator={getOptionalComponent()}
+      help={getHelpTextComponent()}
+      description={getDescriptionComponent()}
     >
-      <Label
-        htmlFor={id}
-        label={labelText}
-        grid={grid?.labelGrid}
-        required={required}
-        requiredIndicator={getRequiredComponent()}
-        optionalIndicator={getOptionalComponent()}
-        help={getHelpTextComponent()}
-        description={getDescriptionComponent()}
-      >
-        <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper node={node}>
+        <ConditionalWrapper
+          condition={Boolean(alertOnChange)}
+          wrapper={(children) => (
+            <DeleteWarningPopover
+              onPopoverDeleteClick={confirmChange}
+              onCancelClick={cancelChange}
+              deleteButtonText={langAsString('form_filler.alert_confirm')}
+              messageText={alertMessage}
+              open={alertOpen}
+              setOpen={setAlertOpen}
+            >
+              {children}
+            </DeleteWarningPopover>
+          )}
+        >
           <Combobox
             id={id}
             filter={optionSearchFilter}
@@ -120,8 +120,8 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
               </Combobox.Option>
             ))}
           </Combobox>
-        </ComponentStructureWrapper>
-      </Label>
-    </ConditionalWrapper>
+        </ConditionalWrapper>
+      </ComponentStructureWrapper>
+    </Label>
   );
 }
