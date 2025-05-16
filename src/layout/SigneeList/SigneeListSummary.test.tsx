@@ -9,16 +9,28 @@ import { Lang } from 'src/features/language/Lang';
 import { NotificationStatus, SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
 import { SigneeListSummary } from 'src/layout/SigneeList/SigneeListSummary';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 jest.mock('src/layout/SigneeList/api');
 jest.mock('react-router-dom');
 jest.mock('src/utils/layout/useNodeItem');
+jest.mock('src/utils/layout/NodesContext');
 jest.mock('src/features/language/Lang');
 
 describe('SigneeListSummary', () => {
   const mockedUseSigneeList = jest.mocked(useSigneeList);
   const mockedUseNodeItem = jest.mocked(useNodeItem);
+  const mockedUseIsHidden = jest.mocked(Hidden.useIsHidden);
+  const mockedNode = new LayoutNode({
+    type: 'SigneeList',
+    id: 'mock-id',
+    baseId: 'mock-id',
+    multiPageIndex: undefined,
+    rowIndex: undefined,
+    parent: new LayoutPage(),
+  });
 
   beforeEach(() => {
     jest.resetAllMocks();
@@ -30,6 +42,7 @@ describe('SigneeListSummary', () => {
     });
     mockedUseNodeItem.mockReturnValue('title' as unknown as ReturnType<typeof useNodeItem>);
     jest.mocked(Lang).mockImplementation(({ id }: { id: string }) => id);
+    jest.mocked(mockedUseIsHidden).mockReturnValue(false);
   });
 
   it('should render loading state', () => {
@@ -43,7 +56,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
@@ -63,7 +76,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
@@ -83,7 +96,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
@@ -103,7 +116,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
@@ -154,7 +167,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={undefined}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
@@ -179,7 +192,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={undefined}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
@@ -201,7 +214,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={undefined}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
@@ -222,7 +235,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={titleOverride}
-        componentNode={{} as LayoutNode<'SigneeList'>}
+        componentNode={mockedNode}
       />,
     );
 
