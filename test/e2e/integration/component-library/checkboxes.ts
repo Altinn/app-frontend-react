@@ -29,7 +29,7 @@ describe('Checkboxes component', () => {
       .should('have.text', expectedText);
   });
 
-  it('Adds and removes data properly when using group and soft deletion and Number', () => {
+  it('Adds and removes data properly when using group, soft deletion and Number', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.gotoNavPage('Avkryssningsbokser');
 
@@ -91,7 +91,7 @@ describe('Checkboxes component', () => {
     cy.findAllByRole('button', { name: /Lagre og lukk/ })
       .last()
       .click();
-    cy.get(repGroup).findByRole('cell', { name: checkboxValue2 }).parent().contains('td', '20');
+    cy.get(repGroup).findByRole('cell', { name: checkboxValue2 }).parent().contains('td', '2');
     cy.get(checkboxes).contains('label', checkboxText2).prev('input[type="checkbox"]').click();
 
     cy.get(repGroup).findAllByRole('row').should('have.length', 2);
@@ -100,7 +100,7 @@ describe('Checkboxes component', () => {
     cy.get(checkboxes).contains('label', checkboxText2).prev('input[type="checkbox"]').click();
     cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 1 row
     cy.get(repGroup).findByRole('cell', { name: checkboxValue2 }).should('exist');
-    cy.get(repGroup).findAllByRole('cell', { name: '20' }).should('exist');
+    cy.get(repGroup).findAllByRole('cell', { name: '2' }).should('exist');
   });
 
   it('Renders the summary2 component with correct text for Checkboxes with group and soft deletion', () => {
