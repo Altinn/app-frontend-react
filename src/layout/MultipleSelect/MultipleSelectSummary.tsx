@@ -2,7 +2,11 @@ import React from 'react';
 
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
-import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
+import {
+  MultipleValueSummary,
+  useMultipleValuesForSummary,
+} from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -17,19 +21,26 @@ export function MultipleSelectSummary({ target }: Summary2Props<'MultipleSelect'
   const showAsList =
     overrides?.displayType === 'list' || (!overrides?.displayType && displayData?.length >= maxStringLength);
   const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const displayValues = useMultipleValuesForSummary(target);
 
   return (
-    <MultipleValueSummary
-      title={
-        <Lang
-          id={title}
-          node={target}
-        />
-      }
-      componentNode={target}
-      showAsList={showAsList}
-      isCompact={isCompact}
-      emptyFieldText={overrides?.emptyFieldText}
-    />
+    <SummaryFlex
+      target={target}
+      content={displayValues.length === 0 ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
+    >
+      <MultipleValueSummary
+        title={
+          <Lang
+            id={title}
+            node={target}
+          />
+        }
+        componentNode={target}
+        displayValues={displayValues}
+        showAsList={showAsList}
+        isCompact={isCompact}
+        emptyFieldText={overrides?.emptyFieldText}
+      />
+    </SummaryFlex>
   );
 }

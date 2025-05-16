@@ -15,9 +15,11 @@ import { SubformSummaryTable } from 'src/layout/Subform/Summary/SubformSummaryTa
 import {
   getSubformEntryDisplayName,
   useExpressionDataSourcesForSubform,
+  useHasSubformElements,
   useSubformFormData,
 } from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { useSummaryOverrides } from 'src/layout/Summary2/summaryStoreContext';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -27,7 +29,7 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 import type { IData } from 'src/types/shared';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: string }>) => {
+const SummarySubformWrapperInner = ({ nodeId }: PropsWithChildren<{ nodeId: string }>) => {
   const node = useNode(nodeId) as LayoutNode<'Subform'>;
   const { layoutSet, id, textResourceBindings, entryDisplayName } = useNodeItem(node);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
@@ -68,6 +70,9 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
     </>
   );
 };
+
+export const SummarySubformWrapper = React.memo(SummarySubformWrapperInner);
+SummarySubformWrapper.displayName = 'SummarySubformWrapper';
 
 const DoSummaryWrapper = ({
   dataElement,
@@ -145,19 +150,32 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
       })
       .map((data) => data.layout.id),
   );
+  const hasElements = useHasSubformElements(target);
 
-  if (displayType === 'table' && target) {
-    return <SubformSummaryTable targetNode={target} />;
+  const inner =
+    displayType === 'table' && target ? (
+      <SubformSummaryTable targetNode={target} />
+    ) : (
+      <>
+        {allOrOneSubformId.map((childId, idx) => (
+          <SummarySubformWrapper
+            key={idx}
+            nodeId={childId}
+          />
+        ))}
+      </>
+    );
+
+  if (target) {
+    return (
+      <SummaryFlex
+        target={target}
+        content={hasElements ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
+      >
+        {inner}
+      </SummaryFlex>
+    );
   }
 
-  return (
-    <>
-      {allOrOneSubformId.map((childId, idx) => (
-        <SummarySubformWrapper
-          key={idx}
-          nodeId={childId}
-        />
-      ))}
-    </>
-  );
+  return inner;
 }
