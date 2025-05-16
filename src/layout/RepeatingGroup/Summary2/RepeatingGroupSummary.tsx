@@ -17,6 +17,7 @@ import {
   SummaryContains,
   SummaryFlex,
   SummaryFlexForContainer,
+  useSummarySoftHidden,
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
@@ -38,12 +39,14 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
   const isNested = componentNode.parent instanceof LayoutNode;
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
+  const { className } = useSummarySoftHidden(hideEmptyFields && rows.length === 0);
 
   if (rows.length === 0) {
     return (
       <SummaryFlex
         target={target}
         content={SummaryContains.EmptyValue}
+        className={className}
       >
         <SingleValueSummary
           title={

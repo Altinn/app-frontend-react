@@ -1,20 +1,23 @@
 import React from 'react';
+import type { CSSProperties } from 'react';
 
-import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { Hidden, NodesInternal, useGetPage } from 'src/utils/layout/NodesContext';
+import { Flex } from 'src/app-components/Flex/Flex';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { ComponentSummaryById, HideWhenAllChildrenEmpty } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { Hidden, useGetPage } from 'src/utils/layout/NodesContext';
 
 interface PageSummaryProps {
   pageId: string;
 }
 
+const fullWidth: CSSProperties = { width: '100%' };
+
 export function PageSummary({ pageId }: PageSummaryProps) {
   const page = useGetPage(pageId);
-  const children = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((nodeData) => nodeData.pageKey === pageId && nodeData.parentId === undefined) // Find top-level nodes
-      .map((nodeData) => nodeData.layout.id),
-  );
+  const children = useLayoutLookups().topLevelComponents[pageId];
   const isHiddenPage = Hidden.useIsHiddenPage(page);
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
 
   if (!page || !children) {
     throw new Error('PageId invalid in PageSummary.');
@@ -24,10 +27,29 @@ export function PageSummary({ pageId }: PageSummaryProps) {
     return null;
   }
 
-  return children?.map((nodeId) => (
-    <ComponentSummaryById
-      key={nodeId}
-      componentId={nodeId}
+  return (
+    <HideWhenAllChildrenEmpty
+      hideWhen={hideEmptyFields}
+      render={(className) => (
+        <Flex
+          item
+          style={fullWidth}
+          className={className}
+        >
+          <Flex
+            container
+            spacing={6}
+            alignItems='flex-start'
+          >
+            {children?.map((nodeId) => (
+              <ComponentSummaryById
+                key={nodeId}
+                componentId={nodeId}
+              />
+            ))}
+          </Flex>
+        </Flex>
+      )}
     />
-  ));
+  );
 }

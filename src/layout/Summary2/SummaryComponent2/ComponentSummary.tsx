@@ -39,6 +39,21 @@ export function ComponentSummary<T extends CompTypes>({ target }: ComponentSumma
   return def.renderSummary2 ? def.renderSummary2({ target: target as never }) : null;
 }
 
+export function useSummarySoftHidden(hidden: boolean | undefined) {
+  const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
+  return {
+    // This is the class name you should use to soft-hide container components
+    className: hidden ? (hiddenOverride === 'disabled' ? classes.greyedOut : classes.hidden) : classes.visible,
+
+    // If this is true, you should instead just show the component as normal
+    forceShow: hiddenOverride === 'show',
+
+    // Leaf components (like singular values) can return null early if this is true. They must still register
+    // their emptiness-state with useReportSummaryRender().
+    leafCanReturnNull: hiddenOverride === false || hiddenOverride === 'hide',
+  };
+}
+
 function useIsHidden<T extends CompTypes>(node: LayoutNode<T>) {
   const hiddenInOverride = useSummaryOverrides(node)?.hidden;
 
@@ -96,15 +111,13 @@ export function SummaryFlex({ target, className, content, children }: SummaryFle
     );
   }
 
-  const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const isHidden = useIsHidden(target);
   const isHiddenBecauseEmpty = useIsHiddenBecauseEmpty(target, content);
-  const hiddenClass =
-    isHidden || isHiddenBecauseEmpty ? (hiddenOverride === 'disabled' ? classes.greyedOut : classes.hidden) : undefined;
+  const { className: hiddenClass, leafCanReturnNull } = useSummarySoftHidden(isHidden);
 
   useReportSummaryRender(isHidden ? SummaryContains.EmptyValue : content);
 
-  if ((isHidden || isHiddenBecauseEmpty) && (hiddenOverride === false || hiddenOverride === 'hide')) {
+  if ((isHidden || isHiddenBecauseEmpty) && leafCanReturnNull) {
     return null;
   }
 
@@ -123,8 +136,8 @@ interface HideWhenAllChildrenEmptyProps {
 }
 
 /**
- * This is an alternative to SummaryFlex, for use in container components. It will not register itself as empty in any
- * way, but it will hide itself when `hideWhen` is true and all children are registered as empty.
+ * This is an alternative to SummaryFlex, for use in container components. It register itself as empty and hide itself
+ * when `hideWhen` is true and all children are registered as empty.
  * @see HideWhenAllChildrenEmpty
  */
 export function SummaryFlexForContainer({
@@ -136,27 +149,21 @@ export function SummaryFlexForContainer({
     throw new Error(`SummaryFlexForContainer rendered with ${target.type} target. Use SummaryFlex instead.`);
   }
 
-  const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
+  const isHidden = useIsHidden(target);
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
+  const { className } = useSummarySoftHidden(hasOnlyEmptyChildren && hideWhen === true);
 
-  if (hasOnlyEmptyChildren && hideWhen === true && (hiddenOverride === false || hiddenOverride !== 'show')) {
-    // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
-    // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
-    // could never report changes and go from being empty to not being empty anymore.
-    return (
-      <SummaryFlexInternal
-        target={target}
-        className={hiddenOverride === 'disabled' ? classes.greyedOut : classes.hidden}
-      >
-        {children}
-      </SummaryFlexInternal>
-    );
+  if (isHidden) {
+    return null;
   }
 
+  // We still have to render out the actual children when we only have empty children, otherwise the unmount effect
+  // would just decrement the number of empty components and we'd bounce back to the initial state. Without this, and
+  // the unmount effect, the children could never report changes and go from being empty to not being empty anymore.
   return (
     <SummaryFlexInternal
       target={target}
-      className={classes.visible}
+      className={className}
     >
       {children}
     </SummaryFlexInternal>
@@ -174,17 +181,7 @@ interface ExtraRenderProp {
  * @see EmptyChildrenBoundary
  */
 export function HideWhenAllChildrenEmpty({ hideWhen, render }: HideWhenAllChildrenEmptyProps & ExtraRenderProp) {
-  const hiddenOverride = useDevToolsStore((state) => state.isOpen && state.hiddenComponents);
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
-
-  if (hasOnlyEmptyChildren && hideWhen === true && (hiddenOverride === false || hiddenOverride !== 'show')) {
-    // We still have to render out the actual children, otherwise the unmount effect would just decrement the number
-    // of empty components and we'd bounce back to the initial state. Without this, and the unmount effect, the children
-    // could never report changes and go from being empty to not being empty anymore.
-    return hiddenOverride === 'disabled'
-      ? render(classes.greyedOut, hasOnlyEmptyChildren)
-      : render(classes.hidden, hasOnlyEmptyChildren);
-  }
-
-  return render(classes.visible, hasOnlyEmptyChildren);
+  const { className } = useSummarySoftHidden(hasOnlyEmptyChildren && hideWhen === true);
+  return render(className, hasOnlyEmptyChildren);
 }

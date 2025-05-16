@@ -45,6 +45,9 @@ export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
     return totalWithoutPresentational > 0 && countsRef.current.empty === totalWithoutPresentational;
   }, false);
 
+  // Reports to parent, since this is outside the context
+  useReportSummaryRender(onlyEmptyChildren ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent);
+
   return <Context.Provider value={{ parent, onlyEmptyChildren, dispatch }}>{children}</Context.Provider>;
 }
 
@@ -57,21 +60,23 @@ export function useHasOnlyEmptyChildren() {
   return context.onlyEmptyChildren;
 }
 
-function useMarkRendering(ctx: EmptyChildrenContext | undefined, content: SummaryContains) {
+function useMarkRendering(ctx: EmptyChildrenContext | undefined, content: SummaryContains | undefined) {
   const dispatch = ctx?.dispatch;
 
   useLayoutEffect(() => {
-    dispatch?.({ when: 'mount', content });
-    return () => dispatch?.({ when: 'unmount', content });
+    if (content) {
+      dispatch?.({ when: 'mount', content });
+      return () => dispatch?.({ when: 'unmount', content });
+    }
   }, [dispatch, content]);
 }
 
-export function useReportSummaryRender(content: SummaryContains) {
+export function useReportSummaryRender(content: SummaryContains | undefined) {
   const ctx = React.useContext(Context);
   useMarkRendering(ctx, content);
 }
 
-export function useReportSummaryRenderToParent(content: SummaryContains) {
+export function useReportSummaryRenderToParent(content: SummaryContains | undefined) {
   const ctx = React.useContext(Context);
   useMarkRendering(ctx?.parent, content);
 }
