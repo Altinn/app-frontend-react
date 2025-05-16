@@ -55,6 +55,8 @@ describe('Checkboxes component', () => {
     cy.get(checkboxes).contains('label', checkboxText5).prev('input[type="checkbox"]').click();
 
     //Uncheck
+    cy.get(checkboxes).contains('label', checkboxText4).prev('input[type="checkbox"]').should('be.checked');
+    cy.get(checkboxes).contains('label', checkboxText5).prev('input[type="checkbox"]').should('be.checked');
     cy.get(checkboxes).contains('label', checkboxText4).prev('input[type="checkbox"]').click();
     cy.get(checkboxes).contains('label', checkboxText5).prev('input[type="checkbox"]').click();
 
@@ -65,13 +67,13 @@ describe('Checkboxes component', () => {
     cy.get(checkboxes).contains('label', checkboxText4).prev('input[type="checkbox"]').should('not.be.checked');
     cy.get(checkboxes).contains('label', checkboxText5).prev('input[type="checkbox"]').should('not.be.checked');
 
-    //Validate that the corresponding options in checkboxes is avaliable in repeating group<
+    //Validate that the corresponding options in checkboxes is available in RepeatingGroup
     cy.get(repGroup).findByRole('cell', { name: checkboxValue1 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxValue2 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxValue3 }).should('exist');
 
-    // Removing from RepeatingGroup should deselect from List
-    cy.get(repGroup).findAllByRole('row').should('have.length', 4); // Header + 1 row
+    // Removing from RepeatingGroup should deselect from checkboxes
+    cy.get(repGroup).findAllByRole('row').should('have.length', 4); // Header + 3 rows
     cy.get(repGroup)
       .findAllByRole('button', { name: /^Slett/ })
       .first()
