@@ -20,8 +20,19 @@ interface ComponentSummaryProps<T extends CompTypes = CompTypes> {
 }
 
 export enum SummaryContains {
+  // This represents an empty value. Only use this content type if your component can also display some content. If it
+  // is impossible for the component to display some 'content', it is most likely presentational.
   EmptyValue = 'empty',
+
+  // This is the content type used when your component has some kind of content to summarize. Usually it must also
+  // be possible for that content to be empty, so you should toggle between these two states.
   SomeUserContent = 'notEmpty',
+
+  // If your component is presentational (i.e. paragraphs, headers), it will be counted when considering if empty
+  // components should be hidden but it will only be hidden from the summary if there are 1+ form components (i.e.
+  // components that report either emptyValue or SomeUserContent) within the same EmptyChildrenBoundary, and all of them
+  // are empty. This means that if you have a group that only contains presentational components, that group will never
+  // be hidden. But a Header alongside a set of Input components will be hidden if all the Input components are empty.
   Presentational = 'presentational',
 }
 
