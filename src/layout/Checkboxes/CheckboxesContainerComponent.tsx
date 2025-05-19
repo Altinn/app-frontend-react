@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Fieldset, useCheckboxGroup } from '@digdir/designsystemet-react';
 
+import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
 import { LabelContent } from 'src/components/label/LabelContent';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';

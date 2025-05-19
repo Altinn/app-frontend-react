@@ -20,7 +20,7 @@ type LabelProps = {
   description?: ReactElement;
   className?: string;
   grid?: IGridStyling;
-  size?: DesignsystemetLabelProps['size'];
+  size?: DesignsystemetLabelProps['data-size'];
   style?: DesignsystemetLabelProps['style'];
 };
 

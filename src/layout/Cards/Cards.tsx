@@ -2,7 +2,7 @@ import React from 'react';
 import type { CSSProperties } from 'react';
 
 import { AppCard } from 'src/app-components/Card/Card';
-import { ConditionalWrapper } from 'src/components/ConditionalWrapper';
+import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';

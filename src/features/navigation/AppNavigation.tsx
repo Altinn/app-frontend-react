@@ -104,7 +104,7 @@ export function AppNavigationHeading({
         <Button
           variant='tertiary'
           color='second'
-          data-size='sm'
+          size='sm'
           icon={true}
           onClick={onClose}
           aria-label={langAsString('general.close')}
