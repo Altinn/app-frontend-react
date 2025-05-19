@@ -4,8 +4,8 @@ import { Loader } from 'src/core/loading/Loader';
 import { InstantiateValidationError } from 'src/features/instantiate/containers/InstantiateValidationError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useClearInstantiation, useInstantiation } from 'src/features/instantiate/InstantiationContext';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { isAxiosError } from 'src/utils/isAxiosError';
@@ -13,10 +13,8 @@ import { HttpStatusCodes } from 'src/utils/network/networking';
 
 export const InstantiateContainer = () => {
   changeBodyBackground(AltinnPalette.greyLight);
-  const party = useCurrentParty();
+  const party = useSelectedParty();
   const instantiation = useInstantiation();
-
-  useClearInstantiation(true);
 
   useEffect(() => {
     const shouldCreateInstance = !!party;

@@ -4,11 +4,11 @@ import type { PropsWithChildren } from 'react';
 import { ErrorSummary } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { FullWidthWrapper } from 'src/components/form/FullWidthWrapper';
+import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -102,7 +102,7 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
  * @see InstantiateContainer Contains somewhat similar logic, but for a full-screen error page.
  */
 export function ErrorListFromInstantiation({ error }: { error: unknown }) {
-  const selectedParty = useCurrentParty();
+  const selectedParty = useSelectedParty();
 
   if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

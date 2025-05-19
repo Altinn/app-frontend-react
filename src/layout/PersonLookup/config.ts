@@ -16,6 +16,7 @@ export const Config = new CG.component({
     customExpressions: false,
   },
 })
+  .addSummaryOverrides()
   .addDataModelBinding(
     new CG.obj(
       new CG.prop(
@@ -29,7 +30,7 @@ export const Config = new CG.component({
       new CG.prop(
         'person_lookup_name',
         new CG.dataModelBinding()
-          .setTitle('Data model binding for zip code')
+          .setTitle('Data model binding for the full name of a person')
           .setDescription(
             'Describes the location in the data model where the component should store the name of the person to look up.',
           ),

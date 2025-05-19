@@ -14,7 +14,7 @@ import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useClearInstantiation, useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
   ActiveInstancesProvider,
   useActiveInstances,
@@ -22,7 +22,7 @@ import {
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
+import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
@@ -66,7 +66,7 @@ function InstanceSelection() {
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const instantiation = useInstantiation();
-  const currentParty = useCurrentParty();
+  const selectedParty = useSelectedParty();
   const storeCallback = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
 
@@ -82,8 +82,6 @@ function InstanceSelection() {
 
   const instances = instanceSelectionOptions?.sortDirection === 'desc' ? [..._instances].reverse() : _instances;
   const paginatedInstances = instances.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
-
-  useClearInstantiation();
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
     setRowsPerPage(newRowsPerPage);
@@ -280,9 +278,9 @@ function InstanceSelection() {
               size='md'
               onClick={() =>
                 performProcess(async () => {
-                  if (currentParty) {
+                  if (selectedParty) {
                     storeCallback(focusMainContent);
-                    await instantiation.instantiate(currentParty.partyId);
+                    await instantiation.instantiate(selectedParty.partyId, true);
                   }
                 })
               }

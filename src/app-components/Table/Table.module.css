@@ -73,3 +73,8 @@
 .mobileTable td .buttonContainer {
   justify-content: start;
 }
+
+.emptyCell {
+  align-items: 'left';
+  color: var(--semantic-text-neutral-subtle);
+}

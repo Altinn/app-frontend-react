@@ -4819,6 +4819,7 @@ __metadata:
     webpack: "npm:5.99.7"
     webpack-cli: "npm:6.0.1"
     webpack-dev-server: "npm:5.2.1"
+    zod: "npm:^3.23.8"
     zustand: "npm:5.0.4"
   languageName: unknown
   linkType: soft

@@ -51,6 +51,7 @@ export interface IDataType {
   description?: string | null;
   allowedContentTypes: string[] | null;
   allowedContributers?: string[] | null;
+  allowedContributors?: string[] | null;
   appLogic?: IApplicationLogic | null;
   taskId?: string | null;
   maxSize?: number | null;
@@ -216,10 +217,8 @@ export interface ISelfLinks {
   platform: string;
 }
 
-type ProcessActionIds = 'read' | 'write' | 'complete';
-
 export interface IUserAction {
-  id: ProcessActionIds | string;
+  id: IActionType | string;
   authorized: boolean;
   type: 'ProcessAction' | 'ServerAction';
 }
@@ -279,9 +278,10 @@ export interface IInstanceDataSources {
   appId: string;
   instanceOwnerPartyId: string;
   instanceOwnerPartyType: InstanceOwnerPartyType;
+  instanceOwnerName?: string;
 }
 
-export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject';
+export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject' | 'read' | 'write' | 'complete';
 
 export type IAuthContext = {
   read: boolean;

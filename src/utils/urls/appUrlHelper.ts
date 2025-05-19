@@ -9,7 +9,7 @@ export const applicationMetadataApiUrl = `${appPath}/api/v1/applicationmetadata`
 export const applicationSettingsApiUrl = `${appPath}/api/v1/applicationsettings`;
 export const invalidateCookieUrl = `${appPath}/api/authentication/invalidatecookie`;
 export const validPartiesUrl = `${appPath}/api/v1/parties?allowedtoinstantiatefilter=true`;
-export const currentPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
+export const selectedPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
 export const instancesControllerUrl = `${appPath}/instances`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
 export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
@@ -19,7 +19,7 @@ export const getInstantiateUrl = (language?: string) => {
   return `${appPath}/instances/create${queryString}`;
 };
 
-export const getSetCurrentPartyUrl = (partyId: string | number) => `${appPath}/api/v1/parties/${partyId}`;
+export const getSetSelectedPartyUrl = (partyId: string | number) => `${appPath}/api/v1/parties/${partyId}`;
 
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
@@ -94,6 +94,9 @@ export const getValidationUrl = (instanceId: string, language: string, onlyIncre
   return `${appPath}/instances/${instanceId}/validate${queryString}`;
 };
 
+/**
+ * @deprecated use getValidationUrl instead
+ */
 export const getDataValidationUrl = (instanceId: string, dataGuid: string, language: string) => {
   const queryString = getQueryStringFromObject({ language });
   return `${appPath}/instances/${instanceId}/data/${dataGuid}/validate${queryString}`;
