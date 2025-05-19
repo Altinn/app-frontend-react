@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { ComponentSummaryById, HideWhenAllChildrenEmpty } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useSummaryOverridesForPage, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { Hidden, useGetPage } from 'src/utils/layout/NodesContext';
 
 interface PageSummaryProps {
@@ -18,12 +18,13 @@ export function PageSummary({ pageId }: PageSummaryProps) {
   const children = useLayoutLookups().topLevelComponents[pageId];
   const isHiddenPage = Hidden.useIsHiddenPage(page);
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
+  const overrides = useSummaryOverridesForPage(pageId);
 
   if (!page || !children) {
     throw new Error('PageId invalid in PageSummary.');
   }
 
-  if (isHiddenPage) {
+  if (isHiddenPage || overrides?.hidden) {
     return null;
   }
 
@@ -35,11 +36,13 @@ export function PageSummary({ pageId }: PageSummaryProps) {
           item
           style={fullWidth}
           className={className}
+          data-summary-pagekey={pageId}
         >
           <Flex
             container
             spacing={6}
             alignItems='flex-start'
+            data-summary-pagekey={pageId}
           >
             {children?.map((nodeId) => (
               <ComponentSummaryById
