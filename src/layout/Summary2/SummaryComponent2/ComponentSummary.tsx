@@ -56,8 +56,8 @@ export function useSummarySoftHidden(hidden: boolean | undefined) {
     // This is the class name you should use to soft-hide container components
     className: hidden ? (hiddenOverride === 'disabled' ? classes.greyedOut : classes.hidden) : classes.visible,
 
-    // If this is true, you should instead just show the component as normal
-    forceShow: hiddenOverride === 'show',
+    // If this is true, you should instead just show the component as normal (but remember to use the correct className)
+    forceShow: hiddenOverride === 'show' || hiddenOverride === 'disabled',
 
     // Leaf components (like singular values) can return null early if this is true. They must still register
     // their emptiness-state with useReportSummaryRender().
@@ -162,9 +162,9 @@ export function SummaryFlexForContainer({
 
   const isHidden = useIsHidden(target);
   const hasOnlyEmptyChildren = useHasOnlyEmptyChildren();
-  const { className } = useSummarySoftHidden(hasOnlyEmptyChildren && hideWhen === true);
+  const { className, forceShow } = useSummarySoftHidden(hasOnlyEmptyChildren && hideWhen === true);
 
-  if (isHidden) {
+  if (isHidden && !forceShow) {
     return null;
   }
 
