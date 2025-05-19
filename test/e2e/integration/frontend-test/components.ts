@@ -581,11 +581,11 @@ describe('UI Components', () => {
       });
 
       cy.goto('changename');
-      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength} av ${maxLength} tegn igjen`);
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength} tegn igjen`);
       cy.get(appFrontend.changeOfName.newFirstName).type('Per');
-      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 3} av ${maxLength} tegn igjen`);
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 3} tegn igjen`);
       cy.get(appFrontend.changeOfName.newFirstName).type('r');
-      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 4} av ${maxLength} tegn igjen`);
+      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 4} tegn igjen`);
       cy.get(appFrontend.changeOfName.newFirstName).type('rrr');
       cy.get('#form-content-newFirstName').contains(`Du har overskredet maks antall tegn med ${7 - maxLength}`);
 
