@@ -326,8 +326,8 @@ describe('CheckboxesContainerComponent', () => {
         showValidations: ['Required'],
         required: true,
         dataModelBindings: {
-          simpleBinding: { dataType: defaultDataTypeMock, field: 'value' },
-          group: { dataType: defaultDataTypeMock, field: 'object' },
+          simpleBinding: { dataType: defaultDataTypeMock, field: 'group.value' },
+          group: { dataType: defaultDataTypeMock, field: 'group' },
         },
         deletionStrategy: 'hard',
       },

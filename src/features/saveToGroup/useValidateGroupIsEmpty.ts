@@ -18,10 +18,10 @@ export function useValidateGroupIsEmpty(node: LayoutNode<'Checkboxes' | 'Multipl
 
   const validations: ComponentValidation[] = [];
 
-  let HasErrors = false;
+  let hasErrors = false;
   if (dataModelBindings.group) {
     const numRows = (formData?.group as unknown[] | undefined) ?? [];
-    HasErrors = numRows.length === 0;
+    hasErrors = numRows.length === 0;
   } else {
     for (const key of Object.keys(dataModelBindings)) {
       const reference = dataModelBindings[key];
@@ -31,13 +31,13 @@ export function useValidateGroupIsEmpty(node: LayoutNode<'Checkboxes' | 'Multipl
           typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : undefined;
 
         if (!dataAsString?.length) {
-          HasErrors = true;
+          hasErrors = true;
         }
       }
     }
   }
 
-  if (HasErrors) {
+  if (hasErrors) {
     const key = textResourceBindings?.requiredValidation
       ? textResourceBindings?.requiredValidation
       : 'form_filler.error_required';
