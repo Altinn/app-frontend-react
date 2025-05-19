@@ -125,7 +125,7 @@ export const ListComponent = ({ node }: IListProps) => {
   if (isMobile) {
     return (
       <ComponentStructureWrapper node={node}>
-        {groupBinding ? (
+        {groupBinding.enabled ? (
           <Fieldset>
             <Fieldset.Legend>
               {description && (
