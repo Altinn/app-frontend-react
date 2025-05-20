@@ -34,6 +34,8 @@ export interface TestPdfOptions {
   enableResponseFuzzing?: boolean;
 }
 
+export type SnapshotViewport = 'desktop' | 'tablet' | 'mobile';
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
@@ -235,7 +237,7 @@ declare global {
       /**
        * Useful when taking snapshots; clear all selections and wait for the app to finish loading and stabilizing.
        */
-      clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
+      clearSelectionAndWait(viewport?: SnapshotViewport): Chainable<null>;
 
       getSummary(label: string): Chainable<Element>;
       directSnapshot(

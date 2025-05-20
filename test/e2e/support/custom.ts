@@ -13,7 +13,7 @@ import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 import { getTargetUrl } from 'test/e2e/support/start-app-instance';
-import type { ResponseFuzzing, Size } from 'test/e2e/support/global';
+import type { ResponseFuzzing, Size, SnapshotViewport } from 'test/e2e/support/global';
 
 import type { ILayoutFile } from 'src/layout/common.generated';
 
@@ -309,14 +309,15 @@ Cypress.Commands.add('snapshot', (name: string) => {
 
       // We need to manually resize the viewport to ensure that the snapshot is taken with the correct DOM. We sometimes
       // change the DOM based on the viewport size, and Percy only understands CSS media queries (not our React logic).
-      const viewportSizes = {
+      const viewportSizes: Record<SnapshotViewport, { width: number; height: number }> = {
         desktop: { width: 1280, height: 768 },
         tablet: { width: breakpoints.tablet - 5, height: 1024 },
         mobile: { width: 360, height: 768 },
       };
-      for (const [viewport, { width, height }] of Object.entries(viewportSizes)) {
+      for (const [_viewport, { width, height }] of Object.entries(viewportSizes)) {
+        const viewport = _viewport as SnapshotViewport;
         cy.viewport(width, height);
-        cy.clearSelectionAndWait(viewport as keyof typeof viewportSizes);
+        cy.clearSelectionAndWait(viewport);
 
         // Saving happens after a debounce timeout, and even though we checked for unsaved changes above, there might
         // be new ones that appeared after viewport resizing. Let's check again right before we snapshot.
@@ -411,6 +412,7 @@ Cypress.Commands.add('reloadAndWait', () => {
 
 Cypress.Commands.add('waitForLoad', () => {
   cy.get('#finishedLoading').should('exist');
+  cy.get('.loading').should('not.exist');
   cy.findByRole('progressbar').should('not.exist');
   // An initialOption can cause a save to occur immediately after loading is finished, wait for this to finish as well
   cy.waitUntilSaved();
