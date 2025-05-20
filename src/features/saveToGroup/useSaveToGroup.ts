@@ -16,7 +16,7 @@ interface Bindings {
   values: Record<string, IDataModelReference>;
 }
 
-function toRelativePath(group: IDataModelReference | undefined, binding: IDataModelReference | undefined) {
+export function toRelativePath(group: IDataModelReference | undefined, binding: IDataModelReference | undefined) {
   if (group && binding && binding.field.startsWith(`${group.field}.`)) {
     return binding.field.substring(group.field.length + 1);
   }
