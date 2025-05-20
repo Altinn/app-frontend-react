@@ -47,7 +47,7 @@ describe('Multiple select component', () => {
     cy.gotoNavPage('Flervalg');
 
     const multiselect = '#form-content-MultipleSelectPage-Checkboxes2';
-    const multiselectList = 'div[role="listbox"]';
+    const multiselectList = 'u-datalist[role="listbox"]';
     const repGroup = '[data-componentid=MultipleSelectPage-RepeatingGroup]';
     //const summary1 = '[data-componentid=ListPage-Summary-Component2]';
 
@@ -72,11 +72,21 @@ describe('Multiple select component', () => {
     cy.get(multiselectList).contains('span', checkboxText5).click();
 
     //Check that checkboxes is correct
-    cy.get(multiselect).contains('span', checkboxText1).should('exist');
-    cy.get(multiselect).contains('span', checkboxText2).should('exist');
-    cy.get(multiselect).contains('span', checkboxText3).should('exist');
-    cy.get(multiselect).contains('span', checkboxText4).should('not.exist');
-    cy.get(multiselect).contains('span', checkboxText5).should('not.exist');
+    cy.findByRole('button', {
+      name: `${checkboxText1}, Press to remove, 1 of 3`,
+    }).should('exist');
+    cy.findByRole('button', {
+      name: `${checkboxText2}, Press to remove, 2 of 3`,
+    }).should('exist');
+    cy.findByRole('button', {
+      name: `${checkboxText3}, Press to remove, 3 of 3`,
+    }).should('exist');
+    cy.findByRole('button', {
+      name: `${checkboxText4}, Press to remove, 4 of 5`,
+    }).should('not.exist');
+    cy.findByRole('button', {
+      name: `${checkboxText5}, Press to remove, 5 of 5`,
+    }).should('not.exist');
 
     //Clicking on the repeating group to close the popover from the multiselect
     cy.get(repGroup).click({ force: true });
@@ -126,7 +136,7 @@ describe('Multiple select component', () => {
     cy.gotoNavPage('Flervalg');
 
     const multiselect = '#form-content-MultipleSelectPage-Checkboxes2';
-    const multiselectList = 'div[role="listbox"]';
+    const multiselectList = 'u-datalist[role="listbox"]';
     const summary2 = '[data-componentid=MultipleSelectPage-Header-Summary2-Component2]';
 
     const checkboxText1 = 'Karoline';
