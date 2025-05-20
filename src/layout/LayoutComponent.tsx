@@ -260,7 +260,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     return [];
   }
 
-  protected validateDataModelBindingsAny(
+  public validateDataModelBindingsAny(
     ctx: LayoutValidationCtx<Type>,
     key: string,
     validTypes: string[],
@@ -303,7 +303,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
     return [undefined, result];
   }
 
-  protected validateDataModelBindingsSimple(
+  public validateDataModelBindingsSimple(
     ctx: LayoutValidationCtx<Type>,
     isRequired = this.isDataModelBindingsRequired(ctx.node),
   ): string[] {

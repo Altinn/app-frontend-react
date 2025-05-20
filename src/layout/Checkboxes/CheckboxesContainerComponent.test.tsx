@@ -216,7 +216,7 @@ describe('CheckboxesContainerComponent', () => {
       options: threeOptions,
     });
 
-    expect(screen.queryByTestId('checkboxes-fieldset')).toHaveClass('horizontal');
+    expect(screen.queryByTestId('checkboxes-fieldset')?.className).toContain('horizontal');
   });
 
   it('should show items in a row when layout is not defined, and options count is 2', async () => {
@@ -229,7 +229,7 @@ describe('CheckboxesContainerComponent', () => {
       options: twoOptions,
     });
 
-    expect(screen.queryByTestId('checkboxes-fieldset')).toHaveClass('horizontal');
+    expect(screen.queryByTestId('checkboxes-fieldset')?.className).toContain('horizontal');
   });
 
   it('should show items in a column when layout is "column" and options count is 2 ', async () => {
@@ -299,7 +299,7 @@ describe('CheckboxesContainerComponent', () => {
     });
   });
 
-  it('required validation should only show for simpleBinding', async () => {
+  it('required validation should show for simpleBinding', async () => {
     await render({
       component: {
         showValidations: ['Required'],
@@ -313,6 +313,27 @@ describe('CheckboxesContainerComponent', () => {
       options: [],
       queries: {
         fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
+      },
+    });
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    expect(screen.getByRole('listitem')).toHaveTextContent('Du må fylle ut land');
+  });
+
+  it('required validation should show for group', async () => {
+    await render({
+      component: {
+        showValidations: ['Required'],
+        required: true,
+        dataModelBindings: {
+          simpleBinding: { dataType: defaultDataTypeMock, field: 'group.value' },
+          group: { dataType: defaultDataTypeMock, field: 'group' },
+        },
+        deletionStrategy: 'hard',
+      },
+      options: [],
+      queries: {
+        fetchFormData: () => Promise.resolve({ simpleBinding: '', group: [] }),
       },
     });
 

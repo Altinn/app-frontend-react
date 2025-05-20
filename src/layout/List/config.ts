@@ -1,13 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 
-export const LIST_SUMMARY_OVERRIDE_PROPS = new CG.obj()
-  .extends(CG.common('ISummaryOverridesCommon'))
-  .optional()
-  .setTitle('Summary properties')
-  .setDescription('Properties for how to display the summary of the component')
-  .exportAs('ListSummaryOverrideProps');
-
 export const Config = new CG.component({
   category: CompCategory.Form,
   capabilities: {
@@ -36,11 +29,21 @@ export const Config = new CG.component({
           )
           .optional(),
       ),
+      new CG.prop(
+        'checked',
+        new CG.dataModelBinding()
+          .setTitle('checked')
+          .setDescription(
+            'If deletionStrategy=soft and group is set, this value points to where you want to save deleted status.',
+          )
+          .optional(),
+      ),
     )
       .optional()
       .additionalProperties(new CG.dataModelBinding().optional())
       .exportAs('IDataModelBindingsForList'),
   )
+  .addProperty(new CG.prop('deletionStrategy', new CG.enum('soft', 'hard').optional()))
   .addProperty(
     new CG.prop(
       'tableHeaders',
@@ -151,4 +154,5 @@ export const Config = new CG.component({
         .setTitle('Table Headers Mobile')
         .setDescription('An array of strings representing the columns that is chosen to be shown in the mobile view.'),
     ),
-  );
+  )
+  .addSummaryOverrides();

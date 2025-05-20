@@ -1,3 +1,5 @@
+import { TZDate } from '@date-fns/tz';
+
 import { getLanguageFromCode } from 'src/language/languages';
 import type { FixedLanguageList } from 'src/language/languages';
 
@@ -187,8 +189,22 @@ function postProcessValue(token: Token, date: Date, lang: FixedLanguageList | un
   if (['E', 'EE', 'EEE'].includes(token)) {
     return value.replace(/\.$/, '');
   }
-  if (token === 'a' && lang?.dateTime) {
-    return value === 'AM' ? lang.dateTime.am : lang.dateTime.pm;
+  if (token === 'a' && lang) {
+    return value === 'AM' ? lookup(lang, 'dateTime.am') : lookup(lang, 'dateTime.pm');
   }
   return value;
+}
+
+function lookup(lang: FixedLanguageList, key: keyof FixedLanguageList) {
+  return lang[key];
+}
+
+/**
+ *
+ * @param date date string or Date object
+ * @param zone Time zone name (IANA or UTC offset)
+ * @returns A TZDate object
+ */
+export function toTimeZonedDate(date: string | Date, zone: string = 'Europe/Oslo') {
+  return new TZDate(new Date(date), zone);
 }

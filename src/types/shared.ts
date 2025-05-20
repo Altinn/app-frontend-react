@@ -1,5 +1,3 @@
-import type { FixedLanguageList } from 'src/language/languages';
-
 export interface IAltinnOrg {
   name: ITitle;
   logo: string;
@@ -53,6 +51,7 @@ export interface IDataType {
   description?: string | null;
   allowedContentTypes: string[] | null;
   allowedContributers?: string[] | null;
+  allowedContributors?: string[] | null;
   appLogic?: IApplicationLogic | null;
   taskId?: string | null;
   maxSize?: number | null;
@@ -104,13 +103,6 @@ export interface IInstanceState {
   isMarkedForHardDelete: boolean;
   isArchived: boolean;
 }
-
-// Language translations for altinn
-export type ILanguage =
-  | FixedLanguageList
-  | {
-      [key: string]: string | ILanguage;
-    };
 
 // Language for the rendered altinn app
 export interface IAppLanguage {
@@ -225,10 +217,8 @@ export interface ISelfLinks {
   platform: string;
 }
 
-type ProcessActionIds = 'read' | 'write' | 'complete';
-
 export interface IUserAction {
-  id: ProcessActionIds | string;
+  id: IActionType | string;
   authorized: boolean;
   type: 'ProcessAction' | 'ServerAction';
 }
@@ -288,9 +278,10 @@ export interface IInstanceDataSources {
   appId: string;
   instanceOwnerPartyId: string;
   instanceOwnerPartyType: InstanceOwnerPartyType;
+  instanceOwnerName?: string;
 }
 
-export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject';
+export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject' | 'read' | 'write' | 'complete';
 
 export type IAuthContext = {
   read: boolean;

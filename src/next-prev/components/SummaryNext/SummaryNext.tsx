@@ -46,11 +46,7 @@ interface SummaryNextProps extends RenderComponentType {
 
 export const SummaryNext: FunctionComponent<SummaryNextProps> = ({ summaryComponent }) => {
   const { target } = summaryComponent;
-  if (!target?.id) {
-    return <LayoutSetSummaryNext />;
-  }
-
-  if (target.type === 'layoutSet') {
+  if (!target || target.type === 'layoutSet') {
     return <LayoutSetSummaryNext />;
   }
 

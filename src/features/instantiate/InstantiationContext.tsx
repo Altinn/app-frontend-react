@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import type { QueryClient } from '@tanstack/react-query';
+import type { QueryClient, UseMutationResult } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
@@ -26,12 +27,11 @@ export interface Instantiation {
 }
 
 interface InstantiationContext {
-  instantiate: (instanceOwnerPartyId: number) => Promise<void>;
-  instantiateWithPrefill: (instantiation: Instantiation) => Promise<void>;
+  instantiate: (instanceOwnerPartyId: number, force?: boolean) => Promise<void>;
+  instantiateWithPrefill: (instantiation: Instantiation, force?: boolean) => Promise<void>;
 
   error: AxiosError | undefined | null;
   lastResult: IInstance | undefined;
-  clear: () => void;
 }
 
 const { Provider, useCtx } = createContext<InstantiationContext>({ name: 'InstantiationContext', required: true });
@@ -82,24 +82,25 @@ export function InstantiationProvider({ children }: React.PropsWithChildren) {
   return (
     <Provider
       value={{
-        instantiate: async (instanceOwnerPartyId) => {
-          if (!mutationHasBeenFired(queryClient)) {
+        instantiate: async (instanceOwnerPartyId, force = false) => {
+          if (!mutationHasBeenFired(queryClient) || force) {
             await instantiate.mutateAsync(instanceOwnerPartyId).catch(() => {});
           }
         },
-        instantiateWithPrefill: async (value) => {
-          if (!mutationHasBeenFired(queryClient)) {
+        instantiateWithPrefill: async (value, force = false) => {
+          if (!mutationHasBeenFired(queryClient) || force) {
             await instantiateWithPrefill.mutateAsync(value).catch(() => {});
           }
-        },
-        clear: () => {
-          removeMutations(queryClient);
         },
 
         error: instantiate.error || instantiateWithPrefill.error,
         lastResult: instantiate.data ?? instantiateWithPrefill.data,
       }}
     >
+      <ClearMutationWhenUrlChanges
+        instantiate={instantiate}
+        instantiateWithPrefill={instantiateWithPrefill}
+      />
       {children}
     </Provider>
   );
@@ -115,4 +116,34 @@ function mutationHasBeenFired(queryClient: QueryClient): boolean {
 function removeMutations(queryClient: QueryClient) {
   const mutations = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] });
   mutations.forEach((mutation) => queryClient.getMutationCache().remove(mutation));
+}
+
+/**
+ * When the URL changes (possibly because we redirected to the instance or because the user went
+ * back to party selection after getting an error), we should clear the instantiation. We do this so that we're ready
+ * for a possible next instantiation (when the user comes back to try instantiation again). This is needed
+ * because the components that trigger instantiation might do so repeatedly - and we need to stop that.
+ *
+ * Some places instantiate as a direct result of a user action (clicking a button). Those will force
+ * re-instantiation anyway and won't care if the previous instantiation was cleared before trying again.
+ */
+function ClearMutationWhenUrlChanges({
+  instantiate,
+  instantiateWithPrefill,
+}: {
+  instantiate: UseMutationResult;
+  instantiateWithPrefill: UseMutationResult;
+}) {
+  const location = useLocation();
+  const queryClient = useQueryClient();
+  const reset1 = instantiate.reset;
+  const reset2 = instantiateWithPrefill.reset;
+
+  useEffect(() => {
+    removeMutations(queryClient);
+    reset1();
+    reset2();
+  }, [location, queryClient, reset1, reset2]);
+
+  return null;
 }
