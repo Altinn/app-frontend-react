@@ -45,7 +45,7 @@ describe('PDF', () => {
     cy.waitForLoad();
 
     cy.testPdf({
-      snapshotName: 'custom-logo',
+      snapshotName: 'hideEmptyFields',
       enableResponseFuzzing: true,
       callback: () => {
         // Asserting that custom logo and externalApi works
