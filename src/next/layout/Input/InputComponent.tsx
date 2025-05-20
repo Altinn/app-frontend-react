@@ -2,8 +2,8 @@ import React from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { useResolvedTexts } from 'src/layoutNext/GenericComponent.next';
-import type { ComponentProps, ResolvedTexts } from 'src/layoutNext/GenericComponent.next';
+import { useResolvedTexts } from 'src/next/layout/GenericComponent';
+import type { ComponentProps, ResolvedTexts } from 'src/next/layout/GenericComponent';
 
 export function RenderInputComponent({
   component,

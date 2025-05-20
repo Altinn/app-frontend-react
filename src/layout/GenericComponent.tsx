@@ -9,7 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { RenderComponentById } from 'src/layoutNext/GenericComponent.next';
+import { RenderComponentById } from 'src/next/layout/GenericComponent';
 import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { isDev } from 'src/utils/isDev';
