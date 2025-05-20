@@ -6,7 +6,7 @@ import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/Navigat
 import { NavigationButtonsNext } from 'src/layout/NavigationButtons/NavigationButtonsNext';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompIntermediateExact } from 'src/layout/layout';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
+import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 
 export class NavigationButtons extends NavigationButtonsDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationButtons'>>(

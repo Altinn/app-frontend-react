@@ -19,7 +19,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompIntermediateExact } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
+import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {

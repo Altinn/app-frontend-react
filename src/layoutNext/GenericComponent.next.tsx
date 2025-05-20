@@ -7,7 +7,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { RenderInputComponent } from 'src/layoutNext/Input/InputComponent';
-import { layoutStore, type ResolvedCompExternal } from 'src/next/stores/layoutStore';
+import { layoutStore, type ResolvedCompExternal } from 'src/next-prev/stores/layoutStore';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal, CompTypes } from 'src/layout/layout';
 

@@ -7,7 +7,7 @@ import 'src/features/logging';
 import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
 
-import { App } from 'src/next/app/App/App';
+import { App } from 'src/next-prev/app/App/App';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';

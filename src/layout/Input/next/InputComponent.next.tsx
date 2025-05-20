@@ -13,7 +13,7 @@ import type {
   PatternFormatProps as PatternFormatPropsCG,
 } from 'src/layout/common.generated';
 import type { CompIntermediateExact } from 'src/layout/layout';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
+import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 type NumberFormatProps = Omit<NumberFormatPropsCG, 'thousandSeparator' | 'decimalSeparator' | 'suffix' | 'prefix'> & {
   thousandSeparator?: boolean | string;
   decimalSeparator?: string;

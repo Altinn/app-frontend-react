@@ -10,7 +10,7 @@ import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { RenderComponentById } from 'src/layoutNext/GenericComponent.next';
-import { layoutStore } from 'src/next/stores/layoutStore';
+import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { isDev } from 'src/utils/isDev';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';

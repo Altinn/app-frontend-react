@@ -11,7 +11,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompIntermediateExact } from 'src/layout/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
+import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 
 export class Text extends TextDef implements DisplayData {
   useDisplayData(nodeId: string): string {

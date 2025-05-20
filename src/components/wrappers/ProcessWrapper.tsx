@@ -26,8 +26,8 @@ import {
 } from 'src/features/routing/AppRoutingContext';
 import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
-import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
-import { layoutStore } from 'src/next/stores/layoutStore';
+import { API_CLIENT, APP, ORG } from 'src/next-prev/app/App/App';
+import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import { ProcessTaskType } from 'src/types';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';

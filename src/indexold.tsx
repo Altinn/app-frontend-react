@@ -37,8 +37,8 @@ import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { propagateTraceWhenPdf } from 'src/features/propagateTraceWhenPdf';
 import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
-import { initialLoader } from 'src/next/pages/AppLayout/initialLoader';
-// import { initialLoader } from 'src/next/app/App/AppLayout/initialLoader';
+import { initialLoader } from 'src/next-prev/pages/AppLayout/initialLoader';
+// import { initialLoader } from 'src/next-prev/app/App/AppLayout/initialLoader';
 import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
@@ -146,7 +146,7 @@ function Root() {
 // // import 'src/features/styleInjection';
 // // import '@digdir/designsystemet-css';
 // //
-// // import { App } from 'src/next/app/App';
+// // import { App } from 'src/next-prev/app/App';
 // //
 // // import 'react-toastify/dist/ReactToastify.css';
 // // import 'src/index.css';
@@ -196,7 +196,7 @@ function Root() {
 // import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 // import { propagateTraceWhenPdf } from 'src/features/propagateTraceWhenPdf';
 // import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
-// import { initialLoader } from 'src/next/pages/AppLayout/initialLoader';
+// import { initialLoader } from 'src/next-prev/pages/AppLayout/initialLoader';
 // import { AppPrefetcher } from 'src/queries/appPrefetcher';
 // import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 // import * as queries from 'src/queries/queries';
