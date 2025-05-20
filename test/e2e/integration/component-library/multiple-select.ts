@@ -7,7 +7,6 @@ describe('Multiple select component', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.gotoNavPage('Flervalg');
 
-    // Define the text for the last three checkboxes
     const checkboxText = 'Korte strekninger med bykjøring, eller annen moro';
 
     cy.get('#form-content-MultipleSelectPage-Checkboxes').click();
@@ -35,7 +34,7 @@ describe('Multiple select component', () => {
     cy.findByRole('button', { name: /Kjøring i skogen, Press to remove, 2 of 3/i }).should('exist');
     cy.findByRole('button', { name: /Kjøre til hytta på fjellet, Press to remove, 3 of 3/i }).should('exist');
 
-    // the clickable element is a psuedo-element within the button
+    // The clickable element is a psuedo-element within the button
     cy.findByRole('button', { name: /Kjøring i skogen, Press to remove, 2 of 3/i }).click('right', { force: true });
 
     cy.findByRole('button', {
@@ -51,9 +50,8 @@ describe('Multiple select component', () => {
     const multiselect = '#form-content-MultipleSelectPage-Checkboxes2';
     const multiselectList = 'u-datalist[role="listbox"]';
     const repGroup = '[data-componentid=MultipleSelectPage-RepeatingGroup]';
-    //const summary1 = '[data-componentid=ListPage-Summary-Component2]';
 
-    // Define the text for the last three checkboxes
+    // Define the text for the multiple select options
     const checkboxText1 = 'Karoline';
     const checkboxText2 = 'Kåre';
     const checkboxText3 = 'Johanne';
@@ -62,18 +60,18 @@ describe('Multiple select component', () => {
 
     cy.get(multiselect).click();
 
-    //Check options in checkboxes component
+    // Check options in multiple select component
     cy.get(multiselectList).contains('span', checkboxText1).click();
     cy.get(multiselectList).contains('span', checkboxText2).click();
     cy.get(multiselectList).contains('span', checkboxText3).click();
     cy.get(multiselectList).contains('span', checkboxText4).click();
     cy.get(multiselectList).contains('span', checkboxText5).click();
 
-    //Uncheck
+    // Uncheck
     cy.get(multiselectList).contains('span', checkboxText4).click();
     cy.get(multiselectList).contains('span', checkboxText5).click();
 
-    //Check that checkboxes is correct
+    // Check that multiple select is correct
     cy.findByRole('button', {
       name: `${checkboxText1}, Press to remove, 1 of 3`,
     }).should('exist');
@@ -90,10 +88,10 @@ describe('Multiple select component', () => {
       name: `${checkboxText5}, Press to remove, 5 of 5`,
     }).should('not.exist');
 
-    //Clicking on the repeating group to close the popover from the multiselect
+    // Clicking on the repeating group to close the popover from the multiselect
     cy.get(repGroup).click({ force: true });
 
-    //Validate that the corresponding options in checkboxes is avaliable in repeating group
+    // Validate that the corresponding options in multiple select is avaliable in repeating group
     cy.get(repGroup).findByRole('cell', { name: checkboxText1 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxText3 }).should('exist');
@@ -108,7 +106,7 @@ describe('Multiple select component', () => {
       .click();
     cy.get(multiselect).contains('span', checkboxText1).should('not.exist');
 
-    // Unchecking from Checkboxes should remove from RepeatingGroup (observe that data is preserved)
+    // Unchecking from multiple select should remove from RepeatingGroup (observe that data is preserved)
     cy.get(multiselect).contains('span', checkboxText2).should('exist');
     cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 2 row
     cy.get(repGroup)
@@ -150,18 +148,18 @@ describe('Multiple select component', () => {
 
     cy.get(multiselect).click();
 
-    //Check options in checkboxes component
+    // Check options in multiple select component
     cy.get(multiselectList).contains('span', checkboxText1).click();
     cy.get(multiselectList).contains('span', checkboxText2).click();
     cy.get(multiselectList).contains('span', checkboxText3).click();
     cy.get(multiselectList).contains('span', checkboxText4).click();
     cy.get(multiselectList).contains('span', checkboxText5).click();
 
-    //Uncheck
+    // Unselect
     cy.get(multiselectList).contains('span', checkboxText4).click();
     cy.get(multiselectList).contains('span', checkboxText5).click();
 
-    //Check that checkboxes is correct
+    // Check that multiple select is correct
     cy.get(multiselect).contains('span', checkboxText1).should('exist');
     cy.get(multiselect).contains('span', checkboxText2).should('exist');
     cy.get(multiselect).contains('span', checkboxText3).should('exist');
