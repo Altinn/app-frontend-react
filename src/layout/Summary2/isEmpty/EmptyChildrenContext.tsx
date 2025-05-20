@@ -20,7 +20,7 @@ const Context = createContext<EmptyChildrenContext | undefined>(undefined);
  * have to implement a method for a container-component to 'reach down into' their child components to find out if
  * they are empty or not.
  */
-export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
+export function EmptyChildrenBoundary({ children, reportSelf = true }: PropsWithChildren<{ reportSelf?: boolean }>) {
   const parent = React.useContext(Context);
   const countsRef = useRef({ empty: 0, notEmpty: 0, presentational: 0 });
 
@@ -46,7 +46,9 @@ export function EmptyChildrenBoundary({ children }: PropsWithChildren) {
   }, false);
 
   // Reports to parent, since this is outside the context
-  useReportSummaryRender(onlyEmptyChildren ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent);
+  useReportSummaryRender(
+    reportSelf ? (onlyEmptyChildren ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent) : undefined,
+  );
 
   return <Context.Provider value={{ parent, onlyEmptyChildren, dispatch }}>{children}</Context.Provider>;
 }

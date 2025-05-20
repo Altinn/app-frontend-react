@@ -72,7 +72,10 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
         tableSections.push(
           <Table.Body key={`tbody-${index}`}>
             {currentBodyRows.map((bodyRow, bodyIndex) => (
-              <EmptyChildrenBoundary key={bodyIndex}>
+              <EmptyChildrenBoundary
+                key={bodyIndex}
+                reportSelf={false}
+              >
                 <SummaryGridRowRenderer
                   row={bodyRow}
                   mutableColumnSettings={columnSettings}
@@ -87,7 +90,10 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
       // Add the header row
       tableSections.push(
         <Table.Head key={`thead-${index}`}>
-          <EmptyChildrenBoundary key={index}>
+          <EmptyChildrenBoundary
+            key={index}
+            reportSelf={false}
+          >
             <SummaryGridRowRenderer
               row={row}
               mutableColumnSettings={columnSettings}
@@ -109,7 +115,10 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
     tableSections.push(
       <tbody key={`tbody-${rowsInternal.length}`}>
         {currentBodyRows.map((bodyRow, bodyIndex) => (
-          <EmptyChildrenBoundary key={bodyIndex}>
+          <EmptyChildrenBoundary
+            key={bodyIndex}
+            reportSelf={false}
+          >
             <SummaryGridRowRenderer
               row={bodyRow}
               mutableColumnSettings={columnSettings}
@@ -171,21 +180,24 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   const hideEmptyRows = useSummaryOverrides(props.node)?.hideEmptyRows;
 
   useReportSummaryRenderToParent(
-    onlyEmptyChildren || isHeaderWithoutComponents ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent,
+    isHeaderWithoutComponents
+      ? SummaryContains.Presentational
+      : onlyEmptyChildren
+        ? SummaryContains.EmptyValue
+        : SummaryContains.SomeUserContent,
   );
 
   if (isGridRowHidden(row, isHiddenSelector)) {
     return null;
   }
 
+  const extraClassName = row.readOnly ? classes.rowReadOnly : undefined;
+
   return (
     <HideWhenAllChildrenEmpty
       hideWhen={hideEmptyRows}
       render={(className) => (
-        <SummaryInternalRow
-          readOnly={row.readOnly}
-          className={className}
-        >
+        <Table.Row className={cn(className, extraClassName)}>
           {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
             <SummaryCell
               key={cellIdx}
@@ -212,7 +224,7 @@ function SummaryGridRowRenderer(props: GridRowProps) {
               )}
             </Table.Cell>
           )}
-        </SummaryInternalRow>
+        </Table.Row>
       )}
     />
   );
@@ -248,20 +260,6 @@ function WrappedEditButton({
       {...rest}
     />
   );
-}
-
-interface InternalRowProps extends PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>> {
-  className: string;
-}
-
-function SummaryInternalRow({ header, readOnly, children, className }: InternalRowProps) {
-  const extraClassName = readOnly ? classes.rowReadOnly : undefined;
-
-  if (header) {
-    return <Table.Row className={cn(className, extraClassName)}>{children}</Table.Row>;
-  }
-
-  return <Table.Row className={cn(className, extraClassName)}>{children}</Table.Row>;
 }
 
 function useHeaderText(headerRow: GridRowInternal | undefined, cellIdx: number) {
