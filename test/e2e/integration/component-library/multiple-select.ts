@@ -39,26 +39,26 @@ describe('Multiple select component', () => {
 
     //Check options in checkboxes component
     cy.get(multiselectList).contains('span', checkboxText1).click();
+    cy.get(multiselect).contains('span', checkboxText1).should('exist');
     cy.get(multiselectList).contains('span', checkboxText2).click();
+    cy.get(multiselect).contains('span', checkboxText2).should('exist');
     cy.get(multiselectList).contains('span', checkboxText3).click();
+    cy.get(multiselect).contains('span', checkboxText3).should('exist');
     cy.get(multiselectList).contains('span', checkboxText4).click();
+    cy.get(multiselect).contains('span', checkboxText4).should('exist');
     cy.get(multiselectList).contains('span', checkboxText5).click();
+    cy.get(multiselect).contains('span', checkboxText5).should('exist');
 
     //Uncheck
     cy.get(multiselectList).contains('span', checkboxText4).click();
-    cy.get(multiselectList).contains('span', checkboxText5).click();
-
-    //Check that checkboxes is correct
-    cy.get(multiselect).contains('span', checkboxText1).should('exist');
-    cy.get(multiselect).contains('span', checkboxText2).should('exist');
-    cy.get(multiselect).contains('span', checkboxText3).should('exist');
     cy.get(multiselect).contains('span', checkboxText4).should('not.exist');
+    cy.get(multiselectList).contains('span', checkboxText5).click();
     cy.get(multiselect).contains('span', checkboxText5).should('not.exist');
 
     //Clicking on the repeating group to close the popover from the multiselect
     cy.get(repGroup).click({ force: true });
 
-    //Validate that the corresponding options in checkboxes is avaliable in repeating group
+    //Validate that the corresponding options in checkboxes is available in RepeatingGroup
     cy.get(repGroup).findByRole('cell', { name: checkboxText1 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxText3 }).should('exist');
