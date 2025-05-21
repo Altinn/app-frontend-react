@@ -13,7 +13,7 @@ import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 import { getTargetUrl } from 'test/e2e/support/start-app-instance';
-import type { ResponseFuzzing, Size, SnapshotViewport } from 'test/e2e/support/global';
+import type { ResponseFuzzing, Size, SnapshotOptions, SnapshotViewport } from 'test/e2e/support/global';
 
 import type { ILayoutFile } from 'src/layout/common.generated';
 
@@ -292,7 +292,12 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
 
 Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) => hash.split('/').slice(-1)[0]));
 
-Cypress.Commands.add('snapshot', (name: string) => {
+const defaultSnapshotOptions: SnapshotOptions = {
+  wcag: true,
+};
+
+Cypress.Commands.add('snapshot', (name, _options) => {
+  const options = { ...defaultSnapshotOptions, ..._options };
   cy.clearSelectionAndWait();
   cy.waitUntilNodesReady();
   cy.waitUntilSaved();
@@ -300,7 +305,7 @@ Cypress.Commands.add('snapshot', (name: string) => {
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
   // component, which can sometimes render without all the options (and selected value) a short time after resizing.
-  cy.testWcag();
+  options.wcag && cy.testWcag();
 
   cy.window().then((win) => {
     const { innerWidth, innerHeight } = win;

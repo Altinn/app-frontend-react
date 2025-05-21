@@ -36,6 +36,10 @@ export interface TestPdfOptions {
 
 export type SnapshotViewport = 'desktop' | 'tablet' | 'mobile';
 
+export interface SnapshotOptions {
+  wcag: boolean;
+}
+
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Cypress {
@@ -224,10 +228,8 @@ declare global {
        *    currently loading or animating.
        *  - The snapshot does not overlap with other snapshots. Multiple snapshots on the same page in the same state
        *    will cause confusion, and eat up our Percy.io quota.
-       *
-       * @param name A unique name for the snapshot.
        */
-      snapshot(name: string): Chainable<null>;
+      snapshot(name: string, options?: Partial<SnapshotOptions>): Chainable<null>;
 
       /**
        * Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
