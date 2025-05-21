@@ -81,14 +81,10 @@ export type ValidLanguageKey = keyof FixedLanguageList;
  * You get two functions from this hook, and you can choose which one to use based on your needs:
  * - lang(key, params) usually returns a React element
  */
-export function useLanguage(node?: LayoutNode) {
+export function useLanguage(inputNode?: LayoutNode) {
   const componentCtx = useFormComponentCtx();
-  const nearestNode = node ?? componentCtx?.node;
+  const node = inputNode ?? componentCtx?.node;
 
-  return useLanguageWithForcedNode(nearestNode);
-}
-
-export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
   const sources = useLangToolsDataSources();
   const defaultDataType = DataModels.useLaxDefaultDataType();
   const formDataTypes = DataModels.useLaxReadableDataTypes();
@@ -148,7 +144,7 @@ interface ILanguageState {
   dataSources: TextResourceVariablesDataSources;
 }
 
-export function staticUseLanguage(
+function staticUseLanguage(
   textResources: TextResourceMap,
   _language: FixedLanguageList | null,
   selectedLanguage: string,

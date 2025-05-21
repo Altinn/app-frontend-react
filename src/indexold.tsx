@@ -14,6 +14,7 @@ import 'src/features/toggles';
 import 'src/features/logging';
 import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
+import 'src/next/language/i18n';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
@@ -47,6 +48,7 @@ import 'leaflet/dist/leaflet.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
+
 export function legacyEntry() {
   const router = createHashRouter([
     {

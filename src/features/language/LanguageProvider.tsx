@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useGetAppLanguageQuery } from 'src/features/language/textResources/useGetAppLanguagesQuery';
+import { useI18nLanguageSync } from 'src/features/language/useI18nLanguageSync';
 import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
@@ -62,6 +64,16 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
     languageFromUrl,
     languageFromProfile,
   });
+
+  const {
+    i18n: { changeLanguage },
+  } = useTranslation();
+
+  useI18nLanguageSync(current);
+
+  useEffect(() => {
+    changeLanguage(current);
+  }, [current, changeLanguage]);
 
   const languageResolved = profile !== IsLoading && shouldFetchAppLanguages !== IsLoading && !isFetching;
 
