@@ -11,7 +11,7 @@ import type { InputProps } from 'src/app-components/Input/Input';
 import type {
   NumberFormatProps as NumberFormatPropsCG,
   PatternFormatProps as PatternFormatPropsCG,
-} from 'src/layout/common.generated';
+} from 'src/layout/common.generated.next';
 import type { CompIntermediateExact } from 'src/layout/layout';
 import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 type NumberFormatProps = Omit<NumberFormatPropsCG, 'thousandSeparator' | 'decimalSeparator' | 'suffix' | 'prefix'> & {

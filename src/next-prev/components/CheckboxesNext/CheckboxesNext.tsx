@@ -3,12 +3,12 @@ import React, { useEffect, useState } from 'react';
 import { Checkbox } from '@digdir/designsystemet-react';
 
 import { useResolvedOptions } from 'src/next-prev/components/CheckboxesNext/useResolvedOptions'; // or inline if you prefer
-import type { IRawOption } from 'src/layout/common.generated';
-import type { CompIntermediateExact } from 'src/layout/layout';
+import type { IRawOption } from 'src/layout/common.generated.next';
+import type { CompExternal } from 'src/next-prev/stores/layoutStore';
 import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 
 interface CheckboxesNextType {
-  component: CompIntermediateExact<'Checkboxes'>;
+  component: CompExternal<'Checkboxes'>;
   commonProps: CommonProps;
 }
 

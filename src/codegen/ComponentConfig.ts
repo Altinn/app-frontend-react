@@ -267,9 +267,11 @@ export class ComponentConfig {
       return this.makeSummaryOverridesUnion(CG.common('ISummaryOverridesCommon'));
     }
 
+    const tsPathSuffix = process.env.IS_NEXT === 'true' ? '.next.ts' : '.ts';
+
     return new CG.import({
       import: `${this.type}SummaryOverridesWithRef`,
-      from: `src/layout/${this.type}/config.generated.ts`,
+      from: `src/layout/${this.type}/config.generated${tsPathSuffix}`,
     });
   }
 

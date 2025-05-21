@@ -51,7 +51,7 @@ export class GenerateObject<P extends Props>
           source.ensureMutable();
           source._extendedBy.push(this);
 
-          // It's important we push the symbol, not the source, so we import from common.generated.ts
+          // It's important we push the symbol, not the source, so we import from common.generated(.next).ts
           // instead of duplicating its code
           this._extends.push(symbol);
         } else {

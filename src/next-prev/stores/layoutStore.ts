@@ -9,10 +9,19 @@ import { evaluateExpression } from 'src/next-prev/app/expressions/evaluateExpres
 import { isFormComponentProps } from 'src/next-prev/app/hooks/useValidateComponent';
 import { moveChildren } from 'src/next-prev/app/utils/moveChildren';
 import type { Expression, ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
-import type { CompExternal, CompTypes, ILayoutCollection } from 'src/layout/layout';
+import type { ILayoutFile } from 'src/layout/common.generated.next';
+import type { ComponentTypeConfigs, getComponentConfigs } from 'src/layout/components.generated.next';
 import type { LayoutSetsSchema } from 'src/next-prev/types/LayoutSetsDTO';
 import type { PageOrderDTO } from 'src/next-prev/types/PageOrderDTO';
 import type { ProcessSchema } from 'src/next-prev/types/ProcessDTO';
+
+type ComponentConfigs = ReturnType<typeof getComponentConfigs>;
+export type CompTypes = keyof ComponentConfigs & keyof ComponentTypeConfigs;
+export type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
+
+export type CompExternal<Type extends CompTypes = CompTypes> = ComponentTypeConfigs[Type]['layout'];
+
+export type ILayoutCollection = { [pageName: string]: ILayoutFile };
 
 export interface DataObject {
   [key: string]: string | null | object | DataObject | undefined;
@@ -86,7 +95,7 @@ function buildComponentMap(collection: ResolvedLayoutCollection) {
       }
 
       if (Array.isArray(comp.children)) {
-        traverse(comp.children as ResolvedCompExternal[]);
+        traverse(comp.children);
       }
     }
   }

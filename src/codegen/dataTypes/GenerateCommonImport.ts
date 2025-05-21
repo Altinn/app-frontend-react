@@ -72,9 +72,11 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
   }
 
   toTypeScriptDefinition(): string {
+    const tsPathSuffix = process.env.IS_NEXT === 'true' ? '.next' : '';
+
     const _import = new CG.import({
       import: this.realKey ?? this.key,
-      from: 'src/layout/common.generated',
+      from: `src/layout/common.generated${tsPathSuffix}`,
     });
 
     this.freeze('toTypeScriptDefinition');

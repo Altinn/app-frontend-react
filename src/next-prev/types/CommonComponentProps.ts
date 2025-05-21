@@ -1,4 +1,4 @@
-import type { IRawOption } from 'src/layout/common.generated';
+import type { IRawOption } from 'src/layout/common.generated.next';
 
 export interface CommonProps {
   onChange: (nextValue: string) => void;

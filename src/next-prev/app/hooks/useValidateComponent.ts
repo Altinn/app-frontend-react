@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 
 import { layoutStore } from 'src/next-prev/stores/layoutStore';
-import type { FormComponentProps } from 'src/layout/common.generated';
+import type { FormComponentProps } from 'src/layout/common.generated.next';
 import type { ResolvedCompExternal } from 'src/next-prev/stores/layoutStore';
 
 export function isFormComponentProps(

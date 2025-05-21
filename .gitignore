@@ -394,6 +394,7 @@ src/Altinn.Apps/AppTemplates/AspNet/App/Properties/launchSettings.json
 /.env
 
 # Auto-generated files (run 'yarn gen')
+*.generated.*
 *.generated.ts
 *.generated.d.ts
 *.generated.tsx

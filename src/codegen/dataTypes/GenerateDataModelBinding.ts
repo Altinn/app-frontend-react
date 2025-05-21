@@ -20,4 +20,12 @@ export class GenerateDataModelBinding extends GenerateCommonImport<'IDataModelRe
     // an object internally.
     return this.rawBinding.toJsonSchema();
   }
+
+  toTypeScript(): string {
+    if (process.env.IS_NEXT === 'true') {
+      return this.rawBinding.toTypeScript();
+    }
+
+    return super.toTypeScript();
+  }
 }

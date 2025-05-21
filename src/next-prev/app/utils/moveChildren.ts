@@ -1,4 +1,4 @@
-import type { ILayoutFile } from 'src/layout/common.generated';
+import type { ILayoutFile } from 'src/layout/common.generated.next';
 import type { ResolvedCompExternal, ResolvedLayoutFile } from 'src/next-prev/stores/layoutStore';
 
 /**

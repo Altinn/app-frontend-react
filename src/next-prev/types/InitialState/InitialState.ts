@@ -1,8 +1,4 @@
-//import type { createComponentConfigs } from 'src/layout/components.generated';
-
-// import type { createComponentConfigs } from 'src/layout/components.generated';
-
-import type { getComponentConfigs } from 'src/layout/components.generated';
+import type { getComponentConfigs } from 'src/layout/components.generated.next';
 
 export interface IApplicationLogic {
   allowAnonymousOnStateless?: boolean | null;

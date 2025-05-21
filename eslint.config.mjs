@@ -199,7 +199,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/**/*.generated.{ts,tsx}'],
+    files: ['src/**/*.generated.{next.ts, next.tsx, ts,tsx}'],
     rules: {
       'no-explicit-any': 'off',
       '@typescript-eslint/no-explicit-any': 'off',

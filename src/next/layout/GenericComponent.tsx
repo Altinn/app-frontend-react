@@ -5,11 +5,12 @@ import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { useResolveText } from 'src/next/language/useLanguage';
 import { RenderInputComponent } from 'src/next/layout/Input/InputComponent';
-import { layoutStore, type ResolvedCompExternal } from 'src/next-prev/stores/layoutStore';
-import type { IDataModelReference } from 'src/layout/common.generated';
-import type { CompExternal, CompTypes } from 'src/layout/layout';
+import { layoutStore } from 'src/next-prev/stores/layoutStore';
+import type { IDataModelReference } from 'src/layout/common.generated.next';
+import type { ComponentTypeConfigs } from 'src/layout/components.generated.next';
+import type { CompExternal, CompTypes, ResolvedCompExternal } from 'src/next-prev/stores/layoutStore';
 
 export interface RenderComponentType {
   component: ResolvedCompExternal;
@@ -53,32 +54,28 @@ export function getDataModelPathWithIndices(binding: string, indices: number[]) 
   return `${indexedBinding}.${lastSegment}`;
 }
 
-type CleanedDataModelBindings<T extends CompTypes> = Record<
-  keyof Exclude<CompExternal<T>['dataModelBindings'], undefined>,
-  IDataModelReference
->;
+type DataModelBindingKeys<T extends CompTypes> = keyof ComponentTypeConfigs[T]['layout']['dataModelBindings'];
+type CleanedDataModelBindings<T extends CompTypes> = Record<DataModelBindingKeys<T>, IDataModelReference>;
 
-function cleanDataModelBindings<T extends CompTypes = CompTypes>(
-  dataModelBindings: CompExternal<T>['dataModelBindings'],
-  dataType: string | undefined,
+function cleanDataModelBindings<T extends CompTypes>(
+  dataModelBindings: Exclude<ComponentTypeConfigs[T]['layout']['dataModelBindings'], undefined>,
+  dataType: string,
   indices: number[],
-): CleanedDataModelBindings<T> | undefined {
-  if (!dataModelBindings || !dataType) {
-    return undefined;
-  }
-
-  const result: CleanedDataModelBindings<T> = {} as CleanedDataModelBindings<T>;
-
-  Object.entries(dataModelBindings).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      result[key] = {
-        dataType,
-        field: getDataModelPathWithIndices(value, indices),
-      };
-    } else {
-      result[key] = value;
-    }
-  });
+): CleanedDataModelBindings<T> {
+  const result = Object.entries(dataModelBindings).reduce<Record<keyof typeof dataModelBindings, IDataModelReference>>(
+    (prev, [key, value]) => {
+      if (typeof value === 'string') {
+        prev[key] = {
+          dataType,
+          field: getDataModelPathWithIndices(value, indices),
+        };
+      } else {
+        prev[key] = value;
+      }
+      return prev;
+    },
+    {} as Record<keyof typeof dataModelBindings, IDataModelReference>,
+  );
 
   return result;
 }
@@ -90,6 +87,10 @@ export function NextGenericComponent({ component, indices }: RenderComponentType
 
   if (isHidden) {
     return null;
+  }
+
+  if (!dataType) {
+    return <div>Default data type is not defined</div>;
   }
 
   switch (component.type) {
@@ -113,7 +114,7 @@ export function NextGenericComponent({ component, indices }: RenderComponentType
 export type ComponentProps<T extends CompTypes> = {
   renderAsSummary: boolean;
   component: ResolvedCompExternal<T>;
-  cleanedDataModelBindings: CleanedDataModelBindings<T> | undefined;
+  cleanedDataModelBindings: CleanedDataModelBindings<T>;
 };
 
 type ResolvedData<T extends CompTypes> =
@@ -148,7 +149,7 @@ export type ResolvedTexts<T extends CompTypes> =
 export function useResolvedTexts<T extends CompTypes>(
   textResourceBindings: CompExternal<T>['textResourceBindings'],
 ): ResolvedTexts<T> {
-  const { langAsString } = useLanguage();
+  const resolveText = useResolveText();
   if (!textResourceBindings) {
     return undefined;
   }
@@ -156,7 +157,7 @@ export function useResolvedTexts<T extends CompTypes>(
   const resolvedTexts = {};
 
   Object.entries(textResourceBindings).forEach(([key, value]) => {
-    resolvedTexts[key] = langAsString(value);
+    resolvedTexts[key] = resolveText(value, { lng: 'en' });
   });
 
   return resolvedTexts as ResolvedTexts<T>; // FIXME:

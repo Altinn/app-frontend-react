@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { Radio } from '@digdir/designsystemet-react';
 
 import { useResolvedOptions } from 'src/next-prev/components/CheckboxesNext/useResolvedOptions';
-import type { IRawOption } from 'src/layout/common.generated';
-import type { CompIntermediateExact } from 'src/layout/layout';
+import type { IRawOption } from 'src/layout/common.generated.next';
+import type { CompExternal } from 'src/next-prev/stores/layoutStore';
 import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 
 interface RadioButtonsNextType {
-  component: CompIntermediateExact<'RadioButtons'>;
+  component: CompExternal<'RadioButtons'>;
   commonProps: CommonProps;
 }
 

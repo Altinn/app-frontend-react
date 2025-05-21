@@ -9,6 +9,7 @@
     "postinstall": "husky",
     "cy:all": "tsx scripts/cypress-run-all.ts",
     "gen": "tsx src/codegen/run.ts",
+    "gen:next": "cross-env IS_NEXT=true tsx src/codegen/run.ts",
     "copy-schemas": "tsx scripts/copy-schemas.ts",
     "start": "yarn gen && cross-env NODE_ENV=development webpack-dev-server --config webpack.config.development.js --mode development --progress",
     "build": "yarn gen && yarn copy-schemas && cross-env NODE_ENV=production webpack --config webpack.config.production.js --progress",

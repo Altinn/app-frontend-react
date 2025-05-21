@@ -6,15 +6,12 @@ import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import { fetchOptions } from 'src/queries/queries';
 import { getOptionsUrl } from 'src/utils/urls/appUrlHelper';
 import type { Expression } from 'src/features/expressions/types';
-import type { IRawOption } from 'src/layout/common.generated';
-import type { CompIntermediateExact } from 'src/layout/layout';
+import type { IRawOption } from 'src/layout/common.generated.next';
+import type { CompExternal } from 'src/next-prev/stores/layoutStore';
 import type { CommonProps } from 'src/next-prev/types/CommonComponentProps';
 import type { ParamValue } from 'src/utils/urls/appUrlHelper';
 
-export function useResolvedOptions(
-  component: CompIntermediateExact<'Checkboxes' | 'RadioButtons'>,
-  commonProps: CommonProps,
-) {
+export function useResolvedOptions(component: CompExternal<'Checkboxes' | 'RadioButtons'>, commonProps: CommonProps) {
   const [fetchedOptions, setFetchedOptions] = useState<IRawOption[]>();
 
   // 1. If options are provided directly, store them right away
