@@ -9,6 +9,9 @@ module.exports = {
   output: {
     filename: 'altinn-app-frontend.js',
   },
+  optimizeDeps: {
+    include: ['@digdir/designsystemet-react'], // explicitly include ESM deps
+  },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.scss'],
     alias: {
