@@ -15,13 +15,11 @@ module.exports = {
       src: path.resolve(__dirname, './src'),
       axios: require.resolve('./node_modules/axios/dist/browser/axios.cjs'),
     },
-    fullySpecified: false,
   },
   module: {
     rules: [
       {
         test: /\.jsx?/,
-        exclude: /node_modules\/(?!(?:@digdir)\/)/,
         use: {
           loader: 'babel-loader',
         },
