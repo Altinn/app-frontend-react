@@ -45,7 +45,6 @@ export type OrganisationLookupResponse =
   | { success: true; organisationDetails: Organisation };
 
 async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null } | { org: null; error: string }> {
-  console.log('fetchOrg', orgNr);
   if (!orgNr) {
     throw new Error('orgNr is required');
   }
@@ -89,12 +88,10 @@ export function OrganisationLookupComponent({
 
   function handleValidateOrgnr(orgNr: string) {
     if (!validateOrgnr({ orgNr })) {
-      console.log('handleValidateOrgnr', orgNr);
       const errors = validateOrgnr.errors
         ?.filter((error) => error.instancePath === '/orgNr')
         .map((error) => error.message)
         .filter((it) => it != null);
-      console.log('errors', errors);
       setOrgNrErrors(errors);
       return false;
     }
@@ -123,8 +120,6 @@ export function OrganisationLookupComponent({
   }
 
   const hasSuccessfullyFetched = !!organisation_lookup_orgnr;
-
-  console.log(data);
 
   const isValid =
     (orgNrErrors?.length && orgNrErrors?.length > 0) ||
