@@ -73,23 +73,23 @@ describe('Multiple select component', () => {
 
     // Check that multiple select is correct
     cy.findByRole('button', {
-      name: `${checkboxText1}, Press to remove, 1 of 3`,
+      name: /Karoline, Press to remove, 1 of 3/i,
     }).should('exist');
     cy.findByRole('button', {
-      name: `${checkboxText2}, Press to remove, 2 of 3`,
+      name: /Kåre, Press to remove, 2 of 3/i,
     }).should('exist');
     cy.findByRole('button', {
-      name: `${checkboxText3}, Press to remove, 3 of 3`,
+      name: /Johanne, Press to remove, 3 of 3/i,
     }).should('exist');
     cy.findByRole('button', {
-      name: `${checkboxText4}, Press to remove, 4 of 5`,
+      name: /Kari, Press to remove, 4 of 5/i,
     }).should('not.exist');
     cy.findByRole('button', {
-      name: `${checkboxText5}, Press to remove, 5 of 5`,
+      name: /Petter, Press to remove, 5 of 5/i,
     }).should('not.exist');
 
-    // Clicking on the repeating group to close the popover from the multiselect
-    cy.get(repGroup).click({ force: true });
+    // Close the multiple select component
+    cy.get(multiselect).type('{esc}');
 
     // Validate that the corresponding options in multiple select is avaliable in repeating group
     cy.get(repGroup).findByRole('cell', { name: checkboxText1 }).should('exist');
@@ -104,7 +104,9 @@ describe('Multiple select component', () => {
       .findAllByRole('button', { name: /^Slett/ })
       .first()
       .click();
-    cy.get(multiselect).contains('span', checkboxText1).should('not.exist');
+    cy.findByRole('button', {
+      name: /Karoline, Press to remove, 1 of 3/i,
+    }).should('not.exist');
 
     // Unchecking from multiple select should remove from RepeatingGroup (observe that data is preserved)
     cy.get(multiselect).contains('span', checkboxText2).should('exist');
@@ -132,7 +134,7 @@ describe('Multiple select component', () => {
     cy.get(repGroup).findAllByRole('cell', { name: '20' }).should('not.exist');
   });
 
-  it('Renders the summary2 component with correct text for MultipleSelext with group and soft deletion', () => {
+  it('Renders the summary2 component with correct text for MultipleSelect with group and soft deletion', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.gotoNavPage('Flervalg');
 
@@ -156,21 +158,35 @@ describe('Multiple select component', () => {
     cy.get(multiselectList).contains('span', checkboxText5).click();
 
     // Unselect
-    cy.get(multiselectList).contains('span', checkboxText4).click();
-    cy.get(multiselectList).contains('span', checkboxText5).click();
+    cy.findByRole('button', {
+      name: /Kari, Press to remove, 4 of 5/i,
+    }).click('right', { force: true });
+    cy.findByRole('button', {
+      name: /Petter, Press to remove, 4 of 4/i,
+    }).click('right', { force: true });
 
     // Check that multiple select is correct
-    cy.get(multiselect).contains('span', checkboxText1).should('exist');
-    cy.get(multiselect).contains('span', checkboxText2).should('exist');
-    cy.get(multiselect).contains('span', checkboxText3).should('exist');
-    cy.get(multiselect).contains('span', checkboxText4).should('not.exist');
-    cy.get(multiselect).contains('span', checkboxText5).should('not.exist');
+    cy.findByRole('button', {
+      name: /Karoline, Press to remove, 1 of 3/i,
+    }).should('exist');
+    cy.findByRole('button', {
+      name: /Kåre, Press to remove, 2 of 3/i,
+    }).should('exist');
+    cy.findByRole('button', {
+      name: /Johanne, Press to remove, 3 of 3/i,
+    }).should('exist');
+    cy.findByRole('button', {
+      name: /Kari, Press to remove, 4 of 5/i,
+    }).should('not.exist');
+    cy.findByRole('button', {
+      name: /Petter, Press to remove, 4 of 4/i,
+    }).should('not.exist');
 
     const expectedText = [checkboxText1, checkboxText2, checkboxText3].join(', ');
 
     cy.get(`div${summary2}`)
       .next()
-      .find('span.fds-paragraph') // Targets the span with the summary text
+      .find('span.ds-paragraph') // Targets the span with the summary text
       .should('have.text', expectedText);
   });
 });
