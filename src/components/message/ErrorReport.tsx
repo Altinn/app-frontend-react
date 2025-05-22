@@ -1,10 +1,10 @@
 import React, { createContext, useContext } from 'react';
-import { Link } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import { ErrorSummary } from '@digdir/designsystemet-react';
+
 import { Flex } from 'src/app-components/Flex/Flex';
-import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
-import { Panel } from 'src/app-components/Panel/Panel';
+import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
@@ -38,11 +38,10 @@ export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
 
   return (
     <ErrorReportContext.Provider value={true}>
-      <div data-testid='ErrorReport'>
-        <Panel
-          title={<Lang id='form_filler.error_report_header' />}
-          variant={PANEL_VARIANT.Error}
-          isOnBottom
+      <FullWidthWrapper isOnBottom={true}>
+        <ErrorSummary
+          data-testid='ErrorReport'
+          className={classes.errorSummary}
         >
           <Flex
             container
@@ -54,18 +53,21 @@ export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
               item
               size={{ xs: 12 }}
             >
-              <ul className={classes.errorList}>{errors}</ul>
+              <ErrorSummary.Heading>
+                <Lang id='form_filler.error_report_header' />
+              </ErrorSummary.Heading>
+              <ErrorSummary.List className={classes.errorList}>{errors}</ErrorSummary.List>
             </Flex>
             {children}
           </Flex>
-        </Panel>
-      </div>
+        </ErrorSummary>
+      </FullWidthWrapper>
     </ErrorReportContext.Provider>
   );
 };
 
 function ErrorReportListItem({ children }: PropsWithChildren) {
-  return <li style={{ listStyleImage: listStyleImg }}>{children}</li>;
+  return <ErrorSummary.Item style={{ listStyleImage: listStyleImg }}>{children}</ErrorSummary.Item>;
 }
 
 interface ErrorReportListProps {
@@ -120,9 +122,9 @@ export function ErrorListFromInstantiation({ error }: { error: unknown }) {
             params={[selectedParty?.name]}
           />{' '}
           (
-          <Link to='/party-selection/'>
+          <ErrorSummary.Link href='/party-selection/'>
             <Lang id='party_selection.change_party' />
-          </Link>
+          </ErrorSummary.Link>
           ).
         </span>
       </ErrorReportListItem>

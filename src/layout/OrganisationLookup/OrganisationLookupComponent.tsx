@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { ErrorMessage, Paragraph } from '@digdir/designsystemet-react';
+import { Field, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import type { PropsFromGenericComponent } from '..';
@@ -92,7 +92,6 @@ export function OrganisationLookupComponent({
         ?.filter((error) => error.instancePath === '/orgNr')
         .map((error) => error.message)
         .filter((it) => it != null);
-
       setOrgNrErrors(errors);
       return false;
     }
@@ -122,6 +121,10 @@ export function OrganisationLookupComponent({
 
   const hasSuccessfullyFetched = !!organisation_lookup_orgnr;
 
+  const isValid =
+    (orgNrErrors?.length && orgNrErrors?.length > 0) ||
+    hasValidationErrors(bindingValidations?.organisation_lookup_orgnr);
+
   return (
     <Fieldset
       legend={labelText}
@@ -148,25 +151,30 @@ export function OrganisationLookupComponent({
               }
             />
           </div>
-          <NumericInput
-            id={`${id}_orgnr`}
-            aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_orgnr`) : undefined}
-            value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
-            className={classes.orgnr}
-            required={required}
-            readOnly={hasSuccessfullyFetched || isFetching}
-            error={
-              (orgNrErrors?.length && <Lang id={orgNrErrors.join(' ')} />) ||
+          <Field className={classes.orgnr}>
+            <NumericInput
+              id={`${id}_orgnr`}
+              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_orgnr`) : undefined}
+              aria-label={langAsString('organisation_lookup.orgnr_label')}
+              value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
+              required={required}
+              readOnly={hasSuccessfullyFetched || isFetching}
+              error={isValid}
+              onValueChange={(e) => {
+                setTempOrgNr(e.value);
+              }}
+              onBlur={(e) => handleValidateOrgnr(e.target.value)}
+              allowLeadingZeros
+            />
+            {(orgNrErrors?.length && (
+              <ValidationMessage data-size='sm'>
+                <Lang id={orgNrErrors.join(' ')} />
+              </ValidationMessage>
+            )) ||
               (hasValidationErrors(bindingValidations?.organisation_lookup_orgnr) && (
                 <ComponentValidations validations={bindingValidations?.organisation_lookup_orgnr} />
-              ))
-            }
-            onValueChange={(e) => {
-              setTempOrgNr(e.value);
-            }}
-            onBlur={(e) => handleValidateOrgnr(e.target.value)}
-            allowLeadingZeros
-          />
+              ))}
+          </Field>
           <div className={classes.submit}>
             {!hasSuccessfullyFetched ? (
               <Button
@@ -187,19 +195,19 @@ export function OrganisationLookupComponent({
             )}
           </div>
           {data?.error && (
-            <ErrorMessage
-              size='sm'
+            <ValidationMessage
+              data-size='sm'
               className={classes.apiError}
             >
               <Lang id={data.error} />
-            </ErrorMessage>
+            </ValidationMessage>
           )}
           {hasSuccessfullyFetched && orgName && (
             <div
               className={classes.orgname}
               aria-label={langAsString('organisation_lookup.org_name')}
             >
-              {hasSuccessfullyFetched && <Paragraph size='sm'>{orgName}</Paragraph>}
+              {hasSuccessfullyFetched && <Paragraph data-size='sm'>{orgName}</Paragraph>}
             </div>
           )}
         </div>

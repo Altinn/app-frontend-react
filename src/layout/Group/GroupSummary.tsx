@@ -71,7 +71,7 @@ export const GroupSummary = ({ componentNode, hierarchyLevel = 0 }: GroupCompone
     >
       {(summaryTitle || title) && (
         <Heading
-          size={isNestedGroup ? 'xsmall' : 'small'}
+          data-size={isNestedGroup ? 'xs' : 'sm'}
           level={headingLevel}
         >
           <Lang

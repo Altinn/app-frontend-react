@@ -11,7 +11,7 @@ describe('Multiple select component', () => {
     const multiselectList = 'div[role="listbox"]';
     const repGroup = '[data-componentid=MultipleSelectPage-RepeatingGroup]';
 
-    // Define the text for the last three checkboxes
+    // Define the text for the multiple select options
     const checkboxText1 = 'Karoline';
     const checkboxText2 = 'Kåre';
     const checkboxText3 = 'Johanne';
@@ -81,6 +81,32 @@ describe('Multiple select component', () => {
     cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).should('exist');
     cy.get(repGroup).findAllByRole('cell', { name: '20' }).should('exist');
   });
+
+  it('displays the values of the currently selected options', () => {
+    cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
+    cy.gotoNavPage('Flervalg');
+
+    cy.get('#form-content-MultipleSelectPage-Checkboxes').click();
+
+    cy.findByRole('option', { name: /Korte strekninger med bykjøring, eller annen moro/i }).click();
+    cy.findByRole('option', { name: /Kjøring i skogen/i }).click();
+    cy.findByRole('option', { name: /Kjøre til hytta på fjellet/i }).click();
+
+    cy.findByRole('button', {
+      name: /Korte strekninger med bykjøring, eller annen moro, Press to remove, 1 of 3/i,
+    }).should('exist');
+    cy.findByRole('button', { name: /Kjøring i skogen, Press to remove, 2 of 3/i }).should('exist');
+    cy.findByRole('button', { name: /Kjøre til hytta på fjellet, Press to remove, 3 of 3/i }).should('exist');
+
+    // The clickable element is a psuedo-element within the button
+    cy.findByRole('button', { name: /Kjøring i skogen, Press to remove, 2 of 3/i }).click('right', { force: true });
+
+    cy.findByRole('button', {
+      name: /Korte strekninger med bykjøring, eller annen moro, Press to remove, 1 of 2/i,
+    }).should('exist');
+    cy.findByRole('button', { name: /Kjøre til hytta på fjellet, Press to remove, 2 of 2/i }).should('exist');
+  });
+
   it('Adds and removes data properly when using group and hard deletion', () => {
     cy.interceptLayout('ComponentLayouts', (component) => {
       if (component.type === 'MultipleSelect' && component.id === 'MultipleSelectPage-Checkboxes2') {
@@ -92,11 +118,10 @@ describe('Multiple select component', () => {
     cy.gotoNavPage('Flervalg');
 
     const multiselect = '#form-content-MultipleSelectPage-Checkboxes2';
-    const multiselectList = 'div[role="listbox"]';
+    const multiselectList = 'u-datalist[role="listbox"]';
     const repGroup = '[data-componentid=MultipleSelectPage-RepeatingGroup]';
-    //const summary1 = '[data-componentid=ListPage-Summary-Component2]';
 
-    // Define the text for the last three checkboxes
+    // Define the text for the multiple select options
     const checkboxText1 = 'Karoline';
     const checkboxText2 = 'Kåre';
     const checkboxText3 = 'Johanne';
@@ -105,7 +130,7 @@ describe('Multiple select component', () => {
 
     cy.get(multiselect).click();
 
-    //Check options in checkboxes component
+    // Check options in multiple select component
     cy.get(multiselectList).contains('span', checkboxText1).click();
     cy.get(multiselect).contains('span', checkboxText1).should('exist');
     cy.get(multiselectList).contains('span', checkboxText2).click();
@@ -117,16 +142,16 @@ describe('Multiple select component', () => {
     cy.get(multiselectList).contains('span', checkboxText5).click();
     cy.get(multiselect).contains('span', checkboxText5).should('exist');
 
-    //Uncheck
+    // Uncheck
     cy.get(multiselectList).contains('span', checkboxText4).click();
     cy.get(multiselect).contains('span', checkboxText4).should('not.exist');
     cy.get(multiselectList).contains('span', checkboxText5).click();
     cy.get(multiselect).contains('span', checkboxText5).should('not.exist');
 
-    //Clicking on the repeating group to close the popover from the multiselect
-    cy.get(repGroup).click({ force: true });
+    // Close the multiple select component
+    cy.get(multiselect).type('{esc}');
 
-    //Validate that the corresponding options in checkboxes is available in RepeatingGroup
+    // Validate that the corresponding options in multiple select is avaliable in repeating group
     cy.get(repGroup).findByRole('cell', { name: checkboxText1 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxText2 }).should('exist');
     cy.get(repGroup).findByRole('cell', { name: checkboxText3 }).should('exist');
@@ -139,9 +164,11 @@ describe('Multiple select component', () => {
       .findAllByRole('button', { name: /^Slett/ })
       .first()
       .click();
-    cy.get(multiselect).contains('span', checkboxText1).should('not.exist');
+    cy.findByRole('button', {
+      name: /Karoline, Press to remove, 1 of 3/i,
+    }).should('not.exist');
 
-    // Unchecking from Checkboxes should remove from RepeatingGroup (observe that data is preserved)
+    // Unchecking from multiple select should remove from RepeatingGroup (observe that data is preserved)
     cy.get(multiselect).contains('span', checkboxText2).should('exist');
     cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 2 rows
     cy.get(repGroup)
@@ -187,7 +214,7 @@ describe('Multiple select component', () => {
     cy.gotoNavPage('Flervalg');
 
     const multiselect = '#form-content-MultipleSelectPage-Checkboxes2';
-    const multiselectList = 'div[role="listbox"]';
+    const multiselectList = 'u-datalist[role="listbox"]';
     const summary2 = '[data-componentid=MultipleSelectPage-Header-Summary2-Component2]';
 
     const checkboxText1 = 'Karoline';
@@ -198,7 +225,7 @@ describe('Multiple select component', () => {
 
     cy.get(multiselect).click();
 
-    //Check options in checkboxes component
+    // Check options in multiple select component
     cy.get(multiselectList).contains('span', checkboxText1).click();
     cy.get(multiselect).contains('span', checkboxText1).should('exist');
     cy.get(multiselectList).contains('span', checkboxText2).click();
@@ -221,7 +248,7 @@ describe('Multiple select component', () => {
 
     cy.get(`div${summary2}`)
       .next()
-      .find('span.fds-paragraph') // Targets the span with the summary text
+      .find('span.ds-paragraph') // Targets the span with the summary text
       .should('have.text', expectedText);
   });
   it('Renders the summary2 component with correct text for MultipleSelect with group and hard deletion', () => {

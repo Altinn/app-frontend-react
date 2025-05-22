@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Modal, Popover } from '@digdir/designsystemet-react';
+import { Dialog, Popover } from '@digdir/designsystemet-react';
 import { BulletListIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 import type { Button } from '@digdir/designsystemet-react';
@@ -40,26 +40,25 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
   if (!isMobile) {
     return (
       <div className={classes.popoverWrapper}>
-        <Popover
-          open={isDialogOpen}
-          onClose={closeDialog}
-        >
+        <Popover.TriggerContext>
           <Popover.Trigger
             data-testid='page-navigation-trigger'
             onClick={toggleDialog}
             variant='secondary'
-            color='first'
-            size='sm'
+            data-color='accent'
+            data-size='sm'
             {...props}
             className={cn({ [classes.popoverButtonActive]: isDialogOpen }, props.className)}
           >
             <PopoverNavigationButtonContent />
           </Popover.Trigger>
-          <Popover.Content
+          <Popover
             data-testid='page-navigation-dialog'
             className={classes.popoverContainer}
             aria-modal
             autoFocus={true}
+            open={isDialogOpen}
+            onClose={closeDialog}
           >
             <AppNavigationHeading
               showClose={true}
@@ -68,45 +67,42 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             <div style={{ paddingRight: 12 }}>
               <AppNavigation onNavigate={closeDialog} />
             </div>
-          </Popover.Content>
-        </Popover>
+          </Popover>
+        </Popover.TriggerContext>
       </div>
     );
   }
 
   return (
-    <Modal.Root>
-      <Modal.Trigger
+    <Dialog.TriggerContext>
+      <Dialog.Trigger
         data-testid='page-navigation-trigger'
         onClick={toggleDialog}
         variant='secondary'
-        color='first'
-        size='sm'
+        daata-color='accent'
+        data-size='sm'
         {...props}
         className={cn({ [classes.popoverButtonActive]: isDialogOpen }, props.className)}
       >
         <PopoverNavigationButtonContent />
-      </Modal.Trigger>
-      <Modal.Dialog
+      </Dialog.Trigger>
+      <Dialog
         aria-labelledby='app-navigation-heading'
         ref={modalRef}
-        onInteractOutside={closeDialog}
-        className={classes.modal}
+        closedby='any'
+        modal={true}
+        className={cn(classes.modal, classes.modalContainer)}
+        data-testid='page-navigation-dialog'
       >
-        <Modal.Content
-          data-testid='page-navigation-dialog'
-          className={classes.modalContainer}
-        >
-          <AppNavigationHeading
-            showClose={true}
-            onClose={closeDialog}
-          />
-          <div style={{ paddingRight: 12 }}>
-            <AppNavigation onNavigate={closeDialog} />
-          </div>
-        </Modal.Content>
-      </Modal.Dialog>
-    </Modal.Root>
+        <AppNavigationHeading
+          showClose={true}
+          onClose={closeDialog}
+        />
+        <div style={{ paddingRight: 12 }}>
+          <AppNavigation onNavigate={closeDialog} />
+        </div>
+      </Dialog>
+    </Dialog.TriggerContext>
   );
 }
 
