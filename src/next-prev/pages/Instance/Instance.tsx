@@ -9,7 +9,7 @@ export const Instance = () => {
   const { instance } = useStore(instanceStore); //instanceStore.getState();
   return (
     <div>
-      {instance?.process.currentTask.elementId && <Navigate to={`${instance?.process.currentTask.elementId}`} />}
+      {instance?.process?.currentTask?.elementId && <Navigate to={`${instance.process.currentTask.elementId}`} />}
       <Outlet />
     </div>
   );

@@ -46,7 +46,7 @@ interface Layouts {
   pageOrder: PageOrderDTO;
   layouts: ResolvedLayoutCollection;
   resolvedLayouts: ResolvedLayoutCollection;
-  data: DataObject | undefined;
+  data: Record<string, DataObject> | undefined;
   dataModelSchemas?: Record<string, JSONSchema7>;
   componentMap?: Record<string, ResolvedCompExternal>;
   options?: Record<string, any>;
@@ -54,11 +54,11 @@ interface Layouts {
   setProcess: (proc: ProcessSchema) => void;
   setPageOrder: (order: PageOrderDTO) => void;
   setLayouts: (layouts: ILayoutCollection) => void;
-  setDataObject: (data: DataObject) => void;
+  setDataObject: (dataModels: Record<string, DataObject>) => void;
   setDataValue: (key: string, value: string | boolean) => void;
   setBoundValue: (
     component: ResolvedCompExternal,
-    newValue: any,
+    newValue: string | boolean | number | object | null,
     parentBinding?: string,
     itemIndex?: number,
     childField?: string,

@@ -1,13 +1,13 @@
 import { createStore } from 'zustand/index';
 
-import type { InstanceDTO } from 'src/next-prev/types/InstanceDTO';
+import type { Instance } from 'src/next-prev/app/api';
 interface InstanceStore {
-  instance?: InstanceDTO;
-  setInstance: (instance: InstanceDTO) => void;
+  instance?: Instance;
+  setInstance: (instance: Instance) => void;
 }
 export const instanceStore = createStore<InstanceStore>((set, getState) => ({
   instance: undefined,
-  setInstance: (instance: InstanceDTO) => {
+  setInstance: (instance: Instance) => {
     set({
       ...getState(),
       instance,

@@ -21,36 +21,42 @@ const resources = {
   },
 };
 
+export const variableSchema = z.object({
+  key: z.literal('instanceContext').or(z.literal('applicationSettings')).or(z.custom<`dataModel.${string}`>()),
+  dataSource: z.string(),
+  defaultValue: z.string().nullish(),
+});
+
+export type Variable = z.infer<typeof variableSchema>;
+
+const resourceSchema = z.object({
+  id: z.string(),
+  value: z.string(),
+  variables: z.array(variableSchema).nullable(),
+});
+
 const backendResponseSchema = z
   .object({
     id: z.string(),
     org: z.string(),
     language: z.string(),
-    resources: z.array(
-      z.object({
-        id: z.string(),
-        value: z.string(),
-        // TODO: variables
-        variables: z.array(z.object({ key: z.string(), dataSource: z.string() })).nullable(),
-      }),
-    ),
+    resources: z.array(resourceSchema),
   })
   .transform((data) => {
     const { resources, ...rest } = data;
 
-    const transformedData: { [key: string]: string } = {}; //{ value: string; variables?: any[] | null } } = {};
+    const transformedData: Record<string, { value: string; variables: Variable[] | null }> = {};
 
     resources.forEach((item) => {
-      // if (item.variables) {
-      //   console.log('item with variables: ', item);
-      // }
-
-      // const { id, ...rest } = item;
-      transformedData[item.id] = item.value;
+      const { id, ...rest } = item;
+      transformedData[id] = rest;
     });
 
     return { ...rest, translation: transformedData };
   });
+
+type BackendResponse = z.infer<typeof backendResponseSchema>;
+export type ResolvedValue = BackendResponse['translation'][keyof BackendResponse['translation']];
 
 // eslint-disable-next-line import/no-named-as-default-member
 i18n
@@ -62,6 +68,7 @@ i18n
     lng: 'nb', // default language
     fallbackLng: 'nb',
     partialBundledLanguages: true,
+    returnObjects: true,
     interpolation: {
       escapeValue: false, // react already safes from xss
     },
@@ -80,7 +87,7 @@ i18n
         }
 
         const parsedData = parseResult.data;
-        // TODO: can this be done in a more idiomatic way?
+        // Get local translations based on language
         const localTranslation =
           parsedData.language === 'en'
             ? resources.en.translation

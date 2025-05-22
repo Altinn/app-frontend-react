@@ -4,6 +4,7 @@ import { API_CLIENT, APP, ORG } from 'src/next-prev/app/App/App';
 import { instanceStore } from 'src/next-prev/stores/instanceStore';
 import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import { initialStateStore } from 'src/next-prev/stores/settingsStore';
+import type { DataObject } from 'src/next-prev/stores/layoutStore';
 
 type InstanceParams = {
   partyId: string;
@@ -35,15 +36,23 @@ export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams
     throw new Error('No instance');
   }
 
-  const res = await API_CLIENT.org.dataDetail(
-    ORG,
-    APP,
-    Number.parseInt(partyId),
-    instanceGuid,
-    localInstance.data[0].id,
-  );
-  const data = await res.json();
-  layoutStore.getState().setDataObject(data);
+  // all data types that have app logic are considered data models
+
+  const fetchCalls = (localInstance.data ?? []).map(async ({ dataType: dataModelName, id: uuid }) => {
+    const res = await API_CLIENT.org.dataDetail(ORG, APP, Number.parseInt(partyId), instanceGuid, uuid ?? '');
+    return { dataModelName, data: await res.json() };
+  });
+  const dataModelData = await Promise.all(fetchCalls);
+
+  const dataModelDataMap: { [key: string]: DataObject } = {};
+  dataModelData.forEach(({ dataModelName, data }) => {
+    if (!data || !dataModelName) {
+      return;
+    }
+    dataModelDataMap[dataModelName] = data;
+  });
+
+  layoutStore.getState().setDataObject(dataModelDataMap);
   return {};
 }
 
