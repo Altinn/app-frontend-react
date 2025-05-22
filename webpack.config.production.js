@@ -1,4 +1,4 @@
-const { EsbuildPlugin } = require('esbuild-loader'); // Add this if not already present
+const { EsbuildPlugin } = require('esbuild-loader');
 
 const common = require('./webpack.common');
 
