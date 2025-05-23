@@ -46,9 +46,10 @@ function DumbInputComponent({
   onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', border: '1px solid pink' }}>
       <pre>data: {JSON.stringify(data, null, 2)}</pre>
       <pre>textResources: {JSON.stringify(textResources, null, 2)}</pre>
+      Title: {textResources?.title}{' '}
       <input
         type='text'
         value={data}
