@@ -1,19 +1,18 @@
 import { useTranslation } from 'react-i18next';
 
-import dot from 'dot-object';
+// eslint-disable-next-line import/no-named-as-default
 import z from 'zod';
-import { useStore } from 'zustand';
 import type { TOptionsBase } from 'i18next';
 import type { $Dictionary } from 'i18next/typescript/helpers';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useLangToolsDataSources } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { variableSchema } from 'src/next/language/i18n';
-import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import type { LangDataSources } from 'src/features/language/LangDataSourcesProvider';
+import type { FormDataSelector } from 'src/layout';
 import type { Variable } from 'src/next/language/i18n';
-import type { DataObject } from 'src/next-prev/stores/layoutStore';
 
 const resolvedTranslationSchema = z.object({
   value: z.string(),
@@ -25,7 +24,8 @@ export function useResolveText() {
   const { t } = useTranslation();
   const langToolsDataSources = useLangToolsDataSources();
   const defaultDataModelName = DataModels.useDefaultDataType();
-  const dataModels = useStore(layoutStore, (state) => state.data);
+  // const dataModels = useStore(layoutStore, (state) => state.data);
+  const formDataSelector = FD.useDebouncedSelector();
 
   return (key: string | string[], options?: TOptionsBase & $Dictionary): string => {
     const resolved = t(key, { ...options, lng: selectedLanguage });
@@ -36,7 +36,7 @@ export function useResolveText() {
       parsed.variables ?? [],
       langToolsDataSources,
       defaultDataModelName,
-      dataModels,
+      formDataSelector,
     );
 
     return interpolateVariables(parsed.value, resolvedVariables ?? []);
@@ -47,7 +47,7 @@ function resolveVariables(
   variables: Variable[],
   dataSources: LangDataSources | undefined,
   defaultDataModelName: string | undefined,
-  dataModels: { [modelName: string]: DataObject } | undefined,
+  formDataSelector: FormDataSelector,
 ): string[] {
   return variables.map((variable) => resolveVariable(variable));
 
@@ -69,15 +69,13 @@ function resolveVariables(
         break;
       }
       default: {
-        const dataModelName = variable.dataSource.split('.')[1];
+        const providedDataModelName = variable.dataSource.split('.')[1];
+        const dataModelName =
+          providedDataModelName === 'default' && defaultDataModelName ? defaultDataModelName : providedDataModelName;
 
-        const dataModelData =
-          dataModels?.[dataModelName === 'default' && defaultDataModelName ? defaultDataModelName : dataModelName];
-
-        const value = dot.pick(variable.key, dataModelData);
-
+        const value = formDataSelector({ dataType: dataModelName, field: variable.key }); //dot.pick(variable.key, dataModelData);
         if (value) {
-          return value;
+          return String(value);
         }
         if (value === null) {
           return '';
