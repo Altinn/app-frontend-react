@@ -81,7 +81,7 @@ function useIsHidden<T extends CompTypes>(node: LayoutNode<T>) {
 
 function useIsHiddenBecauseEmpty<T extends CompTypes>(node: LayoutNode<T>, content: SummaryContains) {
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
-  const isRequired = useNodeItem(node, (i) => ('required' in i ? i.required : false));
+  const isRequired = useNodeItem(node, (i) => ('required' in i ? i.required : undefined));
   const forceShowInSummary = useNodeItem(node, (i) => i['forceShowInSummary']);
 
   if (isRequired && content === SummaryContains.EmptyValueNotRequired) {
