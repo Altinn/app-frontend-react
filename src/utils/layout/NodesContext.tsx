@@ -150,7 +150,8 @@ export type NodesContext = {
 
   waitForCommits: undefined | (() => Promise<void>);
   setWaitForCommits: (waitForCommits: () => Promise<void>) => void;
-} & ExtraFunctions;
+} & NodesProviderProps &
+  ExtraFunctions;
 
 /**
  * Using the inferred types in the immer produce() function here introduces a lot of typescript overhead, which slows
@@ -160,13 +161,13 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
   return produce(fn) as unknown as Partial<NodesContext>;
 }
 
-interface CreateStoreProps {
+interface CreateStoreProps extends NodesProviderProps {
   validationsProcessedLast: ValidationsProcessedLast;
   registry: MutableRefObject<Registry>;
 }
 
 export type NodesContextStore = StoreApi<NodesContext>;
-export function createNodesDataStore({ registry, validationsProcessedLast }: CreateStoreProps) {
+export function createNodesDataStore({ registry, validationsProcessedLast, ...props }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
     hasErrors: false,
@@ -183,6 +184,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
 
   return createStore<NodesContext>((set) => ({
     ...defaultState,
+    ...props,
 
     layouts: undefined,
     stages: createStagesStore(registry, set),
@@ -459,12 +461,18 @@ const {
   required: true,
 });
 
-export const NodesProvider = ({ children }: React.PropsWithChildren) => {
+interface NodesProviderProps extends PropsWithChildren {
+  readOnly: boolean;
+  isEmbedded: boolean;
+}
+
+export const NodesProvider = ({ children, ...props }: NodesProviderProps) => {
   const registry = useRegistry();
   const getProcessedLast = Validation.useGetProcessedLast();
 
   return (
     <Store.Provider
+      {...props}
       registry={registry}
       validationsProcessedLast={getProcessedLast()}
     >
@@ -986,6 +994,12 @@ export const NodesInternal = {
       return true;
     }
     return isReady;
+  },
+  useIsReadOnly() {
+    return Store.useSelector((s) => s.readOnly);
+  },
+  useIsEmbedded() {
+    return Store.useSelector((s) => s.isEmbedded);
   },
   useIsReadyRef() {
     const ref = useRef(true); // Defaults to true if context is not provided

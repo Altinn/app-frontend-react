@@ -33,6 +33,7 @@ export function StoreOptionsInNode(props: GeneratorOptionProps) {
 }
 
 function StoreOptionsInNodeWorker({ valueType, allowEffects }: GeneratorOptionProps) {
+  const isReadOnly = NodesInternal.useIsReadOnly();
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
@@ -53,7 +54,7 @@ function StoreOptionsInNodeWorker({ valueType, allowEffects }: GeneratorOptionPr
   NodesStateQueue.useSetNodeProp({ node, prop: 'options', value: options }, !hasBeenSet && !isFetching);
   NodesStateQueue.useSetNodeProp({ node, prop: 'isFetchingOptions', value: isFetching }, !hasBeenSet);
 
-  if (isFetching || !hasBeenSet || !allowEffects) {
+  if (isFetching || !hasBeenSet || !allowEffects || isReadOnly) {
     // No need to run effects while fetching or if the data has not been set yet
     return false;
   }
