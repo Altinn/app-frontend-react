@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { BlockUntilAllLoaded, LoadingRegistryProvider } from 'src/core/loading/LoadingRegistry';
@@ -44,20 +45,6 @@ export function FormProvider({ children }: React.PropsWithChildren) {
   }
 
   return (
-    <Outer>
-      {hasProcess ? (
-        <PaymentProvider>
-          <Inner>{children}</Inner>
-        </PaymentProvider>
-      ) : (
-        <Inner>{children}</Inner>
-      )}
-    </Outer>
-  );
-}
-
-function Outer({ children }: React.PropsWithChildren) {
-  return (
     <LoadingRegistryProvider>
       <FormPrefetcher />
       <LayoutsProvider>
@@ -72,7 +59,13 @@ function Outer({ children }: React.PropsWithChildren) {
                         <NodesProvider>
                           <NavigateToNodeProvider>
                             <PaymentInformationProvider>
-                              <OrderDetailsProvider>{children}</OrderDetailsProvider>
+                              <OrderDetailsProvider>
+                                <MaybePaymentProvider hasProcess={hasProcess}>
+                                  <Provider value={undefined}>
+                                    <BlockUntilAllLoaded>{children}</BlockUntilAllLoaded>
+                                  </Provider>
+                                </MaybePaymentProvider>
+                              </OrderDetailsProvider>
                             </PaymentInformationProvider>
                           </NavigateToNodeProvider>
                         </NodesProvider>
@@ -89,10 +82,10 @@ function Outer({ children }: React.PropsWithChildren) {
   );
 }
 
-function Inner({ children }: React.PropsWithChildren) {
-  return (
-    <Provider value={undefined}>
-      <BlockUntilAllLoaded>{children}</BlockUntilAllLoaded>
-    </Provider>
-  );
+function MaybePaymentProvider({ children, hasProcess }: PropsWithChildren<{ hasProcess: boolean }>) {
+  if (hasProcess) {
+    return <PaymentProvider>{children}</PaymentProvider>;
+  }
+
+  return children;
 }
