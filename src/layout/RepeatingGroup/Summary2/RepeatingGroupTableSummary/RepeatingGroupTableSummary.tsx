@@ -192,7 +192,15 @@ function NodeDataCell({ node, columnSettings }: { node: LayoutNode } & Pick<Data
   const headerTitle = langAsString(useTableTitle(node));
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   const displayData = useDisplayData(node);
-  useReportSummaryRender(displayData.trim() === '' ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent);
+  const required = useNodeItem(node, (i) => ('required' in i ? i.required : false));
+
+  useReportSummaryRender(
+    displayData.trim() === ''
+      ? required
+        ? SummaryContains.EmptyValueRequired
+        : SummaryContains.EmptyValueNotRequired
+      : SummaryContains.SomeUserContent,
+  );
 
   return (
     <Table.Cell

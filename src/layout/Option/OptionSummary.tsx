@@ -23,7 +23,7 @@ export const OptionSummary = ({ target }: Summary2Props<'Option'>) => {
   return (
     <SummaryFlex
       target={target}
-      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
+      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValueNotRequired}
     >
       <SingleValueSummary
         title={

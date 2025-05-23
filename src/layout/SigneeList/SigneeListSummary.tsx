@@ -63,7 +63,7 @@ export function SigneeListSummary({ componentNode, titleOverride }: SigneeListSu
       <SigneeListSummaryContainer
         heading={heading}
         target={componentNode}
-        content={SummaryContains.EmptyValue}
+        content={SummaryContains.EmptyValueNotRequired}
       >
         <Paragraph>
           <Lang id='signee_list_summary.no_signatures' />

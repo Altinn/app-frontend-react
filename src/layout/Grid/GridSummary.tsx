@@ -183,7 +183,7 @@ function SummaryGridRowRenderer(props: GridRowProps) {
     isHeaderWithoutComponents
       ? SummaryContains.Presentational
       : onlyEmptyChildren
-        ? SummaryContains.EmptyValue
+        ? SummaryContains.EmptyValueNotRequired
         : SummaryContains.SomeUserContent,
   );
 
@@ -402,11 +402,18 @@ function SummaryCellWithComponent({
   const errors = validationsOfSeverity(validations, 'error');
   const isHidden = Hidden.useIsHidden(node);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const { textResourceBindings } = useNodeItem(node) ?? {};
+  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
+  const required = useNodeItem(node, (i) => ('required' in i ? i.required : false));
   const content = getComponentCellData(node, displayData, textResourceBindings);
 
   const isEmpty = typeof content === 'string' && content.trim() === '';
-  useReportSummaryRender(isEmpty ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent);
+  useReportSummaryRender(
+    isEmpty
+      ? required
+        ? SummaryContains.EmptyValueRequired
+        : SummaryContains.EmptyValueNotRequired
+      : SummaryContains.SomeUserContent,
+  );
 
   if (isHidden) {
     return <CellComponent />;

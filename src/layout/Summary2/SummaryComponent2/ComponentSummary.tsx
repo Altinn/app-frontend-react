@@ -20,9 +20,13 @@ interface ComponentSummaryProps<T extends CompTypes = CompTypes> {
 }
 
 export enum SummaryContains {
-  // This represents an empty value. Only use this content type if your component can also display some content. If it
-  // is impossible for the component to display some 'content', it is most likely presentational.
-  EmptyValue = 'empty',
+  // This represents an empty value for a field that is not required. Only use this content type if your component can
+  // also display some content. If it is impossible for the component to display some 'content', it is most likely
+  // presentational.
+  EmptyValueNotRequired = 'emptyNotRequired',
+
+  // This also represents an empty value, but one where some content is required.
+  EmptyValueRequired = 'emptyValueRequired',
 
   // This is the content type used when your component has some kind of content to summarize. Usually it must also
   // be possible for that content to be empty, so you should toggle between these two states.
@@ -80,7 +84,13 @@ function useIsHiddenBecauseEmpty<T extends CompTypes>(node: LayoutNode<T>, conte
   const isRequired = useNodeItem(node, (i) => ('required' in i ? i.required : false));
   const forceShowInSummary = useNodeItem(node, (i) => i['forceShowInSummary']);
 
-  return hideEmptyFields && !isRequired && !forceShowInSummary && content === SummaryContains.EmptyValue;
+  if (isRequired && content === SummaryContains.EmptyValueNotRequired) {
+    window.logErrorOnce(`Node ${node.id} marked as required, but summary indicates EmptyValueNotRequired`);
+  } else if (isRequired === false && content === SummaryContains.EmptyValueRequired) {
+    window.logErrorOnce(`Node ${node.id} marked as not required, but summary indicates EmptyValueRequired`);
+  }
+
+  return hideEmptyFields && !forceShowInSummary && content === SummaryContains.EmptyValueNotRequired;
 }
 
 interface SummaryFlexProps extends PropsWithChildren {
@@ -116,7 +126,8 @@ function SummaryFlexInternal({ target, children, className }: Omit<SummaryFlexPr
  * @see HideWhenAllChildrenEmpty
  */
 export function SummaryFlex({ target, className, content, children }: SummaryFlexProps) {
-  if (target.def.category === CompCategory.Container && content !== SummaryContains.EmptyValue) {
+  const empty = content === SummaryContains.EmptyValueNotRequired || content === SummaryContains.EmptyValueRequired;
+  if (target.def.category === CompCategory.Container && !empty) {
     throw new Error(
       `SummaryFlex rendered with ${target.type} target. Use SummaryFlexForContainer or HideWhenAllChildrenEmpty instead.`,
     );
@@ -126,7 +137,7 @@ export function SummaryFlex({ target, className, content, children }: SummaryFle
   const isHiddenBecauseEmpty = useIsHiddenBecauseEmpty(target, content);
   const { className: hiddenClass, leafCanReturnNull } = useSummarySoftHidden(isHidden);
 
-  useReportSummaryRender(isHidden ? SummaryContains.EmptyValue : content);
+  useReportSummaryRender(isHidden ? SummaryContains.EmptyValueNotRequired : content);
 
   if ((isHidden || isHiddenBecauseEmpty) && leafCanReturnNull) {
     return null;

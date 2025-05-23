@@ -39,13 +39,15 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
   const isNested = componentNode.parent instanceof LayoutNode;
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
-  const { className } = useSummarySoftHidden(hideEmptyFields && rows.length === 0);
+
+  const required = useNodeItem(componentNode, (i) => i.minCount !== undefined && i.minCount > 0);
+  const { className } = useSummarySoftHidden(hideEmptyFields && rows.length === 0 && !required);
 
   if (rows.length === 0) {
     return (
       <SummaryFlex
         target={target}
-        content={SummaryContains.EmptyValue}
+        content={required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired}
         className={className}
       >
         <SingleValueSummary

@@ -25,7 +25,7 @@ export const DateSummary = ({ target }: Summary2Props<'Date'>) => {
   return (
     <SummaryFlex
       target={target}
-      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
+      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValueNotRequired}
     >
       <SingleValueSummary
         title={

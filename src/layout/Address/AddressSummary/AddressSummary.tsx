@@ -17,10 +17,11 @@ interface AddressSummaryProps {
 }
 
 export function AddressSummary({ componentNode }: AddressSummaryProps) {
-  const { textResourceBindings, dataModelBindings, simplified } = useNodeItem(componentNode, (i) => ({
+  const { textResourceBindings, dataModelBindings, simplified, required } = useNodeItem(componentNode, (i) => ({
     textResourceBindings: i.textResourceBindings,
     dataModelBindings: i.dataModelBindings,
     simplified: i.simplified,
+    required: i.required,
   }));
   const { title, careOfTitle, zipCodeTitle, postPlaceTitle, houseNumberTitle } = textResourceBindings ?? {};
   const { formData } = useDataModelBindings(dataModelBindings);
@@ -34,7 +35,13 @@ export function AddressSummary({ componentNode }: AddressSummaryProps) {
   return (
     <SummaryFlex
       target={componentNode}
-      content={isEmpty ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
+      content={
+        isEmpty
+          ? required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+          : SummaryContains.SomeUserContent
+      }
     >
       <div className={classes.addressSummaryComponent}>
         <div>

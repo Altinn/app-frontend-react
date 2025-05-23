@@ -30,12 +30,13 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
   const validations = useUnifiedValidationsForNode(target);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const required = useNodeItem(target, (i) => i.required);
 
   if (markerBinding && !markerLocationIsValid) {
     return (
       <SummaryFlex
         target={target}
-        content={SummaryContains.EmptyValue}
+        content={required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired}
       >
         <SingleValueSummary
           title={
@@ -57,7 +58,13 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
   return (
     <SummaryFlex
       target={target}
-      content={markerLocation ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
+      content={
+        markerLocation
+          ? SummaryContains.SomeUserContent
+          : required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+      }
     >
       <div className={classes.summaryItemWrapper}>
         <div className={classes.summaryItem}>

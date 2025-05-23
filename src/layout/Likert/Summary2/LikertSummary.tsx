@@ -24,6 +24,7 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
   const validations = useUnifiedValidationsForNode(target);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const required = useNodeItem(target, (i) => i.required);
 
   const rows = likertNodeItem.rows;
 
@@ -31,7 +32,7 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
     return (
       <SummaryFlex
         target={target}
-        content={SummaryContains.EmptyValue}
+        content={required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired}
       >
         <SingleValueSummary
           title={

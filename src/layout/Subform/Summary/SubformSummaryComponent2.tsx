@@ -5,6 +5,7 @@ import { Heading, Paragraph } from '@digdir/designsystemet-react';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Label } from 'src/components/label/Label';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
@@ -15,7 +16,6 @@ import { SubformSummaryTable } from 'src/layout/Subform/Summary/SubformSummaryTa
 import {
   getSubformEntryDisplayName,
   useExpressionDataSourcesForSubform,
-  useHasSubformElements,
   useSubformFormData,
 } from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
@@ -150,7 +150,12 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
       })
       .map((data) => data.layout.id),
   );
-  const hasElements = useHasSubformElements(target);
+  const layoutSet = useNodeItem(target, (i) => i.layoutSet);
+  const dataType = useDataTypeFromLayoutSet(layoutSet);
+  const dataElements = useStrictDataElements(dataType);
+  const minCount = useApplicationMetadata().dataTypes.find((dt) => dt.id === dataType)?.minCount;
+  const hasElements = !!(dataType && dataElements.length > 0);
+  const required = useNodeItem(target, (i) => i.required) || (minCount !== undefined && minCount > 0);
 
   const inner =
     displayType === 'table' && target ? (
@@ -170,7 +175,13 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
     return (
       <SummaryFlex
         target={target}
-        content={hasElements ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
+        content={
+          hasElements
+            ? SummaryContains.SomeUserContent
+            : required
+              ? SummaryContains.EmptyValueRequired
+              : SummaryContains.EmptyValueNotRequired
+        }
       >
         {inner}
       </SummaryFlex>

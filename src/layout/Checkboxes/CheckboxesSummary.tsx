@@ -22,12 +22,19 @@ export function CheckboxesSummary({ target }: Summary2Props<'Checkboxes'>) {
     summaryOverride?.displayType === 'list' ||
     (!summaryOverride?.displayType && displayData?.length >= maxStringLength);
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const required = useNodeItem(componentNode, (i) => i.required);
   const displayValues = useMultipleValuesForSummary(target);
 
   return (
     <SummaryFlex
       target={target}
-      content={displayValues.length === 0 ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
+      content={
+        displayValues.length === 0
+          ? required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+          : SummaryContains.SomeUserContent
+      }
     >
       <MultipleValueSummary
         title={

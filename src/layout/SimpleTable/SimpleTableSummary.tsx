@@ -18,10 +18,11 @@ type TableSummaryProps = {
 const emptyArray: never[] = [];
 
 export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
-  const { dataModelBindings, textResourceBindings, columns } = useNodeItem(componentNode, (item) => ({
+  const { dataModelBindings, textResourceBindings, columns, required } = useNodeItem(componentNode, (item) => ({
     dataModelBindings: item.dataModelBindings,
     textResourceBindings: item.textResourceBindings,
     columns: item.columns,
+    required: item.required,
   }));
 
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
@@ -51,7 +52,13 @@ export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
   return (
     <SummaryFlex
       target={componentNode}
-      content={!Array.isArray(data) || data.length === 0 ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
+      content={
+        !Array.isArray(data) || data.length === 0
+          ? required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+          : SummaryContains.SomeUserContent
+      }
     >
       <AppTable
         schema={schema}

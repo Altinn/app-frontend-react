@@ -18,9 +18,10 @@ interface OrganisationLookupSummaryProps {
 }
 
 export function OrganisationLookupSummary({ componentNode }: OrganisationLookupSummaryProps) {
-  const { dataModelBindings, title } = useNodeItem(componentNode, (i) => ({
+  const { dataModelBindings, title, required } = useNodeItem(componentNode, (i) => ({
     dataModelBindings: i.dataModelBindings,
     title: i.textResourceBindings?.title,
+    required: i.required,
   }));
   const { formData } = useDataModelBindings(dataModelBindings);
   const { organisation_lookup_orgnr, organisation_lookup_name } = formData;
@@ -32,7 +33,13 @@ export function OrganisationLookupSummary({ componentNode }: OrganisationLookupS
   return (
     <SummaryFlex
       target={componentNode}
-      content={isEmpty ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
+      content={
+        isEmpty
+          ? required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+          : SummaryContains.SomeUserContent
+      }
     >
       <div className={classes.organisationSummaryWrapper}>
         <Heading

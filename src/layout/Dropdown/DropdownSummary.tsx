@@ -17,11 +17,18 @@ export const DropdownSummary = ({ target }: Summary2Props<'Dropdown'>) => {
   const validations = useUnifiedValidationsForNode(target);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const required = useNodeItem(target, (i) => i.required);
 
   return (
     <SummaryFlex
       target={target}
-      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValue}
+      content={
+        displayData
+          ? SummaryContains.SomeUserContent
+          : required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+      }
     >
       <SingleValueSummary
         title={

@@ -27,7 +27,7 @@ export const ListSummary = ({ target }: Summary2Props<'List'>) => {
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(target, (i) => i.textResourceBindings?.summaryTitle || i.textResourceBindings?.title);
 
-  const { tableHeaders, dataModelBindings } = useNodeItem(target);
+  const { tableHeaders, dataModelBindings, required } = useNodeItem(target);
   const { formData } = useDataModelBindings(dataModelBindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
 
   const relativeCheckedPath =
@@ -111,7 +111,7 @@ export const ListSummary = ({ target }: Summary2Props<'List'>) => {
   return (
     <SummaryFlex
       target={target}
-      content={SummaryContains.EmptyValue}
+      content={required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired}
     >
       <SingleValueSummary
         title={

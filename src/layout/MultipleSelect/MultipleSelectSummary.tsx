@@ -21,12 +21,19 @@ export function MultipleSelectSummary({ target }: Summary2Props<'MultipleSelect'
   const showAsList =
     overrides?.displayType === 'list' || (!overrides?.displayType && displayData?.length >= maxStringLength);
   const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const required = useNodeItem(target, (i) => i.required);
   const displayValues = useMultipleValuesForSummary(target);
 
   return (
     <SummaryFlex
       target={target}
-      content={displayValues.length === 0 ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent}
+      content={
+        displayValues.length === 0
+          ? required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+          : SummaryContains.SomeUserContent
+      }
     >
       <MultipleValueSummary
         title={

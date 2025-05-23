@@ -27,7 +27,10 @@ export function EmptyChildrenBoundary({ children, reportSelf = true }: PropsWith
   const [onlyEmptyChildren, dispatch] = useReducer((_prevState: boolean, action: Action): boolean => {
     const amountToAdd = action.when === 'mount' ? 1 : -1;
     switch (action.content) {
-      case SummaryContains.EmptyValue:
+      case SummaryContains.EmptyValueRequired:
+        countsRef.current.notEmpty += amountToAdd;
+        break;
+      case SummaryContains.EmptyValueNotRequired:
         countsRef.current.empty += amountToAdd;
         break;
       case SummaryContains.SomeUserContent:
@@ -47,7 +50,11 @@ export function EmptyChildrenBoundary({ children, reportSelf = true }: PropsWith
 
   // Reports to parent, since this is outside the context
   useReportSummaryRender(
-    reportSelf ? (onlyEmptyChildren ? SummaryContains.EmptyValue : SummaryContains.SomeUserContent) : undefined,
+    reportSelf
+      ? onlyEmptyChildren
+        ? SummaryContains.EmptyValueNotRequired
+        : SummaryContains.SomeUserContent
+      : undefined,
   );
 
   return <Context.Provider value={{ parent, onlyEmptyChildren, dispatch }}>{children}</Context.Provider>;
