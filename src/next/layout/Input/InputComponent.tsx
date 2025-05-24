@@ -2,14 +2,12 @@ import React from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { useResolvedTexts } from 'src/next/layout/GenericComponent';
+import { useCleanDataModelBindings, useResolvedTexts } from 'src/next/layout/GenericComponent';
 import type { ComponentProps, ResolvedTexts } from 'src/next/layout/GenericComponent';
 
-export function RenderInputComponent({
-  component,
-  cleanedDataModelBindings: dataModelBindings,
-}: ComponentProps<'Input'>) {
-  const textResources = useResolvedTexts<'Input'>(component.textResourceBindings);
+export function RenderInputComponent({ component, indices }: ComponentProps<'Input'>) {
+  const textResources = useResolvedTexts<'Input'>(component.textResourceBindings, indices);
+  const dataModelBindings = useCleanDataModelBindings<'Input'>(component.dataModelBindings, indices);
 
   const {
     formData: { simpleBinding: realFormValue },

@@ -10,6 +10,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLangToolsDataSources } from 'src/features/language/LangToolsStore';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { variableSchema } from 'src/next/language/i18n';
+import { getDataModelPathWithIndices } from 'src/next/layout/GenericComponent';
 import type { LangDataSources } from 'src/features/language/LangDataSourcesProvider';
 import type { FormDataSelector } from 'src/layout';
 import type { Variable } from 'src/next/language/i18n';
@@ -19,12 +20,11 @@ const resolvedTranslationSchema = z.object({
   variables: z.array(variableSchema).nullable(),
 });
 
-export function useResolveText() {
+export function useResolveText(indices: number[]) {
   const selectedLanguage = useCurrentLanguage();
   const { t } = useTranslation();
   const langToolsDataSources = useLangToolsDataSources();
   const defaultDataModelName = DataModels.useDefaultDataType();
-  // const dataModels = useStore(layoutStore, (state) => state.data);
   const formDataSelector = FD.useDebouncedSelector();
 
   return (key: string | string[], options?: TOptionsBase & $Dictionary): string => {
@@ -36,6 +36,7 @@ export function useResolveText() {
       parsed.variables ?? [],
       langToolsDataSources,
       defaultDataModelName,
+      indices,
       formDataSelector,
     );
 
@@ -47,6 +48,7 @@ function resolveVariables(
   variables: Variable[],
   dataSources: LangDataSources | undefined,
   defaultDataModelName: string | undefined,
+  indices: number[],
   formDataSelector: FormDataSelector,
 ): string[] {
   return variables.map((variable) => resolveVariable(variable));
@@ -72,8 +74,9 @@ function resolveVariables(
         const providedDataModelName = variable.dataSource.split('.')[1];
         const dataModelName =
           providedDataModelName === 'default' && defaultDataModelName ? defaultDataModelName : providedDataModelName;
+        const valuePath = getDataModelPathWithIndices(variable.key, indices);
 
-        const value = formDataSelector({ dataType: dataModelName, field: variable.key }); //dot.pick(variable.key, dataModelData);
+        const value = formDataSelector({ dataType: dataModelName, field: valuePath });
         if (value) {
           return String(value);
         }

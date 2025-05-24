@@ -41,71 +41,31 @@ export function RenderComponentById({ id, indices }: RenderComponentByIdProps) {
   );
 }
 
-export function getDataModelPathWithIndices(binding: string, indices: number[]) {
-  if (indices.length === 0) {
-    return binding;
-  }
-
-  const splittedBinding = binding.split('.');
-
-  const indexedBinding = indices.map((index, idx) => `${splittedBinding[idx]}[${index}]`).join('.');
-  const lastSegment = splittedBinding.at(-1);
-
-  return `${indexedBinding}.${lastSegment}`;
-}
-
 type DataModelBindingKeys<T extends CompTypes> = keyof ComponentTypeConfigs[T]['layout']['dataModelBindings'];
 type CleanedDataModelBindings<T extends CompTypes> = Record<DataModelBindingKeys<T>, IDataModelReference>;
-
-function cleanDataModelBindings<T extends CompTypes>(
-  dataModelBindings: Exclude<ComponentTypeConfigs[T]['layout']['dataModelBindings'], undefined>,
-  dataType: string,
-  indices: number[],
-): CleanedDataModelBindings<T> {
-  const result = Object.entries(dataModelBindings).reduce<Record<keyof typeof dataModelBindings, IDataModelReference>>(
-    (prev, [key, value]) => {
-      if (typeof value === 'string') {
-        prev[key] = {
-          dataType,
-          field: getDataModelPathWithIndices(value, indices),
-        };
-      } else {
-        prev[key] = value;
-      }
-      return prev;
-    },
-    {} as Record<keyof typeof dataModelBindings, IDataModelReference>,
-  );
-
-  return result;
-}
 
 export function NextGenericComponent({ component, indices }: RenderComponentType) {
   const isHidden = false;
   const renderAsSummary = false;
-  const dataType = DataModels.useDefaultDataType();
 
   if (isHidden) {
     return null;
   }
 
-  if (!dataType) {
-    return <div>Default data type is not defined</div>;
-  }
-
   switch (component.type) {
-    case 'Input':
+    case 'Input': {
       return (
         <>
           <span>{`component.dataModelBindings: ${JSON.stringify(component.dataModelBindings, null, 2)} `}</span>
 
           <RenderInputComponent
             component={component}
-            cleanedDataModelBindings={cleanDataModelBindings(component.dataModelBindings, dataType, indices)}
             renderAsSummary={renderAsSummary}
+            indices={indices}
           />
         </>
       );
+    }
     default:
       return <div>Unknown component type: {component.type}</div>;
   }
@@ -114,7 +74,8 @@ export function NextGenericComponent({ component, indices }: RenderComponentType
 export type ComponentProps<T extends CompTypes> = {
   renderAsSummary: boolean;
   component: ResolvedCompExternal<T>;
-  cleanedDataModelBindings: CleanedDataModelBindings<T>;
+  // cleanedDataModelBindings: CleanedDataModelBindings<T>;
+  indices: number[];
 };
 
 type ResolvedData<T extends CompTypes> =
@@ -148,8 +109,9 @@ export type ResolvedTexts<T extends CompTypes> =
 
 export function useResolvedTexts<T extends CompTypes>(
   textResourceBindings: CompExternal<T>['textResourceBindings'],
+  indices: number[],
 ): ResolvedTexts<T> {
-  const resolveText = useResolveText();
+  const resolveText = useResolveText(indices);
   if (!textResourceBindings) {
     return undefined;
   }
@@ -161,4 +123,46 @@ export function useResolvedTexts<T extends CompTypes>(
   });
 
   return resolvedTexts as ResolvedTexts<T>; // FIXME:
+}
+
+export function useCleanDataModelBindings<T extends CompTypes>(
+  dataModelBindings: Exclude<ComponentTypeConfigs[T]['layout']['dataModelBindings'], undefined>,
+  indices: number[],
+): CleanedDataModelBindings<T> {
+  const dataType = DataModels.useDefaultDataType();
+
+  if (!dataModelBindings) {
+    return {} as CleanedDataModelBindings<T>;
+  }
+
+  const result = Object.entries(dataModelBindings).reduce<Record<keyof typeof dataModelBindings, IDataModelReference>>(
+    (prev, [key, value]) => {
+      if (typeof value === 'string') {
+        prev[key] = {
+          dataType,
+          field: getDataModelPathWithIndices(value, indices),
+        };
+      } else {
+        prev[key] = value;
+      }
+      return prev;
+    },
+    {} as Record<keyof typeof dataModelBindings, IDataModelReference>,
+  );
+
+  return result;
+}
+
+export function getDataModelPathWithIndices(binding: string, indices: number[]) {
+  if (indices.length === 0) {
+    return binding;
+  }
+
+  const splittedBinding = binding.split('.');
+
+  const indexedBinding = indices.map((index, idx) => `${splittedBinding[idx]}[${index}]`).join('.');
+  // TODO: handle more than one left?
+  const lastSegment = splittedBinding.at(-1);
+
+  return `${indexedBinding}.${lastSegment}`;
 }
