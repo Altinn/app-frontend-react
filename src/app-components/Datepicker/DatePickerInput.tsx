@@ -19,6 +19,7 @@ export interface DatePickerInputProps {
   value?: string;
   onValueChange?: (value: string) => void;
   readOnly?: boolean;
+  autoComplete?: 'bday';
 }
 
 export function DatePickerInput({
@@ -28,6 +29,7 @@ export function DatePickerInput({
   timeStamp,
   onValueChange,
   readOnly,
+  autoComplete,
 }: DatePickerInputProps) {
   const formatPattern = getFormatPattern(datepickerFormat);
   const dateValue = strictParseISO(value);
@@ -68,6 +70,7 @@ export function DatePickerInput({
       onBlur={saveValue}
       readOnly={readOnly}
       aria-readonly={readOnly}
+      autoComplete={autoComplete}
     />
   );
 }
