@@ -109,6 +109,15 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
           {...inputProps}
           value={formValue}
           type={variant.type}
+          inputMode={
+            variant.type === 'search'
+              ? 'search'
+              : autocomplete === 'email'
+                ? 'email'
+                : autocomplete === 'url' || autocomplete === 'photo'
+                  ? 'url'
+                  : undefined
+          }
           onChange={(event) => {
             setValue('simpleBinding', event.target.value);
           }}
