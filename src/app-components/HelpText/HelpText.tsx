@@ -75,7 +75,6 @@ export const HelpText = forwardRef<HTMLButtonElement, HelpTextProps>(function He
             className={cl(classes['helpText-icon'])}
             openState={open}
           />
-          <span className={classes.screenReaderOnly}>{title}</span>
         </button>
       </Popover.Trigger>
       <Popover
