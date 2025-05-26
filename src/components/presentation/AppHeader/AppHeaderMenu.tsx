@@ -59,6 +59,7 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
           </CircleIcon>
         </Dropdown.Trigger>
         <Dropdown
+          data-testid='app-header-menu'
           data-size='sm'
           open={isOpen}
           onClose={() => setIsOpen(false)}
