@@ -5,7 +5,6 @@ import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { useResolveText } from 'src/next/language/useLanguage';
 import { RenderInputComponent } from 'src/next/layout/Input/InputComponent';
 import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import type { IDataModelReference } from 'src/layout/common.generated.next';
@@ -101,28 +100,6 @@ export function useResolvedData<T extends CompTypes>(
     }),
   );
   return value as ResolvedData<T>;
-}
-
-export type ResolvedTexts<T extends CompTypes> =
-  | Record<keyof NonNullable<CompExternal<T>['textResourceBindings']>, string>
-  | undefined;
-
-export function useResolvedTexts<T extends CompTypes>(
-  textResourceBindings: CompExternal<T>['textResourceBindings'],
-  indices: number[],
-): ResolvedTexts<T> {
-  const resolveText = useResolveText(indices);
-  if (!textResourceBindings) {
-    return undefined;
-  }
-
-  const resolvedTexts = {};
-
-  Object.entries(textResourceBindings).forEach(([key, value]) => {
-    resolvedTexts[key] = resolveText(value, { lng: 'en' });
-  });
-
-  return resolvedTexts as ResolvedTexts<T>; // FIXME:
 }
 
 export function useCleanDataModelBindings<T extends CompTypes>(

@@ -14,13 +14,36 @@ import { getDataModelPathWithIndices } from 'src/next/layout/GenericComponent';
 import type { LangDataSources } from 'src/features/language/LangDataSourcesProvider';
 import type { FormDataSelector } from 'src/layout';
 import type { Variable } from 'src/next/language/i18n';
+import type { CompExternal, CompTypes } from 'src/next-prev/stores/layoutStore';
+
+export type ResolvedTexts<T extends CompTypes> =
+  | Record<keyof NonNullable<CompExternal<T>['textResourceBindings']>, string>
+  | undefined;
+
+export function useResolvedTexts<T extends CompTypes>(
+  textResourceBindings: CompExternal<T>['textResourceBindings'],
+  indices: number[],
+): ResolvedTexts<T> {
+  const resolveText = useResolveText(indices);
+  if (!textResourceBindings) {
+    return undefined;
+  }
+
+  const resolvedTexts = {};
+
+  Object.entries(textResourceBindings).forEach(([key, value]) => {
+    resolvedTexts[key] = resolveText(value, { lng: 'en' });
+  });
+
+  return resolvedTexts as ResolvedTexts<T>; // FIXME:
+}
 
 const resolvedTranslationSchema = z.object({
   value: z.string(),
   variables: z.array(variableSchema).nullable(),
 });
 
-export function useResolveText(indices: number[]) {
+function useResolveText(indices: number[]) {
   const selectedLanguage = useCurrentLanguage();
   const { t } = useTranslation();
   const langToolsDataSources = useLangToolsDataSources();
