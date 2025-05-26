@@ -101,6 +101,16 @@ export const ListComponent = ({ node }: IListProps) => {
     }
   };
 
+  const handleSort = (key: string) => {
+    if (sortColumn === key && sortDirection === 'ascending') {
+      setSortColumn(undefined);
+      setSortDirection(undefined);
+    } else {
+      setSortColumn(key);
+      setSortDirection(sortColumn === key && sortDirection === 'descending' ? 'ascending' : 'descending');
+    }
+  };
+
   const renderListItems = (row: Row, tableHeaders: { [x: string]: string | undefined }) =>
     tableHeadersToShowInMobile.map((key) => (
       <div key={key}>
@@ -217,14 +227,22 @@ export const ListComponent = ({ node }: IListProps) => {
         <Table.Head>
           <Table.Row>
             <Table.HeaderCell />
-            {Object.entries(tableHeaders).map(([key, value]) => (
-              <Table.HeaderCell
-                key={key}
-                sort={sortableColumns?.includes(key) && sortColumn === key ? sortDirection : undefined}
-              >
-                <Lang id={value} />
-              </Table.HeaderCell>
-            ))}
+            {Object.entries(tableHeaders).map(([key, value]) => {
+              const isSortable = sortableColumns?.includes(key);
+              let sort: AriaAttributes['aria-sort'] = undefined;
+              if (isSortable) {
+                sort = sortColumn === key ? sortDirection : 'none';
+              }
+              return (
+                <Table.HeaderCell
+                  key={key}
+                  sort={sort}
+                  onClick={isSortable ? () => handleSort(key) : undefined}
+                >
+                  <Lang id={value} />
+                </Table.HeaderCell>
+              );
+            })}
           </Table.Row>
         </Table.Head>
         <Table.Body>
