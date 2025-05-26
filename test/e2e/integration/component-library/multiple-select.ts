@@ -147,7 +147,7 @@ describe('Multiple select component', () => {
     cy.get(repGroup).findByRole('cell', { name: checkboxText5 }).should('not.exist');
 
     // Removing from RepeatingGroup should deselect from List
-    cy.get(repGroup).findAllByRole('row').should('have.length', 4); // Header + 1 row
+    cy.get(repGroup).findAllByRole('row').should('have.length', 4); // Header + 3 rows
     cy.get(repGroup)
       .findAllByRole('button', { name: /^Slett/ })
       .first()
@@ -158,7 +158,7 @@ describe('Multiple select component', () => {
 
     // Unchecking from multiple select should remove from RepeatingGroup (observe that data is preserved)
     cy.get(multiselect).contains('span', checkboxText2).should('exist');
-    cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 2 row
+    cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 2 rows
     cy.get(repGroup)
       .findAllByRole('button', { name: /^Rediger/ })
       .first()
