@@ -106,7 +106,7 @@ function testLikert() {
 }
 
 function testListMobile() {
-  cy.findByRole('radiogroup').within(() => {
+  cy.findByRole('group', { name: /Hvem gjelder saken? */ }).within(() => {
     cy.findByRole('radio', { name: /caroline/i }).check();
     cy.findByRole('radio', { name: /caroline/i }).should('be.checked');
   });
@@ -119,7 +119,7 @@ function testListTablet() {
     cy.findByRole('row', { name: /caroline/i }).click();
     cy.findByRole('radio', { name: /caroline/i }).should('be.checked');
   });
-  cy.findByRole('button', { name: 'Neste' }).click();
+  cy.findAllByRole('button', { name: 'Neste' }).eq(1).click();
   sendIn();
 }
 
