@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import { Dialog, Popover } from '@digdir/designsystemet-react';
+import { Dialog, Dropdown } from '@digdir/designsystemet-react';
 import { BulletListIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 import type { Button } from '@digdir/designsystemet-react';
@@ -39,36 +39,41 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
 
   if (!isMobile) {
     return (
-      <div className={classes.popoverWrapper}>
-        <Popover.TriggerContext>
-          <Popover.Trigger
+      <div>
+        <Dropdown.TriggerContext>
+          <Dropdown.Trigger
             data-testid='page-navigation-trigger'
-            onClick={toggleDialog}
             variant='secondary'
             data-color='accent'
+            onClick={() => toggleDialog()}
             data-size='sm'
             {...props}
             className={cn({ [classes.popoverButtonActive]: isDialogOpen }, props.className)}
           >
-            <PopoverNavigationButtonContent />
-          </Popover.Trigger>
-          <Popover
+            <BulletListIcon
+              className={cn(classes.popoverButtonIcon, classes.popoverButtonIconMargin)}
+              aria-hidden
+            />
+            <Lang id='navigation.form_pages' />
+          </Dropdown.Trigger>
+          <Dropdown
             data-testid='page-navigation-dialog'
-            className={classes.popoverContainer}
-            aria-modal
+            placement='bottom-start'
             autoFocus={true}
             open={isDialogOpen}
             onClose={closeDialog}
           >
-            <AppNavigationHeading
-              showClose={true}
-              onClose={closeDialog}
-            />
+            <Dropdown.Heading asChild>
+              <AppNavigationHeading
+                showClose={true}
+                onClose={closeDialog}
+              />
+            </Dropdown.Heading>
             <div style={{ paddingRight: 12 }}>
               <AppNavigation onNavigate={closeDialog} />
             </div>
-          </Popover>
-        </Popover.TriggerContext>
+          </Dropdown>
+        </Dropdown.TriggerContext>
       </div>
     );
   }
@@ -84,18 +89,23 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
         {...props}
         className={cn({ [classes.popoverButtonActive]: isDialogOpen }, props.className)}
       >
-        <PopoverNavigationButtonContent />
+        <BulletListIcon
+          className={cn(classes.popoverButtonIcon, classes.popoverButtonIconMargin)}
+          aria-hidden
+        />
+        <Lang id='navigation.form_pages' />
       </Dialog.Trigger>
       <Dialog
         aria-labelledby='app-navigation-heading'
         ref={modalRef}
         closedby='any'
         modal={true}
+        onClose={() => closeDialog()}
         className={cn(classes.modal, classes.modalContainer)}
         data-testid='page-navigation-dialog'
       >
         <AppNavigationHeading
-          showClose={true}
+          showClose={false}
           onClose={closeDialog}
         />
         <div style={{ paddingRight: 12 }}>
@@ -103,17 +113,5 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
         </div>
       </Dialog>
     </Dialog.TriggerContext>
-  );
-}
-
-function PopoverNavigationButtonContent() {
-  return (
-    <>
-      <BulletListIcon
-        className={cn(classes.popoverButtonIcon, classes.popoverButtonIconMargin)}
-        aria-hidden
-      />
-      <Lang id='navigation.form_pages' />
-    </>
   );
 }

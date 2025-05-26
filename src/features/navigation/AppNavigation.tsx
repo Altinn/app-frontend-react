@@ -89,7 +89,7 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
 export function AppNavigationHeading({
   showClose,
   onClose,
-}: { showClose?: undefined; onClose?: undefined } | { showClose: true; onClose: () => void }) {
+}: { showClose?: undefined; onClose?: undefined } | { showClose: boolean; onClose: () => void }) {
   const { langAsString } = useLanguage();
   return (
     <div className={classes.navigationHeading}>
@@ -105,9 +105,10 @@ export function AppNavigationHeading({
           variant='tertiary'
           color='second'
           size='sm'
-          icon={true}
+          icon
           onClick={onClose}
           aria-label={langAsString('general.close')}
+          className={classes.closeButton}
         >
           <XMarkIcon aria-hidden />
         </Button>

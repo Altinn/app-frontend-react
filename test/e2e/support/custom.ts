@@ -862,15 +862,28 @@ Cypress.Commands.add('getCurrentViewportSize', function () {
   }));
 });
 
-Cypress.Commands.add('showNavGroups', () => {
-  cy.findByRole('button', { name: 'Skjemasider' }).click();
-  cy.findByRole('dialog', { name: 'Skjemasider' }).should('be.visible');
-  cy.findByRole('dialog', { name: 'Skjemasider' }).should('have.css', 'opacity', '1');
+Cypress.Commands.add('showNavGroupsTablet', () => {
+  cy.findByRole('button', { name: /Skjemasider/i }).click();
+  cy.get('div[data-testid="page-navigation-dialog"]').should('be.visible');
+  cy.get('div[data-testid="page-navigation-dialog"]').should('have.css', 'opacity', '1');
 });
 
-Cypress.Commands.add('hideNavGroups', () => {
-  cy.findByRole('dialog', { name: 'Skjemasider' }).within(() => cy.findByRole('button', { name: 'Lukk' }).click());
-  cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+Cypress.Commands.add('showNavGroupsMobile', () => {
+  cy.findByRole('button', { name: /Skjemasider/i }).click();
+  cy.get('dialog[data-testid="page-navigation-dialog"]').should('be.visible');
+  cy.get('dialog[data-testid="page-navigation-dialog"]').should('have.css', 'opacity', '1');
+});
+
+Cypress.Commands.add('hideNavGroupsTablet', () => {
+  cy.get('div[data-testid="page-navigation-dialog"]').within(() => cy.findByRole('button', { name: 'Lukk' }).click());
+  cy.get('div[data-testid="page-navigation-dialog"]').should('not.be.visible');
+});
+
+Cypress.Commands.add('hideNavGroupsMobile', () => {
+  cy.get('dialog[data-testid="page-navigation-dialog"]').within(() =>
+    cy.findByRole('button', { name: /Lukk dialogvindu/i }).click(),
+  );
+  cy.get('dialog[data-testid="page-navigation-dialog"]').should('not.be.visible');
 });
 
 Cypress.Commands.add('navGroup', (groupName, pageName, subformName) => {
@@ -897,9 +910,11 @@ Cypress.Commands.add('navGroup', (groupName, pageName, subformName) => {
   }
 });
 
-Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
+Cypress.Commands.add('gotoNavGroup', (groupName, device, pageName) => {
   cy.get('body').then((body) => {
     const isUsingDialog = !!body.find('[data-testid=page-navigation-trigger]').length;
+    const isMobile = device === 'mobile';
+    const isTablet = device === 'tablet';
     if (pageName) {
       cy.navGroup(groupName).then((group) => {
         if (group[0].getAttribute('aria-expanded') === 'false') {
@@ -908,16 +923,20 @@ Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
       });
       cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
       cy.navGroup(groupName, pageName).click();
-      if (isUsingDialog) {
-        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      if (isUsingDialog && isMobile) {
+        cy.findByRole('dialog', { name: /Skjemasider/i }).should('not.exist');
+      } else if (isUsingDialog && isTablet) {
+        cy.get('div[data-testid="page-navigation-dialog"]').should('not.be.visible');
       } else {
         cy.navGroup(groupName, pageName).should('have.attr', 'aria-current', 'page');
       }
     } else {
       cy.navGroup(groupName).should('not.have.attr', 'aria-expanded');
       cy.navGroup(groupName).click();
-      if (isUsingDialog) {
-        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      if (isUsingDialog && isMobile) {
+        cy.findByRole('dialog', { name: /Skjemasider/i }).should('not.exist');
+      } else if (isUsingDialog && isTablet) {
+        cy.get('div[data-testid="page-navigation-dialog"]').should('not.be.visible');
       } else {
         cy.navGroup(groupName).should('have.attr', 'aria-current', 'page');
       }
