@@ -89,9 +89,11 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
           <Fieldset.Legend className={cn({ [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}>
             {labelText}
           </Fieldset.Legend>
-          <Fieldset.Description>
-            <Lang id={textResourceBindings?.description} />
-          </Fieldset.Description>
+          {textResourceBindings?.description && (
+            <Fieldset.Description>
+              <Lang id={textResourceBindings?.description} />
+            </Fieldset.Description>
+          )}
           <ConditionalWrapper
             condition={shouldDisplayHorizontally}
             wrapper={(children) => <div className={classes.inlineRadioGroup}>{children}</div>}
