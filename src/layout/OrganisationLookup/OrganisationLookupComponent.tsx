@@ -114,6 +114,7 @@ export function OrganisationLookupComponent({
     setValue('organisation_lookup_orgnr', '');
     dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', '');
     setTempOrgNr('');
+    setOrgNrErrors(undefined);
   }
 
   const hasSuccessfullyFetched = !!organisation_lookup_orgnr;
@@ -154,6 +155,7 @@ export function OrganisationLookupComponent({
             error={orgNrErrors?.length && <Lang id={orgNrErrors.join(' ')} />}
             onValueChange={(e) => {
               setTempOrgNr(e.value);
+              setOrgNrErrors(undefined);
             }}
             onKeyDown={async (ev) => {
               if (ev.key === 'Enter') {
