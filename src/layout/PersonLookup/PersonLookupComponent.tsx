@@ -248,7 +248,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                 variant='secondary'
                 isLoading={isFetching}
               >
-                Hent opplysninger
+                <Lang id='person_lookup.submit_button' />
               </Button>
             ) : (
               <Button
@@ -256,7 +256,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                 color='danger'
                 onClick={handleClear}
               >
-                Fjern
+                <Lang id='person_lookup.clear_button' />
               </Button>
             )}
           </div>
