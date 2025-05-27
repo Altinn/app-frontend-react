@@ -1,15 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import dot from 'dot-object';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { RenderInputComponent } from 'src/next/layout/Input/InputComponent';
+import { evaluateExpression } from 'src/next-prev/app/expressions/evaluateExpression';
 import { layoutStore } from 'src/next-prev/stores/layoutStore';
 import type { IDataModelReference } from 'src/layout/common.generated.next';
 import type { ComponentTypeConfigs } from 'src/layout/components.generated.next';
-import type { CompExternal, CompTypes, ResolvedCompExternal } from 'src/next-prev/stores/layoutStore';
+import type { CompExternal, CompTypes, DataObject, ResolvedCompExternal } from 'src/next-prev/stores/layoutStore';
 
 export interface RenderComponentType {
   component: ResolvedCompExternal;
@@ -44,8 +46,27 @@ type DataModelBindingKeys<T extends CompTypes> = keyof ComponentTypeConfigs[T]['
 type CleanedDataModelBindings<T extends CompTypes> = Record<DataModelBindingKeys<T>, IDataModelReference>;
 
 export function NextGenericComponent({ component, indices }: RenderComponentType) {
-  const isHidden = false;
   const renderAsSummary = false;
+
+  const store = FD.useStore();
+
+  const [isHidden, setIsHidden] = useState(false);
+
+  const dataType = DataModels.useDefaultDataType();
+
+  store.subscribe((state) => {
+    if (!dataType) {
+      return;
+    }
+    const data = state.dataModels[dataType].currentData as DataObject;
+
+    if (!data) {
+      throw new Error('no data to evaluate');
+    }
+
+    const isHidden = evaluateExpression(component.hidden, data);
+    setIsHidden(isHidden);
+  });
 
   if (isHidden) {
     return null;
@@ -73,7 +94,6 @@ export function NextGenericComponent({ component, indices }: RenderComponentType
 export type ComponentProps<T extends CompTypes> = {
   renderAsSummary: boolean;
   component: ResolvedCompExternal<T>;
-  // cleanedDataModelBindings: CleanedDataModelBindings<T>;
   indices: number[];
 };
 

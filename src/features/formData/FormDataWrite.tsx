@@ -1063,6 +1063,8 @@ export const FD = {
    */
   useLastSaveValidationIssues: () => useSelector((s) => s.validationIssues),
 
+  useStore: () => useStore(),
+
   useRemoveIndexFromList: () => useStaticSelector((s) => s.removeIndexFromList),
 
   useGetDataTypeForElementId: () => {
