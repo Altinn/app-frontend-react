@@ -20,6 +20,14 @@ const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {
   [ExprVal.Date]: { $ref: 'expression.schema.v1.json#/definitions/string' },
 };
 
+const toPropListMap: { [key in ExprVal]: object } = {
+  [ExprVal.Any]: { type: 'expression', expressionType: 'any' },
+  [ExprVal.Boolean]: { type: 'expression', expressionType: 'boolean' },
+  [ExprVal.Number]: { type: 'expression', expressionType: 'number' },
+  [ExprVal.String]: { type: 'expression', expressionType: 'string' },
+  [ExprVal.Date]: { type: 'expression', expressionType: 'string' },
+};
+
 type TypeMap<Val extends ExprVal> = Val extends ExprVal.Boolean
   ? boolean
   : Val extends ExprVal.Number
@@ -48,6 +56,13 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     return {
       ...this.getInternalJsonSchema(),
       ...toSchemaMap[this.valueType],
+    };
+  }
+
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      ...toPropListMap[this.valueType],
     };
   }
 }

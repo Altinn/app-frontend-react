@@ -37,4 +37,13 @@ export class GenerateNumber extends DescribableCodeGenerator<number> {
       maximum: this.maximum,
     };
   }
+
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      type: 'number',
+      minimum: this.minimum,
+      maximum: this.maximum,
+    };
+  }
 }

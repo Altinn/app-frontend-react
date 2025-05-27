@@ -20,4 +20,11 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
       type: 'boolean',
     };
   }
+
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      type: 'boolean',
+    };
+  }
 }

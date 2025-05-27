@@ -38,6 +38,18 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     throw new Error('Should not be called');
   }
 
+  toPropList(): unknown {
+    this.freeze('toPropList');
+    return {
+      ...this.getInternalJsonSchema(),
+      $ref: `#/definitions/${this.key}`,
+    };
+  }
+
+  toPropListDefinition(): unknown {
+    throw new Error('Should not be called');
+  }
+
   hasProperty(name: string): boolean {
     const source = getSourceForCommon(this.key);
     if (source instanceof GenerateObject) {

@@ -75,6 +75,18 @@ export abstract class CodeGenerator<T> {
     };
   }
 
+  protected getInternalPropList(): object {
+    this.freeze('getInternalPropList');
+    return {
+      title: this.internal.jsonSchema.title || this.internal.symbol?.name || undefined,
+      description: this.getSchemaDescription(),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
+      default: this.internal.optional ? (this.internal.optional.default as JSONSchema7Type) : undefined,
+      deprecated: this.internal.jsonSchema.deprecated,
+    };
+  }
+
   protected ensureMutable(): void {
     if (this.internal.frozen !== false) {
       throw new Error(`Cannot modify frozen code generator (was frozen by ${this.internal.frozen})`);
@@ -91,6 +103,7 @@ export abstract class CodeGenerator<T> {
 
   abstract toJsonSchema(): JSONSchema7;
   abstract toTypeScript(): string;
+  abstract toPropList(): unknown;
 }
 
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
@@ -168,9 +181,16 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this.toJsonSchemaDefinition();
   }
 
+  toPropList(): unknown {
+    this.freeze('toPropList');
+    return this.toPropListDefinition();
+  }
+
   abstract toJsonSchemaDefinition(): JSONSchema7;
 
   abstract toTypeScriptDefinition(symbol: string | undefined): string;
+
+  abstract toPropListDefinition(): unknown;
 }
 
 export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeGenerator<T> {

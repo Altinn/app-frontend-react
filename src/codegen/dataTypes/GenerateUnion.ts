@@ -51,6 +51,21 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     };
   }
 
+  toPropListDefinition(): unknown {
+    const list = this.types.map((type) => type.toPropList());
+    const uniqueList: unknown[] = [];
+    for (const curr of list) {
+      if (!uniqueList.some((x) => deepEqual(x, curr))) {
+        uniqueList.push(curr);
+      }
+    }
+
+    return {
+      ...this.getInternalPropList(),
+      union: uniqueList,
+    };
+  }
+
   isOptional(): boolean {
     return (
       super.isOptional() || this.types.some((type) => type instanceof MaybeOptionalCodeGenerator && type.isOptional())

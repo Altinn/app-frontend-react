@@ -30,4 +30,12 @@ export class GenerateString extends DescribableCodeGenerator<string> {
       pattern: this.pattern?.source,
     };
   }
+
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      type: 'string',
+      pattern: this.pattern?.source,
+    };
+  }
 }

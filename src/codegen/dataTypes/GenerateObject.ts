@@ -232,7 +232,7 @@ export class GenerateObject<P extends Props>
       : `{ ${properties.join('\n')} }${extendsIntersection}`;
   }
 
-  private getPropertyList(target: 'typeScript' | 'jsonSchema'): {
+  private getPropertyList(target: 'typeScript' | 'jsonSchema' | 'propList'): {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     all: { [key: string]: GenerateProperty<any> };
     required: string[];
@@ -351,5 +351,33 @@ export class GenerateObject<P extends Props>
     }
 
     return this._additionalProperties?.toJsonSchema();
+  }
+
+  toPropListDefinition(): unknown {
+    this.ensureExtendsHaveNames();
+    const properties: { [key: string]: JSONSchema7 } = {};
+    for (const prop of this.properties) {
+      if (prop.shouldOmitInSchema()) {
+        // TODO: Figure out if this should be omitted in proplist as well
+        continue;
+      }
+      const val = prop.type.toPropList();
+      properties[prop.name] = val;
+      if (
+        val &&
+        typeof val === 'object' &&
+        (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional())
+      ) {
+        val.required = true;
+      } else {
+        val.required = false;
+      }
+    }
+
+    return {
+      ...this.getInternalJsonSchema(),
+      extends: this._extends.length ? this._extends.map((e) => e.getName(false)) : undefined,
+      properties,
+    };
   }
 }

@@ -86,6 +86,10 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     throw new Error('Do not call this directly, generate JsonSchema for the object (or property type) instead');
   }
 
+  toPropList(): unknown {
+    throw new Error('Do not call this directly, generate PropList for the object (or property type) instead');
+  }
+
   setAsAdded() {
     this._added = true;
   }

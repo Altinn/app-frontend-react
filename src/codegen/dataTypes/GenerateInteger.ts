@@ -22,4 +22,11 @@ export class GenerateInteger extends GenerateNumber {
       type: 'integer',
     };
   }
+
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      type: 'integer',
+    };
+  }
 }

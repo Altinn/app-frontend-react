@@ -12,7 +12,19 @@ type RawJsonSchema = {
   jsonSchema: JSONSchema7 | (() => JSONSchema7) | CodeGenerator<any>;
 };
 
-type RawDef = RawTypeScript | RawJsonSchema | (RawTypeScript & RawJsonSchema);
+type RawPropList = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  propList: unknown | (() => unknown) | CodeGenerator<any>;
+};
+
+type RawDef =
+  | RawTypeScript
+  | RawJsonSchema
+  | RawPropList
+  | (RawTypeScript & RawJsonSchema)
+  | (RawTypeScript & RawPropList)
+  | (RawJsonSchema & RawPropList)
+  | (RawTypeScript & RawJsonSchema & RawPropList);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
@@ -20,6 +32,8 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
   private realJsonSchema?: JSONSchema7 | CodeGenerator<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private realTypeScript?: string | CodeGenerator<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private realPropList?: unknown | CodeGenerator<any>;
 
   constructor(private readonly raw: RawDef) {
     super();
@@ -55,6 +69,21 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
     return this.realTypeScript;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private getRealPropList(fail = true): unknown | CodeGenerator<any> {
+    if (!this.realPropList) {
+      if (fail && !('propList' in this.raw)) {
+        throw new Error('Raw type does not have a propList');
+      } else if (!('propList' in this.raw)) {
+        return undefined;
+      }
+
+      this.realPropList = typeof this.raw.propList === 'function' ? this.raw.propList() : this.raw.propList;
+    }
+
+    return this.realPropList;
+  }
+
   toJsonSchema(): JSONSchema7 {
     const real = this.getRealJsonSchema();
     if (real instanceof CodeGenerator) {
@@ -73,11 +102,24 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
     return real;
   }
 
+  toPropList(): unknown {
+    const real = this.getRealPropList();
+    if (real instanceof CodeGenerator) {
+      return real.toPropList();
+    }
+
+    return real;
+  }
+
   toJsonSchemaDefinition(): JSONSchema7 {
     throw new Error('Method not implemented.');
   }
 
   toTypeScriptDefinition(_symbol: string | undefined): string {
+    throw new Error('Method not implemented.');
+  }
+
+  toPropListDefinition(): unknown {
     throw new Error('Method not implemented.');
   }
 }

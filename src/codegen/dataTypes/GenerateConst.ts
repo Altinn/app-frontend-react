@@ -29,4 +29,11 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
       const: this.value,
     };
   }
+
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      const: this.value,
+    };
+  }
 }

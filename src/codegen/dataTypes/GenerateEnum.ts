@@ -47,6 +47,13 @@ export class GenerateEnum<T extends string | number> extends DescribableCodeGene
     return symbol ? `type ${symbol} = ${out};` : out;
   }
 
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      enum: this.values,
+    };
+  }
+
   shouldUseParens(): boolean {
     return this._asRealEnum === false;
   }

@@ -2,6 +2,7 @@ import deepEqual from 'fast-deep-equal';
 import type { JSONSchema7 } from 'json-schema';
 
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { SchemaFile } from 'src/codegen/SchemaFile';
 
 type JsonSchema7WithDefinitions = Required<Pick<JSONSchema7, 'definitions'>> & JSONSchema7;
@@ -136,11 +137,44 @@ export class CodeGeneratorContext {
       },
     };
   }
+
+  public static async generatePropList(
+    targetFile: string,
+    configMap: { [key: string]: ComponentConfig },
+  ): Promise<{ result: unknown }> {
+    const fileContext = new CodeGeneratorFileContext(targetFile, 'propList');
+    CodeGeneratorContext.fileContext = fileContext;
+
+    const common = {};
+    const components = {};
+
+    for (const [key, config] of Object.entries(configMap)) {
+      components[key] = config.toPropList();
+    }
+
+    const symbols: SymbolTable<'propList'> = {};
+    while (Object.keys(fileContext.symbols).length) {
+      const newSymbols = fileContext.getSymbols(symbols);
+      Object.assign(symbols, newSymbols);
+    }
+
+    // Sort symbols and add them in sorted order to the file
+    const sortedSymbols = Object.keys(symbols).sort((a, b) => a.localeCompare(b));
+    for (const symbol of sortedSymbols) {
+      common[symbol] = symbols[symbol];
+    }
+
+    CodeGeneratorContext.fileContext = undefined;
+
+    return { result: { common, components } };
+  }
 }
 
-type FileType = 'jsonSchema' | 'typeScript';
+type FileType = 'jsonSchema' | 'typeScript' | 'propList';
 type Imports = { [fileName: string]: Set<string> };
-type SymbolTable<T extends FileType> = { [symbol: string]: T extends 'jsonSchema' ? JSONSchema7 : string };
+type SymbolTable<T extends FileType> = {
+  [symbol: string]: T extends 'jsonSchema' ? JSONSchema7 : T extends 'typeScript' ? string : unknown;
+};
 
 export class CodeGeneratorFileContext<T extends FileType> {
   private readonly targetFile: string;
@@ -189,6 +223,12 @@ export class CodeGeneratorFileContext<T extends FileType> {
         throw new Error(`JsonSchema symbol ${name} already exists, and is not equal to the new symbol`);
       }
       (this.symbols as SymbolTable<'jsonSchema'>)[name] = jsonSchemaDefinition;
+    } else if (this.type === 'propList') {
+      const propListDefinition = generator.toPropListDefinition();
+      if (this.symbols[name] && !deepEqual(this.symbols[name], propListDefinition)) {
+        throw new Error(`PropList symbol ${name} already exists, and is not equal to the new symbol`);
+      }
+      (this.symbols as SymbolTable<'propList'>)[name] = propListDefinition;
     } else {
       throw new Error(`Unknown file type ${this.type}`);
     }

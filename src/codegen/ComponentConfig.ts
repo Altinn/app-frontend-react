@@ -588,4 +588,9 @@ export class ComponentConfig {
     this.beforeFinalizing();
     return this.inner.toJsonSchema();
   }
+
+  public toPropList(): unknown {
+    this.beforeFinalizing();
+    return this.inner.toPropList();
+  }
 }

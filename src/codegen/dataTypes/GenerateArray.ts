@@ -44,4 +44,11 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
       maxItems: this._maxItems,
     };
   }
+
+  toPropListDefinition(): unknown {
+    return {
+      ...this.getInternalPropList(),
+      type: 'array',
+    };
+  }
 }
