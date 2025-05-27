@@ -164,7 +164,11 @@ export function OrganisationLookupComponent({
             onValueChange={(e) => {
               setTempOrgNr(e.value);
             }}
-            onBlur={(e) => handleValidateOrgnr(e.target.value)}
+            onKeyDown={async (ev) => {
+              if (ev.key === 'Enter') {
+                await handleSubmit();
+              }
+            }}
             allowLeadingZeros
             inputMode='numeric'
             pattern='[0-9]{9}'

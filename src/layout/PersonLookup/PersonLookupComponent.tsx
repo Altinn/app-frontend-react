@@ -190,7 +190,11 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
             onValueChange={(e) => {
               setTempSsn(e.value);
             }}
-            onBlur={(e) => handleValidateSsn(e.target.value)}
+            onKeyDown={async (ev) => {
+              if (ev.key === 'Enter') {
+                await handleSubmit();
+              }
+            }}
             allowLeadingZeros
             inputMode='numeric'
             pattern='[0-9]{11}'
@@ -229,7 +233,11 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
             onChange={(e) => {
               setTempName(e.target.value);
             }}
-            onBlur={(e) => handleValidateName(e.target.value)}
+            onKeyDown={async (ev) => {
+              if (ev.key === 'Enter') {
+                await handleSubmit();
+              }
+            }}
             autoComplete='family-name'
           />
 
