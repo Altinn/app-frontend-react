@@ -64,7 +64,7 @@ export function useMultipleValuesForSummary(componentNode: ValidNodes) {
     .map((row) => (!relativeSimpleBindingPath ? true : dot.pick(relativeSimpleBindingPath, row)));
 
   return dataModelBindings.group
-    ? displayRows
+    ? Object.values(getCommaSeparatedOptionsToText(displayRows?.join(','), options, langAsString))
     : Object.values(getCommaSeparatedOptionsToText(rawFormData.simpleBinding, options, langAsString));
 }
 
