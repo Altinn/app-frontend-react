@@ -320,7 +320,7 @@ describe('Validation', () => {
   it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
     cy.get(dataListPage.tableBody).first().first().contains('Caroline');
-    cy.findByRole('button', { name: 'Neste' }).click();
+    cy.findAllByRole('button', { name: /neste/i }).eq(1).click();
     cy.get(appFrontend.errorReport)
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
@@ -769,7 +769,7 @@ describe('Validation', () => {
     });
     cy.goto('message');
 
-    cy.findByRole('textbox', { name: 'Input with falsy value*' }).type('0');
+    cy.findByRole('textbox', { name: 'Input with falsy value' }).type('0');
     cy.findByRole('button', { name: 'Send inn' }).click();
 
     // Content from next page
