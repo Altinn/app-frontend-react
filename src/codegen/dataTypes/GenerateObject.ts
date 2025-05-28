@@ -353,25 +353,41 @@ export class GenerateObject<P extends Props>
     return this._additionalProperties?.toJsonSchema();
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toFlattened(): GenerateProperty<any>[] {
+    return [];
+  }
+
   toPropListDefinition(): unknown {
     this.ensureExtendsHaveNames();
     const properties: { [key: string]: JSONSchema7 } = {};
     for (const prop of this.properties) {
       if (prop.shouldOmitInSchema()) {
-        // TODO: Figure out if this should be omitted in proplist as well
         continue;
       }
+
+      if (prop.type instanceof GenerateObject) {
+        for (const subProp of prop.type.toFlattened()) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const val = subProp.toPropList() as any;
+          val.required = !!(
+            val &&
+            typeof val === 'object' &&
+            (!(subProp.type instanceof MaybeOptionalCodeGenerator) || !subProp.type.isOptional())
+          );
+          properties[subProp.name] = val;
+        }
+        continue;
+      }
+
       const val = prop.type.toPropList();
-      properties[prop.name] = val;
-      if (
+      val.required = !!(
         val &&
         typeof val === 'object' &&
         (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional())
-      ) {
-        val.required = true;
-      } else {
-        val.required = false;
-      }
+      );
+
+      properties[prop.name] = val;
     }
 
     return {
