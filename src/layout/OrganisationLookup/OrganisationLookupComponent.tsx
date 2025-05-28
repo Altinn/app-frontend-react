@@ -165,6 +165,8 @@ export function OrganisationLookupComponent({
               }}
               onBlur={(e) => handleValidateOrgnr(e.target.value)}
               allowLeadingZeros
+              inputMode='numeric'
+              pattern='[0-9]{9}'
             />
             {(orgNrErrors?.length && (
               <ValidationMessage data-size='sm'>

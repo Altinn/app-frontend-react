@@ -230,7 +230,6 @@ export function FieldRenderer({
             readOnly={false}
             required={required}
             locale={locale!}
-            isMobile={false}
             DropdownCaption={DropdownCaption}
             buttonAriaLabel={buttonAriaLabel}
             calendarIconTitle={calendarIconTitle}

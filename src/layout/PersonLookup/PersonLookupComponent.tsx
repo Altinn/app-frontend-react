@@ -192,6 +192,9 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               }}
               onBlur={(e) => handleValidateSsn(e.target.value)}
               allowLeadingZeros
+              inputMode='numeric'
+              pattern='[0-9]{11}'
+              autoComplete='off'
             />
             {(ssnErrors?.length && (
               <ValidationMessage>
@@ -234,6 +237,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                 setTempName(e.target.value);
               }}
               onBlur={(e) => handleValidateName(e.target.value)}
+              autoComplete='family-name'
             />
             {(nameError && (
               <ValidationMessage>

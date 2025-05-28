@@ -36,6 +36,7 @@ export type InputProps = {
   | 'placeholder'
   | 'inputMode'
   | 'style'
+  | 'pattern'
 > &
   LabelRequired;
 
