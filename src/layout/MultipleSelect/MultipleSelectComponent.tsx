@@ -50,8 +50,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
 
   const handleOnChange = (values: string[]) => {
     if (groupBinding.enabled) {
-      console.log(JSON.parse(values[0]));
-      groupBinding.setCheckedValues(JSON.parse(values[0]));
+      groupBinding.setCheckedValues(values);
     } else {
       setData(values);
     }

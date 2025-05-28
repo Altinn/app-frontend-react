@@ -54,7 +54,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
 
   const setChecked = (isChecked: boolean, option: IOptionInternal) => {
     if (groupBinding.enabled) {
-      groupBinding.toggleValue(option);
+      groupBinding.toggleValue(option.value);
     } else {
       const newData = isChecked ? [...selectedValues, option.value] : selectedValues.filter((o) => o !== option.value);
       setData(newData);

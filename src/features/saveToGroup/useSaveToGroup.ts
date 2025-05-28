@@ -3,7 +3,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
-import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsForGroupCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
@@ -88,7 +87,6 @@ function useSaveToGroup(bindings: Bindings) {
         if (checkedPath) {
           dot.str(checkedPath, true, newRow);
         }
-
         for (const key in values) {
           const path = toRelativePath(group, values[key]);
           if (path) {
@@ -146,11 +144,7 @@ export function useSaveValueToGroup(
   const { enabled, toggle, checkedPath } = useSaveToGroup({
     group: bindings.group,
     checked: bindings.checked,
-    values: bindings.simpleBinding
-      ? bindings.label
-        ? { value: bindings.simpleBinding, label: bindings.label }
-        : { value: bindings.simpleBinding }
-      : {},
+    values: bindings.simpleBinding ? { value: bindings.simpleBinding } : {},
   });
   const valuePath = toRelativePath(bindings.group, bindings.simpleBinding);
 
@@ -165,15 +159,15 @@ export function useSaveValueToGroup(
           .map((row) => `${dot.pick(valuePath, row)}`)
       : [];
 
-  function toggleValue(option: IOptionInternal) {
-    enabled && toggle(option as unknown as Row);
+  function toggleValue(value: string) {
+    enabled && toggle({ value });
   }
 
   function setCheckedValues(values: string[]) {
     if (!enabled) {
       return;
     }
-    console.log(values);
+
     const valuesToSet = values.filter((value) => !selectedValues.includes(value));
     const valuesToRemove = selectedValues.filter((value) => !values.includes(value));
     const valuesToToggle = [...valuesToSet, ...valuesToRemove];
