@@ -661,10 +661,8 @@ describe('Group', () => {
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
-    // The title and description is set to the same text resource binding, and duplicates the text we need to
-    // put in `name` for this to work
     const selectedOption = 'Endre fra: 120, Endre til: 350';
-    const longSelectedText = `${selectedOption} Fungerer kalkulatoren din? ${selectedOption} Fungerer kalkulatoren din?`;
+    const longSelectedText = `${selectedOption} Fungerer kalkulatoren din?`;
 
     // First make sure to check the second item in the bottom-most radio group. This should also change the items
     // in the two dropdowns above.
