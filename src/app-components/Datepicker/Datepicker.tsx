@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import type { MonthCaption } from 'react-day-picker';
 
 import { CalendarIcon } from '@navikt/aksel-icons';
@@ -23,10 +23,10 @@ export type DatePickerControlProps = {
   minDate?: Date;
   maxDate?: Date;
   locale: string;
-  isMobile?: boolean;
   DropdownCaption: typeof MonthCaption;
   buttonAriaLabel: string;
   calendarIconTitle: string;
+  autoComplete?: 'bday';
 };
 
 export const DatePickerControl: React.FC<DatePickerControlProps> = ({
@@ -40,11 +40,12 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
   minDate,
   maxDate,
   locale,
-  isMobile = false,
   buttonAriaLabel,
   DropdownCaption,
   calendarIconTitle,
+  autoComplete,
 }) => {
+  const inputRef = useRef<HTMLInputElement>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const dateValue = new Date(value);
   const dayPickerDate = isValidDate(dateValue) ? dateValue : undefined;
@@ -67,12 +68,14 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
     >
       <div className={styles.calendarInputWrapper}>
         <DatePickerInput
+          ref={inputRef}
           id={id}
           value={value}
           datepickerFormat={dateFormat}
           timeStamp={timeStamp}
           onValueChange={onValueChange}
           readOnly={readOnly}
+          autoComplete={autoComplete}
         />
         <DatePickerDialog
           isDialogOpen={isDialogOpen}
@@ -104,11 +107,11 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
             onSelect={(date) => {
               handleDayPickerSelect(date);
               setIsDialogOpen(false);
+              inputRef.current?.focus();
             }}
             minDate={minDate}
             maxDate={maxDate}
             required={required}
-            autoFocus={isMobile}
             DropdownCaption={DropdownCaption}
           />
         </DatePickerDialog>

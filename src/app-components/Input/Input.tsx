@@ -31,6 +31,8 @@ export type InputProps = {
   | 'placeholder'
   | 'inputMode'
   | 'style'
+  | 'pattern'
+  | 'onKeyDown'
 >;
 
 export function Input(props: InputProps) {
