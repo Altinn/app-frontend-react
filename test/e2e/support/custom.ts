@@ -180,8 +180,14 @@ const knownWcagViolations: KnownViolation[] = [
   {
     spec: 'frontend-test/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
-    id: 'heading-order',
+    id: 'page-has-heading-one',
     nodeLength: 1,
+  },
+  {
+    spec: 'frontend-test/hide-row-in-group.ts',
+    test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
+    id: 'aria-hidden-focus', // floating-ui marks everything else as aria-hidden, when dropdown from DS is open, swap to suggestion component when it is no longer experimental
+    nodeLength: 18,
   },
   {
     spec: 'frontend-test/likert.ts',
