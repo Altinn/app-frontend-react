@@ -100,12 +100,17 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
     <ul className={classes.errorList}>
       {validations.map((validation) => (
         <li key={getUniqueKeyFromObject(validation)}>
-          <ValidationMessage data-size='sm'>
-            <Lang
-              id={validation.message.key}
-              params={validation.message.params}
-              node={node}
-            />
+          <ValidationMessage
+            data-size='sm'
+            asChild
+          >
+            <span>
+              <Lang
+                id={validation.message.key}
+                params={validation.message.params}
+                node={node}
+              />
+            </span>
           </ValidationMessage>
         </li>
       ))}
