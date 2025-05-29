@@ -126,7 +126,7 @@ const common = {
       .setDescription('Define the layout style for the options'),
 
   // Grid styling:
-  IGridSize: () => new CG.union(new CG.const('auto'), new CG.enum(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)),
+  IGridSize: () => new CG.union(new CG.const('auto'), new CG.range(1, 12)),
   IGridStyling: () =>
     new CG.obj(
       new CG.prop('xs', CG.common('IGridSize').optional({ default: 'auto' })),
@@ -646,7 +646,7 @@ const common = {
         'Autocomplete hints to the browser. See https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete',
       ),
 
-  HeadingLevel: () => new CG.enum(2, 3, 4, 5, 6),
+  HeadingLevel: () => new CG.range(2, 6),
 
   AllowedValidationMasks: () =>
     new CG.arr(

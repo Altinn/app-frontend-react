@@ -46,13 +46,5 @@ export const Config = new CG.component({
       description: 'Array of component IDs that should be displayed in the group',
     }),
   )
-  .addProperty(
-    new CG.prop(
-      'headingLevel',
-      new CG.enum(2, 3, 4, 5, 6)
-        .optional()
-        .setTitle('Heading level')
-        .setDescription('The heading level of the group title.'),
-    ),
-  )
+  .addProperty(new CG.prop('headingLevel', CG.common('HeadingLevel').optional()))
   .addSummaryOverrides();

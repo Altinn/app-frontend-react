@@ -373,9 +373,11 @@ export class GenerateObject<P extends Props>
             ? prefix
             : undefined;
       const fullName = prefix && lastName ? `${prefix}.${lastName}` : lastName ? lastName : prefix;
+      const fromCommon = something instanceof GenerateCommonImport;
 
       if (real instanceof GenerateObject) {
         for (const prop of real.toFlattened(fullName)) {
+          fromCommon && prop.setFromCommon();
           properties.push(prop);
         }
       } else {
@@ -383,7 +385,9 @@ export class GenerateObject<P extends Props>
           throw new Error('Cannot flatten a property without a name');
         }
 
-        properties.push(new CG.prop(fullName, real));
+        const prop = new CG.prop(fullName, real);
+        fromCommon && prop.setFromCommon();
+        properties.push(prop);
       }
     }
 
@@ -410,6 +414,9 @@ export class GenerateObject<P extends Props>
         typeof val === 'object' &&
         (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional())
       );
+      if (prop.isFromCommon()) {
+        val.common = true;
+      }
 
       properties[prop.name] = val;
     }

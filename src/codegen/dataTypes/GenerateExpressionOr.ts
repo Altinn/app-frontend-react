@@ -21,11 +21,11 @@ const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {
 };
 
 const toPropListMap: { [key in ExprVal]: object } = {
-  [ExprVal.Any]: { type: 'expression', expressionType: 'any' },
-  [ExprVal.Boolean]: { type: 'expression', expressionType: 'boolean' },
-  [ExprVal.Number]: { type: 'expression', expressionType: 'number' },
-  [ExprVal.String]: { type: 'expression', expressionType: 'string' },
-  [ExprVal.Date]: { type: 'expression', expressionType: 'string' },
+  [ExprVal.Any]: { type: 'any', canBeExpression: true },
+  [ExprVal.Boolean]: { type: 'boolean', canBeExpression: true },
+  [ExprVal.Number]: { type: 'number', canBeExpression: true },
+  [ExprVal.String]: { type: 'string', canBeExpression: true },
+  [ExprVal.Date]: { type: 'date', canBeExpression: true },
 };
 
 type TypeMap<Val extends ExprVal> = Val extends ExprVal.Boolean

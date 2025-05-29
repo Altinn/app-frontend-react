@@ -12,6 +12,7 @@ import { GenerateIntersection } from 'src/codegen/dataTypes/GenerateIntersection
 import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import { GenerateRange } from 'src/codegen/dataTypes/GenerateRange';
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateString } from 'src/codegen/dataTypes/GenerateString';
 import { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
@@ -32,6 +33,7 @@ export const CG = {
   bool: GenerateBoolean,
   int: GenerateInteger,
   num: GenerateNumber,
+  range: GenerateRange,
   arr: GenerateArray,
 
   // Shortcuts for common constant values

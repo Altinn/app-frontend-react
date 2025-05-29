@@ -14,6 +14,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
   private _insertFirst = false;
   private _added = false;
   private _inSchema = true;
+  private _fromCommon = false;
 
   constructor(
     public readonly name: string,
@@ -55,6 +56,15 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     this._insertBefore = undefined;
     this._insertAfter = undefined;
     this._insertFirst = true;
+    return this;
+  }
+
+  isFromCommon(): boolean {
+    return this._fromCommon;
+  }
+
+  setFromCommon(): this {
+    this._fromCommon = true;
     return this;
   }
 
