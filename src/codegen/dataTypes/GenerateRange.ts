@@ -16,7 +16,10 @@ export class GenerateRange extends DescribableCodeGenerator<number> {
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {
-    return symbol ? `type ${symbol} = number;` : 'number';
+    const values = new Array(this.maximum - this.minimum + 1).fill(0).map((_, i) => this.minimum + i);
+    return symbol
+      ? `type ${symbol} = ${values.map((v) => JSON.stringify(v)).join(' | ')};`
+      : values.map((v) => JSON.stringify(v)).join(' | ');
   }
 
   toJsonSchemaDefinition(): JSONSchema7 {
