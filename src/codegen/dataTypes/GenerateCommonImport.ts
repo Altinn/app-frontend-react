@@ -50,8 +50,12 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     throw new Error('Should not be called');
   }
 
+  getSource() {
+    return getSourceForCommon(this.key);
+  }
+
   hasProperty(name: string): boolean {
-    const source = getSourceForCommon(this.key);
+    const source = this.getSource();
     if (source instanceof GenerateObject) {
       return source.hasProperty(name);
     }
@@ -61,7 +65,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperty(name: string): GenerateProperty<any> | undefined {
-    const source = getSourceForCommon(this.key);
+    const source = this.getSource();
     if (source instanceof GenerateObject) {
       return source.getProperty(name);
     }
@@ -71,7 +75,7 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getProperties(): GenerateProperty<any>[] {
-    const source = getSourceForCommon(this.key);
+    const source = this.getSource();
     if (source instanceof GenerateObject) {
       return source.getProperties();
     }

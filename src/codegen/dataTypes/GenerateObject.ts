@@ -4,8 +4,8 @@ import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { getSourceForCommon } from 'src/codegen/Common';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
+import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
-import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Props = GenerateProperty<any>[];
@@ -354,32 +354,56 @@ export class GenerateObject<P extends Props>
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  toFlattened(): GenerateProperty<any>[] {
-    return [];
+  toFlattened(prefix?: string): GenerateProperty<any>[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const properties: GenerateProperty<any>[] = [];
+
+    function flatten(something: CodeGenerator<unknown>, name?: string) {
+      const real =
+        something instanceof GenerateCommonImport
+          ? something.getSource()
+          : something instanceof GenerateProperty
+            ? something.type
+            : something;
+      const lastName = name
+        ? name
+        : something instanceof GenerateProperty
+          ? something.name
+          : prefix
+            ? prefix
+            : undefined;
+      const fullName = prefix && lastName ? `${prefix}.${lastName}` : lastName ? lastName : prefix;
+
+      if (real instanceof GenerateObject) {
+        for (const prop of real.toFlattened(fullName)) {
+          properties.push(prop);
+        }
+      } else {
+        if (!fullName) {
+          throw new Error('Cannot flatten a property without a name');
+        }
+
+        properties.push(new CG.prop(fullName, real));
+      }
+    }
+
+    for (const parent of this._extends) {
+      flatten(parent);
+    }
+
+    for (const prop of this.properties) {
+      if (!prop.shouldOmitInSchema()) {
+        flatten(prop.type, prop.name);
+      }
+    }
+
+    return properties;
   }
 
   toPropListDefinition(): unknown {
     this.ensureExtendsHaveNames();
     const properties: { [key: string]: JSONSchema7 } = {};
-    for (const prop of this.properties) {
-      if (prop.shouldOmitInSchema()) {
-        continue;
-      }
-
-      if (prop.type instanceof GenerateObject) {
-        for (const subProp of prop.type.toFlattened()) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const val = subProp.toPropList() as any;
-          val.required = !!(
-            val &&
-            typeof val === 'object' &&
-            (!(subProp.type instanceof MaybeOptionalCodeGenerator) || !subProp.type.isOptional())
-          );
-          properties[subProp.name] = val;
-        }
-        continue;
-      }
-
+    for (const prop of this.toFlattened()) {
       const val = prop.type.toPropList();
       val.required = !!(
         val &&
@@ -391,8 +415,7 @@ export class GenerateObject<P extends Props>
     }
 
     return {
-      ...this.getInternalJsonSchema(),
-      extends: this._extends.length ? this._extends.map((e) => e.getName(false)) : undefined,
+      ...this.getInternalPropList(),
       properties,
     };
   }

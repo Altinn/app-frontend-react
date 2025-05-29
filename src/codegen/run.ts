@@ -113,7 +113,7 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
   }
 
   const targetPath = 'schemas/json/propList.generated.json';
-  const propList = await CodeGeneratorContext.generatePropList(targetPath, configMap);
+  const propList = await CodeGeneratorContext.generatePropList(configMap);
   promises.push(saveFile(targetPath, JSON.stringify(propList.result, null, 2)));
 
   const commonTsPath = 'src/layout/common.generated.ts';

@@ -138,35 +138,14 @@ export class CodeGeneratorContext {
     };
   }
 
-  public static async generatePropList(
-    targetFile: string,
-    configMap: { [key: string]: ComponentConfig },
-  ): Promise<{ result: unknown }> {
-    const fileContext = new CodeGeneratorFileContext(targetFile, 'propList');
-    CodeGeneratorContext.fileContext = fileContext;
-
-    const common = {};
+  public static async generatePropList(configMap: { [key: string]: ComponentConfig }): Promise<{ result: unknown }> {
     const components = {};
 
     for (const [key, config] of Object.entries(configMap)) {
       components[key] = config.toPropList();
     }
 
-    const symbols: SymbolTable<'propList'> = {};
-    while (Object.keys(fileContext.symbols).length) {
-      const newSymbols = fileContext.getSymbols(symbols);
-      Object.assign(symbols, newSymbols);
-    }
-
-    // Sort symbols and add them in sorted order to the file
-    const sortedSymbols = Object.keys(symbols).sort((a, b) => a.localeCompare(b));
-    for (const symbol of sortedSymbols) {
-      common[symbol] = symbols[symbol];
-    }
-
-    CodeGeneratorContext.fileContext = undefined;
-
-    return { result: { common, components } };
+    return { result: components };
   }
 }
 
