@@ -70,4 +70,9 @@ export const Config = new CG.component({
         .setDescription("Set this to true if you don't want to show fields that have not been filled out."),
     ),
   )
-  .addProperty(new CG.prop('overrides', new CG.arr(CG.common('AnySummaryOverride')).optional()));
+  .addProperty(
+    new CG.prop(
+      'overrides',
+      new CG.arr(CG.common('AnySummaryOverride')).optional().linkToDocs('TODO: Add proper link to docs'),
+    ),
+  );

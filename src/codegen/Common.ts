@@ -117,7 +117,8 @@ const common = {
       ),
     )
       .setTitle('Page break')
-      .setDescription('Optionally insert page-break before/after component when rendered in PDF'),
+      .setDescription('Optionally insert page-break before/after component when rendered in PDF')
+      .linkToDocs('TODO: Add link to docs'),
 
   LayoutStyle: () =>
     new CG.enum('column', 'row', 'table')
@@ -142,7 +143,8 @@ const common = {
     )
       .extends(CG.common('IGridStyling'))
       .setTitle('Grid')
-      .setDescription('Settings for the components grid. Used for controlling horizontal alignment'),
+      .setDescription('Settings for the components grid. Used for controlling horizontal alignment')
+      .linkToDocs('TODO: Add link to docs'),
 
   IDataModelReference: () =>
     new CG.obj(
@@ -948,6 +950,7 @@ const common = {
     new CG.raw({
       typeScript: 'BROKEN! Check that AnySummaryOverride is generated correctly',
       jsonSchema: 'BROKEN! Check that AnySummaryOverride is generated correctly' as JSONSchema7,
+      propList: 'BROKEN: Check that AnySummaryOverride is generated correctly',
     }),
 };
 
@@ -1041,5 +1044,5 @@ function generateSummaryOverrides(from: 'TypeScript' | 'JsonSchema', map: { [key
     }
   }
 
-  return new CG.union(...objects);
+  return new CG.union(...objects).linkToDocs('TODO: Link to docs');
 }

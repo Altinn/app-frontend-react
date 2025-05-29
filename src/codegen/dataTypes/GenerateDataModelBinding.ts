@@ -12,6 +12,7 @@ export class GenerateDataModelBinding extends GenerateCommonImport<'IDataModelRe
 
   constructor() {
     super('IDataModelReference');
+    this.linkToDocs('TODO: Supply proper link to docs');
   }
 
   toJsonSchema(): JSONSchema7 {

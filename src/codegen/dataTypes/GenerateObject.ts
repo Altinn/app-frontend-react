@@ -3,6 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { getSourceForCommon } from 'src/codegen/Common';
+import { GenerateArray } from 'src/codegen/dataTypes/GenerateArray';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
@@ -375,8 +376,28 @@ export class GenerateObject<P extends Props>
       const fullName = prefix && lastName ? `${prefix}.${lastName}` : lastName ? lastName : prefix;
       const fromCommon = something instanceof GenerateCommonImport;
 
-      if (real instanceof GenerateObject) {
+      if (real.hasLinkToDocs()) {
+        if (!fullName) {
+          throw new Error('Cannot flatten a property without a name');
+        }
+        const prop = new CG.prop(fullName, real);
+        fromCommon && prop.setFromCommon();
+        properties.push(prop);
+        return;
+      }
+
+      if (real instanceof GenerateArray) {
         for (const prop of real.toFlattened(fullName)) {
+          fromCommon && prop.setFromCommon();
+          properties.push(prop);
+        }
+      } else if (real instanceof GenerateObject) {
+        for (const prop of real.toFlattened(fullName)) {
+          fromCommon && prop.setFromCommon();
+          properties.push(prop);
+        }
+        if (real._additionalProperties) {
+          const prop = new CG.prop(`${fullName}.*`, real._additionalProperties);
           fromCommon && prop.setFromCommon();
           properties.push(prop);
         }

@@ -31,6 +31,7 @@ export interface InternalConfig<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   source?: CodeGenerator<any>;
   frozen: false | string;
+  docsLink: string | undefined;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,6 +49,7 @@ export abstract class CodeGenerator<T> {
     typeScript: {},
     optional: false,
     frozen: false,
+    docsLink: undefined,
   };
 
   /**
@@ -77,8 +79,14 @@ export abstract class CodeGenerator<T> {
 
   protected getInternalPropList(): object {
     this.freeze('getInternalPropList');
+
+    if (this.internal.docsLink) {
+      // TODO: Verifiy that this link is valid
+      return { link: this.internal.docsLink };
+    }
+
     return {
-      title: this.internal.jsonSchema.title || this.internal.symbol?.name || undefined,
+      title: this.internal.jsonSchema.title,
       description: this.getSchemaDescription(),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
@@ -104,6 +112,15 @@ export abstract class CodeGenerator<T> {
   abstract toJsonSchema(): JSONSchema7;
   abstract toTypeScript(): string;
   abstract toPropList(): unknown;
+
+  linkToDocs(link: string): this {
+    this.internal.docsLink = link;
+    return this;
+  }
+
+  hasLinkToDocs(): boolean {
+    return this.internal.docsLink !== undefined;
+  }
 }
 
 export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
@@ -183,6 +200,10 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
 
   toPropList(): unknown {
     this.freeze('toPropList');
+    if (this.hasLinkToDocs()) {
+      return this.getInternalPropList();
+    }
+
     return this.toPropListDefinition();
   }
 

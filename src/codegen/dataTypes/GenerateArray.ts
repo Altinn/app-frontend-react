@@ -1,7 +1,11 @@
 import type { JSONSchema7 } from 'json-schema';
 
+import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
+import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { CodeGenerator, Extract } from 'src/codegen/CodeGenerator';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 /**
  * Generates an array with inner items of the given type
@@ -50,5 +54,18 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
       ...this.getInternalPropList(),
       type: 'array',
     };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toFlattened(prefix: string = ''): GenerateProperty<any>[] {
+    const real = this.innerType instanceof GenerateCommonImport ? this.innerType.getSource() : this.innerType;
+    if (real instanceof GenerateArray) {
+      throw new Error('Arrays of arrays not yet supported');
+    }
+    if (real instanceof GenerateObject) {
+      return real.toFlattened(`${prefix}[]`);
+    }
+
+    return [new CG.prop(`${prefix}[]`, real)];
   }
 }
