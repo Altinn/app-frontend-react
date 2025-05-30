@@ -375,7 +375,7 @@ describe('Checkboxes component', () => {
 
     cy.get(`div${summary2}`)
       .next()
-      .find('span.fds-paragraph') // Targets the span with the summary text
+      .find('span.ds-paragraph') // Targets the span with the summary text
       .should('have.text', expectedText);
   });
 
