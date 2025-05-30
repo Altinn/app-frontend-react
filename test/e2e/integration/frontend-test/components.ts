@@ -14,7 +14,7 @@ describe('UI Components', () => {
   const newFirstNameNb = /nytt fornavn/i;
   const newMiddleNameNb = /nytt mellomnavn/i;
   const newLastNameNb = /nytt etternavn/i;
-  const confirmChangeOfName = /ja, jeg bekrefter at navnet er riktig og slik jeg ønsker det dette er en hjelpetekst\./i;
+  const confirmChangeOfName = /ja, jeg bekrefter at navnet er riktig og slik jeg ønsker det/i;
 
   it('Image component with help text', () => {
     cy.goto('message');
@@ -363,7 +363,7 @@ describe('UI Components', () => {
     cy.findByRole('textbox', { name: newMiddleNameNb }).clear();
     cy.findByRole('textbox', { name: newMiddleNameNb }).type('all_readOnly');
     cy.findByRole('checkbox', {
-      name: /ja, jeg bekrefter at navnet er riktig og slik jeg ønsker det dette er en hjelpetekst\./i,
+      name: /ja, jeg bekrefter at navnet er riktig og slik jeg ønsker det/i,
     }).should('have.attr', 'readonly');
     cy.get(appFrontend.changeOfName.reasons).find('input').should('have.attr', 'readonly');
     cy.snapshot('components:read-only');
