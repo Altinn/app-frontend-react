@@ -73,6 +73,19 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'overrides',
-      new CG.arr(CG.common('AnySummaryOverride')).optional().linkToDocs('TODO: Add proper link to docs'),
+      new CG.arr(
+        new CG.union(
+          CG.common('AnySummaryOverride'),
+          new CG.obj(
+            new CG.prop('pageId', new CG.str()),
+            new CG.prop('hidden', new CG.bool().optional({ default: false })),
+          )
+            .setTitle('Page-level override')
+            .setDescription('Override for a specific page')
+            .exportAs('SummaryOverrideForPage'),
+        ),
+      )
+        .optional()
+        .linkToDocs('TODO: Add proper link to docs'),
     ),
   );
