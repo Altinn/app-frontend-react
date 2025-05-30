@@ -143,6 +143,8 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
     setValue('person_lookup_ssn', '');
     setTempName('');
     setTempSsn('');
+    setSsnErrors(undefined);
+    setNameError(undefined);
   }
 
   const hasSuccessfullyFetched = !!person_lookup_name && !!person_lookup_ssn;
@@ -189,9 +191,17 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
             }
             onValueChange={(e) => {
               setTempSsn(e.value);
+              setSsnErrors(undefined);
             }}
-            onBlur={(e) => handleValidateSsn(e.target.value)}
+            onKeyDown={async (ev) => {
+              if (ev.key === 'Enter') {
+                await handleSubmit();
+              }
+            }}
             allowLeadingZeros
+            inputMode='numeric'
+            pattern='[0-9]{11}'
+            autoComplete='off'
           />
           <div className={classes.nameLabel}>
             <Label
@@ -225,8 +235,14 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
             }
             onChange={(e) => {
               setTempName(e.target.value);
+              setNameError(undefined);
             }}
-            onBlur={(e) => handleValidateName(e.target.value)}
+            onKeyDown={async (ev) => {
+              if (ev.key === 'Enter') {
+                await handleSubmit();
+              }
+            }}
+            autoComplete='family-name'
           />
 
           <div className={classes.submit}>
@@ -236,7 +252,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                 variant='secondary'
                 isLoading={isFetching}
               >
-                Hent opplysninger
+                <Lang id='person_lookup.submit_button' />
               </Button>
             ) : (
               <Button
@@ -244,7 +260,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                 color='danger'
                 onClick={handleClear}
               >
-                Fjern
+                <Lang id='person_lookup.clear_button' />
               </Button>
             )}
           </div>
