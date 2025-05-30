@@ -21,6 +21,7 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
+import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -124,14 +125,14 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
               ))}
               {displayEditColumn && (
                 <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.edit' />
                   </span>
                 </Table.HeaderCell>
               )}
               {displayDeleteColumn && (
                 <Table.HeaderCell style={{ padding: 0 }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.delete' />
                   </span>
                 </Table.HeaderCell>

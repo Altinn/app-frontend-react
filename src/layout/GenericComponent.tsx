@@ -145,7 +145,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
       return NavigationResult.SuccessfulNoFocus;
     }
 
-    const targetHtmlNodes = containerDivRef.current?.querySelectorAll('input,textarea,select,p');
+    const targetHtmlNodes = containerDivRef.current?.querySelectorAll('input,textarea,select');
 
     if (targetHtmlNodes) {
       if (targetHtmlNodes.length === 1) {

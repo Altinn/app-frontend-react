@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Accordion, Label } from '@digdir/designsystemet-react';
+import { Details, Label } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
@@ -12,38 +12,34 @@ type LayoutSetAccordionSummaryProps = {
 };
 
 export function LayoutSetSummaryAccordion({ filteredPages }: LayoutSetAccordionSummaryProps) {
-  return (
-    <Accordion
-      border
+  return filteredPages.map((layoutId: string) => (
+    <Details
+      key={layoutId}
+      defaultOpen={true}
       color='neutral'
       className={classes.summaryItem}
     >
-      {filteredPages.map((layoutId: string) => (
-        <Accordion.Item
-          key={layoutId}
-          defaultOpen={true}
-        >
-          <Accordion.Header level={2}>
-            <Label asChild>
-              <span>
-                <Lang id={layoutId} />
-              </span>
-            </Label>
-          </Accordion.Header>
-          <Accordion.Content>
-            <Flex
-              container
-              spacing={6}
-              alignItems='flex-start'
-            >
-              <PageSummary
-                pageId={layoutId}
-                key={layoutId}
-              />
-            </Flex>
-          </Accordion.Content>
-        </Accordion.Item>
-      ))}
-    </Accordion>
-  );
+      <Details>
+        <Details.Summary>
+          <Label asChild>
+            <span>
+              <Lang id={layoutId} />
+            </span>
+          </Label>
+        </Details.Summary>
+        <Details.Content>
+          <Flex
+            container
+            spacing={6}
+            alignItems='flex-start'
+          >
+            <PageSummary
+              pageId={layoutId}
+              key={layoutId}
+            />
+          </Flex>
+        </Details.Content>
+      </Details>
+    </Details>
+  ));
 }

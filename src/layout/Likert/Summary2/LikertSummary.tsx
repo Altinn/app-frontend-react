@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Heading } from '@digdir/designsystemet-react';
+import { Heading, ValidationMessage } from '@digdir/designsystemet-react';
 
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
@@ -59,7 +59,7 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
       <div className={classes.summaryItemWrapper}>
         <div className={classes.summaryItem}>
           <Heading
-            size='xs'
+            data-size='xs'
             level={4}
           >
             <Lang
@@ -78,13 +78,13 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
           />
         ))}
         {errors?.map(({ message }) => (
-          <ErrorMessage key={message.key}>
+          <ValidationMessage key={message.key}>
             <Lang
               id={message.key}
               params={message.params}
               node={target}
             />
-          </ErrorMessage>
+          </ValidationMessage>
         ))}
       </div>
     </SummaryFlex>
