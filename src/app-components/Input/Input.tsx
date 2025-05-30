@@ -37,6 +37,7 @@ export type InputProps = {
   | 'inputMode'
   | 'style'
   | 'pattern'
+  | 'onKeyDown'
 > &
   LabelRequired;
 
