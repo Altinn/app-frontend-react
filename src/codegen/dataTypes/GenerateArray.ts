@@ -56,6 +56,10 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     };
   }
 
+  canBeFlattened(): boolean {
+    return !this.internal.docsLink;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toFlattened(prefix: string = ''): GenerateProperty<any>[] {
     const real = this.innerType instanceof GenerateCommonImport ? this.innerType.getSource() : this.innerType;

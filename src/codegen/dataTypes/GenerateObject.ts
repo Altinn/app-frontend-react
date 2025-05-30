@@ -3,10 +3,9 @@ import type { JSONSchema7 } from 'json-schema';
 import { CG } from 'src/codegen/CG';
 import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { getSourceForCommon } from 'src/codegen/Common';
-import { GenerateArray } from 'src/codegen/dataTypes/GenerateArray';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Props = GenerateProperty<any>[];
@@ -354,73 +353,73 @@ export class GenerateObject<P extends Props>
     return this._additionalProperties?.toJsonSchema();
   }
 
+  canBeFlattened(): boolean {
+    return !this.internal.docsLink;
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toFlattened(prefix?: string): GenerateProperty<any>[] {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const properties: GenerateProperty<any>[] = [];
 
-    function flatten(something: CodeGenerator<unknown>, name?: string) {
-      const real =
-        something instanceof GenerateCommonImport
-          ? something.getSource()
-          : something instanceof GenerateProperty
-            ? something.type
-            : something;
-      const lastName = name
-        ? name
-        : something instanceof GenerateProperty
-          ? something.name
-          : prefix
-            ? prefix
-            : undefined;
-      const fullName = prefix && lastName ? `${prefix}.${lastName}` : lastName ? lastName : prefix;
-      const fromCommon = something instanceof GenerateCommonImport;
-
-      if (real.hasLinkToDocs()) {
-        if (!fullName) {
-          throw new Error('Cannot flatten a property without a name');
-        }
-        const prop = new CG.prop(fullName, real);
-        fromCommon && prop.setFromCommon();
-        properties.push(prop);
-        return;
-      }
-
-      if (real instanceof GenerateArray) {
-        for (const prop of real.toFlattened(fullName)) {
-          fromCommon && prop.setFromCommon();
-          properties.push(prop);
-        }
-      } else if (real instanceof GenerateObject) {
-        for (const prop of real.toFlattened(fullName)) {
-          fromCommon && prop.setFromCommon();
-          properties.push(prop);
-        }
-        if (real._additionalProperties) {
-          const prop = new CG.prop(`${fullName}.*`, real._additionalProperties);
-          fromCommon && prop.setFromCommon();
-          properties.push(prop);
-        }
-      } else {
-        if (!fullName) {
-          throw new Error('Cannot flatten a property without a name');
-        }
-
-        const prop = new CG.prop(fullName, real);
-        fromCommon && prop.setFromCommon();
-        properties.push(prop);
-      }
-    }
-
+    const inheritedProperties = new Set<string>();
     for (const parent of this._extends) {
-      flatten(parent);
+      const obj = parent instanceof GenerateCommonImport ? parent.getSource() : parent;
+      if (!(obj instanceof GenerateObject)) {
+        throw new Error(`Cannot extend a non-object type`);
+      }
+      for (const prop of obj.toFlattened(prefix)) {
+        properties.push(prop);
+        inheritedProperties.add(prop.name);
+      }
     }
 
     for (const prop of this.properties) {
       if (!prop.shouldOmitInSchema()) {
-        flatten(prop.type, prop.name);
+        const fullName = prefix ? `${prefix}.${prop.name}` : prop.name;
+        if (prop.type.canBeFlattened()) {
+          prop.type.toFlattened(fullName).forEach((p) => properties.push(p));
+        } else {
+          const newProp = new CG.prop(fullName, prop.type);
+          properties.push(newProp);
+        }
       }
     }
+
+    if (this._additionalProperties) {
+      const fullName = prefix ? `${prefix}.*` : '*';
+      const newProp = new CG.prop(fullName, this._additionalProperties);
+      properties.push(newProp);
+    }
+
+    // Custom sorting. We always start with the 'id' property, then 'type', then 'textResourceBindings*' and
+    // 'dataModelBindings*'. After that we'll sort our own properties alphabetically, then finally inherited
+    // properties alphabetically.
+    properties.sort((a, b) => {
+      if (a.name === 'id') {
+        return -1;
+      } else if (b.name === 'id') {
+        return 1;
+      } else if (a.name === 'type') {
+        return -1;
+      } else if (b.name === 'type') {
+        return 1;
+      } else if (a.name.startsWith('textResourceBindings')) {
+        return -1;
+      } else if (b.name.startsWith('textResourceBindings')) {
+        return 1;
+      } else if (a.name.startsWith('dataModelBindings')) {
+        return -1;
+      } else if (b.name.startsWith('dataModelBindings')) {
+        return 1;
+      } else if (inheritedProperties.has(a.name)) {
+        return 1;
+      } else if (inheritedProperties.has(b.name)) {
+        return -1;
+      } else {
+        return a.name.localeCompare(b.name);
+      }
+    });
 
     return properties;
   }
@@ -435,9 +434,6 @@ export class GenerateObject<P extends Props>
         typeof val === 'object' &&
         (!(prop.type instanceof MaybeOptionalCodeGenerator) || !prop.type.isOptional())
       );
-      if (prop.isFromCommon()) {
-        val.common = true;
-      }
 
       properties[prop.name] = val;
     }

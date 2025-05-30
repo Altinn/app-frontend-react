@@ -38,12 +38,23 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     throw new Error('Should not be called');
   }
 
+  canBeFlattened(): boolean {
+    const source = this.getSource();
+    return source.canBeFlattened();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toFlattened(prefix: string = ''): GenerateProperty<any>[] {
+    return this.getSource().toFlattened(prefix);
+  }
+
   toPropList(): unknown {
     this.freeze('toPropList');
-    return {
-      ...this.getInternalJsonSchema(),
-      $ref: `#/definitions/${this.key}`,
-    };
+    if (this.internal.docsLink) {
+      // No need to get the source and generate all that if we want to link to external docs instead.
+      return super.toPropList();
+    }
+    return this.getSource().toPropList();
   }
 
   toPropListDefinition(): unknown {

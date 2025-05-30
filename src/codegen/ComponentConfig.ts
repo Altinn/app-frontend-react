@@ -591,6 +591,6 @@ export class ComponentConfig {
 
   public toPropList(): unknown {
     this.beforeFinalizing();
-    return this.inner.toPropList();
+    return this.inner.toPropList()?.['properties'];
   }
 }

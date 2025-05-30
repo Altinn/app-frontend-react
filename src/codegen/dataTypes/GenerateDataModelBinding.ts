@@ -21,4 +21,8 @@ export class GenerateDataModelBinding extends GenerateCommonImport<'IDataModelRe
     // an object internally.
     return this.rawBinding.toJsonSchema();
   }
+
+  canBeFlattened(): boolean {
+    return false;
+  }
 }

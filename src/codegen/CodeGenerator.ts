@@ -1,6 +1,7 @@
 import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
+import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -205,6 +206,15 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     }
 
     return this.toPropListDefinition();
+  }
+
+  canBeFlattened(): boolean {
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toFlattened(_prefix: string = ''): GenerateProperty<any>[] {
+    throw new Error('Cannot flatten this');
   }
 
   abstract toJsonSchemaDefinition(): JSONSchema7;
