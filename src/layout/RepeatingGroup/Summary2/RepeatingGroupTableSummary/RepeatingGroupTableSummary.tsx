@@ -20,26 +20,18 @@ import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.mo
 import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary.module.css';
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
-import { EditButtonById } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
+import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { ComponentSummaryById, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const RepeatingGroupTableSummary = ({
-  componentNode,
-  isCompact,
-  emptyFieldText,
-}: {
-  componentNode: LayoutNode<'RepeatingGroup'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-}) => {
+export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: LayoutNode<'RepeatingGroup'> }) => {
   const isMobile = useIsMobile();
   const pdfModeActive = usePdfModeActive();
   const isSmall = isMobile && !pdfModeActive;
@@ -54,23 +46,6 @@ export const RepeatingGroupTableSummary = ({
   const tableIds = useIndexedComponentIds(useTableComponentIds(componentNode), locationForFirstRow);
   const { tableColumns } = useNodeItem(componentNode);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
-
-  if (rows.length === 0) {
-    return (
-      <SingleValueSummary
-        title={
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        }
-        componentNode={componentNode}
-        errors={errors}
-        isCompact={isCompact}
-        emptyFieldText={emptyFieldText}
-      />
-    );
-  }
 
   return (
     <div
@@ -105,7 +80,6 @@ export const RepeatingGroupTableSummary = ({
               key={`${row?.uuid}-${index}`}
             >
               <DataRow
-                key={row?.uuid}
                 row={row}
                 node={componentNode}
                 pdfModeActive={pdfModeActive}
@@ -156,6 +130,7 @@ function DataRow({ row, node, pdfModeActive, columnSettings }: DataRowProps) {
   const layoutLookups = useLayoutLookups();
   const rawIds = useTableComponentIds(node);
   const indexedIds = useIndexedComponentIds(rawIds);
+  const otherChildren = useNodeDirectChildren(node, row?.index)?.map((n) => n.id);
   const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings);
 
   if (!row) {
@@ -186,7 +161,7 @@ function DataRow({ row, node, pdfModeActive, columnSettings }: DataRowProps) {
             align='right'
             className={tableClasses.buttonCell}
           >
-            {row?.itemIds && row?.itemIds?.length > 0 && indexedIds.length > 0 && <EditButtonById id={indexedIds[0]} />}
+            <EditButtonFirstVisible ids={[...indexedIds, ...otherChildren, node.id]} />
           </Table.Cell>
         )}
       </Table.Row>
@@ -202,12 +177,31 @@ type DataCellProps = {
 function DataCell({ nodeId, columnSettings }: DataCellProps) {
   const node = useNode(nodeId);
   if (!node) {
-    throw new Error(`Could not find node with id ${nodeId}`);
+    return null;
   }
+
+  return (
+    <NodeDataCell
+      node={node}
+      columnSettings={columnSettings}
+    />
+  );
+}
+
+function NodeDataCell({ node, columnSettings }: { node: LayoutNode } & Pick<DataCellProps, 'columnSettings'>) {
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(node));
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   const displayData = useDisplayData(node);
+  const required = useNodeItem(node, (i) => ('required' in i ? i.required : false));
+
+  useReportSummaryRender(
+    displayData.trim() === ''
+      ? required
+        ? SummaryContains.EmptyValueRequired
+        : SummaryContains.EmptyValueNotRequired
+      : SummaryContains.SomeUserContent,
+  );
 
   return (
     <Table.Cell
