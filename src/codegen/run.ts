@@ -3,7 +3,7 @@ import path from 'node:path';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { generateAllCommonTypes, generateCommonTypeScript } from 'src/codegen/Common';
-import { generateComponentDocs } from 'src/codegen/component-docs/generate';
+import { generateAllComponentDocs } from 'src/codegen/component-docs/generateAllComponentDocs';
 import { LayoutSchemaV1 } from 'src/codegen/schemas/layout.schema.v1';
 import { LayoutSetsSchemaV1 } from 'src/codegen/schemas/layout-sets.schema.v1';
 import { LayoutSettingsSchemaV1 } from 'src/codegen/schemas/layoutSettings.schema.v1';
@@ -68,7 +68,7 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
     `};`,
   ];
 
-  const promises: Promise<void>[] = [];
+  const promises: Promise<unknown>[] = [];
   promises.push(saveFile('src/layout/components.generated.ts', componentIndex.join('\n')));
 
   const configMap: { [key: string]: ComponentConfig } = {};
@@ -128,8 +128,8 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
   promises.push(saveFile('schemas/json/propList.generated.json', JSON.stringify(propList.result, null, 2)));
 
   const componentDocsRoot = 'component-docs';
-  promises.push(fs.mkdir(componentDocsRoot));
-  promises.push(generateComponentDocs(propList.result, componentDocsRoot));
+  promises.push(fs.mkdir(componentDocsRoot, { recursive: true }));
+  promises.push(...generateAllComponentDocs(propList.result, componentDocsRoot));
 
   await Promise.all(promises);
 })();
