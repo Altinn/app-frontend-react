@@ -39,57 +39,49 @@ export function EffectStoreLabelInGroup({ valueType, options }: Props) {
 
   const groupBinding = bindings.group;
   const groupRows = groupBinding ? (formDataSelector(groupBinding) as Row[]) : undefined;
-  const groupFieldCharacters = groupBinding ? groupBinding.field.length + 1 : 0;
+  const fieldOffset = groupBinding?.field.length ? groupBinding.field.length + 1 : 0;
 
-  const checkedPath = bindings.checked?.field?.substring(groupFieldCharacters);
-  const valuePath = bindings.simpleBinding?.field?.substring(groupFieldCharacters);
-  const labelPath = bindings.label?.field?.substring(groupFieldCharacters);
+  const extractPath = (bindingField?: { field: string }) => bindingField?.field?.substring(fieldOffset);
+
+  const checkedPath = extractPath(bindings.checked);
+  const valuePath = extractPath(bindings.simpleBinding);
+  const labelPath = extractPath(bindings.label);
 
   const selectedRows = useMemo(
     () =>
       groupRows
-        ?.map((row, i) => {
-          const optionForRow = options.find((option) =>
-            valuePath ? dot.pick(valuePath, row)?.toString() === option.value : false,
-          );
-          return {
-            data: row,
-            index: i,
-            label: optionForRow?.label,
-            translatedLabel: optionForRow?.label ? langAsString(optionForRow.label) : undefined,
-          };
+        ?.map((row, index) => {
+          const value = valuePath ? dot.pick(valuePath, row)?.toString() : undefined;
+          const matchedOption = options.find((option) => option.value === value);
+          const translatedLabel = matchedOption?.label ? langAsString(matchedOption.label) : undefined;
+          const isChecked = checkedPath ? dot.pick(checkedPath, row) : false;
+
+          return isChecked ? { index, data: row, translatedLabel } : null;
         })
-        .filter((row) => (checkedPath ? dot.pick(checkedPath, row.data) : false)),
-    [langAsString, options, checkedPath, groupRows, valuePath],
+        .filter((row): row is Exclude<typeof row, null> => row !== null),
+    [groupRows, options, checkedPath, valuePath, langAsString],
   );
 
-  const translatedLabels = selectedRows
-    ?.map((row) => row.translatedLabel)
-    .filter((translatedLabel) => translatedLabel !== undefined);
+  const translatedLabels = selectedRows?.map((row) => row.translatedLabel).filter(Boolean);
 
-  const formDataLabels: string[] = [];
-  groupRows?.forEach((row) => {
-    const labelValue = labelPath ? dot.pick(labelPath, row) : undefined;
-    if (labelValue) {
-      formDataLabels.push(labelValue);
-    }
-  });
-  const labelsHaveChanged = !deepEqual(translatedLabels, formDataLabels);
-  const shouldSetData = labelsHaveChanged && !isNodeHidden && bindings && 'label' in bindings;
+  const formDataLabels = groupRows
+    ?.map((row) => (labelPath ? dot.pick(labelPath, row) : undefined))
+    .filter((label): label is string => Boolean(label));
+
+  const shouldUpdate = !deepEqual(translatedLabels, formDataLabels) && !isNodeHidden && 'label' in bindings;
 
   NodesInternal.useEffectWhenReady(() => {
-    if (!shouldSetData) {
+    if (!shouldUpdate || !translatedLabels?.length) {
       return;
     }
-    if (translatedLabels && translatedLabels.length > 0) {
-      selectedRows?.forEach(({ index, translatedLabel }) => {
-        if (bindings.group && bindings.label) {
-          const field = `${bindings.group.field}[${index}].${labelPath}`;
-          setLeafValue({ reference: { ...bindings.label, field }, newValue: translatedLabel });
-        }
-      });
-    }
-  }, [setValue, shouldSetData, translatedLabels, valueType]);
+
+    selectedRows?.forEach(({ index, translatedLabel }) => {
+      if (bindings.group && bindings.label && translatedLabel) {
+        const field = `${bindings.group.field}[${index}].${labelPath}`;
+        setLeafValue({ reference: { ...bindings.label, field }, newValue: translatedLabel });
+      }
+    });
+  }, [setValue, shouldUpdate, translatedLabels, valueType]);
 
   return null;
 }
