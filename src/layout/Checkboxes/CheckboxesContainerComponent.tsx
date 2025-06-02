@@ -111,7 +111,8 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
             >
               {calculatedOptions.map((option) => (
                 <WrappedCheckbox
-                  key={option.value}
+                  // Force remount to ensure checkbox reflects correct checked state
+                  key={`checkbox-${option.value}-${selectedValues.includes(option.value)}`}
                   id={id}
                   option={option}
                   hideLabel={hideLabel}
