@@ -444,9 +444,9 @@ Cypress.Commands.add(
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
     if (openByDefault || typeof openByDefault === 'undefined') {
-      cy.get(appFrontend.group.addNewItemSubGroup).should('not.exist');
+      cy.findByRole('button', { name: 'Legg til ny' }).should('not.exist');
     } else {
-      cy.get(appFrontend.group.addNewItemSubGroup).click();
+      cy.findByRole('button', { name: 'Legg til ny' }).click();
     }
 
     cy.get(appFrontend.group.comments).type(comment);
