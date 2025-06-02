@@ -5,15 +5,12 @@ import deepEqual from 'fast-deep-equal';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useSetOptions } from 'src/features/options/useGetOptions';
-import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
-import type { IDataModelBindingsForGroupCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
-import type { IDataModelBindingsForGroupMultiselect } from 'src/layout/MultipleSelect/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Props {
@@ -29,18 +26,10 @@ export function EffectStoreLabel({ valueType, options }: Props) {
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const isNodeHidden = Hidden.useIsHidden(node);
   const { langAsString } = useLanguage();
-  const dataModelBindings = item.dataModelBindings as
-    | IDataModelBindingsForGroupCheckbox
-    | IDataModelBindingsForGroupMultiselect
-    | IDataModelBindingsOptionsSimple
-    | undefined;
+  const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
-  const { selectedValues: selectedFromSimpleBinding } = useSetOptions(valueType, dataModelBindings, options);
-  const groupBinding = useSaveValueToGroup(
-    dataModelBindings as IDataModelBindingsForGroupCheckbox | IDataModelBindingsForGroupMultiselect,
-  );
-  const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
-  console.log(selectedValues);
+  const { selectedValues } = useSetOptions(valueType, dataModelBindings, options);
+
   const translatedLabels = useMemo(
     () =>
       options
@@ -49,7 +38,7 @@ export function EffectStoreLabel({ valueType, options }: Props) {
         .map((label) => langAsString(label)),
     [langAsString, options, selectedValues],
   );
-  console.log(translatedLabels);
+
   const labelsHaveChanged = !deepEqual(translatedLabels, 'label' in formData ? formData.label : undefined);
   const shouldSetData = labelsHaveChanged && !isNodeHidden && dataModelBindings && 'label' in dataModelBindings;
 
@@ -63,7 +52,6 @@ export function EffectStoreLabel({ valueType, options }: Props) {
     } else if (valueType === 'single') {
       setValue('label', translatedLabels.at(0));
     } else {
-      console.log(translatedLabels);
       setValue('label', translatedLabels);
     }
   }, [setValue, shouldSetData, translatedLabels, valueType]);
