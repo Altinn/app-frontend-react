@@ -23,13 +23,13 @@ describe('Grid component', () => {
 
     // Dynamics hiding the entire grid table
     cy.get(appFrontend.grid.gridWithAll).should('be.visible');
-    cy.get(appFrontend.grid.showGridWithAll).find('label:contains("Nei")').dsCheck();
+    cy.findAllByRole('radio', { name: /nei/i }).eq(1).check();
     cy.get(appFrontend.grid.gridWithAll).should('not.exist');
 
     // Dynamics hiding an entire row
-    cy.get(appFrontend.grid.hasCreditCard).find('label:contains("Nei")').dsCheck();
+    cy.findAllByRole('radio', { name: /nei/i }).eq(0).check();
     cy.get(appFrontend.grid.grid).find('tr').should('have.length', 6);
-    cy.get(appFrontend.grid.hasCreditCard).find('label:contains("Ja")').dsCheck();
+    cy.findAllByRole('radio', { name: /ja/i }).eq(0).check();
     cy.get(appFrontend.grid.grid).find('tr').should('have.length', 7);
 
     // Filling out the form without ending up at 100% total. We reference these fields in their respective rows
@@ -118,7 +118,7 @@ describe('Grid component', () => {
       'contain.text',
       'Er fordelingen av kredittkortgjeld verifisert?',
     );
-    cy.get(appFrontend.grid.hasCreditCard).find('label:contains("Nei")').dsCheck();
+    cy.findAllByRole('radio', { name: /nei/i }).eq(0).check();
     cy.get(appFrontend.grid.kredittkort.percent).should('not.exist');
     cy.get(appFrontend.grid.kredittkort.percentComponent).should('not.exist');
     cy.get(appFrontend.grid.kredittkort.verifiedComponent).should('not.exist');
@@ -174,10 +174,10 @@ describe('Grid component', () => {
     cy.get(appFrontend.helpText.alert).should('contain.text', 'Help text');
 
     cy.findByRole('cell', {
-      name: /prosentandel av gjeld i studielån hjelpetekst for prosentandel av gjeld i studielån dette er en beskrivende tekst/i,
+      name: /prosentandel av gjeld i studielån dette er en beskrivende tekst/i,
     }).should('exist');
     cy.findByRole('button', { name: /Hjelpetekst for Prosentandel av gjeld i studielån/i }).click();
-    cy.focused().should('have.attr', 'id', 'fordeling-studie-helptext');
+    cy.focused().should('have.attr', 'aria-label', 'Hjelpetekst for Prosentandel av gjeld i studielån');
     cy.get(appFrontend.helpText.alert).should('contain.text', 'Dette er en hjelpetekst');
   });
 });
