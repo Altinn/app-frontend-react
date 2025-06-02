@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { PropConst } from 'src/codegen/types';
 
 /**
  * Generates a constant value. I.e. a value that is always the given value.
@@ -30,9 +31,10 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
     };
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropConst {
     return {
       ...this.getInternalPropList(),
+      type: 'const',
       const: this.value,
     };
   }

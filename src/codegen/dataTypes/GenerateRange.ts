@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { PropRange } from 'src/codegen/types';
 
 /**
  * Generates a number range, i.e. 1-5.
@@ -31,7 +32,7 @@ export class GenerateRange extends DescribableCodeGenerator<number> {
     };
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropRange {
     return {
       ...this.getInternalPropList(),
       type: 'range',

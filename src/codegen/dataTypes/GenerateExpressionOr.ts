@@ -3,6 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { ExprVal } from 'src/features/expressions/types';
+import type { PropAnyExpr, PropBool, PropDate, PropNumber, PropString } from 'src/codegen/types';
 
 const toTsMap: { [key in ExprVal]: string } = {
   [ExprVal.Any]: 'ExprValToActualOrExpr<ExprVal.Any>',
@@ -20,7 +21,7 @@ const toSchemaMap: { [key in ExprVal]: JSONSchema7 } = {
   [ExprVal.Date]: { $ref: 'expression.schema.v1.json#/definitions/string' },
 };
 
-const toPropListMap: { [key in ExprVal]: object } = {
+const toPropListMap: { [key in ExprVal]: PropString | PropBool | PropNumber | PropDate | PropAnyExpr } = {
   [ExprVal.Any]: { type: 'any', canBeExpression: true },
   [ExprVal.Boolean]: { type: 'boolean', canBeExpression: true },
   [ExprVal.Number]: { type: 'number', canBeExpression: true },
@@ -59,7 +60,7 @@ export class GenerateExpressionOr<Val extends ExprVal> extends DescribableCodeGe
     };
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropString | PropBool | PropNumber | PropDate | PropAnyExpr {
     return {
       ...this.getInternalPropList(),
       ...toPropListMap[this.valueType],

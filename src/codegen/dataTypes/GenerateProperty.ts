@@ -2,6 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { Extract } from 'src/codegen/CodeGenerator';
+import type { ComponentProperty } from 'src/codegen/types';
 
 /**
  * Generates a property on an object. Remember to call insertBefore/insertAfter/insertFirst before adding it to
@@ -86,7 +87,7 @@ export class GenerateProperty<Val extends CodeGenerator<any>> extends CodeGenera
     throw new Error('Do not call this directly, generate JsonSchema for the object (or property type) instead');
   }
 
-  toPropList(): unknown {
+  toPropList(): ComponentProperty {
     throw new Error('Do not call this directly, generate PropList for the object (or property type) instead');
   }
 

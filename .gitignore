@@ -408,3 +408,6 @@ layoutSettings.schema.v1.json
 eslint-results.html
 
 runner-results
+
+# Generated component-level docs
+/component-docs

@@ -4,6 +4,7 @@ import type { JSONSchema7 } from 'json-schema';
 import type { MaybeSymbolizedCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { SchemaFile } from 'src/codegen/SchemaFile';
+import type { PropList } from 'src/codegen/types';
 
 type JsonSchema7WithDefinitions = Required<Pick<JSONSchema7, 'definitions'>> & JSONSchema7;
 
@@ -138,8 +139,8 @@ export class CodeGeneratorContext {
     };
   }
 
-  public static async generatePropList(configMap: { [key: string]: ComponentConfig }): Promise<{ result: unknown }> {
-    const components = {};
+  public static async generatePropList(configMap: { [key: string]: ComponentConfig }): Promise<{ result: PropList }> {
+    const components = {} as PropList;
 
     for (const [key, config] of Object.entries(configMap)) {
       components[key] = config.toPropList();

@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { PropNumber } from 'src/codegen/types';
 
 /**
  * Generates a number value. I.e. a value that is always an integer or float.
@@ -38,7 +39,7 @@ export class GenerateNumber extends DescribableCodeGenerator<number> {
     };
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropNumber {
     return {
       ...this.getInternalPropList(),
       type: 'number',

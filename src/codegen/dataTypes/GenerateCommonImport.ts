@@ -6,6 +6,7 @@ import { getSourceForCommon } from 'src/codegen/Common';
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { ValidCommonKeys } from 'src/codegen/Common';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import type { ComponentProperty, PropLink } from 'src/codegen/types';
 
 /**
  * Generates an import statement for a common type (one of those defined in Common.ts).
@@ -48,16 +49,16 @@ export class GenerateCommonImport<T extends ValidCommonKeys>
     return this.getSource().toFlattened(prefix);
   }
 
-  toPropList(): unknown {
+  toPropList(): ComponentProperty {
     this.freeze('toPropList');
     if (this.internal.docsLink) {
       // No need to get the source and generate all that if we want to link to external docs instead.
-      return super.toPropList();
+      return super.toPropList() as PropLink;
     }
     return this.getSource().toPropList();
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): ComponentProperty {
     throw new Error('Should not be called');
   }
 

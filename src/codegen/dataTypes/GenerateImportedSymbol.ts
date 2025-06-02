@@ -4,6 +4,7 @@ import { CG } from 'src/codegen/CG';
 import { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import type { SerializableSetting } from 'src/codegen/SerializableSetting';
+import type { ComponentProperty } from 'src/codegen/types';
 
 export interface ImportDef {
   import: string;
@@ -47,7 +48,7 @@ export class GenerateImportedSymbol<T> extends MaybeOptionalCodeGenerator<T> imp
     throw new Error(`Cannot generate JsonSchema for imported '${this.val.import}'`);
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): ComponentProperty {
     throw new Error(`Cannot generate PropList for imported '${this.val.import}'`);
   }
 }

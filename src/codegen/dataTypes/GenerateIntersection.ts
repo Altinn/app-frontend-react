@@ -2,6 +2,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CodeGenerator, Extract } from 'src/codegen/CodeGenerator';
+import type { ComponentProperty } from 'src/codegen/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GenerateIntersection<U extends CodeGenerator<any>[]> extends DescribableCodeGenerator<Extract<U[number]>> {
@@ -19,11 +20,8 @@ export class GenerateIntersection<U extends CodeGenerator<any>[]> extends Descri
     };
   }
 
-  toPropListDefinition(): unknown {
-    return {
-      ...this.getInternalPropList(),
-      allOf: this.types.map((type) => type.toPropList()),
-    };
+  toPropListDefinition(): ComponentProperty {
+    throw new Error('Not implemented');
   }
 
   toTypeScriptDefinition(symbol: string | undefined): string {

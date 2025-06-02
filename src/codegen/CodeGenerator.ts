@@ -2,6 +2,7 @@ import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import type { ComponentProperty, PropBase, PropLink } from 'src/codegen/types';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -78,19 +79,18 @@ export abstract class CodeGenerator<T> {
     };
   }
 
-  protected getInternalPropList(): object {
+  protected getInternalPropList(): PropBase | PropLink {
     this.freeze('getInternalPropList');
 
     if (this.internal.docsLink) {
       // TODO: Verifiy that this link is valid
-      return { link: this.internal.docsLink };
+      return { type: 'link', link: this.internal.docsLink };
     }
 
     return {
       title: this.internal.jsonSchema.title,
       description: this.getSchemaDescription(),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      examples: this.internal.jsonSchema.examples.length ? (this.internal.jsonSchema.examples as any) : undefined,
+      examples: this.internal.jsonSchema.examples.length ? this.internal.jsonSchema.examples : undefined,
       default: this.internal.optional ? (this.internal.optional.default as JSONSchema7Type) : undefined,
       deprecated: this.internal.jsonSchema.deprecated,
     };
@@ -112,7 +112,7 @@ export abstract class CodeGenerator<T> {
 
   abstract toJsonSchema(): JSONSchema7;
   abstract toTypeScript(): string;
-  abstract toPropList(): unknown;
+  abstract toPropList(): ComponentProperty;
 
   linkToDocs(link: string): this {
     this.internal.docsLink = link;
@@ -199,10 +199,10 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
     return this.toJsonSchemaDefinition();
   }
 
-  toPropList(): unknown {
+  toPropList(): ComponentProperty {
     this.freeze('toPropList');
     if (this.hasLinkToDocs()) {
-      return this.getInternalPropList();
+      return this.getInternalPropList() as PropLink;
     }
 
     return this.toPropListDefinition();
@@ -221,7 +221,7 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
 
   abstract toTypeScriptDefinition(symbol: string | undefined): string;
 
-  abstract toPropListDefinition(): unknown;
+  abstract toPropListDefinition(): ComponentProperty;
 }
 
 export abstract class MaybeOptionalCodeGenerator<T> extends MaybeSymbolizedCodeGenerator<T> {

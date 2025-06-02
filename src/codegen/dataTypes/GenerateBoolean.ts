@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { PropBool } from 'src/codegen/types';
 
 /**
  * Generates a boolean type
@@ -21,7 +22,7 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
     };
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropBool {
     return {
       ...this.getInternalPropList(),
       type: 'boolean',

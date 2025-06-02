@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { CodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { ComponentProperty } from 'src/codegen/types';
 
 type RawTypeScript = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,7 +34,7 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private realTypeScript?: string | CodeGenerator<any>;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private realPropList?: unknown | CodeGenerator<any>;
+  private realPropList?: ComponentProperty | CodeGenerator<any>;
 
   constructor(private readonly raw: RawDef) {
     super();
@@ -70,18 +71,18 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private getRealPropList(fail = true): unknown | CodeGenerator<any> {
-    if (!this.realPropList) {
-      if (fail && !('propList' in this.raw)) {
-        throw new Error('Raw type does not have a propList');
-      } else if (!('propList' in this.raw)) {
-        return undefined;
-      }
-
-      this.realPropList = typeof this.raw.propList === 'function' ? this.raw.propList() : this.raw.propList;
+  private getRealPropList(): ComponentProperty | CodeGenerator<any> {
+    if (this.realPropList) {
+      return this.realPropList;
     }
 
-    return this.realPropList;
+    if (!('propList' in this.raw)) {
+      throw new Error('Raw type does not have a propList');
+    }
+
+    const result = typeof this.raw.propList === 'function' ? this.raw.propList() : this.raw.propList;
+    this.realPropList = result;
+    return result;
   }
 
   toJsonSchema(): JSONSchema7 {
@@ -102,7 +103,7 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
     return real;
   }
 
-  toPropList(): unknown {
+  toPropList(): ComponentProperty {
     const real = this.getRealPropList();
     if (real instanceof CodeGenerator) {
       return real.toPropList();
@@ -119,7 +120,7 @@ export class GenerateRaw extends MaybeOptionalCodeGenerator<any> {
     throw new Error('Method not implemented.');
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): ComponentProperty {
     throw new Error('Method not implemented.');
   }
 }

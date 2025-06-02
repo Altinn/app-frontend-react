@@ -6,6 +6,7 @@ import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { CodeGenerator, Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import type { PropArray } from 'src/codegen/types';
 
 /**
  * Generates an array with inner items of the given type
@@ -49,10 +50,13 @@ export class GenerateArray<Inner extends CodeGenerator<any>> extends Describable
     };
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropArray {
     return {
       ...this.getInternalPropList(),
       type: 'array',
+      items: this.innerType.toPropList(),
+      minItems: this._minItems,
+      maxItems: this._maxItems,
     };
   }
 

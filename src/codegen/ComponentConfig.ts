@@ -13,6 +13,7 @@ import type { CompBehaviors, RequiredComponentConfig } from 'src/codegen/Config'
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
+import type { PropObjectProperties } from 'src/codegen/types';
 import type { CompTypes } from 'src/layout/layout';
 import type {
   ActionComponent,
@@ -589,8 +590,13 @@ export class ComponentConfig {
     return this.inner.toJsonSchema();
   }
 
-  public toPropList(): unknown {
+  public toPropList(): PropObjectProperties {
     this.beforeFinalizing();
-    return this.inner.toPropList()?.['properties'];
+    const obj = this.inner.toPropList();
+    if (obj && 'type' in obj && obj.type === 'object') {
+      return obj.properties;
+    }
+
+    throw new Error('Invalid object returned from inner.toPropList()');
   }
 }

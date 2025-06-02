@@ -3,6 +3,7 @@ import path from 'node:path';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import { generateAllCommonTypes, generateCommonTypeScript } from 'src/codegen/Common';
+import { generateComponentDocs } from 'src/codegen/component-docs/generate';
 import { LayoutSchemaV1 } from 'src/codegen/schemas/layout.schema.v1';
 import { LayoutSetsSchemaV1 } from 'src/codegen/schemas/layout-sets.schema.v1';
 import { LayoutSettingsSchemaV1 } from 'src/codegen/schemas/layoutSettings.schema.v1';
@@ -112,10 +113,6 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
     promises.push(saveFile(schemaPath, JSON.stringify(schema.result, null, 2)));
   }
 
-  const targetPath = 'schemas/json/propList.generated.json';
-  const propList = await CodeGeneratorContext.generatePropList(configMap);
-  promises.push(saveFile(targetPath, JSON.stringify(propList.result, null, 2)));
-
   const commonTsPath = 'src/layout/common.generated.ts';
   promises.push(
     saveTsFile(
@@ -126,6 +123,13 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
       }),
     ),
   );
+
+  const propList = await CodeGeneratorContext.generatePropList(configMap);
+  promises.push(saveFile('schemas/json/propList.generated.json', JSON.stringify(propList.result, null, 2)));
+
+  const componentDocsRoot = 'component-docs';
+  promises.push(fs.mkdir(componentDocsRoot));
+  promises.push(generateComponentDocs(propList.result, componentDocsRoot));
 
   await Promise.all(promises);
 })();

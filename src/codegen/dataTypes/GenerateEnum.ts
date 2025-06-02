@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { PropEnum } from 'src/codegen/types';
 
 type ValueToNameFunc<T extends string | number> = (value: T) => string;
 
@@ -47,9 +48,10 @@ export class GenerateEnum<T extends string | number> extends DescribableCodeGene
     return symbol ? `type ${symbol} = ${out};` : out;
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropEnum {
     return {
       ...this.getInternalPropList(),
+      type: 'enum',
       enum: this.values,
     };
   }

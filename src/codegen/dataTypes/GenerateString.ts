@@ -1,6 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
+import type { PropString } from 'src/codegen/types';
 
 /**
  * Generates a string value. It can have certain limitations, such as a pattern.
@@ -31,7 +32,7 @@ export class GenerateString extends DescribableCodeGenerator<string> {
     };
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropString {
     return {
       ...this.getInternalPropList(),
       type: 'string',

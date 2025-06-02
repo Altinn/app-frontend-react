@@ -6,6 +6,7 @@ import { getSourceForCommon } from 'src/codegen/Common';
 import { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
 import type { CodeGenerator, CodeGeneratorWithProperties, Extract } from 'src/codegen/CodeGenerator';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
+import type { PropObject, PropObjectProperties } from 'src/codegen/types';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Props = GenerateProperty<any>[];
@@ -424,9 +425,9 @@ export class GenerateObject<P extends Props>
     return properties;
   }
 
-  toPropListDefinition(): unknown {
+  toPropListDefinition(): PropObject {
     this.ensureExtendsHaveNames();
-    const properties: { [key: string]: JSONSchema7 } = {};
+    const properties: PropObjectProperties = {};
     for (const prop of this.toFlattened()) {
       const val = prop.type.toPropList();
       val.required = !!(
@@ -440,6 +441,7 @@ export class GenerateObject<P extends Props>
 
     return {
       ...this.getInternalPropList(),
+      type: 'object',
       properties,
     };
   }
