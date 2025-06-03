@@ -347,7 +347,6 @@ describe('Validation', () => {
 
     cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
-    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).blur();
     cy.findByRole('button', { name: /Neste/ }).clickAndGone();
     cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
 
