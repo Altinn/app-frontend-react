@@ -2,7 +2,7 @@ import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
-import type { ComponentProperty, PropBase, PropLink } from 'src/codegen/types';
+import type { ComponentProperty, PropBase, PropLink, PropTexts } from 'src/codegen/types';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -79,17 +79,20 @@ export abstract class CodeGenerator<T> {
     };
   }
 
+  // TODO: Add multiple languages
+  protected getPropListTexts(_language: 'nb' | 'en'): PropTexts | undefined {
+    const title = this.internal.jsonSchema.title;
+    const description = this.getSchemaDescription();
+
+    return title || description ? { title, description } : undefined;
+  }
+
   protected getInternalPropList(): PropBase | PropLink {
     this.freeze('getInternalPropList');
 
-    if (this.internal.docsLink) {
-      // TODO: Verifiy that this link is valid
-      return { type: 'link', link: this.internal.docsLink };
-    }
-
     return {
-      title: this.internal.jsonSchema.title,
-      description: this.getSchemaDescription(),
+      nb: this.getPropListTexts('nb'),
+      en: this.getPropListTexts('en'),
       examples: this.internal.jsonSchema.examples.length ? this.internal.jsonSchema.examples : undefined,
       default: this.internal.optional ? (this.internal.optional.default as JSONSchema7Type) : undefined,
       deprecated: this.internal.jsonSchema.deprecated,
@@ -119,8 +122,13 @@ export abstract class CodeGenerator<T> {
     return this;
   }
 
-  hasLinkToDocs(): boolean {
-    return this.internal.docsLink !== undefined;
+  canBeFlattened(): boolean {
+    return false;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toFlattened(_prefix: string = ''): GenerateProperty<any>[] {
+    throw new Error('Cannot flatten this');
   }
 }
 
@@ -201,20 +209,12 @@ export abstract class MaybeSymbolizedCodeGenerator<T> extends CodeGenerator<T> {
 
   toPropList(): ComponentProperty {
     this.freeze('toPropList');
-    if (this.hasLinkToDocs()) {
-      return this.getInternalPropList() as PropLink;
+    if (this.internal.docsLink) {
+      // TODO: Verifiy that this link is valid
+      return { type: 'link', link: this.internal.docsLink } satisfies PropLink;
     }
 
     return this.toPropListDefinition();
-  }
-
-  canBeFlattened(): boolean {
-    return false;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  toFlattened(_prefix: string = ''): GenerateProperty<any>[] {
-    throw new Error('Cannot flatten this');
   }
 
   abstract toJsonSchemaDefinition(): JSONSchema7;

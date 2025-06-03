@@ -22,9 +22,14 @@ export type ComponentProperty =
   | PropObject
   | PropArray;
 
-export interface PropBase {
+export interface PropTexts {
   title?: string;
   description?: string;
+}
+
+export interface PropBase {
+  nb?: PropTexts;
+  en?: PropTexts;
   default?: unknown;
   examples?: unknown[];
   deprecated?: boolean;

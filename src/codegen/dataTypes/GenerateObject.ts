@@ -377,9 +377,12 @@ export class GenerateObject<P extends Props>
 
     for (const prop of this.properties) {
       if (!prop.shouldOmitInSchema()) {
+        const type = prop.type as CodeGenerator<unknown>;
         const fullName = prefix ? `${prefix}.${prop.name}` : prop.name;
-        if (prop.type.canBeFlattened()) {
-          prop.type.toFlattened(fullName).forEach((p) => properties.push(p));
+        if (type.canBeFlattened()) {
+          for (const p of type.toFlattened(fullName)) {
+            properties.push(p);
+          }
         } else {
           const newProp = new CG.prop(fullName, prop.type);
           properties.push(newProp);
