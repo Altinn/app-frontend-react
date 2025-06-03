@@ -4,12 +4,11 @@ import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { toRelativePath } from 'src/features/saveToGroup/useSaveToGroup';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsForGroupCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
 import type { IDataModelBindingsForGroupMultiselect } from 'src/layout/MultipleSelect/config.generated';
@@ -18,34 +17,28 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 type Row = Record<string, unknown>;
 
 interface Props {
-  valueType: OptionsValueType;
   options: IOptionInternal[];
 }
 
 /**
  * This effect is responsible for setting the label/display value in the data model.
  */
-export function EffectStoreLabelInGroup({ valueType, options }: Props) {
+export function EffectStoreLabelInGroup({ options }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const isNodeHidden = Hidden.useIsHidden(node);
   const { langAsString } = useLanguage();
-  const formDataSelector = FD.useCurrentSelector();
   const setLeafValue = FD.useSetLeafValue();
+  const formDataSelector = FD.useCurrentSelector();
 
   const bindings = item.dataModelBindings as IDataModelBindingsForGroupCheckbox | IDataModelBindingsForGroupMultiselect;
 
-  const { setValue } = useDataModelBindings(bindings);
-
   const groupBinding = bindings.group;
-  const groupRows = groupBinding ? (formDataSelector(groupBinding) as Row[]) : undefined;
-  const fieldOffset = groupBinding?.field.length ? groupBinding.field.length + 1 : 0;
+  const groupRows = FD.useDebouncedPick(groupBinding) as Row[];
 
-  const extractPath = (bindingField?: { field: string }) => bindingField?.field?.substring(fieldOffset);
-
-  const checkedPath = extractPath(bindings.checked);
-  const valuePath = extractPath(bindings.simpleBinding);
-  const labelPath = extractPath(bindings.label);
+  const checkedPath = toRelativePath(groupBinding, bindings.checked);
+  const valuePath = toRelativePath(groupBinding, bindings.simpleBinding);
+  const labelPath = toRelativePath(groupBinding, bindings.label);
 
   const selectedRows = useMemo(
     () =>
@@ -54,12 +47,13 @@ export function EffectStoreLabelInGroup({ valueType, options }: Props) {
           const value = valuePath ? dot.pick(valuePath, row)?.toString() : undefined;
           const matchedOption = options.find((option) => option.value === value);
           const translatedLabel = matchedOption?.label ? langAsString(matchedOption.label) : undefined;
-          const isChecked = checkedPath ? dot.pick(checkedPath, row) : false;
+          const isChecked = checkedPath ? dot.pick(checkedPath, row) : true;
+          const label = labelPath ? dot.pick(labelPath, row) : undefined;
 
-          return isChecked ? { index, data: row, translatedLabel } : null;
+          return isChecked ? { index, data: row, translatedLabel, label } : null;
         })
         .filter((row): row is Exclude<typeof row, null> => row !== null),
-    [groupRows, options, checkedPath, valuePath, langAsString],
+    [labelPath, groupRows, options, checkedPath, valuePath, langAsString],
   );
 
   const translatedLabels = selectedRows?.map((row) => row.translatedLabel).filter(Boolean);
@@ -75,13 +69,16 @@ export function EffectStoreLabelInGroup({ valueType, options }: Props) {
       return;
     }
 
-    selectedRows?.forEach(({ index, translatedLabel }) => {
-      if (bindings.group && bindings.label && translatedLabel) {
-        const field = `${bindings.group.field}[${index}].${labelPath}`;
-        setLeafValue({ reference: { ...bindings.label, field }, newValue: translatedLabel });
-      }
-    });
-  }, [setValue, shouldUpdate, translatedLabels, valueType]);
+    const freshGroupRows = groupBinding ? (formDataSelector(groupBinding) as Row[]) : undefined;
+    if (deepEqual(freshGroupRows, groupRows)) {
+      selectedRows?.forEach(({ index, translatedLabel }) => {
+        if (bindings.group && bindings.label && translatedLabel) {
+          const field = `${bindings.group.field}[${index}].${labelPath}`;
+          setLeafValue({ reference: { ...bindings.label, field }, newValue: translatedLabel });
+        }
+      });
+    }
+  }, [shouldUpdate, translatedLabels]);
 
   return null;
 }

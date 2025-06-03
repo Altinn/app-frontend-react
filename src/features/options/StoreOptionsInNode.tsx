@@ -89,10 +89,7 @@ function StoreOptionsInNodeWorker({ valueType, allowEffects }: GeneratorOptionPr
         <EffectSetDownstreamParameters downstreamParameters={downstreamParameters} />
       ) : null}
       {dataModelBindings && dataModelBindings.label && !!groupBindings.group ? (
-        <EffectStoreLabelInGroup
-          valueType={valueType}
-          options={options}
-        />
+        <EffectStoreLabelInGroup options={options} />
       ) : null}
       {dataModelBindings && dataModelBindings.label && !groupBindings.group ? (
         <EffectStoreLabel
