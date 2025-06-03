@@ -1,7 +1,5 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
-import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
-
 const appFrontend = new AppFrontend();
 
 describe('Checkboxes component', () => {
@@ -153,11 +151,11 @@ describe('Checkboxes component', () => {
       if (component.type === 'Checkboxes') {
         component.optionsId = 'personsNumber';
         component.dataModelBindings.simpleBinding = {
-          dataType: defaultDataTypeMock,
+          dataType: 'model',
           field: 'CheckboxesGroupExample.Name.id',
         };
         component.dataModelBindings.label = {
-          dataType: defaultDataTypeMock,
+          dataType: 'model',
           field: 'CheckboxesGroupExample.Name.firstname',
         };
       }
@@ -344,11 +342,11 @@ describe('Checkboxes component', () => {
         component.deletionStrategy = 'hard';
         component.dataModelBindings.checked = undefined;
         component.dataModelBindings.simpleBinding = {
-          dataType: defaultDataTypeMock,
+          dataType: 'model',
           field: 'CheckboxesGroupExample.Name.id',
         };
         component.dataModelBindings.label = {
-          dataType: defaultDataTypeMock,
+          dataType: 'model',
           field: 'CheckboxesGroupExample.Name.firstname',
         };
         component.optionsId = 'personsNumber';
@@ -462,11 +460,11 @@ describe('Checkboxes component', () => {
         component.deletionStrategy = 'hard';
         component.dataModelBindings.checked = undefined;
         component.dataModelBindings.simpleBinding = {
-          dataType: defaultDataTypeMock,
+          dataType: 'model',
           field: 'CheckboxesGroupExample.Name.id',
         };
         component.dataModelBindings.label = {
-          dataType: defaultDataTypeMock,
+          dataType: 'model',
           field: 'CheckboxesGroupExample.Name.firstname',
         };
         component.optionsId = 'personsNumber';
