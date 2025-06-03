@@ -216,7 +216,7 @@ describe('Repeating group attachments', () => {
       }
     });
 
-    cy.findByRole('button', { name: /lagre og lukk/i })
+    cy.findAllByRole('button', { name: /lagre og lukk/i })
       .last()
       .click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
