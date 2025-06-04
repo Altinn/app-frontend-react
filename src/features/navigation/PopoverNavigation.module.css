@@ -1,7 +1,7 @@
 .popoverButtonActive {
-  background-color: var(--fds-semantic-surface-action-first-no_fill-active);
-  border-color: var(--fds-semantic-border-action-first-active);
-  color: var(--fds-semantic-text-action-first-active);
+  background-color: var(--ds-color-accent-surface-hover);
+  border-color: var(--ds-color-accent-base-active);
+  color: var(--ds-color-accent-base-active);
 }
 
 .popoverButtonIcon {

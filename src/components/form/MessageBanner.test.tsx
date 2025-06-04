@@ -18,7 +18,7 @@ describe('MessageBanner', () => {
     expect(messageBanner).toBeInTheDocument();
     expect(messageBanner.className).toContain('default');
     const backgroundColor = window.getComputedStyle(messageBanner).backgroundColor;
-    const regularColor = window.getComputedStyle(document.body).getPropertyValue('--fds-colors-grey-200');
+    const regularColor = window.getComputedStyle(document.body).getPropertyValue('--ds-color-neutral-2');
     expect(backgroundColor).toEqual(regularColor);
   });
 
@@ -36,7 +36,7 @@ describe('MessageBanner', () => {
     expect(messageBanner).toBeInTheDocument();
     expect(messageBanner.className).toContain('error');
     const backgroundColor = window.getComputedStyle(messageBanner).backgroundColor;
-    const errorColor = window.getComputedStyle(document.body).getPropertyValue('--fds-colors-red-200');
+    const errorColor = window.getComputedStyle(document.body).getPropertyValue('--ds-global-red-2');
     expect(backgroundColor).toEqual(errorColor);
   });
 });

@@ -15,6 +15,6 @@
 
 .titleAndHelpWrapper {
   display: flex;
-  gap: var(--fds-spacing-2);
+  gap: var(--ds-size-2);
   align-items: center;
 }

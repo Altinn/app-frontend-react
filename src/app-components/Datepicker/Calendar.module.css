@@ -8,8 +8,8 @@
   text-align: center;
 }
 .calendarDay:hover {
-  border-radius: var(--fds-border_radius-medium);
-  background: var(--fds-colors-blue-200);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-global-blue-2);
 }
 
 .calendarDayButton {
@@ -20,12 +20,12 @@
 }
 
 .focusedDate {
-  border-radius: var(--fds-border_radius-medium);
-  background: var(--fds-colors-blue-200);
+  border-radius: var(--ds-border-radius-md);
+  background: var(--ds-global-blue-2);
 }
 .today {
-  border-radius: var(--fds-border_radius-medium);
-  border: var(--fds-border_width-default) solid var(--fds-colors-blue-200);
+  border-radius: var(--ds-border-radius-md);
+  border: var(--ds-border-width-default) solid var(--ds-global-blue-2);
 }
 
 .selectedDate {
@@ -35,7 +35,7 @@
   border-radius: var(--ds-border-radius-md);
 }
 .selectedDate:hover {
-  background: var(--fds-colors-blue-800);
+  background: var(--ds-global-blue-8);
 }
 .selectedDate button {
   color: white;

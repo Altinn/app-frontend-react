@@ -8,7 +8,7 @@
   font-weight: normal;
   line-height: 1.5;
   text-align: left;
-  color: var(--fds-semantic-text-neutral-default);
+  color: var(--ds-color-neutral-text-default);
 }
 
 /* Global variables */
@@ -40,9 +40,9 @@
   --table-input-margin: 15px; /* From design-system, move to figma-tokens? */
 
   --repeating-group-edit-surface-color: #f1fbff;
-  --repeating-group-edit-border-color: var(--fds-colors-blue-400);
-  --repeating-group-edit-divider-color: var(--fds-colors-blue-200);
-  --repeating-group-error-color: var(--fds-colors-red-200);
+  --repeating-group-edit-border-color: var(--ds-global-blue-4);
+  --repeating-group-edit-divider-color: var(--ds-global-blue-2);
+  --repeating-group-error-color: var(--ds-global-red-2);
 
   /*Border styles*/
   --border-color-primary: var(--colors-primary-blueMedium);
