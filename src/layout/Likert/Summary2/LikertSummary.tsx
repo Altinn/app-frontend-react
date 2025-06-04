@@ -8,76 +8,86 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import classes from 'src/layout/Likert/Summary2/LikertSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type LikertSummaryProps = {
-  componentNode: LayoutNode<'Likert'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-};
+export function LikertSummary({ target }: Summary2Props<'Likert'>) {
+  const emptyFieldText = useSummaryOverrides(target)?.emptyFieldText;
+  const isCompact = useSummaryProp('isCompact');
+  const likertNodeItem = useNodeItem(target);
+  const readOnly = useNodeItem(target, (item) => item.readOnly);
 
-export function LikertSummary({ componentNode, emptyFieldText, isCompact }: LikertSummaryProps) {
-  const likertNodeItem = useNodeItem(componentNode);
-  const readOnly = useNodeItem(componentNode, (item) => item.readOnly);
-
-  const validations = useUnifiedValidationsForNode(componentNode);
+  const validations = useUnifiedValidationsForNode(target);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const required = useNodeItem(target, (i) => i.required);
 
   const rows = likertNodeItem.rows;
 
   if (!rows.length || rows.length <= 0) {
     return (
-      <SingleValueSummary
-        title={
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        }
-        componentNode={componentNode}
-        errors={errors}
-        hideEditButton={readOnly}
-        isCompact={isCompact}
-        emptyFieldText={emptyFieldText}
-      />
+      <SummaryFlex
+        target={target}
+        content={required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired}
+      >
+        <SingleValueSummary
+          title={
+            <Lang
+              id={title}
+              node={target}
+            />
+          }
+          componentNode={target}
+          errors={errors}
+          hideEditButton={readOnly}
+          isCompact={isCompact}
+          emptyFieldText={emptyFieldText}
+        />
+      </SummaryFlex>
     );
   }
 
   return (
-    <div className={classes.summaryItemWrapper}>
-      <div className={classes.summaryItem}>
-        <Heading
-          size='xs'
-          level={4}
-        >
-          <Lang
-            id={title}
-            node={componentNode}
+    <SummaryFlex
+      target={target}
+      content={SummaryContains.SomeUserContent}
+    >
+      <div className={classes.summaryItemWrapper}>
+        <div className={classes.summaryItem}>
+          <Heading
+            size='xs'
+            level={4}
+          >
+            <Lang
+              id={title}
+              node={target}
+            />
+          </Heading>
+        </div>
+        {rows.map((row) => (
+          <LikertRowSummary
+            key={row?.uuid}
+            rowNodeId={row?.itemNodeId}
+            emptyFieldText={emptyFieldText}
+            readOnly={readOnly}
+            isCompact={isCompact}
           />
-        </Heading>
+        ))}
+        {errors?.map(({ message }) => (
+          <ErrorMessage key={message.key}>
+            <Lang
+              id={message.key}
+              params={message.params}
+              node={target}
+            />
+          </ErrorMessage>
+        ))}
       </div>
-      {rows.map((row) => (
-        <LikertRowSummary
-          key={row?.uuid}
-          rowNodeId={row?.itemNodeId}
-          emptyFieldText={emptyFieldText}
-          readOnly={readOnly}
-          isCompact={isCompact}
-        />
-      ))}
-      {errors?.map(({ message }) => (
-        <ErrorMessage key={message.key}>
-          <Lang
-            id={message.key}
-            params={message.params}
-            node={componentNode}
-          />
-        </ErrorMessage>
-      ))}
-    </div>
+    </SummaryFlex>
   );
 }
 

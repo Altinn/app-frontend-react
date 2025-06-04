@@ -5,35 +5,46 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-type RadioButtonsSummaryProps = {
-  isCompact?: boolean;
-  componentNode: LayoutNode<'RadioButtons'>;
-  emptyFieldText?: string;
-};
-
-export const RadioButtonsSummary = ({ componentNode, isCompact, emptyFieldText }: RadioButtonsSummaryProps) => {
-  const validations = useUnifiedValidationsForNode(componentNode);
-  const displayData = useDisplayData(componentNode);
+export const RadioButtonsSummary = ({ target }: Summary2Props<'RadioButtons'>) => {
+  const emptyFieldText = useSummaryOverrides(target)?.emptyFieldText;
+  const isCompact = useSummaryProp('isCompact');
+  const validations = useUnifiedValidationsForNode(target);
+  const displayData = useDisplayData(target);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const required = useNodeItem(target, (i) => i.required);
+
   return (
-    <SingleValueSummary
-      title={
-        title && (
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        )
+    <SummaryFlex
+      target={target}
+      content={
+        displayData
+          ? SummaryContains.SomeUserContent
+          : required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
       }
-      displayData={displayData}
-      errors={errors}
-      componentNode={componentNode}
-      isCompact={isCompact}
-      emptyFieldText={emptyFieldText}
-    />
+    >
+      <SingleValueSummary
+        title={
+          title && (
+            <Lang
+              id={title}
+              node={target}
+            />
+          )
+        }
+        displayData={displayData}
+        errors={errors}
+        componentNode={target}
+        isCompact={isCompact}
+        emptyFieldText={emptyFieldText}
+      />
+    </SummaryFlex>
   );
 };

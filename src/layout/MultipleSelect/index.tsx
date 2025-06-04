@@ -8,7 +8,7 @@ import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSep
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { validateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
 import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToGroupLayoutValidator';
-import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useValidateGroupIsEmpty } from 'src/features/saveToGroup/useValidateGroupIsEmpty';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
@@ -72,18 +72,11 @@ export class MultipleSelect extends MultipleSelectDef {
   }
 
   renderSummary2(props: Summary2Props<'MultipleSelect'>): JSX.Element | null {
-    return (
-      <MultipleSelectSummary
-        componentNode={props.target}
-        summaryOverride={props.override}
-        isCompact={props.isCompact}
-        emptyFieldText={props.override?.emptyFieldText}
-      />
-    );
+    return <MultipleSelectSummary {...props} />;
   }
 
   useEmptyFieldValidation(node: LayoutNode<'MultipleSelect'>): ComponentValidation[] {
-    return useEmptyFieldValidationOnlySimpleBinding(node);
+    return useValidateGroupIsEmpty(node);
   }
 
   renderLayoutValidators(props: NodeValidationProps<'MultipleSelect'>): JSX.Element | null {

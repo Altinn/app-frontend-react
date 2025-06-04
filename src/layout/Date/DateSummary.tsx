@@ -5,16 +5,15 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-type DateComponentSummaryProps = {
-  componentNode: LayoutNode<'Date'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-};
-
-export const DateSummary = ({ componentNode, isCompact, emptyFieldText }: DateComponentSummaryProps) => {
+export const DateSummary = ({ target }: Summary2Props<'Date'>) => {
+  const componentNode = target;
+  const emptyFieldText = useSummaryOverrides(componentNode)?.emptyFieldText;
+  const isCompact = useSummaryProp('isCompact');
   const displayData = useDisplayData(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
@@ -24,21 +23,26 @@ export const DateSummary = ({ componentNode, isCompact, emptyFieldText }: DateCo
   const compact = (direction === 'horizontal' && isCompact == undefined) || isCompact;
 
   return (
-    <SingleValueSummary
-      title={
-        title && (
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        )
-      }
-      displayData={displayData}
-      errors={errors}
-      componentNode={componentNode}
-      hideEditButton
-      isCompact={compact}
-      emptyFieldText={emptyFieldText}
-    />
+    <SummaryFlex
+      target={target}
+      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValueNotRequired}
+    >
+      <SingleValueSummary
+        title={
+          title && (
+            <Lang
+              id={title}
+              node={componentNode}
+            />
+          )
+        }
+        displayData={displayData}
+        errors={errors}
+        componentNode={componentNode}
+        hideEditButton
+        isCompact={compact}
+        emptyFieldText={emptyFieldText}
+      />
+    </SummaryFlex>
   );
 };

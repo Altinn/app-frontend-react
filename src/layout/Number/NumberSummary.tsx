@@ -5,40 +5,43 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-type NumberComponentSummaryProps = {
-  componentNode: LayoutNode<'Number'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-};
-
-export const NumberSummary = ({ componentNode, isCompact, emptyFieldText }: NumberComponentSummaryProps) => {
-  const displayData = useDisplayData(componentNode);
-  const validations = useUnifiedValidationsForNode(componentNode);
+export const NumberSummary = ({ target }: Summary2Props<'Number'>) => {
+  const emptyFieldText = useSummaryOverrides(target)?.emptyFieldText;
+  const isCompact = useSummaryProp('isCompact');
+  const displayData = useDisplayData(target);
+  const validations = useUnifiedValidationsForNode(target);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const direction = useNodeItem(componentNode, (i) => i.direction);
+  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
+  const direction = useNodeItem(target, (i) => i.direction);
 
   const compact = (direction === 'horizontal' && isCompact == undefined) || isCompact;
 
   return (
-    <SingleValueSummary
-      title={
-        title && (
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        )
-      }
-      displayData={displayData}
-      errors={errors}
-      componentNode={componentNode}
-      hideEditButton
-      isCompact={compact}
-      emptyFieldText={emptyFieldText}
-    />
+    <SummaryFlex
+      target={target}
+      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValueNotRequired}
+    >
+      <SingleValueSummary
+        title={
+          title && (
+            <Lang
+              id={title}
+              node={target}
+            />
+          )
+        }
+        displayData={displayData}
+        errors={errors}
+        componentNode={target}
+        hideEditButton
+        isCompact={compact}
+        emptyFieldText={emptyFieldText}
+      />
+    </SummaryFlex>
   );
 };

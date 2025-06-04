@@ -8,7 +8,7 @@ import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSep
 import { useNodeOptions } from 'src/features/options/useNodeOptions';
 import { validateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
 import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToGroupLayoutValidator';
-import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useValidateGroupIsEmpty } from 'src/features/saveToGroup/useValidateGroupIsEmpty';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
@@ -20,7 +20,6 @@ import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -62,7 +61,7 @@ export class Checkboxes extends CheckboxesDef {
       .map((row) => (!relativeSimpleBindingPath ? true : dot.pick(relativeSimpleBindingPath, row)));
 
     const data = dataModelBindings.group
-      ? displayRows
+      ? getCommaSeparatedOptionsToText(displayRows?.join(','), options, langAsString)
       : getCommaSeparatedOptionsToText(formData?.simpleBinding, options, langAsString);
 
     return Object.values(data).join(', ');
@@ -73,18 +72,11 @@ export class Checkboxes extends CheckboxesDef {
   }
 
   renderSummary2(props: Summary2Props<'Checkboxes'>): JSX.Element | null {
-    return (
-      <CheckboxesSummary
-        componentNode={props.target}
-        summaryOverride={props.override as CheckboxSummaryOverrideProps}
-        isCompact={props.isCompact}
-        emptyFieldText={props.override?.emptyFieldText}
-      />
-    );
+    return <CheckboxesSummary {...props} />;
   }
 
   useEmptyFieldValidation(node: LayoutNode<'Checkboxes'>): ComponentValidation[] {
-    return useEmptyFieldValidationOnlySimpleBinding(node);
+    return useValidateGroupIsEmpty(node);
   }
 
   renderLayoutValidators(props: NodeValidationProps<'Checkboxes'>): JSX.Element | null {
