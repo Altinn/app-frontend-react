@@ -70,7 +70,6 @@ export function Fieldset({
         <DesignsystemetFieldset
           className={cn(className)}
           data-size={size}
-          // FIXME: find a way to use classnames for setting font size. Not working currently
         >
           <DesignsystemetFieldset.Legend>
             <span className={cn(labelClasses.labelAndHelpWrapper)}>
