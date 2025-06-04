@@ -446,7 +446,7 @@ Cypress.Commands.add(
     if (openByDefault || typeof openByDefault === 'undefined') {
       cy.findByRole('button', { name: 'Legg til ny' }).should('not.exist');
     } else {
-      cy.findByRole('button', { name: 'Legg til ny' }).click();
+      cy.findByRole('button', { name: 'Legg til ny' }).click({ force: true });
     }
 
     cy.get(appFrontend.group.comments).type(comment);
