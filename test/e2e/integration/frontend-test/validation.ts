@@ -937,7 +937,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.comments).should('be.visible'); // Required field in the nested group
     cy.get(appFrontend.group.row(1).nestedGroup.row(0).tableRow).should('not.contain.text', 'Rett feil her');
     cy.get(appFrontend.group.row(1).tableRow).should('not.contain.text', 'Rett feil her');
-    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).click({ force: true });
     cy.get(appFrontend.group.row(1).nestedGroup.row(0).tableRow).should('contain.text', 'Rett feil her');
     cy.get(appFrontend.group.row(1).tableRow).should('contain.text', 'Rett feil her');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
