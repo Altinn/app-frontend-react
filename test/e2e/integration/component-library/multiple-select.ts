@@ -56,6 +56,7 @@ describe('Multiple select component', () => {
     cy.findByRole('button', { name: /^Karoline/i }).should('not.exist');
 
     // Unchecking from Checkboxes should remove from RepeatingGroup (observe that data is preserved)
+    cy.get(multiselect).type('{esc}'); // Make sure the multiselect is closed
     cy.findByRole('button', { name: /Kåre, Press to remove, 1 of 2/i }).should('exist');
     cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 2 row
     cy.get(repGroup)
