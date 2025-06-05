@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
@@ -11,7 +10,7 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceId } from 'src/features/instance/InstanceContext';
-import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
+import { useInnerLanguageWithForcedPathSelector } from 'src/features/language/useLanguage';
 import {
   type DataSourceOverrides,
   type ExpressionDataSources,
@@ -57,16 +56,11 @@ function useFormDataSelectorForSubform(dataType: string, subformData: unknown) {
 }
 
 function useLangToolsSelectorForSubform(dataType: string, subformData: unknown) {
-  return useInnerLanguageWithForcedNodeSelector(
+  return useInnerLanguageWithForcedPathSelector(
     dataType,
     useDataModelNamesForSubform(dataType),
     useFormDataSelectorForSubform(dataType, subformData),
-    selectorContextNotProvided,
   );
-}
-
-function selectorContextNotProvided(..._args: unknown[]): typeof ContextNotProvided {
-  return ContextNotProvided;
 }
 
 function useOverriddenDataSourcesForSubform(

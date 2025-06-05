@@ -21,7 +21,7 @@ interface IUseSourceOptionsArgs {
 }
 
 export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOptionInternal[] | undefined => {
-  const langTools = useLanguage(node);
+  const langTools = useLanguage();
   const groupReference = useGroupReference(source, node);
   const valueSubPath = getValueSubPath(source);
   const rawValues = FD.useDebouncedSelect((pick) => {
@@ -153,10 +153,10 @@ function resolveText(
   reference: IDataModelReference,
 ): string | undefined {
   if (text && ExprValidation.isValid(text)) {
-    return evalExpr(text, nodeReference, dataSources);
+    return evalExpr(text, nodeReference, { ...dataSources, currentDataModelPath: reference });
   }
   if (text) {
-    return dataSources.langToolsSelector(nodeReference.id).langAsStringUsingPathInDataModel(text as string, reference);
+    return dataSources.langToolsSelector(reference).langAsStringUsingPathInDataModel(text as string, reference);
   }
   return undefined;
 }

@@ -164,7 +164,6 @@ function ErrorWithLink({ error }: { error: NodeRefValidation }) {
         <Lang
           id={error.message.key}
           params={error.message.params}
-          node={node}
         />
       </button>
     </ErrorReportListItem>

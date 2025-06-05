@@ -69,7 +69,7 @@ function RegularRepeatingGroup(props: FullProps) {
   const { textResourceBindings: trb } = useNodeItem(targetNode);
 
   const display = overrides?.display || summaryDisplay;
-  const { langAsString } = useLanguage(targetNode);
+  const { langAsString } = useLanguage();
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
@@ -87,10 +87,7 @@ function RegularRepeatingGroup(props: FullProps) {
       >
         <div className={classes.container}>
           <span className={classes.label}>
-            <Lang
-              id={summaryTitleTrb ?? titleTrb}
-              node={targetNode}
-            />
+            <Lang id={summaryTitleTrb ?? titleTrb} />
           </span>
           {!display?.hideChangeButton ? (
             <EditButton

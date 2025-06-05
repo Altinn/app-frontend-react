@@ -26,21 +26,16 @@ export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTr
  */
 export function useDataModelBindingTranspose() {
   const selector = NodesInternal.useLaxNodeDataSelector();
-  return useInnerDataModelBindingTranspose(selector);
-}
-export function useInnerDataModelBindingTranspose(nodeDataSelector: LaxNodeDataSelector) {
+
   return useCallback(
     (node: LayoutNode | string, subject: IDataModelReference, _rowIndex?: number) => {
-      const { currentLocation, currentLocationIsRepGroup, foundRowIndex } = firstDataModelBinding(
-        node,
-        nodeDataSelector,
-      );
+      const { currentLocation, currentLocationIsRepGroup, foundRowIndex } = firstDataModelBinding(node, selector);
       const rowIndex = _rowIndex ?? foundRowIndex;
       return currentLocation
         ? transposeDataBinding({ subject, currentLocation, rowIndex, currentLocationIsRepGroup })
         : subject;
     },
-    [nodeDataSelector],
+    [selector],
   );
 }
 

@@ -35,12 +35,7 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
         content={required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired}
       >
         <SingleValueSummary
-          title={
-            <Lang
-              id={title}
-              node={target}
-            />
-          }
+          title={<Lang id={title} />}
           componentNode={target}
           errors={errors}
           hideEditButton={readOnly}
@@ -62,10 +57,7 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
             size='xs'
             level={4}
           >
-            <Lang
-              id={title}
-              node={target}
-            />
+            <Lang id={title} />
           </Heading>
         </div>
         {rows.map((row) => (
@@ -82,7 +74,6 @@ export function LikertSummary({ target }: Summary2Props<'Likert'>) {
             <Lang
               id={message.key}
               params={message.params}
-              node={target}
             />
           </ErrorMessage>
         ))}
@@ -128,12 +119,7 @@ function LikertRowSummaryInner({
 
   return (
     <SingleValueSummary
-      title={
-        <Lang
-          id={title}
-          node={node}
-        />
-      }
+      title={<Lang id={title} />}
       isCompact={isCompact}
       componentNode={node}
       displayData={displayData}
