@@ -14,7 +14,7 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import type { ExprConfig, Expression, ExprFunctionName, LayoutReference } from 'src/features/expressions/types';
+import type { Expression, ExprFunctionName } from 'src/features/expressions/types';
 
 interface ExpressionResult {
   value: string;
@@ -254,7 +254,8 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
     }
 
     try {
-      let evalContext: LayoutReference = currentPageId ? { type: 'page', id: currentPageId } : { type: 'none' };
+      // TODO: Find the data model path for the target component instead
+      let evalContext = currentPageId ? { type: 'page', id: currentPageId } : { type: 'none' };
       if (forPage && forComponentId) {
         evalContext = { type: 'node', id: forComponentId };
       }
@@ -266,12 +267,11 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
         calls.push(`${indent}${JSON.stringify([func, ...args])} => ${JSON.stringify(result)}`);
       };
 
-      const config: ExprConfig<ExprVal.Any> = {
+      const out = evalExpr(expression, dataSources, {
         returnType: ExprVal.Any,
         defaultValue: null,
-      };
-
-      const out = evalExpr(expression, evalContext, dataSources, { config, onAfterFunctionCall });
+        onAfterFunctionCall,
+      });
 
       if (showAllSteps) {
         setOutputWithHistory(calls.join('\n'), false, outputs, setOutputs);

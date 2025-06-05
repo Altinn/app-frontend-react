@@ -1,6 +1,7 @@
 import dot from 'dot-object';
 
 import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useCurrentLayoutSet } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -9,7 +10,7 @@ import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import type { ExprVal, ExprValToActualOrExpr, NodeReference } from 'src/features/expressions/types';
+import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelReference, IOptionSource } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -60,7 +61,6 @@ export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOpti
     }
 
     const { label, helpText, description } = source;
-    const nodeReference: NodeReference = { type: 'node', id: node.id };
     const output: IOptionInternal[] = [];
     for (const { value, dataModelLocation } of rawValues) {
       /**
@@ -87,14 +87,14 @@ export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOpti
       output.push({
         value,
         dataModelLocation,
-        label: resolveText(label, nodeReference, modifiedDataSources, dataModelLocation) as string,
-        description: resolveText(description, nodeReference, modifiedDataSources, dataModelLocation),
-        helpText: resolveText(helpText, nodeReference, modifiedDataSources, dataModelLocation),
+        label: resolveText(label, modifiedDataSources, dataModelLocation) as string,
+        description: resolveText(description, modifiedDataSources, dataModelLocation),
+        helpText: resolveText(helpText, modifiedDataSources, dataModelLocation),
       });
     }
 
     return output;
-  }, [dataSources, langTools, node.id, rawValues, source]);
+  }, [dataSources, langTools, rawValues, source]);
 };
 
 /**
@@ -148,12 +148,15 @@ function getValueSubPath(source: IOptionSource | undefined): string | undefined 
  */
 function resolveText(
   text: ExprValToActualOrExpr<ExprVal.String> | undefined,
-  nodeReference: NodeReference,
   dataSources: ExpressionDataSources,
   reference: IDataModelReference,
 ): string | undefined {
   if (text && ExprValidation.isValid(text)) {
-    return evalExpr(text, nodeReference, { ...dataSources, currentDataModelPath: reference });
+    return evalExpr(
+      text as ExprValToActualOrExpr<ExprVal.String>,
+      { ...dataSources, currentDataModelPath: reference },
+      { returnType: ExprVal.String, defaultValue: '' },
+    );
   }
   if (text) {
     return dataSources.langToolsSelector(reference).langAsStringUsingPathInDataModel(text as string, reference);

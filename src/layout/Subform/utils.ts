@@ -17,7 +17,7 @@ import {
   useExpressionDataSources,
 } from 'src/utils/layout/useExpressionDataSources';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
-import type { ExprConfig, ExprValToActualOrExpr, NodeReference } from 'src/features/expressions/types';
+import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
 
 export function useSubformFormData(dataElementId: string) {
@@ -105,18 +105,17 @@ export function useExpressionDataSourcesForSubform(
 export function getSubformEntryDisplayName(
   entryDisplayName: ExprValToActualOrExpr<ExprVal.String>,
   dataSources: ExpressionDataSources,
-  reference: NodeReference,
+  nodeId: string,
 ): string | null {
-  const errorIntroText = `Invalid expression for component '${reference.id}'`;
+  const errorIntroText = `Invalid expression for component '${nodeId}'`;
   if (!ExprValidation.isValidOrScalar(entryDisplayName, ExprVal.String, errorIntroText)) {
     return null;
   }
 
-  const config: ExprConfig = {
+  const resolvedValue = evalExpr(entryDisplayName, dataSources, {
     returnType: ExprVal.String,
     defaultValue: '',
-  };
-
-  const resolvedValue = evalExpr(entryDisplayName, reference, dataSources, { config, errorIntroText });
+    errorIntroText,
+  });
   return resolvedValue ? String(resolvedValue) : null;
 }
