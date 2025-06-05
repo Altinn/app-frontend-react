@@ -46,11 +46,11 @@
 .task-symbol-locked {
   color: var(--ds-color-neutral-8);
   border-color: var(--ds-color-neutral-6);
-  background-color: var(--ds-color-neutral-1);
+  background-color: var(--ds-color-neutral-surface-tinted);
 }
 
 .task-symbol-active {
-  color: var(--ds-color-neutral-1);
-  border-color: var(--ds-global-blue-9);
-  background-color: var(--ds-global-blue-9);
+  color: var(--ds-color-accent-text-default);
+  border-color: var(--ds-color-accent-border-default);
+  background-color: var(--ds-color-neutral-surface-tinted);
 }

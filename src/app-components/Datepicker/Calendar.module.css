@@ -2,30 +2,13 @@
   margin-bottom: 0;
 }
 
-.calendarDay {
-  width: 48px;
-  height: 48px;
-  text-align: center;
-}
-.calendarDay:hover {
-  border-radius: var(--ds-border-radius-md);
-  background: var(--ds-global-blue-2);
-}
-
-.calendarDayButton {
-  height: 46px;
-  width: 46px;
-  background: transparent;
-  border: none;
-}
-
 .focusedDate {
   border-radius: var(--ds-border-radius-md);
-  background: var(--ds-global-blue-2);
+  background: var(--ds-color-accent-surface-active);
 }
 .today {
   border-radius: var(--ds-border-radius-md);
-  border: var(--ds-border-width-default) solid var(--ds-global-blue-2);
+  border: var(--ds-border-width-default) solid var(--ds-color-accent-border-subtle);
 }
 
 .selectedDate {
@@ -35,7 +18,7 @@
   border-radius: var(--ds-border-radius-md);
 }
 .selectedDate:hover {
-  background: var(--ds-global-blue-8);
+  background: var(--ds-color-accent-base-active);
 }
 .selectedDate button {
   color: white;
@@ -43,19 +26,11 @@
 
 .disabledDate {
   border-radius: var(--ds-border-radius-md);
-  background: var(--ds-color-neutral-1);
+  background: var(--ds-color-neutral-surface-tinted);
   cursor: not-allowed;
 }
 .disabledDate button {
   text-decoration: line-through;
-}
-.focusedDate {
-  border-radius: var(--ds-border-radius-md);
-  background: var(--ds-blue-2);
-}
-.today {
-  border-radius: var(--ds-border-radius-md);
-  border: var(--ds-border-width-default) solid var(--ds-color-accent-border-subtle);
 }
 .disabledDate:hover button {
   cursor: not-allowed;

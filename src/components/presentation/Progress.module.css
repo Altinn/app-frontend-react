@@ -6,12 +6,12 @@
 }
 
 .circleBackground {
-  stroke: var(--ds-global-blue-2);
+  stroke: var(--ds-color-accent-border-subtle);
 }
 
 .circleTransition {
   transition: stroke-dashoffset 1s ease-in-out;
-  stroke: var(--ds-global-blue-9);
+  stroke: var(--ds-color-accent-base-active);
   stroke-dasharray: 100 100;
 }
 

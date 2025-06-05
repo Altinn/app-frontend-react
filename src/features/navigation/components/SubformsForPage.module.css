@@ -7,7 +7,7 @@
   font-family: var(--font-family);
   font-size: 16px;
   font-weight: normal;
-  color: var(--ds-color-neutral-7);
+  color: var(--ds-color-neutral-text-subtle);
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -59,7 +59,7 @@
   font-family: var(--font-family);
   font-size: 14px;
   font-weight: normal;
-  color: var(--ds-global-blue-7);
+  color: var(--ds-color-accent-text-subtle);
   background-color: transparent;
   border: none;
   cursor: pointer;

@@ -15,7 +15,7 @@
   position: absolute;
   box-sizing: border-box;
   width: 0;
-  border-left: 2px solid var(--ds-color-neutral-7);
+  border-left: 2px solid var(--ds-color-neutral-base-default);
   height: calc(100% - 8px);
   top: 25px;
   left: 13px;
@@ -25,7 +25,7 @@
   font-family: var(--font-family);
   font-size: 16px;
   font-weight: normal;
-  color: var(--ds-global-blue-7);
+  color: var(--ds-color-accent-text-subtle);
   background-color: transparent;
   border: none;
   cursor: pointer;
@@ -67,28 +67,28 @@
 
 .page-symbol-error {
   font-size: 14px;
-  color: var(--ds-global-red-7);
-  border-color: var(--ds-global-red-5);
-  background-color: var(--ds-global-red-1);
+  color: var(--ds-color-danger-text-default);
+  border-color: var(--ds-color-danger-border-default);
+  background-color: var(--ds-color-danger-surface-tinted);
 }
 
 .page-symbol-complete {
   font-size: 14px;
   color: white;
-  border-color: var(--ds-global-blue-7);
-  background-color: var(--ds-global-blue-7);
+  border-color: var(--ds-color-accent-base-default);
+  background-color: var(--ds-color-accent-base-default);
 }
 
 .page-symbol-default {
-  border-color: var(--ds-global-blue-4);
-  background-color: var(--ds-color-neutral-1);
+  border-color: var(--ds-color-accent-border-default);
+  background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .page-symbol-active {
-  border-color: var(--ds-global-blue-9);
-  background-color: var(--ds-global-blue-9);
+  border-color: var(--ds-color-accent-base-active);
+  background-color: var(--ds-color-accent-base-active);
 
-  outline: 2px solid var(--ds-color-neutral-1);
+  outline: 2px solid var(--ds-color-neutral-background-tinted);
   outline-offset: -4px;
 }
 

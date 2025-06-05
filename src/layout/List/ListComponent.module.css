@@ -31,7 +31,7 @@
 
 .selectedRow,
 .selectedRowCell {
-  background-color: var(--ds-global-blue-1);
+  background-color: var(--ds-color-accent-surface-tinted);
 }
 
 .pagination {

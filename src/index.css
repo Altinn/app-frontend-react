@@ -40,9 +40,9 @@
   --table-input-margin: 15px; /* From design-system, move to figma-tokens? */
 
   --repeating-group-edit-surface-color: #f1fbff;
-  --repeating-group-edit-border-color: var(--ds-global-blue-4);
-  --repeating-group-edit-divider-color: var(--ds-global-blue-2);
-  --repeating-group-error-color: var(--ds-global-red-2);
+  --repeating-group-edit-border-color: var(--ds-color-accent-border-default);
+  --repeating-group-edit-divider-color: var(--ds-color-accent-border-subtle);
+  --repeating-group-error-color: var(--ds-color-danger-surface-active);
 
   /*Border styles*/
   --border-color-primary: var(--colors-primary-blueMedium);

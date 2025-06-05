@@ -36,7 +36,7 @@ describe('MessageBanner', () => {
     expect(messageBanner).toBeInTheDocument();
     expect(messageBanner.className).toContain('error');
     const backgroundColor = window.getComputedStyle(messageBanner).backgroundColor;
-    const errorColor = window.getComputedStyle(document.body).getPropertyValue('--ds-global-red-2');
+    const errorColor = window.getComputedStyle(document.body).getPropertyValue('--ds-color-danger-surface-active');
     expect(backgroundColor).toEqual(errorColor);
   });
 });
