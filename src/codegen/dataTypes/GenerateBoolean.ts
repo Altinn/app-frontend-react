@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { PropBool } from 'src/codegen/types';
+import type { PropBool, PropSimpleUnion } from 'src/codegen/types';
 
 /**
  * Generates a boolean type
@@ -27,5 +27,14 @@ export class GenerateBoolean extends DescribableCodeGenerator<boolean> {
       ...this.getInternalPropList(),
       type: 'boolean',
     };
+  }
+
+  canBeInSimpleUnion(): boolean {
+    return true;
+  }
+
+  addToSimpleUnion(union: PropSimpleUnion) {
+    union.types = union.types ?? [];
+    union.types.push('boolean');
   }
 }

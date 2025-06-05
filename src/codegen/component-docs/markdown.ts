@@ -7,6 +7,10 @@ export function markdownCode(code: string): string {
   return `${backtick}${code}${backtick}`;
 }
 
+export function markdownTitle(title: string, level = 3): string {
+  return `#${'#'.repeat(level)} ${title}`;
+}
+
 export function markdownTable<T extends object>(data: T[]): string {
   if (!data.length) {
     return '';

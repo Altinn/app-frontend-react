@@ -3,7 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator, MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CodeGenerator, Extract } from 'src/codegen/CodeGenerator';
-import type { ComponentProperty, PropUnion } from 'src/codegen/types';
+import type { ComponentProperty, PropComplexUnion, PropSimpleUnion } from 'src/codegen/types';
 
 type UnionType = 'any' | 'discriminated';
 /**
@@ -52,7 +52,18 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
     };
   }
 
-  toPropListDefinition(): PropUnion {
+  toPropListDefinition(): PropComplexUnion | PropSimpleUnion {
+    if (this.types.every((type) => type.canBeInSimpleUnion())) {
+      const out: PropSimpleUnion = {
+        ...this.getInternalPropList(),
+        type: 'simpleUnion',
+      };
+      for (const type of this.types) {
+        type.addToSimpleUnion(out);
+      }
+      return out;
+    }
+
     const list = this.types.map((type) => type.toPropList());
     const uniqueList: ComponentProperty[] = [];
     for (const curr of list) {
@@ -63,7 +74,7 @@ export class GenerateUnion<U extends CodeGenerator<any>[]> extends DescribableCo
 
     return {
       ...this.getInternalPropList(),
-      type: 'union',
+      type: 'complexUnion',
       union: uniqueList,
     };
   }

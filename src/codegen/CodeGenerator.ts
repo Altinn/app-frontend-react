@@ -2,7 +2,7 @@ import type { JSONSchema7, JSONSchema7Type } from 'json-schema';
 
 import { CodeGeneratorContext } from 'src/codegen/CodeGeneratorContext';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
-import type { ComponentProperty, PropBase, PropLink, PropTexts } from 'src/codegen/types';
+import type { ComponentProperty, PropBase, PropLink, PropSimpleUnion, PropTexts } from 'src/codegen/types';
 
 export interface JsonSchemaExt<T> {
   title: string | undefined;
@@ -129,6 +129,14 @@ export abstract class CodeGenerator<T> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   toFlattened(_prefix: string = ''): GenerateProperty<any>[] {
     throw new Error('Cannot flatten this');
+  }
+
+  canBeInSimpleUnion(): boolean {
+    return false;
+  }
+
+  addToSimpleUnion(_union: PropSimpleUnion): void {
+    throw new Error('Cannot convert a simple union');
   }
 }
 

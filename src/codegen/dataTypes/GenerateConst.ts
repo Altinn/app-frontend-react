@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { PropConst } from 'src/codegen/types';
+import type { PropConst, PropSimpleUnion } from 'src/codegen/types';
 
 /**
  * Generates a constant value. I.e. a value that is always the given value.
@@ -37,5 +37,14 @@ export class GenerateConst<Val extends string | boolean | number | null> extends
       type: 'const',
       const: this.value,
     };
+  }
+
+  canBeInSimpleUnion(): boolean {
+    return true;
+  }
+
+  addToSimpleUnion(union: PropSimpleUnion) {
+    union.enums = union.enums ?? [];
+    union.enums.push(this.value);
   }
 }

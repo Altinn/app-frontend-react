@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { PropEnum } from 'src/codegen/types';
+import type { PropEnum, PropSimpleUnion } from 'src/codegen/types';
 
 type ValueToNameFunc<T extends string | number> = (value: T) => string;
 
@@ -58,5 +58,14 @@ export class GenerateEnum<T extends string | number> extends DescribableCodeGene
 
   shouldUseParens(): boolean {
     return this._asRealEnum === false;
+  }
+
+  canBeInSimpleUnion(): boolean {
+    return true;
+  }
+
+  addToSimpleUnion(union: PropSimpleUnion) {
+    union.enums = union.enums ?? [];
+    union.enums.push(...this.values);
   }
 }

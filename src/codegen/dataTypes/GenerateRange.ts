@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { PropRange } from 'src/codegen/types';
+import type { PropRange, PropSimpleUnion } from 'src/codegen/types';
 
 /**
  * Generates a number range, i.e. 1-5.
@@ -40,5 +40,14 @@ export class GenerateRange extends DescribableCodeGenerator<number> {
       maximum: this.maximum,
       asText: `${this.minimum}-${this.maximum}`,
     };
+  }
+
+  canBeInSimpleUnion(): boolean {
+    return true;
+  }
+
+  addToSimpleUnion(union: PropSimpleUnion) {
+    union.ranges = union.ranges ?? [];
+    union.ranges.push({ min: this.minimum, max: this.maximum });
   }
 }

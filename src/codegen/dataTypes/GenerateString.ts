@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { DescribableCodeGenerator } from 'src/codegen/CodeGenerator';
-import type { PropString } from 'src/codegen/types';
+import type { PropSimpleUnion, PropString } from 'src/codegen/types';
 
 /**
  * Generates a string value. It can have certain limitations, such as a pattern.
@@ -38,5 +38,14 @@ export class GenerateString extends DescribableCodeGenerator<string> {
       type: 'string',
       pattern: this.pattern?.source,
     };
+  }
+
+  canBeInSimpleUnion(): boolean {
+    return !this.pattern;
+  }
+
+  addToSimpleUnion(union: PropSimpleUnion) {
+    union.types = union.types ?? [];
+    union.types.push('string');
   }
 }

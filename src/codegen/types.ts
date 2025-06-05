@@ -17,7 +17,8 @@ export type ComponentProperty =
   | PropConst
   | PropLink
   | PropEnum
-  | PropUnion
+  | PropComplexUnion
+  | PropSimpleUnion
   | PropRange
   | PropObject
   | PropArray;
@@ -79,9 +80,20 @@ export interface PropEnum extends PropBase {
   enum: unknown[];
 }
 
-export interface PropUnion extends PropBase {
-  type: 'union';
+// A complex union contains non-scalar alternatives, like objects or arrays
+export interface PropComplexUnion extends PropBase {
+  type: 'complexUnion';
   union: ComponentProperty[];
+}
+
+// A simple union contains simple values. Either plain types (any string, boolean, number, etc.), or specific values
+// like enums. This can also simply represent an enum, but may extend what a plain enum can do (as it can
+// include other types and ranges as well).
+export interface PropSimpleUnion extends PropBase {
+  type: 'simpleUnion';
+  types?: ('string' | 'boolean' | 'number' | 'integer')[];
+  enums?: (string | boolean | number | null)[];
+  ranges?: { min: number; max: number }[];
 }
 
 export interface PropRange extends PropBase {

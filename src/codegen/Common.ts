@@ -616,7 +616,8 @@ const common = {
           readOnly: false,
           cells: [{ text: 'hello.world' }, { component: 'myOtherComponent' }],
         },
-      ]),
+      ])
+      .linkToDocs('TODO: Add docs link'),
 
   SaveWhileTyping: () =>
     new CG.num()

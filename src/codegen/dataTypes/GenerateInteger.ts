@@ -1,7 +1,7 @@
 import type { JSONSchema7 } from 'json-schema';
 
 import { GenerateNumber } from 'src/codegen/dataTypes/GenerateNumber';
-import type { PropNumber } from 'src/codegen/types';
+import type { PropNumber, PropSimpleUnion } from 'src/codegen/types';
 
 /**
  * Generates an integer value. I.e. a value that is always a whole number.
@@ -29,5 +29,14 @@ export class GenerateInteger extends GenerateNumber {
       ...this.getInternalPropList(),
       type: 'integer',
     };
+  }
+
+  canBeInSimpleUnion(): boolean {
+    return true;
+  }
+
+  addToSimpleUnion(union: PropSimpleUnion) {
+    union.types = union.types ?? [];
+    union.types.push('integer');
   }
 }
