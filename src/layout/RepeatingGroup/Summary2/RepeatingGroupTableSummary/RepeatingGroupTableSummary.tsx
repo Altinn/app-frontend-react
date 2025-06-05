@@ -28,7 +28,6 @@ import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
-import type { RepGroupRow } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: LayoutNode<'RepeatingGroup'> }) => {

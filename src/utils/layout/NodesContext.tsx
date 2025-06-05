@@ -43,7 +43,6 @@ import { GeneratorValidationProvider } from 'src/utils/layout/generator/validati
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
@@ -54,7 +53,6 @@ import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
-import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface PagesData {
@@ -76,14 +74,12 @@ export type NodesStorePlugins = {
   validation: ValidationStorePluginConfig;
   options: OptionsStorePluginConfig;
   attachments: AttachmentsStorePluginConfig;
-  repeatingChildren: RepeatingChildrenStorePluginConfig;
 };
 
 const StorePlugins: { [K in keyof NodesStorePlugins]: NodeDataPlugin<NodesStorePlugins[K]> } = {
   validation: new ValidationStorePlugin(),
   options: new OptionsStorePlugin(),
   attachments: new AttachmentsStorePlugin(),
-  repeatingChildren: new RepeatingChildrenStorePlugin(),
 };
 
 type AllFlat<T> = UnionToIntersection<T extends Record<string, infer U> ? (U extends undefined ? never : U) : never>;

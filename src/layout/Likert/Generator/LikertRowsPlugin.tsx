@@ -3,7 +3,6 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import { typedBoolean } from 'src/utils/typing';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
-import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
   DefPluginChildClaimerProps,
   DefPluginExtraInItem,
@@ -11,9 +10,9 @@ import type {
   DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { BaseRow } from 'src/utils/layout/types';
 
-export interface LikertRow extends BaseRow {
+export interface LikertRow {
+  index: number;
   itemNodeId: string | undefined;
 }
 
@@ -79,15 +78,5 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
 
   isChildHidden(_state: DefPluginState<Config>, _childId: string): boolean {
     return false;
-  }
-
-  stateIsReady(state: DefPluginState<Config>, fullState: NodesContext): boolean {
-    if (!super.stateIsReady(state, fullState)) {
-      return false;
-    }
-
-    const internalProp = this.settings.internalProp;
-    const rows = state.item?.[internalProp] as (LikertRow | undefined)[];
-    return rows?.every((row) => (row ? row.uuid !== undefined && row.itemNodeId !== undefined : true)) ?? false;
   }
 }

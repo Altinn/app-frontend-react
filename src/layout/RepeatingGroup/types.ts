@@ -1,7 +1,7 @@
 import type { ExprResolved } from 'src/features/expressions/types';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
 import type { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
-import type { RepChildrenInternalState, RepChildrenRow } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
+import type { RepChildrenInternalState } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
 type Comp = ReturnType<RepeatingGroupDef['evalDefaultExpressions']>;
 type RepGroupTrb = Exclude<Comp['textResourceBindings'], undefined>;
@@ -37,17 +37,9 @@ type RepGroupBase = ExprResolved<
 export type RepGroupInternal = RepGroupBase & {
   textResourceBindings?: Omit<RepGroupTrb, PerRowTrb>;
   edit?: Omit<RepGroupEdit, PerRowEdit>;
-  rows: RepGroupRows;
   rowsBefore: undefined;
   rowsAfter: undefined;
   rowsBeforeInternal?: GridRowsInternal;
   rowsAfterInternal?: GridRowsInternal;
   internal: RepChildrenInternalState;
 };
-
-export interface RepGroupRowExtras {
-  groupExpressions: GroupExpressions | undefined;
-}
-
-export type RepGroupRow = RepChildrenRow & RepGroupRowExtras;
-export type RepGroupRows = (RepGroupRow | undefined)[];

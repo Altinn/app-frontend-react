@@ -15,7 +15,6 @@ import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem, useWaitForNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
 import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
-import type { RepGroupRow, RepGroupRows } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 

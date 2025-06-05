@@ -4,21 +4,17 @@ import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
-import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type { ChildIdMutator } from 'src/utils/layout/generator/GeneratorContext';
-import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type {
   DefPluginChildClaimerProps,
   DefPluginCompExternal,
-  DefPluginExtraInItem,
   DefPluginState,
-  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { BaseRow } from 'src/utils/layout/types';
 
-export interface RepChildrenRow extends BaseRow {
+export interface RepChildrenRow {
+  index: number;
   itemIds: string[];
 }
 
@@ -32,7 +28,6 @@ interface Config<
   T extends TypesFromCategory<CompCategory.Container>,
   ExternalProp extends string,
   InternalProp extends string,
-  Extras,
 > {
   componentType: T;
   settings: Required<Pick<ExternalConfig, 'title' | 'description'>>;
@@ -40,7 +35,7 @@ interface Config<
     [key in ExternalProp]: string[];
   };
   extraInItem: { [key in ExternalProp]: undefined } & {
-    [key in InternalProp]: ((RepChildrenRow & Extras) | undefined)[];
+    [key in InternalProp]: RepChildrenRow[];
   } & { internal: RepChildrenInternalState };
 }
 
@@ -48,7 +43,6 @@ interface ExternalConfig {
   componentType?: TypesFromCategory<CompCategory.Container>;
   dataModelGroupBinding?: string;
   multiPageSupport?: false | string; // Path to property that indicates if multi-page support is enabled
-  extraRowState?: unknown;
   externalProp?: string;
   internalProp?: string;
   title?: string;
@@ -59,7 +53,6 @@ const defaultConfig = {
   componentType: 'unknown' as TypesFromCategory<CompCategory.Container>,
   dataModelGroupBinding: 'group' as const,
   multiPageSupport: false as const,
-  extraRowState: undefined,
   externalProp: 'children' as const,
   internalProp: 'rows' as const,
   title: 'Children',
@@ -67,7 +60,6 @@ const defaultConfig = {
     'List of child component IDs to show inside (will be repeated according to the number of rows in the data model binding)',
 };
 
-type FromImport<I> = I extends GenerateImportedSymbol<infer T> ? T : I;
 type ConfigOrDefault<C, D> = D & C extends never ? C : D & C;
 type Combined<E extends ExternalConfig> = {
   [key in keyof Required<ExternalConfig>]: Exclude<ConfigOrDefault<E[key], (typeof defaultConfig)[key]>, undefined>;
@@ -77,11 +69,8 @@ type Setting<E extends ExternalConfig, P extends keyof ExternalConfig> = Combine
 type ToInternal<E extends ExternalConfig> = Config<
   Setting<E, 'componentType'>,
   Setting<E, 'externalProp'>,
-  Setting<E, 'internalProp'>,
-  FromImport<Setting<E, 'extraRowState'>>
+  Setting<E, 'internalProp'>
 >;
-
-type Row<E extends ExternalConfig> = (RepChildrenRow & E['extraRowState']) | undefined;
 
 export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultConfig>
   extends NodeDefPlugin<ToInternal<E>>
@@ -155,46 +144,6 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     return this.settings.multiPageSupport !== false && dot.pick(this.settings.multiPageSupport, item) === true;
   }
 
-  itemFactory({ item, idMutators }: DefPluginStateFactoryProps<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawChildren = ((item as any)[this.settings.externalProp] ?? []) as string[];
-
-    const multiPage = this.usesMultiPage(item as DefPluginCompExternal<ToInternal<E>>);
-    let lastMultiPageIndex: number | undefined = undefined;
-    if (multiPage) {
-      lastMultiPageIndex = 0;
-      for (const id of rawChildren) {
-        const [pageIndex] = id.split(':', 2);
-        lastMultiPageIndex = Math.max(lastMultiPageIndex, parseInt(pageIndex, 10));
-      }
-    }
-
-    return {
-      [this.settings.externalProp]: undefined,
-      [this.settings.internalProp]: [],
-      internal: { lastMultiPageIndex, rawChildren, idMutators },
-    } as DefPluginExtraInItem<ToInternal<E>>;
-  }
-
-  addRowProps(internal: RepChildrenInternalState | undefined, rowIndex: number): Partial<RepChildrenRow> {
-    if (!internal) {
-      return {};
-    }
-
-    const children = internal.rawChildren
-      .map((childId) => {
-        if (internal.lastMultiPageIndex !== undefined) {
-          const [, cleanId] = childId.split(':', 2);
-          return cleanId;
-        }
-        return childId;
-      })
-      .map((childId) => internal.idMutators.reduce((id, mutator) => mutator(id), childId))
-      .map((id) => `${id}-${rowIndex}`);
-
-    return { itemIds: children };
-  }
-
   claimChildren({ claimChild, item }: DefPluginChildClaimerProps<ToInternal<E>>): void {
     const multiPage = this.usesMultiPage(item);
 
@@ -215,23 +164,8 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     }
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: number | undefined): string[] {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rows = (state.item as any)[this.settings.internalProp] as (Row<E> | undefined)[];
-    if (!rows) {
-      return emptyArray;
-    }
-
-    if (restriction !== undefined) {
-      return rows[restriction]?.itemIds ?? emptyArray;
-    }
-
-    const out: string[] = [];
-    for (let i = 0; i < rows.length; i++) {
-      const row = rows[i];
-      row?.itemIds && out.push(...row.itemIds);
-    }
-    return out;
+  pickDirectChildren(_state: DefPluginState<ToInternal<E>>, _restriction?: number | undefined): string[] {
+    throw new Error('Method not implemented any longer. Figure out how this can work again.');
   }
 
   isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string): boolean {
@@ -239,16 +173,4 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     // the RepeatingGroup component does.
     return false;
   }
-
-  stateIsReady(state: DefPluginState<ToInternal<E>>, fullState: NodesContext): boolean {
-    if (!super.stateIsReady(state, fullState)) {
-      return false;
-    }
-
-    const internalProp = this.settings.internalProp;
-    const rows = state.item?.[internalProp] as Row<E>[] | undefined;
-    return rows?.every((row) => row && row.uuid !== undefined && row.itemIds !== undefined) ?? false;
-  }
 }
-
-const emptyArray = [];
