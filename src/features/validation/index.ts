@@ -229,7 +229,7 @@ export interface BackendValidationIssue {
  * Expression validation object.
  */
 export type IExpressionValidation = {
-  message: string;
+  message: Expression | ExprValToActual;
   condition: Expression | ExprValToActual;
   severity: ValidationSeverity;
   showImmediately: boolean;
