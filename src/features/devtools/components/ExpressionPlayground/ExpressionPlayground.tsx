@@ -12,7 +12,8 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
+import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { Expression, ExprFunctionName } from 'src/features/expressions/types';
 
@@ -42,17 +43,18 @@ function usePlaygroundState() {
 
 export const ExpressionPlayground = () => {
   const input = useDevToolsStore((state) => state.exprPlayground.expression);
-  const forPage = useDevToolsStore((state) => state.exprPlayground.forPage);
-  const forComponentId = useDevToolsStore((state) => state.exprPlayground.forComponentId);
+  const nodeId = useDevToolsStore((state) => state.exprPlayground.nodeId);
   const setExpression = useDevToolsStore((state) => state.actions.exprPlaygroundSetExpression);
   const setContext = useDevToolsStore((state) => state.actions.exprPlaygroundSetContext);
   const setActiveTab = useDevToolsStore((state) => state.actions.setActiveTab);
   const nodeInspectorSet = useDevToolsStore((state) => state.actions.nodeInspectorSet);
   const currentPageId = useNavigationParam('pageKey');
+  const node = useNode(nodeId);
+  const nodePage = node?.page.pageKey;
 
   const { showAllSteps, setShowAllSteps, activeOutputTab, setActiveOutputTab, outputs, setOutputs } =
     usePlaygroundState();
-  const selectedContext = forPage && forComponentId ? [`${forPage}|${forComponentId}`] : [];
+  const selectedContext = nodeId ? [nodeId] : [];
 
   // This is OK if this function is called from places that immediately evaluates the expression again, thus
   // populating the output history with a fresh value.
@@ -61,7 +63,7 @@ export const ExpressionPlayground = () => {
   const componentOptions = NodesInternal.useMemoSelector((state) =>
     Object.values(state.nodeData).map((nodeData) => ({
       label: nodeData.layout.id,
-      value: `${nodeData.pageKey}|${nodeData.layout.id}`,
+      value: nodeData.layout.id,
     })),
   );
 
@@ -138,8 +140,7 @@ export const ExpressionPlayground = () => {
               onValueChange={(values) => {
                 const selected = values.at(0);
                 if (selected) {
-                  const [forPage, forComponentId] = selected.split('|', 2);
-                  setContext(forPage, forComponentId);
+                  setContext(selected);
                 }
               }}
               className={comboboxClasses.container}
@@ -154,22 +155,22 @@ export const ExpressionPlayground = () => {
                 </Combobox.Option>
               ))}
             </Combobox>
-            {forComponentId && forPage === currentPageId && (
+            {nodeId && nodePage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <a
                 href='#'
                 onClick={(e) => {
                   e.preventDefault();
                   setActiveTab(DevToolsTab.Components);
-                  nodeInspectorSet(forComponentId);
+                  nodeInspectorSet(nodeId);
                 }}
               >
                 Vis i komponent-utforskeren
               </a>
             )}
-            {forComponentId && forPage !== currentPageId && (
+            {nodeId && nodePage !== currentPageId && (
               <span>
-                Komponenten vises på siden <em>{forPage}</em>
+                Komponenten vises på siden <em>{nodePage}</em>
               </span>
             )}
             <div style={{ paddingTop: 10 }}>
@@ -199,7 +200,7 @@ export const ExpressionPlayground = () => {
           </Fieldset>
         </div>
       </SplitView>
-      <ExpressionRunner
+      <ExpressionRunnerWrapper
         key={input}
         outputs={outputs}
         setOutputs={setOutputs}
@@ -211,10 +212,22 @@ export const ExpressionPlayground = () => {
 
 type RunnerProps = Pick<ReturnType<typeof usePlaygroundState>, 'outputs' | 'setOutputs' | 'showAllSteps'>;
 
+function ExpressionRunnerWrapper(props: RunnerProps) {
+  const nodeId = useDevToolsStore((state) => state.exprPlayground.nodeId);
+
+  if (nodeId) {
+    return (
+      <DataModelLocationProviderFromNode nodeId={nodeId}>
+        <ExpressionRunner {...props} />
+      </DataModelLocationProviderFromNode>
+    );
+  }
+
+  return <ExpressionRunner {...props} />;
+}
+
 function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
   const input = useDevToolsStore((state) => state.exprPlayground.expression);
-  const forPage = useDevToolsStore((state) => state.exprPlayground.forPage);
-  const forComponentId = useDevToolsStore((state) => state.exprPlayground.forComponentId);
   const currentPageId = useNavigationParam('pageKey');
 
   const expression = useMemo(() => {
@@ -254,12 +267,6 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
     }
 
     try {
-      // TODO: Find the data model path for the target component instead
-      let evalContext = currentPageId ? { type: 'page', id: currentPageId } : { type: 'none' };
-      if (forPage && forComponentId) {
-        evalContext = { type: 'node', id: forComponentId };
-      }
-
       const calls: string[] = [];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const onAfterFunctionCall = (path: string[], func: ExprFunctionName, args: any[], result: any) => {
@@ -283,7 +290,7 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [currentPageId, dataSources, expression, forComponentId, forPage, outputs, setOutputs, showAllSteps]);
+  }, [currentPageId, dataSources, expression, outputs, setOutputs, showAllSteps]);
 
   return null;
 }
