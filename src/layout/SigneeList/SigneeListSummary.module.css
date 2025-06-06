@@ -20,6 +20,6 @@
 }
 
 .signeeDescription {
-  color: var(--ds-color-neutral-6);
+  color: var(--ds-color-neutral-text-subtle);
   font-style: italic;
 }

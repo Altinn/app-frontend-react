@@ -12,7 +12,7 @@
 }
 
 .listTable th {
-  background-color: var(--ds-color-neutral-1);
+  background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .listTable tr {
@@ -39,7 +39,7 @@
   display: flex;
   justify-content: right;
   align-items: center;
-  background-color: var(--ds-color-neutral-1);
+  background-color: var(--ds-color-neutral-background-tinted);
   width: 100%;
 }
 .paginationMobile {
@@ -52,11 +52,11 @@
 }
 
 .mobileGroup > div :hover {
-  background-color: var(--ds-color-neutral-1);
+  background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .mobile {
-  border-top: 1px solid var(--ds-color-neutral-2);
+  border-top: 1px solid var(--ds-color-neutral-border-subtle);
   padding: var(--ds-size-4);
   gap: var(--ds-size-8);
 }

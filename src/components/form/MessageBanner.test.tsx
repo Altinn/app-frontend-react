@@ -18,7 +18,7 @@ describe('MessageBanner', () => {
     expect(messageBanner).toBeInTheDocument();
     expect(messageBanner.className).toContain('default');
     const backgroundColor = window.getComputedStyle(messageBanner).backgroundColor;
-    const regularColor = window.getComputedStyle(document.body).getPropertyValue('--ds-color-neutral-2');
+    const regularColor = window.getComputedStyle(document.body).getPropertyValue('--ds-color-neutral-border-subtle');
     expect(backgroundColor).toEqual(regularColor);
   });
 
