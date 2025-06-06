@@ -287,7 +287,7 @@ interface CellProps extends GridRowProps {
   isSmall: boolean;
 }
 
-function SummaryCell({ cell, idx: idx, headerRow, mutableColumnSettings, row, isSmall }: CellProps) {
+function SummaryCell({ cell, idx, headerRow, mutableColumnSettings, row, isSmall }: CellProps) {
   const headerTitle = useHeaderText(headerRow, idx);
   if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
     mutableColumnSettings[idx] = cell.columnOptions;

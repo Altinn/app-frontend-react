@@ -65,21 +65,18 @@ export function ComponentValidations({ validations, node: _node }: Props) {
           <SoftValidations
             validations={warnings}
             severity='warning'
-            node={node}
           />
         )}
         {info.length > 0 && (
           <SoftValidations
             validations={info}
             severity='info'
-            node={node}
           />
         )}
         {success.length > 0 && (
           <SoftValidations
             validations={success}
             severity='success'
-            node={node}
           />
         )}
       </div>
@@ -112,7 +109,6 @@ function SoftValidations({
 }: {
   validations: BaseValidation<'warning' | 'info' | 'success'>[];
   severity: AlertSeverity;
-  node: LayoutNode;
 }) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
