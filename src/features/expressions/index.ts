@@ -73,7 +73,7 @@ export function evalExpr<V extends ExprVal = ExprVal>(
   options: EvalExprOptions,
 ): ExprValToActual<V> {
   if (!isExpression(expr)) {
-    return expr === undefined ? (options.defaultValue as ExprValToActual<V>) : (expr as ExprValToActual<V>);
+    return expr as ExprValToActual<V>;
   }
 
   const callbacks = {

@@ -261,11 +261,13 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
 
 function useIsHiddenPage(page: LayoutPage): boolean {
   const hiddenExpr = useHiddenLayoutsExpressions();
-  return useEvalExpressionInGenerator(hiddenExpr[page.pageKey], {
-    returnType: ExprVal.Boolean,
-    defaultValue: false,
-    errorIntroText: `Invalid hidden expression for page ${page.pageKey}`,
-  });
+  return (
+    useEvalExpressionInGenerator(hiddenExpr[page.pageKey], {
+      returnType: ExprVal.Boolean,
+      defaultValue: false,
+      errorIntroText: `Invalid hidden expression for page ${page.pageKey}`,
+    }) ?? false
+  );
 }
 
 interface ComponentProps {
