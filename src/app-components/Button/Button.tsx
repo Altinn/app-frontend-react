@@ -39,6 +39,19 @@ export type ButtonProps = {
   | 'asChild'
 >;
 
+type DSButtonColor = 'accent' | 'neutral' | 'success' | 'danger' | 'brand1' | 'brand2' | 'brand3' | undefined;
+
+function mapColorNames(color: ButtonColor): DSButtonColor {
+  switch (color) {
+    case 'first':
+      return 'accent';
+    case 'second':
+      return 'neutral';
+    default:
+      return color ?? 'accent';
+  }
+}
+
 export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(function Button(
   {
     id,
@@ -76,7 +89,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
       id={id}
       disabled={disabled || isLoading}
       variant={variant}
-      data-color={color}
+      data-color={mapColorNames(color)}
       data-size={size}
       data-fullwidth={fullWidth ? true : undefined}
       ref={ref}
