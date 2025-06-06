@@ -42,7 +42,7 @@
   --repeating-group-edit-surface-color: #f1fbff;
   --repeating-group-edit-border-color: var(--ds-color-accent-border-default);
   --repeating-group-edit-divider-color: var(--ds-color-accent-border-subtle);
-  --repeating-group-error-color: var(--ds-color-danger-surface-active);
+  --repeating-group-error-color: var(--ds-color-danger-surface-tinted);
 
   /*Border styles*/
   --border-color-primary: var(--colors-primary-blueMedium);
