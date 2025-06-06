@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Table } from '@digdir/designsystemet-react';
+import { Table, ValidationMessage } from '@digdir/designsystemet-react';
 import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -23,6 +23,7 @@ import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponen
 import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
@@ -65,7 +66,7 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
             ))}
             {!pdfModeActive && !isSmall && (
               <Table.HeaderCell className={tableClasses.narrowLastColumn}>
-                <span className={tableClasses.visuallyHidden}>
+                <span className={utilClasses.visuallyHidden}>
                   <Lang id='general.edit' />
                 </span>
               </Table.HeaderCell>
@@ -90,8 +91,9 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
         </Table.Body>
       </Table>
       {errors?.map(({ message }) => (
-        <ErrorMessage
+        <ValidationMessage
           key={message.key}
+          data-size='sm'
           className={classes.errorMessage}
         >
           <ExclamationmarkTriangleIcon fontSize='1.5rem' />
@@ -100,7 +102,7 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
             params={message.params}
             node={componentNode}
           />
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
     </div>
   );

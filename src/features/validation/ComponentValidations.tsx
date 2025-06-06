@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Alert as AlertDesignSystem, ErrorMessage } from '@digdir/designsystemet-react';
+import { Alert as AlertDesignSystem, ValidationMessage } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
+import classes from 'src/features/validation/ComponentValidations.module.css';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useCurrentNode } from 'src/layout/FormComponentContext';
@@ -96,16 +97,21 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
-    <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
+    <ul className={classes.errorList}>
       {validations.map((validation) => (
         <li key={getUniqueKeyFromObject(validation)}>
-          <ErrorMessage size='small'>
-            <Lang
-              id={validation.message.key}
-              params={validation.message.params}
-              node={node}
-            />
-          </ErrorMessage>
+          <ValidationMessage
+            data-size='sm'
+            asChild
+          >
+            <span>
+              <Lang
+                id={validation.message.key}
+                params={validation.message.params}
+                node={node}
+              />
+            </span>
+          </ValidationMessage>
         </li>
       ))}
     </ul>
@@ -124,10 +130,10 @@ function SoftValidations({
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
-    <div style={{ paddingTop: 'var(--fds-spacing-2)' }}>
+    <div style={{ paddingTop: 'var(--ds-size-2)' }}>
       <AlertDesignSystem
         style={{ breakInside: 'avoid' }}
-        severity={severity}
+        data-color={severity}
       >
         <ul style={{ paddingLeft: 0, listStyleType: 'none' }}>
           {validations.map((validation) => (
