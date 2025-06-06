@@ -2,9 +2,8 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { typedBoolean } from 'src/utils/typing';
-import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { FormDataSelector } from 'src/layout';
-import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
+import type { CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
@@ -45,17 +44,6 @@ export function useNodeItem(node: LayoutNode | undefined, selector: never): unkn
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return selector ? (selector as any)(data.item) : data.item;
   });
-}
-
-const selectNodeItem = <T extends CompTypes>(data: NodeData<T>): CompInternal<T> | undefined =>
-  data.item as CompInternal<T>;
-export function useWaitForNodeItem<RetVal, N extends LayoutNode | undefined>(
-  node: N,
-): WaitForState<NodeItemFromNode<N> | undefined, RetVal> {
-  return NodesInternal.useWaitForNodeData(node, selectNodeItem) as WaitForState<
-    NodeItemFromNode<N> | undefined,
-    RetVal
-  >;
 }
 
 const emptyArray: LayoutNode[] = [];

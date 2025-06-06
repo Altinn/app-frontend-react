@@ -6,6 +6,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
+import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/rowUtils';
 import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer';
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
@@ -16,30 +17,23 @@ import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem
 import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseRow } from 'src/utils/layout/types';
 
 interface FullProps extends SummaryRendererProps<'RepeatingGroup'> {
-  rows: RepGroupRows;
+  rows: BaseRow[];
   inExcludedChildren: (n: LayoutNode) => boolean;
 }
 
 interface FullRowProps extends Omit<FullProps, 'rows'> {
-  row: RepGroupRow;
+  row: BaseRow;
 }
 
 export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGroup'>) {
   const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode) ?? {};
-  const { rows: _rows } = useNodeItem(props.targetNode);
+  const rows = useRepeatingGroupVisibleRows(props.targetNode);
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false;
-
-  const rows: RepGroupRow[] = [];
-  for (const row of _rows) {
-    if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
-      continue;
-    }
-    rows.push(row);
-  }
 
   if (largeGroup && props.overrides?.largeGroup !== false && rows.length) {
     return (

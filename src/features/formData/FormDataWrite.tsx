@@ -985,6 +985,16 @@ export const FD = {
     return useCallback((reference) => getFreshNumRows(store.getState(), reference), [store]);
   },
 
+  useGetFreshRows: (): ((reference: IDataModelReference | undefined) => BaseRow[]) => {
+    const store = useStore();
+    return useCallback(
+      (reference) =>
+        (reference && dot.pick(reference.field, store.getState().dataModels[reference.dataType].currentData)) ||
+        emptyArray,
+      [store],
+    );
+  },
+
   /**
    * Get the UUID of a row in a repeating group. This will always be 'fresh', meaning it will update immediately when
    * a new row is added/removed.

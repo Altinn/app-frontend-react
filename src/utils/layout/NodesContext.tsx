@@ -25,7 +25,6 @@ import {
   Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
@@ -1131,18 +1130,6 @@ export const NodesInternal = {
 
       return data ? selector(data as NodeDataFromNode<N>, s.readiness, s) : undefined;
     }) as N extends undefined ? Out | undefined : Out;
-  },
-  useGetNodeData<N extends LayoutNode | undefined, Out>(
-    node: N,
-    selector: (state: NodeDataFromNode<N>) => Out,
-  ): () => Out | undefined {
-    const store = Store.useStore();
-    const selectorRef = useAsRef(selector);
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return useCallback(
-      () => getNodeData(node, store.getState(), (nodeData) => selectorRef.current(nodeData), insideGenerator),
-      [store, node, selectorRef, insideGenerator],
-    );
   },
   useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
     node: N,

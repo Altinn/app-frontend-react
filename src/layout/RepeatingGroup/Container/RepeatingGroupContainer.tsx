@@ -19,6 +19,7 @@ import {
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
+import { useRepeatingGroupAllBaseRows } from 'src/layout/RepeatingGroup/rowUtils';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -77,7 +78,7 @@ function ModeOnlyEdit({ editingId }: { editingId: string }) {
 
   const groupBinding = useNodeItem(node, (i) => i.dataModelBindings.group);
   const grid = useNodeItem(node, (i) => i.grid);
-  const rowIndex = useNodeItem(node, (i) => i.rows.find((r) => r?.uuid === editingId)?.index);
+  const rowIndex = useRepeatingGroupAllBaseRows(node).find((r) => r.uuid === editingId)?.index;
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
 
   if (rowIndex === undefined) {

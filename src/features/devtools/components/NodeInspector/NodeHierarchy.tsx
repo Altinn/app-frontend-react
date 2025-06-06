@@ -8,10 +8,11 @@ import cn from 'classnames';
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
 import { nodeIdsFromGridRow } from 'src/layout/Grid/tools';
+import { useRepeatingGroupAllRowsWithHidden } from 'src/layout/RepeatingGroup/rowUtils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
-import type { CompInternal } from 'src/layout/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Common {
   selected: string | undefined;
@@ -120,11 +121,12 @@ const NodeHierarchyItem = ({ nodeId, onClick, selected }: INodeHierarchyItemProp
 };
 
 function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyItemProps) {
-  const node = useNode(nodeId);
+  const node = useNode(nodeId) as LayoutNode<'RepeatingGroup'> | undefined;
   const isRepGroup = node?.isType('RepeatingGroup');
-  const nodeItem = useNodeItem(node) as CompInternal<'RepeatingGroup'>;
+  const nodeItem = useNodeItem(node);
+  const rows = useRepeatingGroupAllRowsWithHidden(node);
 
-  if (!isRepGroup) {
+  if (!isRepGroup || !nodeItem) {
     return null;
   }
 
@@ -138,16 +140,16 @@ function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyI
           onClick={onClick}
         />
       )}
-      {nodeItem.rows.map((row) => (
+      {rows.map((row) => (
         <li
           className={classes.repGroupRow}
           key={row?.index}
         >
           <span className={classes.componentMetadata}>
-            Rad {row?.index} {row?.groupExpressions?.hiddenRow === true ? '(skjult)' : ''}
+            Rad {row?.index} {row.hidden ? '(skjult)' : ''}
           </span>
           <NodeHierarchy
-            nodeIds={row?.itemIds ?? []}
+            nodeIds={nodeItem.childIds.map((childId) => `${childId}-${row.index}`)}
             selected={selected}
             onClick={onClick}
           />

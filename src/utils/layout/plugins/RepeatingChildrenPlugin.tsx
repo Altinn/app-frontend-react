@@ -13,11 +13,6 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 
-export interface RepChildrenRow {
-  index: number;
-  itemIds: string[];
-}
-
 export interface RepChildrenInternalState {
   lastMultiPageIndex?: number;
   rawChildren: string[];
@@ -35,7 +30,7 @@ interface Config<
     [key in ExternalProp]: string[];
   };
   extraInItem: { [key in ExternalProp]: undefined } & {
-    [key in InternalProp]: RepChildrenRow[];
+    [key in InternalProp]: string[];
   } & { internal: RepChildrenInternalState };
 }
 
@@ -54,7 +49,7 @@ const defaultConfig = {
   dataModelGroupBinding: 'group' as const,
   multiPageSupport: false as const,
   externalProp: 'children' as const,
-  internalProp: 'rows' as const,
+  internalProp: 'childIds' as const,
   title: 'Children',
   description:
     'List of child component IDs to show inside (will be repeated according to the number of rows in the data model binding)',
@@ -126,18 +121,6 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     return `
       <${NodeRepeatingChildren} claims={props.childClaims} plugin={this.plugins['${this.getKey()}'] as any} />
     `.trim();
-  }
-
-  extraMethodsInDef(): string[] {
-    const ExprResolver = new CG.import({
-      import: 'ExprResolver',
-      from: 'src/layout/LayoutComponent',
-    });
-
-    return [
-      `// You have to implement this method because the component uses the RepeatingChildrenPlugin
-      abstract evalExpressionsForRow(props: ${ExprResolver}<'${this.component!.type}'>): unknown;`,
-    ];
   }
 
   private usesMultiPage(item: DefPluginCompExternal<ToInternal<E>>): boolean {

@@ -12,12 +12,11 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { GroupExpressions, RepGroupInternal } from 'src/layout/RepeatingGroup/types';
+import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
@@ -47,33 +46,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
           }
         : undefined,
     } as RepGroupInternal;
-  }
-
-  evalExpressionsForRow(props: ExprResolver<'RepeatingGroup'>) {
-    const { evalBool, item, evalTrb } = props;
-
-    const evaluatedTrb = evalTrb();
-    const textResourceBindings: GroupExpressions['textResourceBindings'] = {
-      edit_button_close: evaluatedTrb?.textResourceBindings?.edit_button_close,
-      edit_button_open: evaluatedTrb?.textResourceBindings?.edit_button_open,
-      save_and_next_button: evaluatedTrb?.textResourceBindings?.save_and_next_button,
-      save_button: evaluatedTrb?.textResourceBindings?.save_button,
-    };
-    const edit: GroupExpressions['edit'] = {
-      alertOnDelete: evalBool(item.edit?.alertOnDelete, false),
-      editButton: evalBool(item.edit?.editButton, true),
-      deleteButton: evalBool(item.edit?.deleteButton, true),
-      saveAndNextButton: evalBool(item.edit?.saveAndNextButton, false),
-      saveButton: evalBool(item.edit?.saveButton, true),
-    };
-
-    const groupExpressions: GroupExpressions = {
-      hiddenRow: evalBool(item.hiddenRow, false),
-      textResourceBindings: item.textResourceBindings ? textResourceBindings : undefined,
-      edit: item.edit ? edit : undefined,
-    };
-
-    return { groupExpressions } as RepGroupRowExtras;
   }
 
   renderSummary(props: SummaryRendererProps<'RepeatingGroup'>): JSX.Element | null {
@@ -141,6 +113,10 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       return true;
     }
 
+    // TODO: Re-implement the rest of this
+    return false;
+
+    /*
     const { baseComponentId, depth } = splitDashedKey(childId);
     const rowIndex = depth.at(-1);
     const row = rowIndex !== undefined ? state.item?.rows[rowIndex] : undefined;
@@ -179,13 +155,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     // }
 
     return hiddenImplicitly;
-  }
-
-  stateIsReady(state: NodeData<'RepeatingGroup'>): boolean {
-    if (!super.stateIsReady(state)) {
-      return false;
-    }
-
-    return state.item?.rows?.every((row) => row && row.groupExpressions !== undefined) ?? false;
+     */
   }
 }

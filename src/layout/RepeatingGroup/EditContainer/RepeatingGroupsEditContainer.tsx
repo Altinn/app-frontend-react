@@ -19,10 +19,12 @@ import {
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
+import { useRepeatingGroupRowWithExpressions, useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/rowUtils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
+import type { RepGroupRow } from 'src/layout/RepeatingGroup/rowUtils';
 
 export interface IRepeatingGroupsEditContainer {
   editId: string;
@@ -33,9 +35,9 @@ export interface IRepeatingGroupsEditContainer {
 export function RepeatingGroupsEditContainer({ editId, ...props }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const { node } = useRepeatingGroup();
   const group = useNodeItem(node);
-  const row = group.rows.find((r) => r && r.uuid === editId);
-
-  if (!row || row.groupExpressions?.hiddenRow) {
+  const rows = useRepeatingGroupVisibleRows(node);
+  const row = rows.find((r) => r && r.uuid === editId);
+  if (!row) {
     return null;
   }
 
@@ -59,10 +61,11 @@ function RepeatingGroupsEditContainerInternal({
   row,
 }: IRepeatingGroupsEditContainer & {
   group: CompInternal<'RepeatingGroup'>;
-  row: CompInternal<'RepeatingGroup'>['rows'][number];
+  row: RepGroupRow;
 }): JSX.Element | null {
   const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
+  const childIds = useNodeItem(node, (i) => i.childIds);
 
   const editingRowIndex = visibleRows.find((r) => r.uuid === editId)?.index;
   let moreVisibleRowsAfterEditIndex = false;
@@ -76,8 +79,9 @@ function RepeatingGroupsEditContainerInternal({
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = node.id;
-  const textsForRow = row?.groupExpressions?.textResourceBindings;
-  const editForRow = row?.groupExpressions?.edit;
+  const rowWithExpressions = useRepeatingGroupRowWithExpressions(node, { uuid: row.uuid });
+  const textsForRow = rowWithExpressions?.textResourceBindings;
+  const editForRow = rowWithExpressions?.edit;
   const editForGroup = group.edit;
   const { refSetter } = useRepeatingGroupsFocusContext();
   const texts = {
@@ -86,7 +90,7 @@ function RepeatingGroupsEditContainerInternal({
   };
 
   const freshUuid = FD.useFreshRowUuid(group.dataModelBindings?.group, row?.index);
-  const isFresh = freshUuid === editId;
+  const isFresh = freshUuid === editId; // TODO: No need for this trick
 
   const isNested = node.parent instanceof LayoutNode;
   let saveButtonVisible =
@@ -154,10 +158,10 @@ function RepeatingGroupsEditContainerInternal({
           style={{ flexBasis: 'auto' }}
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
-          {row?.itemIds?.map((nodeId) => (
+          {childIds.map((nodeId) => (
             <ChildComponent
-              key={nodeId}
-              nodeId={nodeId}
+              key={`${nodeId}-${row.index}`}
+              nodeId={`${nodeId}-${row.index}`}
               multiPageIndex={multiPageIndex}
               multiPageEnabled={multiPageEnabled}
               tableColumns={group.tableColumns}

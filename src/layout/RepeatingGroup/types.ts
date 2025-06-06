@@ -9,22 +9,19 @@ type RepGroupEdit = Exclude<Comp['edit'], undefined>;
 
 // These types define the properties in a repeating group config that will have their expressions resolved
 // per row instead of for the entire repeating group component at once.
-type PerRowProps = 'hiddenRow';
 type PerRowTrb = 'save_and_next_button' | 'save_button' | 'edit_button_close' | 'edit_button_open';
 type PerRowEdit = 'deleteButton' | 'saveButton' | 'editButton' | 'alertOnDelete' | 'saveAndNextButton';
-export type GroupExpressions = ExprResolved<
-  Pick<Comp, PerRowProps> & {
-    textResourceBindings?: Pick<RepGroupTrb, PerRowTrb>;
-    edit?: Pick<RepGroupEdit, PerRowEdit>;
-  }
->;
+export type GroupExpressions = ExprResolved<{
+  textResourceBindings?: Pick<RepGroupTrb, PerRowTrb>;
+  edit?: Pick<RepGroupEdit, PerRowEdit>;
+}>;
 
 // This then, by its definition, is the opposite of the above types. It's the properties that are resolved for the
 // entire repeating group component at once, including the 'rows' property.
 type RepGroupBase = ExprResolved<
   Omit<
     Comp,
-    | PerRowProps
+    | 'hiddenRow'
     | 'textResourceBindings'
     | 'edit'
     | 'rows'
