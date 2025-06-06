@@ -8,22 +8,21 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
-import { useDataModelBindingTranspose } from 'src/utils/layout/useDataModelBindingTranspose';
+import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
+import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelReference, IOptionSource } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
 interface IUseSourceOptionsArgs {
   source: IOptionSource | undefined;
-  node: LayoutNode;
 }
 
-export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOptionInternal[] | undefined => {
+export const useSourceOptions = ({ source }: IUseSourceOptionsArgs): IOptionInternal[] | undefined => {
   const langTools = useLanguage();
-  const groupReference = useGroupReference(source, node);
+  const groupReference = useGroupReference(source);
   const valueSubPath = getValueSubPath(source);
   const rawValues = FD.useDebouncedSelect((pick) => {
     if (!groupReference || !valueSubPath) {
@@ -100,9 +99,9 @@ export const useSourceOptions = ({ source, node }: IUseSourceOptionsArgs): IOpti
 /**
  * Get the group reference for the source options. This should be transposed to match the current data model location.
  */
-function useGroupReference(source: IOptionSource | undefined, node: LayoutNode): IDataModelReference | undefined {
+function useGroupReference(source: IOptionSource | undefined): IDataModelReference | undefined {
+  const currentLocation = useCurrentDataModelLocation();
   const currentLayoutSet = useCurrentLayoutSet();
-  const transposeSelector = useDataModelBindingTranspose();
   if (!source) {
     return undefined;
   }
@@ -113,13 +112,12 @@ function useGroupReference(source: IOptionSource | undefined, node: LayoutNode):
   if (!groupDataType) {
     return undefined;
   }
-  const rawReference: IDataModelReference = { dataType: groupDataType, field: cleanGroup };
-  const groupReference = transposeSelector(node, rawReference);
-  if (!groupReference) {
-    return undefined;
+  const untransposed: IDataModelReference = { dataType: groupDataType, field: cleanGroup };
+  if (!currentLocation) {
+    return untransposed;
   }
 
-  return groupReference;
+  return transposeDataBinding({ subject: untransposed, currentLocation });
 }
 
 /**

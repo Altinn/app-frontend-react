@@ -23,7 +23,6 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export type OptionsValueType = 'single' | 'multi';
 
 interface FetchOptionsProps {
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
@@ -115,11 +114,11 @@ function useOptionsUrl(item: CompIntermediateExact<CompWithBehavior<'canHaveOpti
   return useGetOptionsUrl(optionsId, mapping, queryParameters, secure);
 }
 
-export function useFetchOptions({ node, item }: FetchOptionsProps) {
+export function useFetchOptions({ item }: FetchOptionsProps) {
   const { options, optionsId, source } = item;
   const url = useOptionsUrl(item);
 
-  const sourceOptions = useSourceOptions({ source, node });
+  const sourceOptions = useSourceOptions({ source });
   const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
   const { data, isFetching, error } = useGetOptionsQuery(url);
   useLogFetchError(error, item);
