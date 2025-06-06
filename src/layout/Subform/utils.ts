@@ -81,7 +81,6 @@ const dataSourcesNotSupportedInSubform = new Set([
   'optionsSelector',
   'isHiddenSelector',
   'nodeDataSelector',
-  'transposeSelector',
   'layoutLookups',
   'displayValues',
 ] satisfies (keyof ExpressionDataSources)[]);

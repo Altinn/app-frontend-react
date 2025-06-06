@@ -7,8 +7,6 @@ import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
 
-export type DataModelTransposeSelector = ReturnType<typeof useDataModelBindingTranspose>;
-
 /**
  * This takes a dataModel path (without indexes) and alters it to add indexes such that the data model path refers
  * to an item in the same repeating group row (or nested repeating group row) as the data model for the current

@@ -33,7 +33,6 @@ import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
-import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
 
 export interface ExpressionDataSources {
   process?: IProcess;
@@ -49,7 +48,6 @@ export interface ExpressionDataSources {
   defaultDataType: string | null;
   isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
   nodeDataSelector: NodeDataSelector;
-  transposeSelector: DataModelTransposeSelector;
   externalApis: ExternalApisResult;
   currentDataModelPath: IDataModelReference | undefined;
   codeListSelector: CodeListSelector;
