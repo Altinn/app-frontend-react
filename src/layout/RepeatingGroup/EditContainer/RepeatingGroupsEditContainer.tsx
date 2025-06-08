@@ -65,7 +65,7 @@ function RepeatingGroupsEditContainerInternal({
 }): JSX.Element | null {
   const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
-  const childIds = useNodeItem(node, (i) => i.childIds);
+  const childIds = RepGroupHooks.useChildIds(node);
 
   const editingRowIndex = visibleRows.find((r) => r.uuid === editId)?.index;
   let moreVisibleRowsAfterEditIndex = false;

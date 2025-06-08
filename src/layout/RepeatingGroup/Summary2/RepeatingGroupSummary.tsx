@@ -30,7 +30,7 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   const overrides = useSummaryOverrides(componentNode);
   const display = overrides?.display ?? 'list';
   const isCompact = useSummaryProp('isCompact');
-  const childIds = useNodeItem(componentNode, (i) => i.childIds);
+  const childIds = RepGroupHooks.useChildIds(target);
   const rows = RepGroupHooks.useVisibleRows(target);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');

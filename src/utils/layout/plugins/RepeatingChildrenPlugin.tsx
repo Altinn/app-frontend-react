@@ -18,9 +18,6 @@ interface Config<T extends TypesFromCategory<CompCategory.Container>> {
   expectedFromExternal: {
     children: string[];
   };
-  extraInItem: { children: undefined } & {
-    childIds: string[];
-  };
 }
 
 interface ExternalConfig {

@@ -125,6 +125,7 @@ function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyI
   const isRepGroup = node?.isType('RepeatingGroup');
   const nodeItem = useNodeItem(node);
   const rows = RepGroupHooks.useAllRowsWithHidden(node);
+  const childIds = RepGroupHooks.useChildIds(node);
 
   if (!isRepGroup || !nodeItem) {
     return null;
@@ -149,7 +150,7 @@ function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyI
             Rad {row?.index} {row.hidden ? '(skjult)' : ''}
           </span>
           <NodeHierarchy
-            nodeIds={nodeItem.childIds.map((childId) => `${childId}-${row.index}`)}
+            nodeIds={childIds.map((childId) => `${childId}-${row.index}`)}
             selected={selected}
             onClick={onClick}
           />

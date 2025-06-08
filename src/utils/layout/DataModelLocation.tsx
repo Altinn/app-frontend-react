@@ -1,17 +1,24 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { IDataModelReference } from 'src/layout/common.generated';
 
-const { Provider, useCtx } = createContext<IDataModelReference | undefined>({
+export type IdMutator = (id: string) => string;
+
+interface DMLocation {
+  reference: IDataModelReference;
+  idMutators: IdMutator[];
+}
+
+const { Provider, useCtx } = createContext<DMLocation | undefined>({
   name: 'DataModelLocation',
   default: undefined,
   required: false,
 });
 
-export const useCurrentDataModelLocation = () => useCtx();
+export const useCurrentDataModelLocation = () => useCtx()?.reference;
 
 export function DataModelLocationProvider({
   groupBinding,
@@ -21,7 +28,17 @@ export function DataModelLocationProvider({
   groupBinding: IDataModelReference;
   rowIndex: number;
 }>) {
-  return <Provider value={useDataModelLocationForRow(groupBinding, rowIndex)}>{children}</Provider>;
+  const parentCtx = useCtx();
+  return (
+    <Provider
+      value={{
+        reference: useDataModelLocationForRow(groupBinding, rowIndex),
+        idMutators: [...(parentCtx?.idMutators ?? []), (id) => `${id}-${rowIndex}`],
+      }}
+    >
+      {children}
+    </Provider>
+  );
 }
 
 export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWithChildren<{ nodeId: string }>) {
@@ -69,5 +86,20 @@ export function useDataModelLocationForRow(groupBinding: IDataModelReference, ro
       field: `${groupBinding.field}[${rowIndex}]`,
     }),
     [groupBinding, rowIndex],
+  );
+}
+
+export function useComponentIdMutator(): IdMutator {
+  const mutators = useCtx()?.idMutators;
+  return useCallback(
+    (id) => {
+      let newId = id;
+      for (const mutator of mutators ?? []) {
+        newId = mutator(newId);
+      }
+
+      return newId;
+    },
+    [mutators],
   );
 }

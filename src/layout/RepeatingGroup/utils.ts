@@ -5,6 +5,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -183,5 +184,21 @@ export const RepGroupHooks = {
     }
 
     return lastMultiPageIndex;
+  },
+
+  useChildIds(node: LayoutNode<'RepeatingGroup'> | undefined) {
+    const component = useLayoutLookups().getComponent(node?.baseId, 'RepeatingGroup');
+    const idMutator = useComponentIdMutator();
+    if (!component?.edit?.multiPage) {
+      return component?.children.map(idMutator) ?? [];
+    }
+
+    const childIds: string[] = [];
+    for (const id of component.children) {
+      const [_, baseId] = id.split(':', 2);
+      childIds.push(idMutator(baseId));
+    }
+
+    return childIds;
   },
 };
