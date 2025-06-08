@@ -26,7 +26,6 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
@@ -105,10 +104,9 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
 
   const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const layoutLookups = useLayoutLookups();
-  const dataModelLocation = useDataModelLocationForRow(group.dataModelBindings.group, index);
   const rawTableIds = useTableComponentIds(node);
-  const displayData = useDisplayDataFor(rawTableIds, dataModelLocation);
-  const tableIds = useIndexedComponentIds(rawTableIds, dataModelLocation);
+  const displayData = useDisplayDataFor(rawTableIds);
+  const tableIds = useIndexedComponentIds(rawTableIds);
   const tableItems = rawTableIds.map((baseId, index) => ({
     baseId,
     id: tableIds[index],
