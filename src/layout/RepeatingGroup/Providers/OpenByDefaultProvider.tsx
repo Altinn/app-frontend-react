@@ -23,7 +23,6 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
   const { visibleRows } = useRepeatingGroupRowState();
   const state = useRepeatingGroupSelector((state) => ({
     editingId: state.editingId,
-    addingIds: state.addingIds,
   }));
 
   const hasNoRows = visibleRows.length === 0;

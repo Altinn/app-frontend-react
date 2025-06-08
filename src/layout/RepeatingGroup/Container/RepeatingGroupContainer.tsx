@@ -172,11 +172,10 @@ function AddButton() {
   const { triggerFocus } = useRepeatingGroupsFocusContext();
   const { node, addRow } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
-  const { editingAll, editingNone, isEditingAnyRow, currentlyAddingRow } = useRepeatingGroupSelector((state) => ({
+  const { editingAll, editingNone, isEditingAnyRow } = useRepeatingGroupSelector((state) => ({
     editingAll: state.editingAll,
     editingNone: state.editingNone,
     isEditingAnyRow: state.editingId !== undefined,
-    currentlyAddingRow: state.addingIds.length > 0,
   }));
 
   const item = useNodeItem(node);
@@ -223,7 +222,6 @@ function AddButton() {
         }
       }}
       variant='secondary'
-      disabled={currentlyAddingRow}
     >
       <PlusIcon
         fontSize='1.5rem'

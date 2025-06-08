@@ -25,13 +25,10 @@ interface Store {
   editingNone: boolean;
   editingId: string | undefined;
   deletingIds: string[];
-  addingIds: string[];
   currentPage: number | undefined;
 }
 
 interface ZustandHiddenMethods {
-  startAddingRow: (uuid: string) => void;
-  endAddingRow: (uuid: string) => void;
   startDeletingRow: (row: BaseRow) => void;
   endDeletingRow: (row: BaseRow, successful: boolean) => void;
 }
@@ -217,7 +214,6 @@ function newStore({ getRows, editMode, pagination }: NewStoreProps) {
     isFirstRender: true,
     editingId: undefined,
     deletingIds: [],
-    addingIds: [],
     currentPage: pagination ? 0 : undefined,
 
     closeForEditing: (row) => {
@@ -261,25 +257,6 @@ function newStore({ getRows, editMode, pagination }: NewStoreProps) {
         const currentIndex = editableRows.findIndex((row) => row.uuid === state.editingId);
         const nextRow = editableRows[currentIndex + 1];
         return { editingId: nextRow.uuid, ...gotoPageForRow(nextRow, paginationState, visibleRows) };
-      });
-    },
-
-    startAddingRow: (uuid) => {
-      set((state) => {
-        if (state.addingIds.includes(uuid)) {
-          return state;
-        }
-        return { addingIds: [...state.addingIds, uuid], editingId: undefined };
-      });
-    },
-
-    endAddingRow: (uuid) => {
-      set((state) => {
-        const i = state.addingIds.indexOf(uuid);
-        if (i === -1) {
-          return state;
-        }
-        return { addingIds: [...state.addingIds.slice(0, i), ...state.addingIds.slice(i + 1)] };
       });
     },
 
@@ -425,7 +402,6 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   );
 
   const addRow = useCallback(async (): Promise<AddRowResult> => {
-    const { startAddingRow, endAddingRow } = stateRef.current;
     if (!groupBinding) {
       return { result: 'stoppedByBinding', uuid: undefined, index: undefined };
     }
@@ -438,11 +414,6 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       reference: groupBinding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
-
-    // TODO: Test this and remove what's not needed
-    // markNodesNotReady(); // Doing this early to prevent re-renders when this is added to the data model
-    startAddingRow(uuid);
-    endAddingRow(uuid);
 
     // It may take some time until effects run and the row is put into either the visibleRows or hiddenRows state in
     // the ref, so we'll loop this a few times until we find the row.
@@ -464,7 +435,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     }
 
     return { result: 'addedAndHidden', uuid, index };
-  }, [stateRef, groupBinding, maybeValidateRow, appendToList, getState, openForEditing]);
+  }, [groupBinding, maybeValidateRow, appendToList, getState, openForEditing]);
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
