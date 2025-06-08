@@ -95,12 +95,15 @@ export const RepGroupHooks = {
     return useMemo(
       () =>
         (groupBinding &&
-          rows.map((row) => ({
-            ...row,
-            hidden: evalBool({ expr: hiddenRow, dataSources, groupBinding, rowIndex: row.index }),
-            editButton: evalBool({ expr: editButton, dataSources, groupBinding, rowIndex: row.index }),
-            deleteButton: evalBool({ expr: deleteButton, dataSources, groupBinding, rowIndex: row.index }),
-          }))) ??
+          rows.map((row) => {
+            const baseProps = { dataSources, groupBinding, rowIndex: row.index };
+            return {
+              ...row,
+              hidden: evalBool({ expr: hiddenRow, ...baseProps }) ?? false,
+              editButton: evalBool({ expr: editButton, ...baseProps, defaultValue: true }) ?? true,
+              deleteButton: evalBool({ expr: deleteButton, ...baseProps, defaultValue: true }) ?? true,
+            };
+          })) ??
         noRows,
       [dataSources, deleteButton, editButton, groupBinding, hiddenRow, rows],
     );
@@ -116,12 +119,15 @@ export const RepGroupHooks = {
 
     return useCallback(() => {
       const freshRows = getFreshRows(groupBinding);
-      return freshRows.map((row) => ({
-        ...row,
-        hidden: evalBool({ expr: hiddenRow, dataSources, groupBinding, rowIndex: row.index }),
-        editButton: evalBool({ expr: editButton, dataSources, groupBinding, rowIndex: row.index }),
-        deleteButton: evalBool({ expr: deleteButton, dataSources, groupBinding, rowIndex: row.index }),
-      }));
+      return freshRows.map((row) => {
+        const baseProps = { dataSources, groupBinding, rowIndex: row.index };
+        return {
+          ...row,
+          hidden: evalBool({ expr: hiddenRow, ...baseProps }) ?? false,
+          editButton: evalBool({ expr: editButton, ...baseProps, defaultValue: true }) ?? true,
+          deleteButton: evalBool({ expr: deleteButton, ...baseProps, defaultValue: true }) ?? true,
+        };
+      });
     }, [dataSources, deleteButton, editButton, getFreshRows, groupBinding, hiddenRow]);
   },
 
@@ -144,7 +150,7 @@ export const RepGroupHooks = {
       const baseProps = { dataSources, groupBinding, rowIndex: row.index };
       return {
         ...row,
-        hidden: evalBool({ expr: hiddenRow, ...baseProps }),
+        hidden: evalBool({ expr: hiddenRow, ...baseProps }) ?? false,
         textResourceBindings: trb
           ? {
               edit_button_close: evalString({ expr: trb.edit_button_close, ...baseProps }),
@@ -156,10 +162,10 @@ export const RepGroupHooks = {
         edit: edit
           ? {
               alertOnDelete: evalBool({ expr: edit.alertOnDelete, ...baseProps }),
-              editButton: evalBool({ expr: edit.editButton, ...baseProps }),
-              deleteButton: evalBool({ expr: edit.deleteButton, ...baseProps }),
+              editButton: evalBool({ expr: edit.editButton, ...baseProps, defaultValue: true }),
+              deleteButton: evalBool({ expr: edit.deleteButton, ...baseProps, defaultValue: true }),
               saveAndNextButton: evalBool({ expr: edit.saveAndNextButton, ...baseProps }),
-              saveButton: evalBool({ expr: edit.saveButton, ...baseProps }),
+              saveButton: evalBool({ expr: edit.saveButton, ...baseProps, defaultValue: true }),
             }
           : undefined,
       };
