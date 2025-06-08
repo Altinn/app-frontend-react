@@ -160,8 +160,8 @@ function RepeatingGroupsEditContainerInternal({
         >
           {childIds.map((nodeId) => (
             <ChildComponent
-              key={`${nodeId}-${row.index}`}
-              nodeId={`${nodeId}-${row.index}`}
+              key={nodeId}
+              nodeId={nodeId}
               multiPageIndex={multiPageIndex}
               multiPageEnabled={multiPageEnabled}
               tableColumns={group.tableColumns}
