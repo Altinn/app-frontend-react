@@ -19,8 +19,8 @@ import {
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
-import { useRepeatingGroupAllBaseRows } from 'src/layout/RepeatingGroup/rowUtils';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
+import { useRepeatingGroupAllBaseRows } from 'src/layout/RepeatingGroup/utils';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { Hidden } from 'src/utils/layout/NodesContext';

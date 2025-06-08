@@ -5,7 +5,7 @@ import { Value } from 'src/features/devtools/components/NodeInspector/NodeInspec
 import { canBeExpression } from 'src/features/expressions/validation';
 import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useRepeatingGroupRowWithExpressions } from 'src/layout/RepeatingGroup/rowUtils';
+import { useRepeatingGroupRowWithExpressions } from 'src/layout/RepeatingGroup/utils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

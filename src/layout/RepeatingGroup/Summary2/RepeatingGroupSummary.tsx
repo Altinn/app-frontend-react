@@ -8,9 +8,9 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/rowUtils';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
+import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import {
   ComponentSummaryById,

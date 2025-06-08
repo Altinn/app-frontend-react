@@ -967,8 +967,7 @@ export const FD = {
         return emptyArray;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return rawRows.map((row: any, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+      return rawRows.map((row: object, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
     }),
 
   /**
@@ -988,9 +987,17 @@ export const FD = {
   useGetFreshRows: (): ((reference: IDataModelReference | undefined) => BaseRow[]) => {
     const store = useStore();
     return useCallback(
-      (reference) =>
-        (reference && dot.pick(reference.field, store.getState().dataModels[reference.dataType].currentData)) ||
-        emptyArray,
+      (reference) => {
+        if (!reference) {
+          return emptyArray;
+        }
+        const rawRows = dot.pick(reference.field, store.getState().dataModels[reference.dataType].currentData);
+        if (!Array.isArray(rawRows) || !rawRows.length) {
+          return emptyArray;
+        }
+
+        return rawRows.map((row: object, index: number) => ({ uuid: row[ALTINN_ROW_ID], index }));
+      },
       [store],
     );
   },

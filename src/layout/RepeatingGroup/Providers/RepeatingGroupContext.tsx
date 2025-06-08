@@ -14,12 +14,12 @@ import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/Providers/OpenB
 import {
   useRepeatingGroupAllRowsWithButtons,
   useRepeatingGroupGetFreshRowsWithButtons,
-} from 'src/layout/RepeatingGroup/rowUtils';
+} from 'src/layout/RepeatingGroup/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
 import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
-import type { RepGroupRow, RepGroupRowWithButtons } from 'src/layout/RepeatingGroup/rowUtils';
+import type { RepGroupRow, RepGroupRowWithButtons } from 'src/layout/RepeatingGroup/utils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 

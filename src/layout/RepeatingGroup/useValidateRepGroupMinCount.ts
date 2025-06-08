@@ -1,5 +1,5 @@
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/rowUtils';
+import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';

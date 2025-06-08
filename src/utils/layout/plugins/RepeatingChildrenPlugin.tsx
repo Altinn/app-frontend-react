@@ -5,7 +5,6 @@ import { CompCategory } from 'src/layout/common';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { TypesFromCategory } from 'src/layout/layout';
-import type { ChildIdMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type {
   DefPluginChildClaimerProps,
   DefPluginCompExternal,
@@ -13,33 +12,21 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 
-export interface RepChildrenInternalState {
-  lastMultiPageIndex?: number;
-  rawChildren: string[];
-  idMutators: ChildIdMutator[];
-}
-
-interface Config<
-  T extends TypesFromCategory<CompCategory.Container>,
-  ExternalProp extends string,
-  InternalProp extends string,
-> {
+interface Config<T extends TypesFromCategory<CompCategory.Container>> {
   componentType: T;
   settings: Required<Pick<ExternalConfig, 'title' | 'description'>>;
   expectedFromExternal: {
-    [key in ExternalProp]: string[];
+    children: string[];
   };
-  extraInItem: { [key in ExternalProp]: undefined } & {
-    [key in InternalProp]: string[];
-  } & { internal: RepChildrenInternalState };
+  extraInItem: { children: undefined } & {
+    childIds: string[];
+  };
 }
 
 interface ExternalConfig {
   componentType?: TypesFromCategory<CompCategory.Container>;
   dataModelGroupBinding?: string;
   multiPageSupport?: false | string; // Path to property that indicates if multi-page support is enabled
-  externalProp?: string;
-  internalProp?: string;
   title?: string;
   description?: string;
 }
@@ -48,8 +35,6 @@ const defaultConfig = {
   componentType: 'unknown' as TypesFromCategory<CompCategory.Container>,
   dataModelGroupBinding: 'group' as const,
   multiPageSupport: false as const,
-  externalProp: 'children' as const,
-  internalProp: 'childIds' as const,
   title: 'Children',
   description:
     'List of child component IDs to show inside (will be repeated according to the number of rows in the data model binding)',
@@ -60,12 +45,7 @@ type Combined<E extends ExternalConfig> = {
   [key in keyof Required<ExternalConfig>]: Exclude<ConfigOrDefault<E[key], (typeof defaultConfig)[key]>, undefined>;
 };
 type Setting<E extends ExternalConfig, P extends keyof ExternalConfig> = Combined<E>[P];
-
-type ToInternal<E extends ExternalConfig> = Config<
-  Setting<E, 'componentType'>,
-  Setting<E, 'externalProp'>,
-  Setting<E, 'internalProp'>
->;
+type ToInternal<E extends ExternalConfig> = Config<Setting<E, 'componentType'>>;
 
 export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultConfig>
   extends NodeDefPlugin<ToInternal<E>>
@@ -90,7 +70,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
   }
 
   getKey(): string {
-    return ['RepeatingChildrenPlugin', this.settings.externalProp].join('/');
+    return 'RepeatingChildrenPlugin';
   }
 
   makeConstructorArgs(asGenericArgs = false): string {
@@ -107,7 +87,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
 
     component.addProperty(
       new CG.prop(
-        this.settings.externalProp,
+        'children',
         new CG.arr(new CG.str()).setTitle(this.settings.title).setDescription(this.settings.description),
       ),
     );
@@ -131,7 +111,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     const multiPage = this.usesMultiPage(item);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const id of (item as any)[this.settings.externalProp]) {
+    for (const id of (item as any).children) {
       if (multiPage) {
         if (!/^\d+:[^:]+$/u.test(id)) {
           throw new Error(

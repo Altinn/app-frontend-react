@@ -3,6 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
@@ -168,4 +169,19 @@ export function useRepeatingGroupRowWithExpressions(
 export function useRepeatingGroupVisibleRows(node: LayoutNode<'RepeatingGroup'>) {
   const withHidden = useRepeatingGroupAllRowsWithHidden(node);
   return withHidden.filter((row) => !row.hidden);
+}
+
+export function useRepeatingGroupLastMultiPageIndex(node: LayoutNode<'RepeatingGroup'>) {
+  const component = useLayoutLookups().getComponent(node.baseId, 'RepeatingGroup');
+  if (!component || !component.edit?.multiPage) {
+    return undefined;
+  }
+
+  let lastMultiPageIndex = 0;
+  for (const id of component.children) {
+    const [multiPageIndex] = id.split(':', 2);
+    lastMultiPageIndex = Math.max(lastMultiPageIndex, parseInt(multiPageIndex));
+  }
+
+  return lastMultiPageIndex;
 }

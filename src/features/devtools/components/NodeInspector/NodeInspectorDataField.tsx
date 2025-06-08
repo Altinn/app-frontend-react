@@ -8,7 +8,7 @@ import { useNodeInspectorContext } from 'src/features/devtools/components/NodeIn
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { canBeExpression } from 'src/features/expressions/validation';
-import { useRepeatingGroupRowWithExpressions } from 'src/layout/RepeatingGroup/rowUtils';
+import { useRepeatingGroupRowWithExpressions } from 'src/layout/RepeatingGroup/utils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 

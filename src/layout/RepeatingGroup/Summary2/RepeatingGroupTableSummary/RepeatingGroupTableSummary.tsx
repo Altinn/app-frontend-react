@@ -15,11 +15,11 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import repeatingGroupClasses from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/rowUtils';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary.module.css';
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
+import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
 import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';

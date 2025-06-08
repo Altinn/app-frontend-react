@@ -29,14 +29,14 @@ export function NodeRepeatingChildren(props: Props) {
 
 const emptyObject = {};
 function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
-  const { dataModelGroupBinding: binding, externalProp, multiPageSupport } = plugin.settings;
+  const { dataModelGroupBinding: binding, multiPageSupport } = plugin.settings;
   const item = GeneratorInternal.useIntermediateItem();
   const groupBinding = item?.dataModelBindings?.[binding];
   const numRows = FD.useFreshNumRows(groupBinding);
   const multiPage = multiPageSupport && dot.pick(multiPageSupport, item) === true;
   const multiPageMapping = useMemo(
-    () => (multiPage ? makeMultiPageMapping(dot.pick(externalProp, item)) : undefined),
-    [item, externalProp, multiPage],
+    () => (multiPage ? makeMultiPageMapping(item?.['children']) : undefined),
+    [item, multiPage],
   );
 
   return (

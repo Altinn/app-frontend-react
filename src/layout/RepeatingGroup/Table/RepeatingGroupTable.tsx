@@ -18,10 +18,10 @@ import {
   useRepeatingGroupRowState,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroupAllRowsWithButtons } from 'src/layout/RepeatingGroup/rowUtils';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
+import { useRepeatingGroupAllRowsWithButtons } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';

@@ -13,7 +13,7 @@ import {
   useRepeatingGroupPagination,
   useRepeatingGroupRowState,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
-import { useRepeatingGroupAllRowsWithHidden } from 'src/layout/RepeatingGroup/rowUtils';
+import { useRepeatingGroupAllRowsWithHidden } from 'src/layout/RepeatingGroup/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { splitDashedKey } from 'src/utils/splitDashedKey';

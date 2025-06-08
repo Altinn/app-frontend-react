@@ -19,12 +19,12 @@ import {
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroupRowWithExpressions, useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/rowUtils';
+import { useRepeatingGroupRowWithExpressions, useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
-import type { RepGroupRow } from 'src/layout/RepeatingGroup/rowUtils';
+import type { RepGroupRow } from 'src/layout/RepeatingGroup/utils';
 
 export interface IRepeatingGroupsEditContainer {
   editId: string;
