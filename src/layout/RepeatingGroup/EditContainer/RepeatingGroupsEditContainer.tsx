@@ -19,7 +19,7 @@ import {
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
-import { useRepeatingGroupRowWithExpressions, useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -35,7 +35,7 @@ export interface IRepeatingGroupsEditContainer {
 export function RepeatingGroupsEditContainer({ editId, ...props }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const { node } = useRepeatingGroup();
   const group = useNodeItem(node);
-  const rows = useRepeatingGroupVisibleRows(node);
+  const rows = RepGroupHooks.useVisibleRows(node);
   const row = rows.find((r) => r && r.uuid === editId);
   if (!row) {
     return null;
@@ -79,7 +79,7 @@ function RepeatingGroupsEditContainerInternal({
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = node.id;
-  const rowWithExpressions = useRepeatingGroupRowWithExpressions(node, { uuid: row.uuid });
+  const rowWithExpressions = RepGroupHooks.useRowWithExpressions(node, { uuid: row.uuid });
   const textsForRow = rowWithExpressions?.textResourceBindings;
   const editForRow = rowWithExpressions?.edit;
   const editForGroup = group.edit;

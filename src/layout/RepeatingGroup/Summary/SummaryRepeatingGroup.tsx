@@ -8,7 +8,7 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
 import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer';
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
-import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
@@ -30,7 +30,7 @@ interface FullRowProps extends Omit<FullProps, 'rows'> {
 
 export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGroup'>) {
   const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode) ?? {};
-  const rows = useRepeatingGroupVisibleRows(props.targetNode);
+  const rows = RepGroupHooks.useVisibleRows(props.targetNode);
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false;

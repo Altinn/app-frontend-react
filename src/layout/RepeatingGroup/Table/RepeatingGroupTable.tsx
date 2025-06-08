@@ -21,7 +21,7 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
-import { useRepeatingGroupAllRowsWithButtons } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -34,7 +34,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing } = useRepeatingGroup();
   const { rowsToDisplay } = useRepeatingGroupPagination();
-  const rows = useRepeatingGroupAllRowsWithButtons(node);
+  const rows = RepGroupHooks.useAllRowsWithButtons(node);
   const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, dataModelBindings } =
     useNodeItem(node);
   const required = !!minCount && minCount > 0;

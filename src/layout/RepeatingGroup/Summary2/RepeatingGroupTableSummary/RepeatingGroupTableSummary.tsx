@@ -19,7 +19,7 @@ import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.mo
 import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary.module.css';
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
-import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
@@ -35,7 +35,7 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
   const isMobile = useIsMobile();
   const pdfModeActive = usePdfModeActive();
   const isSmall = isMobile && !pdfModeActive;
-  const rows = useRepeatingGroupVisibleRows(componentNode);
+  const rows = RepGroupHooks.useVisibleRows(componentNode);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);

@@ -10,7 +10,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
-import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import {
   ComponentSummaryById,
@@ -31,7 +31,7 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   const display = overrides?.display ?? 'list';
   const isCompact = useSummaryProp('isCompact');
   const childIds = useNodeItem(componentNode, (i) => i.childIds);
-  const rows = useRepeatingGroupVisibleRows(target);
+  const rows = RepGroupHooks.useVisibleRows(target);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);

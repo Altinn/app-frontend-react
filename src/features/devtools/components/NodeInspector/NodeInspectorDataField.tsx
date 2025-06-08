@@ -8,7 +8,7 @@ import { useNodeInspectorContext } from 'src/features/devtools/components/NodeIn
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { canBeExpression } from 'src/features/expressions/validation';
-import { useRepeatingGroupRowWithExpressions } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 
@@ -141,7 +141,7 @@ function ExpandArray(props: { path: string[]; property: string; elements: unknow
 
 export function NodeInspectorDataField({ path, property, value: inputValue }: NodeInspectorDataFieldParams) {
   const { node } = useNodeInspectorContext();
-  const firstRowExpr = useRepeatingGroupRowWithExpressions(node?.isType('RepeatingGroup') ? node : undefined, 'first');
+  const firstRowExpr = RepGroupHooks.useRowWithExpressions(node?.isType('RepeatingGroup') ? node : undefined, 'first');
   const itemWithExpressions = NodesInternal.useNodeData(node, (s) => s.layout);
 
   let value = inputValue;

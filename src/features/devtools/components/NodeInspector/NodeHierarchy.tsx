@@ -8,7 +8,7 @@ import cn from 'classnames';
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
 import { nodeIdsFromGridRow } from 'src/layout/Grid/tools';
-import { useRepeatingGroupAllRowsWithHidden } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
@@ -124,7 +124,7 @@ function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyI
   const node = useNode(nodeId) as LayoutNode<'RepeatingGroup'> | undefined;
   const isRepGroup = node?.isType('RepeatingGroup');
   const nodeItem = useNodeItem(node);
-  const rows = useRepeatingGroupAllRowsWithHidden(node);
+  const rows = RepGroupHooks.useAllRowsWithHidden(node);
 
   if (!isRepGroup || !nodeItem) {
     return null;

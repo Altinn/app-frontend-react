@@ -1,5 +1,5 @@
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
-import { useRepeatingGroupVisibleRows } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -7,7 +7,7 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 export function useValidateRepGroupMinCount(node: LayoutNode<'RepeatingGroup'>): ComponentValidation[] {
   const dataModelBindings = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings);
   const minCount = NodesInternal.useNodeData(node, (d) => d.layout.minCount) ?? 0;
-  const visibleRows = useRepeatingGroupVisibleRows(node).length;
+  const visibleRows = RepGroupHooks.useVisibleRows(node).length;
   if (!dataModelBindings) {
     return [];
   }

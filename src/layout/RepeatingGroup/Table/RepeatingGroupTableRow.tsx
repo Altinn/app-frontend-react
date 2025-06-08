@@ -24,7 +24,7 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/Repeating
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
-import { useRepeatingGroupRowWithExpressions } from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -95,7 +95,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
   const group = useNodeItem(node);
   const freshUuid = FD.useFreshRowUuid(group.dataModelBindings?.group, index);
   const isFresh = freshUuid === uuid;
-  const rowExpressions = useRepeatingGroupRowWithExpressions(node, { uuid });
+  const rowExpressions = RepGroupHooks.useRowWithExpressions(node, { uuid });
   const editForRow = rowExpressions?.edit;
   const editForGroup = group.edit;
   const trbForRow = rowExpressions?.textResourceBindings;

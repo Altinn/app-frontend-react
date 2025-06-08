@@ -11,10 +11,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/Providers/OpenByDefaultProvider';
-import {
-  useRepeatingGroupAllRowsWithButtons,
-  useRepeatingGroupGetFreshRowsWithButtons,
-} from 'src/layout/RepeatingGroup/utils';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
@@ -329,7 +326,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const markNodesNotReady = NodesInternal.useMarkNotReady();
 
   const pagination = useNodeItem(node, (i) => i.pagination);
-  const getRows = useRepeatingGroupGetFreshRowsWithButtons(node);
+  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(node);
   const getState = useCallback(() => produceStateFromRows(getRows() ?? []), [getRows]);
   const getPaginationState = useCallback(
     () => producePaginationState(stateRef.current.currentPage, pagination, getState().visibleRows),
@@ -556,7 +553,7 @@ interface Props {
 export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Props>) {
   const pagination = useNodeItem(node, (i) => i.pagination);
   const editMode = useNodeItem(node, (i) => i.edit?.mode);
-  const getRows = useRepeatingGroupGetFreshRowsWithButtons(node);
+  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(node);
 
   return (
     <ZStore.Provider
@@ -582,7 +579,7 @@ function useBinding(node: LayoutNode<'RepeatingGroup'>) {
 
 export const useRepeatingGroupRowState = () => {
   const node = useRepeatingGroupNode();
-  const rows = useRepeatingGroupAllRowsWithButtons(node);
+  const rows = RepGroupHooks.useAllRowsWithButtons(node);
   return useMemo(() => produceStateFromRows(rows), [rows]);
 };
 
