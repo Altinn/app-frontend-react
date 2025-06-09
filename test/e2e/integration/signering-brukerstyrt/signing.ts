@@ -1,13 +1,14 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { tenorOrgs, tenorUsers } from 'test/e2e/support/auth';
 import { getTargetUrl } from 'test/e2e/support/start-app-instance';
-import { reverseName, tenorOrgs, tenorUsers } from 'test/e2e/support/tenor-auth';
+import { performLocalLogin, reverseName } from 'test/e2e/support/tenor-auth';
 
 const appFrontend = new AppFrontend();
 
 describe('Signing', () => {
   it('should allow signing by a specified signee', () => {
     // Step 1: Log in as the initial user
-    cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, { tenorUser: tenorUsers.standhaftigBjornunge });
+    cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, { tenorUser: tenorUsers.humanAndrefiolin });
 
     let prevHash: string;
     cy.log(window.location.toString());
@@ -32,7 +33,7 @@ describe('Signing', () => {
 
       cy.findByRole('button', { name: /legg til virksomhet/i }).click();
       cy.findByRole('textbox', { name: /organisasjonsnummer/i }).type(
-        tenorOrgs['Sivilisert Avansert Isbjørn AS'].orgNr,
+        tenorOrgs['Sivilisert Avansert Isbjørn SA'].orgNr,
       );
       cy.findByRole('button', { name: /hent opplysninger/i }).click();
       cy.findByTestId('group-edit-container').within(() => {
@@ -58,6 +59,7 @@ describe('Signing', () => {
 
       // Stiftelsesdokumenter
       // Submit the form to proceed to the signing step
+      cy.reloadAndWait();
       cy.findByRole('button', { name: /til signering/i }).click();
       cy.waitForLoad();
 
@@ -66,10 +68,13 @@ describe('Signing', () => {
         name: /personer som skal signere hjelp personer som skal signere beskrivelse/i,
       }).within(() => {
         cy.findByRole('row', {
-          name: /sivilisert avansert isbjørn sa venter på signering/i,
+          name: new RegExp(`${tenorOrgs['Sivilisert Avansert Isbjørn SA'].name} venter på signering`, 'i'),
         });
         cy.findByRole('row', {
-          name: /andrefiolin human venter på signering/i,
+          name: new RegExp(
+            `(${tenorUsers.humanAndrefiolin.name}|${reverseName(tenorUsers.humanAndrefiolin.name)}) venter på signering`,
+            'i',
+          ),
         });
       });
 
@@ -79,17 +84,19 @@ describe('Signing', () => {
         });
       });
 
+      cy.findByRole('radio', {
+        name: /meg selv/i,
+      }).click();
+
       cy.findByRole('checkbox', { name: /jeg bekrefter at informasjonen og dokumentene er korrekte/i }).click();
-      cy.findByRole('button', { name: /signer/i }).click();
+      cy.findByRole('button', { name: 'Signer' }).click();
       cy.waitForLoad();
       cy.findByRole('table', {
         name: /personer som skal signere hjelp personer som skal signere beskrivelse/i,
       }).within(() => {
-        cy.findByRole('row', { name: new RegExp(reverseName(tenorUsers.standhaftigBjornunge.name), 'i') }).within(
-          () => {
-            cy.findByRole('cell', { name: /signert/i }).should('exist');
-          },
-        );
+        cy.findByRole('row', { name: new RegExp(tenorUsers.standhaftigBjornunge.name, 'i') }).within(() => {
+          cy.findByRole('cell', { name: /Signert/i }).should('exist');
+        });
       });
 
       cy.findByText(/venter på signaturer/i);
@@ -102,7 +109,8 @@ describe('Signing', () => {
     });
 
     // Step 3: Log in as one of the specified signees
-    cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, { tenorUser: tenorUsers.humanAndrefiolin });
+    // cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, { tenorUser: tenorUsers.humanAndrefiolin });
+    performLocalLogin(tenorUsers.humanAndrefiolin);
     cy.reloadAndWait();
 
     cy.then(() => {

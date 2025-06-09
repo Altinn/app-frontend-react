@@ -68,12 +68,6 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   const env = dotenv.config().parsed || {};
   cy.log(`Starting app instance: ${appName}`);
 
-  if (tenorUser) {
-    cy.log(`Logging in as Tenor user: ${tenorUser.name}`);
-  } else if (user) {
-    cy.log(`Logging in as user: ${user}`);
-  }
-
   // You can override the host we load css/js from, using multiple methods:
   //   1. Start Cypress with --env environment=<docker|podman|tt02>,host=<host>
   //   2. Set CYPRESS_HOST=<host> in your .env file
@@ -158,10 +152,10 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   });
 
   if (tenorUser) {
-    // For Tenor users, we need to visit the page first without a user
-    tenorLogin(appName, tenorUser, options);
+    cy.log(`Logging in as Tenor user: ${tenorUser.name}`);
+    tenorLogin(appName, tenorUser);
   } else if (user) {
-    // Use standard login
+    cy.log(`Logging in as user: ${user}`);
     login(user, authenticationLevel);
     cy.visit(targetUrlRaw, visitOptions);
   } else {

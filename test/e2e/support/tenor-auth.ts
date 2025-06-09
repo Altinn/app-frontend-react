@@ -1,65 +1,14 @@
-import type { StartAppInstanceOptions } from 'test/e2e/support/global';
+import type { TenorUser } from 'test/e2e/support/auth';
 
-// Types
-export type TenorOrg = {
-  name: string;
-  orgNr: string;
-};
-
-export type TenorUser = {
-  name: string;
-  ssn: string;
-  role?: string;
-  orgs?: CyTenorOrg[];
-};
-
-type CyTenorOrg = 'Sivilisert Avansert Isbjørn AS' | 'Tilbakeholden Upopulær Tiger AS' | 'Offisiell Virtuell Tiger AS';
-
-// Common Tenor users and organizations
-export const tenorOrgs: { [K in CyTenorOrg]: TenorOrg } = {
-  'Sivilisert Avansert Isbjørn AS': {
-    name: 'Sivilisert Avansert Isbjørn AS',
-    orgNr: '312405091',
-  },
-  'Tilbakeholden Upopulær Tiger AS': {
-    name: 'Tilbakeholden Upopulær Tiger AS',
-    orgNr: '314307577',
-  },
-  'Offisiell Virtuell Tiger AS': {
-    name: 'Offisiell Virtuell Tiger AS',
-    orgNr: '314277961',
-  },
-};
-
-export const tenorUsers: Record<string, TenorUser> = {
-  humanAndrefiolin: {
-    name: 'Human Andrefiolin',
-    ssn: '09876298713',
-    role: 'CEO',
-    orgs: ['Sivilisert Avansert Isbjørn AS'],
-  },
-  varsomDiameter: {
-    name: 'Varsom Diameter',
-    ssn: '03835698199',
-    role: 'Chairman',
-    orgs: ['Sivilisert Avansert Isbjørn AS'],
-  },
-  standhaftigBjornunge: {
-    name: 'Standhaftig Bjørnunge',
-    ssn: '23849199013',
-  },
-  snaalDugnad: {
-    name: 'Snål Dugnad',
-    ssn: '10928198958',
-    orgs: ['Tilbakeholden Upopulær Tiger AS', 'Offisiell Virtuell Tiger AS'],
-  },
-};
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 
 export function reverseName(name: string): string {
   return name.split(' ').reverse().join(' ');
 }
 
-function performTenorLogin(user: TenorUser) {
+function performTenorLogin(appName: string, user: TenorUser) {
+  cy.visit(`https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}`);
+
   cy.findByRole('link', {
     name: /testid lag din egen testbruker/i,
   }).click();
@@ -73,25 +22,40 @@ function performTenorLogin(user: TenorUser) {
   }).click();
 
   cy.findByText(new RegExp(reverseName(user.name), 'i')).click();
-  cy.waitForLoad();
-
-  cy.findByText(new RegExp(reverseName(user.name), 'i')).click();
 }
 
-export function tenorLogin(
-  appName: string,
-  user: TenorUser,
-  options?: Partial<Omit<StartAppInstanceOptions, 'user' | 'tenorUser'>>,
-) {
+export function performLocalLogin(user: TenorUser) {
+  cy.visit(`${Cypress.config('baseUrl')}`);
+  cy.findByRole('combobox', { name: /select test users/i })
+    .should('exist')
+    .find('option')
+    .contains(new RegExp(user.name, 'i'))
+    .then(($option) => {
+      cy.get('select#UserSelect').select($option.val() as string);
+    });
+
+  cy.findByRole('button', {
+    name: /proceed to app/i,
+  }).click();
+}
+
+export function tenorLogin(appName: string, user: TenorUser) {
   // Visit the app without any user
+  cy.intercept<object, IncomingApplicationMetadata>('**/api/v1/applicationmetadata', (req) => {
+    req.reply((res) => {
+      const body = res.body as IncomingApplicationMetadata;
+
+      res.headers['cache-control'] = 'no-store';
+      body.promptForParty = 'never';
+    });
+  }).as('applicationMetadata');
   cy.clearCookies();
-  const targetUrl =
-    Cypress.env('type') === 'localtest'
-      ? `${Cypress.config('baseUrl')}/ttd/${appName}${options?.urlSuffix || ''}`
-      : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}${options?.urlSuffix || ''}`;
 
-  cy.visit(targetUrl);
+  if (Cypress.env('type') === 'localtest') {
+    performLocalLogin(user);
+  } else {
+    performTenorLogin(appName, user);
+  }
 
-  // Perform the Tenor login
-  performTenorLogin(user);
+  cy.reloadAndWait();
 }
