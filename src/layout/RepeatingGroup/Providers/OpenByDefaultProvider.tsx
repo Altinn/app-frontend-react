@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import {
   useRepeatingGroup,
@@ -8,6 +9,7 @@ import {
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { AddRowResult } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Props {
@@ -20,6 +22,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
   const openByDefault = item.edit?.openByDefault;
   const isFirstRender = useRef(true);
   const { addRow, openForEditing } = useRepeatingGroup();
+  const { performProcess } = useIsProcessing();
   const { visibleRows } = useRepeatingGroupRowState();
   const state = useRepeatingGroupSelector((state) => ({
     editingId: state.editingId,
@@ -51,10 +54,13 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
       const { canAddRows } = stateRef.current;
       if (isFirstRender.current && openByDefault && hasNoRows && canAddRows) {
         hasAddedRow.current = true;
-        const { result } = await addRow();
-        if (result !== 'addedAndOpened') {
+        let result: AddRowResult | undefined;
+        await performProcess(async () => {
+          result = await addRow();
+        });
+        if (result && result.result !== 'addedAndOpened') {
           window.logWarn(
-            `openByDefault for repeating group '${groupId}' returned '${result}'. You may have rules that make it ` +
+            `openByDefault for repeating group '${groupId}' returned '${result.result}'. You may have rules that make it ` +
               `impossible to add a new blank row, or open the added row for editing, such as a restrictive ` +
               `hiddenRow expression. You probably want to disable openByDefault for this group, as openByDefault ` +
               `might create empty and invisible rows before it will disable itself. openByDefault will be disabled ` +
@@ -80,7 +86,7 @@ export function OpenByDefaultProvider({ node, children }: PropsWithChildren<Prop
         isFirstRender.current = false;
       }
     })();
-  }, [openByDefault, stateRef, addRow, groupId, hasNoRows]);
+  }, [openByDefault, stateRef, addRow, groupId, hasNoRows, performProcess]);
 
   return children;
 }

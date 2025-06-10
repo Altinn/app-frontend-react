@@ -539,9 +539,9 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
       <ProvideTheRest node={node}>
         <EffectCloseEditing />
         <EffectPagination />
-        <OpenByDefaultProvider node={node}>
-          <ProcessingProvider>{children}</ProcessingProvider>
-        </OpenByDefaultProvider>
+        <ProcessingProvider>
+          <OpenByDefaultProvider node={node}>{children}</OpenByDefaultProvider>
+        </ProcessingProvider>
       </ProvideTheRest>
     </ZStore.Provider>
   );

@@ -67,7 +67,7 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
   const parentItem = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const depth = GeneratorInternal.useDepth();
 
-  const childId = makeLikertChildId(parentItem.id, rowIndex);
+  const childId = makeLikertChildId(parentItem.id, undefined); // This needs to be the base ID
 
   const externalItem = useMemo(
     (): CompExternalExact<'LikertItem'> => ({
