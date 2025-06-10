@@ -12,6 +12,7 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
@@ -113,18 +114,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
       return true;
     }
 
-    // TODO: Re-implement the rest of this
-    return false;
-
-    /*
-    const { baseComponentId, depth } = splitDashedKey(childId);
-    const rowIndex = depth.at(-1);
-    const row = rowIndex !== undefined ? state.item?.rows[rowIndex] : undefined;
-    const rowHidden = row?.groupExpressions?.hiddenRow;
-    if (rowHidden) {
-      return true;
-    }
-
+    const { baseComponentId } = splitDashedKey(childId);
     const tableColSetup = state.item?.tableColumns?.[baseComponentId];
     const mode = state.item?.edit?.mode;
 
@@ -155,6 +145,5 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     // }
 
     return hiddenImplicitly;
-     */
   }
 }

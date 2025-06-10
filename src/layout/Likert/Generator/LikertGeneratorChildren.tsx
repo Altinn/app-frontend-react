@@ -129,6 +129,7 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
       idMutators={[mutateComponentIdPlain(rowIndex)]}
       recursiveMutators={recursiveMutators}
       groupBinding={questionsBinding}
+      forceHidden={false}
     >
       <GenerateNodeChildrenWithStaticLayout
         claims={childClaims}

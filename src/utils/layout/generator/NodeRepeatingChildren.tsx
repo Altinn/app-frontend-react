@@ -2,12 +2,15 @@ import React, { Fragment, useMemo } from 'react';
 
 import dot from 'dot-object';
 
+import { ExprVal } from 'src/features/expressions/types';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import type { IDataModelReference } from 'src/layout/common.generated';
+import type { CompIntermediate } from 'src/layout/layout';
 import type { ChildClaims, ChildIdMutator, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
 
@@ -49,13 +52,18 @@ function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
               The space will be added to the DOM, but should not be visible.
               See https://github.com/facebook/react/blob/ed15d5007ca7ee4d61294c741ce3e858d3c1d461/packages/react-reconciler/src/ReactFiberCommitHostEffects.js#L222-L226
           */}{' '}
-          <GenerateRow
-            rowIndex={index}
+          <DataModelLocationProvider
             groupBinding={groupBinding}
-            claims={claims ?? emptyObject}
-            multiPageMapping={multiPageMapping}
-            plugin={plugin}
-          />
+            rowIndex={index}
+          >
+            <GenerateRow
+              rowIndex={index}
+              groupBinding={groupBinding}
+              claims={claims ?? emptyObject}
+              multiPageMapping={multiPageMapping}
+              plugin={plugin}
+            />
+          </DataModelLocationProvider>
         </Fragment>
       ))}
     </GeneratorRunProvider>
@@ -77,6 +85,14 @@ const GenerateRow = React.memo(function GenerateRow({
   multiPageMapping,
   plugin,
 }: GenerateRowProps) {
+  const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<'RepeatingGroup'> | undefined;
+  const hiddenRow =
+    useEvalExpressionInGenerator(item?.hiddenRow, {
+      returnType: ExprVal.Boolean,
+      defaultValue: false,
+      errorIntroText: `Invalid hiddenRow expression for ${item?.id ?? 'unknown node'}`,
+    }) ?? false;
+
   const depth = GeneratorInternal.useDepth();
 
   const recursiveMutators = useMemo(
@@ -89,23 +105,19 @@ const GenerateRow = React.memo(function GenerateRow({
   );
 
   return (
-    <DataModelLocationProvider
-      groupBinding={groupBinding}
+    <GeneratorRowProvider
       rowIndex={rowIndex}
+      multiPageMapping={multiPageMapping}
+      groupBinding={groupBinding}
+      idMutators={[mutateComponentIdPlain(rowIndex)]}
+      recursiveMutators={recursiveMutators}
+      forceHidden={hiddenRow}
     >
-      <GeneratorRowProvider
-        rowIndex={rowIndex}
-        multiPageMapping={multiPageMapping}
-        groupBinding={groupBinding}
-        idMutators={[mutateComponentIdPlain(rowIndex)]}
-        recursiveMutators={recursiveMutators}
-      >
-        <GenerateNodeChildren
-          claims={claims}
-          pluginKey={plugin.getKey()}
-        />
-      </GeneratorRowProvider>
-    </DataModelLocationProvider>
+      <GenerateNodeChildren
+        claims={claims}
+        pluginKey={plugin.getKey()}
+      />
+    </GeneratorRowProvider>
   );
 });
 
