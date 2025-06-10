@@ -47,16 +47,6 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
 
   claimChildren(_props: DefPluginChildClaimerProps<Config>) {}
 
-  pickDirectChildren(_state: DefPluginState<Config>, _restriction?: number | undefined): string[] {
-    throw new Error('Method not implemented yet. We need to figure out a new way to do this.');
-    // if (restriction !== undefined) {
-    //   const nodeId = state.item?.rows[restriction]?.itemNodeId;
-    //   return nodeId ? [nodeId] : [];
-    // }
-    //
-    // return state.item?.rows.map((row) => row?.itemNodeId).filter(typedBoolean) ?? [];
-  }
-
   isChildHidden(_state: DefPluginState<Config>, _childId: string): boolean {
     return false;
   }

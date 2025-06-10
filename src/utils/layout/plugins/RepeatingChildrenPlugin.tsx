@@ -124,10 +124,6 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
     }
   }
 
-  pickDirectChildren(_state: DefPluginState<ToInternal<E>>, _restriction?: number | undefined): string[] {
-    throw new Error('Method not implemented any longer. Figure out how this can work again.');
-  }
-
   isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string): boolean {
     // Repeating children plugins do not have any specific logic here, but beware that
     // the RepeatingGroup component does.
