@@ -18,6 +18,12 @@ type ICardsProps = PropsFromGenericComponent<'Cards'>;
 function parseSize(size: string | undefined, defaultValue: string): string {
   return size && /^[0-9]+$/.test(size) ? `${size}px` : (size ?? defaultValue);
 }
+
+const colorVariantMap: Record<string, 'tinted' | 'default'> = {
+  neutral: 'default',
+  subtle: 'tinted',
+};
+
 export const Cards = ({ node }: ICardsProps) => {
   const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
   const processedMinWidth = parseSize(minWidth, '250px');
@@ -37,7 +43,7 @@ export const Cards = ({ node }: ICardsProps) => {
             title={card.title && <Lang id={card.title} />}
             description={card.description && <Lang id={card.description} />}
             footer={card.footer && <Lang id={card.footer} />}
-            color={color}
+            variant={colorVariantMap[color]}
             mediaPosition={mediaPosition}
             media={
               card.mediaId && (
