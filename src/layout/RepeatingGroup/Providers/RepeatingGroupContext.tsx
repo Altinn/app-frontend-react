@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 
 import { createContext } from 'src/core/contexts/context';
+import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -42,7 +43,7 @@ interface ExtendedState {
   changePage: (page: number) => void;
 }
 
-type AddRowResult =
+export type AddRowResult =
   | { result: 'stoppedByBinding'; uuid: undefined; index: undefined }
   | { result: 'stoppedByValidation'; uuid: undefined; index: undefined }
   | ({ result: 'addedAndOpened' | 'addedAndHidden' } & BaseRow);
@@ -296,6 +297,8 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const validateOnSaveRow = useNodeItem(node, (i) => i.validateOnSaveRow);
   const groupBinding = useBinding(node);
 
+  const waitUntilSaved = FD.useWaitForSave();
+  const waitUntilReady = NodesInternal.useWaitUntilReady();
   const appendToList = FD.useAppendToList();
   const removeFromList = FD.useRemoveFromListCallback();
   const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(node);
@@ -409,11 +412,12 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       return { result: 'stoppedByValidation', uuid: undefined, index: undefined };
     }
     const uuid = uuidv4();
-
     appendToList({
       reference: groupBinding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
+    await waitUntilSaved();
+    await waitUntilReady();
 
     // It may take some time until effects run and the row is put into either the visibleRows or hiddenRows state in
     // the ref, so we'll loop this a few times until we find the row.
@@ -435,7 +439,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     }
 
     return { result: 'addedAndHidden', uuid, index };
-  }, [groupBinding, maybeValidateRow, appendToList, getState, openForEditing]);
+  }, [groupBinding, maybeValidateRow, appendToList, waitUntilSaved, waitUntilReady, getState, openForEditing]);
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
@@ -535,7 +539,9 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
       <ProvideTheRest node={node}>
         <EffectCloseEditing />
         <EffectPagination />
-        <OpenByDefaultProvider node={node}>{children}</OpenByDefaultProvider>
+        <OpenByDefaultProvider node={node}>
+          <ProcessingProvider>{children}</ProcessingProvider>
+        </OpenByDefaultProvider>
       </ProvideTheRest>
     </ZStore.Provider>
   );

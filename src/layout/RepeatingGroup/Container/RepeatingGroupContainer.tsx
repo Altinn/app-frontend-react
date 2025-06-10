@@ -8,6 +8,7 @@ import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/Condit
 import { Flex } from 'src/app-components/Flex/Flex';
 import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthWrapper';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
+import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
@@ -27,6 +28,7 @@ import { Hidden } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ButtonPosition } from 'src/layout/common.generated';
+import type { AddRowResult } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
   const { node } = useRepeatingGroup();
@@ -177,6 +179,7 @@ function AddButton() {
     editingNone: state.editingNone,
     isEditingAnyRow: state.editingId !== undefined,
   }));
+  const { isAnyProcessing: disabled, performProcess } = useIsProcessing();
 
   const item = useNodeItem(node);
   const { textResourceBindings, id, edit, addButton } = item;
@@ -211,17 +214,24 @@ function AddButton() {
       size={size}
       style={addButton?.position ? { ...alignStyle(addButton?.position) } : {}}
       onClick={async () => {
-        const newRow = await addRow();
-        newRow.index !== undefined && triggerFocus(newRow.index);
+        let newRow: AddRowResult | undefined;
+        await performProcess(async () => {
+          newRow = await addRow();
+        });
+        newRow && newRow.index !== undefined && triggerFocus(newRow.index);
       }}
       onKeyUp={async (event: React.KeyboardEvent<HTMLButtonElement>) => {
         const allowedKeys = ['enter', ' ', 'spacebar'];
         if (allowedKeys.includes(event.key.toLowerCase())) {
-          const newRow = await addRow();
-          newRow.index !== undefined && triggerFocus(newRow.index);
+          let newRow: AddRowResult | undefined;
+          await performProcess(async () => {
+            newRow = await addRow();
+          });
+          newRow && newRow.index !== undefined && triggerFocus(newRow.index);
         }
       }}
       variant='secondary'
+      disabled={disabled}
     >
       <PlusIcon
         fontSize='1.5rem'
