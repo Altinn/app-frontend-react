@@ -2,11 +2,11 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
-describe('Accordion component', () => {
-  it('Renders accordion correctly', () => {
+describe('AccordionGroup component', () => {
+  it('Renders accordion-group correctly', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
-    cy.gotoNavPage('AccordionPage');
+    cy.gotoNavPage('AccordionGroupPage');
 
-    cy.snapshot('accordion');
+    cy.snapshot('accordion-group');
   });
 });

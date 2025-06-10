@@ -58,7 +58,7 @@ export function SummaryAccordionComponent2({ target }: Summary2Props<'Accordion'
   const Heading = getHeadingLevel(headingLevel);
 
   return (
-    <div className={cn(classes.container)}>
+    <div className={cn(classes.container, classes.summary2width)}>
       <div className={classes.header}>
         <Heading className={classes.paddingSmall}>{title}</Heading>
       </div>
