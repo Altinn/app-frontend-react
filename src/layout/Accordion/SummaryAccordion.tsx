@@ -5,6 +5,7 @@ import cn from 'classnames';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/SummaryAccordion.module.css';
 import { GenericComponentById } from 'src/layout/GenericComponent';
+import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -64,9 +65,9 @@ export function SummaryAccordionComponent2({ target }: Summary2Props<'Accordion'
       </div>
       <div className={classes.padding}>
         {childComponents.map((nodeId) => (
-          <GenericComponentById
+          <ComponentSummaryById
             key={nodeId}
-            id={nodeId}
+            componentId={nodeId}
           />
         ))}
       </div>
