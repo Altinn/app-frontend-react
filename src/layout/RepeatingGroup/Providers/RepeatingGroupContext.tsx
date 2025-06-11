@@ -5,7 +5,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 
 import { createContext } from 'src/core/contexts/context';
-import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -26,10 +25,13 @@ interface Store {
   editingNone: boolean;
   editingId: string | undefined;
   deletingIds: string[];
+  addingIds: string[];
   currentPage: number | undefined;
 }
 
 interface ZustandHiddenMethods {
+  startAddingRow: (uuid: string) => void;
+  endAddingRow: (uuid: string) => void;
   startDeletingRow: (row: BaseRow) => void;
   endDeletingRow: (row: BaseRow, successful: boolean) => void;
 }
@@ -43,7 +45,7 @@ interface ExtendedState {
   changePage: (page: number) => void;
 }
 
-export type AddRowResult =
+type AddRowResult =
   | { result: 'stoppedByBinding'; uuid: undefined; index: undefined }
   | { result: 'stoppedByValidation'; uuid: undefined; index: undefined }
   | ({ result: 'addedAndOpened' | 'addedAndHidden' } & BaseRow);
@@ -215,6 +217,7 @@ function newStore({ getRows, editMode, pagination }: NewStoreProps) {
     isFirstRender: true,
     editingId: undefined,
     deletingIds: [],
+    addingIds: [],
     currentPage: pagination ? 0 : undefined,
 
     closeForEditing: (row) => {
@@ -258,6 +261,25 @@ function newStore({ getRows, editMode, pagination }: NewStoreProps) {
         const currentIndex = editableRows.findIndex((row) => row.uuid === state.editingId);
         const nextRow = editableRows[currentIndex + 1];
         return { editingId: nextRow.uuid, ...gotoPageForRow(nextRow, paginationState, visibleRows) };
+      });
+    },
+
+    startAddingRow: (uuid) => {
+      set((state) => {
+        if (state.addingIds.includes(uuid)) {
+          return state;
+        }
+        return { addingIds: [...state.addingIds, uuid], editingId: undefined };
+      });
+    },
+
+    endAddingRow: (uuid) => {
+      set((state) => {
+        const i = state.addingIds.indexOf(uuid);
+        if (i === -1) {
+          return state;
+        }
+        return { addingIds: [...state.addingIds.slice(0, i), ...state.addingIds.slice(i + 1)] };
       });
     },
 
@@ -405,6 +427,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   );
 
   const addRow = useCallback(async (): Promise<AddRowResult> => {
+    const { startAddingRow, endAddingRow } = stateRef.current;
     if (!groupBinding) {
       return { result: 'stoppedByBinding', uuid: undefined, index: undefined };
     }
@@ -416,6 +439,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       reference: groupBinding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
+    startAddingRow(uuid);
     await waitUntilSaved();
     await waitUntilReady();
 
@@ -432,6 +456,8 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       }
     }
 
+    endAddingRow(uuid);
+
     const index = found?.index ?? -1;
     if (found && !found.hidden) {
       await openForEditing({ uuid, index });
@@ -439,7 +465,16 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     }
 
     return { result: 'addedAndHidden', uuid, index };
-  }, [groupBinding, maybeValidateRow, appendToList, waitUntilSaved, waitUntilReady, getState, openForEditing]);
+  }, [
+    stateRef,
+    groupBinding,
+    maybeValidateRow,
+    appendToList,
+    waitUntilSaved,
+    waitUntilReady,
+    getState,
+    openForEditing,
+  ]);
 
   const deleteRow = useCallback(
     async (row: BaseRow) => {
@@ -539,9 +574,7 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
       <ProvideTheRest node={node}>
         <EffectCloseEditing />
         <EffectPagination />
-        <ProcessingProvider>
-          <OpenByDefaultProvider node={node}>{children}</OpenByDefaultProvider>
-        </ProcessingProvider>
+        <OpenByDefaultProvider node={node}>{children}</OpenByDefaultProvider>
       </ProvideTheRest>
     </ZStore.Provider>
   );

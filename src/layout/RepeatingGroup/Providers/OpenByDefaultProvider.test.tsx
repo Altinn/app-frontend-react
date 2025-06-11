@@ -34,6 +34,7 @@ describe('openByDefault', () => {
   function RenderTest() {
     const state = useRepeatingGroupSelector((state) => ({
       editingId: state.editingId,
+      addingIds: state.addingIds,
     }));
     const { deleteRow } = useRepeatingGroup();
     const { visibleRows, hiddenRows } = useRepeatingGroupRowState();
@@ -192,6 +193,7 @@ describe('openByDefault', () => {
     await waitUntil({
       state: {
         editingId: undefined,
+        addingIds: [],
         visibleRows: [],
         hiddenRows: [],
         data: [],
@@ -209,6 +211,7 @@ describe('openByDefault', () => {
     await waitUntil({
       state: {
         editingId: 'abc123',
+        addingIds: [],
         visibleRows: [0],
         hiddenRows: [],
         data: [{ [ALTINN_ROW_ID]: 'abc123', id: 1, name: 'test' }],
@@ -233,6 +236,7 @@ describe('openByDefault', () => {
     await waitUntil({
       state: {
         editingId: undefined,
+        addingIds: [],
         visibleRows: [0],
         hiddenRows: [],
         data: [
@@ -258,6 +262,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: 'def456',
+          addingIds: [],
           visibleRows: [0],
           hiddenRows: [],
           data: [
@@ -285,6 +290,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: 'abc123-def456',
+          addingIds: [],
           visibleRows: [0],
           hiddenRows: [],
           data: [
@@ -318,6 +324,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: 'cba321',
+          addingIds: [],
           visibleRows: [0],
           hiddenRows: [],
           data: [{ [ALTINN_ROW_ID]: 'cba321', id: 1, name: 'test' }],
@@ -341,6 +348,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: openByDefault === 'last' ? 'a2' : 'a1',
+          addingIds: [],
           visibleRows: [0, 1],
           hiddenRows: [],
           data: [
@@ -366,6 +374,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: 'c3-2',
+          addingIds: [],
           visibleRows: [1],
           hiddenRows: [0],
           data: [
@@ -403,6 +412,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: undefined,
+          addingIds: [],
           visibleRows: [],
           hiddenRows: [0, 1],
           data: [
@@ -444,6 +454,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: undefined,
+          addingIds: [],
           visibleRows: [],
           hiddenRows: [0, 1],
           data: [
@@ -478,6 +489,7 @@ describe('openByDefault', () => {
     await waitUntil({
       state: {
         editingId: undefined,
+        addingIds: [],
         visibleRows: [],
         hiddenRows: [],
         data: [],
@@ -498,6 +510,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: openByDefault === true ? undefined : 'f7',
+          addingIds: [],
           visibleRows: [0],
           hiddenRows: [],
           data: [{ [ALTINN_ROW_ID]: 'f7', id: 1, name: 'test' }],
@@ -510,6 +523,7 @@ describe('openByDefault', () => {
       await waitUntil({
         state: {
           editingId: undefined,
+          addingIds: [],
           visibleRows: [],
           hiddenRows: [],
           data: [],
