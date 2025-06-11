@@ -7,6 +7,7 @@ import { createStore } from 'zustand';
 import { createContext } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
+import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
@@ -319,6 +320,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const validateOnSaveRow = useNodeItem(node, (i) => i.validateOnSaveRow);
   const groupBinding = useBinding(node);
 
+  const autoSaving = usePageSettings().autoSaveBehavior !== 'onChangePage';
   const waitUntilSaved = FD.useWaitForSave();
   const waitUntilReady = NodesInternal.useWaitUntilReady();
   const appendToList = FD.useAppendToList();
@@ -439,9 +441,16 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       reference: groupBinding,
       newValue: { [ALTINN_ROW_ID]: uuid },
     });
+
+    markNodesNotReady(); // Doing this early to prevent re-renders when this is added to the data model
     startAddingRow(uuid);
-    await waitUntilSaved();
-    await waitUntilReady();
+    if (autoSaving) {
+      // When auto-saving is on, we can detect if backend datamodel changes will cause this row to be hidden right
+      // after it was added (as the backend can add data to new rows), and thus we'll know to inform the app developer
+      // if they've used openByDefault along with hidden-by-default rows. It's important not to wait for saving when
+      // autosaving is off, as we'd wait forever.
+      await waitUntilSaved();
+    }
 
     // It may take some time until effects run and the row is put into either the visibleRows or hiddenRows state in
     // the ref, so we'll loop this a few times until we find the row.
@@ -456,6 +465,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
       }
     }
 
+    await waitUntilReady();
     endAddingRow(uuid);
 
     const index = found?.index ?? -1;
@@ -470,8 +480,10 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
     groupBinding,
     maybeValidateRow,
     appendToList,
-    waitUntilSaved,
+    markNodesNotReady,
+    autoSaving,
     waitUntilReady,
+    waitUntilSaved,
     getState,
     openForEditing,
   ]);
