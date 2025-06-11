@@ -7,12 +7,13 @@ import classes from 'src/features/alertOnChange/DeleteWarningPopover.module.css'
 import { Lang } from 'src/features/language/Lang';
 
 export interface IDeleteWarningPopover {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onPopoverDeleteClick: () => void;
   onCancelClick: () => void;
   deleteButtonText: string;
   messageText: React.ReactNode;
   open: boolean;
+  popoverId?: string;
   setOpen: (open: boolean) => void;
   placement?: 'bottom' | 'left' | 'right' | 'top';
 }
@@ -24,6 +25,7 @@ export function DeleteWarningPopover({
   deleteButtonText,
   messageText,
   placement = 'bottom',
+  popoverId,
   open,
   setOpen,
 }: IDeleteWarningPopover) {
@@ -37,6 +39,7 @@ export function DeleteWarningPopover({
       </Popover.Trigger>
       <Popover
         data-testid='delete-warning-popover'
+        id={popoverId}
         open={open}
         placement={placement}
         data-color='warning'
