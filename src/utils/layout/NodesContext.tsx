@@ -47,7 +47,6 @@ import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStore
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
-import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
@@ -445,11 +444,7 @@ const Conditionally = {
   },
 };
 
-const {
-  Provider: ProvideLayoutPages,
-  useCtx: useLayoutPages,
-  useLaxCtx: useLaxLayoutPages,
-} = createContext<LayoutPages>({
+const { Provider: ProvideLayoutPages, useCtx: useLayoutPages } = createContext<LayoutPages>({
   name: 'LayoutPages',
   required: true,
 });
@@ -731,10 +726,6 @@ export const useGetPage = (pageId: string | undefined) => {
 };
 
 export const useNodes = () => useLayoutPages();
-export const useNodesLax = () => {
-  const out = useLaxLayoutPages();
-  return out === ContextNotProvided ? undefined : out;
-};
 
 export interface IsHiddenOptions {
   /**
@@ -943,7 +934,6 @@ export const Hidden = {
 };
 
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
-export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
 export type NodeIdPicker = <T extends CompTypes = CompTypes>(
   id: string | undefined,
@@ -976,26 +966,10 @@ function selectNodeData<T extends CompTypes = CompTypes>(
   return data as NodeData<T>;
 }
 
-function getNodeData<N extends LayoutNode | undefined, Out>(
-  node: N,
-  state: NodesContext,
-  selector: (nodeData: NodeDataFromNode<N>) => Out,
-  preferFreshData = false,
-) {
-  return node ? selector(selectNodeData(node.id, node.type, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
-}
-
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  useIsReady() {
-    const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
-    if (isReady === ContextNotProvided) {
-      return true;
-    }
-    return isReady;
-  },
   useIsReadyRef() {
     const ref = useRef(true); // Defaults to true if context is not provided
     Store.useLaxSelectorAsRef((s) => {
@@ -1131,39 +1105,9 @@ export const NodesInternal = {
       return data ? selector(data as NodeDataFromNode<N>, s.readiness, s) : undefined;
     }) as N extends undefined ? Out | undefined : Out;
   },
-  useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
-    node: N,
-    selector: (state: NodeDataFromNode<N>) => Out,
-  ): WaitForState<Out, RetVal> {
-    const waitForState = useWaitForState<RetVal, NodesContext>(Store.useStore());
-    return useCallback(
-      (callback) =>
-        waitForState((state, setReturnValue) => {
-          if (state.readiness !== NodesReadiness.Ready) {
-            return false;
-          }
-
-          const nodeData = node ? state.nodeData[node.id] : undefined;
-          if (!nodeData) {
-            return false;
-          }
-          return callback(selector(nodeData as NodeDataFromNode<N>), setReturnValue);
-        }),
-      [waitForState, node, selector],
-    );
-  },
   useNodeDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelector({
-      mode: 'innerSelector',
-      makeArgs: (state) => [
-        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
-      ],
-    });
-  },
-  useLaxNodeDataSelector: () => {
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
       makeArgs: (state) => [
         ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,

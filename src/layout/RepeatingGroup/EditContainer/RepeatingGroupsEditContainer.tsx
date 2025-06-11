@@ -6,7 +6,6 @@ import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import {
@@ -88,9 +87,6 @@ function RepeatingGroupsEditContainerInternal({
     ...group.textResourceBindings,
     ...textsForRow,
   };
-
-  const freshUuid = FD.useFreshRowUuid(group.dataModelBindings?.group, row?.index);
-  const isFresh = freshUuid === editId; // TODO: No need for this trick
 
   const isNested = node.parent instanceof LayoutNode;
   let saveButtonVisible =
@@ -182,7 +178,6 @@ function RepeatingGroupsEditContainerInternal({
                     variant='tertiary'
                     color='second'
                     onClick={() => prevMultiPage()}
-                    disabled={!isFresh}
                   >
                     <ChevronLeftIcon
                       fontSize='1rem'
@@ -198,7 +193,6 @@ function RepeatingGroupsEditContainerInternal({
                     variant='tertiary'
                     color='second'
                     onClick={() => nextMultiPage()}
-                    disabled={!isFresh}
                   >
                     <Lang id='general.next' />
                     <ChevronRightIcon
@@ -222,7 +216,6 @@ function RepeatingGroupsEditContainerInternal({
                   onClick={() => openNextForEditing()}
                   variant='primary'
                   color='first'
-                  disabled={!isFresh}
                 >
                   <Lang id={texts?.save_and_next_button ? texts?.save_and_next_button : 'general.save_and_next'} />
                 </Button>
@@ -235,7 +228,6 @@ function RepeatingGroupsEditContainerInternal({
                   onClick={() => closeForEditing({ index: row.index, uuid: row.uuid })}
                   variant={saveAndNextButtonVisible ? 'secondary' : 'primary'}
                   color='first'
-                  disabled={!isFresh}
                 >
                   <Lang id={texts?.save_button ? texts?.save_button : 'general.save_and_close'} />
                 </Button>
