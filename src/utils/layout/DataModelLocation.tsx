@@ -42,8 +42,12 @@ export function DataModelLocationProvider({
   return <Provider value={value}>{children}</Provider>;
 }
 
-export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWithChildren<{ nodeId: string }>) {
-  const { groupBinding, rowIndex } = NodesInternal.useMemoSelector((state) => {
+function useDataModelLocationForNodeRaw(nodeId: string | undefined) {
+  return NodesInternal.useMemoSelector((state) => {
+    if (!nodeId) {
+      return { groupBinding: undefined, rowIndex: undefined };
+    }
+
     let childId = nodeId;
     let parentId = state.nodeData[childId]?.parentId;
     while (parentId) {
@@ -65,6 +69,15 @@ export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWit
 
     return { groupBinding: undefined, rowIndex: undefined };
   });
+}
+
+export function useDataModelLocationForNode(nodeId: string | undefined): IDataModelReference | undefined {
+  const { groupBinding, rowIndex } = useDataModelLocationForNodeRaw(nodeId);
+  return useDataModelLocationForRow(groupBinding, rowIndex);
+}
+
+export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWithChildren<{ nodeId: string }>) {
+  const { groupBinding, rowIndex } = useDataModelLocationForNodeRaw(nodeId);
 
   if (!groupBinding) {
     return children;

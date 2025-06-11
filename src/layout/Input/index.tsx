@@ -11,8 +11,7 @@ import { evalFormatting } from 'src/layout/Input/formatting';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { InputSummary } from 'src/layout/Input/InputSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
+import { useNodeFormDataWhenType, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -27,7 +26,8 @@ export class Input extends InputDef {
 
   useDisplayData(nodeId: string): string {
     const formData = useNodeFormDataWhenType(nodeId, 'Input');
-    const formatting = NodesInternal.useNodeDataWhenType(nodeId, 'Input', (data) => data.item?.formatting);
+    const item = useNodeItemWhenType(nodeId, 'Input');
+    const formatting = item?.formatting;
     const currentLanguage = useCurrentLanguage();
     const text = formData?.simpleBinding || '';
     if (!text) {

@@ -1,8 +1,12 @@
 import { FD } from 'src/features/formData/FormDataWrite';
+import { getComponentDef } from 'src/layout';
+import { useDataModelLocationForNode } from 'src/utils/layout/DataModelLocation';
+import { useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { typedBoolean } from 'src/utils/typing';
 import type { FormDataSelector } from 'src/layout';
-import type { CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
+import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeItemFromNode } from 'src/utils/layout/types';
@@ -15,7 +19,35 @@ export function useNodeItem<N extends LayoutNode, Out>(node: N, selector: (item:
 // eslint-disable-next-line no-redeclare
 export function useNodeItem<N extends LayoutNode>(node: N, selector?: undefined): NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
-export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {}
+export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const intermediate = NodesInternal.useNodeData(node, (d) => d.layout) as any;
+  const location = useDataModelLocationForNode(node?.id);
+  const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const props = useExpressionResolverProps(`Invalid expression for ${node?.id}`, intermediate, dataSources) as any;
+  const resolved = node?.def.evalExpressions(props);
+
+  if (!resolved) {
+    return undefined;
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return selector ? (selector as any)(resolved) : resolved;
+}
+
+export function useNodeItemWhenType<T extends CompTypes>(
+  nodeId: string | undefined,
+  type: T,
+): CompInternal<T> | undefined {
+  const intermediate = NodesInternal.useNodeDataWhenType(nodeId, type, (d) => d.layout);
+  const location = useDataModelLocationForNode(nodeId);
+  const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const props = useExpressionResolverProps(`Invalid expression for ${nodeId}`, intermediate, dataSources) as any;
+  const def = getComponentDef(type);
+  return def.evalExpressions(props) as CompInternal<T>;
+}
 
 const emptyArray: LayoutNode[] = [];
 export function useNodeDirectChildren(parent: LayoutNode | undefined, restriction?: number | undefined): LayoutNode[] {
@@ -28,7 +60,7 @@ export function useNodeDirectChildren(parent: LayoutNode | undefined, restrictio
 
       const out: (LayoutNode | undefined)[] = [];
       for (const n of Object.values(state.nodeData)) {
-        if (n.parentId === parent.id && (restriction === undefined || restriction === n.rowIndex) && n.item) {
+        if (n.parentId === parent.id && (restriction === undefined || restriction === n.rowIndex)) {
           out.push(nodes.findById(n.layout.id));
         }
       }

@@ -957,7 +957,7 @@ function selectNodeData<T extends CompTypes = CompTypes>(
   const data =
     state.readiness === NodesReadiness.Ready
       ? state.nodeData[id] // Always use fresh data when ready
-      : preferFreshData && state.nodeData[id]?.item?.id // Only allow getting fresh data when not ready if item is set
+      : preferFreshData && state.nodeData[id]
         ? state.nodeData[id]
         : state.prevNodeData?.[id]
           ? state.prevNodeData[id]

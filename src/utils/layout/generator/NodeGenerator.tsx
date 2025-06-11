@@ -20,7 +20,6 @@ import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEval
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -147,18 +146,17 @@ function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonPr
  * These props are passed on to your component's `evalExpressions` method.
  */
 export function useExpressionResolverProps<T extends CompTypes>(
-  node: LayoutNode<T> | undefined,
-  rawItem: CompIntermediateExact<T>,
-  rowIndex?: number,
+  errorIntroText: string,
+  rawItem: CompIntermediateExact<T> | undefined,
+  allDataSources: ExpressionDataSources,
 ): ExprResolver<T> {
-  const allDataSources = useExpressionDataSources(rawItem);
   const allDataSourcesAsRef = useAsRef(allDataSources);
 
   // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an
   // expression) which could be read. Try useIsHidden() or useIsHiddenSelector() if you need to know if a
   // component is hidden.
   const item = useMemo(() => {
-    const { hidden: _hidden, ...rest } = rawItem;
+    const { hidden: _hidden, ...rest } = rawItem ?? {};
     return rest;
   }, [rawItem]) as CompIntermediate<T>;
 
@@ -169,7 +167,6 @@ export function useExpressionResolverProps<T extends CompTypes>(
       defaultValue: ExprValToActual<T>,
       dataSources?: Partial<ExpressionDataSources>,
     ) => {
-      const errorIntroText = `Invalid expression for component '${node?.id}'`;
       if (!ExprValidation.isValidOrScalar(expr, type, errorIntroText)) {
         return defaultValue;
       }
@@ -180,7 +177,7 @@ export function useExpressionResolverProps<T extends CompTypes>(
         { returnType: type, defaultValue, errorIntroText },
       );
     },
-    [allDataSourcesAsRef, node],
+    [allDataSourcesAsRef, errorIntroText],
   );
 
   const evalBool = useCallback<SimpleEval<ExprVal.Boolean>>(
@@ -259,7 +256,6 @@ export function useExpressionResolverProps<T extends CompTypes>(
 
   return {
     item,
-    rowIndex,
     evalBool,
     evalNum,
     evalStr,
