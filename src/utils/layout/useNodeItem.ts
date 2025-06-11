@@ -1,12 +1,11 @@
 import { FD } from 'src/features/formData/FormDataWrite';
-import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { typedBoolean } from 'src/utils/typing';
 import type { FormDataSelector } from 'src/layout';
 import type { CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
+import type { NodeItemFromNode } from 'src/utils/layout/types';
 
 /**
  * Use the item of a node. This re-renders when the item changes (or when the part of the item you select changes),
@@ -22,29 +21,7 @@ export function useNodeItem<N extends LayoutNode | undefined>(
   selector?: undefined,
 ): N extends undefined ? undefined : NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
-export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
-  if (GeneratorInternal.useIsInsideGenerator()) {
-    throw new Error(
-      'useNodeItem() should not be used inside the node generator, it would most likely just crash when ' +
-        'the item is undefined. Instead, use GeneratorInternal.useIntermediateItem() to get the item before ' +
-        'expressions have run, or use a more specific selector in NodesInternal.useNodeData() which will ' +
-        'make you handle the undefined item.',
-    );
-  }
-
-  return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
-    if (!data?.item) {
-      throw new Error(
-        `Node item for '${node?.id}' is undefined. This should normally not happen, but might happen if you ` +
-          `select data in new components while the node state is in the process of being updated ` +
-          `(readiness is '${readiness}'). `,
-      );
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return selector ? (selector as any)(data.item) : data.item;
-  });
-}
+export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {}
 
 const emptyArray: LayoutNode[] = [];
 export function useNodeDirectChildren(parent: LayoutNode | undefined, restriction?: number | undefined): LayoutNode[] {

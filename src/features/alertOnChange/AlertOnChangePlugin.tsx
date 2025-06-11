@@ -4,7 +4,6 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { CompTypes } from 'src/layout/layout';
-import type { DefPluginExprResolver, DefPluginExtraInItem } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config<PropName extends string> {
   componentType: CompTypes;
@@ -13,9 +12,6 @@ interface Config<PropName extends string> {
   };
   settings: {
     propName: PropName;
-  };
-  extraInItem: {
-    [key in PropName]: boolean;
   };
 }
 
@@ -56,11 +52,5 @@ export class AlertOnChangePlugin<E extends ExternalConfig> extends NodeDefPlugin
           .setDescription(this.settings.description),
       ),
     );
-  }
-
-  evalDefaultExpressions(props: DefPluginExprResolver<ToInternal<E>>): DefPluginExtraInItem<ToInternal<E>> {
-    return {
-      [this.settings.propName]: props.evalBool(props.item[this.settings.propName], false),
-    } as DefPluginExtraInItem<ToInternal<E>>;
   }
 }
