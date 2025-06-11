@@ -2,7 +2,7 @@ import type JQuery from 'cypress/types/jquery';
 import type { RouteMatcher } from 'cypress/types/net-stubbing';
 import type { ConsoleMessage } from 'cypress-fail-on-console-error';
 
-import type { CyUser } from 'test/e2e/support/auth';
+import type { CyUser, TenorUser } from 'test/e2e/support/auth';
 
 import type { BackendValidationIssue, BackendValidationIssueGroupListItem } from 'src/features/validation';
 import type { ILayoutSets } from 'src/layout/common.generated';
@@ -14,6 +14,9 @@ export type FillableFrontendTasks = Exclude<FrontendTestTask, 'message' | 'confi
 export type StartAppInstanceOptions = {
   // User to log in as
   cyUser?: CyUser | null;
+
+  // Tenor user to log in as (alternative to user)
+  tenorUser?: TenorUser | null;
 
   authenticationLevel?: string;
 
@@ -142,7 +145,7 @@ declare global {
        * Must be called in the beginning of your test.
        */
       interceptLayout(
-        taskName: FrontendTestTask | string,
+        taskName: FrontendTestTask | (string & {}),
         mutator?: (component: CompExternal) => void,
         wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
         options?: { times?: number },
