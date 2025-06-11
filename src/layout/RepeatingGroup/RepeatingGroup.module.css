@@ -61,7 +61,7 @@ Altinn, and making sure they are consistent. */
 }
 
 .nestedTable > thead > tr > th {
-  /*background-color: var(--ds-color-neutral-background-subtle);*/
+  /*background-color: var(--ds-color-neutral-background-tinted);*/
   background-color: #f5f5f5;
 }
 
