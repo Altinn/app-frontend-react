@@ -9,6 +9,7 @@ import classes from 'src/features/devtools/components/LayoutInspector/LayoutInsp
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
 import { nodeIdsFromGridRow } from 'src/layout/Grid/tools';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { GridRowsInternal } from 'src/layout/Grid/types';
@@ -110,24 +111,24 @@ const NodeHierarchyItem = ({ nodeId, onClick, selected }: INodeHierarchyItemProp
           />
         </li>
       )}
-      {/* Support for repeating groups */}
-      <RepeatingGroupExtensions
-        nodeId={nodeId}
-        selected={selected}
-        onClick={onClick}
-      />
+      {node.isType('RepeatingGroup') && (
+        <RepeatingGroupExtensions
+          nodeId={nodeId}
+          selected={selected}
+          onClick={onClick}
+        />
+      )}
     </>
   );
 };
 
 function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyItemProps) {
   const node = useNode(nodeId) as LayoutNode<'RepeatingGroup'> | undefined;
-  const isRepGroup = node?.isType('RepeatingGroup');
   const nodeItem = useNodeItem(node);
   const rows = RepGroupHooks.useAllRowsWithHidden(node);
   const childIds = RepGroupHooks.useChildIds(node);
 
-  if (!isRepGroup || !nodeItem) {
+  if (!nodeItem) {
     return null;
   }
 
@@ -149,11 +150,16 @@ function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyI
           <span className={classes.componentMetadata}>
             Rad {row?.index} {row.hidden ? '(skjult)' : ''}
           </span>
-          <NodeHierarchy
-            nodeIds={childIds.map((childId) => `${childId}-${row.index}`)}
-            selected={selected}
-            onClick={onClick}
-          />
+          <DataModelLocationProvider
+            groupBinding={nodeItem.dataModelBindings.group}
+            rowIndex={row.index}
+          >
+            <NodeHierarchy
+              nodeIds={childIds.map((childId) => `${childId}-${row.index}`)}
+              selected={selected}
+              onClick={onClick}
+            />
+          </DataModelLocationProvider>
         </li>
       ))}
       {nodeItem.rowsAfterInternal && (
