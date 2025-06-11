@@ -160,6 +160,7 @@ describe('Multiple select component', () => {
     // Unchecking from multiple select should remove from RepeatingGroup (observe that data is preserved)
     cy.get(multiselect).contains('span', checkboxText2).should('exist');
     cy.get(repGroup).findAllByRole('row').should('have.length', 3); // Header + 2 rows
+    cy.get(multiselect).type('{esc}'); // Close the multiple select component
     cy.get(repGroup)
       .findAllByRole('button', { name: /^Rediger/ })
       .first()
