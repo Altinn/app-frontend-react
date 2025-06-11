@@ -114,6 +114,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
                   onChange={handleChange}
                   hideLabel={hideLabel}
                   data-size='sm'
+                  aria-invalid={!isValid}
                   alertOnChange={alertOnChange}
                   alertText={alertText}
                   confirmChangeText={confirmChangeText}
