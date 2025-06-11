@@ -11,6 +11,7 @@ import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { isDev } from 'src/utils/isDev';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
@@ -31,6 +32,21 @@ export interface IGenericComponentProps<Type extends CompTypes> extends Override
 
 export interface IGenericComponentByIdProps<Type extends CompTypes> extends OverrideProps<Type> {
   id: string;
+}
+
+/**
+ * This works like GenericComponentById, but lets you pass a baseId instead (a plain component id without
+ * indexes if inside a repeating group)
+ */
+export function GenericComponentByBaseId<Type extends CompTypes = CompTypes>(props: IGenericComponentByIdProps<Type>) {
+  const idMutator = useComponentIdMutator();
+
+  return (
+    <GenericComponentById
+      {...props}
+      id={idMutator ? idMutator(props.id) : props.id}
+    />
+  );
 }
 
 /**

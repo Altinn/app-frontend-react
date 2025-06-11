@@ -7,6 +7,7 @@ import { Lang } from 'src/features/language/Lang';
 import { ComponentSummaryById, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import classes from 'src/layout/Tabs/TabsSummary.module.css';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -17,7 +18,8 @@ type TabsSummaryProps = {
 
 export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
-  const tabs = useNodeItem(componentNode, (i) => i.tabsInternal);
+  const idMutator = useComponentIdMutator();
+  const tabs = useNodeItem(componentNode, (i) => i.tabs);
 
   if (!tabs || tabs.length === 0) {
     return null;
@@ -55,10 +57,10 @@ export const TabsSummary = ({ componentNode }: TabsSummaryProps) => {
                 spacing={6}
                 alignItems='flex-start'
               >
-                {tab.childIds.filter(typedBoolean).map((nodeId) => (
+                {tab.children.filter(typedBoolean).map((baseId) => (
                   <ComponentSummaryById
-                    key={nodeId}
-                    componentId={nodeId}
+                    key={baseId}
+                    componentId={idMutator ? idMutator(baseId) : baseId}
                   />
                 ))}
               </Flex>

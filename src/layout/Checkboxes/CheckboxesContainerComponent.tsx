@@ -97,7 +97,8 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: ICheckboxC
                 id={id}
                 option={option}
                 hideLabel={hideLabel}
-                alertOnChange={alertOnChange}
+                // alertOnChange={alertOnChange} // TODO: Implement support for this expression again
+                alertOnChange={false}
                 checked={selectedValues.includes(option.value)}
                 setChecked={(isChecked) => setChecked(isChecked, option)}
               />
