@@ -123,46 +123,5 @@ export type TenorUser = {
   name: string;
   ssn: string;
   role?: string;
-  orgs?: CyTenorOrg[];
-};
-
-type CyTenorOrg = 'Sivilisert Avansert Isbjørn SA' | 'Tilbakeholden Upopulær Tiger AS' | 'Offisiell Virtuell Tiger AS';
-
-export const tenorOrgs: { [K in CyTenorOrg]: TenorOrg } = {
-  'Sivilisert Avansert Isbjørn SA': {
-    name: 'Sivilisert Avansert Isbjørn SA',
-    orgNr: '312405091',
-  },
-  'Tilbakeholden Upopulær Tiger AS': {
-    name: 'Tilbakeholden Upopulær Tiger AS',
-    orgNr: '314307577',
-  },
-  'Offisiell Virtuell Tiger AS': {
-    name: 'Offisiell Virtuell Tiger AS',
-    orgNr: '314277961',
-  },
-};
-
-export const tenorUsers: Record<string, TenorUser> = {
-  humanAndrefiolin: {
-    name: 'Human Andrefiolin',
-    ssn: '09876298713',
-    role: 'CEO',
-    orgs: ['Sivilisert Avansert Isbjørn SA'],
-  },
-  varsomDiameter: {
-    name: 'Varsom Diameter',
-    ssn: '03835698199',
-    role: 'Chairman',
-    orgs: ['Sivilisert Avansert Isbjørn SA'],
-  },
-  standhaftigBjornunge: {
-    name: 'Standhaftig Bjørnunge',
-    ssn: '23849199013',
-  },
-  snaalDugnad: {
-    name: 'Snål Dugnad',
-    ssn: '10928198958',
-    orgs: ['Tilbakeholden Upopulær Tiger AS', 'Offisiell Virtuell Tiger AS'],
-  },
+  orgs?: string[];
 };

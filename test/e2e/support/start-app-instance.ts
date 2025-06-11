@@ -2,36 +2,11 @@ import dotenv from 'dotenv';
 import escapeRegex from 'escape-string-regexp';
 import type { SinonSpy } from 'cypress/types/sinon';
 
-import { type CyUser, cyUserCredentials } from 'test/e2e/support/auth';
-import { tenorLogin } from 'test/e2e/support/tenor-auth';
+import { type CyUser, cyUserCredentials, type TenorUser } from 'test/e2e/support/auth';
+import { reverseName } from 'test/e2e/support/utils';
 
-function login(user: CyUser, authenticationLevel: string = '1') {
-  cy.clearCookies();
-
-  if (Cypress.env('type') === 'localtest') {
-    const { localPartyId } = cyUserCredentials[user];
-
-    const formData = new FormData();
-    formData.append('UserSelect', localPartyId);
-    formData.append('AuthenticationLevel', authenticationLevel);
-
-    cy.request({
-      method: 'POST',
-      url: `${Cypress.config('baseUrl')}/Home/LogInTestUser`,
-      body: formData,
-    }).as('login');
-    waitForLogin();
-  } else {
-    const { userName, userPassword } = cyUserCredentials[user];
-    if (userName === cyUserCredentials.selfIdentified.userName) {
-      tt02_loginSelfIdentified(userName, userPassword);
-    } else {
-      tt02_login(userName, userPassword);
-    }
-  }
-}
-
-function tt02_login(user: string, pwd: string) {
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
+function cyUserTt02Login(user: string, pwd: string) {
   cy.request({
     method: 'POST',
     url: `${Cypress.config('baseUrl')}/api/authentication/authenticatewithpassword`,
@@ -54,7 +29,7 @@ function waitForLogin() {
   });
 }
 
-function tt02_loginSelfIdentified(user: string, pwd: string) {
+function loginSelfIdentifiedTt02Login(user: string, pwd: string) {
   const loginUrl = 'https://tt02.altinn.no/ui/Authentication/SelfIdentified';
   cy.intercept('POST', loginUrl).as('login');
   cy.visit(loginUrl);
@@ -64,7 +39,13 @@ function tt02_loginSelfIdentified(user: string, pwd: string) {
 }
 
 Cypress.Commands.add('startAppInstance', (appName, options) => {
-  const { user = 'default', tenorUser = null, evaluateBefore, urlSuffix = '', authenticationLevel } = options || {};
+  const {
+    cyUser = 'default',
+    tenorUser = null,
+    evaluateBefore,
+    urlSuffix = '',
+    authenticationLevel = '1',
+  } = options || {};
   const env = dotenv.config().parsed || {};
   cy.log(`Starting app instance: ${appName}`);
 
@@ -152,11 +133,9 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   });
 
   if (tenorUser) {
-    cy.log(`Logging in as Tenor user: ${tenorUser.name}`);
-    tenorLogin(appName, tenorUser);
-  } else if (user) {
-    cy.log(`Logging in as user: ${user}`);
-    login(user, authenticationLevel);
+    tenorUserLogin({ appName, tenorUser, authenticationLevel });
+  } else if (cyUser) {
+    cyUserLogin({ cyUser, authenticationLevel });
     cy.visit(targetUrlRaw, visitOptions);
   } else {
     // No user provided
@@ -170,6 +149,103 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
 
   cy.injectAxe();
 });
+
+type CyUserLoginParams = {
+  cyUser: CyUser;
+  authenticationLevel: string;
+};
+
+function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) {
+  const user = cyUserCredentials[cyUser];
+  cy.log(`Logging in as user: ${user}`);
+
+  if (Cypress.env('type') === 'localtest') {
+    localLogin({ displayName: user.displayName, authenticationLevel });
+    return;
+  }
+
+  const { userName, userPassword } = user;
+  if (userName === cyUserCredentials.selfIdentified.userName) {
+    loginSelfIdentifiedTt02Login(userName, userPassword);
+  } else {
+    cyUserTt02Login(userName, userPassword);
+  }
+}
+
+type TenorLoginParams = {
+  appName: string;
+  tenorUser: TenorUser;
+  authenticationLevel: string;
+};
+
+export function tenorUserLogin({ appName, tenorUser, authenticationLevel }: TenorLoginParams) {
+  cy.log(`Logging in as Tenor user: ${tenorUser.name}`);
+  cy.intercept<object, IncomingApplicationMetadata>('**/api/v1/applicationmetadata', (req) => {
+    req.reply((res) => {
+      const body = res.body as IncomingApplicationMetadata;
+
+      res.headers['cache-control'] = 'no-store';
+      body.promptForParty = 'never';
+    });
+  });
+
+  cy.clearCookies();
+
+  if (Cypress.env('type') === 'localtest') {
+    localLogin({ displayName: tenorUser.name, authenticationLevel });
+  } else {
+    tenorTt02Login(appName, tenorUser);
+  }
+
+  cy.reloadAndWait();
+}
+
+type LocalLoginParams = {
+  displayName: string;
+  authenticationLevel: string;
+};
+
+function localLogin({ displayName, authenticationLevel }: LocalLoginParams) {
+  cy.log(`Logging in as local user: ${displayName} with authentication level: ${authenticationLevel}`);
+  cy.visit(`${Cypress.config('baseUrl')}`);
+  cy.findByRole('combobox', { name: /select test users/i })
+    .should('exist')
+    .find('option')
+    .contains(new RegExp(displayName, 'i'))
+    .then(($option) => {
+      cy.get('select#UserSelect').select($option.val() as string);
+    });
+
+  cy.findByRole('combobox', { name: /authentication level/i })
+    .should('exist')
+    .find('option')
+    .contains(new RegExp(authenticationLevel, 'i'))
+    .then(($option) => {
+      cy.get('select#AuthenticationLevel').select($option.val() as string);
+    });
+
+  cy.findByRole('button', {
+    name: /proceed to app/i,
+  }).click();
+}
+
+function tenorTt02Login(appName: string, user: TenorUser) {
+  cy.visit(`https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}`);
+
+  cy.findByRole('link', {
+    name: /testid lag din egen testbruker/i,
+  }).click();
+
+  cy.findByRole('textbox', {
+    name: /personidentifikator \(syntetisk\)/i,
+  }).type(user.ssn);
+
+  cy.findByRole('button', {
+    name: /autentiser/i,
+  }).click();
+
+  cy.findByText(new RegExp(reverseName(user.name), 'i')).click();
+}
 
 export function getTargetUrl(appName: string) {
   return Cypress.env('type') === 'localtest'
