@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Card, Details } from '@digdir/designsystemet-react';
+import { Card } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -48,13 +48,8 @@ export const Accordion = ({ node }: IAccordionProps) => {
       {renderAsAccordionItem ? (
         <AccordionItem className={classes.container} />
       ) : (
-        <Card>
-          <Details
-            data-color='subtle'
-            className={classes.container}
-          >
-            <AccordionItem />
-          </Details>
+        <Card data-color='neutral'>
+          <AccordionItem className={classes.container} />
         </Card>
       )}
     </ComponentStructureWrapper>
