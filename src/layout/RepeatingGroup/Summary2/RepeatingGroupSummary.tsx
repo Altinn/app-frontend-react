@@ -50,12 +50,7 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
         className={className}
       >
         <SingleValueSummary
-          title={
-            <Lang
-              id={title}
-              node={componentNode}
-            />
-          }
+          title={<Lang id={title} />}
           componentNode={componentNode}
           errors={errors}
           isCompact={isCompact}
@@ -89,10 +84,7 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
           data-size='xs'
           level={4}
         >
-          <Lang
-            id={title}
-            node={componentNode}
-          />
+          <Lang id={title} />
         </Heading>
         <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
           {rows.map((row) => {
@@ -132,7 +124,6 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
             <Lang
               id={message.key}
               params={message.params}
-              node={componentNode}
             />
           </ValidationMessage>
         ))}

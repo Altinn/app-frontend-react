@@ -61,31 +61,23 @@ export function ComponentValidations({ validations, node: _node }: Props) {
       style={{ display: 'contents' }}
     >
       <div data-validation={node.id}>
-        {errors.length > 0 && (
-          <ErrorValidations
-            validations={errors}
-            node={node}
-          />
-        )}
+        {errors.length > 0 && <ErrorValidations validations={errors} />}
         {warnings.length > 0 && (
           <SoftValidations
             validations={warnings}
             severity='warning'
-            node={node}
           />
         )}
         {info.length > 0 && (
           <SoftValidations
             validations={info}
             severity='info'
-            node={node}
           />
         )}
         {success.length > 0 && (
           <SoftValidations
             validations={success}
             severity='success'
-            node={node}
           />
         )}
       </div>
@@ -93,7 +85,7 @@ export function ComponentValidations({ validations, node: _node }: Props) {
   );
 }
 
-function ErrorValidations({ validations, node }: { validations: BaseValidation<'error'>[]; node: LayoutNode }) {
+function ErrorValidations({ validations }: { validations: BaseValidation<'error'>[] }) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
@@ -108,7 +100,6 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
               <Lang
                 id={validation.message.key}
                 params={validation.message.params}
-                node={node}
               />
             </span>
           </ValidationMessage>
@@ -121,11 +112,9 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
 function SoftValidations({
   validations,
   severity,
-  node,
 }: {
   validations: BaseValidation<'warning' | 'info' | 'success'>[];
   severity: AlertSeverity;
-  node: LayoutNode;
 }) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
@@ -141,7 +130,6 @@ function SoftValidations({
               <Lang
                 id={validation.message.key}
                 params={validation.message.params}
-                node={node}
               />
             </li>
           ))}

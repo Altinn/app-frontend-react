@@ -77,7 +77,6 @@ export const SingleValueSummary = ({
           <Lang
             id={message.key}
             params={message.params}
-            node={componentNode}
           />
         </ValidationMessage>
       ))}

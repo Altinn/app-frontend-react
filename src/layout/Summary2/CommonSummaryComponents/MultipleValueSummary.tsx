@@ -130,7 +130,6 @@ export const MultipleValueSummary = ({
               <Lang
                 id={message.key}
                 params={message.params}
-                node={componentNode}
               />
             </ValidationMessage>
           ))}
