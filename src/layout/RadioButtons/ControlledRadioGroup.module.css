@@ -3,3 +3,7 @@
   flex-wrap: wrap;
   gap: var(--ds-size-6);
 }
+
+.legend {
+  display: inline-flex;
+}

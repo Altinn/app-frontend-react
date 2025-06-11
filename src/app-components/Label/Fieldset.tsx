@@ -71,7 +71,7 @@ export function Fieldset({
           className={cn(className)}
           data-size={size}
         >
-          <DesignsystemetFieldset.Legend>
+          <DesignsystemetFieldset.Legend className={labelClasses.legend}>
             <span className={cn(labelClasses.labelAndHelpWrapper)}>
               <DesignsystemetLabel
                 weight='medium'

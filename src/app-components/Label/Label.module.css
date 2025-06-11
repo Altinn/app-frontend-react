@@ -4,6 +4,10 @@
   align-items: center;
 }
 
+.legend {
+  display: inline-flex;
+}
+
 .labelAndDescWrapper {
   display: flex;
   flex-direction: column;

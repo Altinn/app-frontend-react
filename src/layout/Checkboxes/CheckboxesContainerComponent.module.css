@@ -19,3 +19,7 @@
   font-size: 1rem;
   word-break: break-word;
 }
+
+.legend {
+  display: inline-flex;
+}

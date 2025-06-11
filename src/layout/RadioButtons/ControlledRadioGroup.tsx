@@ -86,7 +86,9 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     <ComponentStructureWrapper node={node}>
       <div id={id}>
         <Fieldset role='radiogroup'>
-          <Fieldset.Legend className={cn({ [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}>
+          <Fieldset.Legend
+            className={cn(classes.legend, { [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}
+          >
             {labelText}
           </Fieldset.Legend>
           {textResourceBindings?.description && (
