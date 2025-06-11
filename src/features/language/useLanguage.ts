@@ -26,7 +26,7 @@ import type { IApplicationSettings, IInstanceDataSources, IVariable } from 'src/
 type SimpleLangParam = string | number | undefined;
 export type ValidLangParam = SimpleLangParam | ReactNode | TextReference;
 export type TextReference = {
-  key: ValidLanguageKey | string | undefined;
+  key: ValidLanguageKey | (string & {}) | undefined;
   params?: ValidLangParam[];
   makeLowerCase?: boolean;
 };
@@ -34,18 +34,22 @@ export type TextReference = {
 export interface IUseLanguage {
   language: FixedLanguageList;
   lang(
-    key: ValidLanguageKey | string | undefined,
+    key: ValidLanguageKey | (string & {}) | undefined,
     params?: ValidLangParam[],
   ): string | JSX.Element | JSX.Element[] | null;
-  langAsString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[], makeLowerCase?: boolean): string;
+  langAsString(
+    key: ValidLanguageKey | (string & {}) | undefined,
+    params?: ValidLangParam[],
+    makeLowerCase?: boolean,
+  ): string;
   langAsStringUsingPathInDataModel(
     key: ValidLanguageKey | string | undefined,
     dataModelPath: IDataModelReference,
     params?: ValidLangParam[],
   ): string;
-  langAsNonProcessedString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[]): string;
+  langAsNonProcessedString(key: ValidLanguageKey | (string & {}) | undefined, params?: ValidLangParam[]): string;
   langAsNonProcessedStringUsingPathInDataModel(
-    key: ValidLanguageKey | string | undefined,
+    key: ValidLanguageKey | (string & {}) | undefined,
     dataModelPath: IDataModelReference,
     params?: ValidLangParam[],
   ): string;
