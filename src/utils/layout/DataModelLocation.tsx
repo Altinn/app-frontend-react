@@ -29,16 +29,17 @@ export function DataModelLocationProvider({
   rowIndex: number;
 }>) {
   const parentCtx = useCtx();
-  return (
-    <Provider
-      value={{
-        reference: useDataModelLocationForRow(groupBinding, rowIndex),
-        idMutators: [...(parentCtx?.idMutators ?? []), (id) => `${id}-${rowIndex}`],
-      }}
-    >
-      {children}
-    </Provider>
+  const value = useMemo(
+    () => ({
+      reference: {
+        dataType: groupBinding.dataType,
+        field: `${groupBinding.field}[${rowIndex}]`,
+      },
+      idMutators: [...(parentCtx?.idMutators ?? []), (id: string) => `${id}-${rowIndex}`],
+    }),
+    [parentCtx?.idMutators, rowIndex, groupBinding.dataType, groupBinding.field],
   );
+  return <Provider value={value}>{children}</Provider>;
 }
 
 export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWithChildren<{ nodeId: string }>) {
@@ -82,10 +83,10 @@ export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWit
 export function useDataModelLocationForRow(groupBinding: IDataModelReference, rowIndex: number) {
   return useMemo(
     () => ({
-      ...groupBinding,
+      dataType: groupBinding.dataType,
       field: `${groupBinding.field}[${rowIndex}]`,
     }),
-    [groupBinding, rowIndex],
+    [groupBinding.dataType, groupBinding.field, rowIndex],
   );
 }
 

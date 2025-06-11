@@ -125,7 +125,7 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
 /**
  * This provider is meant to be used for rows, i.e. each row in a repeating group, or other repeating components.
  */
-export function GeneratorRowProvider({
+function GeneratorRowProviderInner({
   children,
   rowIndex,
   groupBinding,
@@ -155,6 +155,9 @@ export function GeneratorRowProvider({
   );
   return <Provider value={value}>{children}</Provider>;
 }
+
+export const GeneratorRowProvider = React.memo(GeneratorRowProviderInner);
+GeneratorRowProvider.displayName = 'GeneratorRowProvider';
 
 export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren<GlobalProviderProps>) {
   const value: GeneratorContext = useMemo(

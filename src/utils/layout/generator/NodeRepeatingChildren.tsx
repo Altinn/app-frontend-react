@@ -52,18 +52,13 @@ function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
               The space will be added to the DOM, but should not be visible.
               See https://github.com/facebook/react/blob/ed15d5007ca7ee4d61294c741ce3e858d3c1d461/packages/react-reconciler/src/ReactFiberCommitHostEffects.js#L222-L226
           */}{' '}
-          <DataModelLocationProvider
-            groupBinding={groupBinding}
+          <GenerateRow
             rowIndex={index}
-          >
-            <GenerateRow
-              rowIndex={index}
-              groupBinding={groupBinding}
-              claims={claims ?? emptyObject}
-              multiPageMapping={multiPageMapping}
-              plugin={plugin}
-            />
-          </DataModelLocationProvider>
+            groupBinding={groupBinding}
+            claims={claims ?? emptyObject}
+            multiPageMapping={multiPageMapping}
+            plugin={plugin}
+          />
         </Fragment>
       ))}
     </GeneratorRunProvider>
@@ -78,13 +73,17 @@ interface GenerateRowProps {
   plugin: RepeatingChildrenPlugin;
 }
 
-const GenerateRow = React.memo(function GenerateRow({
-  rowIndex,
-  claims,
-  groupBinding,
-  multiPageMapping,
-  plugin,
-}: GenerateRowProps) {
+const GenerateRow = React.memo((props: GenerateRowProps) => (
+  <DataModelLocationProvider
+    groupBinding={props.groupBinding}
+    rowIndex={props.rowIndex}
+  >
+    <GenerateRowInner {...props} />
+  </DataModelLocationProvider>
+));
+GenerateRow.displayName = 'GenerateRow';
+
+function GenerateRowInner({ rowIndex, claims, groupBinding, multiPageMapping, plugin }: GenerateRowProps) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<'RepeatingGroup'> | undefined;
   const hiddenRow =
     useEvalExpressionInGenerator(item?.hiddenRow, {
@@ -119,9 +118,7 @@ const GenerateRow = React.memo(function GenerateRow({
       />
     </GeneratorRowProvider>
   );
-});
-
-GenerateRow.displayName = 'GenerateRow';
+}
 
 export interface MultiPageMapping {
   [childId: string]: number;
