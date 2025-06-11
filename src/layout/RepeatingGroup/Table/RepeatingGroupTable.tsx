@@ -27,8 +27,7 @@ import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { ITableColumnFormatting } from 'src/layout/common.generated';
-import type { GridCellInternal } from 'src/layout/Grid/types';
+import type { GridCell, ITableColumnFormatting } from 'src/layout/common.generated';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
@@ -189,7 +188,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
 interface ExtraRowsProps {
   where: 'Before' | 'After';
-  extraCells: GridCellInternal[];
+  extraCells: GridCell[];
   columnSettings: ITableColumnFormatting;
 }
 
