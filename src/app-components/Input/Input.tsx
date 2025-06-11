@@ -76,7 +76,7 @@ export function Input(props: InputProps) {
       onPaste={handlePaste}
       aria-invalid={!!error}
       readOnly={readOnly}
-      counter={characterLimit}
+      counter={!readOnly ? characterLimit : undefined}
       {...rest}
     />
   );
