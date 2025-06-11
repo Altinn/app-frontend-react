@@ -46,16 +46,14 @@
   justify-content: center;
 }
 
-.mobileGroup > div {
-  display: flex;
-  flex-direction: column;
-}
-
 .mobileGroup > div :hover {
   background-color: var(--ds-color-neutral-background-tinted);
 }
 
 .mobile {
+  display: flex;
+  align-items: center;
+  width: auto;
   border-top: 1px solid var(--ds-color-neutral-border-subtle);
   padding: var(--ds-size-4);
   gap: var(--ds-size-8);
