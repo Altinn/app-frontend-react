@@ -42,8 +42,12 @@ export function DataModelLocationProvider({
   return <Provider value={value}>{children}</Provider>;
 }
 
-export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWithChildren<{ nodeId: string }>) {
-  const { groupBinding, rowIndex } = NodesInternal.useMemoSelector((state) => {
+function useDataModelLocationForNodeRaw(nodeId: string | undefined) {
+  return NodesInternal.useMemoSelector((state) => {
+    if (!nodeId) {
+      return { groupBinding: undefined, rowIndex: undefined };
+    }
+
     let childId = nodeId;
     let parentId = state.nodeData[childId]?.parentId;
     while (parentId) {
@@ -65,6 +69,15 @@ export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWit
 
     return { groupBinding: undefined, rowIndex: undefined };
   });
+}
+
+export function useDataModelLocationForNode(nodeId: string | undefined): IDataModelReference | undefined {
+  const { groupBinding, rowIndex } = useDataModelLocationForNodeRaw(nodeId);
+  return useDataModelLocationForRow(groupBinding, rowIndex);
+}
+
+export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWithChildren<{ nodeId: string }>) {
+  const { groupBinding, rowIndex } = useDataModelLocationForNodeRaw(nodeId);
 
   if (!groupBinding) {
     return children;
@@ -80,13 +93,21 @@ export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWit
   );
 }
 
-export function useDataModelLocationForRow(groupBinding: IDataModelReference, rowIndex: number) {
+export function useDataModelLocationForRow(groupBinding: IDataModelReference, rowIndex: number): IDataModelReference;
+// eslint-disable-next-line no-redeclare
+export function useDataModelLocationForRow(
+  groupBinding: IDataModelReference | undefined,
+  rowIndex: number | undefined,
+): IDataModelReference | undefined;
+// eslint-disable-next-line no-redeclare
+export function useDataModelLocationForRow(groupBinding: unknown, rowIndex: unknown) {
+  const { dataType, field } = (groupBinding as IDataModelReference | undefined) ?? {
+    dataType: undefined,
+    field: undefined,
+  };
   return useMemo(
-    () => ({
-      dataType: groupBinding.dataType,
-      field: `${groupBinding.field}[${rowIndex}]`,
-    }),
-    [groupBinding.dataType, groupBinding.field, rowIndex],
+    () => (dataType && field ? { dataType, field: `${field}[${rowIndex}]` } : undefined),
+    [dataType, field, rowIndex],
   );
 }
 
