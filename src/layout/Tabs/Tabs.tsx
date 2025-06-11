@@ -105,6 +105,7 @@ function TabHeader({ id, title, icon }: { id: string; title: string; icon: strin
       key={id}
       value={id}
       tabIndex={0}
+      className={classes.tabHeader}
     >
       {!!icon && (
         <img

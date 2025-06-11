@@ -7,3 +7,6 @@
 .icon {
   width: var(--ds-size-6);
 }
+.tabHeader {
+  white-space: unset;
+}
