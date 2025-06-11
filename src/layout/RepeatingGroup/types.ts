@@ -1,5 +1,5 @@
 import type { ExprResolved } from 'src/features/expressions/types';
-import type { GridRowsInternal } from 'src/layout/Grid/types';
+import type { GridRows } from 'src/layout/common.generated';
 import type { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 
 type Comp = ReturnType<RepeatingGroupDef['evalDefaultExpressions']>;
@@ -35,6 +35,6 @@ export type RepGroupInternal = RepGroupBase & {
   edit?: Omit<RepGroupEdit, PerRowEdit>;
   rowsBefore: undefined;
   rowsAfter: undefined;
-  rowsBeforeInternal?: GridRowsInternal;
-  rowsAfterInternal?: GridRowsInternal;
+  rowsBeforeInternal?: GridRows;
+  rowsAfterInternal?: GridRows;
 };
