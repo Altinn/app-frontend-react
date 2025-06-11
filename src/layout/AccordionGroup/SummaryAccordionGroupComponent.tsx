@@ -13,10 +13,10 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const SummaryAccordionGroupComponent = ({ targetNode, ...rest }: SummaryRendererProps<'AccordionGroup'>) => {
-  const { childComponents } = useNodeItem(targetNode);
+  const { children } = useNodeItem(targetNode);
   return (
     <DesignSystemAccordion>
-      {childComponents.map((childId) => (
+      {children.map((childId) => (
         <Child
           key={childId}
           id={childId}
@@ -70,7 +70,9 @@ function Child2({ id, ...rest }: { id: string } & Omit<Summary2Props<'AccordionG
   );
 }
 
-function Child({ id, ...rest }: { id: string } & Omit<SummaryRendererProps<'AccordionGroup'>, 'targetNode'>) {
+function Child({ id: _id, ...rest }: { id: string } & Omit<SummaryRendererProps<'AccordionGroup'>, 'targetNode'>) {
+  const idMutator = useComponentIdMutator();
+  const id = (_id && idMutator?.(_id)) ?? _id;
   const targetNode = useNode(id) as LayoutNode<'Accordion'> | undefined;
   if (!targetNode) {
     return null;

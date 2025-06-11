@@ -8,7 +8,8 @@ import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import classes from 'src/layout/Cards/Cards.module.css';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { GenericComponent, GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent, GenericComponentByBaseId } from 'src/layout/GenericComponent';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -22,7 +23,7 @@ function parseSize(size: string | undefined, defaultValue: string): string {
 }
 
 export const Cards = ({ node }: ICardsProps) => {
-  const { cardsInternal, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
+  const { cards, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
   const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
   const mediaPosition = _mediaPosition ?? 'top';
@@ -36,7 +37,7 @@ export const Cards = ({ node }: ICardsProps) => {
   return (
     <ComponentStructureWrapper node={node}>
       <div style={cardContainer}>
-        {cardsInternal.map((card, idx) => (
+        {cards.map((card, idx) => (
           <Card
             key={idx}
             color={color}
@@ -59,7 +60,7 @@ export const Cards = ({ node }: ICardsProps) => {
                 <Lang id={card.description} />
               </Card.Content>
             )}
-            {card.childIds && card.childIds.length > 0 && (
+            {card.children && card.children.length > 0 && (
               <Flex
                 container
                 item
@@ -76,8 +77,8 @@ export const Cards = ({ node }: ICardsProps) => {
                     node={node}
                     renderedInMedia={false}
                   >
-                    {card.childIds.map((childId, idx) => (
-                      <GenericComponentById
+                    {card.children.map((childId, idx) => (
+                      <GenericComponentByBaseId
                         key={idx}
                         id={childId}
                       />
@@ -112,7 +113,9 @@ interface MediaProps {
 }
 
 function Media({ card, node, minMediaHeight }: MediaProps) {
-  const mediaNode = useNode(card.mediaId);
+  const idMutator = useComponentIdMutator();
+  const id = (card.mediaId && idMutator?.(card.mediaId)) ?? card.mediaId;
+  const mediaNode = useNode(id);
   if (!mediaNode) {
     return null;
   }
