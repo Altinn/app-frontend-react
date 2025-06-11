@@ -64,11 +64,11 @@ function tt02_loginSelfIdentified(user: string, pwd: string) {
 }
 
 Cypress.Commands.add('startAppInstance', (appName, options) => {
-  const { user = 'default', evaluateBefore, urlSuffix = '', authenticationLevel } = options || {};
+  const { cyUser = 'default', evaluateBefore, urlSuffix = '', authenticationLevel } = options || {};
   const env = dotenv.config().parsed || {};
   cy.log(`Starting app instance: ${appName}`);
-  if (user) {
-    cy.log(`Logging in as user: ${user}`);
+  if (cyUser) {
+    cy.log(`Logging in as user: ${cyUser}`);
   }
 
   // You can override the host we load css/js from, using multiple methods:
@@ -154,8 +154,8 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
     throw new Error('Requested asset from altinncdn.no, our rewrite code is apparently not working, aborting test');
   });
 
-  user && login(user, authenticationLevel);
-  !user && cy.clearCookies();
+  cyUser && login(cyUser, authenticationLevel);
+  !cyUser && cy.clearCookies();
 
   cy.visit(targetUrlRaw, visitOptions);
 

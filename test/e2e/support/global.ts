@@ -13,7 +13,7 @@ export type FillableFrontendTasks = Exclude<FrontendTestTask, 'message' | 'confi
 
 export type StartAppInstanceOptions = {
   // User to log in as
-  user?: CyUser | null;
+  cyUser?: CyUser | null;
 
   authenticationLevel?: string;
 
