@@ -38,9 +38,23 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
 
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
+  // console.log('attachment', attachment.data.fileScanResult);
+
+  // if (typeof attachment === UploadedAttachment) {
+  // }
+
+  console.log('isSummary', isSummary);
+
+  // if (typeof attachment.data === 'IData')
+
+  // 1. Check if scanning is enabled
+  // 2. If enabled ignore the upload status, use the status from
+
   const status = attachment.uploaded
     ? langAsString('form_filler.file_uploader_list_status_done')
     : langAsString('general.loading');
+
+  const statusText = isAttachmentUploaded(attachment) ? attachment.data.fileScanResult : status;
 
   const rowStyle =
     isSummary || pdfModeActive
@@ -55,6 +69,9 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
       tabIndex={0}
       style={hasOverridenTaskId ? { padding: '8px 0' } : {}}
     >
+      <td>
+        <pre>{JSON.stringify(attachment, null, 2)}</pre>
+      </td>
       <NameCell
         attachment={attachment}
         mobileView={mobileView}
@@ -66,7 +83,7 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
       {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
       {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
         <StatusCellContent
-          status={status}
+          status={statusText}
           mobileView={mobileView}
           uploaded={attachment.uploaded}
         />

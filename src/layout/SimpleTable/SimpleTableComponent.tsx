@@ -137,6 +137,8 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
         />
       )}
 
+      <pre>{JSON.stringify(item, null, 2)}</pre>
+
       <AppTable
         zebra={item.zebra}
         size={item.size}

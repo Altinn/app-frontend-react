@@ -26,6 +26,28 @@ export interface IDisplayAttachment {
   tags?: string[];
 }
 
+export enum FileScanResult {
+  /**
+   * The file will not be scanned. File scanning is turned off.
+   */
+  NotApplicable = 'NotApplicable',
+
+  /**
+   * The scan status of the file is pending. This is the default value.
+   */
+  Pending = 'Pending',
+
+  /**
+   * The file scan did not find any malware in the file.
+   */
+  Clean = 'Clean',
+
+  /**
+   * The file scan found malware in the file.
+   */
+  Infected = 'Infected',
+}
+
 export interface IData {
   id: string;
   instanceGuid: string;
@@ -44,6 +66,7 @@ export interface IData {
   lastChanged: string;
   lastChangedBy: string;
   contentHash?: unknown;
+  fileScanResult?: FileScanResult;
 }
 
 export interface IDataType {
