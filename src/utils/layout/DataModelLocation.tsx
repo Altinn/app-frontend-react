@@ -117,3 +117,12 @@ export function useComponentIdMutator(): IdMutator {
     [mutators],
   );
 }
+
+export function useIndexedId(baseId: string): string;
+// eslint-disable-next-line no-redeclare
+export function useIndexedId(baseId: string | undefined): string | undefined;
+// eslint-disable-next-line no-redeclare
+export function useIndexedId(baseId: unknown) {
+  const idMutator = useComponentIdMutator();
+  return useMemo(() => (typeof baseId === 'string' ? idMutator(baseId) : baseId), [baseId, idMutator]);
+}

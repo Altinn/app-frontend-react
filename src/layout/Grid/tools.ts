@@ -1,3 +1,4 @@
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -25,7 +26,8 @@ export function useNodeIdsFromGrid(grid: LayoutNode<'Grid'>, enabled = true) {
 export function useNodeIdsFromGridRows(rows: GridRows | undefined, enabled = true) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
   const idMutator = useComponentIdMutator();
-  return enabled && rows ? nodeIdsFromGridRows(rows, isHiddenSelector, idMutator) : emptyArray;
+  const canRender = useHasCapability('renderInTable');
+  return enabled && rows ? nodeIdsFromGridRows(rows, isHiddenSelector, idMutator).filter(canRender) : emptyArray;
 }
 
 function nodeIdsFromGridRows(

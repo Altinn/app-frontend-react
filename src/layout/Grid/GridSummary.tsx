@@ -32,7 +32,8 @@ import {
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
-import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
+import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
@@ -233,9 +234,10 @@ function SummaryGridRowRenderer(props: GridRowProps) {
 
 function useFirstFormNodeId(row: GridRow): string | undefined {
   const idMutator = useComponentIdMutator();
+  const canRender = useHasCapability('renderInTable');
   return NodesInternal.useSelector((state) => {
     for (const cell of row.cells) {
-      if (cell && 'component' in cell && cell.component) {
+      if (cell && 'component' in cell && cell.component && canRender(cell.component)) {
         const nodeId = idMutator(cell.component);
         const nodeData = state.nodeData?.[nodeId];
         const def = nodeData && getComponentDef(nodeData.layout.type);
@@ -398,10 +400,10 @@ interface CellWithLabelProps extends BaseCellProps {
 }
 
 function SummaryCellWithComponentNodeCheck(props: CellWithComponentProps) {
-  const idMutator = useComponentIdMutator();
-  const nodeId = idMutator(props.cell.component ?? '');
+  const nodeId = useIndexedId(props.cell.component ?? '');
   const node = useNode(nodeId);
-  if (!node) {
+  const canRender = useHasCapability('renderInTable');
+  if (!node || !canRender(props.cell.component)) {
     return <Table.Cell />;
   }
 

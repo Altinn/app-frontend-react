@@ -9,7 +9,8 @@ import { CardProvider } from 'src/layout/Cards/CardContext';
 import classes from 'src/layout/Cards/Cards.module.css';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponent, GenericComponentByBaseId } from 'src/layout/GenericComponent';
-import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -27,6 +28,7 @@ export const Cards = ({ node }: ICardsProps) => {
   const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
   const mediaPosition = _mediaPosition ?? 'top';
+  const canRender = useHasCapability('renderInCards');
 
   const cardContainer: CSSProperties = {
     display: 'grid',
@@ -60,7 +62,7 @@ export const Cards = ({ node }: ICardsProps) => {
                 <Lang id={card.description} />
               </Card.Content>
             )}
-            {card.children && card.children.length > 0 && (
+            {card.children && card.children.filter(canRender).length > 0 && (
               <Flex
                 container
                 item
@@ -77,7 +79,7 @@ export const Cards = ({ node }: ICardsProps) => {
                     node={node}
                     renderedInMedia={false}
                   >
-                    {card.children.map((childId, idx) => (
+                    {card.children.filter(canRender).map((childId, idx) => (
                       <GenericComponentByBaseId
                         key={idx}
                         id={childId}
@@ -113,10 +115,10 @@ interface MediaProps {
 }
 
 function Media({ card, node, minMediaHeight }: MediaProps) {
-  const idMutator = useComponentIdMutator();
-  const id = (card.mediaId && idMutator?.(card.mediaId)) ?? card.mediaId;
+  const id = useIndexedId(card.mediaId);
+  const canRenderInMedia = useHasCapability('renderInCardsMedia');
   const mediaNode = useNode(id);
-  if (!mediaNode) {
+  if (!mediaNode || !canRenderInMedia(card.mediaId)) {
     return null;
   }
 

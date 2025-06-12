@@ -10,7 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Group/GroupSummary.module.css';
 import { ComponentSummary, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -39,8 +39,7 @@ interface ChildComponentProps extends Pick<GroupComponentSummaryProps, 'hierarch
 }
 
 function ChildComponent({ id: _id, hierarchyLevel }: ChildComponentProps) {
-  const idMutator = useComponentIdMutator();
-  const id = (_id && idMutator?.(_id)) ?? _id;
+  const id = useIndexedId(_id);
   const child = useNode(id);
   if (!child) {
     return null;
