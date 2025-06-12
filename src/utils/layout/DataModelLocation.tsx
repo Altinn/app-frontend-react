@@ -138,27 +138,29 @@ export function useIntermediateItem<T extends CompTypes = CompTypes>(
   const component = lookups.getComponent(baseComponentId, type);
   const location = useCurrentDataModelLocation();
 
-  if (!location || !component) {
-    return component as CompIntermediate<T> | undefined;
-  }
+  return useMemo(() => {
+    if (!location || !component) {
+      return component as CompIntermediate<T> | undefined;
+    }
 
-  const bindingParts: { binding: IDataModelReference; index: number }[] = [];
-  const regex = /\[0-9+]$/;
-  for (const match of location.field.matchAll(regex)) {
-    const base = match.input.slice(0, match.index);
-    const index = parseInt(match[0].slice(1, -1), 10);
-    bindingParts.push({ binding: { dataType: location.dataType, field: base }, index });
-  }
+    const bindingParts: { binding: IDataModelReference; index: number }[] = [];
+    const regex = /\[0-9+]$/;
+    for (const match of location.field.matchAll(regex)) {
+      const base = match.input.slice(0, match.index);
+      const index = parseInt(match[0].slice(1, -1), 10);
+      bindingParts.push({ binding: { dataType: location.dataType, field: base }, index });
+    }
 
-  const mutators = [
-    ...bindingParts.map(({ binding, index }) => mutateDataModelBindings(index, binding)),
-    ...bindingParts.map(({ index }, depth) => mutateMapping(index, depth)),
-  ];
+    const mutators = [
+      ...bindingParts.map(({ binding, index }) => mutateDataModelBindings(index, binding)),
+      ...bindingParts.map(({ index }, depth) => mutateMapping(index, depth)),
+    ];
 
-  const clone = structuredClone(component) as unknown as CompIntermediate<T>;
-  for (const mutator of mutators) {
-    mutator(clone);
-  }
+    const clone = structuredClone(component) as unknown as CompIntermediate<T>;
+    for (const mutator of mutators) {
+      mutator(clone);
+    }
 
-  return clone;
+    return clone;
+  }, [component, location]);
 }
