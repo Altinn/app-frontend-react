@@ -121,6 +121,13 @@ export function useComponentIdMutator(): IdMutator {
   );
 }
 
+/**
+ * This will give you a properly indexed ID, given a base component ID. I.e. 'currentValue' will give
+ * you 'currentValue-0' when we're in the first row inside a repeating group.
+ *
+ * @see useIndexedComponentIds - An alternative (more complex) solution that will complain if the target ID does not
+ * belong here, according to the layout structure.
+ */
 export function useIndexedId(baseId: string): string;
 // eslint-disable-next-line no-redeclare
 export function useIndexedId(baseId: string | undefined): string | undefined;
@@ -130,6 +137,11 @@ export function useIndexedId(baseId: unknown) {
   return useMemo(() => (typeof baseId === 'string' ? idMutator(baseId) : baseId), [baseId, idMutator]);
 }
 
+/**
+ * Given a base component id (one without indexes), this will give you the 'intermediate' item. That is, the
+ * configuration for the component, with data model bindings and mapping resolved to properly indexed paths matching
+ * the current path inside the data model.
+ */
 export function useIntermediateItem<T extends CompTypes = CompTypes>(
   baseComponentId: string | undefined,
   type?: T,
