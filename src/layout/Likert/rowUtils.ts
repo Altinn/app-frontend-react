@@ -6,10 +6,6 @@ import type { ILikertFilter } from 'src/layout/Likert/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const getLikertStartStopIndex = (lastIndex: number, filters: ILikertFilter = []) => {
-  if (typeof lastIndex === 'undefined') {
-    return { startIndex: 0, stopIndex: -1 };
-  }
-
   const start = filters.find(({ key }) => key === 'start')?.value;
   const stop = filters.find(({ key }) => key === 'stop')?.value;
   const startIndex = typeof start === 'string' ? parseInt(start) : (start ?? 0);
