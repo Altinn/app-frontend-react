@@ -6,6 +6,7 @@ import { SummaryAccordionComponent, SummaryAccordionComponent2 } from 'src/layou
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -28,7 +29,7 @@ export const SummaryAccordionGroupComponent = ({ targetNode, ...rest }: SummaryR
 };
 
 export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Props<'AccordionGroup'>) => {
-  const { childComponents } = useNodeItem(target);
+  const { children } = useNodeItem(target);
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   return (
     <SummaryFlexForContainer
@@ -36,7 +37,7 @@ export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Pro
       target={target}
     >
       <DesignSystemAccordion style={{ width: '100%' }}>
-        {childComponents.map((childId) => (
+        {children.map((childId) => (
           <Child2
             target={target}
             key={childId}
@@ -50,7 +51,9 @@ export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Pro
 };
 
 function Child2({ id, ...rest }: { id: string } & Omit<Summary2Props<'AccordionGroup'>, 'targetNode'>) {
-  const targetNode = useNode(id); // as LayoutNode<'Accordion'> | undefined;
+  const idMutator = useComponentIdMutator();
+  const nodeId = idMutator?.(id) ?? id;
+  const targetNode = useNode(nodeId);
 
   if (!targetNode) {
     return null;

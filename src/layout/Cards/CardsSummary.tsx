@@ -6,6 +6,7 @@ import { ComponentSummaryById, SummaryFlexForContainer } from 'src/layout/Summar
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
@@ -32,8 +33,8 @@ function Child({ id, summaryNode, overrides }: { id: string | undefined } & Pick
 }
 
 export function CardsSummary({ targetNode, summaryNode, overrides }: Props) {
-  const cardsInternal = useNodeItem(targetNode, (i) => i.cardsInternal);
-  const childIds = cardsInternal.map((card) => card.childIds).flat();
+  const cardsInternal = useNodeItem(targetNode, (i) => i.cards);
+  const childIds = cardsInternal.map((card) => card.children).flat();
 
   return (
     <>
@@ -50,11 +51,11 @@ export function CardsSummary({ targetNode, summaryNode, overrides }: Props) {
 }
 
 export function CardsSummary2({ target }: Summary2Props<'Cards'>) {
-  const item = useNodeItem(target, (i) => i.cardsInternal);
+  const item = useNodeItem(target, (i) => i.cards);
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const childIds = item
-    .map((card) => card.childIds)
-    .filter((id) => !!id)
+    .map((card) => card.children)
+    .filter(typedBoolean)
     .flat();
 
   return (

@@ -7,6 +7,7 @@ import classes from 'src/layout/Accordion/SummaryAccordion.module.css';
 import { GenericComponentByBaseId } from 'src/layout/GenericComponent';
 import { ComponentSummaryById, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -53,7 +54,8 @@ export function SummaryAccordionComponent({ targetNode }: SummaryRendererProps<'
 }
 
 export function SummaryAccordionComponent2({ target }: Summary2Props<'Accordion'>) {
-  const { textResourceBindings, headingLevel, childComponents } = useNodeItem(target);
+  const idMutator = useComponentIdMutator();
+  const { textResourceBindings, headingLevel, children } = useNodeItem(target);
   const { langAsString } = useLanguage();
 
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
@@ -71,10 +73,10 @@ export function SummaryAccordionComponent2({ target }: Summary2Props<'Accordion'
           <Heading className={classes.paddingSmall}>{title}</Heading>
         </div>
         <div className={classes.padding}>
-          {childComponents.map((nodeId) => (
+          {children.map((baseId) => (
             <ComponentSummaryById
-              key={nodeId}
-              componentId={nodeId}
+              key={baseId}
+              componentId={idMutator?.(baseId) ?? baseId}
             />
           ))}
         </div>
