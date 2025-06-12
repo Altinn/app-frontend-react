@@ -1,9 +1,10 @@
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getComponentDef } from 'src/layout';
-import { useDataModelLocationForNode } from 'src/utils/layout/DataModelLocation';
+import { useDataModelLocationForNode, useIntermediateItem } from 'src/utils/layout/DataModelLocation';
 import { useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import { typedBoolean } from 'src/utils/typing';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
@@ -20,8 +21,7 @@ export function useNodeItem<N extends LayoutNode, Out>(node: N, selector: (item:
 export function useNodeItem<N extends LayoutNode>(node: N, selector?: undefined): NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
 export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const intermediate = NodesInternal.useNodeData(node, (d) => d.layout) as any;
+  const intermediate = useIntermediateItem(node?.baseId);
   const location = useDataModelLocationForNode(node?.id);
   const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -40,7 +40,8 @@ export function useNodeItemWhenType<T extends CompTypes>(
   nodeId: string | undefined,
   type: T,
 ): CompInternal<T> | undefined {
-  const intermediate = NodesInternal.useNodeDataWhenType(nodeId, type, (d) => d.layout);
+  const { baseComponentId } = nodeId ? splitDashedKey(nodeId) : { baseComponentId: undefined };
+  const intermediate = useIntermediateItem(baseComponentId);
   const location = useDataModelLocationForNode(nodeId);
   const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
