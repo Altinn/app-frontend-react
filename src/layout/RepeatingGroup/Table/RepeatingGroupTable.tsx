@@ -107,7 +107,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
             <Table.Row>
               <DataModelLocationProvider
                 groupBinding={dataModelBindings.group}
-                rowIndex={0}
+                rowIndex={0} // Force the header row to show texts as if it is in the first row
               >
                 {tableIds?.map((id) => (
                   <TitleCell
