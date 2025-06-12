@@ -20,6 +20,5 @@
 .modalContainer {
   box-sizing: border-box;
   padding: 16px;
-  max-height: unset;
   height: 100%;
 }
