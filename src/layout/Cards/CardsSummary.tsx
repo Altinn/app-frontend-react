@@ -4,6 +4,8 @@ import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
+import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
@@ -12,9 +14,15 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 
 type Props = Pick<SummaryRendererProps<'Cards'>, 'targetNode' | 'summaryNode' | 'overrides'>;
 
-function Child({ id, summaryNode, overrides }: { id: string | undefined } & Pick<Props, 'summaryNode' | 'overrides'>) {
+function Child({
+  baseId,
+  summaryNode,
+  overrides,
+}: { baseId: string | undefined } & Pick<Props, 'summaryNode' | 'overrides'>) {
+  const id = useIndexedId(baseId);
   const child = useNode(id);
-  if (!child) {
+  const canRender = useHasCapability('renderInCards');
+  if (!child || !canRender(baseId)) {
     return null;
   }
 
@@ -34,14 +42,14 @@ function Child({ id, summaryNode, overrides }: { id: string | undefined } & Pick
 
 export function CardsSummary({ targetNode, summaryNode, overrides }: Props) {
   const cardsInternal = useNodeItem(targetNode, (i) => i.cards);
-  const childIds = cardsInternal.map((card) => card.children).flat();
+  const children = cardsInternal.map((card) => card.children).flat();
 
   return (
     <>
-      {childIds.map((childId) => (
+      {children.map((childId) => (
         <Child
           key={childId}
-          id={childId}
+          baseId={childId}
           summaryNode={summaryNode}
           overrides={overrides}
         />
@@ -51,21 +59,21 @@ export function CardsSummary({ targetNode, summaryNode, overrides }: Props) {
 }
 
 export function CardsSummary2({ target }: Summary2Props<'Cards'>) {
-  const item = useNodeItem(target, (i) => i.cards);
+  const canRender = useHasCapability('renderInCards');
+  const idMutator = useComponentIdMutator();
+  const children = useNodeItem(target, (i) => i.cards.map((c) => c.children).flat())
+    .filter(canRender)
+    .filter(typedBoolean);
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
-  const childIds = item
-    .map((card) => card.children)
-    .filter(typedBoolean)
-    .flat();
 
   return (
     <SummaryFlexForContainer
       hideWhen={hideEmptyFields}
       target={target}
     >
-      {childIds.map((childId) => (
+      {children.map((childId) => (
         <EmptyChildrenBoundary key={childId}>
-          <ComponentSummaryById componentId={childId} />
+          <ComponentSummaryById componentId={idMutator?.(childId) ?? childId} />
         </EmptyChildrenBoundary>
       ))}
     </SummaryFlexForContainer>

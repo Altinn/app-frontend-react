@@ -22,7 +22,7 @@ import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/Repeat
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { DataModelLocationProvider, useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -253,8 +253,7 @@ function TitleCell({
   baseComponentId: string;
   columnSettings: ITableColumnFormatting;
 }) {
-  const idMutator = useComponentIdMutator();
-  const nodeId = idMutator?.(baseComponentId) ?? baseComponentId;
+  const nodeId = useIndexedId(baseComponentId);
   const node = useNode(nodeId);
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
 

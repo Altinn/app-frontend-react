@@ -2,7 +2,8 @@ import React from 'react';
 import type { JSX } from 'react';
 
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -28,10 +29,10 @@ export function TabsSummaryComponent({ targetNode, summaryNode, overrides }: Pro
 }
 
 function Child({ baseId, summaryNode, overrides }: { baseId: string } & Pick<Props, 'summaryNode' | 'overrides'>) {
-  const idMutator = useComponentIdMutator();
-  const nodeId = (baseId && idMutator?.(baseId)) ?? baseId;
+  const nodeId = useIndexedId(baseId);
   const node = useNode(nodeId);
-  if (!node) {
+  const canRender = useHasCapability('renderInTabs');
+  if (!node || !canRender(baseId)) {
     return null;
   }
 

@@ -7,6 +7,7 @@ import classes from 'src/layout/Accordion/SummaryAccordion.module.css';
 import { GenericComponentByBaseId } from 'src/layout/GenericComponent';
 import { ComponentSummaryById, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -55,6 +56,7 @@ export function SummaryAccordionComponent({ targetNode }: SummaryRendererProps<'
 
 export function SummaryAccordionComponent2({ target }: Summary2Props<'Accordion'>) {
   const idMutator = useComponentIdMutator();
+  const canRenderInAccordion = useHasCapability('renderInAccordion');
   const { textResourceBindings, headingLevel, children } = useNodeItem(target);
   const { langAsString } = useLanguage();
 
@@ -73,7 +75,7 @@ export function SummaryAccordionComponent2({ target }: Summary2Props<'Accordion'
           <Heading className={classes.paddingSmall}>{title}</Heading>
         </div>
         <div className={classes.padding}>
-          {children.map((baseId) => (
+          {children.filter(canRenderInAccordion).map((baseId) => (
             <ComponentSummaryById
               key={baseId}
               componentId={idMutator?.(baseId) ?? baseId}

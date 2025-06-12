@@ -24,7 +24,7 @@ import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryCompone
 import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { DataModelLocationProvider, useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
@@ -114,8 +114,7 @@ function HeaderCell({
   baseComponentId: string;
   columnSettings: ITableColumnFormatting;
 }) {
-  const idMutator = useComponentIdMutator();
-  const nodeId = idMutator?.(baseComponentId) ?? baseComponentId;
+  const nodeId = useIndexedId(baseComponentId);
   const node = useNode(nodeId);
   const style = useColumnStylesRepeatingGroups(node, columnSettings);
   return (
