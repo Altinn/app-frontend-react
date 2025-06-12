@@ -1,13 +1,6 @@
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { CompDef } from 'src/layout';
-import type {
-  CompExternal,
-  CompIntermediate,
-  CompIntermediateExact,
-  CompInternal,
-  CompTypes,
-  TypeFromNode,
-} from 'src/layout/layout';
+import type { CompExternal, CompInternal, CompTypes, TypeFromNode } from 'src/layout/layout';
 import type { ChildIdMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
@@ -23,8 +16,7 @@ export interface BaseRow {
   index: number;
 }
 
-export interface StateFactoryProps<Type extends CompTypes> {
-  item: CompIntermediateExact<Type>;
+export interface StateFactoryProps {
   pageKey: string;
   parent: LayoutNode | LayoutPage;
   parentId: string | undefined;
@@ -41,13 +33,12 @@ export interface GeneratorErrors {
   [key: string]: true;
 }
 
-export interface BaseNodeData<T extends CompTypes> {
+export interface BaseNodeData {
   type: 'node';
   pageKey: string;
   parentId: string | undefined; // String if parent is a node, undefined if parent is a page (on the top level)
   isValid: boolean; // False when page is not in the page order, and not a pdf page
   depth: number;
-  layout: CompIntermediate<T>;
   hidden: boolean | undefined;
   rowIndex: number | undefined;
   errors: GeneratorErrors | undefined;

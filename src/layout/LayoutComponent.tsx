@@ -110,7 +110,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
    * Creates the zustand store default state for a node of this component type. Usually this is implemented
    * automatically by code generation, but you can override it if you need to add additional properties to the state.
    */
-  abstract stateFactory(props: StateFactoryProps<Type>): unknown;
+  abstract stateFactory(props: StateFactoryProps): unknown;
 
   /**
    * The default expression evaluator, implemented by code generation. Do not try to override this yourself. If you

@@ -535,14 +535,13 @@ export class ComponentConfig {
         );
       }
 
-      stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
-        const baseState: ${BaseNodeData}<'${this.type}'> = {
+      stateFactory(props: ${StateFactoryProps}) {
+        const baseState: ${BaseNodeData} = {
           type: 'node',
           pageKey: props.pageKey,
           parentId: props.parentId,
           depth: props.depth,
           isValid: props.isValid,
-          layout: props.item,
           hidden: undefined,
           rowIndex: props.rowIndex,
           errors: undefined,

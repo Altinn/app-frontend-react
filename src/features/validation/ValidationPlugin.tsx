@@ -41,7 +41,7 @@ export class ValidationPlugin extends NodeDefPlugin<Config> {
     }
   }
 
-  stateFactory(_props: DefPluginStateFactoryProps<Config>): DefPluginExtraState<Config> {
+  stateFactory(_props: DefPluginStateFactoryProps): DefPluginExtraState<Config> {
     return {
       validations: emptyArray,
       validationVisibility: 0,
