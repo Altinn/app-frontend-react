@@ -179,7 +179,7 @@ export const RepGroupHooks = {
 
   useLastMultiPageIndex(node: LayoutNode<'RepeatingGroup'>) {
     const component = useLayoutLookups().getComponent(node.baseId, 'RepeatingGroup');
-    if (!component || !component.edit?.multiPage) {
+    if (!component.edit?.multiPage) {
       return undefined;
     }
 
