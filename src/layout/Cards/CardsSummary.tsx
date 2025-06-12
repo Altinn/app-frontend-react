@@ -1,7 +1,9 @@
 import React from 'react';
 
 import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { ComponentSummaryById } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { ComponentSummaryById, SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -49,19 +51,22 @@ export function CardsSummary({ targetNode, summaryNode, overrides }: Props) {
 
 export function CardsSummary2({ target }: Summary2Props<'Cards'>) {
   const item = useNodeItem(target, (i) => i.cardsInternal);
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const childIds = item
     .map((card) => card.childIds)
     .filter((id) => !!id)
     .flat();
 
   return (
-    <>
+    <SummaryFlexForContainer
+      hideWhen={hideEmptyFields}
+      target={target}
+    >
       {childIds.map((childId) => (
-        <ComponentSummaryById
-          key={childId}
-          componentId={childId}
-        />
+        <EmptyChildrenBoundary key={childId}>
+          <ComponentSummaryById componentId={childId} />
+        </EmptyChildrenBoundary>
       ))}
-    </>
+    </SummaryFlexForContainer>
   );
 }

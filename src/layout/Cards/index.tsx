@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import { Cards as CardsComponent } from 'src/layout/Cards/Cards';
 import { CardsSummary, CardsSummary2 } from 'src/layout/Cards/CardsSummary';
 import { CardsDef } from 'src/layout/Cards/config.def.generated';
+import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -20,7 +21,11 @@ export class Cards extends CardsDef {
   }
 
   renderSummary2(props: Summary2Props<'Cards'>): React.JSX.Element | null {
-    return <CardsSummary2 target={props.target} />;
+    return (
+      <EmptyChildrenBoundary>
+        <CardsSummary2 target={props.target} />
+      </EmptyChildrenBoundary>
+    );
   }
 
   renderSummary({ summaryNode, targetNode, overrides }: SummaryRendererProps<'Cards'>): JSX.Element | null {
