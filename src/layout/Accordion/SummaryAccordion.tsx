@@ -34,7 +34,7 @@ export function SummaryAccordionComponent({ targetNode }: SummaryRendererProps<'
 
   return (
     <div className={cn(classes.container)}>
-      <div className={classes.header}>
+      <div className={cn(classes.header, classes.padding)}>
         <Heading className={classes.paddingSmall}>{title}</Heading>
       </div>
       <div className={classes.padding}>

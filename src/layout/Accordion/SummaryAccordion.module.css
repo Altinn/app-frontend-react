@@ -10,7 +10,7 @@
 }
 
 .padding {
-  padding: var(--ds-spacing-5);
+  padding: var(--ds-size-5);
 }
 
 .paddingSmall {
