@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 
 import { FD } from 'src/features/formData/FormDataWrite';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import { getLikertStartStopIndex } from 'src/layout/Likert/rowUtils';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
@@ -54,13 +55,6 @@ interface GenerateRowProps {
   rowIndex: number;
   rowUuid: string;
   questionsBinding: IDataModelReference;
-}
-
-export function makeLikertChildId(parentId: string, rowIndex: number | undefined) {
-  if (rowIndex === undefined) {
-    return `${parentId}-item`;
-  }
-  return `${parentId}-item-${rowIndex}`;
 }
 
 const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding }: GenerateRowProps) {

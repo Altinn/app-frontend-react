@@ -1,5 +1,5 @@
 import { CG } from 'src/codegen/CG';
-import { makeLikertChildId } from 'src/layout/Likert/Generator/LikertGeneratorChildren';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';

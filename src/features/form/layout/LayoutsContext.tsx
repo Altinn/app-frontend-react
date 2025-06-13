@@ -15,7 +15,7 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
-import { makeLikertChildId } from 'src/layout/Likert/Generator/LikertGeneratorChildren';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
