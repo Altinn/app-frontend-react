@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import { getLikertStartStopIndex } from 'src/layout/Likert/rowUtils';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
@@ -40,7 +41,7 @@ function LikertGeneratorChildrenWorker() {
     <>
       {filteredRows.map((row) => (
         <GeneratorRunProvider key={row.index}>
-          <GenerateRow
+          <GenerateLikertRow
             rowIndex={row.index}
             rowUuid={row.uuid}
             questionsBinding={questionsBinding}
@@ -57,7 +58,17 @@ interface GenerateRowProps {
   questionsBinding: IDataModelReference;
 }
 
-const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding }: GenerateRowProps) {
+const GenerateLikertRow = React.memo((props: GenerateRowProps) => (
+  <DataModelLocationProvider
+    groupBinding={props.questionsBinding}
+    rowIndex={props.rowIndex}
+  >
+    <GenerateLikertRowInner {...props} />
+  </DataModelLocationProvider>
+));
+GenerateLikertRow.displayName = 'GenerateLikertRow';
+
+const GenerateLikertRowInner = React.memo(function ({ rowIndex, questionsBinding }: GenerateRowProps) {
   const parentItem = GeneratorInternal.useIntermediateItem() as CompIntermediate<'Likert'>;
   const depth = GeneratorInternal.useDepth();
 
@@ -97,4 +108,4 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
   );
 });
 
-GenerateRow.displayName = 'GenerateRow';
+GenerateLikertRowInner.displayName = 'GenerateLikertRowInner';
