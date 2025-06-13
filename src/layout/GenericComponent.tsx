@@ -74,7 +74,6 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  const itemExists = useNodeItem(node, (i) => !!i);
   const generatorErrors = NodesInternal.useNodeData(node, (node) => node.errors);
 
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
@@ -86,7 +85,7 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
     );
   }
 
-  if (!node || !itemExists) {
+  if (!node) {
     return false;
   }
 
