@@ -156,7 +156,7 @@ export function useIntermediateItem<T extends CompTypes = CompTypes>(
     }
 
     const bindingParts: { binding: IDataModelReference; index: number }[] = [];
-    const regex = /\[0-9+]$/g;
+    const regex = /\[[0-9]+]/g;
     for (const match of location.field.matchAll(regex)) {
       const base = match.input.slice(0, match.index);
       const index = parseInt(match[0].slice(1, -1), 10);
