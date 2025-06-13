@@ -183,10 +183,6 @@ function PdfForNode({ nodeId }: { nodeId: string }) {
   const node = useNode(nodeId);
   const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
 
-  if (!node) {
-    return null;
-  }
-
   if (node.isType('Summary2') && target?.taskId) {
     return (
       <SummaryComponent2

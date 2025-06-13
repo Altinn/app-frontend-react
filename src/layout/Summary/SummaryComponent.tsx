@@ -32,7 +32,7 @@ interface SummaryOverrides {
 }
 
 export interface ISummaryComponent {
-  summaryNode: LayoutNode<'Summary'> | undefined;
+  summaryNode: LayoutNode<'Summary'>;
   overrides?: Partial<SummaryOverrides>;
 }
 

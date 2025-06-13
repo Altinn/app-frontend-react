@@ -127,7 +127,7 @@ export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined)
   };
 };
 
-export function useTextAlignment(node: LayoutNode | undefined): 'left' | 'center' | 'right' {
+export function useTextAlignment(node: LayoutNode): 'left' | 'center' | 'right' {
   const formatting = useNodeItem(node, (i) => (i.type === 'Input' ? i.formatting : undefined));
   if (!formatting) {
     return 'left';
@@ -138,10 +138,7 @@ export function useTextAlignment(node: LayoutNode | undefined): 'left' | 'center
   return formatting.number ? 'right' : 'left';
 }
 
-export function useColumnStylesRepeatingGroups(
-  node: LayoutNode | undefined,
-  columnSettings: ITableColumnFormatting | undefined,
-) {
+export function useColumnStylesRepeatingGroups(node: LayoutNode, columnSettings: ITableColumnFormatting | undefined) {
   const textAlignment = useTextAlignment(node);
   const column = columnSettings && node && columnSettings[node.baseId];
   if (!column) {

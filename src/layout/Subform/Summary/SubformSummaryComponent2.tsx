@@ -137,7 +137,7 @@ const DoSummaryWrapper = ({
   );
 };
 
-export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subform'>>) {
+export function SubformSummaryComponent2({ target }: Summary2Props<'Subform'>) {
   const displayType = useSummaryOverrides(target)?.display;
   const allOrOneSubformId = NodesInternal.useShallowSelector((state) =>
     Object.values(state.nodeData)

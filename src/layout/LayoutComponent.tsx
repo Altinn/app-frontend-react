@@ -197,7 +197,7 @@ export abstract class PresentationComponent<Type extends CompTypes> extends AnyC
 }
 
 export interface SummaryRendererProps<Type extends CompTypes> {
-  summaryNode: LayoutNode<'Summary'> | undefined;
+  summaryNode: LayoutNode<'Summary'>;
   targetNode: LayoutNode<Type>;
   onChangeClick: () => void;
   changeText: string | null;
