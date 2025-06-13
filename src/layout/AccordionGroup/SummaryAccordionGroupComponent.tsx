@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Accordion as DesignSystemAccordion } from '@digdir/designsystemet-react';
+import { Details } from '@digdir/designsystemet-react';
 
 import { SummaryAccordionComponent, SummaryAccordionComponent2 } from 'src/layout/Accordion/SummaryAccordion';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
@@ -14,17 +14,13 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const SummaryAccordionGroupComponent = ({ targetNode, ...rest }: SummaryRendererProps<'AccordionGroup'>) => {
   const { childComponents } = useNodeItem(targetNode);
-  return (
-    <DesignSystemAccordion>
-      {childComponents.map((childId) => (
-        <Child
-          key={childId}
-          id={childId}
-          {...rest}
-        />
-      ))}
-    </DesignSystemAccordion>
-  );
+  return childComponents.map((childId) => (
+    <Child
+      key={childId}
+      id={childId}
+      {...rest}
+    />
+  ));
 };
 
 export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Props<'AccordionGroup'>) => {
@@ -35,7 +31,7 @@ export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Pro
       hideWhen={hideEmptyFields}
       target={target}
     >
-      <DesignSystemAccordion style={{ width: '100%' }}>
+      <Details style={{ width: '100%' }}>
         {childComponents.map((childId) => (
           <Child2
             target={target}
@@ -44,7 +40,7 @@ export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Pro
             {...rest}
           />
         ))}
-      </DesignSystemAccordion>
+      </Details>
     </SummaryFlexForContainer>
   );
 };
