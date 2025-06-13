@@ -4,7 +4,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { getLikertStartStopIndex } from 'src/layout/Likert/rowUtils';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
-import { GenerateNodeChildrenWithStaticLayout } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import {
   mutateComponentId,
   mutateComponentIdPlain,
@@ -12,7 +12,7 @@ import {
   mutateMapping,
 } from 'src/utils/layout/generator/NodeRepeatingChildren';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { CompExternalExact, CompIntermediate } from 'src/layout/layout';
+import type { CompIntermediate } from 'src/layout/layout';
 import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 
 export function LikertGeneratorChildren() {
@@ -69,35 +69,6 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
 
   const childId = makeLikertChildId(parentItem.id, undefined); // This needs to be the base ID
 
-  const externalItem = useMemo(
-    (): CompExternalExact<'LikertItem'> => ({
-      id: childId,
-      type: 'LikertItem',
-      textResourceBindings: {
-        title: parentItem.textResourceBindings?.questions,
-      },
-      dataModelBindings: {
-        simpleBinding: parentItem.dataModelBindings?.answer,
-      },
-      options: parentItem.options,
-      optionsId: parentItem.optionsId,
-      mapping: parentItem.mapping,
-      required: parentItem.required,
-      secure: parentItem.secure,
-      queryParameters: parentItem.queryParameters,
-      readOnly: parentItem.readOnly,
-      sortOrder: parentItem.sortOrder,
-      showValidations: parentItem.showValidations,
-      grid: parentItem.grid,
-      source: parentItem.source,
-      hidden: parentItem.hidden,
-      pageBreak: parentItem.pageBreak,
-      renderAsSummary: parentItem.renderAsSummary,
-      columns: parentItem.columns,
-    }),
-    [parentItem, childId],
-  );
-
   const childClaims = useMemo(
     (): ChildClaims => ({
       [childId]: {
@@ -105,13 +76,6 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
       },
     }),
     [childId],
-  );
-
-  const layoutMap = useMemo(
-    (): Record<string, CompExternalExact<'LikertItem'>> => ({
-      [childId]: externalItem,
-    }),
-    [childId, externalItem],
   );
 
   const recursiveMutators = useMemo(
@@ -131,9 +95,9 @@ const GenerateRow = React.memo(function GenerateRow({ rowIndex, questionsBinding
       groupBinding={questionsBinding}
       forceHidden={false}
     >
-      <GenerateNodeChildrenWithStaticLayout
+      <GenerateNodeChildren
         claims={childClaims}
-        staticLayoutMap={layoutMap}
+        pluginKey={'LikertRowsPlugin' as const}
       />
     </GeneratorRowProvider>
   );
