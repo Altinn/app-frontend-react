@@ -21,6 +21,7 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
@@ -34,17 +35,9 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing } = useRepeatingGroup();
   const { rowsToDisplay } = useRepeatingGroupPagination();
-  const {
-    textResourceBindings,
-    labelSettings,
-    id,
-    edit,
-    minCount,
-    stickyHeader,
-    tableColumns,
-    rows,
-    dataModelBindings,
-  } = useNodeItem(node);
+  const rows = RepGroupHooks.useAllRowsWithButtons(node);
+  const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, dataModelBindings } =
+    useNodeItem(node);
   const required = !!minCount && minCount > 0;
 
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
@@ -60,8 +53,8 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   const showEditButtonColumns = new Set<boolean>();
   for (const row of rows) {
     if (row && rowsToDisplay.some((r) => r.uuid === row.uuid)) {
-      showDeleteButtonColumns.add(row.groupExpressions?.edit?.deleteButton !== false);
-      showEditButtonColumns.add(row.groupExpressions?.edit?.editButton !== false);
+      showDeleteButtonColumns.add(row.deleteButton);
+      showEditButtonColumns.add(row.editButton);
     }
   }
   const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
