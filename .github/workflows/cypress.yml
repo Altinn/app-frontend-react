@@ -76,8 +76,6 @@ jobs:
         with:
           name: dist
           path: dist
-      - name: Install chromium
-        run: apk add --no-cache chromium
       - name: Set Percy command based on PR draft status or main branch
         shell: bash
         run: |
@@ -106,7 +104,7 @@ jobs:
           parallel: true
           group: altinn-app-frontend
           tag: altinn-app-frontend
-          browser: chromium
+          browser: chrome
           ci-build-id: ${{ github.run_id }}-${{ github.run_attempt }}
           spec: test/e2e/integration
           env: environment=tt02
@@ -137,13 +135,11 @@ jobs:
         with:
           name: dist
           path: dist
-      - name: Install chromium
-        run: apk add --no-cache chromium
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
           start: 'npx http-server dist --cors="*" -p 8080'
-          browser: chromium
+          browser: chrome
           spec: test/e2e/integration
           env: environment=tt02
 
