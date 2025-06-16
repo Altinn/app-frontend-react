@@ -2,7 +2,7 @@ import React from 'react';
 import type { CSSProperties } from 'react';
 
 import { AppCard } from 'src/app-components/Card/Card';
-import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
+import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -57,16 +57,30 @@ export const Cards = ({ node }: ICardsProps) => {
               )
             }
           >
-            {card?.childIds &&
-              card.childIds?.length > 0 &&
-              card.childIds?.filter(typedBoolean).map((childId, idx) => (
-                <CardItem
-                  key={idx}
-                  nodeId={childId}
-                  parentNode={node}
-                  isMedia={false}
-                />
-              ))}
+            <Flex
+              container
+              direction='row'
+              spacing={6}
+              item
+            >
+              <Flex
+                container
+                alignItems='flex-start'
+                spacing={6}
+                item
+              >
+                {card?.childIds &&
+                  card.childIds?.length > 0 &&
+                  card.childIds?.filter(typedBoolean).map((childId, idx) => (
+                    <CardItem
+                      key={idx}
+                      nodeId={childId}
+                      parentNode={node}
+                      isMedia={false}
+                    />
+                  ))}
+              </Flex>
+            </Flex>
           </AppCard>
         ))}
       </div>
@@ -93,24 +107,21 @@ function CardItem({ nodeId, parentNode, isMedia, minMediaHeight }: CardItemProps
       renderedInMedia={isMedia}
       minMediaHeight={minMediaHeight}
     >
-      <ConditionalWrapper
-        condition={isMedia}
-        wrapper={(children) => (
-          <div
-            data-componentid={nodeId}
-            data-componentbaseid={itemNode.baseId}
-          >
-            {children}
-          </div>
-        )}
-      >
-        <GenericComponent
-          node={itemNode}
-          overrideDisplay={{
-            directRender: true,
-          }}
-        />
-      </ConditionalWrapper>
+      {isMedia ? (
+        <div
+          data-componentid={nodeId}
+          data-componentbaseid={itemNode.baseId}
+        >
+          <GenericComponent
+            node={itemNode}
+            overrideDisplay={{
+              directRender: true,
+            }}
+          />
+        </div>
+      ) : (
+        <GenericComponent node={itemNode} />
+      )}
     </CardProvider>
   );
 }
