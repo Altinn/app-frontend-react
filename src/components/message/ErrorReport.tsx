@@ -6,6 +6,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
 import { Panel } from 'src/app-components/Panel/Panel';
 import classes from 'src/components/message/ErrorReport.module.css';
+import { useAllAttachments } from 'src/features/attachments/hooks';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -14,6 +15,7 @@ import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLoc
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
+import type { UploadedAttachment } from 'src/features/attachments';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 
 export interface IErrorReportProps extends PropsWithChildren {
@@ -76,6 +78,30 @@ interface ErrorReportListProps {
 
 export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
+  const allAttachments = useAllAttachments();
+
+  // Create ErrorWithLink entries for infected files
+  const infectedFileErrors: NodeRefValidation[] = Object.entries(allAttachments || {}).flatMap(
+    ([nodeId, attachments]) =>
+      (attachments || [])
+        .filter((attachment) => attachment.uploaded && attachment.data.fileScanResult === 'Infected')
+        .map((attachment) => {
+          const uploadedAttachment = attachment as UploadedAttachment;
+          return {
+            nodeId,
+            source: 'Frontend' as const,
+            code: 'InfectedFile',
+            dataElementId: uploadedAttachment.data.id,
+            message: {
+              key: 'general.wait_for_attachments_infected',
+              params: [uploadedAttachment.data.filename],
+            },
+            severity: 'error' as const,
+            category: 0,
+            field: '',
+          };
+        }),
+  );
 
   return (
     <>
@@ -86,6 +112,12 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
             params={error.message.params}
           />
         </ErrorReportListItem>
+      ))}
+      {infectedFileErrors.map((error) => (
+        <ErrorWithLink
+          key={`infected-${error.nodeId}`}
+          error={error}
+        />
       ))}
       {formErrors.map((error) => (
         <ErrorWithLink

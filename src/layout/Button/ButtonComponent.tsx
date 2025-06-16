@@ -43,6 +43,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
   const disabled =
     isAnyProcessing ||
     attachmentsPending ||
+    attachmentState.state === 'Infected' ||
     (currentTaskType === ProcessTaskType.Data && !write) ||
     (currentTaskType === ProcessTaskType.Confirm && !actions?.confirm);
 
@@ -84,9 +85,8 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
       >
         <Lang id={item.textResourceBindings?.title} />
       </Button>
-      {attachmentState.hasPending && (
+      {attachmentState.hasPending && attachmentState.state !== 'Infected' && (
         <span style={{ position: 'absolute' }}>
-          {attachmentState.state === 'Infected' && langAsString('general.wait_for_attachments_infected')}
           {attachmentState.state === 'Pending' && langAsString('general.wait_for_attachments_scanning')}
           {attachmentState.state === 'uploading' && langAsString('general.wait_for_attachments')}
         </span>
