@@ -102,7 +102,7 @@ jobs:
           parallel: true
           group: altinn-app-frontend
           tag: altinn-app-frontend
-          browser: chrome
+          browser: chromium
           ci-build-id: ${{ github.run_id }}-${{ github.run_attempt }}
           spec: test/e2e/integration
           env: environment=tt02
@@ -138,7 +138,7 @@ jobs:
         uses: cypress-io/github-action@v6
         with:
           start: 'npx http-server dist --cors="*" -p 8080'
-          browser: chrome
+          browser: chromium
           spec: test/e2e/integration
           env: environment=tt02
 
