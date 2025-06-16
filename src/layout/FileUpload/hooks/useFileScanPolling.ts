@@ -4,18 +4,13 @@ import { type FileUploaderNode, isAttachmentUploaded } from 'src/features/attach
 import { useAttachmentsFor } from 'src/features/attachments/hooks';
 import { useInstancePolling } from 'src/features/instance/useInstancePolling';
 
-/**
- * Hook that automatically polls for file scan status updates when there are files
- * with pending scan status. Polling stops when all files have completed scanning.
- */
 export function useFileScanPolling(node: FileUploaderNode) {
   const attachments = useAttachmentsFor(node);
   const { startPolling, stopPolling } = useInstancePolling({
-    intervalMs: 5000, // Poll every 5 seconds
-    maxAttempts: 120, // Maximum 10 minutes of polling (120 * 5s)
+    intervalMs: 5000,
+    maxAttempts: 120,
   });
 
-  // Check if there are any files with pending scan status
   const hasPendingScans = attachments.some(
     (attachment) => isAttachmentUploaded(attachment) && attachment.data.fileScanResult === 'Pending',
   );
@@ -27,7 +22,6 @@ export function useFileScanPolling(node: FileUploaderNode) {
       stopPolling();
     }
 
-    // Cleanup on unmount
     return () => {
       stopPolling();
     };

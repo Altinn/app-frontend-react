@@ -46,9 +46,3 @@ tr.grayUnderline td {
   align-items: center;
   gap: 0.5rem;
 }
-
-.smallLoader {
-  margin: 0;
-  width: 1rem;
-  height: 1rem;
-}

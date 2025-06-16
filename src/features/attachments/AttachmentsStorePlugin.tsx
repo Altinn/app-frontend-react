@@ -136,7 +136,6 @@ export interface AttachmentsStorePluginConfig {
 
 const emptyArray = [];
 
-// Stable object references for attachment states to prevent infinite re-renders
 const ATTACHMENT_STATE_RESULTS = {
   infected: { hasPending: true, state: 'Infected' as const },
   uploading: { hasPending: true, state: 'uploading' as const },
@@ -531,7 +530,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               return true;
             }
 
-            // Block form submission if any file is infected
             if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Infected')) {
               return true;
             }
@@ -551,7 +549,6 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
 
             const attachments = Object.values(nodeData.attachments);
 
-            // Priority order: Infected > uploading/deleting/updating > Pending > ready
             if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Infected')) {
               return ATTACHMENT_STATE_RESULTS.infected;
             }

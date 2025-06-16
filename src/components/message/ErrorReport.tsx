@@ -80,7 +80,6 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
   const allAttachments = useAllAttachments();
 
-  // Create ErrorWithLink entries for infected files
   const infectedFileErrors: NodeRefValidation[] = Object.entries(allAttachments || {}).flatMap(
     ([nodeId, attachments]) =>
       (attachments || [])

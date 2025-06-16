@@ -53,7 +53,6 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
   const { options, isFetching } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
 
-  // Start polling for file scan status updates if there are pending scans
   useFileScanPolling(node);
 
   const canUploadMoreAttachments = attachments.length < maxNumberOfAttachments;

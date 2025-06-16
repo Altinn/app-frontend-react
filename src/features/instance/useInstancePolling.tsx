@@ -42,14 +42,12 @@ export function useInstancePolling(options: UseInstancePollingOptions = {}) {
         stopPolling();
         return;
       }
-      // Use the proper instance query key from InstanceContext
       await queryClient.refetchQueries({
         queryKey: instanceQueryKeys.instanceData(partyId, instanceGuid),
       });
     }, intervalMs);
   }, [partyId, instanceGuid, intervalMs, maxAttempts, queryClient, stopPolling]);
 
-  // Clean up on unmount
   useEffect(() => stopPolling, [stopPolling]);
 
   return { startPolling, stopPolling };
