@@ -12,15 +12,9 @@ import type { NodeData, NodeItemFromNode } from 'src/utils/layout/types';
  * Use the item of a node. This re-renders when the item changes (or when the part of the item you select changes),
  * which doesn't happen if you use node.item directly.
  */
-export function useNodeItem<N extends LayoutNode | undefined, Out>(
-  node: N,
-  selector: (item: NodeItemFromNode<N>) => Out,
-): N extends undefined ? undefined : Out;
+export function useNodeItem<N extends LayoutNode, Out>(node: N, selector: (item: NodeItemFromNode<N>) => Out): Out;
 // eslint-disable-next-line no-redeclare
-export function useNodeItem<N extends LayoutNode | undefined>(
-  node: N,
-  selector?: undefined,
-): N extends undefined ? undefined : NodeItemFromNode<N>;
+export function useNodeItem<N extends LayoutNode>(node: N, selector?: undefined): NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
 export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
   if (GeneratorInternal.useIsInsideGenerator()) {
