@@ -1,3 +1,5 @@
+import type { FileScanResult } from 'src/features/attachments/types';
+
 export interface IAltinnOrg {
   name: ITitle;
   logo: string;
@@ -44,7 +46,7 @@ export interface IData {
   lastChanged: string;
   lastChangedBy: string;
   contentHash?: unknown;
-  fileScanResult?: 'NotApplicable' | 'Pending' | 'Clean' | 'Infected';
+  fileScanResult?: FileScanResult;
   fileScanDetails?: string;
 }
 

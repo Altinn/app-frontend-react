@@ -36,6 +36,7 @@ import type {
   UploadedAttachment,
 } from 'src/features/attachments/index';
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
+import type { AttachmentStateInfo } from 'src/features/attachments/types';
 import type { FDActionResult } from 'src/features/formData/FormDataWriteStateMachine';
 import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
@@ -128,11 +129,20 @@ export interface AttachmentsStorePluginConfig {
     useWaitUntilUploaded: () => (nodeId: string, attachment: TemporaryAttachment) => Promise<IData | false>;
 
     useHasPendingAttachments: () => boolean;
+    useAttachmentState: () => AttachmentStateInfo;
     useAllAttachments: () => IAttachmentsMap;
   };
 }
 
 const emptyArray = [];
+
+// Stable object references for attachment states to prevent infinite re-renders
+const ATTACHMENT_STATE_RESULTS = {
+  infected: { hasPending: true, state: 'Infected' as const },
+  uploading: { hasPending: true, state: 'uploading' as const },
+  pending: { hasPending: true, state: 'Pending' as const },
+  ready: { hasPending: false, state: 'ready' as const },
+} as const;
 
 type ProperData = NodeData<CompWithBehavior<'canHaveAttachments'>>;
 
@@ -530,6 +540,35 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         });
 
         return out === ContextNotProvided ? false : out;
+      },
+      useAttachmentState(): AttachmentStateInfo {
+        const out = store.useLaxSelector((state): AttachmentStateInfo => {
+          for (const id of Object.keys(state.nodeData)) {
+            const nodeData = state.nodeData[id];
+            if (!nodeData || !('attachments' in nodeData)) {
+              continue;
+            }
+
+            const attachments = Object.values(nodeData.attachments);
+
+            // Priority order: Infected > uploading/deleting/updating > Pending > ready
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Infected')) {
+              return ATTACHMENT_STATE_RESULTS.infected;
+            }
+
+            if (attachments.some((a) => !a.uploaded || a.updating || a.deleting)) {
+              return ATTACHMENT_STATE_RESULTS.uploading;
+            }
+
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Pending')) {
+              return ATTACHMENT_STATE_RESULTS.pending;
+            }
+          }
+
+          return ATTACHMENT_STATE_RESULTS.ready;
+        });
+
+        return out === ContextNotProvided ? ATTACHMENT_STATE_RESULTS.ready : out;
       },
       useAllAttachments() {
         return store.useMemoSelector((state) => {

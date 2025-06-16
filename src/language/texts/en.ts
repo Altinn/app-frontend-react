@@ -185,6 +185,8 @@ export function en() {
     'general.value': 'Value',
     'general.version': 'Version',
     'general.wait_for_attachments': 'Hold on, we are processing attachments',
+    'general.wait_for_attachments_infected': 'Remove infected files before continuing',
+    'general.wait_for_attachments_scanning': 'Scanning files for malware...',
     'general.part_of_form_completed': "This part of the form is not currently available. You can't change it.",
     'general.invalid_task_id': 'This part of the form does not exist.',
     'general.navigate_to_current_process': 'Navigate to the current process step',

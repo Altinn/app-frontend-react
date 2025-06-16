@@ -186,6 +186,8 @@ export function nn() {
     'general.value': 'Verdi',
     'general.version': 'Versjon',
     'general.wait_for_attachments': 'Vent litt, vi prosesserer vedlegg',
+    'general.wait_for_attachments_infected': 'Fjern infiserte filer før du held fram',
+    'general.wait_for_attachments_scanning': 'Skannar filer for skadeleg programvare...',
     'general.part_of_form_completed':
       'Denne delen av skjemaet er ikkje tilgjengeleg. Du kan ikkje gjere endringar her no',
     'general.invalid_task_id': 'Denne delen av skjemaet finst ikkje.',

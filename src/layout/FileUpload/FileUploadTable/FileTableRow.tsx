@@ -18,7 +18,7 @@ import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
 import type { IAttachment } from 'src/features/attachments';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-class IFileUploadTableRowProps {
+interface IFileUploadTableRowProps {
   attachment: IAttachment;
   mobileView: boolean;
   node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
@@ -177,7 +177,15 @@ const FileTypeCell = ({ tagLabel }: { tagLabel: string | undefined }) => {
   return <td key={`attachment-tag-${index}`}>{tagLabel && langAsString(tagLabel)}</td>;
 };
 
-const StatusCellContent = ({ uploaded, status, scanResult }) => {
+const StatusCellContent = ({
+  uploaded,
+  status,
+  scanResult,
+}: {
+  uploaded: boolean;
+  status: string;
+  scanResult?: string;
+}) => {
   const getStatusElement = () => {
     if (!uploaded) {
       return (
