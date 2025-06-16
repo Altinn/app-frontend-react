@@ -60,6 +60,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
             data-testid='page-navigation-dialog'
             placement='bottom-start'
             autoFocus={true}
+            autoPlacement={false}
             open={isDialogOpen}
             onClose={closeDialog}
           >
