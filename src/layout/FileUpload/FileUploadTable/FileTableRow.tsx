@@ -84,7 +84,6 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
       {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
         <StatusCellContent
           status={status}
-          mobileView={mobileView}
           uploaded={attachment.uploaded}
           scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
         />
@@ -178,7 +177,7 @@ const FileTypeCell = ({ tagLabel }: { tagLabel: string | undefined }) => {
   return <td key={`attachment-tag-${index}`}>{tagLabel && langAsString(tagLabel)}</td>;
 };
 
-const StatusCellContent = ({ uploaded, mobileView, status, scanResult }) => {
+const StatusCellContent = ({ uploaded, status, scanResult }) => {
   const getStatusElement = () => {
     if (!uploaded) {
       return (
@@ -217,18 +216,7 @@ const StatusCellContent = ({ uploaded, mobileView, status, scanResult }) => {
         data-testid={getTestId()}
         className={getClassName()}
       >
-        {mobileView ? null : (
-          <>
-            {scanResult === 'Pending' && (
-              <AltinnLoader
-                id='loader-scan'
-                className={classes.smallLoader}
-                srContent={status}
-              />
-            )}
-            {status}
-          </>
-        )}
+        {status}
       </div>
     );
   };
