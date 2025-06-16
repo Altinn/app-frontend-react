@@ -91,15 +91,10 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
               valueArguments,
             });
 
-            const evaluatedExpression = evalExpr(
-              validationDef.message as Expression,
-              nodeReference,
-              modifiedDataSources,
-              {
-                positionalArguments: [field],
-                valueArguments,
-              },
-            );
+            const evaluatedMessage = evalExpr(validationDef.message as Expression, nodeReference, modifiedDataSources, {
+              positionalArguments: [field],
+              valueArguments,
+            });
 
             if (isInvalid) {
               if (!validations[field]) {
@@ -109,7 +104,7 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
               validations[field].push({
                 field,
                 source: FrontendValidationSource.Expression,
-                message: { key: evaluatedExpression ? evaluatedExpression : validationDef.message },
+                message: { key: evaluatedMessage ? evaluatedMessage : validationDef.message },
                 severity: validationDef.severity,
                 category: validationDef.showImmediately ? 0 : ValidationMask.Expression,
               });
