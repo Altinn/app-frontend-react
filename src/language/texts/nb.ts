@@ -70,6 +70,13 @@ export function nb() {
     'form_filler.file_uploader_list_header_name': 'Navn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lastet',
+    'form_filler.file_uploader_status_uploaded': 'Lastet opp',
+    'form_filler.file_uploader_status_scanning': 'Skanner...',
+    'form_filler.file_uploader_status_infected': 'Infisert',
+    'form_filler.file_uploader_infected_file_alert':
+      'Filen {0} er infisert med skadelig programvare og kan ikke brukes.',
+    'form_filler.file_uploader_infected_file_action': 'Last opp en ren fil.',
+    'form_filler.file_uploader_remove_infected_files': 'Fjern infiserte filer før innsending.',
     'form_filler.file_uploader_list_header_delete_sr': 'Slett',
     'form_filler.file_uploader_max_size_mb': 'Maks filstørrelse {0} MB',
     'form_filler.file_uploader_upload': 'Last opp fil',

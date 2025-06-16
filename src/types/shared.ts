@@ -44,6 +44,8 @@ export interface IData {
   lastChanged: string;
   lastChangedBy: string;
   contentHash?: unknown;
+  fileScanResult?: 'NotApplicable' | 'Pending' | 'Clean' | 'Infected';
+  fileScanDetails?: string;
 }
 
 export interface IDataType {

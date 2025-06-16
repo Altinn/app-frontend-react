@@ -520,6 +520,11 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             if (attachments.some((a) => !a.uploaded || a.updating || a.deleting)) {
               return true;
             }
+
+            // Block form submission if any file is infected
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Infected')) {
+              return true;
+            }
           }
           return false;
         });

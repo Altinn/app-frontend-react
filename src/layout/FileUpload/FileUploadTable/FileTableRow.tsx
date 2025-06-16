@@ -38,9 +38,26 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
 
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
-  const status = attachment.uploaded
-    ? langAsString('form_filler.file_uploader_list_status_done')
-    : langAsString('general.loading');
+  const getStatusFromScanResult = () => {
+    if (!attachment.uploaded) {
+      return langAsString('general.loading');
+    }
+
+    const scanResult = attachment.data.fileScanResult;
+
+    switch (scanResult) {
+      case 'Pending':
+        return langAsString('form_filler.file_uploader_status_scanning');
+      case 'Infected':
+        return langAsString('form_filler.file_uploader_status_infected');
+      case 'Clean':
+      case 'NotApplicable':
+      default:
+        return langAsString('form_filler.file_uploader_status_uploaded');
+    }
+  };
+
+  const status = getStatusFromScanResult();
 
   const rowStyle =
     isSummary || pdfModeActive
@@ -69,6 +86,7 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
           status={status}
           mobileView={mobileView}
           uploaded={attachment.uploaded}
+          scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
         />
       )}
 
@@ -160,19 +178,63 @@ const FileTypeCell = ({ tagLabel }: { tagLabel: string | undefined }) => {
   return <td key={`attachment-tag-${index}`}>{tagLabel && langAsString(tagLabel)}</td>;
 };
 
-const StatusCellContent = ({ uploaded, mobileView, status }) => (
-  <td>
-    {uploaded ? (
-      <div data-testid='status-success'>{mobileView ? null : status}</div>
-    ) : (
-      <AltinnLoader
-        id='loader-upload'
-        className={classes.altinnLoader}
-        srContent={status}
-      />
-    )}
-  </td>
-);
+const StatusCellContent = ({ uploaded, mobileView, status, scanResult }) => {
+  const getStatusElement = () => {
+    if (!uploaded) {
+      return (
+        <AltinnLoader
+          id='loader-upload'
+          className={classes.altinnLoader}
+          srContent={status}
+        />
+      );
+    }
+
+    const getTestId = () => {
+      switch (scanResult) {
+        case 'Infected':
+          return 'status-infected';
+        case 'Pending':
+          return 'status-scanning';
+        default:
+          return 'status-success';
+      }
+    };
+
+    const getClassName = () => {
+      switch (scanResult) {
+        case 'Infected':
+          return classes.statusInfected;
+        case 'Pending':
+          return classes.statusScanning;
+        default:
+          return '';
+      }
+    };
+
+    return (
+      <div
+        data-testid={getTestId()}
+        className={getClassName()}
+      >
+        {mobileView ? null : (
+          <>
+            {scanResult === 'Pending' && (
+              <AltinnLoader
+                id='loader-scan'
+                className={classes.smallLoader}
+                srContent={status}
+              />
+            )}
+            {status}
+          </>
+        )}
+      </div>
+    );
+  };
+
+  return <td>{getStatusElement()}</td>;
+};
 
 interface IButtonCellContentProps {
   deleting: boolean;

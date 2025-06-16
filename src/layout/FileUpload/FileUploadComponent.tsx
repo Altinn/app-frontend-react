@@ -14,8 +14,10 @@ import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { FailedAttachments } from 'src/layout/FileUpload/Error/FailedAttachments';
+import { InfectedFileAlert } from 'src/layout/FileUpload/Error/InfectedFileAlert';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
+import { useFileScanPolling } from 'src/layout/FileUpload/hooks/useFileScanPolling';
 import { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -50,6 +52,9 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
 
   const { options, isFetching } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
+
+  // Start polling for file scan status updates if there are pending scans
+  useFileScanPolling(node);
 
   const canUploadMoreAttachments = attachments.length < maxNumberOfAttachments;
   const isComplexMode = displayMode !== 'simple';
@@ -159,6 +164,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
           </button>
         )}
         <FailedAttachments node={node} />
+        <InfectedFileAlert node={node} />
       </div>
     </ComponentStructureWrapper>
   );
