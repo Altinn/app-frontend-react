@@ -90,6 +90,17 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
               positionalArguments: [field],
               valueArguments,
             });
+
+            const evaluatedExpression = evalExpr(
+              validationDef.message as Expression,
+              nodeReference,
+              modifiedDataSources,
+              {
+                positionalArguments: [field],
+                valueArguments,
+              },
+            );
+
             if (isInvalid) {
               if (!validations[field]) {
                 validations[field] = [];
@@ -98,7 +109,7 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
               validations[field].push({
                 field,
                 source: FrontendValidationSource.Expression,
-                message: { key: validationDef.message },
+                message: { key: evaluatedExpression ? evaluatedExpression : validationDef.message },
                 severity: validationDef.severity,
                 category: validationDef.showImmediately ? 0 : ValidationMask.Expression,
               });
@@ -106,7 +117,6 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
           }
         }
       }
-
       updateDataModelValidations('expression', dataElementId, validations);
     }
   }, [
