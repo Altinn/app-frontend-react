@@ -42,8 +42,6 @@ jobs:
           runTests: false
           build: yarn run build
 
-      - name: Install chromium
-        run: apk add --no-cache chromium
 
       - name: Save build folder
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -76,6 +74,7 @@ jobs:
         with:
           name: dist
           path: dist
+
       - name: Set Percy command based on PR draft status or main branch
         shell: bash
         run: |
@@ -135,6 +134,7 @@ jobs:
         with:
           name: dist
           path: dist
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
