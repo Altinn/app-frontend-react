@@ -239,6 +239,9 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
     }
   });
 
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(1000); // Wait a bit to ensure that the blur has taken effect
+
   cy.focused().should('not.exist');
 
   // Wait for elements marked as loading are not loading anymore
