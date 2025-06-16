@@ -15,7 +15,6 @@ import { GeneratorCondition, StageAddNodes, StageMarkHidden } from 'src/utils/la
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, NodesInternal, NodesStore, useNodes } from 'src/utils/layout/NodesContext';
-import type { LayoutReference } from 'src/features/expressions/types';
 import type { CompExternal, CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
 import type { NodeGeneratorProps } from 'src/layout/LayoutComponent';
 import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
@@ -262,8 +261,13 @@ function GenerateNodeChildrenInternal({ claims, layoutMap }: NodeChildrenInterna
 
 function useIsHiddenPage(page: LayoutPage): boolean {
   const hiddenExpr = useHiddenLayoutsExpressions();
-  const reference: LayoutReference = useMemo(() => ({ type: 'page', id: page.pageKey }), [page.pageKey]);
-  return useEvalExpressionInGenerator(ExprVal.Boolean, reference, hiddenExpr[page.pageKey], false) ?? false;
+  return (
+    useEvalExpressionInGenerator(hiddenExpr[page.pageKey], {
+      returnType: ExprVal.Boolean,
+      defaultValue: false,
+      errorIntroText: `Invalid hidden expression for page ${page.pageKey}`,
+    }) ?? false
+  );
 }
 
 interface ComponentProps {
@@ -299,11 +303,8 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
     return null;
   }
 
-  const Generator = def.renderNodeGenerator.bind(def);
-
   if (!GeneratorDebug.displayState) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return <Generator {...(props as any)} />;
+    return def.renderNodeGenerator(props);
   }
 
   return (
@@ -317,8 +318,7 @@ function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
         {layout.id} ({layout.type})
       </h3>
       <span>{childClaims ? `Children: ${Object.keys(childClaims).join(', ')}` : 'No children'}</span>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-      <Generator {...(props as any)} />
+      {def.renderNodeGenerator(props)}
     </div>
   );
 }
