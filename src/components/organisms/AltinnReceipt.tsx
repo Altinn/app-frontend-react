@@ -7,11 +7,12 @@ import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
 import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
 import classes from 'src/components/organisms/AltinnReceipt.module.css';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
+import { useLanguage } from 'src/features/language/useLanguage';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
-import type { IAttachmentGrouping, IDisplayAttachment } from 'src/types/shared';
+import type { IDisplayAttachment } from 'src/types/shared';
 
 export interface IReceiptComponentProps {
-  attachmentGroupings?: IAttachmentGrouping;
+  attachments: IDisplayAttachment[] | undefined;
   body: React.ReactNode;
   collapsibleTitle: React.ReactNode;
   hideCollapsibleCount?: boolean;
@@ -61,17 +62,29 @@ const CollapsibleAttachments = ({ attachments, title, hideCollapsibleCount }: IC
 };
 
 interface IRenderAttachmentGroupings {
-  attachmentGroupings?: IAttachmentGrouping;
+  attachments: IDisplayAttachment[] | undefined;
   collapsibleTitle: React.ReactNode;
   hideCollapsibleCount?: boolean;
 }
 
+const defaultGrouping = 'null'; // Default grouping for attachments without a specific grouping
+
 const RenderAttachmentGroupings = ({
-  attachmentGroupings,
+  attachments,
   collapsibleTitle,
   hideCollapsibleCount,
 }: IRenderAttachmentGroupings) => {
-  const groupings = attachmentGroupings;
+  const langTools = useLanguage();
+  const groupings = attachments?.reduce<Record<string, IDisplayAttachment[]>>((acc, attachment) => {
+    const grouping = attachment.grouping ?? defaultGrouping;
+    const translatedGrouping = langTools.langAsString(grouping);
+    if (!acc[translatedGrouping]) {
+      acc[translatedGrouping] = [];
+    }
+    acc[translatedGrouping].push(attachment);
+    return acc;
+  }, {});
+
   const groups: JSX.Element[] = [];
 
   if (!groupings) {
@@ -93,7 +106,7 @@ const RenderAttachmentGroupings = ({
     if (title && title !== 'null') {
       groups.push(
         <CollapsibleAttachments
-          attachments={groupings[title]}
+          attachments={groupings[title] ?? []}
           title={title}
           hideCollapsibleCount={hideCollapsibleCount}
         />,
@@ -112,13 +125,13 @@ const RenderAttachmentGroupings = ({
 
 export function ReceiptComponent({
   title,
+  attachments,
   instanceMetaDataObject,
   subtitle,
   subtitleurl,
   body,
   pdf,
   titleSubmitted,
-  attachmentGroupings,
   collapsibleTitle,
   hideCollapsibleCount,
 }: IReceiptComponentProps) {
@@ -171,9 +184,9 @@ export function ReceiptComponent({
           />
         </>
       )}
-      {attachmentGroupings && (
+      {attachments && (
         <RenderAttachmentGroupings
-          attachmentGroupings={attachmentGroupings}
+          attachments={attachments}
           collapsibleTitle={collapsibleTitle}
           hideCollapsibleCount={hideCollapsibleCount}
         />

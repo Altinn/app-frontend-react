@@ -13,7 +13,6 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import {
   filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
-  getAttachmentGroupings,
   getAttachmentsWithDataType,
   getRefAsPdfAttachments,
   toDisplayAttachments,
@@ -56,11 +55,7 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
         <title>{`${getPageTitle(appName, langTools.langAsString('confirm.title'), appOwner)}`}</title>
       </Helmet>
       <ReceiptComponent
-        attachmentGroupings={getAttachmentGroupings(
-          displayAttachments.length ? displayAttachments : undefined,
-          applicationMetadata,
-          langTools,
-        )}
+        attachments={displayAttachments}
         body={
           appName && (
             <Lang

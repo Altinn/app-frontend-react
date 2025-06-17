@@ -1,6 +1,4 @@
-import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
-import type { IUseLanguage } from 'src/features/language/useLanguage';
-import type { IAttachmentGrouping, IData, IDataType, IDisplayAttachment } from 'src/types/shared';
+import type { IData, IDataType, IDisplayAttachment } from 'src/types/shared';
 
 export enum DataTypeReference {
   IncludeAll = 'include-all',
@@ -25,6 +23,7 @@ export function getAttachmentsWithDataType({
     dataType: appMetadataDataTypes.find((dataType) => dataType.id === attachment.dataType),
   }));
 }
+
 export const filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes = (
   data: AttachmentWithDataType[],
 ): AttachmentWithDataType[] => {
@@ -60,32 +59,6 @@ export function toDisplayAttachments(data: AttachmentWithDataType[]): IDisplayAt
     grouping: dataType?.grouping ?? undefined,
   }));
 }
-
-/**
- * Gets the attachment groupings from a list of attachments.
- */
-export const getAttachmentGroupings = (
-  attachments: IDisplayAttachment[] | undefined,
-  applicationMetadata: ApplicationMetadata | null,
-  langTools: IUseLanguage,
-): IAttachmentGrouping => {
-  const attachmentGroupings: IAttachmentGrouping = {};
-
-  if (!attachments || !applicationMetadata) {
-    return attachmentGroupings;
-  }
-
-  attachments.forEach((attachment: IDisplayAttachment) => {
-    const grouping = attachment.grouping;
-    const title = langTools.langAsString(grouping);
-    if (!attachmentGroupings[title]) {
-      attachmentGroupings[title] = [];
-    }
-    attachmentGroupings[title].push(attachment);
-  });
-
-  return attachmentGroupings;
-};
 
 export function getFileContentType(file: File): string {
   if (!file.type) {

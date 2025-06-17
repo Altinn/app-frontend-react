@@ -29,7 +29,6 @@ import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import {
   filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
-  getAttachmentGroupings,
   getAttachmentsWithDataType,
   getRefAsPdfAttachments,
   toDisplayAttachments,
@@ -235,7 +234,7 @@ export const ReceiptContainer = () => {
 
       {!applicationMetadata.autoDeleteOnProcessEnd && (
         <ReceiptComponent
-          attachmentGroupings={getAttachmentGroupings(displayAttachments, applicationMetadata, langTools)}
+          attachments={displayAttachments}
           body={<Lang id='receipt.body' />}
           collapsibleTitle={<Lang id='receipt.attachments' />}
           instanceMetaDataObject={instanceMetaObject}
