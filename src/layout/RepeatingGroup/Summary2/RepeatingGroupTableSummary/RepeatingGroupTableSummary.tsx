@@ -53,13 +53,18 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
         <Caption title={<Lang id={title} />} />
         <Table.Head>
           <Table.Row>
-            {tableIds.map((id) => (
-              <HeaderCell
-                key={id}
-                baseComponentId={id}
-                columnSettings={columnSettings}
-              />
-            ))}
+            <DataModelLocationProvider
+              groupBinding={dataModelBindings.group}
+              rowIndex={0} // Force the header row to show texts as if it is in the first row
+            >
+              {tableIds.map((id) => (
+                <HeaderCell
+                  key={id}
+                  baseComponentId={id}
+                  columnSettings={columnSettings}
+                />
+              ))}
+            </DataModelLocationProvider>
             {!pdfModeActive && !isSmall && (
               <Table.HeaderCell className={tableClasses.narrowLastColumn}>
                 <span className={tableClasses.visuallyHidden}>

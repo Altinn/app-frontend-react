@@ -105,13 +105,18 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
         {showTableHeader && !mobileView && (
           <Table.Head id={`group-${id}-table-header`}>
             <Table.Row>
-              {tableIds?.map((id) => (
-                <TitleCell
-                  key={id}
-                  baseCompnentId={id}
-                  columnSettings={columnSettings}
-                />
-              ))}
+              <DataModelLocationProvider
+                groupBinding={dataModelBindings.group}
+                rowIndex={0} // Force the header row to show texts as if it is in the first row
+              >
+                {tableIds?.map((id) => (
+                  <TitleCell
+                    key={id}
+                    baseCompnentId={id}
+                    columnSettings={columnSettings}
+                  />
+                ))}
+              </DataModelLocationProvider>
               {displayEditColumn && (
                 <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
                   <span className={classes.visuallyHidden}>
