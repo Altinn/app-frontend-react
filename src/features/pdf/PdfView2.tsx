@@ -19,7 +19,7 @@ import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
-import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
+import { AllSubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
@@ -69,7 +69,7 @@ export const PDFView2 = () => {
               pdfSettings={pdfSettings}
             />
           ))}
-        <SubformSummaryComponent2 />
+        <AllSubformSummaryComponent2 />
       </PdfWrapping>
     </DummyPresentation>
   );
