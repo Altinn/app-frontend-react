@@ -12,8 +12,8 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import {
+  filterAttachments,
   getAttachmentGroupings,
-  getFilteredDisplayAttachments,
   getRefAsPdfAttachments,
   toDisplayAttachments,
 } from 'src/utils/attachmentsUtils';
@@ -45,10 +45,12 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
 
   const getAttachments = () => {
     if (instance?.data && applicationMetadata) {
-      return getFilteredDisplayAttachments({
-        data: instance.data,
-        appMetadataDataTypes: applicationMetadata.dataTypes,
-      });
+      return toDisplayAttachments(
+        filterAttachments({
+          data: instance.data,
+          appMetadataDataTypes: applicationMetadata.dataTypes,
+        }),
+      );
     }
   };
 

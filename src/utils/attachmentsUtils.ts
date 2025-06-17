@@ -13,14 +13,6 @@ type AttachmentFilterArgs = {
   appMetadataDataTypes: IDataType[];
 };
 
-export function getFilteredDisplayAttachments({
-  data,
-  appMetadataDataTypes,
-}: AttachmentFilterArgs): IDisplayAttachment[] {
-  const filteredData = filterAttachments({ data, appMetadataDataTypes });
-  return toDisplayAttachments(filteredData);
-}
-
 export const filterAttachments = ({ data, appMetadataDataTypes }: AttachmentFilterArgs): IData[] => {
   const appLogicDataTypes = appMetadataDataTypes.filter((dataType) => !!dataType.appLogic);
   const appOwnedDataTypes_Deprecate = appMetadataDataTypes.filter(
