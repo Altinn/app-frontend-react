@@ -26,6 +26,13 @@ export function useNodeItem(node: LayoutNode | undefined, selector: never): unkn
     );
   }
 
+  if (!node) {
+    throw new Error(
+      'useNodeItem() requires a node object. If your component cannot guarantee that, make two different ' +
+        'components (one that has a node, one that does not) and render conditionally.',
+    );
+  }
+
   return NodesInternal.useNodeData(node, (data: NodeData, readiness) => {
     if (!data?.item) {
       throw new Error(

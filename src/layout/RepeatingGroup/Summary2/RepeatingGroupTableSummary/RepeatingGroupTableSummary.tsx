@@ -24,7 +24,7 @@ import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryCompone
 import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummaryById, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
@@ -40,8 +40,7 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
   const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
-  const locationForFirstRow = useDataModelLocationForRow(dataModelBindings.group, 0);
-  const tableIds = useIndexedComponentIds(useTableComponentIds(componentNode), locationForFirstRow);
+  const tableIds = useTableComponentIds(componentNode);
   const { tableColumns } = useNodeItem(componentNode);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
@@ -57,7 +56,7 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
             {tableIds.map((id) => (
               <HeaderCell
                 key={id}
-                nodeId={id}
+                baseComponentId={id}
                 columnSettings={columnSettings}
               />
             ))}
@@ -103,13 +102,18 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
   );
 };
 
-function HeaderCell({ nodeId, columnSettings }: { nodeId: string; columnSettings: ITableColumnFormatting }) {
-  const node = useNode(nodeId);
-  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+function HeaderCell({
+  baseComponentId,
+  columnSettings,
+}: {
+  baseComponentId: string;
+  columnSettings: ITableColumnFormatting;
+}) {
+  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
   return (
     <Table.HeaderCell style={style}>
       <RepeatingGroupTableTitle
-        node={node}
+        baseComponentId={baseComponentId}
         columnSettings={columnSettings}
       />
     </Table.HeaderCell>
@@ -187,8 +191,8 @@ function DataCell({ nodeId, columnSettings }: DataCellProps) {
 
 function NodeDataCell({ node, columnSettings }: { node: LayoutNode } & Pick<DataCellProps, 'columnSettings'>) {
   const { langAsString } = useLanguage();
-  const headerTitle = langAsString(useTableTitle(node));
-  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  const headerTitle = langAsString(useTableTitle(node.baseId));
+  const style = useColumnStylesRepeatingGroups(node.baseId, columnSettings);
   const displayData = useDisplayData(node);
   const required = useNodeItem(node, (i) => ('required' in i ? i.required : false));
 
