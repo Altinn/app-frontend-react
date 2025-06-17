@@ -96,13 +96,14 @@ export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWit
   );
 }
 
-export function useDataModelLocationForRow(groupBinding: IDataModelReference, rowIndex: number) {
+export function useDataModelLocationForRow(
+  groupBinding: IDataModelReference | undefined,
+  rowIndex: number | undefined,
+) {
+  const { dataType, field } = groupBinding ?? {};
   return useMemo(
-    () => ({
-      dataType: groupBinding.dataType,
-      field: `${groupBinding.field}[${rowIndex}]`,
-    }),
-    [groupBinding.dataType, groupBinding.field, rowIndex],
+    () => (dataType && field && rowIndex !== undefined ? { dataType, field: `${field}[${rowIndex}]` } : undefined),
+    [dataType, field, rowIndex],
   );
 }
 
