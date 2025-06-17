@@ -112,7 +112,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 {tableIds?.map((id) => (
                   <TitleCell
                     key={id}
-                    baseCompnentId={id}
+                    baseComponentId={id}
                     columnSettings={columnSettings}
                   />
                 ))}
@@ -247,13 +247,13 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
 }
 
 function TitleCell({
-  baseCompnentId,
+  baseComponentId,
   columnSettings,
 }: {
-  baseCompnentId: string;
+  baseComponentId: string;
   columnSettings: ITableColumnFormatting;
 }) {
-  const style = useColumnStylesRepeatingGroups(baseCompnentId, columnSettings);
+  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
 
   return (
     <Table.HeaderCell
@@ -261,7 +261,7 @@ function TitleCell({
       style={style}
     >
       <RepeatingGroupTableTitle
-        baseComponentId={baseCompnentId}
+        baseComponentId={baseComponentId}
         columnSettings={columnSettings}
       />
     </Table.HeaderCell>
