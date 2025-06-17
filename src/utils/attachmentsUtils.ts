@@ -13,7 +13,10 @@ type AttachmentFilterArgs = {
   appMetadataDataTypes: IDataType[];
 };
 
-export const filterAttachments = ({ data, appMetadataDataTypes }: AttachmentFilterArgs): IData[] => {
+export const filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes = ({
+  data,
+  appMetadataDataTypes,
+}: AttachmentFilterArgs): IData[] => {
   const appLogicDataTypes = appMetadataDataTypes.filter((dataType) => !!dataType.appLogic);
   const appOwnedDataTypes_Deprecate = appMetadataDataTypes.filter(
     (dataType) => !!dataType.allowedContributers?.some((it) => it === 'app:owned'),

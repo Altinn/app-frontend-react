@@ -12,7 +12,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { returnConfirmSummaryObject } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import {
-  filterAttachments,
+  filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
   getAttachmentGroupings,
   getRefAsPdfAttachments,
   toDisplayAttachments,
@@ -46,7 +46,7 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
   const getAttachments = () => {
     if (instance?.data && applicationMetadata) {
       return toDisplayAttachments(
-        filterAttachments({
+        filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
           data: instance.data,
           appMetadataDataTypes: applicationMetadata.dataTypes,
         }),

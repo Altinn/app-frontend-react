@@ -5,7 +5,12 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { DataTypeReference, getRefAsPdfAttachments, toDisplayAttachments } from 'src/utils/attachmentsUtils';
+import {
+  DataTypeReference,
+  filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
+  getRefAsPdfAttachments,
+  toDisplayAttachments,
+} from 'src/utils/attachmentsUtils';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataType } from 'src/types/shared';
@@ -23,18 +28,19 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const instanceData = useLaxInstanceData((data) => data.data) ?? [];
   const allowedAttachmentTypes = new Set(useNodeItem(node, (i) => i.dataTypeIds) ?? []);
 
-  const attachmentsWithDataType = instanceData.map((attachment) => {
-    const matchingAppMetadataDataType = appMetadataDataTypes.find((dataType) => dataType.id === attachment.dataType);
-    return {
-      attachment,
-      dataType: matchingAppMetadataDataType,
-    };
+  const relevantAttachments = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
+    data: instanceData,
+    appMetadataDataTypes,
   });
+  const attachmentsWithDataType = relevantAttachments.map((attachment) => ({
+    attachment,
+    dataType: appMetadataDataTypes.find((dataType) => dataType.id === attachment.dataType),
+  }));
 
   // This filter function takes all the instance data and filters down to only the attachments
   // we're interested in showing here.
   const filteredAttachmentsAndDataTypes = attachmentsWithDataType.filter(({ attachment: el, dataType }) => {
-    if (!dataType || !!dataType.appLogic?.classRef || el.dataType === DataTypeReference.RefDataAsPdf) {
+    if (!dataType) {
       return false;
     }
 

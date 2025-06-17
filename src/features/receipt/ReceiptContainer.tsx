@@ -28,7 +28,7 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import {
-  filterAttachments,
+  filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
   getAttachmentGroupings,
   getRefAsPdfAttachments,
   toDisplayAttachments,
@@ -172,7 +172,10 @@ export const ReceiptContainer = () => {
     () =>
       dataElements.length
         ? toDisplayAttachments(
-            filterAttachments({ data: dataElements, appMetadataDataTypes: applicationMetadata.dataTypes }),
+            filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
+              data: dataElements,
+              appMetadataDataTypes: applicationMetadata.dataTypes,
+            }),
           )
         : undefined,
     [applicationMetadata, dataElements],

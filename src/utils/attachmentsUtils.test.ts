@@ -1,7 +1,11 @@
-import { DataTypeReference, filterAttachments, getRefAsPdfAttachments } from 'src/utils/attachmentsUtils';
+import {
+  DataTypeReference,
+  filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
+  getRefAsPdfAttachments,
+} from 'src/utils/attachmentsUtils';
 import type { IData, IDataType } from 'src/types/shared';
 
-describe(filterAttachments.name, () => {
+describe(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes.name, () => {
   it('filters out data types that have appLogic', () => {
     const data: IData[] = [
       {
@@ -27,7 +31,7 @@ describe(filterAttachments.name, () => {
 
     const expectedResult = [{ id: '1', dataType: 'does not have appLogic' }];
 
-    const result = filterAttachments({
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
       data,
       appMetadataDataTypes,
     });
@@ -60,7 +64,7 @@ describe(filterAttachments.name, () => {
 
     const expectedResult = [{ id: '1', dataType: 'does not have app:owned' }];
 
-    const result = filterAttachments({
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
       data,
       appMetadataDataTypes,
     });
@@ -93,7 +97,7 @@ describe(filterAttachments.name, () => {
 
     const expectedResult = [{ id: '1', dataType: 'does not have app:owned' }];
 
-    const result = filterAttachments({
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
       data,
       appMetadataDataTypes,
     });
@@ -120,7 +124,7 @@ describe(filterAttachments.name, () => {
       },
     ];
 
-    const result = filterAttachments({
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
       data,
       appMetadataDataTypes: [],
     });
@@ -157,7 +161,7 @@ describe(filterAttachments.name, () => {
 
     const expectedResult = [];
 
-    const result = filterAttachments({
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
       data,
       appMetadataDataTypes,
     });
