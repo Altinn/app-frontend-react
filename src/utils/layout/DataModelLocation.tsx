@@ -80,6 +80,16 @@ export function DataModelLocationProviderFromNode({ nodeId, children }: PropsWit
   );
 }
 
+export function useDataModelLocationForRow(groupBinding: IDataModelReference, rowIndex: number) {
+  return useMemo(
+    () => ({
+      dataType: groupBinding.dataType,
+      field: `${groupBinding.field}[${rowIndex}]`,
+    }),
+    [groupBinding.dataType, groupBinding.field, rowIndex],
+  );
+}
+
 export function useComponentIdMutator(): IdMutator {
   const mutators = useCtx()?.idMutators;
   return useCallback(
