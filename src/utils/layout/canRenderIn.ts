@@ -16,7 +16,7 @@ export function useHasCapability(capability: keyof CompCapabilities) {
       if (!component) {
         return false;
       }
-      const capabilities = getComponentCapabilities(this.type);
+      const capabilities = getComponentCapabilities(component.type);
       return capabilities[capability];
     },
     [lookups, capability],
