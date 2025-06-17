@@ -67,12 +67,10 @@ export const LanguageSelector = () => {
             const selected = currentLanguage === lang;
 
             return (
-              <Dropdown.Item
-                aria-checked={selected}
-                key={lang}
-              >
+              <Dropdown.Item key={lang}>
                 <Dropdown.Button
                   onClick={() => updateLanguage(lang)}
+                  aria-checked={selected}
                   role='menuitemradio'
                 >
                   <CheckmarkIcon
