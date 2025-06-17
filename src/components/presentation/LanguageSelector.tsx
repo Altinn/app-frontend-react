@@ -69,10 +69,12 @@ export const LanguageSelector = () => {
             return (
               <Dropdown.Item
                 aria-checked={selected}
-                role='menuitemradio'
                 key={lang}
               >
-                <Dropdown.Button onClick={() => updateLanguage(lang)}>
+                <Dropdown.Button
+                  onClick={() => updateLanguage(lang)}
+                  role='menuitemradio'
+                >
                   <CheckmarkIcon
                     style={{ opacity: selected ? 1 : 0 }}
                     className={cn(classes.icon, classes.checkmark)}
