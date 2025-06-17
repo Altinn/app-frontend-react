@@ -20,30 +20,23 @@ export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 const emptyDataTypeArray: IDataType[] = [];
 
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
   const links = useNodeItem(node, (i) => i.links);
-
-  const appMetadataDataTypes = useApplicationMetadata().dataTypes ?? emptyDataTypeArray;
-  const instanceData = useLaxInstanceData((data) => data.data) ?? [];
   const allowedAttachmentTypes = new Set(useNodeItem(node, (i) => i.dataTypeIds) ?? []);
+
+  const instanceData = useLaxInstanceData((data) => data.data) ?? [];
+  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const appMetadataDataTypes = useApplicationMetadata().dataTypes ?? emptyDataTypeArray;
+  const dataTypeIdsInCurrentTask = appMetadataDataTypes.filter((it) => it.taskId === currentTaskId).map((it) => it.id);
 
   const relevantAttachments = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
     data: instanceData,
     appMetadataDataTypes,
   });
-  const attachmentsWithDataType = relevantAttachments.map((attachment) => ({
-    attachment,
-    dataType: appMetadataDataTypes.find((dataType) => dataType.id === attachment.dataType),
-  }));
 
   // This filter function takes all the instance data and filters down to only the attachments
   // we're interested in showing here.
-  const filteredAttachmentsAndDataTypes = attachmentsWithDataType.filter(({ attachment: el, dataType }) => {
-    if (!dataType) {
-      return false;
-    }
-
+  const filteredAttachments = relevantAttachments.filter((el) => {
     if (allowedAttachmentTypes.has(DataTypeReference.IncludeAll) || allowedAttachmentTypes.size === 0) {
       return true;
     }
@@ -54,7 +47,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
 
     if (allowedAttachmentTypes.has(DataTypeReference.FromTask)) {
       // if only data types from current task are allowed, we check if the data type is in the task
-      return dataType.taskId === currentTaskId;
+      return dataTypeIdsInCurrentTask.includes(el.dataType);
     }
 
     return false;
@@ -64,8 +57,6 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
     allowedAttachmentTypes.has(DataTypeReference.RefDataAsPdf) ||
     allowedAttachmentTypes.has(DataTypeReference.IncludeAll);
   const pdfAttachments = includePdf ? getRefAsPdfAttachments(instanceData) : [];
-
-  const filteredAttachments = filteredAttachmentsAndDataTypes.map(({ attachment }) => attachment);
 
   return (
     <ComponentStructureWrapper node={node}>
