@@ -8,6 +8,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import {
   DataTypeReference,
   filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
+  getAttachmentsWithDataType,
   getRefAsPdfAttachments,
   toDisplayAttachments,
 } from 'src/utils/attachmentsUtils';
@@ -29,25 +30,28 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const appMetadataDataTypes = useApplicationMetadata().dataTypes ?? emptyDataTypeArray;
   const dataTypeIdsInCurrentTask = appMetadataDataTypes.filter((it) => it.taskId === currentTaskId).map((it) => it.id);
 
-  const relevantAttachments = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
-    data: instanceData,
+  const attachmentsWithDataType = getAttachmentsWithDataType({
+    attachments: instanceData ?? [],
     appMetadataDataTypes,
   });
 
-  // This filter function takes all the instance data and filters down to only the attachments
-  // we're interested in showing here.
+  const relevantAttachments = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
   const filteredAttachments = relevantAttachments.filter((el) => {
+    if (el.dataType === undefined) {
+      return false; // Skip attachments without a data type
+    }
+
     if (allowedAttachmentTypes.has(DataTypeReference.IncludeAll) || allowedAttachmentTypes.size === 0) {
       return true;
     }
 
-    if (allowedAttachmentTypes.has(el.dataType)) {
+    if (allowedAttachmentTypes.has(el.dataType.id)) {
       return true;
     }
 
     if (allowedAttachmentTypes.has(DataTypeReference.FromTask)) {
       // if only data types from current task are allowed, we check if the data type is in the task
-      return dataTypeIdsInCurrentTask.includes(el.dataType);
+      return dataTypeIdsInCurrentTask.includes(el.dataType.id);
     }
 
     return false;
@@ -56,12 +60,14 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const includePdf =
     allowedAttachmentTypes.has(DataTypeReference.RefDataAsPdf) ||
     allowedAttachmentTypes.has(DataTypeReference.IncludeAll);
-  const pdfAttachments = includePdf ? getRefAsPdfAttachments(instanceData) : [];
+  const pdfAttachments = includePdf ? getRefAsPdfAttachments(attachmentsWithDataType) : [];
+
+  const displayAttachments = toDisplayAttachments([...pdfAttachments, ...filteredAttachments]);
 
   return (
     <ComponentStructureWrapper node={node}>
       <AltinnAttachments
-        attachments={toDisplayAttachments([...pdfAttachments, ...filteredAttachments])}
+        attachments={displayAttachments}
         title={textResourceBindings?.title}
         links={links}
       />

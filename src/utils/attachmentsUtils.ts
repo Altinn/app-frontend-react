@@ -8,15 +8,27 @@ export enum DataTypeReference {
   FromTask = 'from-task',
 }
 
-type AttachmentFilterArgs = {
-  data: IData[];
-  appMetadataDataTypes: IDataType[];
+type AttachmentWithDataType = {
+  attachment: IData;
+  dataType: IDataType | undefined;
 };
 
-export const filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes = ({
-  data,
+export function getAttachmentsWithDataType({
+  attachments,
   appMetadataDataTypes,
-}: AttachmentFilterArgs): IData[] => {
+}: {
+  attachments: IData[];
+  appMetadataDataTypes: IDataType[];
+}) {
+  return attachments.map((attachment) => ({
+    attachment,
+    dataType: appMetadataDataTypes.find((dataType) => dataType.id === attachment.dataType),
+  }));
+}
+export const filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes = (
+  data: AttachmentWithDataType[],
+): AttachmentWithDataType[] => {
+  const appMetadataDataTypes = data.map((el) => el.dataType).filter((it): it is IDataType => !!it);
   const appLogicDataTypes = appMetadataDataTypes.filter((dataType) => !!dataType.appLogic);
   const appOwnedDataTypes_Deprecate = appMetadataDataTypes.filter(
     (dataType) => !!dataType.allowedContributers?.some((it) => it === 'app:owned'),
@@ -28,19 +40,24 @@ export const filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes = ({
     (dataType) => dataType.id,
   );
 
-  return data.filter((el) => el.dataType !== DataTypeReference.RefDataAsPdf && !excludeDataTypes.includes(el.dataType));
+  return data.filter(
+    (el) =>
+      el.attachment.dataType !== DataTypeReference.RefDataAsPdf && !excludeDataTypes.includes(el.attachment.dataType),
+  );
 };
 
-export function getRefAsPdfAttachments(data: IData[]) {
-  return data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf);
+export function getRefAsPdfAttachments(data: AttachmentWithDataType[]) {
+  return data.filter((el) => el.attachment.dataType === DataTypeReference.RefDataAsPdf);
 }
 
-export function toDisplayAttachments(data: IData[]): IDisplayAttachment[] {
-  return data.map((dataElement: IData) => ({
-    name: dataElement.filename,
-    url: dataElement.selfLinks?.apps,
+export function toDisplayAttachments(data: AttachmentWithDataType[]): IDisplayAttachment[] {
+  return data.map(({ attachment, dataType }) => ({
+    name: attachment.filename,
+    url: attachment.selfLinks?.apps,
     iconClass: 'reg reg-attachment',
-    dataType: dataElement.dataType,
+    dataType: attachment.dataType,
+    description: dataType?.description ?? undefined,
+    grouping: dataType?.grouping ?? undefined,
   }));
 }
 
@@ -59,7 +76,7 @@ export const getAttachmentGroupings = (
   }
 
   attachments.forEach((attachment: IDisplayAttachment) => {
-    const grouping = getGroupingForAttachment(attachment, applicationMetadata);
+    const grouping = attachment.grouping;
     const title = langTools.langAsString(grouping);
     if (!attachmentGroupings[title]) {
       attachmentGroupings[title] = [];
@@ -68,30 +85,6 @@ export const getAttachmentGroupings = (
   });
 
   return attachmentGroupings;
-};
-
-/**
- * Gets the grouping for a specific attachment
- * @param attachment the attachment
- * @param applicationMetadata the application metadata
- */
-export const getGroupingForAttachment = (
-  attachment: IDisplayAttachment,
-  applicationMetadata: ApplicationMetadata,
-): string => {
-  if (!applicationMetadata || !applicationMetadata.dataTypes || !attachment) {
-    return 'null';
-  }
-
-  const attachmentType = applicationMetadata.dataTypes.find(
-    (dataType: IDataType) => dataType.id === attachment.dataType,
-  );
-
-  if (!attachmentType || !attachmentType.grouping) {
-    return 'null';
-  }
-
-  return attachmentType.grouping;
 };
 
 export function getFileContentType(file: File): string {

@@ -1,6 +1,7 @@
 import {
   DataTypeReference,
   filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
+  getAttachmentsWithDataType,
   getRefAsPdfAttachments,
 } from 'src/utils/attachmentsUtils';
 import type { IData, IDataType } from 'src/types/shared';
@@ -29,12 +30,19 @@ describe(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes.name, () => {
       },
     ] as unknown as IDataType[];
 
-    const expectedResult = [{ id: '1', dataType: 'does not have appLogic' }];
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'does not have appLogic' },
+        dataType: { id: 'does not have appLogic', appLogic: null },
+      },
+    ];
 
-    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
-      data,
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
       appMetadataDataTypes,
     });
+
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
 
     expect(result).toEqual(expectedResult);
   });
@@ -62,12 +70,19 @@ describe(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes.name, () => {
       },
     ] as unknown as IDataType[];
 
-    const expectedResult = [{ id: '1', dataType: 'does not have app:owned' }];
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'does not have app:owned' },
+        dataType: { id: 'does not have app:owned', allowedContributers: ['something-else'] },
+      },
+    ];
 
-    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
-      data,
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
       appMetadataDataTypes,
     });
+
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
 
     expect(result).toEqual(expectedResult);
   });
@@ -95,12 +110,21 @@ describe(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes.name, () => {
       },
     ] as unknown as IDataType[];
 
-    const expectedResult = [{ id: '1', dataType: 'does not have app:owned' }];
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'does not have app:owned' },
+        dataType: {
+          id: 'does not have app:owned',
+          allowedContributors: ['something-else'],
+        },
+      },
+    ];
 
-    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
-      data,
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
       appMetadataDataTypes,
     });
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
 
     expect(result).toEqual(expectedResult);
   });
@@ -119,15 +143,19 @@ describe(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes.name, () => {
 
     const expectedResult = [
       {
-        id: '2',
-        dataType: 'something-else',
+        attachment: {
+          id: '2',
+          dataType: 'something-else',
+        },
+        dataType: undefined,
       },
     ];
 
-    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
-      data,
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
       appMetadataDataTypes: [],
     });
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
 
     expect(result).toEqual(expectedResult);
   });
@@ -161,10 +189,11 @@ describe(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes.name, () => {
 
     const expectedResult = [];
 
-    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
-      data,
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
       appMetadataDataTypes,
     });
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
 
     expect(result).toEqual(expectedResult);
   });
@@ -185,12 +214,19 @@ describe(getRefAsPdfAttachments.name, () => {
 
     const expectedResult = [
       {
-        id: '1',
-        dataType: DataTypeReference.RefDataAsPdf,
+        attachment: {
+          id: '1',
+          dataType: DataTypeReference.RefDataAsPdf,
+        },
+        dataType: undefined,
       },
     ];
 
-    const result = getRefAsPdfAttachments(data);
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
+      appMetadataDataTypes: [],
+    });
+    const result = getRefAsPdfAttachments(attachmentsWithDataType);
     expect(result).toEqual(expectedResult);
   });
 });

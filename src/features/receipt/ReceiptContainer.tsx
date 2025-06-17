@@ -30,6 +30,7 @@ import { ProcessTaskType } from 'src/types';
 import {
   filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
   getAttachmentGroupings,
+  getAttachmentsWithDataType,
   getRefAsPdfAttachments,
   toDisplayAttachments,
 } from 'src/utils/attachmentsUtils';
@@ -168,23 +169,18 @@ export const ReceiptContainer = () => {
     return undefined;
   }, [lastChanged]);
 
-  const attachments = useMemo(
-    () =>
-      dataElements.length
-        ? toDisplayAttachments(
-            filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes({
-              data: dataElements,
-              appMetadataDataTypes: applicationMetadata.dataTypes,
-            }),
-          )
-        : undefined,
-    [applicationMetadata, dataElements],
-  );
+  const attachmentWithDataType = getAttachmentsWithDataType({
+    attachments: dataElements,
+    appMetadataDataTypes: applicationMetadata?.dataTypes ?? [],
+  });
 
-  const pdf = useMemo(
-    () => (dataElements.length ? toDisplayAttachments(getRefAsPdfAttachments(dataElements)) : undefined),
-    [dataElements],
-  );
+  const displayAttachments = dataElements.length
+    ? toDisplayAttachments(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentWithDataType))
+    : undefined;
+
+  const pdfDisplayAttachments = dataElements.length
+    ? toDisplayAttachments(getRefAsPdfAttachments(attachmentWithDataType))
+    : undefined;
 
   const instanceMetaObject = useMemo(() => {
     if (instanceOrg && instanceOwner && instanceGuid && lastChangedDateTime) {
@@ -202,7 +198,7 @@ export const ReceiptContainer = () => {
   }, [instanceOrg, instanceGuid, lastChangedDateTime, langTools, receiver, instanceOwner, instanceOwnerParty]);
 
   function getMissingRequirement() {
-    if (!attachments) {
+    if (!displayAttachments) {
       return 'attachments';
     }
     if (!instanceMetaObject) {
@@ -219,7 +215,7 @@ export const ReceiptContainer = () => {
 
   const requirementMissing = getMissingRequirement();
 
-  if (requirementMissing || !(instanceMetaObject && pdf)) {
+  if (requirementMissing || !(instanceMetaObject && pdfDisplayAttachments)) {
     return (
       <AltinnContentLoader
         width={705}
@@ -239,7 +235,7 @@ export const ReceiptContainer = () => {
 
       {!applicationMetadata.autoDeleteOnProcessEnd && (
         <ReceiptComponent
-          attachmentGroupings={getAttachmentGroupings(attachments, applicationMetadata, langTools)}
+          attachmentGroupings={getAttachmentGroupings(displayAttachments, applicationMetadata, langTools)}
           body={<Lang id='receipt.body' />}
           collapsibleTitle={<Lang id='receipt.attachments' />}
           instanceMetaDataObject={instanceMetaObject}
@@ -247,7 +243,7 @@ export const ReceiptContainer = () => {
           subtitleurl={returnUrlToArchive(window.location.host)}
           title={<Lang id='receipt.title' />}
           titleSubmitted={<Lang id='receipt.title_submitted' />}
-          pdf={pdf}
+          pdf={pdfDisplayAttachments}
         />
       )}
       {applicationMetadata.autoDeleteOnProcessEnd && (
