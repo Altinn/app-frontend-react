@@ -6,7 +6,7 @@ export enum DataTypeReference {
   FromTask = 'from-task',
 }
 
-type AttachmentWithDataType = {
+export type AttachmentWithDataType = {
   attachment: IData;
   dataType: IDataType | undefined;
 };
