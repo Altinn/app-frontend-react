@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import type { JSX } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
@@ -24,43 +24,6 @@ export interface IReceiptComponentProps {
   titleSubmitted: React.ReactNode;
 }
 
-interface ICollapsibleAttacments {
-  attachments: IDisplayAttachment[];
-  title: React.ReactNode;
-  hideCollapsibleCount?: boolean;
-}
-
-/**
- * Watches the print media query and returns true if the page is being printed
- */
-function useIsPrint() {
-  const [isPrint, setIsPrint] = useState(() => window.matchMedia('print').matches);
-
-  useEffect(() => {
-    const mediaQueryList = window.matchMedia('print');
-    const handleChange = (event: MediaQueryListEvent) => setIsPrint(event.matches);
-    mediaQueryList.addEventListener('change', handleChange);
-    return () => {
-      mediaQueryList.removeEventListener('change', handleChange);
-    };
-  }, []);
-
-  return isPrint;
-}
-
-const CollapsibleAttachments = ({ attachments, title, hideCollapsibleCount }: ICollapsibleAttacments) => {
-  const isPrint = useIsPrint() ? false : Boolean(attachments.length > 4);
-
-  return (
-    <AltinnCollapsibleAttachments
-      attachments={attachments}
-      collapsible={isPrint}
-      title={title}
-      hideCount={hideCollapsibleCount}
-    />
-  );
-};
-
 interface IRenderAttachmentGroupings {
   attachments: IDisplayAttachment[] | undefined;
   collapsibleTitle: React.ReactNode;
@@ -69,7 +32,7 @@ interface IRenderAttachmentGroupings {
 
 const defaultGrouping = 'null'; // Default grouping for attachments without a specific grouping
 
-const RenderAttachmentGroupings = ({
+export const AttachmentGroupings = ({
   attachments,
   collapsibleTitle,
   hideCollapsibleCount,
@@ -85,39 +48,19 @@ const RenderAttachmentGroupings = ({
     return acc;
   }, {});
 
-  const groups: JSX.Element[] = [];
-
   if (!groupings) {
     return null;
   }
 
-  if (groupings.null) {
-    // we have attachments that does not have a grouping. Render them first with default title
-    groups.push(
-      <CollapsibleAttachments
-        attachments={groupings.null}
-        title={collapsibleTitle}
-        hideCollapsibleCount={hideCollapsibleCount}
-      />,
-    );
-  }
-
-  Object.keys(groupings || {}).forEach((title: string) => {
-    if (title && title !== 'null') {
-      groups.push(
-        <CollapsibleAttachments
-          attachments={groupings[title] ?? []}
-          title={title}
-          hideCollapsibleCount={hideCollapsibleCount}
-        />,
-      );
-    }
-  });
-
   return (
     <>
-      {groups.map((element: JSX.Element, index) => (
-        <React.Fragment key={index}>{element}</React.Fragment>
+      {Object.keys(groupings).map((groupTitle, index) => (
+        <AltinnCollapsibleAttachments
+          key={index}
+          attachments={groupings[groupTitle]}
+          title={groupTitle === 'null' ? collapsibleTitle : groupTitle}
+          hideCount={hideCollapsibleCount}
+        />
       ))}
     </>
   );
@@ -185,7 +128,7 @@ export function ReceiptComponent({
         </>
       )}
       {attachments && (
-        <RenderAttachmentGroupings
+        <AttachmentGroupings
           attachments={attachments}
           collapsibleTitle={collapsibleTitle}
           hideCollapsibleCount={hideCollapsibleCount}
