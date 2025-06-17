@@ -36,10 +36,6 @@ export const filterAttachments = ({ data, appMetadataDataTypes }: AttachmentFilt
   return data.filter((el) => el.dataType !== DataTypeReference.RefDataAsPdf && !excludeDataTypes.includes(el.dataType));
 };
 
-export function getRefAsPdfDisplayAttachments(data: IData[]) {
-  return toDisplayAttachments(getRefAsPdfAttachments(data));
-}
-
 export function getRefAsPdfAttachments(data: IData[]) {
   return data.filter((el) => el.dataType === DataTypeReference.RefDataAsPdf);
 }
