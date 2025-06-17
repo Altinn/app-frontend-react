@@ -57,6 +57,7 @@ export const SummaryComponentFor = React.forwardRef(function (
       grid={overrides?.display && overrides?.display.useComponentGrid ? overrides?.grid || targetItem?.grid : undefined}
       pageBreak={overrides?.pageBreak ?? targetItem?.pageBreak}
       largeGroup={overrides?.largeGroup}
+      excludedChildren={overrides?.excludedChildren}
     />
   );
 });
