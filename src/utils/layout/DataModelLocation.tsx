@@ -150,6 +150,7 @@ export function useIntermediateItem<T extends CompTypes = CompTypes>(
   const lookups = useLayoutLookups();
   const component = lookups.getComponent(baseComponentId, type);
   const location = useCurrentDataModelLocation();
+  const idMutator = useComponentIdMutator();
 
   return useMemo(() => {
     if (!location || !component) {
@@ -174,6 +175,8 @@ export function useIntermediateItem<T extends CompTypes = CompTypes>(
       mutator(clone);
     }
 
+    clone.id = idMutator(clone.id);
+
     return clone;
-  }, [component, location]);
+  }, [component, location, idMutator]);
 }
