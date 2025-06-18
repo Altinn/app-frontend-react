@@ -14,7 +14,7 @@ import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { GenericComponentById } from 'src/layout/GenericComponent';
-import { makeLikertChildId } from 'src/layout/Likert/Generator/LikertGeneratorChildren';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import classes from 'src/layout/Likert/LikertComponent.module.css';
 import { useLikertRows } from 'src/layout/Likert/rowUtils';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
