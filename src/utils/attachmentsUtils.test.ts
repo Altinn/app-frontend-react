@@ -399,7 +399,6 @@ describe(toDisplayAttachments.name, () => {
         url: 'https://example.com/file1.pdf',
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
-        description: 'Type 1 description',
         grouping: 'group1',
       },
       {
@@ -407,7 +406,6 @@ describe(toDisplayAttachments.name, () => {
         url: 'https://example.com/file2.jpg',
         iconClass: 'reg reg-attachment',
         dataType: 'type2',
-        description: 'Type 2 description',
         grouping: 'group2',
       },
     ];
@@ -437,7 +435,6 @@ describe(toDisplayAttachments.name, () => {
         url: 'https://example.com/file1.pdf',
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
-        description: undefined,
         grouping: undefined,
       },
     ];
@@ -469,7 +466,6 @@ describe(toDisplayAttachments.name, () => {
         url: undefined,
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
-        description: 'Type 1 description',
         grouping: undefined,
       },
     ];
@@ -511,7 +507,6 @@ describe(toDisplayAttachments.name, () => {
         url: 'https://example.com/file1.pdf',
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
-        description: 'Type 1 description',
         grouping: 'group1',
       },
     ];

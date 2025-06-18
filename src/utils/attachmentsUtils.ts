@@ -55,7 +55,6 @@ export function toDisplayAttachments(data: AttachmentWithDataType[]): IDisplayAt
     url: attachment.selfLinks?.apps,
     iconClass: 'reg reg-attachment',
     dataType: attachment.dataType,
-    description: dataType?.description ?? undefined,
     grouping: dataType?.grouping ?? undefined,
   }));
 }
