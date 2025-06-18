@@ -28,18 +28,21 @@ interface IRenderAttachmentGroupings {
   attachments: IDisplayAttachment[] | undefined;
   collapsibleTitle: React.ReactNode;
   hideCollapsibleCount?: boolean;
+  showLinks: boolean | undefined;
 }
 
-const defaultGrouping = 'null'; // Default grouping for attachments without a specific grouping
+const defaultGroupingKey = 'null';
 
 export const AttachmentGroupings = ({
-  attachments,
+  attachments = [],
   collapsibleTitle,
   hideCollapsibleCount,
+  showLinks = true,
 }: IRenderAttachmentGroupings) => {
   const langTools = useLanguage();
+
   const groupings = attachments?.reduce<Record<string, IDisplayAttachment[]>>((acc, attachment) => {
-    const grouping = attachment.grouping ?? defaultGrouping;
+    const grouping = attachment.grouping ?? defaultGroupingKey;
     const translatedGrouping = langTools.langAsString(grouping);
     if (!acc[translatedGrouping]) {
       acc[translatedGrouping] = [];
@@ -48,20 +51,33 @@ export const AttachmentGroupings = ({
     return acc;
   }, {});
 
+  function sortDefaultGroupingFirst(a: string, b: string) {
+    if (a === defaultGroupingKey) {
+      return -1;
+    }
+    if (b === defaultGroupingKey) {
+      return 1;
+    }
+    return 0;
+  }
+
   if (!groupings) {
     return null;
   }
 
   return (
     <>
-      {Object.keys(groupings).map((groupTitle, index) => (
-        <AltinnCollapsibleAttachments
-          key={index}
-          attachments={groupings[groupTitle]}
-          title={groupTitle === 'null' ? collapsibleTitle : groupTitle}
-          hideCount={hideCollapsibleCount}
-        />
-      ))}
+      {Object.keys(groupings)
+        .sort(sortDefaultGroupingFirst)
+        .map((groupTitle, index) => (
+          <AltinnCollapsibleAttachments
+            key={index}
+            attachments={groupings[groupTitle]}
+            title={groupTitle === 'null' ? collapsibleTitle : groupTitle}
+            hideCount={hideCollapsibleCount}
+            showLinks={showLinks}
+          />
+        ))}
     </>
   );
 };
@@ -124,6 +140,7 @@ export function ReceiptComponent({
           <AltinnAttachments
             attachments={pdf}
             id='attachment-list-pdf'
+            showLinks={true}
           />
         </>
       )}
@@ -132,6 +149,7 @@ export function ReceiptComponent({
           attachments={attachments}
           collapsibleTitle={collapsibleTitle}
           hideCollapsibleCount={hideCollapsibleCount}
+          showLinks={true}
         />
       )}
     </div>
