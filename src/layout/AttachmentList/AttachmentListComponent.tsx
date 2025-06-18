@@ -4,6 +4,7 @@ import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import {
   DataTypeReference,
@@ -68,7 +69,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
     <ComponentStructureWrapper node={node}>
       <AltinnAttachments
         attachments={displayAttachments}
-        title={textResourceBindings?.title}
+        title={<Lang id={textResourceBindings?.title} />}
         links={links}
       />
     </ComponentStructureWrapper>

@@ -15,11 +15,6 @@ interface IAltinnCollapsibleAttachmentsProps {
   hideCount?: boolean;
 }
 
-const fontStyle = {
-  fontSize: 18,
-  fontWeight: 600,
-};
-
 export function AltinnCollapsibleAttachments({ attachments, title, hideCount }: IAltinnCollapsibleAttachmentsProps) {
   const isCollapsible = useIsPrint() ? false : Boolean(attachments && attachments.length > 4);
   const [open, setOpen] = React.useState(true);
@@ -59,7 +54,11 @@ export function AltinnCollapsibleAttachments({ attachments, title, hideCount }: 
   return (
     <AltinnAttachments
       attachments={attachments}
-      title={`${title} ${attachmentCount}`}
+      title={
+        <>
+          {title} {attachmentCount}
+        </>
+      }
       id='attachment-list'
     />
   );
