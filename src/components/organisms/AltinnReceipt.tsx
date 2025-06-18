@@ -4,10 +4,9 @@ import type { JSX } from 'react';
 import { Heading } from '@digdir/designsystemet-react';
 
 import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
-import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
 import classes from 'src/components/organisms/AltinnReceipt.module.css';
+import { AttachmentGroupings } from 'src/components/organisms/AttachmentGroupings';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
-import { useLanguage } from 'src/features/language/useLanguage';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IDisplayAttachment } from 'src/types/shared';
 
@@ -23,64 +22,6 @@ export interface IReceiptComponentProps {
   title: React.ReactNode;
   titleSubmitted: React.ReactNode;
 }
-
-interface IRenderAttachmentGroupings {
-  attachments: IDisplayAttachment[] | undefined;
-  collapsibleTitle: React.ReactNode;
-  hideCollapsibleCount?: boolean;
-  showLinks: boolean | undefined;
-}
-
-const defaultGroupingKey = 'null';
-
-export const AttachmentGroupings = ({
-  attachments = [],
-  collapsibleTitle,
-  hideCollapsibleCount,
-  showLinks = true,
-}: IRenderAttachmentGroupings) => {
-  const langTools = useLanguage();
-
-  const groupings = attachments?.reduce<Record<string, IDisplayAttachment[]>>((acc, attachment) => {
-    const grouping = attachment.grouping ?? defaultGroupingKey;
-    const translatedGrouping = langTools.langAsString(grouping);
-    if (!acc[translatedGrouping]) {
-      acc[translatedGrouping] = [];
-    }
-    acc[translatedGrouping].push(attachment);
-    return acc;
-  }, {});
-
-  function sortDefaultGroupingFirst(a: string, b: string) {
-    if (a === defaultGroupingKey) {
-      return -1;
-    }
-    if (b === defaultGroupingKey) {
-      return 1;
-    }
-    return 0;
-  }
-
-  if (!groupings) {
-    return null;
-  }
-
-  return (
-    <>
-      {Object.keys(groupings)
-        .sort(sortDefaultGroupingFirst)
-        .map((groupTitle, index) => (
-          <AltinnCollapsibleAttachments
-            key={index}
-            attachments={groupings[groupTitle]}
-            title={groupTitle === 'null' ? collapsibleTitle : groupTitle}
-            hideCount={hideCollapsibleCount}
-            showLinks={showLinks}
-          />
-        ))}
-    </>
-  );
-};
 
 export function ReceiptComponent({
   title,

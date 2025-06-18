@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
-import { AttachmentGroupings } from 'src/components/organisms/AltinnReceipt';
+import { AttachmentGroupings } from 'src/components/organisms/AttachmentGroupings';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
