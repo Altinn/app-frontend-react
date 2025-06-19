@@ -4,7 +4,7 @@ import { Heading } from '@digdir/designsystemet-react';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { AltinnCollapsible } from 'src/components/AltinnCollapsable';
+import { AltinnCollapsible } from 'src/components/AltinnCollapsible';
 import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
 import classes from 'src/components/molecules/AltinnCollapsibleAttachments.module.css';
 import type { IDisplayAttachment } from 'src/types/shared';

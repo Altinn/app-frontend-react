@@ -32,7 +32,7 @@ jest.mock('src/features/language/useLanguage', () => ({
   useLanguage: jest.fn(() => ({
     langAsString: jest.fn((key, params) => {
       if (key === 'general.download') {
-        return `Download ${params?.[0] || ''}`;
+        return `Download ${params?.[0] ?? ''}`;
       }
       return key;
     }),
