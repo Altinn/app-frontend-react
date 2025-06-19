@@ -133,9 +133,9 @@ function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyI
 
   return (
     <>
-      {nodeItem.rowsBeforeInternal && (
+      {nodeItem.rowsBefore && (
         <GridRowList
-          rows={nodeItem.rowsBeforeInternal}
+          rows={nodeItem.rowsBefore}
           text='rowsBefore'
           selected={selected}
           onClick={onClick}
@@ -161,9 +161,9 @@ function RepeatingGroupExtensions({ nodeId, selected, onClick }: INodeHierarchyI
           </DataModelLocationProvider>
         </li>
       ))}
-      {nodeItem.rowsAfterInternal && (
+      {nodeItem.rowsAfter && (
         <GridRowList
-          rows={nodeItem.rowsAfterInternal}
+          rows={nodeItem.rowsAfter}
           text='rowsAfter'
           selected={selected}
           onClick={onClick}
