@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 
 import { type FileUploaderNode, isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsFor } from 'src/features/attachments/hooks';
+import { FileScanResults } from 'src/features/attachments/types';
 import { useInstancePolling } from 'src/features/instance/useInstancePolling';
 
 export function useFileScanPolling(node: FileUploaderNode) {
@@ -12,7 +13,7 @@ export function useFileScanPolling(node: FileUploaderNode) {
   });
 
   const hasPendingScans = attachments.some(
-    (attachment) => isAttachmentUploaded(attachment) && attachment.data.fileScanResult === 'Pending',
+    (attachment) => isAttachmentUploaded(attachment) && attachment.data.fileScanResult === FileScanResults.Pending,
   );
 
   useEffect(() => {

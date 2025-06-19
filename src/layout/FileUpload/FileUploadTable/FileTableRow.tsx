@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { AltinnLoader } from 'src/components/AltinnLoader';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { isAttachmentUploaded } from 'src/features/attachments';
+import { FileScanResults } from 'src/features/attachments/types';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -46,12 +47,12 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
     const scanResult = attachment.data.fileScanResult;
 
     switch (scanResult) {
-      case 'Pending':
+      case FileScanResults.Pending:
         return langAsString('form_filler.file_uploader_status_scanning');
-      case 'Infected':
+      case FileScanResults.Infected:
         return langAsString('form_filler.file_uploader_status_infected');
-      case 'Clean':
-      case 'NotApplicable':
+      case FileScanResults.Clean:
+      case FileScanResults.NotApplicable:
       default:
         return langAsString('form_filler.file_uploader_list_status_done');
     }
@@ -199,9 +200,9 @@ const StatusCellContent = ({
 
     const getTestId = () => {
       switch (scanResult) {
-        case 'Infected':
+        case FileScanResults.Infected:
           return 'status-infected';
-        case 'Pending':
+        case FileScanResults.Pending:
           return 'status-scanning';
         default:
           return 'status-success';
@@ -210,9 +211,9 @@ const StatusCellContent = ({
 
     const getClassName = () => {
       switch (scanResult) {
-        case 'Infected':
+        case FileScanResults.Infected:
           return classes.statusInfected;
-        case 'Pending':
+        case FileScanResults.Pending:
           return classes.statusScanning;
         default:
           return '';

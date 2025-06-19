@@ -7,6 +7,7 @@ import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
 import { Panel } from 'src/app-components/Panel/Panel';
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useAllAttachments } from 'src/features/attachments/hooks';
+import { FileScanResults } from 'src/features/attachments/types';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -83,21 +84,20 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
   const infectedFileErrors: NodeRefValidation[] = Object.entries(allAttachments || {}).flatMap(
     ([nodeId, attachments]) =>
       (attachments || [])
-        .filter((attachment) => attachment.uploaded && attachment.data.fileScanResult === 'Infected')
+        .filter((attachment) => attachment.uploaded && attachment.data.fileScanResult === FileScanResults.Infected)
         .map((attachment) => {
           const uploadedAttachment = attachment as UploadedAttachment;
           return {
             nodeId,
-            source: 'Frontend' as const,
+            source: 'Frontend',
             code: 'InfectedFile',
             dataElementId: uploadedAttachment.data.id,
             message: {
               key: 'general.wait_for_attachments_infected',
               params: [uploadedAttachment.data.filename],
             },
-            severity: 'error' as const,
+            severity: 'error',
             category: 0,
-            field: '',
           };
         }),
   );

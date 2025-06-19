@@ -12,6 +12,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { isAttachmentUploaded, isDataPostError } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
 import { appSupportsNewAttachmentAPI, attachmentSelector } from 'src/features/attachments/tools';
+import { FileScanResults } from 'src/features/attachments/types';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { dataModelPairsToObject } from 'src/features/formData/types';
 import {
@@ -137,9 +138,9 @@ export interface AttachmentsStorePluginConfig {
 const emptyArray = [];
 
 const ATTACHMENT_STATE_RESULTS = {
-  infected: { hasPending: true, state: 'Infected' as const },
+  infected: { hasPending: true, state: FileScanResults.Infected },
   uploading: { hasPending: true, state: 'uploading' as const },
-  pending: { hasPending: true, state: 'Pending' as const },
+  pending: { hasPending: true, state: FileScanResults.Pending },
   ready: { hasPending: false, state: 'ready' as const },
 } as const;
 
@@ -530,7 +531,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               return true;
             }
 
-            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Infected')) {
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === FileScanResults.Infected)) {
               return true;
             }
           }
@@ -549,7 +550,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
 
             const attachments = Object.values(nodeData.attachments);
 
-            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Infected')) {
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === FileScanResults.Infected)) {
               return ATTACHMENT_STATE_RESULTS.infected;
             }
 
@@ -557,7 +558,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               return ATTACHMENT_STATE_RESULTS.uploading;
             }
 
-            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === 'Pending')) {
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === FileScanResults.Pending)) {
               return ATTACHMENT_STATE_RESULTS.pending;
             }
           }

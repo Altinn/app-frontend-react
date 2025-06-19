@@ -4,6 +4,7 @@ import { Alert } from '@digdir/designsystemet-react';
 
 import { type FileUploaderNode, isAttachmentUploaded } from 'src/features/attachments';
 import { useAttachmentsFor } from 'src/features/attachments/hooks';
+import { FileScanResults } from 'src/features/attachments/types';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/FileUpload/Error/FailedAttachments.module.css';
@@ -11,7 +12,7 @@ import classes from 'src/layout/FileUpload/Error/FailedAttachments.module.css';
 export function InfectedFileAlert({ node }: { node: FileUploaderNode }) {
   const attachments = useAttachmentsFor(node);
   const infectedAttachments = attachments.filter(
-    (attachment) => isAttachmentUploaded(attachment) && attachment.data.fileScanResult === 'Infected',
+    (attachment) => isAttachmentUploaded(attachment) && attachment.data.fileScanResult === FileScanResults.Infected,
   );
 
   return infectedAttachments.length > 0 ? (

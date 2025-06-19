@@ -10,6 +10,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAllAttachments } from 'src/features/attachments/hooks';
+import { FileScanResults } from 'src/features/attachments/types';
 import { useExpandedWidthLayouts, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
@@ -59,7 +60,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
 
   // Check for infected files to show ErrorReport
   const hasInfectedFiles = Object.values(allAttachments || {}).some((attachments) =>
-    (attachments || []).some((attachment) => attachment.uploaded && attachment.data.fileScanResult === 'Infected'),
+    (attachments || []).some(
+      (attachment) => attachment.uploaded && attachment.data.fileScanResult === FileScanResults.Infected,
+    ),
   );
 
   useRedirectToStoredPage();
