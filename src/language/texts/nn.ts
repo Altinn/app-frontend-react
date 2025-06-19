@@ -70,7 +70,6 @@ export function nn() {
     'form_filler.file_uploader_list_header_name': 'Namn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lasta',
-    'form_filler.file_uploader_status_uploaded': 'Lasta opp',
     'form_filler.file_uploader_status_scanning': 'Skannar...',
     'form_filler.file_uploader_status_infected': 'Infisert',
     'form_filler.file_uploader_infected_file_alert':

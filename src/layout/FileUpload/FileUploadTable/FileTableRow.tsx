@@ -53,7 +53,7 @@ export function FileTableRow({ node, attachment, mobileView, tagLabel, isSummary
       case 'Clean':
       case 'NotApplicable':
       default:
-        return langAsString('form_filler.file_uploader_status_uploaded');
+        return langAsString('form_filler.file_uploader_list_status_done');
     }
   };
 
