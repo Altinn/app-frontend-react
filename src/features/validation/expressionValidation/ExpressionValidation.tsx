@@ -91,16 +91,12 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
                 valueArguments,
               },
             );
-            const evaluatedMessage = evalExpr(
-              validationDef.message as ExprValToActualOrExpr<ExprVal.String>,
-              modifiedDataSources,
-              {
-                returnType: ExprVal.String,
-                defaultValue: '',
-                positionalArguments: [field],
-                valueArguments,
-              },
-            );
+            const evaluatedMessage = evalExpr(validationDef.message, modifiedDataSources, {
+              returnType: ExprVal.String,
+              defaultValue: '',
+              positionalArguments: [field],
+              valueArguments,
+            });
 
             if (isInvalid) {
               if (!validations[field]) {
@@ -110,7 +106,7 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
               validations[field].push({
                 field,
                 source: FrontendValidationSource.Expression,
-                message: { key: evaluatedMessage ? evaluatedMessage : validationDef.message },
+                message: { key: evaluatedMessage },
                 severity: validationDef.severity,
                 category: validationDef.showImmediately ? 0 : ValidationMask.Expression,
               });
@@ -118,7 +114,6 @@ function IndividualExpressionValidation({ dataType }: { dataType: string }) {
           }
         }
       }
-
       updateDataModelValidations('expression', dataElementId, validations);
     }
   }, [

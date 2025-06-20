@@ -90,6 +90,15 @@ describe('Expression validation shared tests', () => {
         fetchLayouts: async () => layouts,
         fetchCustomValidationConfig: async () => validationConfig,
         fetchFormData: async () => formData,
+        fetchTextResources: async (language) => ({
+          language,
+          resources: [
+            {
+              id: 'email-must-be-real',
+              value: 'The typed email must be real',
+            },
+          ],
+        }),
       },
     });
 
