@@ -10,6 +10,7 @@ import { ExpressionValidation } from 'src/features/validation/expressionValidati
 import { Validation } from 'src/features/validation/validationContext';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import * as NodesContext from 'src/utils/layout/NodesContext';
+import type { IRawTextResource } from 'src/features/language/textResources';
 import type { FieldValidations, IExpressionValidationConfig } from 'src/features/validation';
 import type { ILayoutCollection } from 'src/layout/layout';
 
@@ -25,6 +26,7 @@ type ExpressionValidationTest = {
   validationConfig: IExpressionValidationConfig;
   formData: object;
   layouts: ILayoutCollection;
+  textResources: IRawTextResource[];
 };
 
 function sortValidations(validations: SimpleValidation[]) {
@@ -63,7 +65,6 @@ function getSharedTests() {
       out.push(test);
     }
   });
-
   return out;
 }
 
@@ -76,7 +77,7 @@ describe('Expression validation shared tests', () => {
   });
 
   const sharedTests = getSharedTests();
-  it.each(sharedTests)('$name', async ({ name: _, expects, validationConfig, formData, layouts }) => {
+  it.each(sharedTests)('$name', async ({ name: _, expects, validationConfig, formData, textResources, layouts }) => {
     // Mock updateDataModelValidations
     let result: FieldValidations = {};
     const updateDataModelValidations = jest.fn((_key, _dataType, validations: FieldValidations) => {
@@ -92,12 +93,7 @@ describe('Expression validation shared tests', () => {
         fetchFormData: async () => formData,
         fetchTextResources: async (language) => ({
           language,
-          resources: [
-            {
-              id: 'email-must-be-real',
-              value: 'The typed email must be real',
-            },
-          ],
+          resources: textResources,
         }),
       },
     });
