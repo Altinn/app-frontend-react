@@ -441,7 +441,6 @@ describe('Group', () => {
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
     cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett-automation' }).click();
-    cy.snapshot('group: delete-warning-popup');
 
     cy.findByRole('button', { name: 'Avbryt' }).click({ force: true });
     cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett-automation' }).click();

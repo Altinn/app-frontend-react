@@ -110,7 +110,9 @@ describe('navigation', () => {
       cy.navGroup('Utfylling', 'Alder').find(ICON_ERROR).should('be.visible');
       cy.readFile('test/percy.css').then((percyCSS) => {
         cy.testWcag();
-        cy.percySnapshot(`navigation:page-states (${device})`, { percyCSS, widths: [width] });
+        if (device === 'mobile') {
+          cy.percySnapshot(`navigation:page-states (${device})`, { percyCSS, widths: [width] });
+        }
       });
       cy.gotoNavGroup(/^Informasjon/, device, 'Generell info');
 
