@@ -93,7 +93,7 @@ describe('Expression validation shared tests', () => {
         fetchFormData: async () => formData,
         fetchTextResources: async (language) => ({
           language,
-          resources: textResources,
+          resources: textResources ?? [],
         }),
       },
     });
