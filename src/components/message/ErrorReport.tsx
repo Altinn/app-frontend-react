@@ -9,6 +9,7 @@ import classes from 'src/components/message/ErrorReport.module.css';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
@@ -33,6 +34,7 @@ const ErrorReportContext = createContext(false);
 
 export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
   const hasErrorReport = useContext(ErrorReportContext);
+  const isMobile = useIsMobile();
   if (errors === undefined || hasErrorReport || !show) {
     return children;
   }
@@ -43,6 +45,7 @@ export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
         <ErrorSummary
           data-testid='ErrorReport'
           className={classes.errorSummary}
+          data-size={isMobile ? 'md' : 'lg'}
         >
           <Flex
             container
