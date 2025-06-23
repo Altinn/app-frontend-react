@@ -71,7 +71,7 @@ function useAllReferencedGroups(rules: IConditionalRenderingRules | null) {
             }
           }
 
-          out[nodeData.layout.id] = topLevel;
+          out[nodeData.id] = topLevel;
         }
       }
     }
@@ -127,7 +127,7 @@ function useLegacyHiddenComponents() {
 }
 
 function isRepeatedGroup(nodeData: NodeData): nodeData is NodeData<'RepeatingGroup'> {
-  return nodeData.layout.type === 'RepeatingGroup';
+  return nodeData.nodeType === 'RepeatingGroup';
 }
 
 function runConditionalRenderingRule(

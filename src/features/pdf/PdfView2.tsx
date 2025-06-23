@@ -146,16 +146,16 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
         (data) =>
           data.pageKey === pageKey &&
           data.parentId === undefined &&
-          data.layout.type !== 'Subform' &&
-          !isHidden(state, 'node', data.layout.id) &&
-          !pdfSettings?.excludedComponents.includes(data.layout.id),
+          data.nodeType !== 'Subform' &&
+          !isHidden(state, 'node', data.id) &&
+          !pdfSettings?.excludedComponents.includes(data.id),
       )
       .filter(<T extends CompTypes>(data: NodeData<T>) => {
-        const def = getComponentDef(data.layout.type);
+        const def = getComponentDef(data.nodeType);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return def.shouldRenderInAutomaticPDF(data as any);
       })
-      .map((data) => data.layout.id),
+      .map((data) => data.id),
   );
 
   return (

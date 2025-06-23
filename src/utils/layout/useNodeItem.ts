@@ -60,7 +60,7 @@ export function useNodeDirectChildren(parent: LayoutNode | undefined, restrictio
       const out: (LayoutNode | undefined)[] = [];
       for (const n of Object.values(state.nodeData)) {
         if (n.parentId === parent.id && (restriction === undefined || restriction === n.rowIndex)) {
-          out.push(nodes.findById(n.layout.id));
+          out.push(nodes.findById(n.id));
         }
       }
       return out.filter(typedBoolean);

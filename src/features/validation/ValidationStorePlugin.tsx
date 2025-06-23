@@ -191,7 +191,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         store.useLaxMemoSelector((state) => {
           const out: NodeRefValidation[] = [];
           for (const nodeData of Object.values(state.nodeData)) {
-            const id = nodeData.layout.id;
+            const id = nodeData.id;
             const validations = getValidations({ state, id, mask, severity, includeHidden });
             for (const validation of validations) {
               out.push({ ...validation, nodeId: id });
@@ -237,7 +237,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
               continue;
             }
 
-            const id = nodeData.layout.id;
+            const id = nodeData.id;
             const validations = getValidations({ state, id, mask: 'visible', severity: 'error' });
             for (const validation of validations) {
               if (validation.source === FrontendValidationSource.EmptyField) {
@@ -302,7 +302,7 @@ export function getRecursiveValidations(props: GetDeepValidationsProps): NodeRef
       (nodeData) =>
         nodeData.parentId === props.id && (props.restriction === undefined || props.restriction === nodeData.rowIndex),
     )
-    .map((nodeData) => nodeData.layout.id);
+    .map((nodeData) => nodeData.id);
 
   for (const id of children) {
     out.push(

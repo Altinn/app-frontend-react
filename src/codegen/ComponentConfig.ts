@@ -538,6 +538,8 @@ export class ComponentConfig {
       stateFactory(props: ${StateFactoryProps}) {
         const baseState: ${BaseNodeData} = {
           type: 'node',
+          id: props.id,
+          nodeType: '${this.type}',
           pageKey: props.pageKey,
           parentId: props.parentId,
           depth: props.depth,

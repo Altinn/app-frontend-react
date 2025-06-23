@@ -599,13 +599,13 @@ function MarkAsReady() {
 
 function areAllNodesReady(state: NodesContext) {
   for (const nodeData of Object.values(state.nodeData)) {
-    const def = getComponentDef(nodeData.layout.type) as LayoutComponent;
+    const def = getComponentDef(nodeData.nodeType) as LayoutComponent;
     const nodeReady = def.stateIsReady(nodeData);
     const pluginsReady = def.pluginStateIsReady(nodeData, state);
     if (!nodeReady || !pluginsReady) {
       generatorLog(
         'logReadiness',
-        `Node ${nodeData.layout.id} is not ready yet because of ` +
+        `Node ${nodeData.id} is not ready yet because of ` +
           `${nodeReady ? 'plugins' : pluginsReady ? 'node' : 'both node and plugins'}`,
       );
       return false;
@@ -800,7 +800,7 @@ export function isHidden(
 
   const parentId = state.nodeData[id]?.parentId;
   const parent = parentId ? state.nodeData[parentId] : undefined;
-  const parentDef = parent ? getComponentDef(parent.layout.type) : undefined;
+  const parentDef = parent ? getComponentDef(parent.nodeType) : undefined;
   if (parent && parentDef && 'isChildHidden' in parentDef) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const childHidden = parentDef.isChildHidden(parent as any, id);
@@ -810,7 +810,7 @@ export function isHidden(
   }
 
   if (parent) {
-    return isHidden(state, 'node', parent.layout.id, options);
+    return isHidden(state, 'node', parent.id, options);
   }
 
   return false;
@@ -954,7 +954,7 @@ function selectNodeData<T extends CompTypes = CompTypes>(
           ? state.prevNodeData[id]
           : state.nodeData[id]; // Fall back to fresh data if prevNodeData is not set
 
-  if (data && type && data.layout.type !== type) {
+  if (data && type && data.nodeType !== type) {
     return undefined;
   }
 
@@ -1074,7 +1074,7 @@ export const NodesInternal = {
             ? s.nodeData[nodeId]
             : (s.prevNodeData?.[nodeId] ?? s.nodeData[nodeId]);
 
-      if (!data || data.layout.type !== type) {
+      if (!data || data.nodeType !== type) {
         return undefined;
       }
 

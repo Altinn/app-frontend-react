@@ -19,13 +19,14 @@ import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries
 import { renderWithNode } from 'src/test/renderWithProviders';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { ExprPositionalArgs, ExprValToActualOrExpr, ExprValueArgs } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { RepeatingComponents } from 'src/features/form/layout/utils/repeating';
 import type { IRawOption } from 'src/layout/common.generated';
-import type { ILayoutCollection } from 'src/layout/layout';
+import type { IDataModelBindings, ILayoutCollection } from 'src/layout/layout';
 import type { IData, IDataType } from 'src/types/shared';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
@@ -63,7 +64,9 @@ function DataModelLocationFromNode({ nodeId, children }: PropsWithChildren<{ nod
   }
 
   const [closestRepeating, rowIndex] = getClosestRepeating(realNode);
-  const dataModelBindings = NodesInternal.useNodeData(closestRepeating, (d) => d.layout.dataModelBindings);
+  const dataModelBindings = useDataModelBindingsFor(closestRepeating?.baseId) as
+    | IDataModelBindings<RepeatingComponents>
+    | undefined;
   const repeatingBinding = closestRepeating && getRepeatingBinding(closestRepeating.type, dataModelBindings);
 
   if (closestRepeating === undefined || rowIndex === undefined || !repeatingBinding) {
