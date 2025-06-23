@@ -1,9 +1,9 @@
 import React from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { Link, List } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import classes from 'src/components/atoms/AltinnAttachment.module.css';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -59,23 +59,13 @@ interface IAltinnAttachmentProps {
 }
 
 function Attachment({ attachment, showLink, showDescription }: IAltinnAttachmentProps) {
-  const { langAsString } = useLanguage();
   const currentLanguage = useCurrentLanguage();
 
   return (
     <List.Item>
-      <ConditionalWrapper
-        condition={showLink}
-        wrapper={(children) => (
-          <Link
-            href={attachment.url && makeUrlRelativeIfSameDomain(attachment.url)}
-            className={cn(classes.attachment, classes.attachmentLink)}
-            aria-label={langAsString('general.download', [`${attachment.name}`])}
-          >
-            {children}
-          </Link>
-        )}
-        otherwise={(children) => <span className={classes.attachment}>{children}</span>}
+      <AttachmentFileName
+        attachment={attachment}
+        showLink={showLink}
       >
         <div className={classes.attachmentContent}>
           <FileExtensionIcon
@@ -86,7 +76,7 @@ function Attachment({ attachment, showLink, showDescription }: IAltinnAttachment
             {showDescription && attachment.description?.[currentLanguage] && (
               <div className={classes.description}>
                 {attachment.description[currentLanguage]}
-                <span className={classes.separator}>&nbsp;&ndash;&ndash;&nbsp;</span>
+                <span>&nbsp;&ndash;&ndash;&nbsp;</span>
               </div>
             )}
             <div className={classes.filename}>
@@ -95,7 +85,31 @@ function Attachment({ attachment, showLink, showDescription }: IAltinnAttachment
             </div>
           </div>
         </div>
-      </ConditionalWrapper>
+      </AttachmentFileName>
     </List.Item>
   );
+}
+
+function AttachmentFileName({
+  attachment,
+  showLink,
+  children,
+}: PropsWithChildren<{ attachment: IDisplayAttachment; showLink: boolean }>) {
+  const { langAsString } = useLanguage();
+  const currentLanguage = useCurrentLanguage();
+
+  if (showLink) {
+    return (
+      <Link
+        href={attachment.url && makeUrlRelativeIfSameDomain(attachment.url)}
+        className={cn(classes.attachment, classes.attachmentLink)}
+        aria-label={langAsString('general.download', [`${attachment.name}`])}
+        aria-description={attachment.description?.[currentLanguage]}
+      >
+        {children}
+      </Link>
+    );
+  }
+
+  return <span className={classes.attachment}>{children}</span>;
 }
