@@ -14,7 +14,7 @@ import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CardInternal } from 'src/layout/Cards/CardsPlugin';
+import type { CardConfig } from 'src/layout/Cards/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ICardsProps = PropsFromGenericComponent<'Cards'>;
@@ -109,16 +109,16 @@ export const Cards = ({ node }: ICardsProps) => {
 };
 
 interface MediaProps {
-  card: CardInternal;
+  card: CardConfig;
   node: LayoutNode<'Cards'>;
   minMediaHeight: string | undefined;
 }
 
 function Media({ card, node, minMediaHeight }: MediaProps) {
-  const id = useIndexedId(card.mediaId);
+  const id = useIndexedId(card.media);
   const canRenderInMedia = useHasCapability('renderInCardsMedia');
   const mediaNode = useNode(id);
-  if (!mediaNode || !canRenderInMedia(card.mediaId)) {
+  if (!mediaNode || !canRenderInMedia(card.media)) {
     return null;
   }
 

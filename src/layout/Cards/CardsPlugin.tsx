@@ -2,7 +2,7 @@ import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
-import type { CardConfigExternal } from 'src/layout/Cards/config.generated';
+import type { CardConfig } from 'src/layout/Cards/config.generated';
 import type { CompTypes } from 'src/layout/layout';
 import type {
   DefPluginChildClaimerProps,
@@ -10,21 +10,12 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 
-export interface CardInternal extends Omit<CardConfigExternal, 'children' | 'media'> {
-  childIds?: string[];
-  mediaId?: string;
-}
-
 interface Config<Type extends CompTypes> {
   componentType: Type;
   expectedFromExternal: {
-    cards: CardConfigExternal[];
+    cards: CardConfig[];
   };
   extraState: undefined;
-  extraInItem: {
-    cards: undefined;
-    cardsInternal: CardInternal[];
-  };
 }
 
 export class CardsPlugin<Type extends CompTypes>
