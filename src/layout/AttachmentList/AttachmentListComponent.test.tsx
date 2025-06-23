@@ -296,8 +296,6 @@ describe('AttachmentListComponent', () => {
       />,
     );
 
-    screen.debug();
-
     // Should include all attachments from mockInstanceData (dataType1, dataType2, and dataType3)
     expect(screen.getByTestId('attachment-groupings-count')).toHaveTextContent('3');
   });
