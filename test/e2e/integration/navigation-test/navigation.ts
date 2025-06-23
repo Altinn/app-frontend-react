@@ -301,6 +301,7 @@ describe('navigation', () => {
         });
 
       cy.gotoNavGroup(/Informasjon/, 'Generell info');
+      cy.findByText(/Punkt to er ikke like viktig/).should('be.visible');
       isUsingDialog && cy.showNavGroups();
       cy.openNavGroup('Utfylling', 'Kjøretøy', /Biler/);
 
@@ -354,6 +355,7 @@ describe('navigation', () => {
       cy.navGroup('Utfylling', 'Kjøretøy').should('have.attr', 'aria-current', 'page');
       isUsingDialog && cy.hideNavGroups();
       cy.findByRole('button', { name: 'Tilbake til oppsummering' }).clickAndGone();
+      cy.findByText('skrue.mcduck@altinn.no').should('be.visible');
 
       cy.get('#subform-subform-table tbody tr')
         .eq(0)
