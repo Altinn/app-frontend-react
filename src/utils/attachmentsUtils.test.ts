@@ -372,7 +372,7 @@ describe(toDisplayAttachments.name, () => {
         } as unknown as IData,
         dataType: {
           id: 'type1',
-          description: 'Type 1 description',
+          description: { nb: 'Type 1 description' },
           grouping: 'group1',
         } as unknown as IDataType,
       },
@@ -387,7 +387,7 @@ describe(toDisplayAttachments.name, () => {
         } as unknown as IData,
         dataType: {
           id: 'type2',
-          description: 'Type 2 description',
+          description: { nb: 'Type 2 description' },
           grouping: 'group2',
         } as unknown as IDataType,
       },
@@ -400,7 +400,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
         grouping: 'group1',
-        description: undefined,
+        description: { nb: 'Type 1 description' },
       },
       {
         name: 'file2.jpg',
@@ -408,7 +408,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type2',
         grouping: 'group2',
-        description: undefined,
+        description: { nb: 'Type 2 description' },
       },
     ];
 
@@ -457,7 +457,7 @@ describe(toDisplayAttachments.name, () => {
         } as unknown as IData,
         dataType: {
           id: 'type1',
-          description: 'Type 1 description',
+          description: { nb: 'Type 1 description' },
           // Missing grouping
         } as unknown as IDataType,
       },
@@ -470,7 +470,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
         grouping: undefined,
-        description: undefined,
+        description: { nb: 'Type 1 description' },
       },
     ];
 
@@ -499,7 +499,7 @@ describe(toDisplayAttachments.name, () => {
         } as unknown as IData,
         dataType: {
           id: 'type1',
-          description: 'Type 1 description',
+          description: { nb: 'Type 1 description' },
           grouping: 'group1',
         } as unknown as IDataType,
       },
@@ -512,7 +512,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
         grouping: 'group1',
-        description: undefined,
+        description: { nb: 'Type 1 description' },
       },
     ];
 

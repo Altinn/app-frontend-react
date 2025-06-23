@@ -22,7 +22,7 @@ export interface IDisplayAttachment {
   name?: string;
   iconClass: string;
   grouping: string | undefined;
-  description: Record<'en' | 'nb' | 'nn' | (string & {}), string> | undefined;
+  description: Partial<Record<'en' | 'nb' | 'nn' | (string & {}), string>> | undefined;
   url?: string;
   dataType: string;
   tags?: string[];
@@ -50,7 +50,7 @@ export interface IData {
 
 export interface IDataType {
   id: string;
-  description?: Record<'en' | 'nb' | 'nn' | (string & {}), string> | null;
+  description?: Partial<Record<'en' | 'nb' | 'nn' | (string & {}), string>> | null;
   allowedContentTypes: string[] | null;
   allowedContributers?: string[] | null;
   allowedContributors?: string[] | null;
