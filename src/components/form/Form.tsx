@@ -58,7 +58,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const requiredFieldsMissing = NodesInternal.usePageHasVisibleRequiredValidations(currentPageId);
   const allAttachments = useAllAttachments();
 
-  // Check for infected files to show ErrorReport
   const hasInfectedFiles = Object.values(allAttachments || {}).some((attachments) =>
     (attachments || []).some(
       (attachment) => attachment.uploaded && attachment.data.fileScanResult === FileScanResults.Infected,

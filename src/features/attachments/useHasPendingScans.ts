@@ -1,10 +1,6 @@
 import { FileScanResults } from 'src/features/attachments/types';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 
-/**
- * Check instance data directly for pending file scans
- * This avoids dependency on nodes context and works during initial loading
- */
 export function useHasPendingScans(): boolean {
   const instanceData = useLaxInstanceData((data) => data);
 

@@ -133,7 +133,6 @@ function useGetInstanceDataQuery(
 
   const utils = useQuery({
     ...queryDef,
-    // Enable polling when requested (will be true when we have pending scans)
     refetchInterval: enablePolling ? 5000 : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: enablePolling,
@@ -168,7 +167,6 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
   const instantiation = useInstantiation();
   const isDataSet = useSelector((state) => state.data !== undefined);
 
-  // Always call the hook, but only use its value when data is loaded
   const hasPendingScans = useHasPendingScans();
   const enablePolling = isDataSet && hasPendingScans;
 

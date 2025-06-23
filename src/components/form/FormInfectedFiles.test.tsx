@@ -8,7 +8,6 @@ import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IAttachment, TemporaryAttachment, UploadedAttachment } from 'src/features/attachments';
 import type { FileScanResult } from 'src/features/attachments/types';
 
-// Mock the attachment hooks to control test data
 const mockUseAllAttachments = jest.fn();
 const mockUseHasPendingAttachments = jest.fn(() => false);
 const mockUseAttachmentState = jest.fn(() => ({ hasPending: false, state: 'ready' }));
@@ -51,7 +50,6 @@ describe('Form with Infected Files Integration', () => {
     });
 
   const renderFormWithAttachments = async (attachments: IAttachment[], nodeId = 'fileUpload-1') => {
-    // Set up mock to return our test attachments
     const mockAttachments = { [nodeId]: attachments };
     mockUseAllAttachments.mockReturnValue(mockAttachments);
 
@@ -73,7 +71,6 @@ describe('Form with Infected Files Integration', () => {
         expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
       });
 
-      // Should display the error report header
       expect(screen.getByText(/du må rette disse feilene/i)).toBeInTheDocument();
     });
 
@@ -124,7 +121,7 @@ describe('Form with Infected Files Integration', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
-        // Both infected files should generate error messages
+
         const errorLinks = screen.getAllByText(/fjern infiserte filer/i);
         expect(errorLinks).toHaveLength(2);
       });
@@ -239,7 +236,7 @@ describe('Form with Infected Files Integration', () => {
 
       await waitFor(() => {
         expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
-        // Should only show one infected file error
+
         expect(screen.getByText(/fjern infiserte filer/i)).toBeInTheDocument();
       });
     });
@@ -250,10 +247,8 @@ describe('Form with Infected Files Integration', () => {
       const infectedFile = createInfectedAttachment('malware.exe');
       await renderFormWithAttachments([infectedFile]);
 
-      // Verify the hook was called and would detect infected files
       expect(mockUseAllAttachments).toHaveBeenCalled();
 
-      // The Form component should show ErrorReport for infected files
       await waitFor(() => {
         expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
       });
@@ -264,13 +259,10 @@ describe('Form with Infected Files Integration', () => {
       await renderFormWithAttachments([infectedFile]);
 
       await waitFor(() => {
-        // Should have error report
         expect(screen.getByTestId('ErrorReport')).toBeInTheDocument();
 
-        // Should have the specific infected file message from language resources
         expect(screen.getByText(/fjern infiserte filer/i)).toBeInTheDocument();
 
-        // The error should be structured as ErrorWithLink (clickable button)
         const errorElement = screen.getByText(/fjern infiserte filer/i);
         expect(errorElement.closest('button')).toBeInTheDocument();
       });

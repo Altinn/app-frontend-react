@@ -139,9 +139,9 @@ const emptyArray = [];
 
 const ATTACHMENT_STATE_RESULTS = {
   infected: { hasPending: true, state: FileScanResults.Infected },
-  uploading: { hasPending: true, state: 'uploading' as const },
+  uploading: { hasPending: true, state: 'uploading' },
   pending: { hasPending: true, state: FileScanResults.Pending },
-  ready: { hasPending: false, state: 'ready' as const },
+  ready: { hasPending: false, state: 'ready' },
 } as const;
 
 type ProperData = NodeData<CompWithBehavior<'canHaveAttachments'>>;

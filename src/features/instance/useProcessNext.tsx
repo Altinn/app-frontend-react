@@ -92,7 +92,6 @@ export function useProcessNext() {
   });
 
   return useEffectEvent(async (props?: ProcessNextProps) => {
-    // Fallback: If there are pending scans, refetch instance data to get latest scan results
     if (hasPendingScans) {
       await reFetchInstanceData();
     }
