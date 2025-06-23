@@ -20,9 +20,9 @@ export function useNodeItem<N extends LayoutNode, Out>(node: N, selector: (item:
 // eslint-disable-next-line no-redeclare
 export function useNodeItem<N extends LayoutNode>(node: N, selector?: undefined): NodeItemFromNode<N>;
 // eslint-disable-next-line no-redeclare
-export function useNodeItem(node: LayoutNode | undefined, selector: never): unknown {
-  const intermediate = useIntermediateItem(node?.baseId);
-  const location = useDataModelLocationForNode(node?.id);
+export function useNodeItem(node: LayoutNode, selector: never): unknown {
+  const intermediate = useIntermediateItem(node.baseId);
+  const location = useDataModelLocationForNode(node.id);
   const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const props = useExpressionResolverProps(`Invalid expression for ${node?.id}`, intermediate, dataSources) as any;
@@ -36,10 +36,7 @@ export function useNodeItem(node: LayoutNode | undefined, selector: never): unkn
   return selector ? (selector as any)(resolved) : resolved;
 }
 
-export function useNodeItemWhenType<T extends CompTypes>(
-  nodeId: string | undefined,
-  type: T,
-): CompInternal<T> | undefined {
+export function useNodeItemWhenType<T extends CompTypes>(nodeId: string, type: T): CompInternal<T> {
   const { baseComponentId } = nodeId ? splitDashedKey(nodeId) : { baseComponentId: undefined };
   const intermediate = useIntermediateItem(baseComponentId);
   const location = useDataModelLocationForNode(nodeId);
