@@ -10,20 +10,12 @@ import type {
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 
-export interface TabConfigInternal extends Omit<TabConfig, 'children'> {
-  childIds: string[];
-}
-
 interface Config<Type extends CompTypes> {
   componentType: Type;
   expectedFromExternal: {
     tabs: TabConfig[];
   };
   extraState: undefined;
-  extraInItem: {
-    tabs: undefined;
-    tabsInternal: TabConfigInternal[];
-  };
 }
 
 export class TabsPlugin<Type extends CompTypes>
