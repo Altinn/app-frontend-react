@@ -17,9 +17,16 @@ interface IAltinnAttachmentsProps {
   id?: string;
   title?: React.ReactNode;
   showLinks: boolean | undefined;
+  showDescription?: boolean;
 }
 
-export function AltinnAttachments({ attachments, id, title, showLinks = true }: IAltinnAttachmentsProps) {
+export function AltinnAttachments({
+  attachments,
+  id,
+  title,
+  showLinks = true,
+  showDescription = false,
+}: IAltinnAttachmentsProps) {
   const selectedLanguage = useCurrentLanguage();
   const filteredAndSortedAttachments = attachments
     ?.filter((attachment) => attachment.name)
@@ -37,6 +44,7 @@ export function AltinnAttachments({ attachments, id, title, showLinks = true }: 
             key={index}
             attachment={attachment}
             showLink={showLinks}
+            showDescription={showDescription}
           />
         ))}
       </List.Unordered>
@@ -47,10 +55,13 @@ export function AltinnAttachments({ attachments, id, title, showLinks = true }: 
 interface IAltinnAttachmentProps {
   attachment: IDisplayAttachment;
   showLink: boolean;
+  showDescription: boolean;
 }
 
-function Attachment({ attachment, showLink }: IAltinnAttachmentProps) {
+function Attachment({ attachment, showLink, showDescription }: IAltinnAttachmentProps) {
   const { langAsString } = useLanguage();
+  const currentLanguage = useCurrentLanguage();
+
   return (
     <List.Item>
       <ConditionalWrapper
@@ -66,12 +77,21 @@ function Attachment({ attachment, showLink }: IAltinnAttachmentProps) {
         )}
         otherwise={(children) => <span className={classes.attachment}>{children}</span>}
       >
-        <FileExtensionIcon
-          fileEnding={getFileEnding(attachment.name)}
-          className={classes.attachmentIcon}
-        />
-        <span className={classes.truncate}>{removeFileEnding(attachment.name)}</span>
-        <span className={classes.extension}>{getFileEnding(attachment.name)}</span>
+        <div className={classes.attachmentContent}>
+          <FileExtensionIcon
+            fileEnding={getFileEnding(attachment.name)}
+            className={classes.attachmentIcon}
+          />
+          <div className={classes.attachmentText}>
+            {showDescription && attachment.description?.[currentLanguage] && (
+              <div className={classes.description}>{attachment.description[currentLanguage]}</div>
+            )}
+            <div className={classes.filename}>
+              <span className={classes.truncate}>{removeFileEnding(attachment.name)}</span>
+              <span className={classes.extension}>{getFileEnding(attachment.name)}</span>
+            </div>
+          </div>
+        </div>
       </ConditionalWrapper>
     </List.Item>
   );

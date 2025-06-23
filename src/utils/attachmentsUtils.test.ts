@@ -400,6 +400,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
         grouping: 'group1',
+        description: undefined,
       },
       {
         name: 'file2.jpg',
@@ -407,6 +408,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type2',
         grouping: 'group2',
+        description: undefined,
       },
     ];
 
@@ -436,6 +438,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
         grouping: undefined,
+        description: undefined,
       },
     ];
 
@@ -467,6 +470,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
         grouping: undefined,
+        description: undefined,
       },
     ];
 
@@ -508,6 +512,7 @@ describe(toDisplayAttachments.name, () => {
         iconClass: 'reg reg-attachment',
         dataType: 'type1',
         grouping: 'group1',
+        description: undefined,
       },
     ];
 

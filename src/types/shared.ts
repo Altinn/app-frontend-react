@@ -22,6 +22,7 @@ export interface IDisplayAttachment {
   name?: string;
   iconClass: string;
   grouping: string | undefined;
+  description: Record<'en' | 'nb' | 'nn' | (string & {}), string> | undefined;
   url?: string;
   dataType: string;
   tags?: string[];
@@ -49,7 +50,7 @@ export interface IData {
 
 export interface IDataType {
   id: string;
-  description?: string | null;
+  description?: Record<'en' | 'nb' | 'nn' | (string & {}), string> | null;
   allowedContentTypes: string[] | null;
   allowedContributers?: string[] | null;
   allowedContributors?: string[] | null;
@@ -261,10 +262,6 @@ export interface IVariable {
   key: string;
   dataSource: 'instanceContext' | 'applicationSettings' | 'dataModel.default' | `dataModel.${string}`;
   defaultValue?: string;
-}
-
-export interface IAttachmentGrouping {
-  [title: string]: IDisplayAttachment[];
 }
 
 export interface IApplicationSettings {
