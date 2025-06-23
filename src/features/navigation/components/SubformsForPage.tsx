@@ -18,8 +18,8 @@ import {
   useExpressionDataSourcesForSubform,
   useSubformFormData,
 } from 'src/layout/Subform/utils';
-import { useIntermediateItem } from 'src/utils/layout/DataModelLocation';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IData } from 'src/types/shared';
@@ -51,7 +51,7 @@ function SubformGroup({ nodeId }: { nodeId: string }) {
     throw new Error(`Navigation expected component: "${nodeId}" to exist and be of type: "Subform"`);
   }
   const subformIdsWithError = useComponentValidationsForNode(node).find(isSubformValidation)?.subformDataElementIds;
-  const { layoutSet, textResourceBindings, entryDisplayName } = useIntermediateItem(node.baseId, 'Subform') ?? {};
+  const { layoutSet, textResourceBindings, entryDisplayName } = useExternalItem(node.baseId, 'Subform') ?? {};
   const title = useEvalExpression(textResourceBindings?.title, {
     returnType: ExprVal.String,
     defaultValue: '',

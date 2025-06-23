@@ -1,7 +1,8 @@
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getComponentDef } from 'src/layout';
-import { useDataModelLocationForNode, useIntermediateItem } from 'src/utils/layout/DataModelLocation';
+import { useDataModelLocationForNode } from 'src/utils/layout/DataModelLocation';
 import { useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
+import { useIntermediateItem } from 'src/utils/layout/hooks';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
