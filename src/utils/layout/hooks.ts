@@ -69,12 +69,15 @@ export function useIntermediateItem<T extends CompTypes = CompTypes>(
   }, [component, idMutator, bindingParts]);
 }
 
-const emptyObject = {};
 function mutateDataModelBindings<T extends CompTypes = CompTypes>(
   bindings: IDataModelBindings<T> | undefined,
   parts: ReturnType<typeof useBindingParts>,
-) {
-  const clone = structuredClone(bindings) ?? emptyObject;
+): IDataModelBindings<T> | undefined {
+  if (!bindings) {
+    return undefined;
+  }
+
+  const clone = structuredClone(bindings);
   for (const { binding, index } of parts) {
     for (const key of Object.keys(clone)) {
       const target = clone[key] as IDataModelReference | undefined;
@@ -94,10 +97,13 @@ function mutateDataModelBindings<T extends CompTypes = CompTypes>(
 export function useDataModelBindingsFor<T extends CompTypes = CompTypes>(
   baseComponentId: string | undefined,
   type?: T,
-) {
-  const component = useExternalItem(baseComponentId, type);
+): IDataModelBindings<T> | undefined {
+  const component = useExternalItem<T>(baseComponentId, type);
   const parts = useBindingParts();
-  return useMemo(() => mutateDataModelBindings(component?.dataModelBindings, parts), [component, parts]);
+  return useMemo(
+    () => mutateDataModelBindings<T>(component?.dataModelBindings as IDataModelBindings<T> | undefined, parts),
+    [component, parts],
+  );
 }
 
 function mutateMapping(mapping: IMapping | undefined, parts: ReturnType<typeof useBindingParts>) {
@@ -120,7 +126,7 @@ function mutateMapping(mapping: IMapping | undefined, parts: ReturnType<typeof u
 }
 
 export function useMappingFor<T extends CompTypes = CompTypes>(baseComponentId: string | undefined, type?: T) {
-  const component = useExternalItem(baseComponentId, type);
+  const component = useExternalItem<T>(baseComponentId, type);
   const parts = useBindingParts();
   return useMemo(
     () => mutateMapping(component && 'mapping' in component ? component.mapping : undefined, parts),
