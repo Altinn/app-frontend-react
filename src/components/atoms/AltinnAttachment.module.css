@@ -47,15 +47,15 @@
 
 .attachmentText {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   min-width: 0; /* Allows truncation to work in flex containers */
   width: 100%;
+  gap: 4px;
 }
 
 .description {
   word-break: break-word;
   color: var(--fds-semantic-text-neutral-default);
-  margin-bottom: 4px;
 }
 
 .filename {

@@ -84,7 +84,10 @@ function Attachment({ attachment, showLink, showDescription }: IAltinnAttachment
           />
           <div className={classes.attachmentText}>
             {showDescription && attachment.description?.[currentLanguage] && (
-              <div className={classes.description}>{attachment.description[currentLanguage]}</div>
+              <div className={classes.description}>
+                {attachment.description[currentLanguage]}
+                <span className={classes.separator}>&nbsp;&ndash;&ndash;&nbsp;</span>
+              </div>
             )}
             <div className={classes.filename}>
               <span className={classes.truncate}>{removeFileEnding(attachment.name)}</span>
