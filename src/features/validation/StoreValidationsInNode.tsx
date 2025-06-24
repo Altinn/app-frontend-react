@@ -3,7 +3,6 @@ import React from 'react';
 import deepEqual from 'fast-deep-equal';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
-import { getInitialMaskFromNodeItem } from 'src/features/validation/utils';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, StageFormValidation } from 'src/utils/layout/generator/GeneratorStages';
@@ -37,13 +36,13 @@ function StoreValidationsInNodeWorker() {
   // hooks. If the property changes (from DevTools, for example), the entire form will re-render anyway.
   if (shouldValidate) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useStoreValidations(node, item);
+    useStoreValidations(node);
   }
 
   return null;
 }
 
-function useStoreValidations(node: Node, item: CompIntermediate) {
+function useStoreValidations(node: Node) {
   const freshValidations = useNodeValidation(node);
   const validations = useUpdatedValidations(freshValidations, node);
 
@@ -51,12 +50,11 @@ function useStoreValidations(node: Node, item: CompIntermediate) {
   NodesStateQueue.useSetNodeProp({ node, prop: 'validations', value: validations }, shouldSetValidations);
 
   // Reduce visibility as validations are fixed
-  const initialVisibility = getInitialMaskFromNodeItem(item);
   const visibilityToSet = NodesInternal.useNodeData(node, (data) => {
     const currentValidationMask = validations.reduce((mask, { category }) => mask | category, 0);
     const newVisibilityMask = currentValidationMask & data.validationVisibility;
-    if ((newVisibilityMask | initialVisibility) !== data.validationVisibility) {
-      return newVisibilityMask | initialVisibility;
+    if ((newVisibilityMask | data.initialVisibility) !== data.validationVisibility) {
+      return newVisibilityMask | data.initialVisibility;
     }
     return undefined;
   });

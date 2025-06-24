@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation/index';
-import { getInitialMaskFromNodeItem, selectValidations } from 'src/features/validation/utils';
+import { selectValidations } from 'src/features/validation/utils';
 import { isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type {
@@ -78,10 +78,9 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           nodesProduce((state) => {
             for (const node of nodes) {
               const nodeData = typeof node === 'string' ? state.nodeData[node] : state.nodeData[node.id];
-              const initialMask = getInitialMaskFromNodeItem(nodeData.layout);
 
-              if (nodeData && 'validationVisibility' in nodeData) {
-                nodeData.validationVisibility = newVisibility | initialMask;
+              if (nodeData && 'validationVisibility' in nodeData && 'initialVisibility' in nodeData) {
+                nodeData.validationVisibility = newVisibility | nodeData.initialVisibility;
               }
             }
           }),
