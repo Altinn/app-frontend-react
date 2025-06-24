@@ -119,7 +119,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     }
 
     const { baseComponentId } = splitDashedKey(childId);
-    const layout = lookups.getComponent(baseComponentId, 'RepeatingGroup');
+    const layout = lookups.getComponent(state.baseId, 'RepeatingGroup');
     const tableColSetup = layout.tableColumns?.[baseComponentId];
     const mode = layout.edit?.mode;
 
