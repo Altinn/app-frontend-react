@@ -84,6 +84,11 @@ function mutateDataModelBindings<T extends CompTypes = CompTypes>(
       if (!target || binding.dataType !== target.dataType) {
         continue;
       }
+      if (target.field === binding.field) {
+        // Do not mutate the group binding itself. We only want to mutate children.
+        continue;
+      }
+
       clone[key] = {
         dataType: target.dataType,
         field: target.field.replace(binding.field, `${binding.field}[${index}]`),
