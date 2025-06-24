@@ -59,7 +59,10 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
         stage={StageAddNodes}
         mustBeAdded='parent'
       >
-        <AddRemoveNode {...commonProps} />
+        <AddRemoveNode
+          {...commonProps}
+          intermediateItem={intermediateItem}
+        />
       </GeneratorCondition>
       <GeneratorCondition
         stage={StageMarkHidden}
@@ -106,7 +109,10 @@ function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T
   return null;
 }
 
-function AddRemoveNode<T extends CompTypes>({ node }: CommonProps<T>) {
+function AddRemoveNode<T extends CompTypes>({
+  node,
+  intermediateItem,
+}: CommonProps<T> & { intermediateItem: CompIntermediateExact<T> }) {
   const parent = GeneratorInternal.useParent()!;
   const depth = GeneratorInternal.useDepth();
   const rowIndex = GeneratorInternal.useRowIndex();
@@ -127,6 +133,7 @@ function AddRemoveNode<T extends CompTypes>({ node }: CommonProps<T>) {
     layoutMap,
     getCapabilities,
     isValid,
+    dataModelBindings: intermediateItem.dataModelBindings as never,
   } satisfies StateFactoryProps;
   const isAdded = NodesInternal.useIsAdded(node);
 

@@ -45,7 +45,7 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
       // delete attachments. It might return a 500 if you try. To be safe, we do them one by one.
       for (const uploaderId of uploaderNodeIds) {
         const nodeData = state.nodeData[uploaderId];
-        const dataModelBindings = nodeData?.layout.dataModelBindings as IDataModelBindings<
+        const dataModelBindings = nodeData?.dataModelBindings as IDataModelBindings<
           CompWithPlugin<typeof AttachmentsPlugin>
         >;
 

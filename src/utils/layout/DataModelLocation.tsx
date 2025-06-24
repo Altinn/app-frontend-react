@@ -55,9 +55,9 @@ function useDataModelLocationForNodeRaw(nodeId: string | undefined) {
       const parent = state.nodeData[parentId];
       const groupBinding =
         parent.nodeType === 'RepeatingGroup'
-          ? parent.layout.dataModelBindings.group
+          ? parent.dataModelBindings.group
           : parent.nodeType === 'Likert'
-            ? parent.layout.dataModelBindings.questions
+            ? parent.dataModelBindings.questions
             : undefined;
       if (groupBinding && child?.rowIndex !== undefined) {
         return { groupBinding, rowIndex: child.rowIndex };

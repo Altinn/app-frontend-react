@@ -540,8 +540,8 @@ export class ComponentConfig {
         );
       }
 
-      stateFactory(props: ${StateFactoryProps}) {
-        const baseState: ${BaseNodeData} = {
+      stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
+        const baseState: ${BaseNodeData}<'${this.type}'> = {
           type: 'node',
           id: props.id,
           baseId: props.baseId,
@@ -553,6 +553,7 @@ export class ComponentConfig {
           hidden: undefined,
           rowIndex: props.rowIndex,
           errors: undefined,
+          dataModelBindings: props.dataModelBindings,
         };
 
         return { ...baseState, ${pluginStateFactories} };
