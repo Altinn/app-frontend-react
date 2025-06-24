@@ -3,17 +3,33 @@ import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 
 import { Form, FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
-import { NavigateToStartUrl, ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
+import { ComponentRouting, NavigateToStartUrl, ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
+import { FormProvider } from 'src/features/form/FormContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
+import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
-import { PresentationType } from 'src/types';
+import { PresentationType, ProcessTaskType } from 'src/types';
 
 export const App = () => (
   <Routes>
+    <Route
+      path='/instance-selection'
+      element={<InstanceSelectionWrapper />}
+    />
+    <Route path='/party-selection'>
+      <Route
+        index
+        element={<PartySelection />}
+      />
+      <Route
+        path='*'
+        element={<PartySelection />}
+      />
+    </Route>
     <Route element={<Entrypoint />}>
       <Route
         path=':pageKey'
@@ -27,54 +43,105 @@ export const App = () => (
         index
         element={<FormFirstPage />}
       />
+      <Route
+        path='*'
+        element={<FormFirstPage />}
+      />
     </Route>
+
     <Route
-      path='/instance-selection/*'
-      element={<InstanceSelectionWrapper />}
-    />
-    <Route
-      path='/party-selection/*'
-      element={<PartySelection />}
-    />
-    <Route
-      path='/instance/:instanceOwnerPartyId/:instanceGuid/*'
+      path='/instance/:instanceOwnerPartyId/:instanceGuid'
       element={
         <InstanceProvider>
-          <Outlet />
+          <FormProvider>
+            <Outlet />
+          </FormProvider>
         </InstanceProvider>
       }
     >
       <Route
-        path=':taskId/*'
-        element={<ProcessWrapper />}
+        index
+        element={<NavigateToStartUrl />}
       />
+
+      <Route path=':taskId'>
+        <Route
+          index
+          element={<ProcessWrapper />}
+        />
+        <Route path=':pageKey'>
+          <Route
+            index
+            element={
+              <PDFWrapper>
+                <PresentationComponent type={ProcessTaskType.Data}>
+                  <Form />
+                </PresentationComponent>
+              </PDFWrapper>
+            }
+          />
+          <Route path=':componentId'>
+            <Route
+              index
+              element={<ComponentRouting />}
+            />
+            <Route
+              path='*'
+              element={<ComponentRouting />}
+            />
+          </Route>
+          <Route
+            path='*'
+            element={<FormFirstPage />}
+          />
+        </Route>
+      </Route>
+
+      <Route
+        path='*'
+        element={<NavigateToStartUrl />}
+      />
+
       <Route
         path={TaskKeys.ProcessEnd}
         element={<DefaultReceipt />}
       />
+
       <Route path={TaskKeys.CustomReceipt}>
+        <Route
+          index
+          element={<CustomReceipt />}
+        />
         <Route
           path='*'
           element={<CustomReceipt />}
         />
       </Route>
-      <Route
-        index
-        element={<NavigateToStartUrl />}
-      />
     </Route>
 
     {/**
      * Redirects from legacy URLs to new URLs
      */}
-    <Route
-      path='/partyselection/*'
-      element={
-        <Navigate
-          to='/party-selection/'
-          replace={true}
-        />
-      }
-    />
+    <Route path='/partyselection'>
+      <Route
+        index
+        element={
+          <Navigate
+            to='/party-selection/'
+            replace={true}
+          />
+        }
+      />
+
+      <Route
+        path='*'
+        element={
+          <Navigate
+            to='/party-selection/'
+            replace={true}
+          />
+        }
+      />
+    </Route>
   </Routes>
 );
