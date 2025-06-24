@@ -340,6 +340,7 @@ describe('navigation', () => {
       isUsingMobile && cy.showNavGroupsMobile();
       isUsingTablet && cy.showNavGroupsTablet();
       cy.openNavGroup('Utfylling', 'Kjøretøy', /Biler/);
+      cy.findByRole('button', { name: 'En fet Toyota fra 1998' }).should('be.visible');
 
       cy.readFile('test/percy.css').then((percyCSS) => {
         cy.testWcag();
