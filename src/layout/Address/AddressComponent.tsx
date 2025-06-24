@@ -100,7 +100,10 @@ export function AddressComponent({ node }: IAddressProps) {
             />
           </Flex>
         </Label>
-        <ComponentValidations validations={bindingValidations?.address} />
+        <ComponentValidations
+          validations={bindingValidations?.address}
+          node={node}
+        />
       </div>
 
       {!simplified && (
@@ -135,7 +138,10 @@ export function AddressComponent({ node }: IAddressProps) {
                 readOnly={readOnly}
                 autoComplete='address-line2'
               />
-              <ComponentValidations validations={bindingValidations?.careOf} />
+              <ComponentValidations
+                validations={bindingValidations?.careOf}
+                node={node}
+              />
             </Flex>
           </Label>
         </div>
@@ -181,7 +187,10 @@ export function AddressComponent({ node }: IAddressProps) {
                 inputMode='numeric'
                 autoComplete='postal-code'
               />
-              <ComponentValidations validations={bindingValidations?.zipCode} />
+              <ComponentValidations
+                validations={bindingValidations?.zipCode}
+                node={node}
+              />
             </Flex>
           </Label>
         </Flex>
@@ -265,10 +274,16 @@ export function AddressComponent({ node }: IAddressProps) {
               </div>
             </Flex>
           </Label>
-          <ComponentValidations validations={bindingValidations?.houseNumber} />
+          <ComponentValidations
+            validations={bindingValidations?.houseNumber}
+            node={node}
+          />
         </div>
       )}
-      <ComponentValidations validations={componentValidations} />
+      <ComponentValidations
+        validations={componentValidations}
+        node={node}
+      />
     </div>
   );
 }

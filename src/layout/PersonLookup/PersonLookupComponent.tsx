@@ -209,7 +209,10 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               </ValidationMessage>
             )) ||
               (hasValidationErrors(bindingValidations?.person_lookup_ssn) && (
-                <ComponentValidations validations={bindingValidations?.person_lookup_ssn} />
+                <ComponentValidations
+                  validations={bindingValidations?.person_lookup_ssn}
+                  node={node}
+                />
               ))}
           </Field>
           <div className={classes.nameLabel}>
@@ -257,7 +260,10 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               </ValidationMessage>
             )) ||
               (hasValidationErrors(bindingValidations?.person_lookup_name) && (
-                <ComponentValidations validations={bindingValidations?.person_lookup_name} />
+                <ComponentValidations
+                  validations={bindingValidations?.person_lookup_name}
+                  node={node}
+                />
               ))}
           </Field>
           <div className={classes.submit}>
