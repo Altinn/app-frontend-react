@@ -85,7 +85,6 @@ function RGPagination({ inTable = true }: RepeatingGroupPaginationProps) {
         pagesWithErrors={pagesWithErrors}
         onChange={() => onChange}
         setCurrentPage={setCurrentPage}
-        compact={isTablet}
         hideLabels={isMobile}
         size={isMini ? 'sm' : 'md'}
       />
@@ -96,7 +95,6 @@ type PaginationComponentProps = {
   nextTextKey: string;
   backTextKey: string;
   size: NonNullable<Parameters<typeof Pagination>[0]['data-size']>;
-  compact: boolean;
   hideLabels: boolean;
   currentPage: number;
   totalPages: number;
@@ -109,7 +107,6 @@ function PaginationComponent({
   nextTextKey,
   backTextKey,
   size,
-  compact,
   hideLabels,
   currentPage,
   totalPages,
