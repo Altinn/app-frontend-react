@@ -1,4 +1,5 @@
 import type { FileScanResult } from 'src/features/attachments/types';
+import type { LooseAutocomplete } from 'src/types';
 
 export interface IAltinnOrg {
   name: ITitle;
@@ -24,6 +25,7 @@ export interface IDisplayAttachment {
   name?: string;
   iconClass: string;
   grouping: string | undefined;
+  description: Partial<Record<LooseAutocomplete<'en' | 'nb' | 'nn'>, string>> | undefined;
   url?: string;
   dataType: string;
   tags?: string[];
@@ -53,7 +55,7 @@ export interface IData {
 
 export interface IDataType {
   id: string;
-  description?: string | null;
+  description?: Partial<Record<LooseAutocomplete<'en' | 'nb' | 'nn'>, string>> | null;
   allowedContentTypes: string[] | null;
   allowedContributers?: string[] | null;
   allowedContributors?: string[] | null;
@@ -265,10 +267,6 @@ export interface IVariable {
   key: string;
   dataSource: 'instanceContext' | 'applicationSettings' | 'dataModel.default' | `dataModel.${string}`;
   defaultValue?: string;
-}
-
-export interface IAttachmentGrouping {
-  [title: string]: IDisplayAttachment[];
 }
 
 export interface IApplicationSettings {
