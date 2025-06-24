@@ -140,9 +140,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return false;
   }
 
-  shouldRenderInAutomaticPDF(data: NodeData<Type>): boolean {
-    const item = data.layout;
-    return !(item && 'renderAsSummary' in item ? item.renderAsSummary : false);
+  shouldRenderInAutomaticPDF(layout: CompExternal<Type>): boolean {
+    return !('renderAsSummary' in layout ? layout.renderAsSummary : false);
   }
 
   /**
@@ -234,7 +233,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {
   readonly category = CompCategory.Action;
 
-  shouldRenderInAutomaticPDF(_data: NodeData<Type>): boolean {
+  shouldRenderInAutomaticPDF(_data: CompExternal<Type>): boolean {
     return false;
   }
 }

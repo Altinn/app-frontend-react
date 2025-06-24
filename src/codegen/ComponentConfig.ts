@@ -539,6 +539,7 @@ export class ComponentConfig {
         const baseState: ${BaseNodeData} = {
           type: 'node',
           id: props.id,
+          baseId: props.baseId,
           nodeType: '${this.type}',
           pageKey: props.pageKey,
           parentId: props.parentId,

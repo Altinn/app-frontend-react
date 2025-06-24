@@ -140,6 +140,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 }
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
+  const lookups = useLayoutLookups();
   const children = NodesInternal.useShallowSelector((state) =>
     Object.values(state.nodeData)
       .filter(
@@ -150,11 +151,9 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
           !isHidden(state, 'node', data.id) &&
           !pdfSettings?.excludedComponents.includes(data.id),
       )
-      .filter(<T extends CompTypes>(data: NodeData<T>) => {
-        const def = getComponentDef(data.nodeType);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return def.shouldRenderInAutomaticPDF(data as any);
-      })
+      .filter(<T extends CompTypes>(data: NodeData<T>) =>
+        getComponentDef(data.nodeType).shouldRenderInAutomaticPDF(lookups.getComponent(data.baseId) as never),
+      )
       .map((data) => data.id),
   );
 

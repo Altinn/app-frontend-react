@@ -10,7 +10,7 @@ import { GeneratorCondition, StageFormValidation } from 'src/utils/layout/genera
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
 import type { CompCategory } from 'src/layout/common';
-import type { CompIntermediate, TypesFromCategory } from 'src/layout/layout';
+import type { CompExternal, CompIntermediate, TypesFromCategory } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function StoreValidationsInNode() {
@@ -91,6 +91,6 @@ function useUpdatedValidations(validations: AnyValidation[], node: Node) {
   });
 }
 
-export function shouldValidateNode(item: CompIntermediate): boolean {
+export function shouldValidateNode(item: CompExternal | CompIntermediate): boolean {
   return !('renderAsSummary' in item && item.renderAsSummary);
 }

@@ -118,6 +118,7 @@ function AddRemoveNode<T extends CompTypes>({ node }: CommonProps<T>) {
   const stateFactoryProps = {
     parent,
     id: node.id,
+    baseId: node.baseId,
     parentId: parent instanceof LayoutNode ? parent.id : undefined,
     depth,
     rowIndex,

@@ -19,6 +19,7 @@ export interface BaseRow {
 export interface StateFactoryProps {
   pageKey: string;
   id: string;
+  baseId: string;
   parent: LayoutNode | LayoutPage;
   parentId: string | undefined;
   depth: number;
@@ -38,6 +39,7 @@ export interface BaseNodeData {
   type: 'node';
   pageKey: string;
   id: string;
+  baseId: string;
   nodeType: CompTypes;
   parentId: string | undefined; // String if parent is a node, undefined if parent is a page (on the top level)
   isValid: boolean; // False when page is not in the page order, and not a pdf page
