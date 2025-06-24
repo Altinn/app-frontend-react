@@ -1,7 +1,7 @@
 import React from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
-import { ErrorMessage, Heading, Table } from '@digdir/designsystemet-react';
+import { Heading, Table, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { LabelContent } from 'src/components/label/LabelContent';
@@ -31,6 +31,7 @@ import {
   SummaryFlexForContainer,
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import utilClasses from 'src/styles/utils.module.css';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
@@ -148,7 +149,7 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
         {title && (
           <caption className={classes.tableCaption}>
             <Heading
-              size='xs'
+              data-size='xs'
               level={4}
             >
               <Lang id={title} />
@@ -211,7 +212,7 @@ function SummaryGridRowRenderer(props: GridRowProps) {
           ))}
           {!pdfModeActive && row.header && !isSmall && (
             <Table.HeaderCell>
-              <span className={classes.visuallyHidden}>
+              <span className={utilClasses.visuallyHidden}>
                 <Lang id='general.edit' />
               </span>
             </Table.HeaderCell>
@@ -467,12 +468,15 @@ function SummaryCellWithComponent({
       <div className={cn({ [classes.errorMessage]: errors.length > 0 })} />
       {errors.length > 0 &&
         errors.map(({ message }) => (
-          <ErrorMessage key={message.key}>
+          <ValidationMessage
+            key={message.key}
+            data-size='sm'
+          >
             <Lang
               id={message.key}
               params={message.params}
             />
-          </ErrorMessage>
+          </ValidationMessage>
         ))}
     </CellComponent>
   );

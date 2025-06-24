@@ -1,20 +1,18 @@
 import React from 'react';
 import type { CSSProperties } from 'react';
 
-import { Card } from '@digdir/designsystemet-react';
-
+import { AppCard } from 'src/app-components/Card/Card';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { CardProvider } from 'src/layout/Cards/CardContext';
-import classes from 'src/layout/Cards/Cards.module.css';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { GenericComponent, GenericComponentByBaseId } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CardConfig } from 'src/layout/Cards/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type ICardsProps = PropsFromGenericComponent<'Cards'>;
@@ -23,124 +21,112 @@ function parseSize(size: string | undefined, defaultValue: string): string {
   return size && /^[0-9]+$/.test(size) ? `${size}px` : (size ?? defaultValue);
 }
 
+const colorVariantMap: Record<string, 'tinted' | 'default'> = {
+  neutral: 'default',
+  subtle: 'tinted',
+};
+
 export const Cards = ({ node }: ICardsProps) => {
   const { cards, minMediaHeight, minWidth, color, mediaPosition: _mediaPosition } = useNodeItem(node);
   const processedMinWidth = parseSize(minWidth, '250px');
   const processedMinMediaHeight = parseSize(minMediaHeight, '150px');
   const mediaPosition = _mediaPosition ?? 'top';
-  const canRender = useHasCapability('renderInCards');
-
   const cardContainer: CSSProperties = {
     display: 'grid',
     gap: '28px',
     gridTemplateColumns: `repeat(auto-fit, minmax(${processedMinWidth}, 1fr))`,
   };
-
   return (
     <ComponentStructureWrapper node={node}>
       <div style={cardContainer}>
         {cards.map((card, idx) => (
-          <Card
+          <AppCard
             key={idx}
-            color={color}
-            className={classes.card}
+            title={card.title && <Lang id={card.title} />}
+            description={card.description && <Lang id={card.description} />}
+            footer={card.footer && <Lang id={card.footer} />}
+            variant={colorVariantMap[color]}
+            mediaPosition={mediaPosition}
+            media={
+              card.media && (
+                <CardItem
+                  key={idx}
+                  baseComponentId={card.media}
+                  parentNode={node}
+                  isMedia={true}
+                  minMediaHeight={processedMinMediaHeight}
+                />
+              )
+            }
           >
-            {mediaPosition === 'top' && (
-              <Media
-                card={card}
-                node={node}
-                minMediaHeight={processedMinMediaHeight}
-              />
-            )}
-            {card.title && (
-              <Card.Header>
-                <Lang id={card.title} />
-              </Card.Header>
-            )}
-            {card.description && (
-              <Card.Content>
-                <Lang id={card.description} />
-              </Card.Content>
-            )}
-            {card.children && card.children.filter(canRender).length > 0 && (
+            <Flex
+              container
+              direction='row'
+              spacing={6}
+              item
+            >
               <Flex
                 container
-                item
-                direction='row'
+                alignItems='flex-start'
                 spacing={6}
+                item
               >
-                <Flex
-                  container
-                  alignItems='flex-start'
-                  item
-                  spacing={6}
-                >
-                  <CardProvider
-                    node={node}
-                    renderedInMedia={false}
-                  >
-                    {card.children.filter(canRender).map((childId, idx) => (
-                      <GenericComponentByBaseId
-                        key={idx}
-                        id={childId}
-                      />
-                    ))}
-                  </CardProvider>
-                </Flex>
+                {card?.children &&
+                  card.children?.length > 0 &&
+                  card.children?.filter(typedBoolean).map((childId, idx) => (
+                    <CardItem
+                      key={idx}
+                      baseComponentId={childId}
+                      parentNode={node}
+                      isMedia={false}
+                    />
+                  ))}
               </Flex>
-            )}
-            {card.footer && (
-              <Card.Footer>
-                <Lang id={card.footer} />
-              </Card.Footer>
-            )}
-            {mediaPosition === 'bottom' && (
-              <Media
-                card={card}
-                node={node}
-                minMediaHeight={processedMinMediaHeight}
-              />
-            )}
-          </Card>
+            </Flex>
+          </AppCard>
         ))}
       </div>
     </ComponentStructureWrapper>
   );
 };
 
-interface MediaProps {
-  card: CardConfig;
-  node: LayoutNode<'Cards'>;
-  minMediaHeight: string | undefined;
-}
+type CardItemProps = {
+  baseComponentId: string;
+  parentNode: LayoutNode<'Cards'>;
+  isMedia: boolean;
+  minMediaHeight?: string;
+};
 
-function Media({ card, node, minMediaHeight }: MediaProps) {
-  const id = useIndexedId(card.media);
+function CardItem({ baseComponentId, parentNode, isMedia, minMediaHeight }: CardItemProps) {
+  const id = useIndexedId(baseComponentId);
+  const itemNode = useNode(id);
   const canRenderInMedia = useHasCapability('renderInCardsMedia');
-  const mediaNode = useNode(id);
-  if (!mediaNode || !canRenderInMedia(card.media)) {
+  const canRenderInCard = useHasCapability('renderInCards');
+  if (!itemNode || (isMedia && !canRenderInMedia(baseComponentId)) || (!isMedia && !canRenderInCard(baseComponentId))) {
     return null;
   }
 
   return (
-    <Card.Media className={classes.cardMedia}>
-      <CardProvider
-        node={node}
-        renderedInMedia={true}
-        minMediaHeight={minMediaHeight}
-      >
+    <CardProvider
+      node={parentNode}
+      renderedInMedia={isMedia}
+      minMediaHeight={minMediaHeight}
+    >
+      {isMedia ? (
         <div
-          data-componentid={mediaNode.id}
-          data-componentbaseid={mediaNode.baseId}
+          data-componentid={id}
+          data-componentbaseid={baseComponentId}
         >
           <GenericComponent
-            node={mediaNode}
+            node={itemNode}
             overrideDisplay={{
               directRender: true,
             }}
           />
         </div>
-      </CardProvider>
-    </Card.Media>
+      ) : (
+        <GenericComponent node={itemNode} />
+      )}
+    </CardProvider>
   );
 }

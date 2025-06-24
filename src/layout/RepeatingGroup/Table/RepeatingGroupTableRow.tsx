@@ -6,7 +6,6 @@ import { PencilIcon, TrashIcon, XMarkOctagonFillIcon } from '@navikt/aksel-icons
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
-import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
@@ -384,9 +383,8 @@ function DeleteElement({
   children: React.ReactNode;
 }) {
   return (
-    <ConditionalWrapper
-      condition={Boolean(editForRow?.alertOnDelete)}
-      wrapper={(children) => (
+    <>
+      {editForRow?.alertOnDelete && (
         <DeleteWarningPopover
           placement='left'
           deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
@@ -394,15 +392,14 @@ function DeleteElement({
           onCancelClick={cancelChange}
           onPopoverDeleteClick={confirmChange}
           open={alertOpen}
+          popoverId='delete-warning-popover'
           setOpen={setAlertOpen}
-        >
-          {children}
-        </DeleteWarningPopover>
+        />
       )}
-    >
       <Button
         variant='tertiary'
         color='danger'
+        popovertarget='delete-warning-popover'
         disabled={isDeletingRow || disabled}
         onClick={() => handleDelete({ index, uuid })}
         aria-label={`${deleteButtonText}-${firstCellData}`}
@@ -415,7 +412,7 @@ function DeleteElement({
           aria-hidden='true'
         />
       </Button>
-    </ConditionalWrapper>
+    </>
   );
 }
 

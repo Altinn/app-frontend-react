@@ -1,14 +1,13 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { formatNumericText } from '@digdir/design-system-react';
-
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { evalFormatting } from 'src/layout/Input/formatting';
 import { NumberDef } from 'src/layout/Number/config.def.generated';
 import { NumberComponent } from 'src/layout/Number/NumberComponent';
 import { NumberSummary } from 'src/layout/Number/NumberSummary';
+import { formatNumericText } from 'src/utils/formattingUtils';
 import { useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';

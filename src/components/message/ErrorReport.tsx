@@ -1,19 +1,23 @@
 import React, { createContext, useContext } from 'react';
-import { Link } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import { ErrorSummary } from '@digdir/designsystemet-react';
+
 import { Flex } from 'src/app-components/Flex/Flex';
-import { PANEL_VARIANT } from 'src/app-components/Panel/constants';
-import { Panel } from 'src/app-components/Panel/Panel';
+import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthWrapper';
 import classes from 'src/components/message/ErrorReport.module.css';
+import { useAllAttachments } from 'src/features/attachments/hooks';
+import { FileScanResults } from 'src/features/attachments/types';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
+import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
+import type { UploadedAttachment } from 'src/features/attachments';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 
 export interface IErrorReportProps extends PropsWithChildren {
@@ -33,17 +37,18 @@ const ErrorReportContext = createContext(false);
 
 export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
   const hasErrorReport = useContext(ErrorReportContext);
+  const isMobile = useIsMobile();
   if (errors === undefined || hasErrorReport || !show) {
     return children;
   }
 
   return (
     <ErrorReportContext.Provider value={true}>
-      <div data-testid='ErrorReport'>
-        <Panel
-          title={<Lang id='form_filler.error_report_header' />}
-          variant={PANEL_VARIANT.Error}
-          isOnBottom
+      <FullWidthWrapper isOnBottom={true}>
+        <ErrorSummary
+          data-testid='ErrorReport'
+          className={classes.errorSummary}
+          data-size={isMobile ? 'md' : 'lg'}
         >
           <Flex
             container
@@ -55,18 +60,21 @@ export const ErrorReport = ({ children, errors, show }: IErrorReportProps) => {
               item
               size={{ xs: 12 }}
             >
-              <ul className={classes.errorList}>{errors}</ul>
+              <ErrorSummary.Heading>
+                <Lang id='form_filler.error_report_header' />
+              </ErrorSummary.Heading>
+              <ErrorSummary.List className={classes.errorList}>{errors}</ErrorSummary.List>
             </Flex>
             {children}
           </Flex>
-        </Panel>
-      </div>
+        </ErrorSummary>
+      </FullWidthWrapper>
     </ErrorReportContext.Provider>
   );
 };
 
 function ErrorReportListItem({ children }: PropsWithChildren) {
-  return <li style={{ listStyleImage: listStyleImg }}>{children}</li>;
+  return <ErrorSummary.Item style={{ listStyleImage: listStyleImg }}>{children}</ErrorSummary.Item>;
 }
 
 interface ErrorReportListProps {
@@ -76,6 +84,28 @@ interface ErrorReportListProps {
 
 export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
+  const allAttachments = useAllAttachments();
+
+  const infectedFileErrors: NodeRefValidation[] = Object.entries(allAttachments || {}).flatMap(
+    ([nodeId, attachments]) =>
+      (attachments || [])
+        .filter((attachment) => attachment.uploaded && attachment.data.fileScanResult === FileScanResults.Infected)
+        .map((attachment) => {
+          const uploadedAttachment = attachment as UploadedAttachment;
+          return {
+            nodeId,
+            source: 'Frontend',
+            code: 'InfectedFile',
+            dataElementId: uploadedAttachment.data.id,
+            message: {
+              key: 'general.wait_for_attachments_infected',
+              params: [uploadedAttachment.data.filename],
+            },
+            severity: 'error',
+            category: 0,
+          };
+        }),
+  );
 
   return (
     <>
@@ -86,6 +116,12 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
             params={error.message.params}
           />
         </ErrorReportListItem>
+      ))}
+      {infectedFileErrors.map((error) => (
+        <ErrorWithLink
+          key={`infected-${error.nodeId}`}
+          error={error}
+        />
       ))}
       {formErrors.map((error) => (
         <ErrorWithLink
@@ -121,9 +157,9 @@ export function ErrorListFromInstantiation({ error }: { error: unknown }) {
             params={[selectedParty?.name]}
           />{' '}
           (
-          <Link to='/party-selection/'>
+          <ErrorSummary.Link href='/party-selection/'>
             <Lang id='party_selection.change_party' />
-          </Link>
+          </ErrorSummary.Link>
           ).
         </span>
       </ErrorReportListItem>
