@@ -148,7 +148,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
           data.pageKey === pageKey &&
           data.parentId === undefined &&
           data.nodeType !== 'Subform' &&
-          !isHidden(state, 'node', data.id) &&
+          !isHidden(state, 'node', data.id, lookups) &&
           !pdfSettings?.excludedComponents.includes(data.id),
       )
       .filter(<T extends CompTypes>(data: NodeData<T>) =>

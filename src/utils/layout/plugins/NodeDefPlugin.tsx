@@ -1,6 +1,7 @@
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { SerializableSetting } from 'src/codegen/SerializableSetting';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
@@ -192,7 +193,7 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
  */
 export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
   claimChildren(props: DefPluginChildClaimerProps<Config>): void;
-  isChildHidden(state: DefPluginState<Config>, childId: string): boolean;
+  isChildHidden(state: DefPluginState<Config>, childId: string, lookups: LayoutLookups): boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
