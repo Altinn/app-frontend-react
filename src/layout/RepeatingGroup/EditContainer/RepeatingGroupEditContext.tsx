@@ -7,6 +7,7 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/Repeating
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import { isHidden, NodesInternal } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
 interface RepeatingGroupEditRowContext {
@@ -26,26 +27,58 @@ const { Provider, useCtx } = createContext<RepeatingGroupEditRowContext>({
 function useRepeatingGroupEditRowState(
   node: LayoutNode<'RepeatingGroup'>,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
-  const edit = useNodeItem(node, (i) => i.edit);
-  const lastPage = RepGroupHooks.useLastMultiPageIndex(node) ?? 0;
+  const edit = useNodeItem(node, (item) => item.edit);
   const multiPageEnabled = edit?.multiPage ?? false;
-  const [multiPageIndex, setMultiPageIndex] = useState(0);
+
+  const children = RepGroupHooks.useChildIdsWithMultiPage(node);
+
+  const hiddenState = NodesInternal.useMemoSelector((state) =>
+    children.map(({ id, multiPageIndex }) => ({
+      nodeId: id,
+      page: multiPageIndex,
+      hidden: isHidden(state, 'node', id),
+    })),
+  );
+
+  const visiblePages = [...new Set(hiddenState.filter(({ hidden }) => !hidden).map(({ page }) => page ?? 0))];
+  const firstVisiblePage = Math.min(...visiblePages);
+  const lastVisiblePage = Math.max(...visiblePages);
+
+  const [multiPageIndex, setMultiPageIndex] = useState(firstVisiblePage);
+
+  const findNextVisiblePage = useCallback(
+    (start: number, step: number): number | undefined => {
+      for (let page = start; step > 0 ? page <= lastVisiblePage : page >= firstVisiblePage; page += step) {
+        if (hiddenState.some((state) => state.page === page && !state.hidden)) {
+          return page;
+        }
+      }
+      return undefined;
+    },
+    [firstVisiblePage, hiddenState, lastVisiblePage],
+  );
 
   const nextMultiPage = useCallback(() => {
-    setMultiPageIndex((prev) => Math.min(prev + 1, lastPage));
-  }, [lastPage]);
+    const nextPage = findNextVisiblePage(multiPageIndex + 1, 1);
+    if (nextPage !== undefined) {
+      setMultiPageIndex(nextPage);
+    }
+  }, [findNextVisiblePage, multiPageIndex]);
 
   const prevMultiPage = useCallback(() => {
-    setMultiPageIndex((prev) => Math.max(prev - 1, 0));
-  }, []);
+    const prevPage = findNextVisiblePage(multiPageIndex - 1, -1);
+    if (prevPage !== undefined) {
+      setMultiPageIndex(prevPage);
+    }
+  }, [findNextVisiblePage, multiPageIndex]);
 
   return {
     multiPageEnabled,
     multiPageIndex,
     nextMultiPage,
     prevMultiPage,
-    hasNextMultiPage: multiPageEnabled && multiPageIndex < lastPage,
-    hasPrevMultiPage: multiPageEnabled && multiPageIndex > 0,
+    hasNextMultiPage: multiPageEnabled && multiPageIndex < lastVisiblePage,
+    hasPrevMultiPage: multiPageEnabled && multiPageIndex > firstVisiblePage,
     setMultiPageIndex,
   };
 }
