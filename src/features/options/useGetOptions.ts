@@ -8,10 +8,10 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery, useGetOptionsUrl } from 'src/features/options/useGetOptionsQuery';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useNodeOptions';
 import { useSourceOptions } from 'src/features/options/useSourceOptions';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { verifyAndDeduplicateOptions } from 'src/utils/options';
 import type { ExprValueArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -228,22 +228,19 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
 }
 
 export function useGetOptions(
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
+  baseComponentId: string,
   valueType: OptionsValueType,
 ): GetOptionsResult & SetOptionsResult {
-  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as
-    | IDataModelBindingsOptionsSimple
-    | undefined;
-
-  return useGetOptionsUsingDmb(node, valueType, dataModelBindings);
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId) as IDataModelBindingsOptionsSimple | undefined;
+  return useGetOptionsUsingDmb(baseComponentId, valueType, dataModelBindings);
 }
 
 export function useGetOptionsUsingDmb(
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
+  baseComponentId: string,
   valueType: OptionsValueType,
   dataModelBindings: IDataModelBindingsOptionsSimple | undefined,
 ): GetOptionsResult & SetOptionsResult {
-  const get = useNodeOptions(node);
+  const get = useOptionsFor(baseComponentId, valueType);
   const set = useSetOptions(valueType, dataModelBindings, get.options);
 
   return useMemo(() => ({ ...get, ...set }), [get, set]);
