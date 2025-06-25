@@ -7,7 +7,6 @@ import { EffectStoreLabel } from 'src/features/options/effects/EffectStoreLabel'
 import { EffectStoreLabelInGroup } from 'src/features/options/effects/EffectStoreLabelInGroup';
 import { useFetchOptions, useFilteredAndSortedOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition, StageFormValidation } from 'src/utils/layout/generator/GeneratorStages';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsForGroupCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -15,22 +14,11 @@ import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
 import type { IDataModelBindingsForGroupMultiselect } from 'src/layout/MultipleSelect/config.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-interface GeneratorOptionProps {
+interface RunOptionEffectsProps {
   valueType: OptionsValueType;
 }
 
-export function RunOptionsEffects(props: GeneratorOptionProps) {
-  return (
-    <GeneratorCondition
-      stage={StageFormValidation}
-      mustBeAdded='parent'
-    >
-      <RunOptionsEffectsWorker {...props} />
-    </GeneratorCondition>
-  );
-}
-
-function RunOptionsEffectsWorker({ valueType }: GeneratorOptionProps) {
+export function RunOptionsEffects({ valueType }: RunOptionEffectsProps) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
