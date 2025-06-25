@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { useLayoutLookups, useLayoutLookupsLax } from 'src/features/form/layout/LayoutsContext';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation/index';
 import { selectValidations } from 'src/features/validation/utils';
 import { isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
@@ -215,7 +215,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       },
       useGetNodesWithErrors: () => {
         const zustand = store.useLaxStore();
-        const lookups = useLayoutLookups();
+        const lookups = useLayoutLookupsLax();
         return useCallback(
           (mask, severity, includeHidden = false) => {
             if (zustand === ContextNotProvided) {
@@ -274,7 +274,7 @@ interface GetValidationsProps {
   mask: NodeVisibility;
   severity?: ValidationSeverity;
   includeHidden?: boolean;
-  lookups: LayoutLookups;
+  lookups: LayoutLookups | undefined;
 }
 
 function getValidations({
@@ -290,7 +290,7 @@ function getValidations({
     return emptyArray;
   }
 
-  if (!includeHidden && isHidden(state, 'node', id, lookups, hiddenOptions)) {
+  if (!includeHidden && lookups && isHidden(state, 'node', id, lookups, hiddenOptions)) {
     return emptyArray;
   }
 
