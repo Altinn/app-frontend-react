@@ -19,12 +19,6 @@ export function useOptionsFor<T extends CompWithBehavior<'canHaveOptions'>>(
   const node = useNode(nodeId) as LayoutNode<T>;
   const item = useIntermediateItem(baseComponentId) as CompIntermediateExact<T>;
   const { unsorted, isFetching } = useFetchOptions({ item });
-  const { options } = useFilteredAndSortedOptions({
-    unsorted,
-    valueType,
-    node,
-    item,
-  });
-
+  const { options } = useFilteredAndSortedOptions({ unsorted, valueType, node, item });
   return { isFetching, options };
 }
