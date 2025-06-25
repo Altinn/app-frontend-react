@@ -471,7 +471,7 @@ export class ComponentConfig {
     ) {
       additionalMethods.push(
         `// This component has data model bindings, so it should be able to produce a display string
-        abstract useDisplayData(nodeId: string): string;`,
+        abstract useDisplayData(baseComponentId: string): string;`,
       );
       implementsInterfaces.push(`${DisplayData}`);
     }
