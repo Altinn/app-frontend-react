@@ -14,7 +14,7 @@ import type { IOptionInternal } from 'src/features/options/castOptionsToStrings'
 import type { IMapping, IQueryParameters } from 'src/layout/common.generated';
 
 export const useGetOptionsQuery = (
-  url: string | undefined,
+  url: string,
 ): UseQueryResult<{ data: IOptionInternal[]; headers: AxiosResponse['headers'] } | null> => {
   const { fetchOptions } = useAppQueries();
   return useQuery({
@@ -28,7 +28,7 @@ export const useGetOptionsQuery = (
 
           return {
             headers: result.headers,
-            data: castOptionsToStrings(result?.data),
+            data: castOptionsToStrings(result.data),
           };
         }
       : skipToken,

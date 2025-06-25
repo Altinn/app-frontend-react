@@ -116,20 +116,44 @@ function useOptionsUrl(item: CompIntermediateExact<CompWithBehavior<'canHaveOpti
 
 export function useFetchOptions({ item }: FetchOptionsProps) {
   const { options, optionsId, source } = item;
-  const url = useOptionsUrl(item);
 
-  const sourceOptions = useSourceOptions({ source });
-  const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const { data, isFetching, error } = useGetOptionsQuery(url);
-  useLogFetchError(error, item);
+  // Configuration cannot change during runtime, so breaking the rule of hooks here is acceptable. We do this to
+  // avoid gathering lots of data for option sources we don't plan on using. It's always one of these
+  // three (source, optionsId or static options).
 
-  const downstreamParameters: string | undefined = data?.headers['altinn-downstreamparameters'];
+  if (source) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const unsorted = useSourceOptions(source);
+    return { unsorted, isFetching: false, downstreamParameters: undefined };
+  }
 
-  return {
-    unsorted: sourceOptions ?? data?.data ?? staticOptions ?? defaultOptions,
-    isFetching,
-    downstreamParameters,
-  };
+  if (optionsId) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const url = useOptionsUrl(item);
+
+    if (!url) {
+      throw new Error(`Failed to fetch options for node ${item.id}: Unable to construct URL`);
+    }
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const queryResult = useGetOptionsQuery(url);
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLogFetchError(queryResult.error, item);
+
+    return {
+      unsorted: queryResult.data?.data ?? defaultOptions,
+      isFetching: queryResult.isFetching,
+      downstreamParameters: queryResult.data?.headers['altinn-downstreamparameters'],
+    };
+  }
+
+  if (options) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const unsorted = useMemo(() => castOptionsToStrings(options), [options]);
+    return { unsorted, isFetching: false, downstreamParameters: undefined };
+  }
+
+  return { unsorted: defaultOptions, isFetching: false, downstreamParameters: undefined };
 }
 
 // Log error if fetching options failed
