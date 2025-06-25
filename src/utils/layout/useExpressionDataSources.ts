@@ -41,7 +41,6 @@ export interface ExpressionDataSources {
   dataModelNames: string[];
   formDataSelector: FormDataSelector;
   attachmentsSelector: AttachmentsSelector;
-  optionsSelector: NodeOptionsSelector;
   langToolsSelector: (dataModelPath: IDataModelReference | undefined) => IUseLanguage;
   currentLanguage: string;
   defaultDataType: string | null;
