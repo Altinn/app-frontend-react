@@ -116,12 +116,10 @@ function mutateMapping(mapping: IMapping | undefined, parts: ReturnType<typeof u
     return undefined;
   }
   const clone = structuredClone(mapping);
-  for (const { index } of parts) {
-    // Pages start at 1, top-level nodes at 2, so for nodes inside repeating groups to start at 0 we subtract 2.
-    const depthMarker = index - 2;
-    for (const key of Object.keys(mapping)) {
-      const value = mapping[key];
-      const newKey = key.replace(`[{${depthMarker}}]`, `[${index}]`);
+  for (const [markerIndex, { index: rowIndex }] of parts.entries()) {
+    for (const key of Object.keys(clone)) {
+      const value = clone[key];
+      const newKey = key.replace(`[{${markerIndex}}]`, `[${rowIndex}]`);
       delete clone[key];
       clone[newKey] = value;
     }
