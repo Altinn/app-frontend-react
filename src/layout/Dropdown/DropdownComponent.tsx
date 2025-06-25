@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { Combobox } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
@@ -18,7 +18,7 @@ import classes from 'src/layout/Dropdown/DropdownComponent.module.css';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { optionSearchFilter } from 'src/utils/options';
+import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
@@ -85,38 +85,41 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             </DeleteWarningPopover>
           )}
         >
-          <Combobox
+          <EXPERIMENTAL_Suggestion
             id={id}
-            filter={optionSearchFilter}
-            size='sm'
-            hideLabel={true}
+            filter={optionFilter}
+            data-size='sm'
             value={selectedValues}
-            readOnly={readOnly}
-            onValueChange={handleChange}
+            onValueChange={(options) => handleChange(options.map((o) => o.value))}
             onBlur={debounce}
-            error={!isValid}
-            label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-            aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+            name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={cn(comboboxClasses.container, { [classes.readOnly]: readOnly })}
             style={{ width: '100%' }}
           >
-            <Combobox.Empty>
-              <Lang id='form_filler.no_options_found' />
-            </Combobox.Empty>
-            {options.map((option) => (
-              <Combobox.Option
-                key={option.value}
-                value={option.value}
-                description={option.description ? langAsString(option.description) : undefined}
-                displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
-              >
-                <span>
-                  <wbr />
-                  <Lang id={option.label} />
-                </span>
-              </Combobox.Option>
-            ))}
-          </Combobox>
+            <EXPERIMENTAL_Suggestion.Input
+              readOnly={readOnly}
+              aria-invalid={!isValid}
+            />
+            <EXPERIMENTAL_Suggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
+            <EXPERIMENTAL_Suggestion.List>
+              <EXPERIMENTAL_Suggestion.Empty>
+                <Lang id='form_filler.no_options_found' />
+              </EXPERIMENTAL_Suggestion.Empty>
+              {options.map((option) => (
+                <EXPERIMENTAL_Suggestion.Option
+                  key={option.value}
+                  value={option.value}
+                  label={langAsString(option.label)}
+                >
+                  <span>
+                    <wbr />
+                    <Lang id={option.label} />
+                    {option.description && <Lang id={option.description} />}
+                  </span>
+                </EXPERIMENTAL_Suggestion.Option>
+              ))}
+            </EXPERIMENTAL_Suggestion.List>
+          </EXPERIMENTAL_Suggestion>
         </ConditionalWrapper>
       </ComponentStructureWrapper>
     </Label>

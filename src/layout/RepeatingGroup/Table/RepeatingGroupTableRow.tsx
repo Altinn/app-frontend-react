@@ -392,14 +392,14 @@ function DeleteElement({
           onCancelClick={cancelChange}
           onPopoverDeleteClick={confirmChange}
           open={alertOpen}
-          popoverId='delete-warning-popover'
+          popoverId={`${uuid}delete-warning-popover`}
           setOpen={setAlertOpen}
         />
       )}
       <Button
         variant='tertiary'
         color='danger'
-        popovertarget='delete-warning-popover'
+        popovertarget={`${uuid}delete-warning-popover`}
         disabled={isDeletingRow || disabled}
         onClick={() => handleDelete({ index, uuid })}
         aria-label={`${deleteButtonText}-${firstCellData}`}
