@@ -424,6 +424,7 @@ describe('Summary', () => {
          * when there are errors on a previous page.
          */
         cy.gotoNavPage('summary');
+        cy.findByText('Er fordelingen av studielånsgjeld verifisert?').should('be.visible');
         cy.findByRole('button', { name: /Neste/ }).click();
         if (config.page === 'current') {
           cy.navPage('grid').should('have.attr', 'aria-current', 'page');
