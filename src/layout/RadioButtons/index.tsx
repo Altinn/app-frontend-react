@@ -4,7 +4,7 @@ import type { JSX } from 'react';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import { useOptionsFor } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useEmptyFieldValidationOnlyOneBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';

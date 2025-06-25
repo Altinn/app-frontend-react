@@ -3,7 +3,7 @@ import React from 'react';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useOptionsFor } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import classes from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';

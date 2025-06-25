@@ -4,7 +4,7 @@ import { Paragraph } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
-import { useOptionsFor } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';

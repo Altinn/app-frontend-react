@@ -8,7 +8,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery, useGetOptionsUrl } from 'src/features/options/useGetOptionsQuery';
-import { useOptionsFor } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useSourceOptions } from 'src/features/options/useSourceOptions';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
@@ -18,7 +18,6 @@ import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediateExact, CompWithBehavior } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type OptionsValueType = 'single' | 'multi';
 
@@ -29,7 +28,6 @@ interface FetchOptionsProps {
 interface FilteredAndSortedOptionsProps {
   unsorted: IOptionInternal[];
   valueType: OptionsValueType;
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
@@ -130,20 +128,20 @@ export function useFetchOptions({ item }: FetchOptionsProps) {
   if (optionsId) {
     // eslint-disable-next-line react-hooks/rules-of-hooks
     const url = useOptionsUrl(item);
-
     if (!url) {
       throw new Error(`Failed to fetch options for node ${item.id}: Unable to construct URL`);
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const queryResult = useGetOptionsQuery(url);
+    const { error, isFetching, data } = useGetOptionsQuery(url);
+
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useLogFetchError(queryResult.error, item);
+    useLogFetchError(error, item);
 
     return {
-      unsorted: queryResult.data?.data ?? defaultOptions,
-      isFetching: queryResult.isFetching,
-      downstreamParameters: queryResult.data?.headers['altinn-downstreamparameters'],
+      isFetching,
+      unsorted: data?.data ?? defaultOptions,
+      downstreamParameters: data?.headers['altinn-downstreamparameters'],
     };
   }
 
@@ -173,15 +171,16 @@ function useLogFetchError(error: Error | null, item: CompIntermediateExact<CompW
   }, [error, item]);
 }
 
-export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }: FilteredAndSortedOptionsProps) {
-  const sortOrder = item.sortOrder;
+export function useFilteredAndSortedOptions({ unsorted, valueType, item }: FilteredAndSortedOptionsProps) {
+  const { id, sortOrder, optionFilter, dataModelBindings } = item;
   const preselected = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
-  const language = useLanguage();
-  const langAsString = language.langAsString;
+  const langAsString = useLanguage().langAsString;
   const selectedLanguage = useCurrentLanguage();
-  const optionFilter = item.optionFilter;
-  const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
-  const selectedValues = useSetOptions(valueType, dataModelBindings, unsorted).selectedValues;
+  const selectedValues = useSetOptions(
+    valueType,
+    dataModelBindings as IDataModelBindingsOptionsSimple | undefined,
+    unsorted,
+  ).selectedValues;
   const dataSources = useExpressionDataSources(optionFilter);
 
   return useMemo(() => {
@@ -206,7 +205,7 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
         );
         if (!keep && selectedValues.includes(option.value)) {
           window.logWarnOnce(
-            `Node '${node.id}': Option with value "${option.value}" was selected, but the option filter ` +
+            `Node '${id}': Option with value "${option.value}" was selected, but the option filter ` +
               `excludes it. This will cause the option to be deselected. If this was unintentional, add a check ` +
               `for the currently selected option in your optionFilter expression.`,
           );
@@ -238,12 +237,12 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
 
     return { options, preselectedOption };
   }, [
+    id,
     unsorted,
     valueType,
     optionFilter,
     preselected,
     sortOrder,
-    node,
     dataSources,
     selectedValues,
     langAsString,

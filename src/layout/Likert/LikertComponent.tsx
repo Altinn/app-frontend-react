@@ -9,7 +9,7 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Description } from 'src/components/form/Description';
 import { getDescriptionId, getLabelId } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
-import { useOptionsFor } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';

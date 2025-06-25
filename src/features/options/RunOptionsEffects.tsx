@@ -26,12 +26,7 @@ export function RunOptionsEffects({ valueType }: RunOptionEffectsProps) {
     | IDataModelBindingsForGroupCheckbox
     | IDataModelBindingsForGroupMultiselect;
   const { unsorted, isFetching, downstreamParameters } = useFetchOptions({ item });
-  const { options, preselectedOption } = useFilteredAndSortedOptions({
-    unsorted,
-    valueType,
-    node,
-    item,
-  });
+  const { options, preselectedOption } = useFilteredAndSortedOptions({ unsorted, valueType, item });
 
   if (isFetching) {
     // No need to run effects while fetching or if the data has not been set yet
