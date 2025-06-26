@@ -6,6 +6,7 @@ import { FrontendValidationSource, ValidationMask } from 'src/features/validatio
 import { selectValidations } from 'src/features/validation/utils';
 import { isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type {
   AnyValidation,
@@ -180,15 +181,19 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
               severity?: ValidationSeverity,
               includeHidden: boolean = false,
             ) =>
-            (state: NodesContext) =>
-              getValidations({
+            (state: NodesContext) => {
+              const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
+              const { baseComponentId } = splitDashedKey(id);
+              return getValidations({
                 state,
-                id: typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id,
+                id,
+                baseId: baseComponentId,
                 mask,
                 severity,
                 includeHidden,
                 lookups,
-              }),
+              });
+            },
         }) satisfies ValidationsSelector;
       },
       useLaxValidationsSelector: () => {
@@ -202,15 +207,19 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
               severity?: ValidationSeverity,
               includeHidden: boolean = false,
             ) =>
-            (state: NodesContext) =>
-              getValidations({
+            (state: NodesContext) => {
+              const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
+              const { baseComponentId } = splitDashedKey(id);
+              return getValidations({
                 state,
-                id: typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id,
+                id,
+                baseId: baseComponentId,
                 mask,
                 severity,
                 includeHidden,
                 lookups,
-              }),
+              });
+            },
         }) satisfies ValidationsSelector;
       },
       useAllValidations: (mask, severity, includeHidden) => {
