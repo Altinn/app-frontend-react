@@ -1,11 +1,10 @@
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getComponentDef } from 'src/layout';
-import { useDataModelLocationForNode } from 'src/utils/layout/DataModelLocation';
+import { useCurrentDataModelLocation, useDataModelLocationForNode } from 'src/utils/layout/DataModelLocation';
 import { useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
 import { useDataModelBindingsFor, useIntermediateItem } from 'src/utils/layout/hooks';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
 import { typedBoolean } from 'src/utils/typing';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
@@ -25,9 +24,8 @@ export function useNodeItem(node: LayoutNode, selector: never): unknown {
   const intermediate = useIntermediateItem(node.baseId);
   const location = useDataModelLocationForNode(node.id);
   const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const props = useExpressionResolverProps(`Invalid expression for ${node?.id}`, intermediate, dataSources) as any;
-  const resolved = node?.def.evalExpressions(props);
+  const props = useExpressionResolverProps(`Invalid expression for ${node?.id}`, intermediate, dataSources);
+  const resolved = node?.def.evalExpressions(props as never);
 
   if (!resolved) {
     return undefined;
@@ -37,15 +35,13 @@ export function useNodeItem(node: LayoutNode, selector: never): unknown {
   return selector ? (selector as any)(resolved) : resolved;
 }
 
-export function useNodeItemWhenType<T extends CompTypes>(nodeId: string, type: T): CompInternal<T> {
-  const { baseComponentId } = nodeId ? splitDashedKey(nodeId) : { baseComponentId: undefined };
+export function useNodeItemWhenType<T extends CompTypes>(baseComponentId: string, type: T): CompInternal<T> {
   const intermediate = useIntermediateItem(baseComponentId);
-  const location = useDataModelLocationForNode(nodeId);
+  const location = useCurrentDataModelLocation();
   const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const props = useExpressionResolverProps(`Invalid expression for ${nodeId}`, intermediate, dataSources) as any;
+  const props = useExpressionResolverProps(`Invalid expression for ${baseComponentId}`, intermediate, dataSources);
   const def = getComponentDef(type);
-  return def.evalExpressions(props) as CompInternal<T>;
+  return def.evalExpressions(props as never) as CompInternal<T>;
 }
 
 const emptyArray: LayoutNode[] = [];

@@ -142,7 +142,13 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return emptyArray;
           }
-          return getValidations({ state, id: node.id, mask: showAll ? 'showAll' : 'visible', lookups });
+          return getValidations({
+            state,
+            id: node.id,
+            baseId: node.baseId,
+            mask: showAll ? 'showAll' : 'visible',
+            lookups,
+          });
         });
       },
       useVisibleValidationsDeep: (node, mask, includeSelf, restriction, severity) => {
@@ -151,7 +157,16 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           if (!node) {
             return emptyArray;
           }
-          return getRecursiveValidations({ state, id: node.id, mask, severity, includeSelf, restriction, lookups });
+          return getRecursiveValidations({
+            state,
+            id: node.id,
+            baseId: node.baseId,
+            mask,
+            severity,
+            includeSelf,
+            restriction,
+            lookups,
+          });
         });
       },
       useValidationsSelector: () => {
@@ -204,9 +219,17 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           const out: NodeRefValidation[] = [];
           for (const nodeData of Object.values(state.nodeData)) {
             const id = nodeData.id;
-            const validations = getValidations({ state, id, mask, severity, includeHidden, lookups });
+            const validations = getValidations({
+              state,
+              id,
+              baseId: nodeData.baseId,
+              mask,
+              severity,
+              includeHidden,
+              lookups,
+            });
             for (const validation of validations) {
-              out.push({ ...validation, nodeId: id });
+              out.push({ ...validation, nodeId: id, baseComponentId: nodeData.baseId });
             }
           }
 
@@ -229,7 +252,16 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             const outNodes: string[] = [];
             const outValidations: AnyValidation[] = [];
             for (const id of Object.keys(state.nodeData)) {
-              const validations = getValidations({ state, id, mask, severity, includeHidden, lookups });
+              const data = state.nodeData[id];
+              const validations = getValidations({
+                state,
+                id,
+                baseId: data.baseId,
+                mask,
+                severity,
+                includeHidden,
+                lookups,
+              });
               if (validations.length > 0) {
                 outNodes.push(id);
                 outValidations.push(...validations);
@@ -253,7 +285,14 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             }
 
             const id = nodeData.id;
-            const validations = getValidations({ state, id, mask: 'visible', severity: 'error', lookups });
+            const validations = getValidations({
+              state,
+              id,
+              baseId: nodeData.baseId,
+              mask: 'visible',
+              severity: 'error',
+              lookups,
+            });
             for (const validation of validations) {
               if (validation.source === FrontendValidationSource.EmptyField) {
                 return true;
@@ -271,6 +310,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
 interface GetValidationsProps {
   state: NodesContext;
   id: string;
+  baseId: string;
   mask: NodeVisibility;
   severity?: ValidationSeverity;
   includeHidden?: boolean;
@@ -317,7 +357,7 @@ export function getRecursiveValidations(props: GetDeepValidationsProps): NodeRef
   if (props.includeSelf) {
     const nodeValidations = getValidations(props);
     for (const validation of nodeValidations) {
-      out.push({ ...validation, nodeId: props.id });
+      out.push({ ...validation, nodeId: props.id, baseComponentId: props.baseId });
     }
   }
 
