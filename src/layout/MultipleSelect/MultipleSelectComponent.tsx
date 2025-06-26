@@ -62,16 +62,16 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     changeMessageGenerator,
   );
 
-  // // return a new array of objects with value and label properties without changing the selectedValues array
-  // function formatSelectedValues(
-  //   selectedValues: string[],
-  //   options: { value: string; label: string }[],
-  // ): { value: string; label: string }[] {
-  //   return selectedValues.map((value) => {
-  //     const option = options.find((o) => o.value === value);
-  //     return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
-  //   });
-  // }
+  // return a new array of objects with value and label properties without changing the selectedValues array
+  function formatSelectedValues(
+    selectedValues: string[],
+    options: { value: string; label: string }[],
+  ): { value: string; label: string }[] {
+    return selectedValues.map((value) => {
+      const option = options.find((o) => o.value === value);
+      return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
+    });
+  }
 
   const [componentKey, setComponentKey] = React.useState(0);
 
@@ -84,6 +84,8 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
   if (isFetching) {
     return <AltinnSpinner />;
   }
+
+  console.log('selectedValues', selectedValues);
 
   return (
     <Field style={{ width: '100%' }}>
@@ -113,11 +115,11 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
             key={componentKey}
             id={id}
             data-testid='multiple-select-component'
+            multiple
             filter={optionFilter}
             data-size='sm'
-            // value={formatSelectedValues(selectedValues, options)}
-            value={selectedValues}
-            multiple
+            value={formatSelectedValues(selectedValues, options)}
+            // value={selectedValues}
             onValueChange={(options) => handleChange(options.map((o) => o.value))}
             onBlur={debounce}
           >

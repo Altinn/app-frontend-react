@@ -54,6 +54,17 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
     changeMessageGenerator,
   );
 
+  // return a new array of objects with value and label properties without changing the selectedValues array
+  function formatSelectedValues(
+    selectedValues: string[],
+    options: { value: string; label: string }[],
+  ): { value: string; label: string }[] {
+    return selectedValues.map((value) => {
+      const option = options.find((o) => o.value === value);
+      return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
+    });
+  }
+
   if (isFetching) {
     return <AltinnSpinner />;
   }
@@ -89,7 +100,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             id={id}
             filter={optionFilter}
             data-size='sm'
-            value={selectedValues}
+            value={formatSelectedValues(selectedValues, options)}
             onValueChange={(options) => handleChange(options.map((o) => o.value))}
             onBlur={debounce}
             name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
