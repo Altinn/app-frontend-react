@@ -6,7 +6,7 @@ import { canBeExpression } from 'src/features/expressions/validation';
 import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeItemIfType } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -18,12 +18,12 @@ interface Props {
 export function NodeInspectorTextResourceBindings({ node, textResourceBindings }: Props) {
   const textResources = useTextResources();
   const { langAsString } = useLanguage();
-  const item = useNodeItem(node);
+  const item = useNodeItemIfType(node.baseId, 'RepeatingGroup');
   const firstRowExpr = RepGroupHooks.useRowWithExpressions(node.isType('RepeatingGroup') ? node : undefined, 'first');
 
   let actualTextResourceBindings = textResourceBindings || {};
   let isRepGroup = false;
-  if (item.type === 'RepeatingGroup') {
+  if (item) {
     // Text resource bindings are resolved per-row for repeating groups. We'll show the
     // first row here, and inform the user.
     isRepGroup = true;

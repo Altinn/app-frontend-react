@@ -61,12 +61,12 @@ function evalBool({ expr, defaultValue = false, dataSources, groupBinding, rowIn
 }
 
 export const RepGroupHooks = {
-  useAllBaseRows(node: LayoutNode<'RepeatingGroup'> | undefined) {
-    const groupBinding = useDataModelBindingsFor(node?.baseId, 'RepeatingGroup')?.group;
+  useAllBaseRows(node: LayoutNode<'RepeatingGroup'>) {
+    const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup')?.group;
     return FD.useFreshRows(groupBinding);
   },
 
-  useAllRowsWithHidden(node: LayoutNode<'RepeatingGroup'> | undefined): RepGroupRow[] {
+  useAllRowsWithHidden(node: LayoutNode<'RepeatingGroup'>): RepGroupRow[] {
     const component = useExternalItem(node?.baseId, 'RepeatingGroup');
     const groupBinding = useDataModelBindingsFor(node?.baseId, 'RepeatingGroup')?.group;
     const dataSources = useExpressionDataSources(component?.hiddenRow);
@@ -134,7 +134,7 @@ export const RepGroupHooks = {
   },
 
   useRowWithExpressions(
-    node: LayoutNode<'RepeatingGroup'> | undefined,
+    node: LayoutNode<'RepeatingGroup'>,
     _row: 'first' | { uuid: string } | { index: number },
   ): RepGroupRowWithExpressions | undefined {
     const component = useExternalItem(node?.baseId, 'RepeatingGroup');

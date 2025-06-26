@@ -141,8 +141,8 @@ function ExpandArray(props: { path: string[]; property: string; elements: unknow
 
 export function NodeInspectorDataField({ path, property, value: inputValue }: NodeInspectorDataFieldParams) {
   const { node } = useNodeInspectorContext();
-  const firstRowExpr = RepGroupHooks.useRowWithExpressions(node?.isType('RepeatingGroup') ? node : undefined, 'first');
-  const itemWithExpressions = useIntermediateItem(node?.baseId);
+  const firstRowExpr = RepGroupHooks.useRowWithExpressions(node.isType('RepeatingGroup') ? node : undefined, 'first');
+  const itemWithExpressions = useIntermediateItem(node.baseId);
 
   let value = inputValue;
   const preEvaluatedValue = dot.pick(path.join('.'), itemWithExpressions);

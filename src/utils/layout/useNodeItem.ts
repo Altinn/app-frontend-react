@@ -35,12 +35,68 @@ export function useNodeItem(node: LayoutNode, selector: never): unknown {
   return selector ? (selector as any)(resolved) : resolved;
 }
 
-export function useNodeItemWhenType<T extends CompTypes>(baseComponentId: string, type: T): CompInternal<T> {
+/**
+ * This evaluates all expressions for a given component configuration. If the type is not correct, things will crash.
+ * @see useNodeItemIfType Use this one if you only want to evaluate expressions _if_ the type is the expected one.
+ */
+export function useNodeItemWhenType<T extends CompTypes>(
+  baseComponentId: string,
+  type: T | ((type: CompTypes) => boolean),
+): CompInternal<T> {
   const intermediate = useIntermediateItem(baseComponentId);
+  if (
+    !intermediate ||
+    (typeof type === 'string' && intermediate.type !== type) ||
+    (typeof type === 'function' && !type(intermediate.type))
+  ) {
+    throw new Error(`Unexpected type for ${baseComponentId}: ${intermediate?.type} (expected ${type})`);
+  }
   const location = useCurrentDataModelLocation();
   const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
   const props = useExpressionResolverProps(`Invalid expression for ${baseComponentId}`, intermediate, dataSources);
-  const def = getComponentDef(type);
+  const def = getComponentDef(intermediate.type);
+  return def.evalExpressions(props as never) as CompInternal<T>;
+}
+
+/**
+ * This evaluates all expressions for a given component configuration, but only when the
+ * target component is the given type.
+ */
+export function useNodeItemIfType<T extends CompTypes>(
+  baseComponentId: string,
+  type: T | ((type: CompTypes) => boolean),
+): CompInternal<T> | undefined {
+  const intermediate = useIntermediateItem(baseComponentId);
+  if (
+    !intermediate ||
+    (typeof type === 'string' && intermediate.type !== type) ||
+    (typeof type === 'function' && !type(intermediate.type))
+  ) {
+    return undefined;
+  }
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const location = useCurrentDataModelLocation();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const props = useExpressionResolverProps(`Invalid expression for ${baseComponentId}`, intermediate, dataSources);
+  const def = getComponentDef(intermediate.type);
+  return def.evalExpressions(props as never) as CompInternal<T>;
+}
+
+/**
+ * This evaluates all expressions for a given component configuration, but only when the
+ * target component is the given type.
+ */
+export function useNodeItemFor<T extends CompTypes = CompTypes>(baseComponentId: string): CompInternal<T> {
+  const intermediate = useIntermediateItem(baseComponentId);
+  if (!intermediate) {
+    throw new Error(`No component configuration found for ${baseComponentId}`);
+  }
+  const location = useCurrentDataModelLocation();
+  const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
+  const props = useExpressionResolverProps(`Invalid expression for ${baseComponentId}`, intermediate, dataSources);
+  const def = getComponentDef(intermediate.type);
   return def.evalExpressions(props as never) as CompInternal<T>;
 }
 
@@ -69,8 +125,8 @@ type NodeFormData<N extends LayoutNode | undefined> = N extends undefined
   : IComponentFormData<TypeFromNode<Exclude<N, undefined>>>;
 
 const emptyObject = {};
-export function useNodeFormData<N extends LayoutNode | undefined>(node: N): NodeFormData<N> {
-  const dataModelBindings = useDataModelBindingsFor(node?.baseId) as IDataModelBindings<TypeFromNode<N>> | undefined;
+export function useNodeFormData<N extends LayoutNode>(node: N): NodeFormData<N> {
+  const dataModelBindings = useDataModelBindingsFor(node.baseId) as IDataModelBindings<TypeFromNode<N>>;
   return FD.useDebouncedSelect((pick) => getNodeFormDataInner(dataModelBindings, pick)) as NodeFormData<N>;
 }
 
