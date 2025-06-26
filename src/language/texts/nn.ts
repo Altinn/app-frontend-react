@@ -70,6 +70,12 @@ export function nn() {
     'form_filler.file_uploader_list_header_name': 'Namn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lasta',
+    'form_filler.file_uploader_status_scanning': 'Skannar...',
+    'form_filler.file_uploader_status_infected': 'Infisert',
+    'form_filler.file_uploader_infected_file_alert':
+      'Fila {0} er infisert med skadeleg programvare og kan ikkje brukast.',
+    'form_filler.file_uploader_infected_file_action': 'Last opp ei rein fil.',
+    'form_filler.file_uploader_remove_infected_files': 'Fjern infiserte filer før innsending.',
     'form_filler.file_uploader_list_header_delete_sr': 'Slett',
     'form_filler.file_uploader_max_size_mb': 'Maks filstorleik {0} MB',
     'form_filler.file_uploader_upload': 'Last opp fil',
@@ -179,6 +185,8 @@ export function nn() {
     'general.value': 'Verdi',
     'general.version': 'Versjon',
     'general.wait_for_attachments': 'Vent litt, vi prosesserer vedlegg',
+    'general.wait_for_attachments_infected': 'Fjern infiserte filer før du held fram',
+    'general.wait_for_attachments_scanning': 'Skannar filer for skadeleg programvare...',
     'general.part_of_form_completed':
       'Denne delen av skjemaet er ikkje tilgjengeleg. Du kan ikkje gjere endringar her no',
     'general.invalid_task_id': 'Denne delen av skjemaet finst ikkje.',
@@ -189,9 +197,8 @@ export function nn() {
     'iframe_component.unsupported_browser_title': 'Nettlesaren din støttas ikkje',
     'iframe_component.unsupported_browser':
       'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
-    'input_components.character_limit_sr_label': 'Tekstfeltet kan innehalde maks {0} teikn.',
-    'input_components.remaining_characters': 'Du har {0} av {1} teikn igjen',
-    'input_components.exceeded_max_limit': 'Du har overskride maks teikn med {0}',
+    'input_components.remaining_characters': 'Du har %d teikn igjen',
+    'input_components.exceeded_max_limit': 'Du har overskride maks teikn med %d',
     'instance_selection.changed_by': 'Endra av',
     'instance_selection.continue': 'Hald fram her',
     'instance_selection.description':
@@ -311,7 +318,7 @@ export function nn() {
     'person_lookup.validation_error_name_too_short': 'Etternamn kan ikkje vere tomt.',
     'person_lookup.validation_error_ssn': 'Fødselsnummeret/D-nummeret er ugyldig.',
     'person_lookup.validation_error_not_found':
-      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. \n\nMerk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
+      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. <br> Merk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
     'person_lookup.validation_error_too_many_requests': 'Du har gjort for mange søk. Ver venleg, prøv igjen seinare.',
     'person_lookup.validation_error_forbidden':
       'Du har ikkje tilgang til å gjere dette søket. Sikkerheitsnivå 2 eller høgare er påkravd.',

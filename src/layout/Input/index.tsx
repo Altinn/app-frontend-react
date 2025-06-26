@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { formatNumericText } from '@digdir/design-system-react';
-
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { getMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
@@ -11,12 +9,14 @@ import { evalFormatting } from 'src/layout/Input/formatting';
 import { InputComponent } from 'src/layout/Input/InputComponent';
 import { InputSummary } from 'src/layout/Input/InputSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import { formatNumericText } from 'src/utils/formattingUtils';
+import { useValidateDataModelBindingsSimple } from 'src/utils/layout/generator/validation/hooks';
+import { useNodeFormDataWhenType, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Input extends InputDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Input'>>(
@@ -27,7 +27,8 @@ export class Input extends InputDef {
 
   useDisplayData(nodeId: string): string {
     const formData = useNodeFormDataWhenType(nodeId, 'Input');
-    const formatting = NodesInternal.useNodeDataWhenType(nodeId, 'Input', (data) => data.item?.formatting);
+    const item = useNodeItemWhenType(nodeId, 'Input');
+    const formatting = item?.formatting;
     const currentLanguage = useCurrentLanguage();
     const text = formData?.simpleBinding || '';
     if (!text) {
@@ -51,8 +52,8 @@ export class Input extends InputDef {
     return <InputSummary {...props} />;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Input'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx);
+  useDataModelBindingValidation(node: LayoutNode<'Input'>, bindings: IDataModelBindings<'Input'>): string[] {
+    return useValidateDataModelBindingsSimple(node, bindings);
   }
 
   evalExpressions(props: ExprResolver<'Input'>) {

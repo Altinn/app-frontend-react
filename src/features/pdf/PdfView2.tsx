@@ -19,8 +19,8 @@ import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
-import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
-import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { AllSubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
+import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -69,7 +69,7 @@ export const PDFView2 = () => {
               pdfSettings={pdfSettings}
             />
           ))}
-        <SubformSummaryComponent2 />
+        <AllSubformSummaryComponent2 />
       </PdfWrapping>
     </DummyPresentation>
   );
@@ -98,7 +98,7 @@ function PdfWrapping({ children }: PropsWithChildren) {
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
       <Heading
         level={1}
-        size='lg'
+        data-size='lg'
       >
         {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
       </Heading>
@@ -183,10 +183,6 @@ function PdfForNode({ nodeId }: { nodeId: string }) {
   const node = useNode(nodeId);
   const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
 
-  if (!node) {
-    return null;
-  }
-
   if (node.isType('Summary2') && target?.taskId) {
     return (
       <SummaryComponent2
@@ -202,10 +198,9 @@ function PdfForNode({ nodeId }: { nodeId: string }) {
   }
 
   return (
-    <SummaryComponent
-      summaryNode={undefined}
+    <SummaryComponentFor
+      targetNode={node}
       overrides={{
-        targetNode: node,
         largeGroup: node.isType('Group'),
         display: {
           hideChangeButton: true,

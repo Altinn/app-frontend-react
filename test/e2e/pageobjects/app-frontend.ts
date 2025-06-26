@@ -31,6 +31,9 @@ export class AppFrontend {
 
     /** @see https://dev.altinn.studio/repos/ttd/navigation-test-subform */
     navigationTest: 'navigation-test-subform',
+
+    /** @see https://dev.altinn.studio/repos/ttd/signering-brukerstyrt */
+    signeringBrukerstyrt: 'signering-brukerstyrt',
   };
 
   //Start app instance page
@@ -54,9 +57,11 @@ export class AppFrontend {
   public notExpandedWidth = '[data-expanded="false"]';
 
   public helpText = {
-    button: 'button[class^="fds-helptext"]',
-    alert: 'div[role="dialog"]',
+    button: 'button[class^="ds-helptext"]',
+    alert: 'div[data-testid="helptext"]',
   };
+
+  public deleteWarningPopover = 'div[data-testid="delete-warning-popover"]';
 
   public navMenu = '#navigation-menu';
   public navMenuButtons = '#navigation-menu li > button';
@@ -159,6 +164,7 @@ export class AppFrontend {
     reference: '#reference',
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',
+    datePickerButton: /åpne datovelger/i,
     municipalityMetadata: '#kommuner-metadata',
     municipality: '#kommune',
     upload: '#fileUpload-changename',
@@ -188,11 +194,11 @@ export class AppFrontend {
   //group - task 3
   public group = {
     prefill: {
-      liten: 'input[name=liten]',
-      middels: 'input[name=middels]',
-      stor: 'input[name=stor]',
-      svaer: 'input[name=svaer]',
-      enorm: 'input[name=enorm]',
+      liten: /En liten endring/i,
+      middels: /En middels endring/i,
+      stor: /En stor endring/i,
+      svaer: /En svær endring/i,
+      enorm: /En enorm endring/i,
     },
     showGroupToContinue: '#showGroupToContinue',
     mainGroup: '#group-mainGroup',

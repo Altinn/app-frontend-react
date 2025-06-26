@@ -102,7 +102,7 @@ describe('Summary', () => {
         cy.wrap(summaryDate).contains(texts.dateOfEffect).should('have.css', 'color', 'rgb(213, 32, 59)');
         cy.wrap(summaryDate).contains(common.altinnFlex, texts.requiredFieldDateFrom).should('be.visible');
         cy.wrap(summaryDate).contains('button', texts.goToRightPage).click();
-        cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+        cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
         cy.get('button[aria-label*="Today"]').click();
         cy.get(appFrontend.errorReport).should('not.exist');
         cy.findByRole('button', { name: 'Tilbake til oppsummering' }).click();
@@ -217,9 +217,9 @@ describe('Summary', () => {
     groupElements().eq(5).should('contain.text', `${texts.nestedOption2}, ${texts.nestedOption3}`);
 
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.svaer).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.svaer }).check();
     cy.gotoNavPage('summary');
 
     function assertSummaryItem(groupRow: number, items: { [key: string]: boolean }) {
@@ -337,7 +337,7 @@ describe('Summary', () => {
     });
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill['liten']).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
     // Add data
@@ -530,38 +530,25 @@ describe('Summary', () => {
       undefined,
     ];
 
-    const components = [
-      {
-        id: 'dateOfEffect',
-        type: 'Datepicker' as const,
-        summaryComponent: '[data-testid=summary-summary4]',
-        defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
-      },
-      {
-        id: 'reference-group',
-        type: 'Group' as const,
-        summaryComponent: '[data-testid=summary-group-component]',
-        defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
-      },
-    ];
-
     cy.goto('changename');
     cy.gotoNavPage('summary');
 
+    const defaultTitle = 'Dette vises når det ikke er satt summaryTitle';
     for (const title of testTitleData) {
       cy.changeLayout((component) => {
-        for (const c of components) {
-          if (c.id === component.id && c.type === component.type) {
-            component.textResourceBindings = {
-              title: c.defaultTitle,
-              summaryTitle: title?.summaryTitle,
-              summaryAccessibleTitle: title?.summaryAccessibleTitle,
-            };
-          }
+        if (component.id === 'dateOfEffect' || component.id === 'reference-group') {
+          component.textResourceBindings = {
+            title: defaultTitle,
+            summaryTitle: title?.summaryTitle,
+            summaryAccessibleTitle: title?.summaryAccessibleTitle,
+          };
         }
       });
 
-      components.forEach(({ summaryComponent, defaultTitle }) => {
+      cy.log(`Testing with title: ${title?.summaryTitle ?? defaultTitle}`);
+      cy.log(`Testing with accessible title: ${title?.summaryAccessibleTitle ?? defaultTitle}`);
+
+      for (const summaryComponent of ['[data-testid=summary-summary4]', '[data-testid=summary-group-component]']) {
         cy.get(summaryComponent).should('contain.text', title?.summaryTitle ?? defaultTitle);
         cy.get(summaryComponent)
           .find('button')
@@ -570,7 +557,7 @@ describe('Summary', () => {
             'aria-label',
             `Endre: ${title?.summaryAccessibleTitle ?? title?.summaryTitle ?? defaultTitle}`,
           );
-      });
+      }
     }
   });
 

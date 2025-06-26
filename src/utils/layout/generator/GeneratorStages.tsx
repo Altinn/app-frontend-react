@@ -13,18 +13,10 @@ import type { NodesContext } from 'src/utils/layout/NodesContext';
 export const StageAddNodes = Symbol('AddNodes');
 export const StageMarkHidden = Symbol('MarkHidden');
 export const StageFetchOptions = Symbol('OptionsFetched');
-export const StageEvaluateExpressions = Symbol('EvaluateExpressions');
 export const StageFormValidation = Symbol('FormValidation');
 export const StageFinished = Symbol('Finished');
 
-const List = [
-  StageAddNodes,
-  StageMarkHidden,
-  StageFetchOptions,
-  StageEvaluateExpressions,
-  StageFormValidation,
-  StageFinished,
-] as const;
+const List = [StageAddNodes, StageMarkHidden, StageFetchOptions, StageFormValidation, StageFinished] as const;
 
 type StageList = typeof List;
 type Stage = StageList[number];
@@ -235,9 +227,7 @@ export function useRegistry() {
     toCommit: {
       addNodes: [],
       removeNodes: [],
-      removeRows: [],
       setNodeProps: [],
-      setRowExtras: [],
       setPageProps: [],
     },
     commitTimeout: null,

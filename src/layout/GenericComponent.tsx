@@ -7,10 +7,11 @@ import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/lay
 import { Lang } from 'src/features/language/Lang';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
-import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { isDev } from 'src/utils/isDev';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IGridStyling } from 'src/layout/common.generated';
@@ -31,6 +32,21 @@ export interface IGenericComponentProps<Type extends CompTypes> extends Override
 
 export interface IGenericComponentByIdProps<Type extends CompTypes> extends OverrideProps<Type> {
   id: string;
+}
+
+/**
+ * This works like GenericComponentById, but lets you pass a baseId instead (a plain component id without
+ * indexes if inside a repeating group)
+ */
+export function GenericComponentByBaseId<Type extends CompTypes = CompTypes>(props: IGenericComponentByIdProps<Type>) {
+  const id = useIndexedId(props.id);
+
+  return (
+    <GenericComponentById
+      {...props}
+      id={id}
+    />
+  );
 }
 
 /**
@@ -58,8 +74,8 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
   overrideItemProps,
   overrideDisplay,
 }: IGenericComponentProps<Type>) {
-  const itemExists = useNodeItem(node, (i) => !!i);
   const generatorErrors = NodesInternal.useNodeData(node, (node) => node.errors);
+
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
       <ErrorList
@@ -69,7 +85,7 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
     );
   }
 
-  if (!node || !itemExists) {
+  if (!node) {
     return false;
   }
 
@@ -194,16 +210,14 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
   if (renderAsSummary) {
     const RenderSummary = 'renderSummary' in node.def ? node.def.renderSummary.bind(node.def) : null;
-
     if (!RenderSummary) {
       return null;
     }
 
     return (
-      <SummaryComponent
-        summaryNode={undefined}
+      <SummaryComponentFor
+        targetNode={node}
         overrides={{
-          targetNode: node,
           display: { hideChangeButton: true, hideValidationMessages: true },
         }}
       />

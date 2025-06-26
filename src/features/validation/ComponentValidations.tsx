@@ -1,8 +1,9 @@
 import React from 'react';
 
-import { Alert as AlertDesignSystem, ErrorMessage } from '@digdir/designsystemet-react';
+import { Alert as AlertDesignSystem, ValidationMessage } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
+import classes from 'src/features/validation/ComponentValidations.module.css';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useCurrentNode } from 'src/layout/FormComponentContext';
@@ -14,14 +15,22 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface Props {
   validations: NodeValidation[] | undefined;
-  node?: LayoutNode;
+  node: LayoutNode;
 }
 
 export function AllComponentValidations({ node: _node }: { node?: LayoutNode }) {
   const currentNode = useCurrentNode();
   const node = _node ?? currentNode;
+  if (!node) {
+    throw new Error('No node provided to AllComponentValidations. Please report this bug.');
+  }
   const validations = useUnifiedValidationsForNode(node);
-  return <ComponentValidations validations={validations} />;
+  return (
+    <ComponentValidations
+      validations={validations}
+      node={node}
+    />
+  );
 }
 
 export function ComponentValidations({ validations, node: _node }: Props) {
@@ -60,31 +69,23 @@ export function ComponentValidations({ validations, node: _node }: Props) {
       style={{ display: 'contents' }}
     >
       <div data-validation={node.id}>
-        {errors.length > 0 && (
-          <ErrorValidations
-            validations={errors}
-            node={node}
-          />
-        )}
+        {errors.length > 0 && <ErrorValidations validations={errors} />}
         {warnings.length > 0 && (
           <SoftValidations
             validations={warnings}
             severity='warning'
-            node={node}
           />
         )}
         {info.length > 0 && (
           <SoftValidations
             validations={info}
             severity='info'
-            node={node}
           />
         )}
         {success.length > 0 && (
           <SoftValidations
             validations={success}
             severity='success'
-            node={node}
           />
         )}
       </div>
@@ -92,20 +93,24 @@ export function ComponentValidations({ validations, node: _node }: Props) {
   );
 }
 
-function ErrorValidations({ validations, node }: { validations: BaseValidation<'error'>[]; node: LayoutNode }) {
+function ErrorValidations({ validations }: { validations: BaseValidation<'error'>[] }) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
-    <ul style={{ padding: 0, margin: 0, listStyleType: 'none' }}>
+    <ul className={classes.errorList}>
       {validations.map((validation) => (
         <li key={getUniqueKeyFromObject(validation)}>
-          <ErrorMessage size='small'>
-            <Lang
-              id={validation.message.key}
-              params={validation.message.params}
-              node={node}
-            />
-          </ErrorMessage>
+          <ValidationMessage
+            data-size='sm'
+            asChild
+          >
+            <span>
+              <Lang
+                id={validation.message.key}
+                params={validation.message.params}
+              />
+            </span>
+          </ValidationMessage>
         </li>
       ))}
     </ul>
@@ -115,19 +120,17 @@ function ErrorValidations({ validations, node }: { validations: BaseValidation<'
 function SoftValidations({
   validations,
   severity,
-  node,
 }: {
   validations: BaseValidation<'warning' | 'info' | 'success'>[];
   severity: AlertSeverity;
-  node: LayoutNode;
 }) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
-    <div style={{ paddingTop: 'var(--fds-spacing-2)' }}>
+    <div style={{ paddingTop: 'var(--ds-size-2)' }}>
       <AlertDesignSystem
         style={{ breakInside: 'avoid' }}
-        severity={severity}
+        data-color={severity}
       >
         <ul style={{ paddingLeft: 0, listStyleType: 'none' }}>
           {validations.map((validation) => (
@@ -135,7 +138,6 @@ function SoftValidations({
               <Lang
                 id={validation.message.key}
                 params={validation.message.params}
-                node={node}
               />
             </li>
           ))}

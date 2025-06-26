@@ -25,7 +25,6 @@ import {
   Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
@@ -43,18 +42,15 @@ import { GeneratorValidationProvider } from 'src/utils/layout/generator/validati
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
-import { RepeatingChildrenStorePlugin } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { OptionsStorePluginConfig } from 'src/features/options/OptionsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
-import type { WaitForState } from 'src/hooks/useWaitForState';
 import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
-import type { RepeatingChildrenStorePluginConfig } from 'src/utils/layout/plugins/RepeatingChildrenStorePlugin';
 import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
 
 export interface PagesData {
@@ -76,14 +72,12 @@ export type NodesStorePlugins = {
   validation: ValidationStorePluginConfig;
   options: OptionsStorePluginConfig;
   attachments: AttachmentsStorePluginConfig;
-  repeatingChildren: RepeatingChildrenStorePluginConfig;
 };
 
 const StorePlugins: { [K in keyof NodesStorePlugins]: NodeDataPlugin<NodesStorePlugins[K]> } = {
   validation: new ValidationStorePlugin(),
   options: new OptionsStorePlugin(),
   attachments: new AttachmentsStorePlugin(),
-  repeatingChildren: new RepeatingChildrenStorePlugin(),
 };
 
 type AllFlat<T> = UnionToIntersection<T extends Record<string, infer U> ? (U extends undefined ? never : U) : never>;
@@ -108,8 +102,6 @@ export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeDat
   node: LayoutNode<T>;
   prop: K;
   value: NodeData<T>[K];
-  partial?: boolean;
-  force?: boolean;
 }
 
 export interface SetPagePropRequest<K extends keyof PageData> {
@@ -243,24 +235,17 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
       set((state) => {
         let changes = false;
         const nodeData = { ...state.nodeData };
-        for (const { node, prop, value, partial, force } of requests) {
+        for (const { node, prop, value } of requests) {
           if (!nodeData[node.id]) {
             continue;
           }
 
           const thisNode = { ...nodeData[node.id] };
+
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const prev = thisNode[prop as any];
+          thisNode[prop as any] = value;
 
-          if (partial && value && prev && typeof prev === 'object' && typeof value === 'object') {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            thisNode[prop as any] = { ...thisNode[prop as any], ...value };
-          } else {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            thisNode[prop as any] = value;
-          }
-
-          if (force || !deepEqual(nodeData[node.id][prop], thisNode[prop])) {
+          if (!deepEqual(nodeData[node.id][prop], thisNode[prop])) {
             changes = true;
             nodeData[node.id] = thisNode;
           }
@@ -450,11 +435,7 @@ const Conditionally = {
   },
 };
 
-const {
-  Provider: ProvideLayoutPages,
-  useCtx: useLayoutPages,
-  useLaxCtx: useLaxLayoutPages,
-} = createContext<LayoutPages>({
+const { Provider: ProvideLayoutPages, useCtx: useLayoutPages } = createContext<LayoutPages>({
   name: 'LayoutPages',
   required: true,
 });
@@ -702,6 +683,10 @@ function NodesLoader() {
  *
  * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
  */
+export function useNode<T extends string | LayoutNode>(id: T): LayoutNode;
+// eslint-disable-next-line no-redeclare
+export function useNode<T extends string | undefined | LayoutNode>(id: T): LayoutNode | undefined;
+// eslint-disable-next-line no-redeclare
 export function useNode<T extends string | undefined | LayoutNode>(id: T): LayoutNode | undefined {
   const lastValue = useRef<LayoutNode | undefined | typeof NeverInitialized>(NeverInitialized);
   const nodes = useNodes();
@@ -736,10 +721,6 @@ export const useGetPage = (pageId: string | undefined) => {
 };
 
 export const useNodes = () => useLayoutPages();
-export const useNodesLax = () => {
-  const out = useLaxLayoutPages();
-  return out === ContextNotProvided ? undefined : out;
-};
 
 export interface IsHiddenOptions {
   /**
@@ -948,7 +929,6 @@ export const Hidden = {
 };
 
 export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
-export type LaxNodeDataSelector = ReturnType<typeof NodesInternal.useLaxNodeDataSelector>;
 
 export type NodeIdPicker = <T extends CompTypes = CompTypes>(
   id: string | undefined,
@@ -968,7 +948,7 @@ function selectNodeData<T extends CompTypes = CompTypes>(
   const data =
     state.readiness === NodesReadiness.Ready
       ? state.nodeData[id] // Always use fresh data when ready
-      : preferFreshData && state.nodeData[id]?.item?.id // Only allow getting fresh data when not ready if item is set
+      : preferFreshData && state.nodeData[id]
         ? state.nodeData[id]
         : state.prevNodeData?.[id]
           ? state.prevNodeData[id]
@@ -981,26 +961,10 @@ function selectNodeData<T extends CompTypes = CompTypes>(
   return data as NodeData<T>;
 }
 
-function getNodeData<N extends LayoutNode | undefined, Out>(
-  node: N,
-  state: NodesContext,
-  selector: (nodeData: NodeDataFromNode<N>) => Out,
-  preferFreshData = false,
-) {
-  return node ? selector(selectNodeData(node.id, node.type, state, preferFreshData) as NodeDataFromNode<N>) : undefined;
-}
-
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
-  useIsReady() {
-    const isReady = Store.useLaxSelector((s) => s.readiness === NodesReadiness.Ready && s.hiddenViaRulesRan);
-    if (isReady === ContextNotProvided) {
-      return true;
-    }
-    return isReady;
-  },
   useIsReadyRef() {
     const ref = useRef(true); // Defaults to true if context is not provided
     Store.useLaxSelectorAsRef((s) => {
@@ -1136,51 +1100,9 @@ export const NodesInternal = {
       return data ? selector(data as NodeDataFromNode<N>, s.readiness, s) : undefined;
     }) as N extends undefined ? Out | undefined : Out;
   },
-  useGetNodeData<N extends LayoutNode | undefined, Out>(
-    node: N,
-    selector: (state: NodeDataFromNode<N>) => Out,
-  ): () => Out | undefined {
-    const store = Store.useStore();
-    const selectorRef = useAsRef(selector);
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return useCallback(
-      () => getNodeData(node, store.getState(), (nodeData) => selectorRef.current(nodeData), insideGenerator),
-      [store, node, selectorRef, insideGenerator],
-    );
-  },
-  useWaitForNodeData<RetVal, N extends LayoutNode | undefined, Out>(
-    node: N,
-    selector: (state: NodeDataFromNode<N>) => Out,
-  ): WaitForState<Out, RetVal> {
-    const waitForState = useWaitForState<RetVal, NodesContext>(Store.useStore());
-    return useCallback(
-      (callback) =>
-        waitForState((state, setReturnValue) => {
-          if (state.readiness !== NodesReadiness.Ready) {
-            return false;
-          }
-
-          const nodeData = node ? state.nodeData[node.id] : undefined;
-          if (!nodeData) {
-            return false;
-          }
-          return callback(selector(nodeData as NodeDataFromNode<N>), setReturnValue);
-        }),
-      [waitForState, node, selector],
-    );
-  },
   useNodeDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Store.useDelayedSelector({
-      mode: 'innerSelector',
-      makeArgs: (state) => [
-        ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
-      ],
-    });
-  },
-  useLaxNodeDataSelector: () => {
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return Store.useLaxDelayedSelector({
       mode: 'innerSelector',
       makeArgs: (state) => [
         ((id, type = undefined) => selectNodeData(id, type, state, insideGenerator)) satisfies NodeIdPicker,
