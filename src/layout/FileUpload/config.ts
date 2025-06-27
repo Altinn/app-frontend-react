@@ -36,7 +36,7 @@ export function asUploaderComponent(config: ComponentConfig) {
     .addProperty(
       new CG.prop(
         'maxNumberOfAttachments',
-        new CG.expr(ExprVal.Number)
+        new CG.int()
           .setTitle('Max number of attachments')
           .setDescription('Sets the maximum number of attachments allowed to upload'),
       ),
@@ -44,7 +44,7 @@ export function asUploaderComponent(config: ComponentConfig) {
     .addProperty(
       new CG.prop(
         'minNumberOfAttachments',
-        new CG.expr(ExprVal.Number)
+        new CG.int()
           .setTitle('Min number of attachments')
           .setDescription('Sets the minimum number of attachments required to upload'),
       ),
