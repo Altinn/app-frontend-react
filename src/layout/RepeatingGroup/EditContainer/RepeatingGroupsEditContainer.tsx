@@ -175,7 +175,7 @@ function RepeatingGroupsEditContainerInternal({
               {hasPrevMultiPage && (
                 <Flex item>
                   <Button
-                    variant='tertiary'
+                    variant='secondary'
                     color='second'
                     onClick={() => prevMultiPage()}
                   >
@@ -183,18 +183,26 @@ function RepeatingGroupsEditContainerInternal({
                       fontSize='1rem'
                       aria-hidden='true'
                     />
-                    <Lang id='general.back' />
+                    <Lang
+                      id={
+                        texts.navigation_multipage_back_button ? texts.navigation_multipage_back_button : 'general.back'
+                      }
+                    />
                   </Button>
                 </Flex>
               )}
               {hasNextMultiPage && (
                 <Flex item>
                   <Button
-                    variant='tertiary'
+                    variant='secondary'
                     color='second'
                     onClick={() => nextMultiPage()}
                   >
-                    <Lang id='general.next' />
+                    <Lang
+                      id={
+                        texts.navigation_multipage_next_button ? texts.navigation_multipage_next_button : 'general.next'
+                      }
+                    />
                     <ChevronRightIcon
                       fontSize='1rem'
                       aria-hidden='true'
