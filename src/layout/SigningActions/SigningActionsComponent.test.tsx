@@ -153,7 +153,7 @@ describe('SigningActionsComponent', () => {
       />,
     );
 
-    expect(screen.getByText('signing.loading')).toBeInTheDocument();
+    expect(screen.getByLabelText('signing.loading')).toBeInTheDocument();
   });
 
   it('should render ErrorPanel on API error', () => {
@@ -272,8 +272,6 @@ describe('SigningActionsComponent', () => {
         containerDivRef={React.createRef()}
       />,
     );
-
-    screen.debug();
 
     expect(screen.getByTestId('awaiting-other-signatures-panel')).toBeInTheDocument();
     expect(screen.getByTestId('has-signed')).toBeInTheDocument();

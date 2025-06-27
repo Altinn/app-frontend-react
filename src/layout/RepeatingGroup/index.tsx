@@ -12,10 +12,11 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { useValidateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -92,8 +93,11 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return true;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'RepeatingGroup'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'group', ['array']);
+  useDataModelBindingValidation(
+    node: LayoutNode<'RepeatingGroup'>,
+    bindings: IDataModelBindings<'RepeatingGroup'>,
+  ): string[] {
+    const [errors, result] = useValidateDataModelBindingsAny(node, bindings, 'group', ['array']);
     if (errors) {
       return errors;
     }
@@ -115,8 +119,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     }
 
     const { baseComponentId } = splitDashedKey(childId);
-    const tableColSetup = state.item?.tableColumns?.[baseComponentId];
-    const mode = state.item?.edit?.mode;
+    const tableColSetup = state.layout?.tableColumns?.[baseComponentId];
+    const mode = state.layout?.edit?.mode;
 
     // This specific configuration hides the component fully, without having set hidden=true on the component itself.
     // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,

@@ -10,11 +10,12 @@ import { DropdownDef } from 'src/layout/Dropdown/config.def.generated';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { DropdownSummary } from 'src/layout/Dropdown/DropdownSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { useValidateDataModelBindingsSimple } from 'src/utils/layout/generator/validation/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { IDataModelBindings } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -37,6 +38,13 @@ export class Dropdown extends DropdownDef {
     return getSelectedValueToText(value, langTools, options) || '';
   }
 
+  evalExpressions(props: ExprResolver<'Dropdown'>) {
+    return {
+      ...this.evalDefaultExpressions(props),
+      alertOnChange: props.evalBool(props.item.alertOnChange, false),
+    };
+  }
+
   renderSummary({ targetNode }: SummaryRendererProps<'Dropdown'>): JSX.Element | null {
     const displayData = useDisplayData(targetNode);
     return <SummaryItemSimple formDataAsString={displayData} />;
@@ -50,7 +58,7 @@ export class Dropdown extends DropdownDef {
     return useEmptyFieldValidationOnlyOneBinding(node, 'simpleBinding');
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Dropdown'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx);
+  useDataModelBindingValidation(node: LayoutNode<'Dropdown'>, bindings: IDataModelBindings<'Dropdown'>): string[] {
+    return useValidateDataModelBindingsSimple(node, bindings);
   }
 }

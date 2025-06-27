@@ -21,12 +21,12 @@ import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/Table/Repeatin
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
+import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { ITableColumnFormatting } from 'src/layout/common.generated';
-import type { GridCellInternal } from 'src/layout/Grid/types';
+import type { GridCell, ITableColumnFormatting } from 'src/layout/common.generated';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
@@ -119,14 +119,14 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
               </DataModelLocationProvider>
               {displayEditColumn && (
                 <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.edit' />
                   </span>
                 </Table.HeaderCell>
               )}
               {displayDeleteColumn && (
                 <Table.HeaderCell style={{ padding: 0 }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.delete' />
                   </span>
                 </Table.HeaderCell>
@@ -191,7 +191,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
 interface ExtraRowsProps {
   where: 'Before' | 'After';
-  extraCells: GridCellInternal[];
+  extraCells: GridCell[];
   columnSettings: ITableColumnFormatting;
 }
 
@@ -203,7 +203,7 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const item = useNodeItem(node);
   const isNested = node.parent instanceof LayoutNode;
 
-  const rows = where === 'Before' ? item.rowsBeforeInternal : item.rowsAfterInternal;
+  const rows = where === 'Before' ? item.rowsBefore : item.rowsAfter;
   const mobileNodeIds = useNodeIdsFromGridRows(rows, mobileView);
   if (isEmpty || !rows) {
     return null;

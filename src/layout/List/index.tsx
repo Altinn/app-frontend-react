@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 
 import dot from 'dot-object';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { evalQueryParameters } from 'src/features/options/evalQueryParameters';
@@ -12,13 +13,12 @@ import { ListDef } from 'src/layout/List/config.def.generated';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { ListSummary } from 'src/layout/List/ListSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import { useValidateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { useNodeFormDataWhenType, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { NodeValidationProps } from 'src/layout/layout';
+import type { IDataModelBindings, NodeValidationProps } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -31,15 +31,12 @@ export class List extends ListDef {
   );
 
   useDisplayData(nodeId: string): string {
-    const dmBindings = NodesInternal.useNodeDataWhenType(nodeId, 'List', (data) => data.layout.dataModelBindings);
+    const item = useNodeItemWhenType(nodeId, 'List');
+    const dmBindings = item?.dataModelBindings;
     const groupBinding = dmBindings?.group;
     const checkedBinding = dmBindings?.checked;
-    const summaryBinding = NodesInternal.useNodeDataWhenType(nodeId, 'List', (data) => data.item?.summaryBinding);
-    const legacySummaryBinding = NodesInternal.useNodeDataWhenType(
-      nodeId,
-      'List',
-      (data) => data.item?.bindingToShowInSummary,
-    );
+    const summaryBinding = item?.summaryBinding;
+    const legacySummaryBinding = item?.bindingToShowInSummary;
     const formData = useNodeFormDataWhenType(nodeId, 'List');
 
     if (groupBinding) {
@@ -97,18 +94,18 @@ export class List extends ListDef {
     return <ObjectToGroupLayoutValidator {...props} />;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'List'>): string[] {
+  useDataModelBindingValidation(node: LayoutNode<'List'>, bindings: IDataModelBindings<'List'>): string[] {
     const errors: string[] = [];
     const allowedLeafTypes = ['string', 'boolean', 'number', 'integer'];
-    const dataModelBindings = ctx.item.dataModelBindings ?? {};
+    const groupBinding = bindings?.group;
+    const lookupBinding = DataModels.useLookupBinding();
 
-    const groupBinding = dataModelBindings?.group;
     if (groupBinding) {
-      const [groupErrors] = this.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
+      const [groupErrors] = useValidateDataModelBindingsAny(node, bindings, 'group', ['array'], false);
       groupErrors && errors.push(...groupErrors);
 
-      for (const key of Object.keys(dataModelBindings)) {
-        const binding = dataModelBindings[key];
+      for (const key of Object.keys(bindings)) {
+        const binding = bindings[key];
         if (key === 'group' || !binding) {
           continue;
         }
@@ -124,7 +121,7 @@ export class List extends ListDef {
         }
         const fieldWithoutGroup = binding.field.replace(`${groupBinding.field}.`, '');
         const fieldWithIndex = `${groupBinding.field}[0].${fieldWithoutGroup}`;
-        const [schema, err] = ctx.lookupBinding({ field: fieldWithIndex, dataType: binding.dataType });
+        const [schema, err] = lookupBinding?.({ field: fieldWithIndex, dataType: binding.dataType }) ?? [];
         if (err) {
           errors.push(lookupErrorAsText(err));
         } else if (typeof schema?.type !== 'string' || !allowedLeafTypes.includes(schema.type)) {
@@ -132,8 +129,8 @@ export class List extends ListDef {
         }
       }
     } else {
-      for (const [binding] of Object.entries(dataModelBindings ?? {})) {
-        const [newErrors] = this.validateDataModelBindingsAny(ctx, binding, allowedLeafTypes, false);
+      for (const [binding] of Object.entries(bindings ?? {})) {
+        const [newErrors] = useValidateDataModelBindingsAny(node, bindings, binding, allowedLeafTypes, false);
         errors.push(...(newErrors || []));
       }
     }
