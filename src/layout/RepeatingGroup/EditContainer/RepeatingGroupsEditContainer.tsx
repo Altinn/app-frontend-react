@@ -164,13 +164,15 @@ function RepeatingGroupsEditContainerInternal({
             />
           ))}
         </Flex>
-        <Flex item>
+        <Flex
+          item
+          style={{ display: 'flex', width: '100%', marginBottom: 12 }}
+        >
           {editForGroup?.multiPage && (
             <Flex
               container
               direction='row'
               spacing={2}
-              style={{ marginBottom: 12 }}
             >
               {hasPrevMultiPage && (
                 <Flex item>
@@ -216,6 +218,7 @@ function RepeatingGroupsEditContainerInternal({
             container
             direction='row'
             spacing={2}
+            justifyContent='flex-end'
           >
             {saveAndNextButtonVisible && (
               <Flex item>
