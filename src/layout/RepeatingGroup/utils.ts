@@ -67,8 +67,8 @@ export const RepGroupHooks = {
   },
 
   useAllRowsWithHidden(node: LayoutNode<'RepeatingGroup'>): RepGroupRow[] {
-    const component = useExternalItem(node?.baseId, 'RepeatingGroup');
-    const groupBinding = useDataModelBindingsFor(node?.baseId, 'RepeatingGroup')?.group;
+    const component = useExternalItem(node.baseId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup')?.group;
     const dataSources = useExpressionDataSources(component?.hiddenRow);
     const rows = RepGroupHooks.useAllBaseRows(node);
 
@@ -85,8 +85,8 @@ export const RepGroupHooks = {
   },
 
   useAllRowsWithButtons(node: LayoutNode<'RepeatingGroup'>): RepGroupRowWithButtons[] {
-    const component = useExternalItem(node?.baseId, 'RepeatingGroup');
-    const groupBinding = useDataModelBindingsFor(node?.baseId, 'RepeatingGroup')?.group;
+    const component = useExternalItem(node.baseId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup')?.group;
     const hiddenRow = component?.hiddenRow;
     const editButton = component?.edit?.editButton;
     const deleteButton = component?.edit?.deleteButton;
@@ -111,8 +111,8 @@ export const RepGroupHooks = {
   },
 
   useGetFreshRowsWithButtons(node: LayoutNode<'RepeatingGroup'>): () => RepGroupRowWithButtons[] {
-    const component = useExternalItem(node?.baseId, 'RepeatingGroup');
-    const groupBinding = useDataModelBindingsFor(node?.baseId, 'RepeatingGroup')?.group;
+    const component = useExternalItem(node.baseId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup')?.group;
     const hiddenRow = component?.hiddenRow;
     const editButton = component?.edit?.editButton;
     const deleteButton = component?.edit?.deleteButton;
@@ -137,8 +137,8 @@ export const RepGroupHooks = {
     node: LayoutNode<'RepeatingGroup'>,
     _row: 'first' | { uuid: string } | { index: number },
   ): RepGroupRowWithExpressions | undefined {
-    const component = useExternalItem(node?.baseId, 'RepeatingGroup');
-    const groupBinding = useDataModelBindingsFor(node?.baseId, 'RepeatingGroup')?.group;
+    const component = useExternalItem(node.baseId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup')?.group;
     const hiddenRow = component?.hiddenRow;
     const edit = component?.edit;
     const trb = component?.textResourceBindings;
@@ -195,8 +195,8 @@ export const RepGroupHooks = {
     return lastMultiPageIndex;
   },
 
-  useChildIds(node: LayoutNode<'RepeatingGroup'> | undefined) {
-    const component = useLayoutLookups().getComponent(node?.baseId, 'RepeatingGroup');
+  useChildIds(node: LayoutNode<'RepeatingGroup'>) {
+    const component = useLayoutLookups().getComponent(node.baseId, 'RepeatingGroup');
     const idMutator = useComponentIdMutator();
     if (!component?.edit?.multiPage) {
       return component?.children.map(idMutator) ?? [];
