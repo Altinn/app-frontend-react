@@ -13,7 +13,10 @@ import type { CompIntermediate, CompTypes, IDataModelBindings } from 'src/layout
  *  - The `dataModelBindings` property will never have any indexes for which row in a repeating group it is in.
  *  - The `mapping` property will never have any indexes for which row in a repeating group it is in.
  */
-export function useExternalItem<T extends CompTypes = CompTypes>(baseComponentId: string, type?: T) {
+export function useExternalItem<T extends CompTypes = CompTypes>(
+  baseComponentId: string,
+  type?: T | ((type: CompTypes) => boolean),
+) {
   const lookups = useLayoutLookups();
   return lookups.getComponent(baseComponentId, type);
 }
@@ -98,7 +101,7 @@ function mutateDataModelBindings<T extends CompTypes = CompTypes>(
 
 export function useDataModelBindingsFor<T extends CompTypes = CompTypes>(
   baseComponentId: string,
-  type?: T,
+  type?: T | ((type: CompTypes) => boolean),
 ): IDataModelBindings<T> {
   const component = useExternalItem<T>(baseComponentId, type);
   const parts = useBindingParts();

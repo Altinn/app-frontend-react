@@ -2,7 +2,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
-import { useNodeItemFor } from 'src/utils/layout/useNodeItem';
+import { useItemFor } from 'src/utils/layout/useNodeItem';
 import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes } from 'src/layout/layout';
@@ -16,7 +16,7 @@ export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
   defaultText: ValidLanguageKey = 'form_filler.error_required',
 ): ComponentValidation[] {
   const dataModelBindings = useDataModelBindingsFor<Type>(baseComponentId);
-  const item = useNodeItemFor(baseComponentId);
+  const item = useItemFor(baseComponentId);
   const required = 'required' in item ? item.required : false;
   const trb = item.textResourceBindings;
   const formDataSelector = FD.useDebouncedSelector();
@@ -58,7 +58,7 @@ export function useEmptyFieldValidationOnlyOneBinding<Binding extends string>(
   binding: Binding,
   defaultText: ValidLanguageKey = 'form_filler.error_required',
 ): ComponentValidation[] {
-  const item = useNodeItemFor(baseComponentId);
+  const item = useItemFor(baseComponentId);
   const required = 'required' in item ? item.required : false;
   const reference = item.dataModelBindings?.[binding as string] as IDataModelReference | undefined;
   const trb = item.textResourceBindings;

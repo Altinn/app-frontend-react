@@ -9,7 +9,7 @@ import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/
 import { useHasNoDataInBindings } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface AddressSummaryProps {
@@ -17,7 +17,7 @@ interface AddressSummaryProps {
 }
 
 export function AddressSummary({ componentNode }: AddressSummaryProps) {
-  const item = useNodeItemWhenType(componentNode.baseId, 'Address');
+  const item = useItemWhenType(componentNode.baseId, 'Address');
   const { textResourceBindings, dataModelBindings, simplified, required } = item;
   const { title, careOfTitle, zipCodeTitle, postPlaceTitle, houseNumberTitle } = textResourceBindings ?? {};
   const { formData } = useDataModelBindings(dataModelBindings);

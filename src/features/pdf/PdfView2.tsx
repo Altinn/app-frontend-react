@@ -25,7 +25,7 @@ import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItemIfType } from 'src/utils/layout/useNodeItem';
+import { useItemIfType } from 'src/utils/layout/useNodeItem';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompTypes } from 'src/layout/layout';
 import type { NodeData } from 'src/utils/layout/types';
@@ -177,7 +177,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
 
 function PdfForNode({ nodeId }: { nodeId: string }) {
   const node = useNode(nodeId);
-  const item = useNodeItemIfType(node.baseId, 'Summary2');
+  const item = useItemIfType(node.baseId, 'Summary2');
 
   if (node.isType('Summary2') && item?.target?.taskId) {
     return (

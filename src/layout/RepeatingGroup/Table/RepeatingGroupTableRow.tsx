@@ -23,7 +23,7 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { useNodeItem, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
@@ -87,12 +87,10 @@ export const RepeatingGroupTableRow = React.memo(function ({
   const langTools = useLanguage();
   const { langAsString } = langTools;
   const id = node.id;
-  const group = useNodeItem(node);
+  const { edit: editForGroup, tableColumns: columnSettings } = useItemWhenType(node.baseId, 'RepeatingGroup');
   const rowExpressions = RepGroupHooks.useRowWithExpressions(node, { uuid });
   const editForRow = rowExpressions?.edit;
-  const editForGroup = group.edit;
   const trbForRow = rowExpressions?.textResourceBindings;
-  const columnSettings = group.tableColumns;
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
@@ -438,6 +436,6 @@ function NonEditableCell({
 }
 
 function TableTitle({ baseComponentId, compType }: { baseComponentId: string; compType: CompTypes }) {
-  const item = useNodeItemWhenType(baseComponentId, compType);
+  const item = useItemWhenType(baseComponentId, compType);
   return <Lang id={getTableTitle(item?.textResourceBindings ?? {})} />;
 }

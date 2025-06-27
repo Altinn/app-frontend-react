@@ -4,14 +4,14 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { toRelativePath } from 'src/features/saveToGroup/useSaveToGroup';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
-import { useNodeFormDataWhenType, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType, useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { ComponentValidation } from 'src/features/validation';
 
 export function useValidateGroupIsEmpty<T extends 'Checkboxes' | 'MultipleSelect' | 'List'>(
   baseComponentId: string,
   type: T,
 ): ComponentValidation[] {
-  const item = useNodeItemWhenType(baseComponentId, type);
+  const item = useItemWhenType(baseComponentId, type);
   const required = item && 'required' in item ? item.required : false;
   const dataModelBindings = item.dataModelBindings;
   const textResourceBindings = item.textResourceBindings;

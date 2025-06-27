@@ -39,7 +39,7 @@ export function useNodeItem(node: LayoutNode, selector: never): unknown {
  * This evaluates all expressions for a given component configuration. If the type is not correct, things will crash.
  * @see useNodeItemIfType Use this one if you only want to evaluate expressions _if_ the type is the expected one.
  */
-export function useNodeItemWhenType<T extends CompTypes>(
+export function useItemWhenType<T extends CompTypes>(
   baseComponentId: string,
   type: T | ((type: CompTypes) => boolean),
 ): CompInternal<T> {
@@ -49,7 +49,8 @@ export function useNodeItemWhenType<T extends CompTypes>(
     (typeof type === 'string' && intermediate.type !== type) ||
     (typeof type === 'function' && !type(intermediate.type))
   ) {
-    throw new Error(`Unexpected type for ${baseComponentId}: ${intermediate?.type} (expected ${type})`);
+    const suffix = typeof type === 'string' ? ` (expected ${type})` : '';
+    throw new Error(`Unexpected type for ${baseComponentId}: ${intermediate?.type}${suffix}`);
   }
   const location = useCurrentDataModelLocation();
   const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
@@ -61,8 +62,10 @@ export function useNodeItemWhenType<T extends CompTypes>(
 /**
  * This evaluates all expressions for a given component configuration, but only when the
  * target component is the given type.
+ * @see useItemWhenType
+ * @see useItemFor
  */
-export function useNodeItemIfType<T extends CompTypes>(
+export function useItemIfType<T extends CompTypes>(
   baseComponentId: string,
   type: T | ((type: CompTypes) => boolean),
 ): CompInternal<T> | undefined {
@@ -85,10 +88,12 @@ export function useNodeItemIfType<T extends CompTypes>(
 }
 
 /**
- * This evaluates all expressions for a given component configuration, but only when the
- * target component is the given type.
+ * This evaluates all expressions for a given component configuration. This should only be used when you don't know
+ * the target component type beforehand.
+ * @see useItemWhenType
+ * @see useItemIfType
  */
-export function useNodeItemFor<T extends CompTypes = CompTypes>(baseComponentId: string): CompInternal<T> {
+export function useItemFor<T extends CompTypes = CompTypes>(baseComponentId: string): CompInternal<T> {
   const intermediate = useIntermediateItem(baseComponentId);
   if (!intermediate) {
     throw new Error(`No component configuration found for ${baseComponentId}`);

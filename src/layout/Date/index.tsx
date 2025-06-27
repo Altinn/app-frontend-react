@@ -6,7 +6,7 @@ import { formatDate, isValid, parseISO } from 'date-fns';
 import { DateDef } from 'src/layout/Date/config.def.generated';
 import { DateComponent } from 'src/layout/Date/DateComponent';
 import { DateSummary } from 'src/layout/Date/DateSummary';
-import { useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { DisplayData } from 'src/features/displayData';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { ExprResolver } from 'src/layout/LayoutComponent';
@@ -14,7 +14,7 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 
 export class Date extends DateDef implements DisplayData {
   useDisplayData(baseComponentId: string): string {
-    const item = useNodeItemWhenType(baseComponentId, 'Date');
+    const item = useItemWhenType(baseComponentId, 'Date');
     const dateString = item?.value;
     const format = item?.format;
 
