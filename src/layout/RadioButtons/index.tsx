@@ -1,16 +1,17 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useEmptyFieldValidationOnlyOneBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { RadioButtonsSummary } from 'src/layout/RadioButtons/RadioButtonsSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { useValidateDataModelBindingsSimple } from 'src/utils/layout/generator/validation/hooks';
+import { validateDataModelBindingsSimple } from 'src/utils/layout/generator/validation/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -26,10 +27,10 @@ export class RadioButtons extends RadioButtonsDef {
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'RadioButtons');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'RadioButtons');
     const value = String(formData?.simpleBinding ?? '');
-    const options = useNodeOptions(nodeId).options;
+    const options = useOptionsFor(baseComponentId, 'single').options;
     const langTools = useLanguage();
     return getSelectedValueToText(value, langTools, options) || '';
   }
@@ -55,6 +56,7 @@ export class RadioButtons extends RadioButtonsDef {
   }
 
   useDataModelBindingValidation(node: LayoutNode<'RadioButtons'>, dmb: IDataModelBindings<'RadioButtons'>): string[] {
-    return useValidateDataModelBindingsSimple(node, dmb);
+    const lookupBinding = DataModels.useLookupBinding();
+    return validateDataModelBindingsSimple(node, dmb, lookupBinding);
   }
 }
