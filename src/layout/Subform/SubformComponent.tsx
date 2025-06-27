@@ -201,8 +201,7 @@ function SubformTableRow({
 
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
-  const { textResourceBindings } = useNodeItem(node);
-  const editButtonText = langAsString(textResourceBindings?.tableEditButton ?? 'general.edit');
+  const editButtonText = langAsString('general.edit');
 
   const numColumns = tableColumns.length;
   const actualColumns = showDeleteButton ? numColumns + 1 : numColumns;
