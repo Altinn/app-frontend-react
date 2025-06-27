@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
@@ -15,8 +16,9 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useHasInstance } from 'src/features/instance/InstanceContext';
 import { useLaxProcessData } from 'src/features/instance/ProcessContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
+import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
 
 export interface LayoutContextValue {
@@ -65,7 +67,7 @@ function useLayoutQuery() {
       }
     : utils;
 }
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
   createQueryContext({
     name: 'LayoutsContext',
     required: true,
@@ -106,6 +108,10 @@ const emptyLayouts: ILayouts = {};
 export const LayoutsProvider = Provider;
 export const useLayouts = (): ILayouts => useCtx()?.layouts ?? emptyLayouts;
 export const useLayoutLookups = () => useCtx().lookups;
+export const useLayoutLookupsLax = () => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? undefined : ctx.lookups;
+};
 
 export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
 
@@ -124,6 +130,7 @@ function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModel
 
   const withQuirksFixed = applyLayoutQuirks(layouts, layoutSetId);
   removeDuplicateComponentIds(withQuirksFixed, layoutSetId);
+  addLikertItemToLayout(withQuirksFixed);
 
   return {
     layouts: withQuirksFixed,
@@ -185,5 +192,41 @@ function removeDuplicateComponentIds(layouts: ILayouts, layoutSetId: string) {
     const _fullCode = `'${fullKey}': ${code.join('\n')},`;
     // Uncomment the next line to get the generated quirks code
     // debugger;
+  }
+}
+
+function addLikertItemToLayout(layouts: ILayouts) {
+  for (const pageKey of Object.keys(layouts)) {
+    const page = layouts[pageKey] || [];
+    for (const comp of page.values()) {
+      if (comp.type === 'Likert') {
+        const likertItem: CompExternal<'LikertItem'> = {
+          id: makeLikertChildId(comp.id, undefined),
+          type: 'LikertItem',
+          textResourceBindings: {
+            title: comp.textResourceBindings?.questions,
+          },
+          dataModelBindings: {
+            simpleBinding: comp.dataModelBindings?.answer,
+          },
+          options: comp.options,
+          optionsId: comp.optionsId,
+          mapping: comp.mapping,
+          required: comp.required,
+          secure: comp.secure,
+          queryParameters: comp.queryParameters,
+          readOnly: comp.readOnly,
+          sortOrder: comp.sortOrder,
+          showValidations: comp.showValidations,
+          grid: comp.grid,
+          source: comp.source,
+          hidden: comp.hidden,
+          pageBreak: comp.pageBreak,
+          renderAsSummary: comp.renderAsSummary,
+          columns: comp.columns,
+        };
+        page.push(likertItem);
+      }
+    }
   }
 }

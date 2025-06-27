@@ -12,9 +12,10 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
+import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import type { ExprConfig, Expression, ExprFunctionName, LayoutReference } from 'src/features/expressions/types';
+import type { Expression, ExprFunctionName } from 'src/features/expressions/types';
 
 interface ExpressionResult {
   value: string;
@@ -42,17 +43,18 @@ function usePlaygroundState() {
 
 export const ExpressionPlayground = () => {
   const input = useDevToolsStore((state) => state.exprPlayground.expression);
-  const forPage = useDevToolsStore((state) => state.exprPlayground.forPage);
-  const forComponentId = useDevToolsStore((state) => state.exprPlayground.forComponentId);
+  const nodeId = useDevToolsStore((state) => state.exprPlayground.nodeId);
   const setExpression = useDevToolsStore((state) => state.actions.exprPlaygroundSetExpression);
   const setContext = useDevToolsStore((state) => state.actions.exprPlaygroundSetContext);
   const setActiveTab = useDevToolsStore((state) => state.actions.setActiveTab);
   const nodeInspectorSet = useDevToolsStore((state) => state.actions.nodeInspectorSet);
   const currentPageId = useNavigationParam('pageKey');
+  const node = useNode(nodeId);
+  const nodePage = node?.page.pageKey;
 
   const { showAllSteps, setShowAllSteps, activeOutputTab, setActiveOutputTab, outputs, setOutputs } =
     usePlaygroundState();
-  const selectedContext = forPage && forComponentId ? [`${forPage}|${forComponentId}`] : [];
+  const selectedContext = nodeId ? [nodeId] : [];
 
   // This is OK if this function is called from places that immediately evaluates the expression again, thus
   // populating the output history with a fresh value.
@@ -60,8 +62,8 @@ export const ExpressionPlayground = () => {
 
   const componentOptions = NodesInternal.useMemoSelector((state) =>
     Object.values(state.nodeData).map((nodeData) => ({
-      label: nodeData.layout.id,
-      value: `${nodeData.pageKey}|${nodeData.layout.id}`,
+      label: nodeData.id,
+      value: nodeData.id,
     })),
   );
 
@@ -90,7 +92,7 @@ export const ExpressionPlayground = () => {
           {outputs.length > 1 && (
             <div className={classes.outputs}>
               <Tabs
-                size='small'
+                data-size='sm'
                 value={activeOutputTab}
                 onChange={(outputName) => {
                   setActiveOutputTab(outputName);
@@ -112,7 +114,7 @@ export const ExpressionPlayground = () => {
                 {outputs.map((output, i) => {
                   const { key, value } = getTabKeyAndValue(i, output);
                   return (
-                    <Tabs.Content
+                    <Tabs.Panel
                       value={value}
                       key={key}
                     >
@@ -123,7 +125,7 @@ export const ExpressionPlayground = () => {
                         value={output.value}
                         placeholder='Resultatet av uttrykket vises her'
                       />
-                    </Tabs.Content>
+                    </Tabs.Panel>
                   );
                 })}
               </Tabs>
@@ -131,15 +133,15 @@ export const ExpressionPlayground = () => {
           )}
         </SplitView>
         <div className={classes.rightColumn}>
-          <Fieldset legend='Kjør uttrykk i kontekst av komponent'>
+          <Fieldset>
+            <Fieldset.Legend>Kjør uttrykk i kontekst av komponent</Fieldset.Legend>
             <Combobox
               size='sm'
               value={selectedContext}
               onValueChange={(values) => {
                 const selected = values.at(0);
                 if (selected) {
-                  const [forPage, forComponentId] = selected.split('|', 2);
-                  setContext(forPage, forComponentId);
+                  setContext(selected);
                 }
               }}
               className={comboboxClasses.container}
@@ -154,22 +156,22 @@ export const ExpressionPlayground = () => {
                 </Combobox.Option>
               ))}
             </Combobox>
-            {forComponentId && forPage === currentPageId && (
+            {nodeId && nodePage === currentPageId && (
               // eslint-disable-next-line jsx-a11y/anchor-is-valid
               <a
                 href='#'
                 onClick={(e) => {
                   e.preventDefault();
                   setActiveTab(DevToolsTab.Components);
-                  nodeInspectorSet(forComponentId);
+                  nodeInspectorSet(nodeId);
                 }}
               >
                 Vis i komponent-utforskeren
               </a>
             )}
-            {forComponentId && forPage !== currentPageId && (
+            {nodeId && nodePage !== currentPageId && (
               <span>
-                Komponenten vises på siden <em>{forPage}</em>
+                Komponenten vises på siden <em>{nodePage}</em>
               </span>
             )}
             <div style={{ paddingTop: 10 }}>
@@ -180,14 +182,14 @@ export const ExpressionPlayground = () => {
                   setShowAllSteps(ev.target.checked);
                 }}
                 value='nothing'
-              >
-                Vis alle steg i evalueringen
-              </Checkbox>
+                label='Vis alle steg i evalueringen'
+              />
             </div>
           </Fieldset>
           <br />
           <br />
-          <Fieldset legend='Dokumentasjon'>
+          <Fieldset>
+            <Fieldset.Legend>Dokumentasjon</Fieldset.Legend>
             Les mer om uttrykk{' '}
             <a
               href='https://docs.altinn.studio/nb/altinn-studio/reference/logic/expressions/'
@@ -199,7 +201,7 @@ export const ExpressionPlayground = () => {
           </Fieldset>
         </div>
       </SplitView>
-      <ExpressionRunner
+      <ExpressionRunnerWrapper
         key={input}
         outputs={outputs}
         setOutputs={setOutputs}
@@ -211,10 +213,22 @@ export const ExpressionPlayground = () => {
 
 type RunnerProps = Pick<ReturnType<typeof usePlaygroundState>, 'outputs' | 'setOutputs' | 'showAllSteps'>;
 
+function ExpressionRunnerWrapper(props: RunnerProps) {
+  const nodeId = useDevToolsStore((state) => state.exprPlayground.nodeId);
+
+  if (nodeId) {
+    return (
+      <DataModelLocationProviderFromNode nodeId={nodeId}>
+        <ExpressionRunner {...props} />
+      </DataModelLocationProviderFromNode>
+    );
+  }
+
+  return <ExpressionRunner {...props} />;
+}
+
 function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
   const input = useDevToolsStore((state) => state.exprPlayground.expression);
-  const forPage = useDevToolsStore((state) => state.exprPlayground.forPage);
-  const forComponentId = useDevToolsStore((state) => state.exprPlayground.forComponentId);
   const currentPageId = useNavigationParam('pageKey');
 
   const expression = useMemo(() => {
@@ -254,11 +268,6 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
     }
 
     try {
-      let evalContext: LayoutReference = currentPageId ? { type: 'page', id: currentPageId } : { type: 'none' };
-      if (forPage && forComponentId) {
-        evalContext = { type: 'node', id: forComponentId };
-      }
-
       const calls: string[] = [];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const onAfterFunctionCall = (path: string[], func: ExprFunctionName, args: any[], result: any) => {
@@ -266,12 +275,11 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
         calls.push(`${indent}${JSON.stringify([func, ...args])} => ${JSON.stringify(result)}`);
       };
 
-      const config: ExprConfig<ExprVal.Any> = {
+      const out = evalExpr(expression, dataSources, {
         returnType: ExprVal.Any,
         defaultValue: null,
-      };
-
-      const out = evalExpr(expression, evalContext, dataSources, { config, onAfterFunctionCall });
+        onAfterFunctionCall,
+      });
 
       if (showAllSteps) {
         setOutputWithHistory(calls.join('\n'), false, outputs, setOutputs);
@@ -283,7 +291,7 @@ function ExpressionRunner({ outputs, setOutputs, showAllSteps }: RunnerProps) {
         setOutputs([{ value: e.message, isError: true }]);
       }
     }
-  }, [currentPageId, dataSources, expression, forComponentId, forPage, outputs, setOutputs, showAllSteps]);
+  }, [currentPageId, dataSources, expression, outputs, setOutputs, showAllSteps]);
 
   return null;
 }

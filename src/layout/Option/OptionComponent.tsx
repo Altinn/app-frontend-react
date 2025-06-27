@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { HelpText } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
+import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { getLabelId } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -56,8 +56,8 @@ function Text({ node, usingLabel }: TextProps) {
   const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
   const icon = useNodeItem(node, (i) => i.icon);
   const value = useNodeItem(node, (i) => i.value);
-  const { options, isFetching } = useGetOptions(node, 'single');
-  const { langAsString } = useLanguage(node);
+  const { options, isFetching } = useGetOptions(node.baseId, 'single');
+  const { langAsString } = useLanguage();
   const selectedOption = options.find((option) => option.value === value);
   if (isFetching) {
     return null;

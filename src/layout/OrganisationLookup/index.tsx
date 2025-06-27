@@ -3,13 +3,15 @@ import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent } from '..';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useEmptyFieldValidationOnlyOneBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { OrganisationLookupDef } from 'src/layout/OrganisationLookup/config.def.generated';
 import { OrganisationLookupComponent } from 'src/layout/OrganisationLookup/OrganisationLookupComponent';
 import { OrganisationLookupSummary } from 'src/layout/OrganisationLookup/OrganisationLookupSummary';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -21,8 +23,8 @@ export class OrganisationLookup extends OrganisationLookupDef {
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'OrganisationLookup');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'OrganisationLookup');
     return Object.values(formData ?? {}).join(', ');
   }
 
@@ -42,7 +44,13 @@ export class OrganisationLookup extends OrganisationLookupDef {
     );
   }
 
-  validateDataModelBindings(_ctx: LayoutValidationCtx<'OrganisationLookup'>): string[] {
-    return this.validateDataModelBindingsAny(_ctx, 'organisation_lookup_orgnr', ['string'])[0] ?? [];
+  useDataModelBindingValidation(
+    node: LayoutNode<'OrganisationLookup'>,
+    bindings: IDataModelBindings<'OrganisationLookup'>,
+  ): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    return (
+      validateDataModelBindingsAny(node, bindings, lookupBinding, 'organisation_lookup_orgnr', ['string'])[0] ?? []
+    );
   }
 }

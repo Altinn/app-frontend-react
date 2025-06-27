@@ -1,16 +1,15 @@
 import React from 'react';
 
-import { ErrorMessage, Heading } from '@digdir/designsystemet-react';
-import { ExclamationmarkTriangleIcon } from '@navikt/aksel-icons';
+import { Heading, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
-import { useRepeatingGroupRowState } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import classes from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary.module.css';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import {
   ComponentSummaryById,
@@ -30,9 +29,8 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   const overrides = useSummaryOverrides(componentNode);
   const display = overrides?.display ?? 'list';
   const isCompact = useSummaryProp('isCompact');
-  const { visibleRows } = useRepeatingGroupRowState();
-  const rowsToDisplaySet = new Set(visibleRows.map((row) => row.uuid));
-  const rows = useNodeItem(componentNode, (i) => i.rows).filter((row) => row && rowsToDisplaySet.has(row.uuid));
+  const childIds = RepGroupHooks.useChildIds(target);
+  const rows = RepGroupHooks.useVisibleRows(target);
   const validations = useUnifiedValidationsForNode(componentNode);
   const errors = validationsOfSeverity(validations, 'error');
   const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
@@ -51,12 +49,7 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
         className={className}
       >
         <SingleValueSummary
-          title={
-            <Lang
-              id={title}
-              node={componentNode}
-            />
-          }
+          title={<Lang id={title} />}
           componentNode={componentNode}
           errors={errors}
           isCompact={isCompact}
@@ -87,13 +80,10 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
         data-testid='summary-repeating-group-component'
       >
         <Heading
-          size='xs'
+          data-size='xs'
           level={4}
         >
-          <Lang
-            id={title}
-            node={componentNode}
-          />
+          <Lang id={title} />
         </Heading>
         <div className={cn(classes.contentWrapper, { [classes.nestedContentWrapper]: isNested })}>
           {rows.map((row) => {
@@ -114,10 +104,10 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
                   spacing={6}
                   alignItems='flex-start'
                 >
-                  {row?.itemIds?.map((nodeId) => (
+                  {childIds.map((nodeId) => (
                     <ComponentSummaryById
-                      key={nodeId}
-                      componentId={nodeId}
+                      key={`${nodeId}-${row.index}`}
+                      componentId={`${nodeId}-${row.index}`}
                     />
                   ))}
                 </Flex>
@@ -126,17 +116,15 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
           })}
         </div>
         {errors?.map(({ message }) => (
-          <ErrorMessage
+          <ValidationMessage
             key={message.key}
             className={classes.errorMessage}
           >
-            <ExclamationmarkTriangleIcon fontSize='1.5rem' />
             <Lang
               id={message.key}
               params={message.params}
-              node={componentNode}
             />
-          </ErrorMessage>
+          </ValidationMessage>
         ))}
       </div>
     </SummaryFlexForContainer>

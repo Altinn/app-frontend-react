@@ -1,6 +1,5 @@
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { ContainerComponent } from 'src/layout/LayoutComponent';
-import type { NodeReference, PageReference } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompExternal, CompTypes, ILayouts } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
@@ -35,7 +34,7 @@ interface PlainLayoutLookups {
 interface RelationshipLookups {
   // Map of all component ids to their parent component id
   componentToParent: {
-    [componentId: string]: PageReference | NodeReference | undefined;
+    [componentId: string]: { type: 'page'; id: string } | { type: 'node'; id: string } | undefined;
   };
 
   // Map of all component ids to their children component ids
@@ -54,10 +53,10 @@ interface RelationshipLookups {
 
 interface LookupFunctions {
   // Get the component config for a given ID and component type, or crash
-  getComponent<T extends CompTypes | undefined = CompTypes>(
-    id: string,
+  getComponent<ID extends string | undefined, T extends CompTypes | undefined = CompTypes>(
+    id: ID,
     type?: T,
-  ): CompExternal<T extends CompTypes ? T : CompTypes>;
+  ): ID extends undefined ? undefined : CompExternal<T extends CompTypes ? T : CompTypes>;
 }
 
 export type LayoutLookups = PlainLayoutLookups & RelationshipLookups & LookupFunctions;
@@ -111,7 +110,7 @@ function makePlainLookup(layouts: ILayouts): PlainLayoutLookups {
  */
 export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
   const plainLookups = makePlainLookup(layouts);
-  const componentToParent: { [componentId: string]: PageReference | NodeReference } = {};
+  const componentToParent: { [componentId: string]: { type: 'page'; id: string } | { type: 'node'; id: string } } = {};
   const componentToChildren: { [componentId: string]: string[] } = {};
   const topLevelComponents: { [pageKey: string]: string[] } = {};
   const childClaims: ChildClaimsMap = {};
@@ -164,19 +163,22 @@ export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
 }
 
 function makeLookupFunctions(lookups: PlainLayoutLookups & RelationshipLookups): LayoutLookups {
-  return {
-    ...lookups,
-    getComponent(id, type) {
-      const component = lookups.allComponents[id];
-      if (!component) {
-        throw new Error(`Component '${id}' does not exist`);
-      }
-      if (type && component.type !== type) {
-        throw new Error(`Component '${id}' is of type '${component.type}', not '${type}'`);
-      }
-      return component as CompExternal<typeof type extends CompTypes ? typeof type : CompTypes>;
-    },
-  };
+  const getComponent = ((id, type) => {
+    if (id === undefined) {
+      return undefined;
+    }
+
+    const component = lookups.allComponents[id];
+    if (!component) {
+      throw new Error(`Component '${id}' does not exist`);
+    }
+    if (type && component.type !== type) {
+      throw new Error(`Component '${id}' is of type '${component.type}', not '${type}'`);
+    }
+    return component as CompExternal<typeof type extends CompTypes ? typeof type : CompTypes>;
+  }) as LayoutLookups['getComponent'];
+
+  return { ...lookups, getComponent };
 }
 
 function canClaimChild(childId: string, parentId: string, lookup: PlainLayoutLookups, claims: ChildClaimsMap) {

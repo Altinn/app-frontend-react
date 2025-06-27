@@ -82,10 +82,9 @@ function findRepeatingParents(
   return repeating;
 }
 
-export function useIndexedComponentIds(componentIds: string[], dataModelLocation?: IDataModelReference): string[] {
+export function useIndexedComponentIds(componentIds: string[]): string[] {
   const lookups = useLayoutLookups();
-  const currentDataModelLocation = useCurrentDataModelLocation();
-  const location = dataModelLocation || currentDataModelLocation;
+  const location = useCurrentDataModelLocation();
   return componentIds.map((id) => {
     const indexed = makeIndexedId(id, location, lookups);
     if (indexed === undefined) {
@@ -96,24 +95,4 @@ export function useIndexedComponentIds(componentIds: string[], dataModelLocation
     }
     return indexed;
   });
-}
-
-export function useMakeIndexedId<Throwing extends boolean = true>(
-  throwOnUndefined?: Throwing,
-  dataModelLocation?: IDataModelReference,
-): Throwing extends true ? (id: string) => string : (id: string) => string | undefined {
-  const lookups = useLayoutLookups();
-  const currentDataModelLocation = useCurrentDataModelLocation();
-  const location = dataModelLocation || currentDataModelLocation;
-
-  return (id: string) => {
-    const indexed = makeIndexedId(id, location, lookups);
-    if (indexed === undefined && throwOnUndefined) {
-      throw new Error(
-        `Could not transpose component with id ${id}, it does not exist or is ` +
-          `not available in the current data model location`,
-      );
-    }
-    return indexed as string;
-  };
 }

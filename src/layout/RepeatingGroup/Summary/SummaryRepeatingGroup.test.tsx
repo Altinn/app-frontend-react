@@ -21,13 +21,16 @@ describe('SummaryRepeatingGroup', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 
-  function TestComponent({ node, groupId }: { node: LayoutNode<'Summary'>; groupId: string }) {
-    const groupNode = useNode(groupId) as LayoutNode<'RepeatingGroup'>;
+  function TestComponent({ groupId }: { groupId: string }) {
+    const groupNode = useNode(groupId);
+    if (!groupNode || !groupNode.isType('RepeatingGroup')) {
+      throw new Error('Could not find group node or wrong type');
+    }
+
     return (
       <SummaryRepeatingGroup
         changeText='Change'
         onChangeClick={mockHandleDataChange}
-        summaryNode={node}
         targetNode={groupNode}
       />
     );
@@ -37,12 +40,7 @@ describe('SummaryRepeatingGroup', () => {
     return await renderWithNode<true, LayoutNode<'Summary'>>({
       nodeId: 'mySummary',
       inInstance: true,
-      renderer: ({ node }) => (
-        <TestComponent
-          node={node}
-          groupId='groupComponent'
-        />
-      ),
+      renderer: () => <TestComponent groupId='groupComponent' />,
       queries: {
         fetchFormData: async () => ({
           mockGroup: [

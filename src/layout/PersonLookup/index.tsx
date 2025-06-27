@@ -1,21 +1,23 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { PersonLookupDef } from 'src/layout/PersonLookup/config.def.generated';
 import { PersonLookupComponent } from 'src/layout/PersonLookup/PersonLookupComponent';
 import { PersonLookupSummary } from 'src/layout/PersonLookup/PersonLookupSummary';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class PersonLookup extends PersonLookupDef {
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'PersonLookup');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'PersonLookup');
     return Object.values(formData ?? {}).join(', ');
   }
 
@@ -41,7 +43,11 @@ export class PersonLookup extends PersonLookupDef {
     return useEmptyFieldValidationAllBindings(node, 'person_lookup.error_required');
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'PersonLookup'>): string[] {
-    return this.validateDataModelBindingsAny(ctx, 'person_lookup_ssn', ['string'])[0] ?? [];
+  useDataModelBindingValidation(
+    node: LayoutNode<'PersonLookup'>,
+    bindings: IDataModelBindings<'PersonLookup'>,
+  ): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    return validateDataModelBindingsAny(node, bindings, lookupBinding, 'person_lookup_ssn', ['string'])[0] ?? [];
   }
 }

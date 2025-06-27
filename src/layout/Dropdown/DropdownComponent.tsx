@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { Combobox } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Label } from 'src/app-components/Label/Label';
@@ -13,6 +14,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import classes from 'src/layout/Dropdown/DropdownComponent.module.css';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
@@ -25,12 +27,12 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
   const item = useNodeItem(node);
   const isValid = useIsValid(node);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
-  const { langAsString, lang } = useLanguage(node);
+  const { langAsString, lang } = useLanguage();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ node, overrideDisplay });
 
-  const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'single');
+  const { options, isFetching, selectedValues, setData } = useGetOptions(node.baseId, 'single');
   const debounce = FD.useDebounceImmediately();
 
   const changeMessageGenerator = useCallback(
@@ -57,32 +59,32 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
   }
 
   return (
-    <ConditionalWrapper
-      condition={Boolean(alertOnChange)}
-      wrapper={(children) => (
-        <DeleteWarningPopover
-          onPopoverDeleteClick={confirmChange}
-          onCancelClick={cancelChange}
-          deleteButtonText={langAsString('form_filler.alert_confirm')}
-          messageText={alertMessage}
-          open={alertOpen}
-          setOpen={setAlertOpen}
-        >
-          {children}
-        </DeleteWarningPopover>
-      )}
+    <Label
+      htmlFor={id}
+      label={labelText}
+      grid={grid?.labelGrid}
+      required={required}
+      requiredIndicator={getRequiredComponent()}
+      optionalIndicator={getOptionalComponent()}
+      help={getHelpTextComponent()}
+      description={getDescriptionComponent()}
     >
-      <Label
-        htmlFor={id}
-        label={labelText}
-        grid={grid?.labelGrid}
-        required={required}
-        requiredIndicator={getRequiredComponent()}
-        optionalIndicator={getOptionalComponent()}
-        help={getHelpTextComponent()}
-        description={getDescriptionComponent()}
-      >
-        <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper node={node}>
+        <ConditionalWrapper
+          condition={Boolean(alertOnChange)}
+          wrapper={(children) => (
+            <DeleteWarningPopover
+              onPopoverDeleteClick={confirmChange}
+              onCancelClick={cancelChange}
+              deleteButtonText={langAsString('form_filler.alert_confirm')}
+              messageText={alertMessage}
+              open={alertOpen}
+              setOpen={setAlertOpen}
+            >
+              {children}
+            </DeleteWarningPopover>
+          )}
+        >
           <Combobox
             id={id}
             filter={optionSearchFilter}
@@ -95,7 +97,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             error={!isValid}
             label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-            className={comboboxClasses.container}
+            className={cn(comboboxClasses.container, { [classes.readOnly]: readOnly })}
             style={{ width: '100%' }}
           >
             <Combobox.Empty>
@@ -110,16 +112,13 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
               >
                 <span>
                   <wbr />
-                  <Lang
-                    id={option.label}
-                    node={node}
-                  />
+                  <Lang id={option.label} />
                 </span>
               </Combobox.Option>
             ))}
           </Combobox>
-        </ComponentStructureWrapper>
-      </Label>
-    </ConditionalWrapper>
+        </ConditionalWrapper>
+      </ComponentStructureWrapper>
+    </Label>
   );
 }

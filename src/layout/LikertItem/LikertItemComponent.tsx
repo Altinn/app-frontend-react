@@ -59,7 +59,7 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, PropsFromGenericCompo
       >
         <Label
           asChild
-          size='sm'
+          data-size='sm'
           weight='regular'
         >
           <span>
@@ -67,7 +67,10 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, PropsFromGenericCompo
             <RequiredIndicator required={required} />
           </span>
         </Label>
-        <ComponentValidations validations={validations} />
+        <ComponentValidations
+          validations={validations}
+          node={node}
+        />
       </Table.Cell>
       {calculatedOptions?.map((option, index) => {
         const isChecked = selectedValues[0] === option.value;
@@ -84,15 +87,16 @@ const RadioGroupTableRow = forwardRef<HTMLTableRowElement, PropsFromGenericCompo
               [classes.likertCellDividerBoth]: divider === 'both',
             })}
           >
-            <Radio
-              checked={isChecked}
-              readOnly={readOnly}
-              onChange={handleChange}
-              value={option.value}
-              className={classes.likertRadioButton}
-              name={rowLabelId}
-              aria-labelledby={labelledby}
-            />
+            <div className={classes.likertRadioButton}>
+              <Radio
+                checked={isChecked}
+                readOnly={readOnly}
+                onChange={handleChange}
+                value={option.value}
+                name={rowLabelId}
+                aria-labelledby={labelledby}
+              />
+            </div>
           </Table.Cell>
         );
       })}

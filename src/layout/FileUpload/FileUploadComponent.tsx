@@ -14,12 +14,12 @@ import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { FailedAttachments } from 'src/layout/FileUpload/Error/FailedAttachments';
+import { InfectedFileAlert } from 'src/layout/FileUpload/Error/InfectedFileAlert';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
@@ -49,7 +49,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
   const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
 
-  const { options, isFetching } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
+  const { options, isFetching } = useGetOptions(node.baseId, 'single');
 
   const canUploadMoreAttachments = attachments.length < maxNumberOfAttachments;
   const isComplexMode = displayMode !== 'simple';
@@ -159,6 +159,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
           </button>
         )}
         <FailedAttachments node={node} />
+        <InfectedFileAlert node={node} />
       </div>
     </ComponentStructureWrapper>
   );

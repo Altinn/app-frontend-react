@@ -6,14 +6,12 @@ import { PencilIcon, TrashIcon, XMarkOctagonFillIcon } from '@navikt/aksel-icons
 import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
-import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { useDisplayDataFor } from 'src/features/displayData/useDisplayData';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useIndexedComponentIds } from 'src/features/form/layout/utils/makeIndexedId';
-import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
@@ -24,10 +22,9 @@ import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/Repeating
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNodeItem, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
@@ -76,7 +73,7 @@ function getEditButtonText(
   return langTools.langAsString(buttonTextKey);
 }
 
-export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow({
+export const RepeatingGroupTableRow = React.memo(function ({
   className,
   uuid,
   index,
@@ -92,10 +89,7 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
   const { langAsString } = langTools;
   const id = node.id;
   const group = useNodeItem(node);
-  const row = group.rows.find((r) => r && r.uuid === uuid && r.index === index);
-  const freshUuid = FD.useFreshRowUuid(group.dataModelBindings?.group, index);
-  const isFresh = freshUuid === uuid;
-  const rowExpressions = row?.groupExpressions;
+  const rowExpressions = RepGroupHooks.useRowWithExpressions(node, { uuid });
   const editForRow = rowExpressions?.edit;
   const editForGroup = group.edit;
   const trbForRow = rowExpressions?.textResourceBindings;
@@ -103,12 +97,10 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
-  const nodeDataSelector = NodesInternal.useNodeDataSelector();
   const layoutLookups = useLayoutLookups();
-  const dataModelLocation = useDataModelLocationForRow(group.dataModelBindings.group, index);
   const rawTableIds = useTableComponentIds(node);
-  const displayData = useDisplayDataFor(rawTableIds, dataModelLocation);
-  const tableIds = useIndexedComponentIds(rawTableIds, dataModelLocation);
+  const displayData = useDisplayDataFor(rawTableIds);
+  const tableIds = useIndexedComponentIds(rawTableIds);
   const tableItems = rawTableIds.map((baseId, index) => ({
     baseId,
     id: tableIds[index],
@@ -133,10 +125,6 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
     : getEditButtonText(isEditingRow, langTools, trbForRow);
 
   const deleteButtonText = langAsString('general.delete');
-
-  if (!row) {
-    return null;
-  }
 
   return (
     <Table.Row
@@ -172,8 +160,8 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
             </Table.Cell>
           ) : (
             <NonEditableCell
-              key={item.id}
-              nodeId={item.id}
+              key={item.baseId}
+              baseComponentId={item.baseId}
               isEditingRow={isEditingRow}
               displayData={displayData[item.baseId] ?? ''}
               columnSettings={columnSettings}
@@ -210,13 +198,9 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                     key={item.id}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
-                      <Lang
-                        id={getTableTitle(
-                          nodeDataSelector(
-                            (picker) => picker(item.id, item.type)?.item?.textResourceBindings ?? {},
-                            [item],
-                          ),
-                        )}
+                      <TableTitle
+                        nodeId={item.id}
+                        nodeType={item.type}
                       />
                       :
                     </b>
@@ -250,10 +234,9 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                   aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
                   variant='tertiary'
                   color='second'
-                  onClick={() => toggleEditing({ index: row.index, uuid: row.uuid })}
+                  onClick={() => toggleEditing({ index, uuid })}
                   aria-label={`${editButtonText} ${firstCellData ?? ''}`}
                   className={classes.tableButton}
-                  disabled={!isFresh}
                 >
                   {editButtonText}
                   {rowHasErrors ? (
@@ -290,7 +273,6 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                   firstCellData={firstCellData}
                   alertOnDeleteProps={alertOnDelete}
                   langAsString={langAsString}
-                  disabled={!isFresh}
                 >
                   {deleteButtonText}
                 </DeleteElement>
@@ -344,7 +326,6 @@ export const RepeatingGroupTableRow = React.memo(function RepeatingGroupTableRow
                   firstCellData={firstCellData}
                   alertOnDeleteProps={alertOnDelete}
                   langAsString={langAsString}
-                  disabled={!isFresh}
                 >
                   {isEditingRow || !mobileViewSmall ? deleteButtonText : null}
                 </DeleteElement>
@@ -402,9 +383,8 @@ function DeleteElement({
   children: React.ReactNode;
 }) {
   return (
-    <ConditionalWrapper
-      condition={Boolean(editForRow?.alertOnDelete)}
-      wrapper={(children) => (
+    <>
+      {editForRow?.alertOnDelete && (
         <DeleteWarningPopover
           placement='left'
           deleteButtonText={langAsString('group.row_popover_delete_button_confirm')}
@@ -412,15 +392,14 @@ function DeleteElement({
           onCancelClick={cancelChange}
           onPopoverDeleteClick={confirmChange}
           open={alertOpen}
+          popoverId={`delete-warning-popover-${uuid}`}
           setOpen={setAlertOpen}
-        >
-          {children}
-        </DeleteWarningPopover>
+        />
       )}
-    >
       <Button
         variant='tertiary'
         color='danger'
+        popovertarget={`delete-warning-popover-${uuid}`}
         disabled={isDeletingRow || disabled}
         onClick={() => handleDelete({ index, uuid })}
         aria-label={`${deleteButtonText}-${firstCellData}`}
@@ -433,23 +412,22 @@ function DeleteElement({
           aria-hidden='true'
         />
       </Button>
-    </ConditionalWrapper>
+    </>
   );
 }
 
 function NonEditableCell({
-  nodeId,
+  baseComponentId,
   columnSettings,
   isEditingRow,
   displayData,
 }: {
-  nodeId: string;
+  baseComponentId: string;
   columnSettings: ITableColumnFormatting | undefined;
   displayData: string;
   isEditingRow: boolean;
 }) {
-  const node = useNode(nodeId);
-  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
   return (
     <Table.Cell className={classes.tableCell}>
       <span
@@ -460,4 +438,9 @@ function NonEditableCell({
       </span>
     </Table.Cell>
   );
+}
+
+function TableTitle({ nodeId, nodeType }: { nodeId: string; nodeType: CompTypes }) {
+  const item = useNodeItemWhenType(nodeId, nodeType);
+  return <Lang id={getTableTitle(item?.textResourceBindings ?? {})} />;
 }
