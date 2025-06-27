@@ -43,7 +43,7 @@ export const SummaryComponentFor = React.forwardRef(function (
   { targetNode, overrides }: { targetNode: LayoutNode; overrides?: LegacySummaryOverrides },
   ref: React.Ref<HTMLDivElement>,
 ) {
-  const targetItem = useItemWhenType(targetNode.baseId, 'Summary');
+  const targetItem = useItemFor(targetNode.baseId);
 
   return (
     <SummaryComponentInner
