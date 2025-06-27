@@ -13,10 +13,7 @@ export function useValidateSimpleBindingWithOptionalGroup<T extends 'Checkboxes'
 ) {
   const errors: string[] = [];
   const allowedLeafTypes = ['string', 'boolean', 'number', 'integer'];
-  const groupBinding = bindings?.group;
-  const simpleBinding = bindings?.simpleBinding;
-  const labelBinding = bindings?.label;
-  const metadataBinding = bindings?.metadata;
+  const { group: groupBinding, simpleBinding, label: labelBinding, metadata: metadataBinding } = bindings ?? {};
   const lookupBinding = DataModels.useLookupBinding();
 
   if (groupBinding) {
