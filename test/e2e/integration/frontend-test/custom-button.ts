@@ -6,6 +6,8 @@ describe('Custom Button', () => {
   it('Should perform action and update the frontend with the updated datamodel', () => {
     cy.goto('changename');
 
+    cy.waitUntilNodesReady();
+
     cy.findByRole('button', { name: 'Fyll ut skjema' }).click();
     cy.findByRole('textbox', { name: 'Denne oppdateres av custom button' }).should(
       'have.value',
@@ -27,6 +29,10 @@ describe('Custom Button', () => {
     cy.goto('changename');
 
     cy.findByRole('textbox', { name: /Her kan man skrive input/ }).type('Generate frontend actions');
+
+    cy.waitUntilSaved();
+    cy.waitUntilNodesReady();
+
     cy.findByRole('button', { name: 'Fyll ut skjema' }).click();
     cy.findByText('Oppsummering').should('be.visible');
   });
