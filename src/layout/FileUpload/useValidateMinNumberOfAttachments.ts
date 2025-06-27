@@ -1,12 +1,13 @@
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { ComponentValidation } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function useValidateMinNumberOfAttachments(
   node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>,
 ): ComponentValidation[] {
-  const minNumberOfAttachments = NodesInternal.useNodeData(node, (d) => d.layout.minNumberOfAttachments);
+  const minNumberOfAttachments = useNodeItem(node, (item) => item.minNumberOfAttachments);
   const attachments = NodesInternal.useAttachments(node.id);
   const validations: ComponentValidation[] = [];
 

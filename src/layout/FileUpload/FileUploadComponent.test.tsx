@@ -187,6 +187,83 @@ describe('File uploading components', () => {
       ).toBeInTheDocument();
       jest.restoreAllMocks();
     });
+
+    describe('Expression support for min/max attachments', () => {
+      it('should handle expression for maxNumberOfAttachments', async () => {
+        await render({
+          component: {
+            maxNumberOfAttachments: 2, // Simple number value
+            displayMode: 'list',
+          },
+          attachments: (dataType) => getDataElements({ count: 1, dataType }),
+        });
+
+        // Should show the drop area since we have 1 attachment and max is 2
+        expect(screen.getByRole('presentation', { name: /attachment-title/i })).toBeInTheDocument();
+        expect(screen.getByText(/Antall filer 1\/2\./i)).toBeInTheDocument();
+      });
+
+      it('should handle expression for maxNumberOfAttachments reaching limit', async () => {
+        await render({
+          component: {
+            maxNumberOfAttachments: 2, // Simple number value
+            displayMode: 'list',
+          },
+          attachments: (dataType) => getDataElements({ count: 2, dataType }),
+        });
+
+        // Should not show drop area since we've reached the max
+        expect(screen.queryByRole('presentation', { name: /attachment-title/i })).not.toBeInTheDocument();
+        expect(screen.getByText(/Antall filer 2\/2\./i)).toBeInTheDocument();
+      });
+
+      it('should handle expression for minNumberOfAttachments validation', async () => {
+        await render({
+          component: {
+            minNumberOfAttachments: 2, // Simple number value
+            maxNumberOfAttachments: 5,
+            displayMode: 'list',
+            showValidations: ['Required'], // Enable validation display
+          },
+          attachments: (dataType) => getDataElements({ count: 1, dataType }),
+        });
+
+        // Should show validation error since we need 2 but only have 1
+        await waitFor(() => {
+          expect(screen.getByText(/For å fortsette må du laste opp 2 vedlegg/i)).toBeInTheDocument();
+        });
+      });
+
+      it('should handle zero minNumberOfAttachments', async () => {
+        await render({
+          component: {
+            minNumberOfAttachments: 0,
+            maxNumberOfAttachments: 5,
+            displayMode: 'list',
+          },
+          attachments: (dataType) => getDataElements({ count: 0, dataType }),
+        });
+
+        // Should not show validation error since min is 0
+        expect(screen.queryByText(/For å fortsette må du laste opp/i)).not.toBeInTheDocument();
+      });
+
+      it('should handle default values when expressions are undefined', async () => {
+        await render({
+          component: {
+            // minNumberOfAttachments and maxNumberOfAttachments not specified (should use defaults)
+            displayMode: 'list',
+          },
+          attachments: (dataType) => getDataElements({ count: 1, dataType }),
+        });
+
+        // Should show drop area since default maxNumberOfAttachments is Infinity
+        expect(screen.getByRole('presentation', { name: /attachment-title/i })).toBeInTheDocument();
+
+        // Should not show min validation error since default minNumberOfAttachments is 0
+        expect(screen.queryByText(/For å fortsette må du laste opp/i)).not.toBeInTheDocument();
+      });
+    });
   });
 
   async function openEdit() {

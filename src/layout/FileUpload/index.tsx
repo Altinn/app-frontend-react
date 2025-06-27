@@ -37,8 +37,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return {
       ...this.evalDefaultExpressions(props),
       alertOnDelete: props.evalBool(props.item.alertOnDelete, false),
-      maxNumberOfAttachments: props.evalNum(props.item.maxNumberOfAttachments, NaN),
-      minNumberOfAttachments: props.evalNum(props.item.minNumberOfAttachments, NaN),
+      maxNumberOfAttachments: props.evalNum(props.item.maxNumberOfAttachments, Infinity),
+      minNumberOfAttachments: props.evalNum(props.item.minNumberOfAttachments, 0),
     };
   }
 
