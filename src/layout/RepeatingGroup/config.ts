@@ -111,14 +111,14 @@ export const Config = new CG.component({
   )
   .addTextResource(
     new CG.trb({
-      name: 'navigation_multipage_back_button',
+      name: 'multipage_back_button',
       title: 'Back button in multipage navigation',
       description: 'The text for the "Back" button in multipage navigation',
     }),
   )
   .addTextResource(
     new CG.trb({
-      name: 'navigation_multipage_next_button',
+      name: 'multipage_next_button',
       title: 'Next button in multipage navigation',
       description: 'The text for the "Next" button in multipage navigation',
     }),
