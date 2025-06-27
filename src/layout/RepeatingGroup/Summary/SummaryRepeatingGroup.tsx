@@ -128,7 +128,7 @@ function RegularRepeatingGroup(props: FullProps) {
 function RegularRepeatingGroupRow({ targetNode, inExcludedChildren, row, onChangeClick, changeText }: FullRowProps) {
   const isHidden = Hidden.useIsHiddenSelector();
   const children = useNodeDirectChildren(targetNode, row.index);
-  const dataModelBindings = useDataModelBindingsFor(targetNode.baseId);
+  const dataModelBindings = useDataModelBindingsFor(targetNode.baseId, 'RepeatingGroup');
 
   const childSummaryComponents = children
     .filter((n) => !inExcludedChildren(n))
