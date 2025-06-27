@@ -74,7 +74,7 @@ export const SummaryComponent = React.forwardRef(function (
 ) {
   const summaryItem = useItemWhenType(summaryNode.baseId, 'Summary');
   const targetNode = useNode(summaryItem.componentRef);
-  const { grid, pageBreak } = useItemWhenType(targetNode.baseId, 'Summary');
+  const { grid, pageBreak } = useItemFor(targetNode.baseId);
 
   if (!targetNode) {
     throw new Error(
