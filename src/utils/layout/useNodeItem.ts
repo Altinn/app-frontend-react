@@ -1,6 +1,6 @@
 import { FD } from 'src/features/formData/FormDataWrite';
 import { getComponentDef } from 'src/layout';
-import { useCurrentDataModelLocation, useDataModelLocationForNode } from 'src/utils/layout/DataModelLocation';
+import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import { useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
 import { useDataModelBindingsFor, useIntermediateItem } from 'src/utils/layout/hooks';
 import { NodesInternal, useNodes } from 'src/utils/layout/NodesContext';
@@ -10,30 +10,6 @@ import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeItemFromNode } from 'src/utils/layout/types';
-
-/**
- * Use the item of a node. This re-renders when the item changes (or when the part of the item you select changes),
- * which doesn't happen if you use node.item directly.
- */
-export function useNodeItem<N extends LayoutNode, Out>(node: N, selector: (item: NodeItemFromNode<N>) => Out): Out;
-// eslint-disable-next-line no-redeclare
-export function useNodeItem<N extends LayoutNode>(node: N, selector?: undefined): NodeItemFromNode<N>;
-// eslint-disable-next-line no-redeclare
-export function useNodeItem(node: LayoutNode, selector: never): unknown {
-  const intermediate = useIntermediateItem(node.baseId);
-  const location = useDataModelLocationForNode(node.id);
-  const dataSources = useExpressionDataSources(intermediate, { dataSources: { currentDataModelPath: () => location } });
-  const props = useExpressionResolverProps(`Invalid expression for ${node?.id}`, intermediate, dataSources);
-  const resolved = node?.def.evalExpressions(props as never);
-
-  if (!resolved) {
-    return undefined;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return selector ? (selector as any)(resolved) : resolved;
-}
 
 /**
  * This evaluates all expressions for a given component configuration. If the type is not correct, things will crash.
