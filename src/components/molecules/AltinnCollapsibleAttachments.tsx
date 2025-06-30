@@ -48,7 +48,10 @@ export function AltinnCollapsibleAttachments({
             fontSize='1.5rem'
             className={cn({ [classes.transformArrowRight]: !open }, classes.transition)}
           />
-          <Heading data-size='xs'>
+          <Heading
+            level={3}
+            data-size='xs'
+          >
             {title} {attachmentCount}
           </Heading>
         </div>
