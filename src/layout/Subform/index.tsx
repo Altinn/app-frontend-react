@@ -17,21 +17,21 @@ import type { NodeValidationProps } from 'src/layout/layout';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Subform extends SubformDef implements ValidateComponent<'Subform'>, SubRouting<'Subform'> {
+export class Subform extends SubformDef implements ValidateComponent<'Subform'>, SubRouting {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Subform'>>(
     function LayoutComponentSubformRender(props, _): JSX.Element | null {
       return <SubformComponent {...props} />;
     },
   );
 
-  subRouting({ node }: { node: LayoutNode<'Subform'> }): ReactNode {
+  subRouting({ baseComponentId }: { baseComponentId: string }): ReactNode {
     return (
       <TaskStoreProvider>
         <Routes>
           <Route
             path=':dataElementId/:subformPage?'
             element={
-              <SubformWrapper node={node}>
+              <SubformWrapper baseComponentId={baseComponentId}>
                 <SubformForm />
               </SubformWrapper>
             }

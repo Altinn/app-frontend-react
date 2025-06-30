@@ -84,8 +84,8 @@ export function implementsValidateComponent<Def extends CompDef>(
   return 'useComponentValidation' in def;
 }
 
-export interface SubRouting<Type extends CompTypes> {
-  subRouting: (props: { node: LayoutNode<Type> }) => ReactNode;
+export interface SubRouting {
+  subRouting: (props: { baseComponentId: string }) => ReactNode;
 }
 
 export type ValidationFilterFunction = (
@@ -121,4 +121,8 @@ export function implementsIsDataModelBindingsRequired<T extends CompTypes>(
   isDataModelBindingsRequired: (node: LayoutNode<T>) => boolean;
 } {
   return 'isDataModelBindingsRequired' in def;
+}
+
+export function implementsSubRouting<T extends CompTypes>(def: CompDef<T>): def is CompDef<T> & SubRouting {
+  return 'subRouting' in def;
 }
