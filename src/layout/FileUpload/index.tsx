@@ -9,7 +9,6 @@ import { FileUploadLayoutValidator } from 'src/layout/FileUpload/FileUploadLayou
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { useValidateMinNumberOfAttachments } from 'src/layout/FileUpload/useValidateMinNumberOfAttachments';
 import { useFileUploaderDataBindingsValidation } from 'src/layout/FileUpload/utils/useFileUploaderDataBindingsValidation';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
@@ -30,8 +29,7 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
   }
 
   useDisplayData(baseComponentId: string): string {
-    const nodeId = useIndexedId(baseComponentId);
-    const attachments = useAttachmentsFor(nodeId);
+    const attachments = useAttachmentsFor(baseComponentId);
     return attachments.map((a) => a.data.filename).join(', ');
   }
 

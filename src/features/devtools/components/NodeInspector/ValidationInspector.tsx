@@ -11,7 +11,6 @@ import { isValidationVisible } from 'src/features/validation/utils';
 import { implementsAnyValidation } from 'src/layout';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { FileUploaderNode } from 'src/features/attachments';
 import type { AttachmentValidation, NodeRefValidation, ValidationSeverity } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
@@ -33,7 +32,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
   const nodeVisibility = NodesInternal.useRawValidationVisibility(node);
   const dataModelBindings = useDataModelBindingsFor(node.baseId);
   const type = node.type;
-  const attachments = useAttachmentsFor(node as FileUploaderNode);
+  const attachments = useAttachmentsFor(node.baseId);
 
   if (!implementsAnyValidation(node.def)) {
     return (

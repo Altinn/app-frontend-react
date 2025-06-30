@@ -46,7 +46,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
-  const attachments = useAttachmentsFor(node);
+  const attachments = useAttachmentsFor(node.baseId);
   const addRejectedAttachments = useAddRejectedAttachments();
   const uploadAttachments = useAttachmentsUploader();
 
