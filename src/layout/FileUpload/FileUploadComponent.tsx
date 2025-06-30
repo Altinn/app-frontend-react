@@ -101,7 +101,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
         style={{ padding: '0px', width: '100%' }}
       >
         <Label
-          node={node}
+          baseComponentId={node.baseId}
           renderLabelAs='plainLabel'
         />
         {shouldShowFileUpload && (

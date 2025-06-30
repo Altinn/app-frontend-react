@@ -129,7 +129,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
     return (
       <>
         <Label
-          node={targetNode}
+          baseComponentId={targetNode.baseId}
           id={`subform-summary2-${id}`}
           renderLabelAs='span'
           weight='regular'

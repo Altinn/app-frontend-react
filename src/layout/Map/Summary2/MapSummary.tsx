@@ -63,7 +63,7 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
       <div className={classes.summaryItemWrapper}>
         <div className={classes.summaryItem}>
           <Label
-            node={target}
+            baseComponentId={target.baseId}
             renderLabelAs='span'
             textResourceBindings={{ title }}
           />

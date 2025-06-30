@@ -42,7 +42,7 @@ export function MapComponent({ node }: IMapComponentProps) {
     <ComponentStructureWrapper
       node={node}
       label={{
-        node,
+        baseComponentId: node.baseId,
         renderLabelAs: 'span',
         className: classes.label,
       }}
