@@ -19,7 +19,7 @@ export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 
 export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const { langAsString } = useLanguage();
-  const isValid = useIsValid(node);
+  const isValid = useIsValid(node.baseId);
   const {
     id,
     readOnly,

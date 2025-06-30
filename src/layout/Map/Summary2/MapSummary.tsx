@@ -27,7 +27,7 @@ export function MapSummary({ target }: Summary2Props<'Map'>) {
   const markerLocation = parseLocation(formData.simpleBinding);
   const markerLocationIsValid = isLocationValid(markerLocation);
   const geometries = formData.geometries as RawGeometry[] | undefined;
-  const validations = useUnifiedValidationsForNode(target);
+  const validations = useUnifiedValidationsForNode(target.baseId);
   const errors = validationsOfSeverity(validations, 'error');
   const title = textResourceBindings?.title;
 

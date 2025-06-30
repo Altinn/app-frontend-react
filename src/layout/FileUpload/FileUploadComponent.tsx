@@ -50,7 +50,9 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
   const addRejectedAttachments = useAddRejectedAttachments();
   const uploadAttachments = useAttachmentsUploader();
 
-  const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
+  const validations = useUnifiedValidationsForNode(node.baseId).filter(
+    (v) => !('attachmentId' in v) || !v.attachmentId,
+  );
 
   const { options, isFetching } = useGetOptions(node.baseId, 'single');
 
@@ -126,7 +128,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             />
             <ComponentValidations
               validations={validations}
-              node={node}
+              baseComponentId={node.baseId}
             />
             {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin} />}
           </>
@@ -148,7 +150,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             />
             <ComponentValidations
               validations={validations}
-              node={node}
+              baseComponentId={node.baseId}
             />
             <br />
           </>

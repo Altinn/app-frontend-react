@@ -15,7 +15,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
@@ -87,7 +87,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
   const [ssnErrors, setSsnErrors] = useState<string[]>();
   const [nameError, setNameError] = useState<string>();
 
-  const bindingValidations = useBindingValidationsForNode(node);
+  const bindingValidations = useBindingValidationsFor<'PersonLookup'>(node.baseId);
   const { langAsString } = useLanguage();
   const {
     formData: { person_lookup_ssn, person_lookup_name },
@@ -211,7 +211,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               (hasValidationErrors(bindingValidations?.person_lookup_ssn) && (
                 <ComponentValidations
                   validations={bindingValidations?.person_lookup_ssn}
-                  node={node}
+                  baseComponentId={node.baseId}
                 />
               ))}
           </Field>
@@ -262,7 +262,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               (hasValidationErrors(bindingValidations?.person_lookup_name) && (
                 <ComponentValidations
                   validations={bindingValidations?.person_lookup_name}
-                  node={node}
+                  baseComponentId={node.baseId}
                 />
               ))}
           </Field>

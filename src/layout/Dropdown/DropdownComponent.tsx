@@ -25,7 +25,7 @@ export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
 
 export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
   const item = useItemWhenType(node.baseId, 'Dropdown');
-  const isValid = useIsValid(node);
+  const isValid = useIsValid(node.baseId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
   const { langAsString, lang } = useLanguage();
 

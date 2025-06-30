@@ -57,7 +57,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
         item
         size={{ xs: 12 }}
       >
-        <AllComponentValidations node={node} />
+        <AllComponentValidations baseComponentId={node.baseId} />
       </Flex>
     </Flex>
   );

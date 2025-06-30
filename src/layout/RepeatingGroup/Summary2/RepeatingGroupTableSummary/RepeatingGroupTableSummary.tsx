@@ -38,7 +38,7 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
   const pdfModeActive = usePdfModeActive();
   const isSmall = isMobile && !pdfModeActive;
   const rows = RepGroupHooks.useVisibleRows(componentNode);
-  const validations = useUnifiedValidationsForNode(componentNode);
+  const validations = useUnifiedValidationsForNode(componentNode.baseId);
   const errors = validationsOfSeverity(validations, 'error');
   const { textResourceBindings, dataModelBindings, tableColumns } = useItemWhenType(
     componentNode.baseId,
