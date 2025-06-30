@@ -24,7 +24,7 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
 
-export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
+export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
     function LayoutComponentRepeatingGroupRender(props, ref): JSX.Element | null {
       return (
@@ -69,8 +69,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return false;
   }
 
-  useComponentValidation(node: LayoutNode<'RepeatingGroup'>): ComponentValidation[] {
-    return useValidateRepGroupMinCount(node);
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateRepGroupMinCount(baseComponentId);
   }
 
   /**

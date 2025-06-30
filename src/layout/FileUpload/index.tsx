@@ -17,7 +17,7 @@ import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutCompon
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUpload extends FileUploadDef implements ValidateComponent<'FileUpload'> {
+export class FileUpload extends FileUploadDef implements ValidateComponent {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUpload'>>(
     function LayoutComponentFileUploadRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -63,8 +63,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return [];
   }
 
-  useComponentValidation(node: LayoutNode<'FileUpload'>): ComponentValidation[] {
-    return useValidateMinNumberOfAttachments(node);
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateMinNumberOfAttachments(baseComponentId);
   }
 
   isDataModelBindingsRequired(node: LayoutNode<'FileUpload'>): boolean {

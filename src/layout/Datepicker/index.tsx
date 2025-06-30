@@ -28,7 +28,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Datepicker extends DatepickerDef implements ValidateComponent<'Datepicker'>, ValidationFilter {
+export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
     function LayoutComponentDatepickerRender(props, _): JSX.Element | null {
       return <DatepickerComponent {...props} />;
@@ -63,8 +63,8 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     return <DatepickerSummary {...props} />;
   }
 
-  useComponentValidation(node: LayoutNode<'Datepicker'>): ComponentValidation[] {
-    return useDatepickerValidation(node);
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return useDatepickerValidation(baseComponentId);
   }
 
   /**

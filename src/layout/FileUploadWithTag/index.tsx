@@ -17,7 +17,7 @@ import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutCompon
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent<'FileUploadWithTag'> {
+export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>(
     function LayoutComponentFileUploadWithTagRender(props, _): JSX.Element | null {
       return <FileUploadComponent {...props} />;
@@ -59,8 +59,8 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return [];
   }
 
-  useComponentValidation(node: LayoutNode<'FileUploadWithTag'>): ComponentValidation[] {
-    return [...useValidateMinNumberOfAttachments(node), ...useValidateMissingTag(node)];
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return [...useValidateMinNumberOfAttachments(baseComponentId), ...useValidateMissingTag(baseComponentId)];
   }
 
   isDataModelBindingsRequired(node: LayoutNode<'FileUploadWithTag'>): boolean {

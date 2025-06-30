@@ -58,11 +58,9 @@ export function getComponentCapabilities<T extends CompTypes>(type: T): Componen
   return undefined as any;
 }
 
-type TypeFromDef<Def extends CompDef> = Def extends CompDef<infer T> ? T : CompTypes;
-
 export function implementsAnyValidation<Def extends CompDef>(
   def: Def,
-): def is Def & (ValidateEmptyField | ValidateComponent<TypeFromDef<Def>>) {
+): def is Def & (ValidateEmptyField | ValidateComponent) {
   return 'useEmptyFieldValidation' in def || 'useComponentValidation' in def;
 }
 
@@ -74,13 +72,11 @@ export function implementsValidateEmptyField<Def extends CompDef>(def: Def): def
   return 'useEmptyFieldValidation' in def;
 }
 
-export interface ValidateComponent<Type extends CompTypes> {
-  useComponentValidation: (node: LayoutNode<Type>) => ComponentValidation[];
+export interface ValidateComponent {
+  useComponentValidation: (baseComponentId: string) => ComponentValidation[];
 }
 
-export function implementsValidateComponent<Def extends CompDef>(
-  def: Def,
-): def is Def & ValidateComponent<TypeFromDef<Def>> {
+export function implementsValidateComponent<Def extends CompDef>(def: Def): def is Def & ValidateComponent {
   return 'useComponentValidation' in def;
 }
 

@@ -18,7 +18,7 @@ import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Address extends AddressDef implements ValidateComponent<'Address'> {
+export class Address extends AddressDef implements ValidateComponent {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Address'>>(
     function LayoutComponentAddressRender(props, _): JSX.Element | null {
       return <AddressComponent {...props} />;
@@ -43,8 +43,8 @@ export class Address extends AddressDef implements ValidateComponent<'Address'> 
     return false;
   }
 
-  useComponentValidation(node: LayoutNode<'Address'>): ComponentValidation[] {
-    return useAddressValidation(node);
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return useAddressValidation(baseComponentId);
   }
 
   useDataModelBindingValidation(node: LayoutNode<'Address'>, bindings: IDataModelBindings<'Address'>): string[] {

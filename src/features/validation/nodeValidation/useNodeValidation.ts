@@ -34,8 +34,7 @@ export function useNodeValidation(node: LayoutNode): AnyValidation[] {
   }
 
   if (implementsValidateComponent(node.def)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    unfiltered.push(...node.def.useComponentValidation(node as any));
+    unfiltered.push(...node.def.useComponentValidation(node.baseId));
   }
 
   const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
