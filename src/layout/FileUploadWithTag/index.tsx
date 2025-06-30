@@ -9,13 +9,12 @@ import { useValidateMinNumberOfAttachments } from 'src/layout/FileUpload/useVali
 import { useFileUploaderDataBindingsValidation } from 'src/layout/FileUpload/utils/useFileUploaderDataBindingsValidation';
 import { FileUploadWithTagDef } from 'src/layout/FileUploadWithTag/config.def.generated';
 import { useValidateMissingTag } from 'src/layout/FileUploadWithTag/useValidateMissingTag';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
 import type { IDataModelBindings, NodeValidationProps } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateComponent {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'FileUploadWithTag'>>(
@@ -63,15 +62,14 @@ export class FileUploadWithTag extends FileUploadWithTagDef implements ValidateC
     return [...useValidateMinNumberOfAttachments(baseComponentId), ...useValidateMissingTag(baseComponentId)];
   }
 
-  isDataModelBindingsRequired(node: LayoutNode<'FileUploadWithTag'>): boolean {
+  isDataModelBindingsRequired(baseComponentId: string, layoutLookups: LayoutLookups): boolean {
     // Data model bindings are only required when the component is defined inside a repeating group
-    return !(node.parent instanceof LayoutPage) && node.parent.isType('RepeatingGroup');
+    const parentId = layoutLookups.componentToParent[baseComponentId];
+    const parentLayout = parentId && parentId.type === 'node' ? layoutLookups.allComponents[parentId.id] : undefined;
+    return parentLayout?.type === 'RepeatingGroup';
   }
 
-  useDataModelBindingValidation(
-    node: LayoutNode<'FileUploadWithTag'>,
-    bindings: IDataModelBindings<'FileUploadWithTag'>,
-  ): string[] {
-    return useFileUploaderDataBindingsValidation(node, bindings);
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'FileUploadWithTag'>): string[] {
+    return useFileUploaderDataBindingsValidation(baseComponentId, bindings);
   }
 }

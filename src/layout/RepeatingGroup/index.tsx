@@ -4,6 +4,7 @@ import type { JSX } from 'react';
 import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
@@ -21,7 +22,6 @@ import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
@@ -94,12 +94,17 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return true;
   }
 
-  useDataModelBindingValidation(
-    node: LayoutNode<'RepeatingGroup'>,
-    bindings: IDataModelBindings<'RepeatingGroup'>,
-  ): string[] {
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'RepeatingGroup'>): string[] {
     const lookupBinding = DataModels.useLookupBinding();
-    const [errors, result] = validateDataModelBindingsAny(node, bindings, lookupBinding, 'group', ['array']);
+    const layoutLookups = useLayoutLookups();
+    const [errors, result] = validateDataModelBindingsAny(
+      baseComponentId,
+      bindings,
+      lookupBinding,
+      layoutLookups,
+      'group',
+      ['array'],
+    );
     if (errors) {
       return errors;
     }

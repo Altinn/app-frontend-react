@@ -26,7 +26,6 @@ import type {
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Datepicker'>>(
@@ -112,10 +111,18 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     return filters;
   }
 
-  useDataModelBindingValidation(node: LayoutNode<'Datepicker'>, bindings: IDataModelBindings<'Datepicker'>): string[] {
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'Datepicker'>): string[] {
     const lookupBinding = DataModels.useLookupBinding();
-    const component = useLayoutLookups().getComponent(node.baseId, 'Datepicker');
-    const validation = validateDataModelBindingsAny(node, bindings, lookupBinding, 'simpleBinding', ['string']);
+    const layoutLookups = useLayoutLookups();
+    const component = useLayoutLookups().getComponent(baseComponentId, 'Datepicker');
+    const validation = validateDataModelBindingsAny(
+      baseComponentId,
+      bindings,
+      lookupBinding,
+      layoutLookups,
+      'simpleBinding',
+      ['string'],
+    );
     const [errors, result] = [validation[0] ?? [], validation[1]];
 
     if (result?.format === 'date-time' && component.timeStamp === false) {

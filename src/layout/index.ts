@@ -103,20 +103,28 @@ export function implementsDisplayData<Def extends CompDef>(def: Def): def is Def
 
 export function implementsDataModelBindingValidation<T extends CompTypes>(
   def: CompDef<T>,
-  _node: LayoutNode<T>,
+  _item?: CompIntermediate<T>,
 ): def is CompDef<T> & {
-  useDataModelBindingValidation: (node: LayoutNode<T>, bindings: CompIntermediate['dataModelBindings']) => string[];
+  useDataModelBindingValidation: (baseComponentId: string, bindings: CompIntermediate['dataModelBindings']) => string[];
 } {
   return 'useDataModelBindingValidation' in def;
 }
 
 export function implementsIsDataModelBindingsRequired<T extends CompTypes>(
   def: CompDef<T>,
-  _node: LayoutNode<T>,
 ): def is CompDef<T> & {
-  isDataModelBindingsRequired: (node: LayoutNode<T>) => boolean;
+  isDataModelBindingsRequired: (baseComponentId: string, lookups: LayoutLookups) => boolean;
 } {
   return 'isDataModelBindingsRequired' in def;
+}
+
+export function isDataModelBindingsRequired(baseComponentId: string, lookups: LayoutLookups): boolean {
+  const component = lookups.getComponent(baseComponentId);
+  if (!component) {
+    return false;
+  }
+  const def = getComponentDef(component.type);
+  return implementsIsDataModelBindingsRequired(def) ? def.isDataModelBindingsRequired(baseComponentId, lookups) : false;
 }
 
 export function implementsSubRouting<T extends CompTypes>(def: CompDef<T>): def is CompDef<T> & SubRouting {
