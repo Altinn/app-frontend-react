@@ -68,12 +68,14 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
 
   const displayAttachments = toDisplayAttachments([...pdfAttachments, ...filteredAttachments]);
 
+  const title = textResourceBindings?.title ? <Lang id={textResourceBindings?.title} /> : undefined;
+
   return (
     <ComponentStructureWrapper node={node}>
       {groupAttachments ? (
         <AttachmentGroupings
           attachments={displayAttachments}
-          title={<Lang id={textResourceBindings?.title} />}
+          title={title}
           hideCollapsibleCount={true}
           showLinks={showLinks}
           showDescription={showDescription}
@@ -81,7 +83,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
       ) : (
         <AltinnAttachments
           attachments={displayAttachments}
-          title={<Lang id={textResourceBindings?.title} />}
+          title={title}
           showLinks={showLinks}
           showDescription={showDescription}
         />
