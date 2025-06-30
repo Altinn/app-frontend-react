@@ -82,8 +82,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     );
   }
 
-  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
-    const component = layoutLookups.getComponent(node.baseId, 'RepeatingGroup');
+  getValidationFilters(baseComponentId: string, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
+    const component = layoutLookups.getComponent(baseComponentId, 'RepeatingGroup');
     if (component.minCount && component.minCount > 0) {
       return [this.schemaMinItemsFilter];
     }

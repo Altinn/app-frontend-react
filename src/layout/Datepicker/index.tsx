@@ -97,9 +97,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     );
   }
 
-  getValidationFilters(node: LayoutNode<'Datepicker'>, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
+  getValidationFilters(baseComponentId: string, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
     const filters = [Datepicker.schemaFormatFilter];
-    const component = layoutLookups.getComponent(node.baseId, 'Datepicker');
+    const component = layoutLookups.getComponent(baseComponentId, 'Datepicker');
 
     if (component.minDate) {
       filters.push(Datepicker.schemaFormatMinimumFilter);

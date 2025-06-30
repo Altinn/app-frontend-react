@@ -91,7 +91,7 @@ export type ValidationFilterFunction = (
 ) => boolean;
 
 export interface ValidationFilter {
-  getValidationFilters: (node: LayoutNode, layoutLookups: LayoutLookups) => ValidationFilterFunction[];
+  getValidationFilters: (baseComponentId: string, layoutLookups: LayoutLookups) => ValidationFilterFunction[];
 }
 
 export type FormDataSelector = (reference: IDataModelReference) => unknown;
