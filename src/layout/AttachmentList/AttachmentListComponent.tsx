@@ -74,7 +74,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
       {groupAttachments ? (
         <AttachmentGroupings
           attachments={displayAttachments}
-          collapsibleTitle={<Lang id={textResourceBindings?.title} />}
+          title={<Lang id={textResourceBindings?.title} />}
           hideCollapsibleCount={true}
           showLinks={showLinks}
           showDescription={showDescription}

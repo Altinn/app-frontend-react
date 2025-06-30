@@ -1,12 +1,17 @@
 import React from 'react';
+import type { JSX } from 'react';
+
+import { Heading } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
 import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
+import classes from 'src/components/organisms/AttachmentGroupings.module.css';
 import { useLanguage } from 'src/features/language/useLanguage';
 import type { IDisplayAttachment } from 'src/types/shared';
 
 interface IRenderAttachmentGroupings {
   attachments: IDisplayAttachment[] | undefined;
-  collapsibleTitle: React.ReactNode;
+  title: JSX.Element | undefined;
   hideCollapsibleCount?: boolean;
   showLinks: boolean | undefined;
   showDescription?: boolean;
@@ -16,7 +21,7 @@ const defaultGroupingKey = 'null';
 
 export const AttachmentGroupings = ({
   attachments = [],
-  collapsibleTitle,
+  title,
   hideCollapsibleCount,
   showLinks = true,
   showDescription = false,
@@ -43,24 +48,40 @@ export const AttachmentGroupings = ({
     return 0;
   }
 
-  if (!groupings) {
+  if (!Object.entries(groupings).length) {
     return null;
   }
+  const attachmentsWithoutGrouping = groupings[defaultGroupingKey] ?? [];
+  const hasAnyDocumentsWithoutGrouping = attachmentsWithoutGrouping.length > 0;
+  const noGroupingAttachmentCount =
+    !hideCollapsibleCount && attachmentsWithoutGrouping.length > 0 ? `(${attachmentsWithoutGrouping.length})` : '';
 
   return (
     <>
-      {Object.keys(groupings)
-        .sort(sortDefaultGroupingFirst)
-        .map((groupTitle, index) => (
-          <AltinnCollapsibleAttachments
-            key={index}
-            attachments={groupings[groupTitle]}
-            title={groupTitle === 'null' ? collapsibleTitle : groupTitle}
-            hideCount={hideCollapsibleCount}
-            showLinks={showLinks}
-            showDescription={showDescription}
-          />
-        ))}
+      {title && (
+        <Heading
+          level={2}
+          data-size='sm'
+          className={cn({ [classes.paddingBottom]: !hasAnyDocumentsWithoutGrouping })}
+        >
+          {title}&nbsp;{noGroupingAttachmentCount}
+        </Heading>
+      )}
+      <ul className={classes.groupList}>
+        {Object.keys(groupings)
+          .sort(sortDefaultGroupingFirst)
+          .map((groupTitle) => (
+            <li key={groupTitle}>
+              <AltinnCollapsibleAttachments
+                attachments={groupings[groupTitle]}
+                title={groupTitle === defaultGroupingKey ? undefined : groupTitle}
+                hideCount={hideCollapsibleCount}
+                showLinks={showLinks}
+                showDescription={showDescription}
+              />
+            </li>
+          ))}
+      </ul>
     </>
   );
 };
