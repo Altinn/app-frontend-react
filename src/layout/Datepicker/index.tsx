@@ -2,6 +2,7 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { formatISOString, getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -11,8 +12,9 @@ import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { DatepickerSummary } from 'src/layout/Datepicker/DatepickerSummary';
 import { useDatepickerValidation } from 'src/layout/Datepicker/useDatepickerValidation';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { useValidateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
-import { useNodeFormDataWhenType, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type {
@@ -33,11 +35,11 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'Datepicker');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'Datepicker');
     const currentLanguage = useCurrentLanguage();
-    const item = useNodeItemWhenType(nodeId, 'Datepicker');
-    const format = item?.format;
+    const component = useExternalItem(baseComponentId, 'Datepicker');
+    const format = component?.format;
     const data = formData?.simpleBinding ?? '';
     if (!data) {
       return '';
@@ -111,8 +113,9 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
   }
 
   useDataModelBindingValidation(node: LayoutNode<'Datepicker'>, bindings: IDataModelBindings<'Datepicker'>): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
     const component = useLayoutLookups().getComponent(node.baseId, 'Datepicker');
-    const validation = useValidateDataModelBindingsAny(node, bindings, 'simpleBinding', ['string']);
+    const validation = validateDataModelBindingsAny(node, bindings, lookupBinding, 'simpleBinding', ['string']);
     const [errors, result] = [validation[0] ?? [], validation[1]];
 
     if (result?.format === 'date-time' && component.timeStamp === false) {

@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FrontendValidationSource } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
@@ -12,7 +13,7 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
-import { useValidateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
@@ -97,7 +98,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     node: LayoutNode<'RepeatingGroup'>,
     bindings: IDataModelBindings<'RepeatingGroup'>,
   ): string[] {
-    const [errors, result] = useValidateDataModelBindingsAny(node, bindings, 'group', ['array']);
+    const lookupBinding = DataModels.useLookupBinding();
+    const [errors, result] = validateDataModelBindingsAny(node, bindings, lookupBinding, 'group', ['array']);
     if (errors) {
       return errors;
     }
@@ -112,15 +114,16 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return [];
   }
 
-  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string): boolean {
-    const hiddenByPlugins = super.isChildHidden(state, childId);
+  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string, lookups: LayoutLookups): boolean {
+    const hiddenByPlugins = super.isChildHidden(state, childId, lookups);
     if (hiddenByPlugins) {
       return true;
     }
 
     const { baseComponentId } = splitDashedKey(childId);
-    const tableColSetup = state.layout?.tableColumns?.[baseComponentId];
-    const mode = state.layout?.edit?.mode;
+    const layout = lookups.getComponent(state.baseId, 'RepeatingGroup');
+    const tableColSetup = layout.tableColumns?.[baseComponentId];
+    const mode = layout.edit?.mode;
 
     // This specific configuration hides the component fully, without having set hidden=true on the component itself.
     // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,

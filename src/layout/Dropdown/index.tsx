@@ -1,16 +1,17 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useEmptyFieldValidationOnlyOneBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { DropdownDef } from 'src/layout/Dropdown/config.def.generated';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
 import { DropdownSummary } from 'src/layout/Dropdown/DropdownSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { useValidateDataModelBindingsSimple } from 'src/utils/layout/generator/validation/hooks';
+import { validateDataModelBindingsSimple } from 'src/utils/layout/generator/validation/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -26,9 +27,9 @@ export class Dropdown extends DropdownDef {
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'Dropdown');
-    const options = useNodeOptions(nodeId).options;
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'Dropdown');
+    const options = useOptionsFor(baseComponentId, 'single').options;
     const langTools = useLanguage();
     const value = String(formData?.simpleBinding ?? '');
     if (!value) {
@@ -59,6 +60,7 @@ export class Dropdown extends DropdownDef {
   }
 
   useDataModelBindingValidation(node: LayoutNode<'Dropdown'>, bindings: IDataModelBindings<'Dropdown'>): string[] {
-    return useValidateDataModelBindingsSimple(node, bindings);
+    const lookupBinding = DataModels.useLookupBinding();
+    return validateDataModelBindingsSimple(node, bindings, lookupBinding);
   }
 }
