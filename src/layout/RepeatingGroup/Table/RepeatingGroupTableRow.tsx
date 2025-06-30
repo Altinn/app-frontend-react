@@ -88,7 +88,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
   const { langAsString } = langTools;
   const id = node.id;
   const { edit: editForGroup, tableColumns: columnSettings } = useItemWhenType(node.baseId, 'RepeatingGroup');
-  const rowExpressions = RepGroupHooks.useRowWithExpressions(node, { uuid });
+  const rowExpressions = RepGroupHooks.useRowWithExpressions(node.baseId, { uuid });
   const editForRow = rowExpressions?.edit;
   const trbForRow = rowExpressions?.textResourceBindings;
 

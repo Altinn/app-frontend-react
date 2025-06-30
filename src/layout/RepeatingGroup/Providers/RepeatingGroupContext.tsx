@@ -329,7 +329,7 @@ function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): Ext
   const onGroupCloseValidation = useOnGroupCloseValidation();
   const markNodesNotReady = NodesInternal.useMarkNotReady();
 
-  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(node);
+  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(node.baseId);
   const getState = useCallback(() => produceStateFromRows(getRows() ?? []), [getRows]);
   const getPaginationState = useCallback(
     () => producePaginationState(stateRef.current.currentPage, pagination, getState().visibleRows),
@@ -575,7 +575,7 @@ export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Pro
   const component = useExternalItem(node.baseId, 'RepeatingGroup');
   const pagination = component.pagination;
   const editMode = component.edit?.mode;
-  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(node);
+  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(node.baseId);
 
   return (
     <ZStore.Provider
@@ -601,7 +601,7 @@ function useBinding(node: LayoutNode<'RepeatingGroup'>) {
 
 export const useRepeatingGroupRowState = () => {
   const node = useRepeatingGroupNode();
-  const rows = RepGroupHooks.useAllRowsWithButtons(node);
+  const rows = RepGroupHooks.useAllRowsWithButtons(node.baseId);
   return useMemo(() => produceStateFromRows(rows), [rows]);
 };
 

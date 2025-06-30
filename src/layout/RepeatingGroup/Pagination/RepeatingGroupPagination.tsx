@@ -179,7 +179,7 @@ function PaginationComponent({
  * Returns a list of pagination pages containing errors
  */
 function usePagesWithErrors(rowsPerPage: number | undefined, node: LayoutNode<'RepeatingGroup'>): number[] {
-  const rows = RepGroupHooks.useAllRowsWithHidden(node);
+  const rows = RepGroupHooks.useAllRowsWithHidden(node.baseId);
   const deepValidations = NodesInternal.useVisibleValidationsDeep(node, 'visible', false, undefined, 'error');
 
   return useMemo(() => {

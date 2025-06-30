@@ -33,7 +33,7 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
   const { node, isEditing } = useRepeatingGroup();
   const { rowsToDisplay } = useRepeatingGroupPagination();
-  const rows = RepGroupHooks.useAllRowsWithButtons(node);
+  const rows = RepGroupHooks.useAllRowsWithButtons(node.baseId);
   const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, dataModelBindings } =
     useItemWhenType(node.baseId, 'RepeatingGroup');
   const required = !!minCount && minCount > 0;

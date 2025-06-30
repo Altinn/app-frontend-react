@@ -33,7 +33,7 @@ export interface IRepeatingGroupsEditContainer {
 
 export function RepeatingGroupsEditContainer({ editId, ...props }: IRepeatingGroupsEditContainer): JSX.Element | null {
   const { node } = useRepeatingGroup();
-  const rows = RepGroupHooks.useVisibleRows(node);
+  const rows = RepGroupHooks.useVisibleRows(node.baseId);
   const row = rows.find((r) => r && r.uuid === editId);
   if (!row) {
     return null;
@@ -60,7 +60,7 @@ function RepeatingGroupsEditContainerInternal({
 }): JSX.Element | null {
   const { node, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
-  const childIds = RepGroupHooks.useChildIds(node);
+  const childIds = RepGroupHooks.useChildIds(node.baseId);
 
   const editingRowIndex = visibleRows.find((r) => r.uuid === editId)?.index;
   let moreVisibleRowsAfterEditIndex = false;
@@ -74,7 +74,7 @@ function RepeatingGroupsEditContainerInternal({
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = node.id;
-  const rowWithExpressions = RepGroupHooks.useRowWithExpressions(node, { uuid: row.uuid });
+  const rowWithExpressions = RepGroupHooks.useRowWithExpressions(node.baseId, { uuid: row.uuid });
   const textsForRow = rowWithExpressions?.textResourceBindings;
   const editForRow = rowWithExpressions?.edit;
   const { textResourceBindings, edit: editForGroup, tableColumns } = useItemWhenType(node.baseId, 'RepeatingGroup');

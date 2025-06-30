@@ -26,7 +26,7 @@ const { Provider, useCtx } = createContext<RepeatingGroupEditRowContext>({
 function useRepeatingGroupEditRowState(
   node: LayoutNode<'RepeatingGroup'>,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
-  const lastPage = RepGroupHooks.useLastMultiPageIndex(node) ?? 0;
+  const lastPage = RepGroupHooks.useLastMultiPageIndex(node.baseId) ?? 0;
   const multiPageEnabled = useExternalItem(node.baseId, 'RepeatingGroup').edit?.multiPage ?? false;
   const [multiPageIndex, setMultiPageIndex] = useState(0);
 

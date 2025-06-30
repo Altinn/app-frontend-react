@@ -79,7 +79,7 @@ function ModeOnlyEdit({ editingId }: { editingId: string }) {
 
   const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup').group;
   const grid = useExternalItem(node.baseId, 'RepeatingGroup').grid;
-  const rowIndex = RepGroupHooks.useAllBaseRows(node).find((r) => r.uuid === editingId)?.index;
+  const rowIndex = RepGroupHooks.useAllBaseRows(node.baseId).find((r) => r.uuid === editingId)?.index;
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
 
   if (rowIndex === undefined) {
