@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
@@ -29,6 +30,7 @@ function useRepeatingGroupEditRowState(
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
   const edit = useNodeItem(node, (item) => item.edit);
   const multiPageEnabled = edit?.multiPage ?? false;
+  const lookups = useLayoutLookups();
 
   const children = RepGroupHooks.useChildIdsWithMultiPage(node);
 
@@ -36,7 +38,7 @@ function useRepeatingGroupEditRowState(
     children.map(({ id, multiPageIndex }) => ({
       nodeId: id,
       page: multiPageIndex,
-      hidden: isHidden(state, 'node', id),
+      hidden: isHidden(state, 'node', id, lookups),
     })),
   );
 
