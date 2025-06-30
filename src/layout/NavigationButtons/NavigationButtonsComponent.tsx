@@ -74,8 +74,6 @@ function NavigationButtonsComponentInner({
 
   const attachmentsPending = useHasPendingAttachments();
 
-  // const attachmentState = useAttachmentState();
-
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
     [id],
