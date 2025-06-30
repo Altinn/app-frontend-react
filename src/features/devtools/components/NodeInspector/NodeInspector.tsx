@@ -11,19 +11,17 @@ import { NodeInspectorContextProvider } from 'src/features/devtools/components/N
 import { ValidationInspector } from 'src/features/devtools/components/NodeInspector/ValidationInspector';
 import { SplitView } from 'src/features/devtools/components/SplitView/SplitView';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { implementsAnyValidation } from 'src/layout';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 
 export const NodeInspector = () => {
   const pageKey = useCurrentView();
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
   const selectedNode = useNode(selectedId);
-  const children = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
-      .map((data) => data.layout.id),
-  );
+  const lookups = useLayoutLookups();
+  const children = pageKey ? lookups.topLevelComponents[pageKey] : undefined;
   const setSelected = useDevToolsStore((state) => state.actions.nodeInspectorSet);
   const focusLayoutInspector = useDevToolsStore((state) => state.actions.focusLayoutInspector);
 
@@ -66,7 +64,7 @@ export const NodeInspector = () => {
             }}
           >
             <Tabs
-              size='small'
+              data-size='sm'
               defaultValue='properties'
               className={reusedClasses.tabs}
             >
@@ -74,7 +72,7 @@ export const NodeInspector = () => {
                 <Tabs.Tab value='properties'>Egenskaper</Tabs.Tab>
                 {implementsAnyValidation(selectedNode.def) && <Tabs.Tab value='validation'>Validering</Tabs.Tab>}
               </Tabs.List>
-              <Tabs.Content value='properties'>
+              <Tabs.Panel value='properties'>
                 <div className={reusedClasses.properties}>
                   <div className={reusedClasses.headerLink}>
                     <a
@@ -90,12 +88,12 @@ export const NodeInspector = () => {
                   {/*  eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                   {selectedNode.def.renderDevToolsInspector(selectedNode as any)}
                 </div>
-              </Tabs.Content>
-              <Tabs.Content value='validation'>
+              </Tabs.Panel>
+              <Tabs.Panel value='validation'>
                 <div className={reusedClasses.scrollable}>
                   <ValidationInspector node={selectedNode} />
                 </div>
-              </Tabs.Content>
+              </Tabs.Panel>
             </Tabs>
           </NodeInspectorContextProvider>
         </>

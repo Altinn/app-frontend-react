@@ -1,13 +1,13 @@
 import React from 'react';
 
-import { ErrorMessage, Label, List, Paragraph } from '@digdir/designsystemet-react';
+import { Label, List, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 import dot from 'dot-object';
 
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
@@ -45,7 +45,7 @@ function getDisplayType(
 
 export function useMultipleValuesForSummary(componentNode: ValidNodes) {
   const { dataModelBindings } = useNodeItem(componentNode);
-  const options = useNodeOptions(componentNode).options;
+  const options = useOptionsFor(componentNode.baseId, 'multi').options;
   const rawFormData = useNodeFormData(componentNode);
   const { langAsString } = useLanguage();
 
@@ -91,18 +91,16 @@ export const MultipleValueSummary = ({
         >
           <Label weight='regular'>{title}</Label>
           {displayType === 'list' && (
-            <List.Root>
-              <List.Unordered>
-                {displayValues?.map((item) => (
-                  <List.Item
-                    key={`list-item-${item}`}
-                    className={classes.formValue}
-                  >
-                    {item}
-                  </List.Item>
-                ))}
-              </List.Unordered>
-            </List.Root>
+            <List.Unordered>
+              {displayValues?.map((item) => (
+                <List.Item
+                  key={`list-item-${item}`}
+                  className={classes.formValue}
+                >
+                  {item}
+                </List.Item>
+              ))}
+            </List.Unordered>
           )}
           {displayType === 'inline' && (
             <Paragraph
@@ -125,13 +123,15 @@ export const MultipleValueSummary = ({
         </div>
         {errors.length > 0 &&
           errors.map(({ message }) => (
-            <ErrorMessage key={message.key}>
+            <ValidationMessage
+              key={message.key}
+              data-size='sm'
+            >
               <Lang
                 id={message.key}
                 params={message.params}
-                node={componentNode}
               />
-            </ErrorMessage>
+            </ValidationMessage>
           ))}
       </div>
       <EditButton

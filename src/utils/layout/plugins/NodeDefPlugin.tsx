@@ -1,9 +1,9 @@
-import { CG } from 'src/codegen/CG';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
 import type { SerializableSetting } from 'src/codegen/SerializableSetting';
-import type { CompInternal, CompTypes } from 'src/layout/layout';
-import type { ChildClaimerProps, ExprResolver } from 'src/layout/LayoutComponent';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
+import type { CompTypes } from 'src/layout/layout';
+import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type { BaseNodeData, StateFactoryProps } from 'src/utils/layout/types';
 
@@ -19,37 +19,12 @@ interface DefPluginConfig {
   settings?: any;
 }
 
-interface DefPluginBaseNodeData<Config extends DefPluginConfig>
-  extends Omit<BaseNodeData<DefPluginCompType<Config>>, 'layout' | 'item'> {
-  item: (DefPluginCompInternal<Config> & DefPluginExtraInItem<Config>) | undefined;
-  layout: DefPluginCompExternal<Config>;
-}
-
-// If the key 'extraInItem' exists in the plugin config, return the type of that key,
-// otherwise return 'undefined'
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type DefPluginExtraInItemFromPlugin<Plugin extends NodeDefPlugin<any>> =
-  Plugin extends NodeDefPlugin<infer Config>
-    ? DefPluginExtraInItem<Config> extends object
-      ? DefPluginExtraInItem<Config>
-      : Record<string, never>
-    : never;
-
 type DefPluginCompType<Config extends DefPluginConfig> = Config['componentType'];
 export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraState'] extends undefined
   ? unknown
   : Config['extraState'];
-export type DefPluginExtraInItem<Config extends DefPluginConfig> = Config['extraInItem'];
-type DefPluginCompInternal<Config extends DefPluginConfig> = CompInternal<DefPluginCompType<Config>>;
-export type DefPluginState<Config extends DefPluginConfig> = DefPluginBaseNodeData<Config> &
-  DefPluginExtraState<Config>;
-export type DefPluginStateFactoryProps<Config extends DefPluginConfig> = StateFactoryProps<DefPluginCompType<Config>>;
-export type DefPluginExprResolver<Config extends DefPluginConfig> = Omit<
-  ExprResolver<DefPluginCompType<Config>>,
-  'item'
-> & {
-  item: DefPluginCompExternal<Config>;
-};
+export type DefPluginState<Config extends DefPluginConfig> = BaseNodeData & DefPluginExtraState<Config>;
+export type DefPluginStateFactoryProps = StateFactoryProps;
 export type DefPluginCompExternal<Config extends DefPluginConfig> = Config['expectedFromExternal'];
 export type DefPluginChildClaimerProps<Config extends DefPluginConfig> = Omit<
   ChildClaimerProps<DefPluginCompType<Config>>,
@@ -181,7 +156,7 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
    * Adds state factory properties to the component. This is called when creating the state for the component for the
    * first time.
    */
-  stateFactory(_props: DefPluginStateFactoryProps<Config>): DefPluginExtraState<Config> {
+  stateFactory(_props: DefPluginStateFactoryProps): DefPluginExtraState<Config> {
     return {} as DefPluginExtraState<Config>;
   }
 
@@ -191,22 +166,6 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
    */
   stateIsReady(_state: DefPluginState<Config>, _fullState: NodesContext): boolean {
     return true;
-  }
-
-  /**
-   * Returns initial state for the item object. This may be needed if your plugin has to initialize the item object
-   * with some state, and stateFactory() won't work properly since multiple plugins will overwrite each others item
-   * object.
-   */
-  itemFactory(_props: DefPluginStateFactoryProps<Config>): DefPluginExtraInItem<Config> {
-    return {} as DefPluginExtraInItem<Config>;
-  }
-
-  /**
-   * Evaluates some expressions for the component. This can be used to add custom expressions to the component.
-   */
-  evalDefaultExpressions(_props: DefPluginExprResolver<Config>): DefPluginExtraInItem<Config> {
-    return {} as DefPluginExtraInItem<Config>;
   }
 
   /**
@@ -227,27 +186,6 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
   extraMethodsInDef(): string[] {
     return [];
   }
-
-  /**
-   * Outputs any extra code that should be output in the evalExpressions method. If you implement
-   * evalDefaultExpressions(). This aids in indicating extra state that is placed in the item object by your
-   * plugin (such as state added by addChild(), etc).
-   */
-  extraInEvalExpressions(): string {
-    const implementsExpressions = this.evalDefaultExpressions !== NodeDefPlugin.prototype.evalDefaultExpressions;
-    if (implementsExpressions) {
-      return `...this.plugins['${this.getKey()}'].evalDefaultExpressions(props as any),`;
-    }
-
-    const DefPluginExtraInItemFromPlugin = new CG.import({
-      import: 'DefPluginExtraInItemFromPlugin',
-      from: 'src/utils/layout/plugins/NodeDefPlugin',
-    });
-
-    // Fakes the state to make sure inferred types catch our additions to the state (even if the state is created
-    // somewhere else).
-    return `...({} as ${DefPluginExtraInItemFromPlugin}<(typeof this.plugins)['${this.getKey()}']>),`;
-  }
 }
 
 /**
@@ -255,8 +193,7 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
  */
 export interface NodeDefChildrenPlugin<Config extends DefPluginConfig> {
   claimChildren(props: DefPluginChildClaimerProps<Config>): void;
-  pickDirectChildren(state: DefPluginState<Config>, restriction?: number | undefined): string[];
-  isChildHidden(state: DefPluginState<Config>, childId: string): boolean;
+  isChildHidden(state: DefPluginState<Config>, childId: string, lookups: LayoutLookups): boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -265,8 +202,8 @@ export function isNodeDefChildrenPlugin(plugin: unknown): plugin is NodeDefChild
     !!plugin &&
     typeof plugin === 'object' &&
     'claimChildren' in plugin &&
-    'pickDirectChildren' in plugin &&
     typeof plugin.claimChildren === 'function' &&
-    typeof plugin.pickDirectChildren === 'function'
+    'isChildHidden' in plugin &&
+    typeof plugin.isChildHidden === 'function'
   );
 }

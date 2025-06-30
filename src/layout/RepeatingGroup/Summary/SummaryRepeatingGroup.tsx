@@ -8,39 +8,32 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { CompCategory } from 'src/layout/common';
 import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer';
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
-import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RepGroupRow, RepGroupRows } from 'src/layout/RepeatingGroup/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseRow } from 'src/utils/layout/types';
 
 interface FullProps extends SummaryRendererProps<'RepeatingGroup'> {
-  rows: RepGroupRows;
+  rows: BaseRow[];
   inExcludedChildren: (n: LayoutNode) => boolean;
 }
 
 interface FullRowProps extends Omit<FullProps, 'rows'> {
-  row: RepGroupRow;
+  row: BaseRow;
 }
 
 export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGroup'>) {
-  const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode) ?? {};
-  const { rows: _rows } = useNodeItem(props.targetNode);
+  const { excludedChildren, largeGroup } = props.overrides ?? {};
+  const rows = RepGroupHooks.useVisibleRows(props.targetNode);
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false;
-
-  const rows: RepGroupRow[] = [];
-  for (const row of _rows) {
-    if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
-      continue;
-    }
-    rows.push(row);
-  }
 
   if (largeGroup && props.overrides?.largeGroup !== false && rows.length) {
     return (
@@ -62,14 +55,11 @@ export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGrou
 }
 
 function RegularRepeatingGroup(props: FullProps) {
-  const { onChangeClick, changeText, summaryNode, targetNode, overrides, rows: _rows } = props;
+  const { onChangeClick, changeText, targetNode, overrides, rows: _rows } = props;
   const rows = _rows.filter(typedBoolean);
-
-  const { display: summaryDisplay } = useNodeItem(summaryNode) ?? {};
   const { textResourceBindings: trb } = useNodeItem(targetNode);
-
-  const display = overrides?.display || summaryDisplay;
-  const { langAsString } = useLanguage(targetNode);
+  const display = overrides?.display;
+  const { langAsString } = useLanguage();
 
   const groupValidations = useDeepValidationsForNode(targetNode);
   const groupHasErrors = hasValidationErrors(groupValidations);
@@ -87,10 +77,7 @@ function RegularRepeatingGroup(props: FullProps) {
       >
         <div className={classes.container}>
           <span className={classes.label}>
-            <Lang
-              id={summaryTitleTrb ?? titleTrb}
-              node={targetNode}
-            />
+            <Lang id={summaryTitleTrb ?? titleTrb} />
           </span>
           {!display?.hideChangeButton ? (
             <EditButton
@@ -137,14 +124,7 @@ function RegularRepeatingGroup(props: FullProps) {
   );
 }
 
-function RegularRepeatingGroupRow({
-  targetNode,
-  inExcludedChildren,
-  row,
-  onChangeClick,
-  changeText,
-  summaryNode,
-}: FullRowProps) {
+function RegularRepeatingGroupRow({ targetNode, inExcludedChildren, row, onChangeClick, changeText }: FullRowProps) {
   const isHidden = Hidden.useIsHiddenSelector();
   const children = useNodeDirectChildren(targetNode, row.index);
   const dataModelBindings = useNodeItem(targetNode, (i) => i.dataModelBindings);
@@ -174,7 +154,6 @@ function RegularRepeatingGroupRow({
             changeText={changeText}
             key={child.id}
             targetNode={child as never} // FIXME: Never type
-            summaryNode={summaryNode}
             overrides={{}}
           />
         ))}
@@ -183,36 +162,41 @@ function RegularRepeatingGroupRow({
   );
 }
 
-function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChildren, rows }: FullProps) {
+function LargeRepeatingGroup({ targetNode, overrides, inExcludedChildren, rows }: FullProps) {
   const isHidden = Hidden.useIsHiddenSelector();
+  const groupBinding = useNodeItem(targetNode, (i) => i.dataModelBindings.group);
 
   return (
     <>
       {rows.filter(typedBoolean).map((row) => (
-        <LargeGroupSummaryContainer
+        <DataModelLocationProvider
           key={`summary-${targetNode.id}-${row.uuid}`}
-          id={`summary-${targetNode.id}-${row.index}`}
-          groupNode={targetNode}
-          restriction={row.index}
-          renderLayoutNode={(n) => {
-            if (inExcludedChildren(n) || isHidden(n)) {
-              return null;
-            }
+          groupBinding={groupBinding}
+          rowIndex={row.index}
+        >
+          <LargeGroupSummaryContainer
+            id={`summary-${targetNode.id}-${row.index}`}
+            groupNode={targetNode}
+            restriction={row.index}
+            renderLayoutNode={(n) => {
+              if (inExcludedChildren(n) || isHidden(n)) {
+                return null;
+              }
 
-            return (
-              <SummaryComponent
-                key={n.id}
-                summaryNode={summaryNode}
-                overrides={{
-                  ...overrides,
-                  targetNode: n,
-                  grid: {},
-                  largeGroup: false,
-                }}
-              />
-            );
-          }}
-        />
+              return (
+                <SummaryComponentFor
+                  key={n.id}
+                  targetNode={n}
+                  overrides={{
+                    ...overrides,
+                    grid: {},
+                    largeGroup: false,
+                  }}
+                />
+              );
+            }}
+          />
+        </DataModelLocationProvider>
       ))}
     </>
   );

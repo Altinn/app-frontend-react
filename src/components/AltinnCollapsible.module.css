@@ -1,4 +1,4 @@
-.collapsable {
+.collapsible {
   overflow: hidden;
   transition:
     visibility 0.3s ease-in-out,
@@ -8,11 +8,7 @@
   box-sizing: border-box;
 }
 
-.collapsableOpen {
-  max-height: 1000px; /* Set to a value larger than your expected content */
-}
-
-.collapsableClosed {
+.collapsibleClosed {
   visibility: hidden;
   max-height: 0;
   padding-top: 0;

@@ -205,7 +205,7 @@ describe('Party selection', () => {
         },
       );
 
-      cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
+      cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'default' });
       cy.get(appFrontend.appHeader).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
 
@@ -223,7 +223,7 @@ describe('Party selection', () => {
         appPromptForPartyOverride,
         allowedToInstantiate: (parties) => [...parties, CyPartyMocks.ExamplePerson1],
       });
-      cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'default' });
+      cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'default' });
 
       if (appPromptForPartyOverride === 'always') {
         cy.get(appFrontend.reporteeSelection.appHeader).should('be.visible');
@@ -251,7 +251,7 @@ describe('Party selection', () => {
       allowedToInstantiate: removeAllButOneOrg,
       doNotPromptForParty: false,
     });
-    cy.startAppInstance(appFrontend.apps.frontendTest, { user: 'accountant' });
+    cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'accountant' });
 
     // Select the first organisation. This is not allowed to instantiate in this app, so it will throw an error.
     cy.findAllByText(/org\.nr\. \d+/)
@@ -277,6 +277,7 @@ describe('Party selection', () => {
     // To make sure this instance is different from the next, we navigate to the next process step in this one
     cy.findByRole('button', { name: 'Send inn' }).click();
     cy.get(appFrontend.changeOfName.newFirstName).should('be.visible');
+    cy.waitUntilSaved();
 
     // Navigate directly to /#/party-selection to test that instantiation once more works
     cy.window().then((win) => {

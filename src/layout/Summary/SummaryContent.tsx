@@ -19,15 +19,13 @@ interface SummaryContentProps extends SummaryRendererProps<CompTypes> {
 export function SummaryContent({
   onChangeClick,
   changeText,
-  summaryNode,
   targetNode,
   overrides,
   RenderSummary,
 }: SummaryContentProps) {
-  const { langAsString } = useLanguage(targetNode);
-  const summaryItem = useNodeItem(summaryNode);
+  const { langAsString } = useLanguage();
   const targetItem = useNodeItem(targetNode);
-  const display = overrides?.display || summaryItem?.display;
+  const display = overrides?.display;
   const readOnlyComponent = 'readOnly' in targetItem && targetItem.readOnly === true;
   const validations = useUnifiedValidationsForNode(targetNode);
   const hasErrors = hasValidationErrors(validations);
@@ -53,17 +51,13 @@ export function SummaryContent({
             'data-testid': 'has-validation-message',
           })}
         >
-          <Lang
-            id={summaryTitleTrb ?? titleTrb}
-            node={targetNode}
-          />
+          <Lang id={summaryTitleTrb ?? titleTrb} />
         </span>
       )}
       <span className={classes.summary}>
         <RenderSummary
           onChangeClick={onChangeClick}
           changeText={changeText}
-          summaryNode={summaryNode}
           targetNode={targetNode}
           overrides={overrides}
         />

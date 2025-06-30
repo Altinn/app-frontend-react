@@ -21,30 +21,27 @@ import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import type {
-  ExprPositionalArgs,
-  ExprValToActualOrExpr,
-  ExprValueArgs,
-  NodeReference,
-} from 'src/features/expressions/types';
+import type { ExprPositionalArgs, ExprValToActualOrExpr, ExprValueArgs } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { RepeatingComponents } from 'src/features/form/layout/utils/repeating';
 import type { IRawOption } from 'src/layout/common.generated';
-import type { ILayoutCollection } from 'src/layout/layout';
+import type { IDataModelBindings, ILayoutCollection } from 'src/layout/layout';
 import type { IData, IDataType } from 'src/types/shared';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 jest.mock('src/features/externalApi/useExternalApi');
 
 interface Props {
-  reference: NodeReference;
+  nodeId: string;
   expression: ExprValToActualOrExpr<ExprVal.Any>;
   positionalArguments?: ExprPositionalArgs;
   valueArguments?: ExprValueArgs;
 }
 
-function InnerExpressionRunner({ reference, expression, positionalArguments, valueArguments }: Props) {
-  const result = useEvalExpression(ExprVal.Any, reference, expression, null, {
+function InnerExpressionRunner({ expression, positionalArguments, valueArguments }: Props) {
+  const result = useEvalExpression(expression, {
+    returnType: ExprVal.Any,
+    defaultValue: null,
     positionalArguments,
     valueArguments,
   });
@@ -53,7 +50,7 @@ function InnerExpressionRunner({ reference, expression, positionalArguments, val
 
 function ExpressionRunner(props: Props) {
   return (
-    <DataModelLocationFromNode nodeId={props.reference.id}>
+    <DataModelLocationFromNode nodeId={props.nodeId}>
       <InnerExpressionRunner {...props} />
     </DataModelLocationFromNode>
   );
@@ -66,7 +63,9 @@ function DataModelLocationFromNode({ nodeId, children }: PropsWithChildren<{ nod
   }
 
   const [closestRepeating, rowIndex] = getClosestRepeating(realNode);
-  const dataModelBindings = NodesInternal.useNodeData(closestRepeating, (d) => d.layout.dataModelBindings);
+  const dataModelBindings = NodesInternal.useNodeData(closestRepeating, (d) => d.dataModelBindings) as
+    | IDataModelBindings<RepeatingComponents>
+    | undefined;
   const repeatingBinding = closestRepeating && getRepeatingBinding(closestRepeating.type, dataModelBindings);
 
   if (closestRepeating === undefined || rowIndex === undefined || !repeatingBinding) {
@@ -323,7 +322,7 @@ describe('Expressions shared function tests', () => {
         nodeId,
         renderer: () => (
           <ExpressionRunner
-            reference={{ type: 'node', id: nodeId }}
+            nodeId={nodeId}
             expression={expression}
             positionalArguments={positionalArguments}
             valueArguments={valueArguments}
@@ -360,7 +359,7 @@ describe('Expressions shared function tests', () => {
         for (const testCase of testCases) {
           rerender(
             <ExpressionRunner
-              reference={{ type: 'node', id: nodeId }}
+              nodeId={nodeId}
               expression={testCase.expression}
               positionalArguments={positionalArguments}
               valueArguments={valueArguments}

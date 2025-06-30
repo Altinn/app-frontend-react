@@ -2,31 +2,21 @@ import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
-import type { CardConfigExternal } from 'src/layout/Cards/config.generated';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
+import type { CardConfig } from 'src/layout/Cards/config.generated';
 import type { CompTypes } from 'src/layout/layout';
 import type {
   DefPluginChildClaimerProps,
-  DefPluginExtraInItem,
   DefPluginState,
-  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
-
-export interface CardInternal extends Omit<CardConfigExternal, 'children' | 'media'> {
-  childIds?: string[];
-  mediaId?: string;
-}
 
 interface Config<Type extends CompTypes> {
   componentType: Type;
   expectedFromExternal: {
-    cards: CardConfigExternal[];
+    cards: CardConfig[];
   };
   extraState: undefined;
-  extraInItem: {
-    cards: undefined;
-    cardsInternal: CardInternal[];
-  };
 }
 
 export class CardsPlugin<Type extends CompTypes>
@@ -101,62 +91,7 @@ export class CardsPlugin<Type extends CompTypes>
     return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
-  itemFactory({ item, idMutators, getCapabilities, layoutMap }: DefPluginStateFactoryProps<Config<Type>>) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const cardsInternal = structuredClone((item as any).cards || []) as CardInternal[];
-
-    for (const card of cardsInternal) {
-      const children = (card as CardConfigExternal).children ?? [];
-      card.childIds = [];
-      for (const childId of children) {
-        const rawLayout = layoutMap[childId];
-        const capabilities = rawLayout && getCapabilities(rawLayout.type);
-        if (!capabilities || !capabilities.renderInCards) {
-          // No need to log again, we already do that in claimChildren
-          continue;
-        }
-        let id = childId;
-        for (const mutator of idMutators) {
-          id = mutator(id);
-        }
-        card.childIds.push(id);
-      }
-      const mediaId = (card as CardConfigExternal).media;
-      const rawMediaLayout = mediaId && layoutMap[mediaId];
-      const mediaCapabilities = rawMediaLayout && getCapabilities(rawMediaLayout.type);
-      if (mediaCapabilities && mediaCapabilities.renderInCardsMedia && mediaId) {
-        card.mediaId = idMutators.reduce((id, mutator) => mutator(id), mediaId);
-      }
-
-      (card as CardConfigExternal).children = undefined;
-      (card as CardConfigExternal).media = undefined;
-    }
-
-    return {
-      cards: undefined,
-      cardsInternal,
-    } as DefPluginExtraInItem<Config<Type>>;
-  }
-
-  pickDirectChildren(state: DefPluginState<Config<Type>>, restriction?: number | undefined): string[] {
-    const out: string[] = [];
-    if (restriction !== undefined) {
-      return out;
-    }
-
-    for (const card of Object.values(state.item?.cardsInternal || [])) {
-      if (card.mediaId) {
-        out.push(card.mediaId);
-      }
-      for (const childId of card.childIds ?? []) {
-        childId && out.push(childId);
-      }
-    }
-
-    return out;
-  }
-
-  isChildHidden(_state: DefPluginState<Config<Type>>, _childId: string): boolean {
+  isChildHidden(_state: DefPluginState<Config<Type>>, _childId: string, _lookups: LayoutLookups): boolean {
     return false;
   }
 }

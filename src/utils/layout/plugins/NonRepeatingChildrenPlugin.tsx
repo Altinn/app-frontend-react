@@ -3,12 +3,11 @@ import { CompCategory } from 'src/layout/common';
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { TypesFromCategory } from 'src/layout/layout';
 import type {
   DefPluginChildClaimerProps,
-  DefPluginExtraInItem,
   DefPluginState,
-  DefPluginStateFactoryProps,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 
@@ -104,31 +103,6 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
   }
 
-  itemFactory({ idMutators, item, layoutMap, getCapabilities }: DefPluginStateFactoryProps<ToInternal<E>>) {
-    const raw = (item[this.settings.externalProp] ?? []) as string[];
-    const children: string[] = [];
-    for (const childId of raw) {
-      if (this.settings.onlyWithCapability) {
-        const rawLayout = layoutMap[childId];
-        if (!rawLayout) {
-          continue;
-        }
-        const capabilities = getCapabilities(rawLayout.type);
-        if (!capabilities[this.settings.onlyWithCapability]) {
-          // No need to log again, we already do that in claimChildren
-          continue;
-        }
-      }
-      const id = idMutators.reduce((id, mutator) => mutator(id), childId);
-      children.push(id);
-    }
-
-    return {
-      [this.settings.externalProp]: undefined,
-      [this.settings.internalProp]: children,
-    } as DefPluginExtraInItem<ToInternal<E>>;
-  }
-
   claimChildren({ item, claimChild, getType, getCapabilities }: DefPluginChildClaimerProps<ToInternal<E>>): void {
     for (const id of item[this.settings.externalProp].values()) {
       if (this.settings.onlyWithCapability) {
@@ -149,15 +123,7 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
     }
   }
 
-  pickDirectChildren(state: DefPluginState<ToInternal<E>>, restriction?: number | undefined): string[] {
-    if (restriction !== undefined) {
-      return [];
-    }
-
-    return state.item?.[this.settings.internalProp] || [];
-  }
-
-  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string): boolean {
+  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string, _lookups: LayoutLookups): boolean {
     return false;
   }
 }

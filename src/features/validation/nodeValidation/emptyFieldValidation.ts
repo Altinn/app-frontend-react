@@ -1,7 +1,9 @@
 import { FD } from 'src/features/formData/FormDataWrite';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { getFieldNameKey } from 'src/utils/formComponentUtils';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
+import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import type { ValidLanguageKey } from 'src/features/language/useLanguage';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompTypes, CompWithBinding } from 'src/layout/layout';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -12,12 +14,12 @@ import type { LayoutNode } from 'src/utils/layout/LayoutNode';
  */
 export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
   node: LayoutNode<Type>,
+  defaultText: ValidLanguageKey = 'form_filler.error_required',
 ): ComponentValidation[] {
-  const dataModelBindings = NodesInternal.useNodeData(node, (state) => state.layout.dataModelBindings);
-  const required = NodesInternal.useNodeData(node, (state) =>
-    state.item && 'required' in state.item ? state.item.required : false,
-  );
-  const trb = NodesInternal.useNodeData(node, (state) => state.item?.textResourceBindings);
+  const dataModelBindings = useDataModelBindingsFor<Type>(node.baseId);
+  const item = useNodeItem(node);
+  const required = 'required' in item ? item.required : false;
+  const trb = item.textResourceBindings;
   const formDataSelector = FD.useDebouncedSelector();
   const invalidDataSelector = FD.useInvalidDebouncedSelector();
   if (!required || !dataModelBindings) {
@@ -32,10 +34,7 @@ export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
       typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
 
     if (asString.length === 0) {
-      const key =
-        trb && 'requiredValidation' in trb && trb.requiredValidation
-          ? trb.requiredValidation
-          : 'form_filler.error_required';
+      const key = trb && 'requiredValidation' in trb && trb.requiredValidation ? trb.requiredValidation : defaultText;
       const fieldReference = { key: getFieldNameKey(trb, bindingKey), makeLowerCase: true };
 
       validations.push({
@@ -55,14 +54,15 @@ export function useEmptyFieldValidationAllBindings<Type extends CompTypes>(
  * Only checks simpleBinding, this is useful for components that may save additional data which is not directly controlled by the user,
  * like options-based components that can store the label and metadata about the options alongside the actual value
  */
-export function useEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBinding<'simpleBinding'>>(
-  node: LayoutNode<Type>,
+export function useEmptyFieldValidationOnlyOneBinding<Binding extends string>(
+  node: LayoutNode<CompWithBinding<Binding>>,
+  binding: Binding,
+  defaultText: ValidLanguageKey = 'form_filler.error_required',
 ): ComponentValidation[] {
-  const required = NodesInternal.useNodeData(node, (state) =>
-    state.item && 'required' in state.item ? state.item.required : false,
-  );
-  const reference = NodesInternal.useNodeData(node, (state) => state.layout.dataModelBindings.simpleBinding);
-  const trb = NodesInternal.useNodeData(node, (state) => state.item?.textResourceBindings);
+  const item = useNodeItem(node);
+  const required = 'required' in item ? item.required : false;
+  const reference = useDataModelBindingsFor(node.baseId)?.[binding as string] as IDataModelReference | undefined;
+  const trb = item.textResourceBindings;
   const validData = FD.useDebouncedPick(reference);
   const invalidData = FD.useInvalidDebouncedPick(reference);
   const data = validData ?? invalidData;
@@ -76,15 +76,12 @@ export function useEmptyFieldValidationOnlySimpleBinding<Type extends CompWithBi
     typeof data === 'string' || typeof data === 'number' || typeof data === 'boolean' ? String(data) : '';
 
   if (asString.length === 0) {
-    const key =
-      trb && 'requiredValidation' in trb && trb.requiredValidation
-        ? trb.requiredValidation
-        : 'form_filler.error_required';
-    const fieldReference = { key: getFieldNameKey(trb, 'simpleBinding'), makeLowerCase: true };
+    const key = trb && 'requiredValidation' in trb && trb.requiredValidation ? trb.requiredValidation : defaultText;
+    const fieldReference = { key: getFieldNameKey(trb, binding), makeLowerCase: true };
 
     validations.push({
       source: FrontendValidationSource.EmptyField,
-      bindingKey: 'simpleBinding',
+      bindingKey: binding,
       message: { key, params: [fieldReference] },
       severity: 'error',
       category: ValidationMask.Required,

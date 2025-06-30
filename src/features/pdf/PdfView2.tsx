@@ -9,6 +9,7 @@ import { DummyPresentation } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
@@ -19,8 +20,8 @@ import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { GenericComponentById } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
-import { SubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
-import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import { AllSubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
+import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
 import { isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
@@ -69,7 +70,7 @@ export const PDFView2 = () => {
               pdfSettings={pdfSettings}
             />
           ))}
-        <SubformSummaryComponent2 />
+        <AllSubformSummaryComponent2 />
       </PdfWrapping>
     </DummyPresentation>
   );
@@ -98,7 +99,7 @@ function PdfWrapping({ children }: PropsWithChildren) {
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
       <Heading
         level={1}
-        size='lg'
+        data-size='lg'
       >
         {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
       </Heading>
@@ -112,11 +113,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
   const pageExists = NodesInternal.useSelector((state) =>
     Object.values(state.pagesData.pages).some((data) => data.pageKey === pageKey),
   );
-  const children = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
-      .map((data) => data.layout.id),
-  );
+  const children = useLayoutLookups().topLevelComponents[pageKey] ?? [];
 
   if (!pageExists) {
     const message = `Error using: "pdfLayoutName": ${JSON.stringify(pageKey)}, could not find a layout with that name.`;
@@ -143,22 +140,21 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 }
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
+  const lookups = useLayoutLookups();
   const children = NodesInternal.useShallowSelector((state) =>
     Object.values(state.nodeData)
       .filter(
         (data) =>
           data.pageKey === pageKey &&
           data.parentId === undefined &&
-          data.layout.type !== 'Subform' &&
-          !isHidden(state, 'node', data.layout.id) &&
-          !pdfSettings?.excludedComponents.includes(data.layout.id),
+          data.nodeType !== 'Subform' &&
+          !isHidden(state, 'node', data.id, lookups) &&
+          !pdfSettings?.excludedComponents.includes(data.id),
       )
-      .filter(<T extends CompTypes>(data: NodeData<T>) => {
-        const def = getComponentDef(data.layout.type);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return def.shouldRenderInAutomaticPDF(data as any);
-      })
-      .map((data) => data.layout.id),
+      .filter(<T extends CompTypes>(data: NodeData<T>) =>
+        getComponentDef(data.nodeType).shouldRenderInAutomaticPDF(lookups.getComponent(data.baseId) as never),
+      )
+      .map((data) => data.id),
   );
 
   return (
@@ -183,10 +179,6 @@ function PdfForNode({ nodeId }: { nodeId: string }) {
   const node = useNode(nodeId);
   const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
 
-  if (!node) {
-    return null;
-  }
-
   if (node.isType('Summary2') && target?.taskId) {
     return (
       <SummaryComponent2
@@ -202,10 +194,9 @@ function PdfForNode({ nodeId }: { nodeId: string }) {
   }
 
   return (
-    <SummaryComponent
-      summaryNode={undefined}
+    <SummaryComponentFor
+      targetNode={node}
       overrides={{
-        targetNode: node,
         largeGroup: node.isType('Group'),
         display: {
           hideChangeButton: true,

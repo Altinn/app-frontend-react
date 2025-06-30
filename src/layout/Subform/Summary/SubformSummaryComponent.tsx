@@ -57,8 +57,8 @@ function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: La
   if (isSubformDataFetching) {
     return (
       <Spinner
-        title={langAsString('general.loading')}
-        size='xs'
+        aria-label={langAsString('general.loading')}
+        data-size='xs'
       />
     );
   } else if (subformDataError) {
@@ -69,7 +69,7 @@ function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: La
     <SubformCellContent
       key={i}
       cellContent={entry.cellContent}
-      reference={{ type: 'node', id: node.id }}
+      node={node}
       data={subformData}
       dataSources={subformDataSources}
     />

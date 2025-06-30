@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { ErrorMessage } from '@digdir/designsystemet-react';
+import { Field, ValidationMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -143,9 +143,15 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
     setValue('person_lookup_ssn', '');
     setTempName('');
     setTempSsn('');
+    setSsnErrors(undefined);
+    setNameError(undefined);
   }
 
   const hasSuccessfullyFetched = !!person_lookup_name && !!person_lookup_ssn;
+
+  const invalidSsn =
+    (ssnErrors?.length && ssnErrors?.length > 0) || hasValidationErrors(bindingValidations?.person_lookup_ssn);
+  const invalidName = !!nameError || hasValidationErrors(bindingValidations?.person_lookup_name);
 
   return (
     <Fieldset
@@ -174,28 +180,41 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               }
             />
           </div>
-          <NumericInput
-            id={`${id}_ssn`}
-            aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
-            value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
-            className={classes.ssn}
-            required={required}
-            readOnly={hasSuccessfullyFetched}
-            error={
-              (ssnErrors?.length && <Lang id={ssnErrors.join(' ')} />) ||
+          <Field className={classes.ssn}>
+            <NumericInput
+              id={`${id}_ssn`}
+              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
+              aria-label={langAsString('person_lookup.ssn_label')}
+              value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
+              required={required}
+              readOnly={hasSuccessfullyFetched}
+              error={invalidSsn}
+              onValueChange={(e) => {
+                setTempSsn(e.value);
+                setSsnErrors(undefined);
+              }}
+              onKeyDown={async (ev) => {
+                if (ev.key === 'Enter') {
+                  await handleSubmit();
+                }
+              }}
+              allowLeadingZeros
+              inputMode='numeric'
+              pattern='[0-9]{11}'
+              autoComplete='off'
+            />
+            {(ssnErrors?.length && (
+              <ValidationMessage>
+                <Lang id={ssnErrors.join(' ')} />
+              </ValidationMessage>
+            )) ||
               (hasValidationErrors(bindingValidations?.person_lookup_ssn) && (
-                <ComponentValidations validations={bindingValidations?.person_lookup_ssn} />
-              ))
-            }
-            onValueChange={(e) => {
-              setTempSsn(e.value);
-            }}
-            onBlur={(e) => handleValidateSsn(e.target.value)}
-            allowLeadingZeros
-            inputMode='numeric'
-            pattern='[0-9]{11}'
-            autoComplete='off'
-          />
+                <ComponentValidations
+                  validations={bindingValidations?.person_lookup_ssn}
+                  node={node}
+                />
+              ))}
+          </Field>
           <div className={classes.nameLabel}>
             <Label
               htmlFor={`${id}_name`}
@@ -212,27 +231,41 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               }
             />
           </div>
-          <Input
-            id={`${id}_name`}
-            aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_name`) : undefined}
-            value={hasSuccessfullyFetched ? person_lookup_name : tempName}
-            className={classes.name}
-            type='text'
-            required={required}
-            readOnly={hasSuccessfullyFetched}
-            error={
-              (nameError && <Lang id={nameError} />) ||
+          <Field className={classes.name}>
+            <Input
+              id={`${id}_name`}
+              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_name`) : undefined}
+              aria-label={langAsString(
+                hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label',
+              )}
+              value={hasSuccessfullyFetched ? person_lookup_name : tempName}
+              type='text'
+              required={required}
+              readOnly={hasSuccessfullyFetched}
+              error={invalidName}
+              onChange={(e) => {
+                setTempName(e.target.value);
+                setNameError(undefined);
+              }}
+              onKeyDown={async (ev) => {
+                if (ev.key === 'Enter') {
+                  await handleSubmit();
+                }
+              }}
+              autoComplete='family-name'
+            />
+            {(nameError && (
+              <ValidationMessage>
+                <Lang id={nameError} />
+              </ValidationMessage>
+            )) ||
               (hasValidationErrors(bindingValidations?.person_lookup_name) && (
-                <ComponentValidations validations={bindingValidations?.person_lookup_name} />
-              ))
-            }
-            onChange={(e) => {
-              setTempName(e.target.value);
-            }}
-            onBlur={(e) => handleValidateName(e.target.value)}
-            autoComplete='family-name'
-          />
-
+                <ComponentValidations
+                  validations={bindingValidations?.person_lookup_name}
+                  node={node}
+                />
+              ))}
+          </Field>
           <div className={classes.submit}>
             {!hasSuccessfullyFetched ? (
               <Button
@@ -240,7 +273,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                 variant='secondary'
                 isLoading={isFetching}
               >
-                Hent opplysninger
+                <Lang id='person_lookup.submit_button' />
               </Button>
             ) : (
               <Button
@@ -248,17 +281,17 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
                 color='danger'
                 onClick={handleClear}
               >
-                Fjern
+                <Lang id='person_lookup.clear_button' />
               </Button>
             )}
           </div>
           {data?.error && (
-            <ErrorMessage
-              size='sm'
+            <ValidationMessage
+              data-size='sm'
               className={classes.apiError}
             >
               <Lang id={data.error} />
-            </ErrorMessage>
+            </ValidationMessage>
           )}
         </div>
       </ComponentStructureWrapper>

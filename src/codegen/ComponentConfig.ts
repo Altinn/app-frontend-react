@@ -375,11 +375,6 @@ export class ComponentConfig {
       from: 'src/utils/layout/generator/NodeGenerator',
     });
 
-    const CompInternal = new CG.import({
-      import: 'CompInternal',
-      from: 'src/layout/layout',
-    });
-
     const NodeData = new CG.import({
       import: 'NodeData',
       from: 'src/utils/layout/types',
@@ -393,6 +388,21 @@ export class ComponentConfig {
     const DisplayData = new CG.import({
       import: 'DisplayData',
       from: 'src/features/displayData/index',
+    });
+
+    const LayoutNode = new GenerateImportedSymbol({
+      import: 'LayoutNode',
+      from: 'src/utils/layout/LayoutNode',
+    });
+
+    const IDataModelBindings = new CG.import({
+      import: 'IDataModelBindings',
+      from: 'src/layout/layout',
+    });
+
+    const LayoutLookups = new CG.import({
+      import: 'LayoutLookups',
+      from: 'src/features/form/layout/makeLayoutLookups.ts',
     });
 
     const isFormComponent = this.config.category === CompCategory.Form;
@@ -431,15 +441,6 @@ export class ComponentConfig {
       .map((plugin) => `...${pluginRef(plugin)}.stateFactory(props as any),`)
       .join('\n');
 
-    const pluginItemFactories = this.plugins
-      .filter((plugin) => plugin.itemFactory !== NodeDefPlugin.prototype.itemFactory)
-      .map((plugin) => `...${pluginRef(plugin)}.itemFactory(props as any)`)
-      .join(',\n');
-
-    const itemDef = pluginItemFactories
-      ? `const item = { ${pluginItemFactories} } as ${CompInternal}<'${this.type}'>;`
-      : '';
-
     const pluginGeneratorChildren = this.plugins
       .filter((plugin) => plugin.extraNodeGeneratorChildren !== NodeDefPlugin.prototype.extraNodeGeneratorChildren)
       .map((plugin) => plugin.extraNodeGeneratorChildren())
@@ -457,13 +458,9 @@ export class ComponentConfig {
     }
 
     if (this.hasDataModelBindings()) {
-      const LayoutValidationCtx = new CG.import({
-        import: 'LayoutValidationCtx',
-        from: 'src/features/devtools/layoutValidation/types',
-      });
       additionalMethods.push(
         `// You must implement this because the component has data model bindings defined
-        abstract validateDataModelBindings(ctx: ${LayoutValidationCtx}<'${this.type}'>): string[];`,
+        abstract useDataModelBindingValidation(node: ${LayoutNode}<'${this.type}'>, bindings: ${IDataModelBindings}<'${this.type}'>): string[];`,
       );
     }
 
@@ -474,7 +471,7 @@ export class ComponentConfig {
     ) {
       additionalMethods.push(
         `// This component has data model bindings, so it should be able to produce a display string
-        abstract useDisplayData(nodeId: string): string;`,
+        abstract useDisplayData(baseComponentId: string): string;`,
       );
       implementsInterfaces.push(`${DisplayData}`);
     }
@@ -483,9 +480,6 @@ export class ComponentConfig {
     for (const plugin of this.plugins) {
       const extraMethodsFromPlugin = plugin.extraMethodsInDef();
       additionalMethods.push(...extraMethodsFromPlugin);
-
-      const extraInEval = plugin.extraInEvalExpressions();
-      extraInEval && evalLines.push(extraInEval);
 
       readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState)`);
     }
@@ -517,22 +511,15 @@ export class ComponentConfig {
          });`.trim(),
       );
 
-      const pickDirectChildrenBody = childrenPlugins.map(
-        (plugin) => `...${pluginRef(plugin)}.pickDirectChildren(state as any, restriction)`,
-      );
-
       const isChildHiddenBody = childrenPlugins.map(
-        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childId)`,
+        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childId, lookups)`,
       );
 
       additionalMethods.push(
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
           ${claimChildrenBody.join('\n')}
         }`,
-        `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: number) {
-          return [${pickDirectChildrenBody.join(', ')}];
-        }`,
-        `isChildHidden(state: ${NodeData}<'${this.type}'>, childId: string) {
+        `isChildHidden(state: ${NodeData}<'${this.type}'>, childId: string, lookups: ${LayoutLookups}) {
           return [${isChildHiddenBody.join(', ')}].some((h) => h);
         }`,
       );
@@ -556,19 +543,20 @@ export class ComponentConfig {
       stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
         const baseState: ${BaseNodeData}<'${this.type}'> = {
           type: 'node',
+          id: props.id,
+          baseId: props.baseId,
+          nodeType: '${this.type}',
           pageKey: props.pageKey,
           parentId: props.parentId,
           depth: props.depth,
           isValid: props.isValid,
-          item: undefined,
-          layout: props.item,
           hidden: undefined,
           rowIndex: props.rowIndex,
           errors: undefined,
+          dataModelBindings: props.dataModelBindings,
         };
-        ${itemDef}
 
-        return { ...baseState, ${pluginStateFactories} ${itemDef ? 'item' : ''} };
+        return { ...baseState, ${pluginStateFactories} };
       }
 
       // Do not override this one, set functionality.customExpressions to true instead

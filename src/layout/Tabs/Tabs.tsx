@@ -7,24 +7,37 @@ import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/Navig
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponentByBaseId } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Tabs/Tabs.module.css';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
 
+const sizeMap: Record<string, 'sm' | 'md' | 'lg'> = {
+  small: 'sm',
+  medium: 'md',
+  large: 'lg',
+};
+
 export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
-  const size = useNodeItem(node, (i) => i.size);
+  const size = useNodeItem(node, (i) => i.size) ?? 'medium';
   const defaultTab = useNodeItem(node, (i) => i.defaultTab);
-  const tabs = useNodeItem(node, (i) => i.tabsInternal);
+  const tabs = useNodeItem(node, (i) => i.tabs);
+  const idMutator = useComponentIdMutator();
   const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
 
   useRegisterNodeNavigationHandler(async (targetNode) => {
     const parents = parentNodes(targetNode);
     for (const parent of parents) {
       if (parent === node) {
-        const targetTabId = tabs.find((tab) => tab.childIds.some((childId) => childId === targetNode.id))?.id;
+        const targetTabId = tabs.find((tab) =>
+          tab.children.some((childBaseId) => {
+            const childId = idMutator ? idMutator(childBaseId) : childBaseId;
+            return childId === targetNode.id;
+          }),
+        )?.id;
         if (targetTabId) {
           setActiveTab(targetTabId);
           return true;
@@ -40,7 +53,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
         defaultValue={activeTab}
         value={activeTab}
         onChange={(tabId) => setActiveTab(tabId)}
-        size={size}
+        data-size={sizeMap[size]}
       >
         <DesignsystemetTabs.List>
           {tabs.map((tab) => (
@@ -54,7 +67,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
           ))}
         </DesignsystemetTabs.List>
         {tabs.map((tab) => (
-          <DesignsystemetTabs.Content
+          <DesignsystemetTabs.Panel
             key={tab.id}
             value={tab.id}
             role='tabpanel'
@@ -65,31 +78,21 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
               spacing={6}
               alignItems='flex-start'
             >
-              {tab.childIds.filter(typedBoolean).map((nodeId) => (
-                <GenericComponentById
-                  key={nodeId}
-                  id={nodeId}
+              {tab.children.filter(typedBoolean).map((baseId) => (
+                <GenericComponentByBaseId
+                  key={baseId}
+                  id={baseId}
                 />
               ))}
             </Flex>
-          </DesignsystemetTabs.Content>
+          </DesignsystemetTabs.Panel>
         ))}
       </DesignsystemetTabs>
     </ComponentStructureWrapper>
   );
 };
 
-function TabHeader({
-  id,
-  title,
-  icon,
-  isActive,
-}: {
-  id: string;
-  title: string;
-  icon: string | undefined;
-  isActive?: boolean;
-}) {
+function TabHeader({ id, title, icon }: { id: string; title: string; icon: string | undefined; isActive?: boolean }) {
   const { langAsString } = useLanguage();
   const translatedTitle = langAsString(title);
 
@@ -108,10 +111,8 @@ function TabHeader({
     <DesignsystemetTabs.Tab
       key={id}
       value={id}
-      style={{
-        backgroundColor: isActive ? 'white' : 'transparent',
-      }}
       tabIndex={0}
+      className={classes.tabHeader}
     >
       {!!icon && (
         <img

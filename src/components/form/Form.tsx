@@ -9,6 +9,8 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useAllAttachments } from 'src/features/attachments/hooks';
+import { FileScanResults } from 'src/features/attachments/types';
 import { useExpandedWidthLayouts, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
@@ -32,7 +34,6 @@ import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
-import type { NodeData } from 'src/utils/layout/types';
 
 interface FormState {
   hasRequired: boolean;
@@ -55,6 +56,13 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   const { langAsString } = useLanguage();
   const { hasRequired, mainIds, errorReportIds, formErrors, taskErrors } = useFormState(currentPageId);
   const requiredFieldsMissing = NodesInternal.usePageHasVisibleRequiredValidations(currentPageId);
+  const allAttachments = useAllAttachments();
+
+  const hasInfectedFiles = Object.values(allAttachments || {}).some((attachments) =>
+    (attachments || []).some(
+      (attachment) => attachment.uploaded && attachment.data.fileScanResult === FileScanResults.Infected,
+    ),
+  );
 
   useRedirectToStoredPage();
   useSetExpandedWidth();
@@ -121,7 +129,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
           className={classes.errorReport}
         >
           <ErrorReport
-            show={formErrors.length > 0 || taskErrors.length > 0}
+            show={formErrors.length > 0 || taskErrors.length > 0 || hasInfectedFiles}
             errors={
               <ErrorReportList
                 formErrors={formErrors}
@@ -206,12 +214,6 @@ function useSetExpandedWidth() {
 }
 
 const emptyArray = [];
-
-function nodeDataIsRequired(n: NodeData) {
-  const item = n.item;
-  return !!(item && 'required' in item && item.required === true);
-}
-
 function useFormState(currentPageId: string | undefined): FormState {
   const lookups = useLayoutLookups();
   const topLevelIds = currentPageId ? (lookups.topLevelComponents[currentPageId] ?? emptyArray) : emptyArray;
@@ -244,9 +246,13 @@ function useFormState(currentPageId: string | undefined): FormState {
     return [toMainLayout.reverse(), toErrorReport.reverse()];
   }, [hasErrors, lookups.allComponents, topLevelIds]);
 
-  const hasRequired = NodesInternal.useSelector((state) =>
-    Object.values(state.nodeData).some((node) => node.pageKey === currentPageId && nodeDataIsRequired(node)),
-  );
+  const hasRequired =
+    (currentPageId &&
+      lookups.allPerPage[currentPageId]?.some((id) => {
+        const layout = lookups.allComponents[id];
+        return layout && 'required' in layout && layout.required !== false;
+      })) ||
+    false;
 
   return {
     hasRequired,

@@ -21,26 +21,16 @@ export const Config = new CG.component({
     displayData: false,
   },
 })
-  .addPlugin(
-    new RepeatingChildrenPlugin({
-      multiPageSupport: 'edit.multiPage',
-      extraRowState: new CG.import({
-        import: 'RepGroupRowExtras',
-        from: 'src/layout/RepeatingGroup/types',
-      }),
-    }),
-  )
+  .addPlugin(new RepeatingChildrenPlugin({ multiPageSupport: 'edit.multiPage' }))
   .addPlugin(
     new GridRowsPlugin({
       externalProp: 'rowsBefore',
-      internalProp: 'rowsBeforeInternal',
       optional: true,
     }),
   )
   .addPlugin(
     new GridRowsPlugin({
       externalProp: 'rowsAfter',
-      internalProp: 'rowsAfterInternal',
       optional: true,
     }),
   )

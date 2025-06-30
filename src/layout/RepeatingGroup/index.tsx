@@ -3,6 +3,7 @@ import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FrontendValidationSource } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
@@ -12,12 +13,13 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
+import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeData } from 'src/utils/layout/types';
@@ -47,33 +49,6 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
           }
         : undefined,
     } as RepGroupInternal;
-  }
-
-  evalExpressionsForRow(props: ExprResolver<'RepeatingGroup'>) {
-    const { evalBool, item, evalTrb } = props;
-
-    const evaluatedTrb = evalTrb();
-    const textResourceBindings: GroupExpressions['textResourceBindings'] = {
-      edit_button_close: evaluatedTrb?.textResourceBindings?.edit_button_close,
-      edit_button_open: evaluatedTrb?.textResourceBindings?.edit_button_open,
-      save_and_next_button: evaluatedTrb?.textResourceBindings?.save_and_next_button,
-      save_button: evaluatedTrb?.textResourceBindings?.save_button,
-    };
-    const edit: GroupExpressions['edit'] = {
-      alertOnDelete: evalBool(item.edit?.alertOnDelete, false),
-      editButton: evalBool(item.edit?.editButton, true),
-      deleteButton: evalBool(item.edit?.deleteButton, true),
-      saveAndNextButton: evalBool(item.edit?.saveAndNextButton, false),
-      saveButton: evalBool(item.edit?.saveButton, true),
-    };
-
-    const groupExpressions: GroupExpressions = {
-      hiddenRow: evalBool(item.hiddenRow, false),
-      textResourceBindings: item.textResourceBindings ? textResourceBindings : undefined,
-      edit: item.edit ? edit : undefined,
-    };
-
-    return { groupExpressions } as RepGroupRowExtras;
   }
 
   renderSummary(props: SummaryRendererProps<'RepeatingGroup'>): JSX.Element | null {
@@ -119,8 +94,12 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return true;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'RepeatingGroup'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'group', ['array']);
+  useDataModelBindingValidation(
+    node: LayoutNode<'RepeatingGroup'>,
+    bindings: IDataModelBindings<'RepeatingGroup'>,
+  ): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    const [errors, result] = validateDataModelBindingsAny(node, bindings, lookupBinding, 'group', ['array']);
     if (errors) {
       return errors;
     }
@@ -135,22 +114,16 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return [];
   }
 
-  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string): boolean {
-    const hiddenByPlugins = super.isChildHidden(state, childId);
+  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string, lookups: LayoutLookups): boolean {
+    const hiddenByPlugins = super.isChildHidden(state, childId, lookups);
     if (hiddenByPlugins) {
       return true;
     }
 
-    const { baseComponentId, depth } = splitDashedKey(childId);
-    const rowIndex = depth.at(-1);
-    const row = rowIndex !== undefined ? state.item?.rows[rowIndex] : undefined;
-    const rowHidden = row?.groupExpressions?.hiddenRow;
-    if (rowHidden) {
-      return true;
-    }
-
-    const tableColSetup = state.item?.tableColumns?.[baseComponentId];
-    const mode = state.item?.edit?.mode;
+    const { baseComponentId } = splitDashedKey(childId);
+    const layout = lookups.getComponent(state.baseId, 'RepeatingGroup');
+    const tableColSetup = layout.tableColumns?.[baseComponentId];
+    const mode = layout.edit?.mode;
 
     // This specific configuration hides the component fully, without having set hidden=true on the component itself.
     // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,
@@ -179,13 +152,5 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     // }
 
     return hiddenImplicitly;
-  }
-
-  stateIsReady(state: NodeData<'RepeatingGroup'>): boolean {
-    if (!super.stateIsReady(state)) {
-      return false;
-    }
-
-    return state.item?.rows?.every((row) => row && row.groupExpressions !== undefined) ?? false;
   }
 }

@@ -2,7 +2,9 @@ import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
 import { formatISOString, getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { FrontendValidationSource } from 'src/features/validation';
 import { DatepickerDef } from 'src/layout/Datepicker/config.def.generated';
@@ -10,9 +12,9 @@ import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
 import { DatepickerSummary } from 'src/layout/Datepicker/DatepickerSummary';
 import { useDatepickerValidation } from 'src/layout/Datepicker/useDatepickerValidation';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type {
@@ -21,6 +23,7 @@ import type {
   ValidationFilter,
   ValidationFilterFunction,
 } from 'src/layout';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -32,10 +35,11 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'Datepicker');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'Datepicker');
     const currentLanguage = useCurrentLanguage();
-    const format = NodesInternal.useNodeDataWhenType(nodeId, 'Datepicker', (data) => data.item?.format);
+    const component = useExternalItem(baseComponentId, 'Datepicker');
+    const format = component?.format;
     const data = formData?.simpleBinding ?? '';
     if (!data) {
       return '';
@@ -108,18 +112,20 @@ export class Datepicker extends DatepickerDef implements ValidateComponent<'Date
     return filters;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Datepicker'>): string[] {
-    const validation = this.validateDataModelBindingsAny(ctx, 'simpleBinding', ['string']);
+  useDataModelBindingValidation(node: LayoutNode<'Datepicker'>, bindings: IDataModelBindings<'Datepicker'>): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    const component = useLayoutLookups().getComponent(node.baseId, 'Datepicker');
+    const validation = validateDataModelBindingsAny(node, bindings, lookupBinding, 'simpleBinding', ['string']);
     const [errors, result] = [validation[0] ?? [], validation[1]];
 
-    if (result?.format === 'date-time' && ctx.item.timeStamp === false) {
+    if (result?.format === 'date-time' && component.timeStamp === false) {
       errors.push(
         `simpleBinding-datamodellbindingen peker på en streng med "format": "date-time", men komponenten har "timeStamp": false. Komponenten lagrer feil format i henhold til datamodellen.`,
       );
     }
-    if (result?.format === 'date' && (ctx.item.timeStamp === undefined || ctx.item.timeStamp === true)) {
+    if (result?.format === 'date' && (component.timeStamp === undefined || component.timeStamp)) {
       errors.push(
-        `simpleBinding-datamodellbindingen peker på en streng med "format": "date" men komponenten har "timeStamp": true${ctx.item.timeStamp ? '' : ' (default)'}. Komponenten lagrer feil format i henhold til datamodellen.`,
+        `simpleBinding-datamodellbindingen peker på en streng med "format": "date" men komponenten har "timeStamp": true${component.timeStamp ? '' : ' (default)'}. Komponenten lagrer feil format i henhold til datamodellen.`,
       );
     }
 

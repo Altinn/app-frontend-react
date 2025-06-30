@@ -3,11 +3,11 @@ import React, { type PropsWithChildren } from 'react';
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { Label } from 'src/components/label/Label';
+import { Label, LabelInner } from 'src/components/label/Label';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
+import { useDataTypeFromLayoutSet, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useDoOverrideSummary } from 'src/layout/Subform/SubformWrapper';
@@ -22,8 +22,9 @@ import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryCompone
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { useSummaryOverrides } from 'src/layout/Summary2/summaryStoreContext';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useNode } from 'src/utils/layout/NodesContext';
 import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { IData } from 'src/types/shared';
@@ -87,6 +88,7 @@ const DoSummaryWrapper = ({
   title: string | undefined;
   node: LayoutNode<'Subform'>;
 }>) => {
+  const item = useNodeItem(node);
   const isDone = useDoOverrideSummary(dataElement.id, layoutSet, dataElement.dataType);
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
@@ -98,7 +100,7 @@ const DoSummaryWrapper = ({
 
   const subformEntryName =
     entryDisplayName && !subformDataError
-      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, { type: 'node', id: node.id })
+      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, node.id)
       : null;
 
   return (
@@ -111,8 +113,9 @@ const DoSummaryWrapper = ({
         >
           <Flex item>
             <div className={classes_singlevaluesummary.labelValueWrapper}>
-              <Label
-                node={node}
+              <LabelInner
+                item={item}
+                nodeId={node.id}
                 id={`subform-summary2-${dataElement.id}`}
                 renderLabelAs='span'
                 weight='regular'
@@ -121,8 +124,7 @@ const DoSummaryWrapper = ({
               {subformEntryName && (
                 <Heading
                   className='no-visual-testing'
-                  spacing={false}
-                  size='sm'
+                  data-size='sm'
                   level={2}
                 >
                   {subformEntryName}
@@ -137,19 +139,27 @@ const DoSummaryWrapper = ({
   );
 };
 
-export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subform'>>) {
-  const displayType = useSummaryOverrides(target)?.display;
-  const allOrOneSubformId = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((data) => data.layout.type === 'Subform')
-      .filter((data) => {
-        if (!target?.id) {
-          return data;
-        }
-        return data.layout.id === target.id;
-      })
-      .map((data) => data.layout.id),
+export function AllSubformSummaryComponent2() {
+  const lookups = useLayoutLookups();
+  const allIds = Object.values(lookups.topLevelComponents)
+    .flat()
+    .filter((id) => (id ? lookups.allComponents[id]?.type === 'Subform' : false))
+    .filter(typedBoolean);
+
+  return (
+    <>
+      {allIds.map((childId, idx) => (
+        <SummarySubformWrapper
+          key={idx}
+          nodeId={childId}
+        />
+      ))}
+    </>
   );
+}
+
+export function SubformSummaryComponent2({ target }: Summary2Props<'Subform'>) {
+  const displayType = useSummaryOverrides(target)?.display;
   const layoutSet = useNodeItem(target, (i) => i.layoutSet);
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictDataElements(dataType);
@@ -161,32 +171,21 @@ export function SubformSummaryComponent2({ target }: Partial<Summary2Props<'Subf
     displayType === 'table' && target ? (
       <SubformSummaryTable targetNode={target} />
     ) : (
-      <>
-        {allOrOneSubformId.map((childId, idx) => (
-          <SummarySubformWrapper
-            key={idx}
-            nodeId={childId}
-          />
-        ))}
-      </>
+      <SummarySubformWrapper nodeId={target.id} />
     );
 
-  if (target) {
-    return (
-      <SummaryFlex
-        target={target}
-        content={
-          hasElements
-            ? SummaryContains.SomeUserContent
-            : required
-              ? SummaryContains.EmptyValueRequired
-              : SummaryContains.EmptyValueNotRequired
-        }
-      >
-        {inner}
-      </SummaryFlex>
-    );
-  }
-
-  return inner;
+  return (
+    <SummaryFlex
+      target={target}
+      content={
+        hasElements
+          ? SummaryContains.SomeUserContent
+          : required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+      }
+    >
+      {inner}
+    </SummaryFlex>
+  );
 }
