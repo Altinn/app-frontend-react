@@ -18,7 +18,7 @@ type Props = Pick<PropsFromGenericComponent<'NavigationButtons'>, 'node'>;
 export function NavigationButtonsComponent({ node }: Props) {
   const summaryNode = useSummaryNodeOfOrigin();
 
-  if (summaryNode) {
+  if (summaryNode && summaryNode.isType('Summary')) {
     return (
       <WithSummary
         node={node}
