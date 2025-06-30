@@ -48,7 +48,7 @@ export interface ValidationStorePluginConfig {
     useRawValidations: (node: LayoutNode | undefined) => AnyValidation[];
     useVisibleValidations: (indexedId: string, showAll?: boolean) => AnyValidation[];
     useVisibleValidationsDeep: (
-      node: LayoutNode | undefined,
+      indexedId: string,
       mask: NodeVisibility,
       includeSelf: boolean,
       restriction?: number | undefined,
@@ -153,16 +153,14 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           });
         });
       },
-      useVisibleValidationsDeep: (node, mask, includeSelf, restriction, severity) => {
+      useVisibleValidationsDeep: (indexedId, mask, includeSelf, restriction, severity) => {
         const lookups = useLayoutLookups();
         return store.useMemoSelector((state) => {
-          if (!node) {
-            return emptyArray;
-          }
+          const { baseComponentId } = splitDashedKey(indexedId);
           return getRecursiveValidations({
             state,
-            id: node.id,
-            baseId: node.baseId,
+            id: indexedId,
+            baseId: baseComponentId,
             mask,
             severity,
             includeSelf,

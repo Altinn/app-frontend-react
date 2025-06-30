@@ -14,6 +14,7 @@ import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditCont
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination';
 import {
   useRepeatingGroup,
+  useRepeatingGroupComponentId,
   useRepeatingGroupPagination,
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
@@ -21,22 +22,23 @@ import {
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
-import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
+import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ButtonPosition } from 'src/layout/common.generated';
 
 export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HTMLDivElement>): JSX.Element | null => {
-  const { node } = useRepeatingGroup();
-  const mode = useExternalItem(node.baseId, 'RepeatingGroup').edit?.mode;
+  const baseComponentId = useRepeatingGroupComponentId();
+  const mode = useExternalItem(baseComponentId, 'RepeatingGroup').edit?.mode;
 
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
-  const isHidden = Hidden.useIsHidden(node);
+  const id = useIndexedId(baseComponentId);
+  const isHidden = Hidden.useIsHidden(id);
 
-  if (isHidden || !node.isType('RepeatingGroup')) {
+  if (isHidden) {
     return null;
   }
 
@@ -44,8 +46,8 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
     <Flex
       container
       item
-      data-componentid={node.id}
-      data-componentbaseid={node.baseId}
+      data-componentid={id}
+      data-componentbaseid={baseComponentId}
       ref={ref}
     >
       {(!mode || mode === 'showTable') && <ModeOnlyTable />}
@@ -57,7 +59,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
         item
         size={{ xs: 12 }}
       >
-        <AllComponentValidations baseComponentId={node.baseId} />
+        <AllComponentValidations baseComponentId={baseComponentId} />
       </Flex>
     </Flex>
   );
@@ -74,12 +76,13 @@ function ModeOnlyTable() {
 }
 
 function ModeOnlyEdit({ editingId }: { editingId: string }) {
-  const { node } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
+  const node = useNode(useIndexedId(baseComponentId));
   const isNested = node.parent instanceof LayoutNode;
 
-  const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup').group;
-  const grid = useExternalItem(node.baseId, 'RepeatingGroup').grid;
-  const rowIndex = RepGroupHooks.useAllBaseRows(node.baseId).find((r) => r.uuid === editingId)?.index;
+  const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup').group;
+  const grid = useExternalItem(baseComponentId, 'RepeatingGroup').grid;
+  const rowIndex = RepGroupHooks.useAllBaseRows(baseComponentId).find((r) => r.uuid === editingId)?.index;
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
 
   if (rowIndex === undefined) {
@@ -111,15 +114,16 @@ function ModeOnlyEdit({ editingId }: { editingId: string }) {
 }
 
 function ModeShowAll() {
-  const { node } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
+  const node = useNode(useIndexedId(baseComponentId));
   const isNested = node.parent instanceof LayoutNode;
 
   const { rowsToDisplay } = useRepeatingGroupPagination();
   const numRows = rowsToDisplay.length;
   const lastIndex = rowsToDisplay[numRows - 1];
 
-  const groupBinding = useDataModelBindingsFor(node.baseId, 'RepeatingGroup').group;
-  const grid = useExternalItem(node.baseId, 'RepeatingGroup').grid;
+  const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup').group;
+  const grid = useExternalItem(baseComponentId, 'RepeatingGroup').grid;
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
 
   return (
@@ -171,7 +175,7 @@ export const alignStyle = (align: ButtonPosition): React.CSSProperties => {
 function AddButton() {
   const { lang, langAsString } = useLanguage();
   const { triggerFocus } = useRepeatingGroupsFocusContext();
-  const { node, addRow } = useRepeatingGroup();
+  const { addRow, baseComponentId } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
   const { editingAll, editingNone, isEditingAnyRow, currentlyAddingRow } = useRepeatingGroupSelector((state) => ({
     editingAll: state.editingAll,
@@ -180,7 +184,7 @@ function AddButton() {
     currentlyAddingRow: state.addingIds.length > 0,
   }));
 
-  const item = useItemWhenType(node.baseId, 'RepeatingGroup');
+  const item = useItemWhenType(baseComponentId, 'RepeatingGroup');
   const { textResourceBindings, id, edit, addButton } = item;
   const { add_button, add_button_full } = textResourceBindings || {};
 

@@ -83,19 +83,18 @@ export const RepeatingGroupTableRow = React.memo(function ({
   const mobileViewSmall = useIsMobile();
   const { refSetter } = useRepeatingGroupsFocusContext();
 
-  const { node, deleteRow, isEditing, isDeleting, toggleEditing } = useRepeatingGroup();
+  const { baseComponentId, deleteRow, isEditing, isDeleting, toggleEditing } = useRepeatingGroup();
   const langTools = useLanguage();
   const { langAsString } = langTools;
-  const id = node.id;
-  const { edit: editForGroup, tableColumns: columnSettings } = useItemWhenType(node.baseId, 'RepeatingGroup');
-  const rowExpressions = RepGroupHooks.useRowWithExpressions(node.baseId, { uuid });
+  const { edit: editForGroup, tableColumns: columnSettings } = useItemWhenType(baseComponentId, 'RepeatingGroup');
+  const rowExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid });
   const editForRow = rowExpressions?.edit;
   const trbForRow = rowExpressions?.textResourceBindings;
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
   const layoutLookups = useLayoutLookups();
-  const rawTableIds = useTableComponentIds(node);
+  const rawTableIds = useTableComponentIds(baseComponentId);
   const displayData = useDisplayDataFor(rawTableIds);
   const tableItems = rawTableIds.map((baseId) => ({
     baseId,
@@ -110,7 +109,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
   const tableEditingIds = tableItems
     .filter((i) => shouldEditInTable(editForGroup, i.baseId, i.type, columnSettings))
     .map((i) => i.baseId);
-  const rowValidations = useDeepValidationsForNode(node, false, index);
+  const rowValidations = useDeepValidationsForNode(baseComponentId, false, index);
   const rowHasErrors = rowValidations.some(
     (validation) => validation.severity === 'error' && !tableEditingIds.includes(validation.baseComponentId),
   );
@@ -226,7 +225,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
               <div className={classes.buttonInCellWrapper}>
                 <Button
                   aria-expanded={isEditingRow}
-                  aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
+                  aria-controls={isEditingRow ? `group-edit-container-${baseComponentId}-${uuid}` : undefined}
                   variant='tertiary'
                   color='second'
                   onClick={() => toggleEditing({ index, uuid })}
@@ -284,7 +283,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
             {editForRow?.editButton !== false && (
               <Button
                 aria-expanded={isEditingRow}
-                aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
+                aria-controls={isEditingRow ? `group-edit-container-${baseComponentId}-${uuid}` : undefined}
                 variant='tertiary'
                 color='second'
                 icon={!isEditingRow && mobileViewSmall}

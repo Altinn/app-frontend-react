@@ -45,7 +45,7 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
     'RepeatingGroup',
   );
   const title = textResourceBindings?.title;
-  const tableIds = useTableComponentIds(componentNode);
+  const tableIds = useTableComponentIds(componentNode.baseId);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
   return (
@@ -139,7 +139,7 @@ type DataRowProps = {
 
 function DataRow({ row, node, pdfModeActive, columnSettings }: DataRowProps) {
   const layoutLookups = useLayoutLookups();
-  const rawIds = useTableComponentIds(node);
+  const rawIds = useTableComponentIds(node.baseId);
   const indexedIds = useIndexedComponentIds(rawIds);
   const otherChildren = useNodeDirectChildren(node, row?.index)?.map((n) => n.id);
   const dataModelBindings = useDataModelBindingsFor(node.baseId, 'RepeatingGroup');

@@ -62,7 +62,7 @@ function RegularRepeatingGroup(props: FullProps) {
   const display = overrides?.display;
   const { langAsString } = useLanguage();
 
-  const groupValidations = useDeepValidationsForNode(targetNode);
+  const groupValidations = useDeepValidationsForNode(targetNode.baseId);
   const groupHasErrors = hasValidationErrors(groupValidations);
 
   const summaryAccessibleTitleTrb = trb && 'summaryAccessibleTitle' in trb ? trb.summaryAccessibleTitle : undefined;
