@@ -6,9 +6,7 @@ describe('Custom Button', () => {
   it('Should perform action and update the frontend with the updated datamodel', () => {
     cy.goto('changename');
 
-    cy.waitUntilNodesReady();
-
-    cy.findByRole('button', { name: 'Fyll ut skjema' }).click();
+    cy.findByRole('button', { name: 'Fyll ut skjema' }).should('not.be.disabled').click();
     cy.findByRole('textbox', { name: 'Denne oppdateres av custom button' }).should(
       'have.value',
       'Her kommer det data fra backend',
@@ -21,7 +19,7 @@ describe('Custom Button', () => {
     cy.findByRole('textbox', { name: /Her kan man skrive input/ }).type('Hello b');
     cy.waitUntilSaved();
 
-    cy.findByRole('button', { name: 'Fyll ut skjema' }).click();
+    cy.findByRole('button', { name: 'Fyll ut skjema' }).should('not.be.disabled').click();
     cy.get(appFrontend.toast).should('have.text', 'Her kommer det en feilmelding');
   });
 
@@ -30,10 +28,7 @@ describe('Custom Button', () => {
 
     cy.findByRole('textbox', { name: /Her kan man skrive input/ }).type('Generate frontend actions');
 
-    cy.waitUntilSaved();
-    cy.waitUntilNodesReady();
-
-    cy.findByRole('button', { name: 'Fyll ut skjema' }).click();
+    cy.findByRole('button', { name: 'Fyll ut skjema' }).should('not.be.disabled').click();
     cy.findByText('Oppsummering').should('be.visible');
   });
 
@@ -41,7 +36,7 @@ describe('Custom Button', () => {
     cy.goto('changename');
     cy.waitUntilSaved();
 
-    cy.findByRole('button', { name: 'Trigger frontend actions' }).click();
+    cy.findByRole('button', { name: 'Trigger frontend actions' }).should('not.be.disabled').click();
     cy.findByRole('textbox', { name: /Hvor mye gjeld har du?/ }).should('be.visible');
   });
 });
