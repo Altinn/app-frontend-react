@@ -23,6 +23,7 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
@@ -84,6 +85,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
   const { refSetter } = useRepeatingGroupsFocusContext();
 
   const { baseComponentId, deleteRow, isEditing, isDeleting, toggleEditing } = useRepeatingGroup();
+  const indexedId = useIndexedId(baseComponentId);
   const langTools = useLanguage();
   const { langAsString } = langTools;
   const { edit: editForGroup, tableColumns: columnSettings } = useItemWhenType(baseComponentId, 'RepeatingGroup');
@@ -225,7 +227,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
               <div className={classes.buttonInCellWrapper}>
                 <Button
                   aria-expanded={isEditingRow}
-                  aria-controls={isEditingRow ? `group-edit-container-${baseComponentId}-${uuid}` : undefined}
+                  aria-controls={isEditingRow ? `group-edit-container-${indexedId}-${uuid}` : undefined}
                   variant='tertiary'
                   color='second'
                   onClick={() => toggleEditing({ index, uuid })}
@@ -283,7 +285,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
             {editForRow?.editButton !== false && (
               <Button
                 aria-expanded={isEditingRow}
-                aria-controls={isEditingRow ? `group-edit-container-${baseComponentId}-${uuid}` : undefined}
+                aria-controls={isEditingRow ? `group-edit-container-${indexedId}-${uuid}` : undefined}
                 variant='tertiary'
                 color='second'
                 icon={!isEditingRow && mobileViewSmall}
