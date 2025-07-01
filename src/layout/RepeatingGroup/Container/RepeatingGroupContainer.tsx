@@ -8,6 +8,7 @@ import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/Condit
 import { Flex } from 'src/app-components/Flex/Flex';
 import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthWrapper';
 import { Fieldset } from 'src/app-components/Label/Fieldset';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { AllComponentValidations } from 'src/features/validation/ComponentValidations';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
@@ -24,7 +25,6 @@ import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGr
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -78,12 +78,16 @@ function ModeOnlyTable() {
 function ModeOnlyEdit({ editingId }: { editingId: string }) {
   const baseComponentId = useRepeatingGroupComponentId();
   const node = useNode(useIndexedId(baseComponentId));
-  const isNested = node.parent instanceof LayoutNode;
+  const parent = useLayoutLookups().componentToParent[baseComponentId];
+  const isNested = parent?.type === 'node';
 
   const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup').group;
   const grid = useExternalItem(baseComponentId, 'RepeatingGroup').grid;
   const rowIndex = RepGroupHooks.useAllBaseRows(baseComponentId).find((r) => r.uuid === editingId)?.index;
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
+    baseComponentId: node.baseId,
+    overrideDisplay: undefined,
+  });
 
   if (rowIndex === undefined) {
     return null;
@@ -115,8 +119,8 @@ function ModeOnlyEdit({ editingId }: { editingId: string }) {
 
 function ModeShowAll() {
   const baseComponentId = useRepeatingGroupComponentId();
-  const node = useNode(useIndexedId(baseComponentId));
-  const isNested = node.parent instanceof LayoutNode;
+  const parent = useLayoutLookups().componentToParent[baseComponentId];
+  const isNested = parent?.type === 'node';
 
   const { rowsToDisplay } = useRepeatingGroupPagination();
   const numRows = rowsToDisplay.length;
@@ -124,7 +128,10 @@ function ModeShowAll() {
 
   const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup').group;
   const grid = useExternalItem(baseComponentId, 'RepeatingGroup').grid;
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay: undefined });
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
+    baseComponentId,
+    overrideDisplay: undefined,
+  });
 
   return (
     <Fieldset

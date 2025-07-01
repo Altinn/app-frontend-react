@@ -238,7 +238,7 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
   const { grid, id, required } = useItemWhenType(node.baseId, 'Input');
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId: node.baseId, overrideDisplay });
 
   return (
     <Label

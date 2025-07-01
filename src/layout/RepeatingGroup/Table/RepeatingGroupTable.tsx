@@ -4,6 +4,7 @@ import { Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/caption/Caption';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { GenericComponentById } from 'src/layout/GenericComponent';
@@ -24,10 +25,8 @@ import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponen
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { useExternalItem } from 'src/utils/layout/hooks';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNode } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { GridCell, ITableColumnFormatting } from 'src/layout/common.generated';
 
@@ -62,8 +61,8 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     displayEditColumn = false;
   }
 
-  const node = useNode(useIndexedId(baseComponentId));
-  const isNested = node.parent instanceof LayoutNode;
+  const parent = useLayoutLookups().componentToParent[baseComponentId];
+  const isNested = parent?.type === 'node';
   const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
 
   return (
@@ -205,8 +204,8 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const { visibleRows } = useRepeatingGroupRowState();
   const isEmpty = visibleRows.length === 0;
   const { rowsBefore, rowsAfter } = useExternalItem(baseComponentId, 'RepeatingGroup');
-  const node = useNode(useIndexedId(baseComponentId));
-  const isNested = node.parent instanceof LayoutNode;
+  const parent = useLayoutLookups().componentToParent[baseComponentId];
+  const isNested = parent?.type === 'node';
 
   const rows = where === 'Before' ? rowsBefore : rowsAfter;
   const mobileNodeIds = useNodeIdsFromGridRows(rows, mobileView);

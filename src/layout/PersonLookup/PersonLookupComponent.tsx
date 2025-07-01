@@ -81,7 +81,10 @@ async function fetchPerson(
 
 export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGenericComponent<'PersonLookup'>) {
   const { id, dataModelBindings, required } = useItemWhenType(node.baseId, 'PersonLookup');
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
+    baseComponentId: node.baseId,
+    overrideDisplay,
+  });
   const [tempSsn, setTempSsn] = useState('');
   const [tempName, setTempName] = useState('');
   const [ssnErrors, setSsnErrors] = useState<string[]>();

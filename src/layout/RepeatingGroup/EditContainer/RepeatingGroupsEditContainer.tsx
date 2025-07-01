@@ -6,6 +6,7 @@ import cn from 'classnames';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import {
@@ -21,7 +22,6 @@ import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Provid
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { CompInternal } from 'src/layout/layout';
@@ -76,7 +76,6 @@ function RepeatingGroupsEditContainerInternal({
   const { multiPageEnabled, multiPageIndex, nextMultiPage, prevMultiPage, hasNextMultiPage, hasPrevMultiPage } =
     useRepeatingGroupEdit();
   const id = useIndexedId(baseComponentId);
-  const node = useNode(id);
   const rowWithExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid: row.uuid });
   const textsForRow = rowWithExpressions?.textResourceBindings;
   const editForRow = rowWithExpressions?.edit;
@@ -87,7 +86,8 @@ function RepeatingGroupsEditContainerInternal({
     ...textsForRow,
   };
 
-  const isNested = node.parent instanceof LayoutNode;
+  const parent = useLayoutLookups().componentToParent[baseComponentId];
+  const isNested = parent?.type === 'node';
   let saveButtonVisible =
     !forceHideSaveButton &&
     (editForRow?.saveButton !== false || (editForRow.saveAndNextButton === true && !moreVisibleRowsAfterEditIndex));

@@ -38,7 +38,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
   const { langAsString, lang } = useLanguage();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId: node.baseId, overrideDisplay });
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {
