@@ -290,7 +290,7 @@ export class AppFrontend {
           age: '[data-testid=group-edit-container] [id^="pet-age"]',
           sortOrder: '[data-testid=group-edit-container] [id^="futureSortOrder-inside"]',
           sortButton: '[data-testid=group-edit-container] [id^="custom-button-sortOrderButton-inside"]',
-          saveAndClose: '[data-testid=group-edit-container] #save-button-pets',
+          saveAndClose: '[data-testid=group-edit-container] [id^="save-button-pets"]',
         },
       };
     },
