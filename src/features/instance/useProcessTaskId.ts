@@ -1,5 +1,5 @@
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
-import { useProcessQuery } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 
 export function useProcessTaskId() {

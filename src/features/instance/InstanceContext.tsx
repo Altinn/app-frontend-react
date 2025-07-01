@@ -14,7 +14,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
 import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
-import { useProcessQuery } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';

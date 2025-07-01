@@ -1,4 +1,4 @@
-import { useProcessQuery } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { ProcessTaskType } from 'src/types';
 
 /**

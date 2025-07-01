@@ -6,7 +6,7 @@ import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import {
   SearchParams,
   useAllNavigationParamsAsRef,
