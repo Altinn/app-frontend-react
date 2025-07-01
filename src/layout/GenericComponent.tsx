@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { ExprVal } from 'src/features/expressions/types';
-import { NavigationResult, useFinishNodeNavigation } from 'src/features/form/layout/NavigateToNode';
+import { NavigationResult, useFinishNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
@@ -146,8 +146,8 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     [grid, node, overrideItemProps, overrideDisplay],
   );
 
-  useFinishNodeNavigation(async (targetNode, options, onHit) => {
-    if (targetNode.id !== id) {
+  useFinishNavigation(async (indexedId, _baseComponentId, options, onHit) => {
+    if (indexedId !== id) {
       return undefined;
     }
     onHit();

@@ -4,7 +4,7 @@ import { PencilIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
-import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
+import { useNavigateTo } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -46,7 +46,7 @@ export function EditButton({
   className,
   navigationOverride = null,
 }: EditButtonProps) {
-  const navigateTo = useNavigateToNode();
+  const navigateTo = useNavigateTo();
   const { langAsString } = useLanguage();
   const setReturnToView = useSetReturnToView();
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
@@ -77,7 +77,7 @@ export function EditButton({
     if (navigationOverride) {
       await navigationOverride();
     } else {
-      await navigateTo(componentNode, {
+      await navigateTo(componentNode.id, componentNode.baseId, {
         shouldFocus: true,
         pageNavOptions: {
           resetReturnToView: false,

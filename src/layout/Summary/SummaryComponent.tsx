@@ -4,7 +4,7 @@ import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
-import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
+import { useNavigateTo } from 'src/features/form/layout/NavigateToNode';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -140,7 +140,7 @@ const SummaryComponentInner = React.forwardRef(function (
   const validations = useUnifiedValidationsForNode(targetNode.baseId);
   const errors = validationsOfSeverity(validations, 'error');
 
-  const navigateTo = useNavigateToNode();
+  const navigateTo = useNavigateTo();
   const setReturnToView = useSetReturnToView();
   const setNodeOfOrigin = useSetSummaryNodeOfOrigin();
 
@@ -151,7 +151,7 @@ const SummaryComponentInner = React.forwardRef(function (
 
     setReturnToView?.(currentPageId);
     setNodeOfOrigin?.(originNodeId);
-    await navigateTo(targetNode, {
+    await navigateTo(targetNode.id, targetNode.baseId, {
       shouldFocus: true,
       pageNavOptions: {
         resetReturnToView: false,
