@@ -8,6 +8,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
@@ -31,9 +32,7 @@ const ProcessContext = createContext<Pick<UseQueryResult<IProcess, HttpClientErr
 );
 
 export function ProcessProvider({ children }: PropsWithChildren) {
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;
+  const instanceId = useLaxInstanceId();
   const taskId = useNavigationParam('taskId');
   const layoutSets = useLayoutSets();
   const navigateToTask = useNavigateToTask();
@@ -69,7 +68,6 @@ export function ProcessProvider({ children }: PropsWithChildren) {
   return <ProcessContext.Provider value={{ data, refetch }}>{children}</ProcessContext.Provider>;
 }
 
-export const useHasProcessProvider = () => useContext(ProcessContext) !== undefined;
 export const useLaxProcessData = () => useContext(ProcessContext)?.data;
 export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 

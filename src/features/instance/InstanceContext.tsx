@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
@@ -125,8 +126,8 @@ export function useInstanceDataQueryDef(
 
 function useGetInstanceDataQuery(
   hasResultFromInstantiation: boolean,
-  partyId: string,
-  instanceGuid: string,
+  partyId: string | undefined,
+  instanceGuid: string | undefined,
   enablePolling: boolean = false,
 ) {
   const queryDef = useInstanceDataQueryDef(hasResultFromInstantiation, partyId, instanceGuid);
@@ -158,9 +159,7 @@ export const InstanceProvider = ({ children }: { children: React.ReactNode }) =>
 const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
-  if (!instanceOwnerPartyId || !instanceGuid) {
-    throw new Error('Missing partyId or instanceGuid when creating instance context');
-  }
+  const navigation = useNavigation();
 
   const changeData = useSelector((state) => state.changeData);
   const setReFetch = useSelector((state) => state.setReFetch);
@@ -180,12 +179,6 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
   const error = instantiation.error ?? queryError;
   const data = instantiation.lastResult ?? queryData;
 
-  if (!window.inUnitTest && data && !data.id.endsWith(instanceGuid)) {
-    throw new Error(
-      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
-    );
-  }
-
   useEffect(() => {
     data && changeData(() => data);
   }, [changeData, data]);
@@ -193,6 +186,19 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     setReFetch(refetch);
   }, [refetch, setReFetch]);
+
+  if (navigation.state === 'loading') {
+    return <Loader reason='instance' />;
+  }
+
+  if (!instanceOwnerPartyId || !instanceGuid) {
+    throw new Error('Missing instanceOwnerPartyId or instanceGuid when creating instance context');
+  }
+  if (!window.inUnitTest && data && !data.id.endsWith(instanceGuid)) {
+    throw new Error(
+      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
+    );
+  }
 
   if (error) {
     return <DisplayError error={error} />;
@@ -217,12 +223,6 @@ export function useLaxInstance<U>(selector: (state: InstanceContext) => U) {
 }
 
 const emptyArray: never[] = [];
-
-export const useLaxInstanceId = () => {
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  return instanceOwnerPartyId && instanceGuid ? `${instanceOwnerPartyId}/${instanceGuid}` : undefined;
-};
 
 export const useLaxInstanceData = <U,>(selector: (data: IInstance) => U) =>
   useLaxInstance((state) => (state.data ? selector(state.data) : undefined));
@@ -263,13 +263,20 @@ export const useLaxInstanceAllDataElementsNow = () => {
 };
 
 export const useStrictInstanceRefetch = () => useSelector((state) => state.reFetch);
-export const useStrictInstanceId = () => {
+
+export const useLaxInstanceId = () => {
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
-  if (!instanceOwnerPartyId || !instanceGuid) {
-    throw new Error('Missing partyId or instanceGuid in URL');
+  return instanceOwnerPartyId && instanceGuid ? `${instanceOwnerPartyId}/${instanceGuid}` : undefined;
+};
+
+export const useStrictInstanceId = () => {
+  const instanceId = useLaxInstanceId();
+  if (!instanceId) {
+    throw new Error('Missing instanceOwnerPartyId or instanceGuid in URL');
   }
-  return `${instanceOwnerPartyId}/${instanceGuid}`;
+
+  return instanceId;
 };
 export const useStrictAppendDataElements = () => useSelector((state) => state.appendDataElements);
 export const useStrictRemoveDataElement = () => useSelector((state) => state.removeDataElement);
