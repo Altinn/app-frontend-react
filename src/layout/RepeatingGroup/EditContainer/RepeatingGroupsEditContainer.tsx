@@ -210,7 +210,7 @@ function RepeatingGroupsEditContainerInternal({
             container
             direction='row'
             spacing={2}
-            justifyContent='flex-end'
+            justifyContent={multiPageEnabled ? 'flex-end' : 'flex-start'}
           >
             {saveAndNextButtonVisible && (
               <Flex item>
