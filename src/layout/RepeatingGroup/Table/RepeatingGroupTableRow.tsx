@@ -111,7 +111,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
   const tableEditingIds = tableItems
     .filter((i) => shouldEditInTable(editForGroup, i.baseId, i.type, columnSettings))
     .map((i) => i.baseId);
-  const rowValidations = useDeepValidationsForNode(baseComponentId, false, index);
+  const rowValidations = useDeepValidationsForNode(baseComponentId, false, index, true);
   const rowHasErrors = rowValidations.some(
     (validation) => validation.severity === 'error' && !tableEditingIds.includes(validation.baseComponentId),
   );

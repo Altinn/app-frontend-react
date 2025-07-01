@@ -10,9 +10,10 @@ export function useDeepValidationsForNode(
   baseComponentId: string,
   includeSelf = true,
   restriction?: number | undefined,
+  skipLastIdMutator = false,
 ): NodeRefValidation[] {
   const showAll = Validation.useShowAllBackendErrors();
   const mask = showAll ? 'showAll' : 'visible';
-  const indexedId = useIndexedId(baseComponentId);
+  const indexedId = useIndexedId(baseComponentId, skipLastIdMutator);
   return NodesInternal.useVisibleValidationsDeep(indexedId, mask, includeSelf, restriction);
 }
