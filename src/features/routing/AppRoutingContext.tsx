@@ -213,6 +213,7 @@ function UpdateNavigate() {
   const store = useStore();
   const navigateRef = useStaticSelector((ctx) => ctx.navigateRef);
   const nativeNavigate = useNativeNavigate();
+  const updateHash = useStaticSelector((ctx) => ctx.updateHash);
 
   navigateRef.current = (target, options) => {
     if (target && !target.startsWith('/')) {
@@ -220,9 +221,11 @@ function UpdateNavigate() {
       const currentPath = getPath(store.getState().hash).replace(/\/$/, '');
       const newTarget = `${currentPath}/${target}`;
       nativeNavigate(newTarget, options);
+      updateHash(newTarget);
       return;
     }
     nativeNavigate(target, options);
+    updateHash(target);
   };
 
   return null;
