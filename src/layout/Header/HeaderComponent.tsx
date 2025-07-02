@@ -42,7 +42,10 @@ export const HeaderComponent = ({ baseComponentId }: PropsFromGenericComponent<'
   const { id, size, textResourceBindings } = useItemWhenType(baseComponentId, 'Header');
   const { langAsString } = useLanguage();
   return (
-    <ComponentStructureWrapper baseComponentId={baseComponentId}>
+    <ComponentStructureWrapper
+      baseComponentId={baseComponentId}
+      style={{ display: 'flex' }}
+    >
       <Heading
         id={id}
         {...getHeaderProps(size)}
