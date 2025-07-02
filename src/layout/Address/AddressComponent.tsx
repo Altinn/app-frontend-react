@@ -21,8 +21,6 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
 
-export type IAddressProps = PropsFromGenericComponent<'Address'>;
-
 const bindingKeys: { [k in keyof IDataModelBindingsForAddress]: k } = {
   address: 'address',
   postPlace: 'postPlace',
@@ -31,7 +29,7 @@ const bindingKeys: { [k in keyof IDataModelBindingsForAddress]: k } = {
   careOf: 'careOf',
 };
 
-export function AddressComponent({ baseComponentId }: IAddressProps) {
+export function AddressComponent({ baseComponentId }: PropsFromGenericComponent<'Address'>) {
   const {
     id,
     required,

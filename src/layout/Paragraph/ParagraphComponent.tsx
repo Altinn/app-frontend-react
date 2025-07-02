@@ -8,9 +8,7 @@ import classes from 'src/layout/Paragraph/ParagraphComponent.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
-
-export function ParagraphComponent({ baseComponentId }: IParagraphProps) {
+export function ParagraphComponent({ baseComponentId }: PropsFromGenericComponent<'Paragraph'>) {
   const { id, textResourceBindings } = useItemWhenType(baseComponentId, 'Paragraph');
   const { langAsString } = useLanguage();
 

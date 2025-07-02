@@ -18,8 +18,6 @@ import classes from 'src/layout/NavigationBar/NavigationBarComponent.module.css'
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type INavigationBar = PropsFromGenericComponent<'NavigationBar'>;
-
 interface INavigationButton {
   onClick: () => void;
   children: React.ReactNode;
@@ -50,7 +48,7 @@ const NavigationButton = React.forwardRef(
 
 NavigationButton.displayName = 'NavigationButton';
 
-export const NavigationBarComponent = ({ baseComponentId }: INavigationBar) => {
+export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComponent<'NavigationBar'>) => {
   const { compact, validateOnForward, validateOnBackward } = useItemWhenType(baseComponentId, 'NavigationBar');
   const [showMenu, setShowMenu] = React.useState(false);
   const isMobile = useIsMobile() || compact === true;

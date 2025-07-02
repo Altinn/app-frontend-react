@@ -13,17 +13,15 @@ import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { alignStyle } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
 import { ProcessTaskType } from 'src/types';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 
-export type IButtonReceivedProps = PropsFromGenericComponent<'Button'>;
 export type IButtonProvidedProps =
   | (PropsFromGenericComponent<'Button'> & CompInternal<'Button'>)
   | (PropsFromGenericComponent<'InstantiationButton'> & CompInternal<'InstantiationButton'>);
 
-export const ButtonComponent = ({ baseComponentId, ...componentProps }: IButtonReceivedProps) => {
+export const ButtonComponent = ({ baseComponentId, ...componentProps }: PropsFromGenericComponent<'Button'>) => {
   const item = useItemWhenType(baseComponentId, 'Button');
   const mode = item.type === 'Button' ? item.mode : undefined;
   const { langAsString } = useLanguage();
@@ -77,7 +75,7 @@ export const ButtonComponent = ({ baseComponentId, ...componentProps }: IButtonR
         textAlign={item.textAlign}
         size={item.size}
         fullWidth={item.fullWidth}
-        id={useIndexedId(baseComponentId)}
+        id={item.id}
         onClick={submitTask}
         isLoading={isThisProcessing}
         disabled={disabled}

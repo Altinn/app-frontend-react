@@ -22,9 +22,9 @@ import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
-
-export function FileUploadComponent({ baseComponentId }: IFileUploadWithTagProps): React.JSX.Element {
+export function FileUploadComponent({
+  baseComponentId,
+}: PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>): React.JSX.Element {
   const item = useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
     baseComponentId,
     (t) => t === 'FileUpload' || t === 'FileUploadWithTag',

@@ -10,9 +10,7 @@ import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTab
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
-
-export function PaymentDetailsComponent({ baseComponentId }: IPaymentDetailsProps) {
+export function PaymentDetailsComponent({ baseComponentId }: PropsFromGenericComponent<'PaymentDetails'>) {
   const orderDetails = useOrderDetails();
   const refetchOrderDetails = useRefetchOrderDetails();
   const { mapping, textResourceBindings } = useItemWhenType(baseComponentId, 'PaymentDetails');

@@ -19,9 +19,7 @@ import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IControlledRadioGroupProps = PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>;
-
-export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
+export const ControlledRadioGroup = (props: PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>) => {
   const { baseComponentId, overrideDisplay } = props;
   const isValid = useIsValid(baseComponentId);
   const item = useItemWhenType<'RadioButtons' | 'LikertItem'>(

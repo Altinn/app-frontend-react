@@ -18,11 +18,9 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataType } from 'src/types/shared';
 
-export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
-
 const emptyDataTypeArray: IDataType[] = [];
 
-export function AttachmentListComponent({ baseComponentId }: IAttachmentListProps) {
+export function AttachmentListComponent({ baseComponentId }: PropsFromGenericComponent<'AttachmentList'>) {
   const item = useItemWhenType(baseComponentId, 'AttachmentList');
   const textResourceBindings = item.textResourceBindings;
   const showLinks = item.links;

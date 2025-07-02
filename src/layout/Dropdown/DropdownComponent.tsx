@@ -21,9 +21,7 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionSearchFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
-
-export function DropdownComponent({ baseComponentId, overrideDisplay }: IDropdownProps) {
+export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
   const item = useItemWhenType(baseComponentId, 'Dropdown');
   const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;

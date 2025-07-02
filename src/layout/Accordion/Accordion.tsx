@@ -13,9 +13,7 @@ import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
-
-export const Accordion = ({ baseComponentId }: IAccordionProps) => {
+export const Accordion = ({ baseComponentId }: PropsFromGenericComponent<'Accordion'>) => {
   const { textResourceBindings, children, openByDefault } = useItemWhenType(baseComponentId, 'Accordion');
   const { langAsString } = useLanguage();
   const canRender = useHasCapability('renderInAccordion');

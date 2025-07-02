@@ -17,9 +17,7 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
   secondary: { variant: 'secondary', color: 'first' },
 };
 
-export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
-
-export function ActionButtonComponent({ baseComponentId }: IActionButton) {
+export function ActionButtonComponent({ baseComponentId }: PropsFromGenericComponent<'ActionButton'>) {
   const processNext = useProcessNext();
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
   const isAuthorized = useIsAuthorized();

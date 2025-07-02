@@ -16,9 +16,7 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'react-day-picker/style.css';
 
-export type IDatepickerProps = PropsFromGenericComponent<'Datepicker'>;
-
-export function DatepickerComponent({ baseComponentId, overrideDisplay }: IDatepickerProps) {
+export function DatepickerComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Datepicker'>) {
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
   const {

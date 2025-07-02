@@ -10,9 +10,7 @@ import { getSandboxProperties } from 'src/layout/IFrame/utils';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
-
-export const IFrameComponent = ({ baseComponentId }: IFrameComponentProps): JSX.Element => {
+export const IFrameComponent = ({ baseComponentId }: PropsFromGenericComponent<'IFrame'>): JSX.Element => {
   const { langAsNonProcessedString } = useLanguage();
   const { textResourceBindings, sandbox } = useItemWhenType(baseComponentId, 'IFrame');
 

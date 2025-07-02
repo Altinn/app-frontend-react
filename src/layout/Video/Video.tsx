@@ -6,9 +6,7 @@ import { useParentCard } from 'src/layout/Cards/CardContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IVideoProps = PropsFromGenericComponent<'Video'>;
-
-export function VideoComponent({ baseComponentId }: IVideoProps) {
+export function VideoComponent({ baseComponentId }: PropsFromGenericComponent<'Video'>) {
   const { langAsString } = useLanguage();
   const { id, video, textResourceBindings } = useItemWhenType(baseComponentId, 'Video');
   const languageKey = useCurrentLanguage();

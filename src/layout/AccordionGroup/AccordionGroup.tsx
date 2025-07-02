@@ -8,9 +8,7 @@ import { GenericComponentByBaseId } from 'src/layout/GenericComponent';
 import { useExternalItem } from 'src/utils/layout/hooks';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-type IAccordionGroupProps = PropsFromGenericComponent<'AccordionGroup'>;
-
-export const AccordionGroup = ({ baseComponentId }: IAccordionGroupProps) => {
+export const AccordionGroup = ({ baseComponentId }: PropsFromGenericComponent<'AccordionGroup'>) => {
   const children = useExternalItem(baseComponentId, 'AccordionGroup')?.children;
 
   return (

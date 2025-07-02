@@ -14,8 +14,6 @@ import { useNode } from 'src/utils/layout/NodesContext';
 import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-type ICardsProps = PropsFromGenericComponent<'Cards'>;
-
 function parseSize(size: string | undefined, defaultValue: string): string {
   return size && /^[0-9]+$/.test(size) ? `${size}px` : (size ?? defaultValue);
 }
@@ -25,7 +23,7 @@ const colorVariantMap: Record<string, 'tinted' | 'default'> = {
   subtle: 'tinted',
 };
 
-export const Cards = ({ baseComponentId }: ICardsProps) => {
+export const Cards = ({ baseComponentId }: PropsFromGenericComponent<'Cards'>) => {
   const {
     cards,
     minMediaHeight,

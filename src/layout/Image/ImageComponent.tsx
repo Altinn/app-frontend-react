@@ -10,9 +10,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IImageProps = PropsFromGenericComponent<'Image'>;
-
-export function ImageComponent({ baseComponentId }: IImageProps) {
+export function ImageComponent({ baseComponentId }: PropsFromGenericComponent<'Image'>) {
   const { langAsString } = useLanguage();
   const { id, image, textResourceBindings } = useItemWhenType(baseComponentId, 'Image');
   const languageKey = useCurrentLanguage();

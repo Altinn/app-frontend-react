@@ -8,9 +8,7 @@ import { useExternalItem } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type AlertProps = PropsFromGenericComponent<'Alert'>;
-
-export const Alert = ({ baseComponentId }: AlertProps) => {
+export const Alert = ({ baseComponentId }: PropsFromGenericComponent<'Alert'>) => {
   const { severity, textResourceBindings } = useItemWhenType(baseComponentId, 'Alert');
   const { langAsString } = useLanguage();
 

@@ -8,9 +8,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-type IPanelProps = PropsFromGenericComponent<'Panel'>;
-
-export const PanelComponent = ({ baseComponentId }: IPanelProps) => {
+export const PanelComponent = ({ baseComponentId }: PropsFromGenericComponent<'Panel'>) => {
   const { textResourceBindings, variant, showIcon, grid } = useItemWhenType(baseComponentId, 'Panel');
   const layoutLookups = useLayoutLookups();
   const parent = layoutLookups.componentToParent[baseComponentId];

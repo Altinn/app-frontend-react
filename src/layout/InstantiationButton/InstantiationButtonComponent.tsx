@@ -9,13 +9,12 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IButtonProvidedProps } from 'src/layout/Button/ButtonComponent';
 
-export type IInstantiationButtonComponentReceivedProps = PropsFromGenericComponent<'InstantiationButton'>;
 export type IInstantiationButtonComponentProvidedProps = IButtonProvidedProps;
 
 export function InstantiationButtonComponent({
   baseComponentId,
   ...componentProps
-}: IInstantiationButtonComponentReceivedProps) {
+}: PropsFromGenericComponent<'InstantiationButton'>) {
   const item = useItemWhenType(baseComponentId, 'InstantiationButton');
   const props: IInstantiationButtonComponentProvidedProps = { ...componentProps, ...item, baseComponentId };
   const parent = useLayoutLookups().componentToParent[baseComponentId];

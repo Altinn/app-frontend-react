@@ -28,8 +28,6 @@ import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IInstance } from 'src/types/shared';
 
-type Props = PropsFromGenericComponent<'CustomButton'>;
-
 type UpdatedDataModels = {
   [dataModelGuid: string]: object;
 };
@@ -200,7 +198,7 @@ function toShorthandSize(size?: CBTypes.CustomButtonSize): 'sm' | 'md' | 'lg' {
   }
 }
 
-export const CustomButtonComponent = ({ baseComponentId }: Props) => {
+export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericComponent<'CustomButton'>) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useItemWhenType(
     baseComponentId,
     'CustomButton',
