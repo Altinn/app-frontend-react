@@ -23,6 +23,7 @@ import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
 import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
 import utilClasses from 'src/styles/utils.module.css';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
@@ -57,6 +58,7 @@ export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<
   const lock = FD.useLocking(id);
   const { performProcess, isAnyProcessing: isAddingDisabled, isThisProcessing: isAdding } = useIsProcessing();
   const [subformEntries, updateSubformEntries] = useState(dataElements);
+  const nodeId = useIndexedId(baseComponentId);
 
   const subformIdsWithError =
     useComponentValidationsFor(baseComponentId).find(isSubformValidation)?.subformDataElementIds;
@@ -66,7 +68,7 @@ export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<
       const currentLock = await lock();
       try {
         const result = await addEntryMutation.mutateAsync({});
-        enterSubform({ nodeId: node.id, dataElementId: result.id });
+        enterSubform({ nodeId, dataElementId: result.id });
       } catch {
         // NOTE: Handled by useAddEntryMutation
       } finally {
@@ -202,6 +204,7 @@ function SubformTableRow({
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
   const editButtonText = langAsString('general.edit');
+  const nodeId = useIndexedId(baseComponentId);
 
   const numColumns = tableColumns.length;
   const actualColumns = showDeleteButton ? numColumns + 1 : numColumns;
@@ -261,7 +264,7 @@ function SubformTableRow({
             disabled={isDeleting}
             variant='tertiary'
             color='second'
-            onClick={async () => enterSubform({ nodeId: node.id, dataElementId: id, validate: hasErrors })}
+            onClick={async () => enterSubform({ nodeId, dataElementId: id, validate: hasErrors })}
             aria-label={editButtonText}
             className={classes.tableButton}
           >

@@ -12,6 +12,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 
@@ -37,6 +38,7 @@ export function FileTableButtons({
   const { langAsString } = useLanguage();
   const { index, setEditIndex, editIndex } = useFileTableRow();
   const removeAttachment = useAttachmentsRemover();
+  const nodeId = useIndexedId(baseComponentId);
 
   // Edit button
   const handleEdit = (index: number) => {
@@ -52,7 +54,7 @@ export function FileTableButtons({
       return;
     }
 
-    await removeAttachment({ attachment, nodeId: node.id, dataModelBindings });
+    await removeAttachment({ attachment, nodeId, dataModelBindings });
     editWindowIsOpen && setEditIndex(-1);
   };
 

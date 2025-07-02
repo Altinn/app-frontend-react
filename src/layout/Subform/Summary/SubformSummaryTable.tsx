@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Label } from 'src/components/label/Label';
-import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
+import { useDataTypeFromLayoutSet, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -39,7 +39,8 @@ function SubformTableRow({
   pdfModeActive: boolean;
 }) {
   const id = dataElement.id;
-  const { tableColumns } = useItemWhenType(baseComponentId, 'Subform');
+  const page = useLayoutLookups().componentToPage[baseComponentId] ?? 'unknown';
+  const { id: nodeId, tableColumns } = useItemWhenType(baseComponentId, 'Subform');
   const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
@@ -67,7 +68,7 @@ function SubformTableRow({
     );
   }
 
-  const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${targetNode.pageKey}/${targetNode.id}/${dataElement.id}${hasErrors ? '?validate=true' : ''}`;
+  const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}/${nodeId}/${dataElement.id}${hasErrors ? '?validate=true' : ''}`;
 
   return (
     <Table.Row
