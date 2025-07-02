@@ -156,8 +156,8 @@ interface RowProps extends Pick<SummaryRendererProps, 'onChangeClick' | 'changeT
 
 function Row({ row, inExcludedChildren, onChangeClick, changeText, targetBaseComponentId }: RowProps) {
   const isHidden = Hidden.useIsHiddenSelector();
-  const childId = makeLikertChildId(targetBaseComponentId, undefined);
-  const node = useNode(childId) as LayoutNode<'LikertItem'> | undefined;
+  const childId = makeLikertChildId(targetBaseComponentId);
+  const node = useNode(useIndexedId(childId)) as LayoutNode<'LikertItem'> | undefined;
 
   if (!node || inExcludedChildren(node)) {
     return null;

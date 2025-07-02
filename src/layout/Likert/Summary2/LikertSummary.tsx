@@ -75,7 +75,7 @@ export function LikertSummary({ targetBaseComponentId }: Summary2Props) {
               rowIndex={row.index}
             >
               <LikertRowSummary
-                rowBaseId={makeLikertChildId(targetBaseComponentId, undefined)}
+                rowBaseId={makeLikertChildId(targetBaseComponentId)}
                 emptyFieldText={emptyFieldText}
                 readOnly={readOnly}
                 isCompact={isCompact}

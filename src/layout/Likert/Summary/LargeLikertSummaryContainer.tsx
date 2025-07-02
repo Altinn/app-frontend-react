@@ -37,13 +37,13 @@ export function LargeLikertSummaryContainer({
 }: IDisplayLikertContainer) {
   const container = useItemWhenType(likertBaseId, 'Likert');
   const { title, summaryTitle } = container.textResourceBindings ?? {};
-  const indexedId = useIndexedId(likertBaseId);
+  const indexedId = useIndexedId(likertBaseId, true);
   const isHidden = Hidden.useIsHidden(indexedId);
   const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
   const likertNode = useNode(indexedId);
   const children = useNodeDirectChildren(likertNode, restriction);
 
-  if (isHidden) {
+  if (isHidden || typeof depth !== 'number') {
     return null;
   }
 
