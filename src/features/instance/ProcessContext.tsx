@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { queryOptions, skipToken, useQuery } from '@tanstack/react-query';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
@@ -14,22 +14,17 @@ import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
 import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IProcess } from 'src/types/shared';
-import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
-// Also used for prefetching @see appPrefetcher.ts
-export function getProcessQueryDef(instanceId?: string): QueryDefinition<IProcess> {
-  return {
-    queryKey: ['fetchProcessState', instanceId],
-    queryFn: instanceId ? () => fetchProcessState(instanceId) : skipToken,
-    enabled: !!instanceId,
-  };
-}
+export const processQueries = {
+  processState: (instanceId?: string) =>
+    queryOptions({
+      queryKey: ['fetchProcessState', instanceId],
+      queryFn: instanceId ? () => fetchProcessState(instanceId) : skipToken,
+    }),
+} as const;
 
-const ProcessContext = createContext<Pick<UseQueryResult<IProcess, HttpClientError>, 'data' | 'refetch'> | undefined>(
-  undefined,
-);
+const ProcessContext = createContext<Pick<UseQueryResult<IProcess, Error>, 'data' | 'refetch'> | undefined>(undefined);
 
 export function ProcessProvider({ children }: PropsWithChildren) {
   const instanceId = useLaxInstanceId();
@@ -37,7 +32,7 @@ export function ProcessProvider({ children }: PropsWithChildren) {
   const layoutSets = useLayoutSets();
   const navigateToTask = useNavigateToTask();
 
-  const { isLoading, data, error, refetch } = useQuery<IProcess, HttpClientError>(getProcessQueryDef(instanceId));
+  const { isLoading, data, error, refetch } = useQuery(processQueries.processState(instanceId));
 
   const ended = data?.ended;
   useEffect(() => {
@@ -72,10 +67,10 @@ export const useLaxProcessData = () => useContext(ProcessContext)?.data;
 export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 
 export const useIsAuthorized = () => {
-  const processData = useLaxProcessData();
+  const { data } = useProcessQuery();
 
   return (action: string): boolean => {
-    const userAction = processData?.currentTask?.userActions?.find((a) => a.id === action);
+    const userAction = data?.currentTask?.userActions?.find((a) => a.id === action);
     return !!userAction?.authorized;
   };
 };
@@ -84,7 +79,7 @@ export const useIsAuthorized = () => {
  * This returns the task type of the current process task, as we got it from the backend
  */
 export function useTaskTypeFromBackend() {
-  const processData = useLaxProcessData();
+  const { data: processData } = useProcessQuery();
 
   if (processData?.ended) {
     return ProcessTaskType.Archived;
@@ -105,7 +100,7 @@ export function useTaskTypeFromBackend() {
  * the taskId provided.
  */
 export function useGetTaskTypeById() {
-  const processData = useLaxProcessData();
+  const { data: processData } = useProcessQuery();
   const isStateless = useApplicationMetadata().isStatelessApp;
   const layoutSets = useLayoutSets();
 
@@ -138,6 +133,38 @@ export function useGetTaskTypeById() {
  * Returns the actual raw task type of a given taskId.
  */
 export function useGetAltinnTaskType() {
-  const processData = useLaxProcessData();
+  const { data: processData } = useProcessQuery();
   return (taskId: string | undefined) => processData?.processTasks?.find((t) => t.elementId === taskId)?.altinnTaskType;
+}
+
+export function useProcessQuery() {
+  const instanceId = useLaxInstanceId();
+  const taskId = useNavigationParam('taskId');
+  const layoutSets = useLayoutSets();
+  const navigateToTask = useNavigateToTask();
+
+  const query = useQuery(processQueries.processState(instanceId));
+
+  const { data, error } = query;
+  const ended = !!data?.ended;
+
+  // TODO: move this to a layout file on task id change instead
+  useEffect(() => {
+    if (ended) {
+      // Catch cases where there is a custom receipt, but we've navigated
+      // to the wrong one (i.e. mocking in all-process-steps.ts)
+      const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
+      if (taskId === TaskKeys.ProcessEnd && hasCustomReceipt) {
+        navigateToTask(TaskKeys.CustomReceipt);
+      } else if (taskId === TaskKeys.CustomReceipt && !hasCustomReceipt) {
+        navigateToTask(TaskKeys.ProcessEnd);
+      }
+    }
+  }, [ended, layoutSets, navigateToTask, taskId]);
+
+  useEffect(() => {
+    error && window.logError('Fetching process state failed:\n', error);
+  }, [error]);
+
+  return query;
 }
