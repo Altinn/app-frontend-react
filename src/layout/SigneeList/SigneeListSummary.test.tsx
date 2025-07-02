@@ -5,6 +5,8 @@ import { jest } from '@jest/globals';
 import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import { Lang } from 'src/features/language/Lang';
 import { CompInternal } from 'src/layout/layout';
 import { NotificationStatus, SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
@@ -17,9 +19,11 @@ jest.mock('react-router-dom');
 jest.mock('src/utils/layout/useNodeItem');
 jest.mock('src/utils/layout/NodesContext');
 jest.mock('src/features/language/Lang');
+jest.mock('src/features/form/layout/LayoutsContext');
 
 describe('SigneeListSummary', () => {
   const mockedUseSigneeList = jest.mocked(useSigneeList);
+  const mockedUseLayoutLookups = jest.mocked(useLayoutLookups);
   const mockedUseItemWhenType = jest.mocked(useItemWhenType);
   const mockedUseItemFor = jest.mocked(useItemFor);
   const mockedUseIsHidden = jest.mocked(Hidden.useIsHidden);
@@ -32,10 +36,21 @@ describe('SigneeListSummary', () => {
   };
 
   function mockNodeItem(extras: Partial<CompInternal<'SigneeList'>> = {}) {
+    mockedUseLayoutLookups.mockImplementation(
+      () =>
+        ({
+          getComponent(id: string, type?: string) {
+            if (id !== mockedItem.id || (type && type !== mockedItem.type)) {
+              throw new Error('Component id in useLayoutLookups() is not the mocked one');
+            }
+            return mockedItem;
+          },
+        }) as LayoutLookups,
+    );
     mockedUseItemWhenType.mockImplementation(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (baseComponentId, type): any => {
-        if (baseComponentId !== 'whatever' || type !== 'SigneeList') {
+        if (baseComponentId !== mockedItem.id || type !== mockedItem.type) {
           throw new Error('Component id in useItemWhenType() is not the mocked one');
         }
         return { ...mockedItem, ...extras };
@@ -44,7 +59,7 @@ describe('SigneeListSummary', () => {
     mockedUseItemFor.mockImplementation(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (baseComponentId): any => {
-        if (baseComponentId !== 'whatever') {
+        if (baseComponentId !== mockedItem.id) {
           throw new Error('Component id in useItemWhenType() is not the mocked one');
         }
         return { ...mockedItem, ...extras };
@@ -76,7 +91,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
@@ -96,7 +111,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
@@ -116,7 +131,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
@@ -136,7 +151,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={null}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
@@ -187,7 +202,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={undefined}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
@@ -212,7 +227,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={undefined}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
@@ -234,7 +249,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={undefined}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
@@ -255,7 +270,7 @@ describe('SigneeListSummary', () => {
     render(
       <SigneeListSummary
         titleOverride={titleOverride}
-        targetBaseComponentId='whatever'
+        targetBaseComponentId={mockedItem.id}
       />,
     );
 
