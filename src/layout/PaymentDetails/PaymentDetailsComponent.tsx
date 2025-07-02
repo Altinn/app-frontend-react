@@ -12,10 +12,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
 
-export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
+export function PaymentDetailsComponent({ baseComponentId }: IPaymentDetailsProps) {
   const orderDetails = useOrderDetails();
   const refetchOrderDetails = useRefetchOrderDetails();
-  const { mapping, textResourceBindings } = useItemWhenType(node.baseId, 'PaymentDetails');
+  const { mapping, textResourceBindings } = useItemWhenType(baseComponentId, 'PaymentDetails');
   const { title, description } = textResourceBindings || {};
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
 
@@ -31,7 +31,7 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   }, [hasUnsavedChanges, mappedValues, mapping, refetchOrderDetails]);
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <PaymentDetailsTable
         orderDetails={orderDetails}
         tableTitle={title}

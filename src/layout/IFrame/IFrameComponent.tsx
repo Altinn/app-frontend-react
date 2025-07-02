@@ -12,9 +12,9 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
 
-export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => {
+export const IFrameComponent = ({ baseComponentId }: IFrameComponentProps): JSX.Element => {
   const { langAsNonProcessedString } = useLanguage();
-  const { textResourceBindings, sandbox } = useItemWhenType(node.baseId, 'IFrame');
+  const { textResourceBindings, sandbox } = useItemWhenType(baseComponentId, 'IFrame');
 
   const sandboxProperties = getSandboxProperties(sandbox);
   const iFrameTitle = textResourceBindings?.title;
@@ -42,7 +42,7 @@ export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => 
   };
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <iframe
         scrolling='no'
         frameBorder={0}

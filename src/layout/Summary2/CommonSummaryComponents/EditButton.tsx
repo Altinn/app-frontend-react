@@ -11,41 +11,37 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemFor } from 'src/utils/layout/useNodeItem';
 import type { NavigationResult } from 'src/features/form/layout/NavigateToNode';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type EditButtonProps = {
-  componentNode: LayoutNode;
-  summaryComponentId?: string;
+  targetBaseComponentId: string;
   navigationOverride?: (() => Promise<NavigationResult> | void) | null;
 } & React.HTMLAttributes<HTMLButtonElement>;
 
 /**
  * Render an edit button for the first visible (non-hidden) node in a list of possible IDs
  */
-export function EditButtonFirstVisible({ ids, ...rest }: { ids: string[] } & Omit<EditButtonProps, 'componentNode'>) {
-  const nodeId = Hidden.useFirstVisibleNode(ids);
-  const componentNode = useNode(nodeId);
-  if (!componentNode) {
+export function EditButtonFirstVisible({
+  ids,
+  ...rest
+}: { ids: string[] } & Omit<EditButtonProps, 'targetBaseComponentId'>) {
+  const first = Hidden.useFirstVisibleBaseId(ids);
+  if (!first) {
     return null;
   }
 
   return (
     <EditButton
-      componentNode={componentNode}
+      targetBaseComponentId={first}
       {...rest}
     />
   );
 }
 
-export function EditButton({
-  componentNode,
-  summaryComponentId,
-  className,
-  navigationOverride = null,
-}: EditButtonProps) {
+export function EditButton({ targetBaseComponentId, className, navigationOverride = null }: EditButtonProps) {
   const navigateTo = useNavigateTo();
   const { langAsString } = useLanguage();
   const setReturnToView = useSetReturnToView();
@@ -54,12 +50,13 @@ export function EditButton({
   const pdfModeActive = usePdfModeActive();
   const isMobile = useIsMobile();
 
-  const { textResourceBindings } = useItemFor(componentNode.baseId);
+  const { textResourceBindings } = useItemFor(targetBaseComponentId);
   const titleTrb = textResourceBindings && 'title' in textResourceBindings ? textResourceBindings.title : undefined;
   const accessibleTitle = titleTrb ? langAsString(titleTrb) : '';
 
   const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
   const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
+  const indexedId = useIndexedId(targetBaseComponentId);
 
   if (overriddenDataModelUuid) {
     return null;
@@ -70,14 +67,10 @@ export function EditButton({
   }
 
   const onChangeClick = async () => {
-    if (!componentNode.pageKey) {
-      return;
-    }
-
     if (navigationOverride) {
       await navigationOverride();
     } else {
-      await navigateTo(componentNode.id, componentNode.baseId, {
+      await navigateTo(indexedId, targetBaseComponentId, {
         shouldFocus: true,
         pageNavOptions: {
           resetReturnToView: false,
@@ -86,7 +79,7 @@ export function EditButton({
     }
 
     setReturnToView?.(currentPageId);
-    setNodeOfOrigin?.(summaryComponentId);
+    setNodeOfOrigin?.(undefined); // TODO: Find the Summary2 component to return to
   };
   return (
     <Button

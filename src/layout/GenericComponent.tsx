@@ -209,7 +209,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
   const componentProps: PropsFromGenericComponent<Type> = {
     containerDivRef,
-    node: node as unknown as LayoutNode<Type>,
+    baseComponentId: node.baseId,
     overrideItemProps,
     overrideDisplay,
   };
@@ -222,7 +222,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
 
     return (
       <SummaryComponentFor
-        targetNode={node}
+        targetBaseComponentId={node.baseId}
         overrides={{
           display: { hideChangeButton: true, hideValidationMessages: true },
         }}

@@ -8,9 +8,9 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IAudioProps = PropsFromGenericComponent<'Audio'>;
 
-export function AudioComponent({ node }: IAudioProps) {
+export function AudioComponent({ baseComponentId }: IAudioProps) {
   const { langAsString } = useLanguage();
-  const { id, audio, textResourceBindings } = useItemWhenType(node.baseId, 'Audio');
+  const { id, audio, textResourceBindings } = useItemWhenType(baseComponentId, 'Audio');
   const languageKey = useCurrentLanguage();
   const altText = textResourceBindings?.altText ? langAsString(textResourceBindings.altText) : undefined;
   const audioSrc = audio?.src?.[languageKey] || '';

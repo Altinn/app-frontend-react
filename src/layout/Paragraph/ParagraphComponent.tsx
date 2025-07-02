@@ -10,12 +10,12 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
 
-export function ParagraphComponent({ node }: IParagraphProps) {
-  const { id, textResourceBindings } = useItemWhenType(node.baseId, 'Paragraph');
+export function ParagraphComponent({ baseComponentId }: IParagraphProps) {
+  const { id, textResourceBindings } = useItemWhenType(baseComponentId, 'Paragraph');
   const { langAsString } = useLanguage();
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <div className={classes.paragraphWrapper}>
         <div
           id={id}

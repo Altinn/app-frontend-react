@@ -40,11 +40,11 @@ function getHeaderProps(size?: string): HeadingProps {
   }
 }
 
-export const HeaderComponent = ({ node }: IHeaderProps) => {
-  const { id, size, textResourceBindings } = useItemWhenType(node.baseId, 'Header');
+export const HeaderComponent = ({ baseComponentId }: IHeaderProps) => {
+  const { id, size, textResourceBindings } = useItemWhenType(baseComponentId, 'Header');
   const { langAsString } = useLanguage();
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <Heading
         id={id}
         {...getHeaderProps(size)}

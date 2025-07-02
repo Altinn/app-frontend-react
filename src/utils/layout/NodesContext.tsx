@@ -26,6 +26,7 @@ import {
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { getComponentDef } from 'src/layout';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { useGetAwaitingCommits } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
@@ -926,12 +927,14 @@ export const Hidden = {
   /**
    * Iterate through a list of node IDs and find the first one that is not hidden
    */
-  useFirstVisibleNode(nodeIds: string[]): string | undefined {
+  useFirstVisibleBaseId(baseIds: string[]) {
     const lookups = useLayoutLookups();
+    const idMutator = useComponentIdMutator();
     return WhenReady.useSelector((state) => {
-      for (const id of nodeIds) {
+      for (const baseId of baseIds) {
+        const id = idMutator(baseId);
         if (!isHidden(state, 'node', id, lookups)) {
-          return id;
+          return baseId;
         }
       }
       return undefined;

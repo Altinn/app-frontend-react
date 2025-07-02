@@ -22,8 +22,8 @@ export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 
 const emptyDataTypeArray: IDataType[] = [];
 
-export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const item = useItemWhenType(node.baseId, 'AttachmentList');
+export function AttachmentListComponent({ baseComponentId }: IAttachmentListProps) {
+  const item = useItemWhenType(baseComponentId, 'AttachmentList');
   const textResourceBindings = item.textResourceBindings;
   const showLinks = item.links;
   const allowedAttachmentTypes = new Set(item.dataTypeIds ?? []);
@@ -70,7 +70,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
   const displayAttachments = toDisplayAttachments([...pdfAttachments, ...filteredAttachments]);
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       {groupAttachments ? (
         <AttachmentGroupings
           attachments={displayAttachments}

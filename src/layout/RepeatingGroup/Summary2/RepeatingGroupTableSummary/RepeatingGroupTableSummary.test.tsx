@@ -152,7 +152,7 @@ describe('RepeatingGroupTableSummary', () => {
       renderer: ({ node }) => (
         <NavigationHook fn={navigate}>
           <RepeatingGroupProvider baseComponentId={node.baseId}>
-            <RepeatingGroupTableSummary componentNode={node} />
+            <RepeatingGroupTableSummary baseComponentId={node.baseId} />
           </RepeatingGroupProvider>
         </NavigationHook>
       ),

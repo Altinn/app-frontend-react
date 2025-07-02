@@ -8,9 +8,9 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 
 export type IDividerComponent = PropsFromGenericComponent<'Divider'>;
 
-export function DividerComponent({ node }: IDividerComponent) {
+export function DividerComponent({ baseComponentId }: IDividerComponent) {
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <Divider />
     </ComponentStructureWrapper>
   );

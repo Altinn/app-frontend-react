@@ -26,9 +26,8 @@ import utilClasses from 'src/styles/utils.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>): React.JSX.Element | null {
+export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<'Subform'>): React.JSX.Element | null {
   const {
     id,
     layoutSet,
@@ -36,7 +35,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
     tableColumns = [],
     showAddButton = true,
     showDeleteButton = true,
-  } = useItemWhenType(node.baseId, 'Subform');
+  } = useItemWhenType(baseComponentId, 'Subform');
 
   const isSubformPage = useIsSubformPage();
   if (isSubformPage) {
@@ -59,7 +58,8 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
   const { performProcess, isAnyProcessing: isAddingDisabled, isThisProcessing: isAdding } = useIsProcessing();
   const [subformEntries, updateSubformEntries] = useState(dataElements);
 
-  const subformIdsWithError = useComponentValidationsFor(node.baseId).find(isSubformValidation)?.subformDataElementIds;
+  const subformIdsWithError =
+    useComponentValidationsFor(baseComponentId).find(isSubformValidation)?.subformDataElementIds;
 
   const addEntry = () =>
     performProcess(async () => {
@@ -75,13 +75,13 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
     });
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <Flex
-        id={node.id}
+        id={id}
         container
         item
-        data-componentid={node.id}
-        data-componentbaseid={node.baseId}
+        data-componentid={id}
+        data-componentbaseid={baseComponentId}
       >
         <Table
           id={`subform-${id}-table`}
@@ -129,7 +129,7 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
                   <SubformTableRow
                     key={dataElement.id}
                     dataElement={dataElement}
-                    node={node}
+                    baseComponentId={baseComponentId}
                     hasErrors={Boolean(subformIdsWithError?.includes(dataElement.id))}
                     rowNumber={index}
                     showDeleteButton={showDeleteButton}
@@ -178,21 +178,21 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
 
 function SubformTableRow({
   dataElement,
-  node,
+  baseComponentId,
   hasErrors,
   rowNumber,
   showDeleteButton,
   deleteEntryCallback,
 }: {
   dataElement: IData;
-  node: LayoutNode<'Subform'>;
+  baseComponentId: string;
   hasErrors: boolean;
   rowNumber: number;
   showDeleteButton: boolean;
   deleteEntryCallback: (dataElement: IData) => void;
 }) {
   const id = dataElement.id;
-  const { tableColumns = [] } = useItemWhenType(node.baseId, 'Subform');
+  const { tableColumns = [] } = useItemWhenType(baseComponentId, 'Subform');
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
   const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
   const { langAsString } = useLanguage();
@@ -246,7 +246,7 @@ function SubformTableRow({
           <Table.Cell key={`subform-cell-${id}-${index}`}>
             <SubformCellContent
               cellContent={entry.cellContent}
-              node={node}
+              baseComponentId={baseComponentId}
               data={subformData}
               dataSources={subformDataSources}
             />

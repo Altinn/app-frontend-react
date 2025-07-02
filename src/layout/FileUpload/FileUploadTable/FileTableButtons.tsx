@@ -14,17 +14,24 @@ import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.c
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface IFileTableButtonsProps {
-  node: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
+  baseComponentId: string;
   attachment: IAttachment;
   mobileView: boolean;
   editWindowIsOpen: boolean;
 }
 
-export function FileTableButtons({ node, attachment, mobileView, editWindowIsOpen }: IFileTableButtonsProps) {
-  const { alertOnDelete, type, dataModelBindings, readOnly } = useItemWhenType(node.baseId, node.type);
+export function FileTableButtons({
+  baseComponentId,
+  attachment,
+  mobileView,
+  editWindowIsOpen,
+}: IFileTableButtonsProps) {
+  const { alertOnDelete, type, dataModelBindings, readOnly } = useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
+    baseComponentId,
+    (t) => t === 'FileUpload' || t === 'FileUploadWithTag',
+  );
   const hasTag = type === 'FileUploadWithTag';
   const showEditButton = hasTag && !editWindowIsOpen && !readOnly;
   const { langAsString } = useLanguage();

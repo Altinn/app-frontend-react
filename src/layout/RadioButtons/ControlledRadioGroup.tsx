@@ -22,10 +22,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 export type IControlledRadioGroupProps = PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>;
 
 export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
-  const { node, overrideDisplay } = props;
-  const isValid = useIsValid(node.baseId);
+  const { baseComponentId, overrideDisplay } = props;
+  const isValid = useIsValid(baseComponentId);
   const item = useItemWhenType<'RadioButtons' | 'LikertItem'>(
-    node.baseId,
+    baseComponentId,
     (t) => t === 'RadioButtons' || t === 'LikertItem',
   );
   const { id, layout, readOnly, textResourceBindings, required, showLabelsInTable } = item;
@@ -90,7 +90,7 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <div id={id}>
         <Fieldset role='radiogroup'>
           <Fieldset.Legend

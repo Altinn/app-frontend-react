@@ -15,8 +15,8 @@ import type { PropsFromGenericComponent } from 'src/layout';
 
 type IAccordionProps = PropsFromGenericComponent<'Accordion'>;
 
-export const Accordion = ({ node }: IAccordionProps) => {
-  const { textResourceBindings, children, openByDefault } = useItemWhenType(node.baseId, 'Accordion');
+export const Accordion = ({ baseComponentId }: IAccordionProps) => {
+  const { textResourceBindings, children, openByDefault } = useItemWhenType(baseComponentId, 'Accordion');
   const { langAsString } = useLanguage();
   const canRender = useHasCapability('renderInAccordion');
   const renderAsAccordionItem = useIsInAccordionGroup();
@@ -46,7 +46,7 @@ export const Accordion = ({ node }: IAccordionProps) => {
   );
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       {renderAsAccordionItem ? (
         <AccordionItem className={classes.container} />
       ) : (

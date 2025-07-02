@@ -20,8 +20,8 @@ const sizeMap: Record<string, 'sm' | 'md' | 'lg'> = {
   large: 'lg',
 };
 
-export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
-  const { size: _size, defaultTab, tabs } = useExternalItem(node.baseId, 'Tabs');
+export const Tabs = ({ baseComponentId }: PropsFromGenericComponent<'Tabs'>) => {
+  const { size: _size, defaultTab, tabs } = useExternalItem(baseComponentId, 'Tabs');
   const size = _size ?? 'medium';
   const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
   const layoutLookups = useLayoutLookups();
@@ -29,7 +29,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
   useRegisterNavigationHandler(async (_indexedId, baseComponentId) => {
     let parent = layoutLookups.componentToParent[baseComponentId];
     while (parent?.type === 'node') {
-      if (parent.id === node.baseId) {
+      if (parent.id === baseComponentId) {
         const targetTabId = tabs.find((tab) => tab.children.some((childBaseId) => childBaseId === baseComponentId))?.id;
         if (targetTabId) {
           setActiveTab(targetTabId);
@@ -42,7 +42,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
   });
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <DesignsystemetTabs
         defaultValue={activeTab}
         value={activeTab}

@@ -121,8 +121,8 @@ export function AddToListModal({
   );
 }
 
-export function AddToListComponent({ node }: AddToListProps) {
-  const dataModelBindings = useDataModelBindingsFor(node.baseId, 'AddToList');
+export function AddToListComponent({ baseComponentId }: AddToListProps) {
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'AddToList');
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 

@@ -22,25 +22,24 @@ import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layo
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import utilClasses from 'src/styles/utils.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { ISubformSummaryComponent } from 'src/layout/Subform/Summary/SubformSummaryComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 function SubformTableRow({
   dataElement,
-  targetNode,
+  baseComponentId,
   hasErrors,
   rowNumber,
   pdfModeActive,
 }: {
   dataElement: IData;
-  targetNode: LayoutNode<'Subform'>;
+  baseComponentId: string;
   hasErrors: boolean;
   rowNumber: number;
   pdfModeActive: boolean;
 }) {
   const id = dataElement.id;
-  const { tableColumns } = useItemWhenType(targetNode.baseId, 'Subform');
+  const { tableColumns } = useItemWhenType(baseComponentId, 'Subform');
   const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
@@ -81,7 +80,7 @@ function SubformTableRow({
           <Table.Cell key={`subform-cell-${id}-${index}`}>
             <SubformCellContent
               cellContent={entry.cellContent}
-              node={targetNode}
+              baseComponentId={baseComponentId}
               data={subformData}
               dataSources={subformDataSources}
             />
@@ -94,8 +93,7 @@ function SubformTableRow({
         <Table.Cell className={classes2.noRightPad}>
           <EditButton
             className={classes2.marginLeftAuto}
-            componentNode={targetNode}
-            summaryComponentId=''
+            targetBaseComponentId={baseComponentId}
             navigationOverride={() => navigate(url)}
           />
         </Table.Cell>
@@ -104,8 +102,10 @@ function SubformTableRow({
   );
 }
 
-export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): React.JSX.Element | null {
-  const { id, layoutSet, textResourceBindings, tableColumns = [] } = useItemWhenType(targetNode.baseId, 'Subform');
+export function SubformSummaryTable({
+  targetBaseComponentId,
+}: Pick<Summary2Props, 'targetBaseComponentId'>): React.JSX.Element | null {
+  const { id, layoutSet, textResourceBindings, tableColumns = [] } = useItemWhenType(targetBaseComponentId, 'Subform');
 
   const isSubformPage = useIsSubformPage();
   if (isSubformPage) {
@@ -114,9 +114,8 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
   }
 
   const dataType = useDataTypeFromLayoutSet(layoutSet);
-  const subformIdsWithError = useComponentValidationsFor(targetNode.baseId).find(
-    isSubformValidation,
-  )?.subformDataElementIds;
+  const subformIdsWithError =
+    useComponentValidationsFor(targetBaseComponentId).find(isSubformValidation)?.subformDataElementIds;
 
   if (!dataType) {
     window.logErrorOnce(`Unable to find data type for subform with id ${id}`);
@@ -130,7 +129,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
     return (
       <>
         <Label
-          baseComponentId={targetNode.baseId}
+          baseComponentId={targetBaseComponentId}
           id={`subform-summary2-${id}`}
           renderLabelAs='span'
           weight='regular'
@@ -147,13 +146,13 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
   }
 
   return (
-    <ComponentStructureWrapper node={targetNode}>
+    <ComponentStructureWrapper baseComponentId={targetBaseComponentId}>
       <Flex
-        id={targetNode.id}
+        id={id}
         container
         item
-        data-componentid={targetNode.id}
-        data-componentbaseid={targetNode.baseId}
+        data-componentid={id}
+        data-componentbaseid={targetBaseComponentId}
       >
         <Table
           id={`subform-${id}-table`}
@@ -194,7 +193,7 @@ export function SubformSummaryTable({ targetNode }: ISubformSummaryComponent): R
               <SubformTableRow
                 key={dataElement.id}
                 dataElement={dataElement}
-                targetNode={targetNode}
+                baseComponentId={targetBaseComponentId}
                 hasErrors={Boolean(subformIdsWithError?.includes(dataElement.id))}
                 rowNumber={index}
                 pdfModeActive={pdfModeActive}
