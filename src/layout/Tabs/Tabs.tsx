@@ -26,11 +26,11 @@ export const Tabs = ({ baseComponentId }: PropsFromGenericComponent<'Tabs'>) => 
   const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
   const layoutLookups = useLayoutLookups();
 
-  useRegisterNavigationHandler(async (_indexedId, baseComponentId) => {
-    let parent = layoutLookups.componentToParent[baseComponentId];
+  useRegisterNavigationHandler(async (_indexedId, targetBaseId) => {
+    let parent = layoutLookups.componentToParent[targetBaseId];
     while (parent?.type === 'node') {
       if (parent.id === baseComponentId) {
-        const targetTabId = tabs.find((tab) => tab.children.some((childBaseId) => childBaseId === baseComponentId))?.id;
+        const targetTabId = tabs.find((tab) => tab.children.some((childBaseId) => childBaseId === targetBaseId))?.id;
         if (targetTabId) {
           setActiveTab(targetTabId);
           return true;
