@@ -42,7 +42,7 @@ export function LargeGroupSummaryContainer({
   const node = useNode(indexedId);
   const children = useNodeDirectChildren(node, restriction);
   const layoutLookups = useLayoutLookups();
-  if (isHidden) {
+  if (isHidden || typeof depth !== 'number') {
     return null;
   }
   const { title, summaryTitle } = item.textResourceBindings || {};
