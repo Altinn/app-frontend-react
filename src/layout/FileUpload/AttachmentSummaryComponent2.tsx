@@ -11,7 +11,7 @@ import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IAttachmentSummaryComponent {
@@ -35,7 +35,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
   });
   const isEmpty = filteredAttachments.length === 0;
   const required =
-    useExternalItem<'FileUpload' | 'FileUploadWithTag'>(
+    useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
       targetNode.baseId,
       (t) => t === 'FileUpload' || t === 'FileUploadWithTag',
     ).minNumberOfAttachments > 0;
