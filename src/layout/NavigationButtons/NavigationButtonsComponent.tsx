@@ -20,6 +20,7 @@ type Props = Pick<PropsFromGenericComponent<'NavigationButtons'>, 'baseComponent
 export function NavigationButtonsComponent({ baseComponentId }: Props) {
   const summaryNode = useSummaryNodeOfOrigin();
 
+  // TODO: Support returning to Summary2
   if (summaryNode && summaryNode.isType('Summary')) {
     return (
       <WithSummary

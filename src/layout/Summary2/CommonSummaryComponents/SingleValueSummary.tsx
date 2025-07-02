@@ -12,7 +12,6 @@ type SingleValueSummaryProps = {
   title: React.ReactNode;
   errors?: BaseValidation[];
   targetBaseComponentId: string;
-  // summaryComponentBaseId: string | undefined;
   displayData?: string;
   hideEditButton?: boolean;
   multiline?: boolean;

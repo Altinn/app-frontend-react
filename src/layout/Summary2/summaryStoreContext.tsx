@@ -7,14 +7,20 @@ import type { ISummaryOverridesCommon } from 'src/layout/common.generated';
 import type { CompSummaryOverrides, CompTypes } from 'src/layout/layout';
 import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
 
-type Summary2State = Pick<CompSummary2External, 'hideEmptyFields' | 'showPageInAccordion' | 'overrides' | 'isCompact'>;
+type Summary2State = Pick<
+  CompSummary2External,
+  'id' | 'hideEmptyFields' | 'showPageInAccordion' | 'overrides' | 'isCompact'
+>;
 const StoreContext = createContext<Summary2State | null>(null);
 
 export function Summary2StoreProvider({ children, baseComponentId }: PropsWithChildren<{ baseComponentId: string }>) {
-  const { hideEmptyFields, showPageInAccordion, overrides, isCompact } = useItemWhenType(baseComponentId, 'Summary2');
+  const { id, hideEmptyFields, showPageInAccordion, overrides, isCompact } = useItemWhenType(
+    baseComponentId,
+    'Summary2',
+  );
 
   return (
-    <StoreContext.Provider value={{ hideEmptyFields, showPageInAccordion, overrides, isCompact }}>
+    <StoreContext.Provider value={{ id, hideEmptyFields, showPageInAccordion, overrides, isCompact }}>
       {children}
     </StoreContext.Provider>
   );

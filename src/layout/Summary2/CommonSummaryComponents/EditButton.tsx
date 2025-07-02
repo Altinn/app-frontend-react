@@ -11,6 +11,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
+import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemFor } from 'src/utils/layout/useNodeItem';
@@ -57,6 +58,7 @@ export function EditButton({ targetBaseComponentId, className, navigationOverrid
   const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
   const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
   const indexedId = useIndexedId(targetBaseComponentId);
+  const summary2Id = useSummaryProp('id');
 
   if (overriddenDataModelUuid) {
     return null;
@@ -79,7 +81,7 @@ export function EditButton({ targetBaseComponentId, className, navigationOverrid
     }
 
     setReturnToView?.(currentPageId);
-    setNodeOfOrigin?.(undefined); // TODO: Find the Summary2 component to return to
+    setNodeOfOrigin?.(summary2Id);
   };
   return (
     <Button
