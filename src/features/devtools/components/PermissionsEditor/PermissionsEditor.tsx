@@ -4,12 +4,12 @@ import { Checkbox, Fieldset } from '@digdir/designsystemet-react';
 
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/ProcessContext';
 import type { IProcess, ITask } from 'src/types/shared';
 
 export const PermissionsEditor = () => {
   const instanceId = useLaxInstanceId();
-  const { write, actions } = useLaxProcessData()?.currentTask || {};
+  const { write, actions } = useProcessQuery().data?.currentTask || {};
 
   function handleChange(mutator: (obj: ITask) => ITask) {
     if (instanceId) {

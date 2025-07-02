@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { queryOptions, skipToken, useQuery } from '@tanstack/react-query';
@@ -62,9 +62,6 @@ export function ProcessProvider({ children }: PropsWithChildren) {
 
   return <ProcessContext.Provider value={{ data, refetch }}>{children}</ProcessContext.Provider>;
 }
-
-export const useLaxProcessData = () => useContext(ProcessContext)?.data;
-export const useReFetchProcessData = () => useContext(ProcessContext)?.refetch;
 
 export const useIsAuthorized = () => {
   const { data } = useProcessQuery();
