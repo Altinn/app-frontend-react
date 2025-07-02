@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -13,7 +14,7 @@ export const Config = new CG.component({
     renderInTabs: true,
   },
   functionality: {
-    customExpressions: false,
+    customExpressions: true,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
@@ -28,6 +29,7 @@ export const Config = new CG.component({
         new CG.const('tomorrow'),
         new CG.const('oneYearAgo'),
         new CG.const('oneYearFromNow'),
+        new CG.expr(ExprVal.String),
       )
         .optional({ default: '1900-01-01T12:00:00.000Z' })
         .setTitle('Earliest date')
@@ -47,6 +49,7 @@ export const Config = new CG.component({
         new CG.const('tomorrow'),
         new CG.const('oneYearAgo'),
         new CG.const('oneYearFromNow'),
+        new CG.expr(ExprVal.String),
       )
         .optional({ default: '2100-01-01T12:00:00.000Z' })
         .setTitle('Latest date')
