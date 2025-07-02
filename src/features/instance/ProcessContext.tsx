@@ -1,11 +1,7 @@
-import React, { createContext, useEffect } from 'react';
-import type { PropsWithChildren } from 'react';
+import { useEffect } from 'react';
 
 import { queryOptions, skipToken, useQuery } from '@tanstack/react-query';
-import type { UseQueryResult } from '@tanstack/react-query';
 
-import { DisplayError } from 'src/core/errorHandling/DisplayError';
-import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
@@ -14,27 +10,28 @@ import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
 import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import type { IProcess } from 'src/types/shared';
 
 export const processQueries = {
+  processStateKey: (instanceId?: string) => ['fetchProcessState', instanceId],
   processState: (instanceId?: string) =>
     queryOptions({
-      queryKey: ['fetchProcessState', instanceId],
+      queryKey: processQueries.processStateKey(instanceId),
       queryFn: instanceId ? () => fetchProcessState(instanceId) : skipToken,
     }),
 } as const;
 
-const ProcessContext = createContext<Pick<UseQueryResult<IProcess, Error>, 'data' | 'refetch'> | undefined>(undefined);
-
-export function ProcessProvider({ children }: PropsWithChildren) {
+export function useProcessQuery() {
   const instanceId = useLaxInstanceId();
   const taskId = useNavigationParam('taskId');
   const layoutSets = useLayoutSets();
   const navigateToTask = useNavigateToTask();
 
-  const { isLoading, data, error, refetch } = useQuery(processQueries.processState(instanceId));
+  const query = useQuery(processQueries.processState(instanceId));
 
-  const ended = data?.ended;
+  const { data, error } = query;
+  const ended = !!data?.ended;
+
+  // TODO: move this to a layout file on task id change instead
   useEffect(() => {
     if (ended) {
       // Catch cases where there is a custom receipt, but we've navigated
@@ -52,15 +49,7 @@ export function ProcessProvider({ children }: PropsWithChildren) {
     error && window.logError('Fetching process state failed:\n', error);
   }, [error]);
 
-  if (isLoading) {
-    return <Loader reason='fetching-process' />;
-  }
-
-  if (error) {
-    return <DisplayError error={error} />;
-  }
-
-  return <ProcessContext.Provider value={{ data, refetch }}>{children}</ProcessContext.Provider>;
+  return query;
 }
 
 export const useIsAuthorized = () => {
@@ -132,36 +121,4 @@ export function useGetTaskTypeById() {
 export function useGetAltinnTaskType() {
   const { data: processData } = useProcessQuery();
   return (taskId: string | undefined) => processData?.processTasks?.find((t) => t.elementId === taskId)?.altinnTaskType;
-}
-
-export function useProcessQuery() {
-  const instanceId = useLaxInstanceId();
-  const taskId = useNavigationParam('taskId');
-  const layoutSets = useLayoutSets();
-  const navigateToTask = useNavigateToTask();
-
-  const query = useQuery(processQueries.processState(instanceId));
-
-  const { data, error } = query;
-  const ended = !!data?.ended;
-
-  // TODO: move this to a layout file on task id change instead
-  useEffect(() => {
-    if (ended) {
-      // Catch cases where there is a custom receipt, but we've navigated
-      // to the wrong one (i.e. mocking in all-process-steps.ts)
-      const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-      if (taskId === TaskKeys.ProcessEnd && hasCustomReceipt) {
-        navigateToTask(TaskKeys.CustomReceipt);
-      } else if (taskId === TaskKeys.CustomReceipt && !hasCustomReceipt) {
-        navigateToTask(TaskKeys.ProcessEnd);
-      }
-    }
-  }, [ended, layoutSets, navigateToTask, taskId]);
-
-  useEffect(() => {
-    error && window.logError('Fetching process state failed:\n', error);
-  }, [error]);
-
-  return query;
 }

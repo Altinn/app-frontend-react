@@ -14,7 +14,7 @@ import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
 import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
-import { ProcessProvider } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/ProcessContext';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
@@ -150,9 +150,7 @@ function useGetInstanceDataQuery(
 
 export const InstanceProvider = ({ children }: { children: React.ReactNode }) => (
   <Provider>
-    <BlockUntilLoaded>
-      <ProcessProvider>{children}</ProcessProvider>
-    </BlockUntilLoaded>
+    <BlockUntilLoaded>{children}</BlockUntilLoaded>
   </Provider>
 );
 
@@ -168,6 +166,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
 
   const hasPendingScans = useHasPendingScans();
   const enablePolling = isDataSet && hasPendingScans;
+  const { isLoading: isProcessLoading, error: processError } = useProcessQuery();
 
   const {
     error: queryError,
@@ -176,7 +175,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
     refetch,
   } = useGetInstanceDataQuery(!!instantiation.lastResult, instanceOwnerPartyId, instanceGuid, enablePolling);
 
-  const error = instantiation.error ?? queryError;
+  const instantiationError = instantiation.error ?? queryError;
   const data = instantiation.lastResult ?? queryData;
 
   useEffect(() => {
@@ -187,8 +186,20 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
     setReFetch(refetch);
   }, [refetch, setReFetch]);
 
-  if (navigation.state === 'loading') {
+  const error = instantiationError ?? processError;
+  if (error) {
+    return <DisplayError error={error} />;
+  }
+
+  if (isLoading || !isDataSet) {
     return <Loader reason='instance' />;
+  }
+  if (isProcessLoading) {
+    return <Loader reason='fetching-process' />;
+  }
+
+  if (navigation.state === 'loading') {
+    return <Loader reason='navigation' />;
   }
 
   if (!instanceOwnerPartyId || !instanceGuid) {
@@ -198,14 +209,6 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
     throw new Error(
       `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
     );
-  }
-
-  if (error) {
-    return <DisplayError error={error} />;
-  }
-
-  if (isLoading || !isDataSet) {
-    return <Loader reason='instance' />;
   }
 
   return children;

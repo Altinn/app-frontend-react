@@ -4,7 +4,7 @@ import { Checkbox, Fieldset } from '@digdir/designsystemet-react';
 
 import classes from 'src/features/devtools/components/PermissionsEditor/PermissionsEditor.module.css';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useProcessQuery } from 'src/features/instance/ProcessContext';
+import { processQueries, useProcessQuery } from 'src/features/instance/ProcessContext';
 import type { IProcess, ITask } from 'src/types/shared';
 
 export const PermissionsEditor = () => {
@@ -13,7 +13,7 @@ export const PermissionsEditor = () => {
 
   function handleChange(mutator: (obj: ITask) => ITask) {
     if (instanceId) {
-      window.queryClient.setQueryData<IProcess>(['fetchProcessState', instanceId], (_queryData) => {
+      window.queryClient.setQueryData<IProcess>(processQueries.processStateKey(instanceId), (_queryData) => {
         const queryData = structuredClone(_queryData);
         if (!queryData?.currentTask) {
           return _queryData;
