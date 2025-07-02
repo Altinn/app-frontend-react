@@ -5,7 +5,7 @@ import dot from 'dot-object';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useValidateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
 import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToGroupLayoutValidator';
 import { useValidateGroupIsEmpty } from 'src/features/saveToGroup/useValidateGroupIsEmpty';
@@ -13,7 +13,7 @@ import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSumma
 import { MultipleSelectDef } from 'src/layout/MultipleSelect/config.def.generated';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
 import { MultipleSelectSummary } from 'src/layout/MultipleSelect/MultipleSelectSummary';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -31,13 +31,12 @@ export class MultipleSelect extends MultipleSelectDef {
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const node = useNode(nodeId) as LayoutNode<'MultipleSelect'> | undefined;
-    const formData = useNodeFormDataWhenType(nodeId, 'MultipleSelect');
-    const options = useNodeOptions(nodeId).options;
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'MultipleSelect');
+    const options = useOptionsFor(baseComponentId, 'multi').options;
     const langAsString = useLanguage().langAsString;
 
-    const dataModelBindings = NodesInternal.useNodeData(node, (data) => data.layout.dataModelBindings);
+    const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'MultipleSelect');
     const relativeCheckedPath =
       dataModelBindings?.checked && dataModelBindings?.group
         ? dataModelBindings.checked.field.replace(`${dataModelBindings.group.field}.`, '')

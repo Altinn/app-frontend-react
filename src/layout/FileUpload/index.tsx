@@ -9,6 +9,7 @@ import { FileUploadLayoutValidator } from 'src/layout/FileUpload/FileUploadLayou
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
 import { useValidateMinNumberOfAttachments } from 'src/layout/FileUpload/useValidateMinNumberOfAttachments';
 import { useFileUploaderDataBindingsValidation } from 'src/layout/FileUpload/utils/useFileUploaderDataBindingsValidation';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
@@ -28,7 +29,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return false;
   }
 
-  useDisplayData(nodeId: string): string {
+  useDisplayData(baseComponentId: string): string {
+    const nodeId = useIndexedId(baseComponentId);
     const attachments = useAttachmentsFor(nodeId);
     return attachments.map((a) => a.data.filename).join(', ');
   }
@@ -37,6 +39,8 @@ export class FileUpload extends FileUploadDef implements ValidateComponent<'File
     return {
       ...this.evalDefaultExpressions(props),
       alertOnDelete: props.evalBool(props.item.alertOnDelete, false),
+      maxNumberOfAttachments: props.evalNum(props.item.maxNumberOfAttachments, Infinity),
+      minNumberOfAttachments: props.evalNum(props.item.minNumberOfAttachments, 0),
     };
   }
 
