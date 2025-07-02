@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-import { Heading } from '@digdir/designsystemet-react';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -12,7 +11,6 @@ import type { IDisplayAttachment } from 'src/types/shared';
 interface IAltinnCollapsibleAttachmentsProps {
   attachments: IDisplayAttachment[] | undefined;
   title: React.ReactNode | undefined;
-  hideCount?: boolean;
   showLinks: boolean | undefined;
   showDescription: boolean;
 }
@@ -20,18 +18,15 @@ interface IAltinnCollapsibleAttachmentsProps {
 export function AltinnCollapsibleAttachments({
   attachments,
   title,
-  hideCount,
   showLinks = true,
   showDescription,
 }: IAltinnCollapsibleAttachmentsProps) {
-  const isCollapsible = useIsPrint() ? false : Boolean(attachments && attachments.length > 4);
+  const isCollapsible = useIsPrint() ? false : Boolean(attachments && attachments.length > 0);
   const [open, setOpen] = React.useState(true);
 
   function handleOpenClose() {
     setOpen(!open);
   }
-
-  const attachmentCount = hideCount ? '' : `(${attachments && attachments.length})`;
 
   if (isCollapsible) {
     return (
@@ -48,12 +43,7 @@ export function AltinnCollapsibleAttachments({
             fontSize='1.5rem'
             className={cn({ [classes.transformArrowRight]: !open }, classes.transition)}
           />
-          <Heading
-            level={3}
-            data-size='xs'
-          >
-            {title} {attachmentCount}
-          </Heading>
+          {title}
         </div>
         <AltinnCollapsible open={open}>
           <AltinnAttachments
@@ -69,11 +59,7 @@ export function AltinnCollapsibleAttachments({
   return (
     <AltinnAttachments
       id='attachment-list'
-      title={
-        <>
-          {title} {attachmentCount}
-        </>
-      }
+      title={title}
       attachments={attachments}
       showLinks={showLinks}
       showDescription={showDescription}

@@ -41,7 +41,7 @@ export function AltinnAttachments({
       {title && (
         <Heading
           level={2}
-          data-size='xs'
+          data-size='sm'
         >
           {title}
         </Heading>
