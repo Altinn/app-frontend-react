@@ -10,7 +10,7 @@ import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 import 'src/styles/shared.css';
@@ -19,7 +19,7 @@ export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 
 export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const { langAsString } = useLanguage();
-  const isValid = useIsValid(node);
+  const isValid = useIsValid(node.baseId);
   const {
     id,
     readOnly,
@@ -30,7 +30,7 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
     maxLength,
     grid,
     required,
-  } = useNodeItem(node);
+  } = useItemWhenType(node.baseId, 'TextArea');
   const characterLimit = useCharacterLimit(maxLength);
   const {
     formData: { simpleBinding: value },
@@ -39,7 +39,7 @@ export function TextAreaComponent({ node, overrideDisplay }: ITextAreaProps) {
   const debounce = FD.useDebounceImmediately();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId: node.baseId, overrideDisplay });
 
   return (
     <Label

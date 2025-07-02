@@ -30,13 +30,11 @@ export function useNodeValidation(node: LayoutNode): AnyValidation[] {
   // the same validator hooks (and thus in practice we will never actually break the rule of hooks, only the linter).
   const unfiltered: AnyValidation[] = [];
   if (implementsValidateEmptyField(node.def)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    unfiltered.push(...node.def.useEmptyFieldValidation(node as any));
+    unfiltered.push(...node.def.useEmptyFieldValidation(node.baseId));
   }
 
   if (implementsValidateComponent(node.def)) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    unfiltered.push(...node.def.useComponentValidation(node as any));
+    unfiltered.push(...node.def.useComponentValidation(node.baseId));
   }
 
   const getDataElementIdForDataType = GeneratorData.useGetDataElementIdForDataType();
@@ -80,8 +78,7 @@ function filter<Validation extends BaseValidation>(
     return validations;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const filters = node.def.getValidationFilters(node as any, layoutLookups);
+  const filters = node.def.getValidationFilters(node.baseId, layoutLookups);
   if (filters.length == 0) {
     return validations;
   }

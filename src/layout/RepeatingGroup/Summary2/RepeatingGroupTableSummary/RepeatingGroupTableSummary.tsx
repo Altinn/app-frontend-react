@@ -26,8 +26,9 @@ import { ComponentSummaryById, SummaryContains } from 'src/layout/Summary2/Summa
 import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemFor, useItemWhenType, useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
@@ -36,13 +37,15 @@ export const RepeatingGroupTableSummary = ({ componentNode }: { componentNode: L
   const isMobile = useIsMobile();
   const pdfModeActive = usePdfModeActive();
   const isSmall = isMobile && !pdfModeActive;
-  const rows = RepGroupHooks.useVisibleRows(componentNode);
-  const validations = useUnifiedValidationsForNode(componentNode);
+  const rows = RepGroupHooks.useVisibleRows(componentNode.baseId);
+  const validations = useUnifiedValidationsForNode(componentNode.baseId);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
-  const tableIds = useTableComponentIds(componentNode);
-  const { tableColumns } = useNodeItem(componentNode);
+  const { textResourceBindings, dataModelBindings, tableColumns } = useItemWhenType(
+    componentNode.baseId,
+    'RepeatingGroup',
+  );
+  const title = textResourceBindings?.title;
+  const tableIds = useTableComponentIds(componentNode.baseId);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
 
   return (
@@ -136,10 +139,10 @@ type DataRowProps = {
 
 function DataRow({ row, node, pdfModeActive, columnSettings }: DataRowProps) {
   const layoutLookups = useLayoutLookups();
-  const rawIds = useTableComponentIds(node);
+  const rawIds = useTableComponentIds(node.baseId);
   const indexedIds = useIndexedComponentIds(rawIds);
   const otherChildren = useNodeDirectChildren(node, row?.index)?.map((n) => n.id);
-  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings);
+  const dataModelBindings = useDataModelBindingsFor(node.baseId, 'RepeatingGroup');
 
   if (!row) {
     return null;
@@ -201,7 +204,8 @@ function NodeDataCell({ node, columnSettings }: { node: LayoutNode } & Pick<Data
   const headerTitle = langAsString(useTableTitle(node.baseId));
   const style = useColumnStylesRepeatingGroups(node.baseId, columnSettings);
   const displayData = useDisplayData(node);
-  const required = useNodeItem(node, (i) => ('required' in i ? i.required : false));
+  const item = useItemFor(node.baseId);
+  const required = 'required' in item ? item.required : false;
 
   useReportSummaryRender(
     displayData.trim() === ''
