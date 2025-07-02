@@ -25,7 +25,6 @@ import { ComponentSummary, SummaryContains } from 'src/layout/Summary2/SummaryCo
 import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useNode } from 'src/utils/layout/NodesContext';
 import { useItemFor, useItemWhenType, useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
@@ -137,41 +136,38 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
   const ids = useTableComponentIds(baseComponentId);
   const node = useNode(useIndexedId(baseComponentId));
   const otherChildren = useNodeDirectChildren(node, row?.index)?.map((n) => n.baseId);
-  const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup');
 
   if (!row) {
     return null;
   }
 
   return (
-    <DataModelLocationProvider
-      groupBinding={dataModelBindings.group}
-      rowIndex={row.index}
-    >
-      <Table.Row>
-        {ids.map((id) =>
-          layoutLookups.getComponent(id).type === 'Custom' ? (
-            <Table.Cell key={id}>
-              <ComponentSummary targetBaseComponentId={id} />
-            </Table.Cell>
-          ) : (
-            <DataCell
-              key={id}
-              baseComponentId={id}
-              columnSettings={columnSettings}
-            />
-          ),
-        )}
-        {!pdfModeActive && (
-          <Table.Cell
-            align='right'
-            className={tableClasses.buttonCell}
-          >
-            <EditButtonFirstVisible ids={[...ids, ...otherChildren, baseComponentId]} />
+    <Table.Row>
+      {ids.map((id) =>
+        layoutLookups.getComponent(id).type === 'Custom' ? (
+          <Table.Cell key={id}>
+            <ComponentSummary targetBaseComponentId={id} />
           </Table.Cell>
-        )}
-      </Table.Row>
-    </DataModelLocationProvider>
+        ) : (
+          <DataCell
+            key={id}
+            baseComponentId={id}
+            columnSettings={columnSettings}
+          />
+        ),
+      )}
+      {!pdfModeActive && (
+        <Table.Cell
+          align='right'
+          className={tableClasses.buttonCell}
+        >
+          <EditButtonFirstVisible
+            ids={[...ids, ...otherChildren]}
+            fallback={baseComponentId}
+          />
+        </Table.Cell>
+      )}
+    </Table.Row>
   );
 }
 

@@ -20,6 +20,7 @@ import type { NavigationResult } from 'src/features/form/layout/NavigateToNode';
 export type EditButtonProps = {
   targetBaseComponentId: string;
   navigationOverride?: (() => Promise<NavigationResult> | void) | null;
+  skipLastIdMutator?: boolean;
 } & React.HTMLAttributes<HTMLButtonElement>;
 
 /**
@@ -27,22 +28,31 @@ export type EditButtonProps = {
  */
 export function EditButtonFirstVisible({
   ids,
+  fallback,
   ...rest
-}: { ids: string[] } & Omit<EditButtonProps, 'targetBaseComponentId'>) {
+}: { ids: string[]; fallback: string } & Omit<EditButtonProps, 'targetBaseComponentId'>) {
   const first = Hidden.useFirstVisibleBaseId(ids);
-  if (!first) {
+  const indexedFallbackId = useIndexedId(fallback, true);
+  const isFallbackHidden = Hidden.useIsHidden(indexedFallbackId);
+  if (!first && isFallbackHidden) {
     return null;
   }
 
   return (
     <EditButton
-      targetBaseComponentId={first}
+      targetBaseComponentId={first ?? fallback}
+      skipLastIdMutator={!first}
       {...rest}
     />
   );
 }
 
-export function EditButton({ targetBaseComponentId, className, navigationOverride = null }: EditButtonProps) {
+export function EditButton({
+  targetBaseComponentId,
+  className,
+  navigationOverride = null,
+  skipLastIdMutator,
+}: EditButtonProps) {
   const navigateTo = useNavigateTo();
   const { langAsString } = useLanguage();
   const setReturnToView = useSetReturnToView();
@@ -57,7 +67,7 @@ export function EditButton({ targetBaseComponentId, className, navigationOverrid
 
   const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
   const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
-  const indexedId = useIndexedId(targetBaseComponentId);
+  const indexedId = useIndexedId(targetBaseComponentId, skipLastIdMutator);
   const summary2Id = useSummaryProp('id');
 
   if (overriddenDataModelUuid) {
