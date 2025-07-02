@@ -36,7 +36,7 @@ export function LargeGroupSummaryContainer({
   renderLayoutNode,
 }: IDisplayRepAsLargeGroup) {
   const item = useItemWhenType(baseComponentId, 'RepeatingGroup');
-  const indexedId = useIndexedId(baseComponentId);
+  const indexedId = useIndexedId(baseComponentId, true);
   const isHidden = Hidden.useIsHidden(indexedId);
   const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
   const node = useNode(indexedId);
