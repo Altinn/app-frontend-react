@@ -19,7 +19,7 @@ describe('Subform tableEditButton expressions', () => {
     cy.findByRole('textbox', { name: /produksjonsår/i }).type('2020');
     cy.findByRole('button', { name: /ferdig/i }).clickAndGone();
 
-    // Add second moped with Honda brand - should show "IKKE Vespa"
+    // Add second moped with Honda brand - should show "Endre"
     cy.findByRole('button', { name: /legg til moped/i }).clickAndGone();
     cy.findByRole('textbox', { name: /registreringsnummer/i }).type('XYZ987');
     cy.findByRole('textbox', { name: /merke/i }).type('Honda');
@@ -39,13 +39,13 @@ describe('Subform tableEditButton expressions', () => {
         cy.findByRole('button', { name: 'Rediger Vespa' }).should('exist');
       });
 
-    // Second row (Honda) should have "IKKE Vespa" button
+    // Second row (Honda) should have "Endre" button
     cy.get('#subform-subform-mopeder-table tbody tr')
       .eq(1)
       .within(() => {
         cy.get('td').eq(0).should('contain.text', 'XYZ987');
         cy.get('td').eq(1).should('contain.text', 'Honda');
-        cy.findByRole('button', { name: 'IKKE Vespa' }).should('exist');
+        cy.findByRole('button', { name: 'Endre' }).should('exist');
       });
 
     // Test that clicking the expression-based button works correctly
@@ -67,7 +67,7 @@ describe('Subform tableEditButton expressions', () => {
     cy.get('#subform-subform-mopeder-table tbody tr')
       .eq(1)
       .within(() => {
-        cy.findByRole('button', { name: 'IKKE Vespa' }).click();
+        cy.findByRole('button', { name: 'Endre' }).click();
       });
 
     // Should navigate to subform edit page for Honda
@@ -91,18 +91,18 @@ describe('Subform tableEditButton expressions', () => {
     cy.findByRole('textbox', { name: /produksjonsår/i }).type('2019');
     cy.findByRole('button', { name: /ferdig/i }).clickAndGone();
 
-    // Initially should show "IKKE Vespa"
+    // Initially should show "Endre"
     cy.get('#subform-subform-mopeder-table tbody tr')
       .eq(0)
       .within(() => {
-        cy.findByRole('button', { name: 'IKKE Vespa' }).should('exist');
+        cy.findByRole('button', { name: 'Endre' }).should('exist');
       });
 
     // Edit the moped to change brand to Vespa
     cy.get('#subform-subform-mopeder-table tbody tr')
       .eq(0)
       .within(() => {
-        cy.findByRole('button', { name: 'IKKE Vespa' }).click();
+        cy.findByRole('button', { name: 'Endre' }).click();
       });
 
     // Change brand to Vespa
@@ -118,7 +118,7 @@ describe('Subform tableEditButton expressions', () => {
       .within(() => {
         cy.get('td').eq(1).should('contain.text', 'Vespa');
         cy.findByRole('button', { name: 'Rediger Vespa' }).should('exist');
-        cy.findByRole('button', { name: 'IKKE Vespa' }).should('not.exist');
+        cy.findByRole('button', { name: 'Endre' }).should('not.exist');
       });
   });
 });
