@@ -130,7 +130,7 @@ const SummaryComponentInner = React.forwardRef(function (
 
   const targetView = useLayoutLookups().componentToPage[targetBaseComponentId];
   const indexedId = useIndexedId(targetBaseComponentId);
-  const targetIsHidden = Hidden.useIsHidden(useIndexedId(targetBaseComponentId));
+  const targetIsHidden = Hidden.useIsHidden(indexedId);
 
   const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
