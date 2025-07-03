@@ -20,6 +20,7 @@ import { isAxiosError } from 'src/utils/isAxiosError';
 import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { HttpStatusCodes } from 'src/utils/network/networking';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { UploadedAttachment } from 'src/features/attachments';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
@@ -91,13 +92,16 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
   const allAttachments = useAllAttachments();
 
   const infectedFileErrors: NodeRefValidation[] = Object.entries(allAttachments || {}).flatMap(
-    ([nodeId, attachments]) =>
-      (attachments || [])
+    ([nodeId, attachments]) => {
+      const { baseComponentId } = splitDashedKey(nodeId);
+
+      return (attachments || [])
         .filter((attachment) => attachment.uploaded && attachment.data.fileScanResult === FileScanResults.Infected)
         .map((attachment) => {
           const uploadedAttachment = attachment as UploadedAttachment;
           return {
             nodeId,
+            baseComponentId,
             source: 'Frontend',
             code: 'InfectedFile',
             dataElementId: uploadedAttachment.data.id,
@@ -108,7 +112,8 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
             severity: 'error',
             category: 0,
           };
-        }),
+        });
+    },
   );
 
   return (

@@ -5,12 +5,12 @@ import { Heading } from '@digdir/designsystemet-react';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface OrganisationLookupSummaryProps {
@@ -18,16 +18,16 @@ interface OrganisationLookupSummaryProps {
 }
 
 export function OrganisationLookupSummary({ componentNode }: OrganisationLookupSummaryProps) {
-  const { dataModelBindings, title, required } = useNodeItem(componentNode, (i) => ({
-    dataModelBindings: i.dataModelBindings,
-    title: i.textResourceBindings?.title,
-    required: i.required,
-  }));
+  const { dataModelBindings, textResourceBindings, required } = useItemWhenType(
+    componentNode.baseId,
+    'OrganisationLookup',
+  );
+  const title = textResourceBindings?.title;
   const { formData } = useDataModelBindings(dataModelBindings);
   const { organisation_lookup_orgnr, organisation_lookup_name } = formData;
   const emptyFieldText = useSummaryOverrides(componentNode)?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
-  const bindingValidations = useBindingValidationsForNode(componentNode);
+  const bindingValidations = useBindingValidationsFor<'OrganisationLookup'>(componentNode.baseId);
   const isEmpty = !(organisation_lookup_orgnr || organisation_lookup_name);
 
   return (
@@ -60,7 +60,7 @@ export function OrganisationLookupSummary({ componentNode }: OrganisationLookupS
             />
             <ComponentValidations
               validations={bindingValidations?.organisation_lookup_orgnr}
-              node={componentNode}
+              baseComponentId={componentNode.baseId}
             />
           </div>
           {organisation_lookup_name && (
@@ -75,7 +75,7 @@ export function OrganisationLookupSummary({ componentNode }: OrganisationLookupS
               />
               <ComponentValidations
                 validations={bindingValidations?.organisation_lookup_name}
-                node={componentNode}
+                baseComponentId={componentNode.baseId}
               />
             </div>
           )}

@@ -4,6 +4,7 @@ import { Heading, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
@@ -20,8 +21,7 @@ import {
 } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'>) => {
@@ -29,16 +29,17 @@ export const RepeatingGroupSummary = ({ target }: Summary2Props<'RepeatingGroup'
   const overrides = useSummaryOverrides(componentNode);
   const display = overrides?.display ?? 'list';
   const isCompact = useSummaryProp('isCompact');
-  const childIds = RepGroupHooks.useChildIds(target);
-  const rows = RepGroupHooks.useVisibleRows(target);
-  const validations = useUnifiedValidationsForNode(componentNode);
+  const childIds = RepGroupHooks.useChildIds(target.baseId);
+  const rows = RepGroupHooks.useVisibleRows(target.baseId);
+  const validations = useUnifiedValidationsForNode(componentNode.baseId);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const dataModelBindings = useNodeItem(componentNode, (i) => i.dataModelBindings);
-  const isNested = componentNode.parent instanceof LayoutNode;
+  const { textResourceBindings, dataModelBindings, minCount } = useItemWhenType(componentNode.baseId, 'RepeatingGroup');
+  const title = textResourceBindings?.title;
+  const parent = useLayoutLookups().componentToParent[componentNode.baseId];
+  const isNested = parent?.type === 'node';
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
 
-  const required = useNodeItem(componentNode, (i) => i.minCount !== undefined && i.minCount > 0);
+  const required = minCount !== undefined && minCount > 0;
   const { className } = useSummarySoftHidden(hideEmptyFields && rows.length === 0 && !required);
 
   if (rows.length === 0) {

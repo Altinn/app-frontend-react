@@ -19,14 +19,14 @@ import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTabl
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import classes from 'src/layout/FileUploadWithTag/EditWindowComponent.module.css';
 import comboboxClasses from 'src/styles/combobox.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionSearchFilter } from 'src/utils/options';
 import type { IAttachment } from 'src/features/attachments';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { PropsFromGenericComponent } from 'src/layout';
+import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface EditWindowProps {
-  node: PropsFromGenericComponent<'FileUploadWithTag'>['node'];
+  node: LayoutNode<'FileUploadWithTag'>;
   attachment: IAttachment;
   mobileView: boolean;
   options?: IOptionInternal[];
@@ -40,7 +40,7 @@ export function EditWindowComponent({
   options,
   isFetching,
 }: EditWindowProps): React.JSX.Element {
-  const { textResourceBindings } = useNodeItem(node);
+  const { textResourceBindings } = useItemWhenType(node.baseId, 'FileUploadWithTag');
   const { langAsString } = useLanguage();
   const { setEditIndex } = useFileTableRow();
   const uploadedAttachment = isAttachmentUploaded(attachment) ? attachment : undefined;
@@ -48,7 +48,7 @@ export function EditWindowComponent({
   const [chosenTags, setChosenTags] = useState<string[]>(rawSelectedTags);
   const updateAttachment = useAttachmentsUpdater();
 
-  const attachmentValidations = useAttachmentValidations(node, uploadedAttachment?.data.id);
+  const attachmentValidations = useAttachmentValidations(node.baseId, uploadedAttachment?.data.id);
   const onAttachmentSave = useOnAttachmentSave();
 
   const hasErrors = hasValidationErrors(attachmentValidations);
@@ -230,7 +230,7 @@ export function EditWindowComponent({
         >
           <ComponentValidations
             validations={attachmentValidations}
-            node={node}
+            baseComponentId={node.baseId}
           />
         </div>
       ) : undefined}

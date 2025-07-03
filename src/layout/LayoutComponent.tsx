@@ -13,6 +13,7 @@ import { NodeGenerator } from 'src/utils/layout/generator/NodeGenerator';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ComponentValidation } from 'src/features/validation';
 import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
 import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
@@ -218,14 +219,14 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
   /**
    * Return true if this component requires data model bindings to be configured
    */
-  public isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
+  public isDataModelBindingsRequired(_baseComponentId: string, _layoutLookups: LayoutLookups): boolean {
     return true;
   }
 
   /**
    * Runs validation on data model bindings. Returns an array of error messages.
    */
-  public useDataModelBindingValidation(_node: LayoutNode<Type>, _bindings: IDataModelBindings<Type>): string[] {
+  public useDataModelBindingValidation(_baseComponentId: string, _bindings: IDataModelBindings<Type>): string[] {
     return [];
   }
 }
@@ -238,14 +239,11 @@ export abstract class ActionComponent<Type extends CompTypes> extends AnyCompone
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes>
-  extends _FormComponent<Type>
-  implements ValidateEmptyField<Type>
-{
+export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
   readonly category = CompCategory.Form;
 
-  useEmptyFieldValidation(node: LayoutNode<Type>): ComponentValidation[] {
-    return useEmptyFieldValidationAllBindings(node);
+  useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
+    return useEmptyFieldValidationAllBindings(baseComponentId);
   }
 }
 
@@ -259,7 +257,7 @@ export interface ChildClaimerProps<Type extends CompTypes> {
 export abstract class ContainerComponent<Type extends CompTypes> extends _FormComponent<Type> {
   readonly category = CompCategory.Container;
 
-  isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
+  isDataModelBindingsRequired(_baseComponentId: string, _layoutLookups: LayoutLookups): boolean {
     return false;
   }
 

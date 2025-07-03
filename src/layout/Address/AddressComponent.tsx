@@ -11,13 +11,13 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
-import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
+import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useComponentValidationsFor } from 'src/features/validation/selectors/componentValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
 
@@ -41,11 +41,11 @@ export function AddressComponent({ node }: IAddressProps) {
     textResourceBindings,
     dataModelBindings,
     labelSettings,
-  } = useNodeItem(node);
+  } = useItemWhenType(node.baseId, 'Address');
   const { langAsString } = useLanguage();
 
-  const bindingValidations = useBindingValidationsForNode(node);
-  const componentValidations = useComponentValidationsForNode(node);
+  const bindingValidations = useBindingValidationsFor<'Address'>(node.baseId);
+  const componentValidations = useComponentValidationsFor(node.baseId);
   const { formData, setValue } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const debounce = FD.useDebounceImmediately();
   const { address, careOf, postPlace, zipCode, houseNumber } = formData;
@@ -102,7 +102,7 @@ export function AddressComponent({ node }: IAddressProps) {
         </Label>
         <ComponentValidations
           validations={bindingValidations?.address}
-          node={node}
+          baseComponentId={node.baseId}
         />
       </div>
 
@@ -140,7 +140,7 @@ export function AddressComponent({ node }: IAddressProps) {
               />
               <ComponentValidations
                 validations={bindingValidations?.careOf}
-                node={node}
+                baseComponentId={node.baseId}
               />
             </Flex>
           </Label>
@@ -189,7 +189,7 @@ export function AddressComponent({ node }: IAddressProps) {
               />
               <ComponentValidations
                 validations={bindingValidations?.zipCode}
-                node={node}
+                baseComponentId={node.baseId}
               />
             </Flex>
           </Label>
@@ -276,13 +276,13 @@ export function AddressComponent({ node }: IAddressProps) {
           </Label>
           <ComponentValidations
             validations={bindingValidations?.houseNumber}
-            node={node}
+            baseComponentId={node.baseId}
           />
         </div>
       )}
       <ComponentValidations
         validations={componentValidations}
-        node={node}
+        baseComponentId={node.baseId}
       />
     </div>
   );

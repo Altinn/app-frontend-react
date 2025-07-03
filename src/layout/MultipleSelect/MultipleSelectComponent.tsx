@@ -16,14 +16,14 @@ import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import utilclasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
 export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSelectProps) {
-  const item = useNodeItem(node);
-  const isValid = useIsValid(node);
+  const item = useItemWhenType(node.baseId, 'MultipleSelect');
+  const isValid = useIsValid(node.baseId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required, dataModelBindings } = item;
   const {
     options,
@@ -38,7 +38,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
   const { langAsString, lang } = useLanguage();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId: node.baseId, overrideDisplay });
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {

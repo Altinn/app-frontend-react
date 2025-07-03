@@ -20,7 +20,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindings, NodeValidationProps } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Row = Record<string, string | number | boolean>;
 
@@ -74,15 +73,15 @@ export class Checkboxes extends CheckboxesDef {
     return <CheckboxesSummary {...props} />;
   }
 
-  useEmptyFieldValidation(node: LayoutNode<'Checkboxes'>): ComponentValidation[] {
-    return useValidateGroupIsEmpty(node);
+  useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateGroupIsEmpty(baseComponentId, 'Checkboxes');
   }
 
   renderLayoutValidators(props: NodeValidationProps<'Checkboxes'>): JSX.Element | null {
     return <ObjectToGroupLayoutValidator {...props} />;
   }
 
-  useDataModelBindingValidation(node: LayoutNode<'Checkboxes'>, bindings: IDataModelBindings<'Checkboxes'>): string[] {
-    return useValidateSimpleBindingWithOptionalGroup(node, bindings);
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'Checkboxes'>): string[] {
+    return useValidateSimpleBindingWithOptionalGroup(baseComponentId, bindings);
   }
 }

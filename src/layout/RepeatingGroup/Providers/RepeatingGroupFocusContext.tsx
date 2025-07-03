@@ -5,8 +5,10 @@ import { createContext } from 'src/core/contexts/context';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIntermediateItem } from 'src/utils/layout/hooks';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useNode } from 'src/utils/layout/NodesContext';
 import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 type FocusableHTMLElement =
@@ -39,12 +41,10 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   const elementRefs = useMemo(() => new Map<string, HTMLElement | null>(), []);
   const waitingForFocus = useRef<number | null>(null);
 
-  const { node, openForEditing, changePageToRow } = useRepeatingGroup();
-  const groupBinding = useNodeItem(node, (i) => i.dataModelBindings.group);
-  const pagination = useNodeItem(node, (i) => i.pagination);
-  const mode = useNodeItem(node, (i) => i.edit?.mode);
-  const tableColumns = useNodeItem(node, (i) => i.tableColumns);
+  const { baseComponentId, openForEditing, changePageToRow } = useRepeatingGroup();
+  const { dataModelBindings, pagination, tableColumns, edit } = useIntermediateItem(baseComponentId, 'RepeatingGroup');
   const rowsSelector = FD.useDebouncedRowsSelector();
+  const node = useNode(useIndexedId(baseComponentId));
 
   useRegisterNodeNavigationHandler(async (targetNode) => {
     // Figure out if we are a parent of the target component, setting the targetChild to the target
@@ -68,7 +68,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       return false;
     }
 
-    const rows = rowsSelector(groupBinding);
+    const rows = rowsSelector(dataModelBindings.group);
     const row = rows.find((r) => r.index === targetChild?.rowIndex);
 
     // If pagination is used, navigate to the correct page
@@ -80,7 +80,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       }
     }
 
-    if (mode === 'showAll' || mode === 'onlyTable') {
+    if (edit?.mode === 'showAll' || edit?.mode === 'onlyTable') {
       // We're already showing all nodes, so nothing further to do
       return true;
     }

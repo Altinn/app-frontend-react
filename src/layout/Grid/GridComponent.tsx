@@ -10,6 +10,7 @@ import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Caption } from 'src/components/form/caption/Caption';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { LabelContent } from 'src/components/label/LabelContent';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -24,22 +25,22 @@ import {
 } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridRow, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { node } = props;
-  const { rows, textResourceBindings, labelSettings } = useNodeItem(node);
+  const { rows, textResourceBindings, labelSettings } = useItemWhenType(node.baseId, 'Grid');
   const { title, description, help } = textResourceBindings ?? {};
   const shouldHaveFullWidth = node.parent instanceof LayoutPage;
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
-  const isNested = node.parent instanceof LayoutNode;
+  const parent = useLayoutLookups().componentToParent[node.baseId];
+  const isNested = parent?.type === 'node';
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
 
@@ -255,11 +256,9 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
 function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = false }: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const labelFromNode = useNode(labelFrom);
-  const { trb, required = false } =
-    useNodeItem(labelFromNode, (i) => ({
-      trb: 'textResourceBindings' in i ? i.textResourceBindings : {},
-      required: 'required' in i ? i.required : false,
-    })) ?? {};
+  const item = useItemFor(labelFromNode.baseId);
+  const trb = item.textResourceBindings;
+  const required = 'required' in item && item.required;
 
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;
@@ -285,15 +284,17 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
 }
 
 function MobileGrid({ node, overrideDisplay }: PropsFromGenericComponent<'Grid'>) {
-  const { id } = useNodeItem(node);
   const nodeIds = useNodeIdsFromGrid(node);
   const isHidden = Hidden.useIsHiddenSelector();
 
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
+    baseComponentId: node.baseId,
+    overrideDisplay,
+  });
 
   return (
     <Fieldset
-      id={id}
+      id={node.id}
       size='sm'
       legend={labelText}
       description={getDescriptionComponent()}

@@ -18,13 +18,16 @@ import { InfectedFileAlert } from 'src/layout/FileUpload/Error/InfectedFileAlert
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
 
 export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JSX.Element {
-  const item = useNodeItem(node);
+  const item = useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
+    node.baseId,
+    (t) => t === 'FileUpload' || t === 'FileUploadWithTag',
+  );
   const {
     id,
     maxFileSizeInMB,
@@ -43,11 +46,13 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
-  const attachments = useAttachmentsFor(node);
+  const attachments = useAttachmentsFor(node.baseId);
   const addRejectedAttachments = useAddRejectedAttachments();
   const uploadAttachments = useAttachmentsUploader();
 
-  const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
+  const validations = useUnifiedValidationsForNode(node.baseId).filter(
+    (v) => !('attachmentId' in v) || !v.attachmentId,
+  );
 
   const { options, isFetching } = useGetOptions(node.baseId, 'single');
 
@@ -98,7 +103,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
         style={{ padding: '0px', width: '100%' }}
       >
         <Label
-          node={node}
+          baseComponentId={node.baseId}
           renderLabelAs='plainLabel'
         />
         {shouldShowFileUpload && (
@@ -123,7 +128,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             />
             <ComponentValidations
               validations={validations}
-              node={node}
+              baseComponentId={node.baseId}
             />
             {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin} />}
           </>
@@ -145,7 +150,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             />
             <ComponentValidations
               validations={validations}
-              node={node}
+              baseComponentId={node.baseId}
             />
             <br />
           </>

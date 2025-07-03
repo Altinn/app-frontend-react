@@ -6,6 +6,7 @@ import { FrontendValidationSource, ValidationMask } from 'src/features/validatio
 import { selectValidations } from 'src/features/validation/utils';
 import { isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type {
   AnyValidation,
@@ -45,9 +46,9 @@ export interface ValidationStorePluginConfig {
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
     useRawValidationVisibility: (node: LayoutNode | undefined) => number;
     useRawValidations: (node: LayoutNode | undefined) => AnyValidation[];
-    useVisibleValidations: (node: LayoutNode | undefined, showAll?: boolean) => AnyValidation[];
+    useVisibleValidations: (indexedId: string, showAll?: boolean) => AnyValidation[];
     useVisibleValidationsDeep: (
-      node: LayoutNode | undefined,
+      indexedId: string,
       mask: NodeVisibility,
       includeSelf: boolean,
       restriction?: number | undefined,
@@ -136,22 +137,36 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           const out = 'validations' in nodeData ? nodeData.validations : undefined;
           return out && out.length > 0 ? out : emptyArray;
         }),
-      useVisibleValidations: (node, showAll) => {
+      useVisibleValidations: (indexedId, showAll) => {
         const lookups = useLayoutLookups();
         return store.useShallowSelector((state) => {
-          if (!node) {
+          if (!indexedId) {
             return emptyArray;
           }
-          return getValidations({ state, id: node.id, mask: showAll ? 'showAll' : 'visible', lookups });
+          const { baseComponentId } = splitDashedKey(indexedId);
+          return getValidations({
+            state,
+            id: indexedId,
+            baseId: baseComponentId,
+            mask: showAll ? 'showAll' : 'visible',
+            lookups,
+          });
         });
       },
-      useVisibleValidationsDeep: (node, mask, includeSelf, restriction, severity) => {
+      useVisibleValidationsDeep: (indexedId, mask, includeSelf, restriction, severity) => {
         const lookups = useLayoutLookups();
         return store.useMemoSelector((state) => {
-          if (!node) {
-            return emptyArray;
-          }
-          return getRecursiveValidations({ state, id: node.id, mask, severity, includeSelf, restriction, lookups });
+          const { baseComponentId } = splitDashedKey(indexedId);
+          return getRecursiveValidations({
+            state,
+            id: indexedId,
+            baseId: baseComponentId,
+            mask,
+            severity,
+            includeSelf,
+            restriction,
+            lookups,
+          });
         });
       },
       useValidationsSelector: () => {
@@ -165,15 +180,19 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
               severity?: ValidationSeverity,
               includeHidden: boolean = false,
             ) =>
-            (state: NodesContext) =>
-              getValidations({
+            (state: NodesContext) => {
+              const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
+              const { baseComponentId } = splitDashedKey(id);
+              return getValidations({
                 state,
-                id: typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id,
+                id,
+                baseId: baseComponentId,
                 mask,
                 severity,
                 includeHidden,
                 lookups,
-              }),
+              });
+            },
         }) satisfies ValidationsSelector;
       },
       useLaxValidationsSelector: () => {
@@ -187,15 +206,19 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
               severity?: ValidationSeverity,
               includeHidden: boolean = false,
             ) =>
-            (state: NodesContext) =>
-              getValidations({
+            (state: NodesContext) => {
+              const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
+              const { baseComponentId } = splitDashedKey(id);
+              return getValidations({
                 state,
-                id: typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id,
+                id,
+                baseId: baseComponentId,
                 mask,
                 severity,
                 includeHidden,
                 lookups,
-              }),
+              });
+            },
         }) satisfies ValidationsSelector;
       },
       useAllValidations: (mask, severity, includeHidden) => {
@@ -204,9 +227,17 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
           const out: NodeRefValidation[] = [];
           for (const nodeData of Object.values(state.nodeData)) {
             const id = nodeData.id;
-            const validations = getValidations({ state, id, mask, severity, includeHidden, lookups });
+            const validations = getValidations({
+              state,
+              id,
+              baseId: nodeData.baseId,
+              mask,
+              severity,
+              includeHidden,
+              lookups,
+            });
             for (const validation of validations) {
-              out.push({ ...validation, nodeId: id });
+              out.push({ ...validation, nodeId: id, baseComponentId: nodeData.baseId });
             }
           }
 
@@ -229,7 +260,16 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             const outNodes: string[] = [];
             const outValidations: AnyValidation[] = [];
             for (const id of Object.keys(state.nodeData)) {
-              const validations = getValidations({ state, id, mask, severity, includeHidden, lookups });
+              const data = state.nodeData[id];
+              const validations = getValidations({
+                state,
+                id,
+                baseId: data.baseId,
+                mask,
+                severity,
+                includeHidden,
+                lookups,
+              });
               if (validations.length > 0) {
                 outNodes.push(id);
                 outValidations.push(...validations);
@@ -253,7 +293,14 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             }
 
             const id = nodeData.id;
-            const validations = getValidations({ state, id, mask: 'visible', severity: 'error', lookups });
+            const validations = getValidations({
+              state,
+              id,
+              baseId: nodeData.baseId,
+              mask: 'visible',
+              severity: 'error',
+              lookups,
+            });
             for (const validation of validations) {
               if (validation.source === FrontendValidationSource.EmptyField) {
                 return true;
@@ -271,6 +318,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
 interface GetValidationsProps {
   state: NodesContext;
   id: string;
+  baseId: string;
   mask: NodeVisibility;
   severity?: ValidationSeverity;
   includeHidden?: boolean;
@@ -317,7 +365,7 @@ export function getRecursiveValidations(props: GetDeepValidationsProps): NodeRef
   if (props.includeSelf) {
     const nodeValidations = getValidations(props);
     for (const validation of nodeValidations) {
-      out.push({ ...validation, nodeId: props.id });
+      out.push({ ...validation, nodeId: props.id, baseComponentId: props.baseId });
     }
   }
 
