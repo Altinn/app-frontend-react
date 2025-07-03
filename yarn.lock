@@ -3198,9 +3198,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@pmmmwh/react-refresh-webpack-plugin@npm:0.6.0":
-  version: 0.6.0
-  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.6.0"
+"@pmmmwh/react-refresh-webpack-plugin@npm:0.6.1":
+  version: 0.6.1
+  resolution: "@pmmmwh/react-refresh-webpack-plugin@npm:0.6.1"
   dependencies:
     anser: "npm:^2.1.1"
     core-js-pure: "npm:^3.23.3"
@@ -3230,7 +3230,7 @@ __metadata:
       optional: true
     webpack-plugin-serve:
       optional: true
-  checksum: 10c0/30b07073a47a912264161aeb7dc3ea309d44706405f4e763bb39ad177661762d175b9a11f849cbf25f9a6f9867329d0676a5605ed62afdf2b39768aca74328ee
+  checksum: 10c0/71ca8bbb98fbc7b97a1fd401aad07dc8092e23d9b71431be64b00c587befe5618214536caf01974f4b5b96c6407d246271b7d29346b7321285900aed8673d9a4
   languageName: node
   linkType: hard
 
@@ -5151,7 +5151,7 @@ __metadata:
     "@navikt/aksel-icons": "npm:^7.17.4"
     "@percy/cli": "npm:1.31.0"
     "@percy/cypress": "npm:3.1.6"
-    "@pmmmwh/react-refresh-webpack-plugin": "npm:0.6.0"
+    "@pmmmwh/react-refresh-webpack-plugin": "npm:0.6.1"
     "@tanstack/react-query": "npm:5.81.2"
     "@tanstack/react-query-devtools": "npm:5.81.2"
     "@testing-library/cypress": "npm:10.0.3"
@@ -5198,7 +5198,7 @@ __metadata:
     date-fns: "npm:4.1.0"
     dompurify: "npm:3.2.6"
     dot-object: "npm:2.1.5"
-    dotenv: "npm:16.5.0"
+    dotenv: "npm:17.0.0"
     esbuild-loader: "npm:4.3.0"
     eslint: "npm:9.29.0"
     eslint-config-prettier: "npm:10.1.5"
@@ -7691,7 +7691,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:16.5.0, dotenv@npm:^16.4.2":
+"dotenv@npm:17.0.0":
+  version: 17.0.0
+  resolution: "dotenv@npm:17.0.0"
+  checksum: 10c0/961c9841529f691efb0547cf20b62c952b40e195ef23a254e6b3cd2487bd529b29e194ffcb1f97d4e6a0d9c2df9a6555464f2491da10e725c7bc40855c7b45af
+  languageName: node
+  linkType: hard
+
+"dotenv@npm:^16.4.2":
   version: 16.5.0
   resolution: "dotenv@npm:16.5.0"
   checksum: 10c0/5bc94c919fbd955bf0ba44d33922a1e93d1078e64a1db5c30faeded1d996e7a83c55332cb8ea4fae5a9ca4d0be44cbceb95c5811e70f9f095298df09d1997dd9
