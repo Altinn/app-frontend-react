@@ -117,17 +117,31 @@ export function CustomReceipt() {
   return (
     <FormProvider>
       <Routes>
-        <Route
-          path=':pageKey/:componentId/*'
-          element={
-            <PresentationComponent
-              type={ProcessTaskType.Archived}
-              showNavigation={false}
-            >
-              <ComponentRouting />
-            </PresentationComponent>
-          }
-        />
+        <Route path=':pageKey/:componentId'>
+          <Route
+            index
+            element={
+              <PresentationComponent
+                type={ProcessTaskType.Archived}
+                showNavigation={false}
+              >
+                <ComponentRouting />
+              </PresentationComponent>
+            }
+          />
+          <Route
+            path='*'
+            element={
+              <PresentationComponent
+                type={ProcessTaskType.Archived}
+                showNavigation={false}
+              >
+                <ComponentRouting />
+              </PresentationComponent>
+            }
+          />
+        </Route>
+
         <Route
           path='*'
           element={
