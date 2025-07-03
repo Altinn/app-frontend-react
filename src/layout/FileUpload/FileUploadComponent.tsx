@@ -18,6 +18,7 @@ import { InfectedFileAlert } from 'src/layout/FileUpload/Error/InfectedFileAlert
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
+import { ComponentErrorList } from 'src/layout/GenericComponent';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -41,9 +42,6 @@ export function FileUploadComponent({
     dataModelBindings,
   } = item;
   const isSubformPage = useIsSubformPage();
-  if (isSubformPage) {
-    throw new Error('Cannot use a FileUpload components within a subform');
-  }
 
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
@@ -97,6 +95,15 @@ export function FileUploadComponent({
       addRejectedAttachments(indexedId, rejections);
     }
   };
+
+  if (isSubformPage) {
+    return (
+      <ComponentErrorList
+        baseComponentId={baseComponentId}
+        errors={['Cannot use a FileUpload components within a subform']}
+      />
+    );
+  }
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>

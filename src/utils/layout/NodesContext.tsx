@@ -129,7 +129,7 @@ export type NodesContext = {
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNodes: (request: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
-  addError: (error: string, node: LayoutPage | LayoutNode) => void;
+  addError: (error: string, node: LayoutPage | LayoutNode | string) => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
   addPage: (pageKey: string) => void;
@@ -255,7 +255,8 @@ export function createNodesDataStore({ registry, validationsProcessedLast, ...pr
     addError: (error, node) =>
       set(
         nodesProduce((state) => {
-          const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[node.id];
+          const nodeId = typeof node === 'string' ? node : node instanceof LayoutNode ? node.id : '';
+          const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[nodeId];
 
           if (!data) {
             return;

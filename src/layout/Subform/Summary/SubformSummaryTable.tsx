@@ -15,6 +15,7 @@ import { useIsSubformPage, useNavigate, useNavigationParams } from 'src/features
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsFor } from 'src/features/validation/selectors/componentValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { ComponentErrorList } from 'src/layout/GenericComponent';
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes1 from 'src/layout/Subform/SubformComponent.module.css';
 import classes2 from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
@@ -109,11 +110,6 @@ export function SubformSummaryTable({
   const { id, layoutSet, textResourceBindings, tableColumns = [] } = useItemWhenType(targetBaseComponentId, 'Subform');
 
   const isSubformPage = useIsSubformPage();
-  if (isSubformPage) {
-    window.logErrorOnce('Cannot use a SubformComponent component within a subform');
-    throw new Error('Cannot use a SubformComponent component within a subform');
-  }
-
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const subformIdsWithError =
     useComponentValidationsFor(targetBaseComponentId).find(isSubformValidation)?.subformDataElementIds;
@@ -125,6 +121,15 @@ export function SubformSummaryTable({
 
   const pdfModeActive = usePdfModeActive();
   const dataElements = useStrictDataElements(dataType);
+
+  if (isSubformPage) {
+    return (
+      <ComponentErrorList
+        baseComponentId={targetBaseComponentId}
+        errors={['Cannot use a SubformComponent component within a subform']}
+      />
+    );
+  }
 
   if (dataElements.length == 0) {
     return (

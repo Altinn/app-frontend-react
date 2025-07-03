@@ -81,8 +81,8 @@ function NonMemoGenericComponent<Type extends CompTypes = CompTypes>({
 
   if (generatorErrors && Object.keys(generatorErrors).length > 0) {
     return (
-      <ErrorList
-        node={node}
+      <ComponentErrorList
+        baseComponentId={node.baseId}
         errors={Object.keys(generatorErrors)}
       />
     );
@@ -274,8 +274,7 @@ const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: str
   };
 };
 
-const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => {
-  const id = node.id;
+export function ComponentErrorList({ baseComponentId, errors }: { baseComponentId: string; errors: string[] }) {
   if (!isDev()) {
     return null;
   }
@@ -285,7 +284,7 @@ const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => 
       <h3>
         <Lang
           id='config_error.component_has_errors'
-          params={[id]}
+          params={[baseComponentId]}
         />
       </h3>
       <ul>
@@ -298,4 +297,4 @@ const ErrorList = ({ node, errors }: { node: LayoutNode; errors: string[] }) => 
       </p>
     </div>
   );
-};
+}

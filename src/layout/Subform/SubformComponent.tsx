@@ -19,6 +19,7 @@ import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsFor } from 'src/features/validation/selectors/componentValidationsForNode';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { ComponentErrorList } from 'src/layout/GenericComponent';
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
 import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
@@ -39,11 +40,6 @@ export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<
   } = useItemWhenType(baseComponentId, 'Subform');
 
   const isSubformPage = useIsSubformPage();
-  if (isSubformPage) {
-    window.logErrorOnce('Cannot use a SubformComponent component within a subform');
-    throw new Error('Cannot use a SubformComponent component within a subform');
-  }
-
   const dataType = useDataTypeFromLayoutSet(layoutSet);
 
   if (!dataType) {
@@ -75,6 +71,15 @@ export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<
         currentLock.unlock();
       }
     });
+
+  if (isSubformPage) {
+    return (
+      <ComponentErrorList
+        baseComponentId={baseComponentId}
+        errors={['Cannot use a SubformComponent component within a subform']}
+      />
+    );
+  }
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
