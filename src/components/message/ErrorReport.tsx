@@ -113,6 +113,7 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
         <ErrorReportListItem key={getUniqueKeyFromObject(error)}>
           <Lang
             id={error.message.key}
+            customTextParameters={error.message.customTextParameters}
             params={error.message.params}
           />
         </ErrorReportListItem>
@@ -202,6 +203,7 @@ function ErrorWithLink({ error }: { error: NodeRefValidation }) {
           <Lang
             id={error.message.key}
             params={error.message.params}
+            customTextParameters={error.message.customTextParameters}
           />
         </DataModelLocationProviderFromNode>
       </button>
