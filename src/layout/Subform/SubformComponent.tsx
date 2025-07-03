@@ -198,10 +198,13 @@ function SubformTableRow({
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
 
-  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, {
-    tableColumns,
-    tableEditButton: component?.textResourceBindings?.tableEditButton,
-  });
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
+
+  const editButtonDataSource = useExpressionDataSourcesForSubform(
+    dataElement.dataType,
+    subformData,
+    component?.textResourceBindings?.tableEditButton,
+  );
 
   const { langAsString } = useLanguage();
   const { enterSubform } = useNavigatePage();
@@ -212,7 +215,7 @@ function SubformTableRow({
 
   const editButtonText = component?.textResourceBindings?.tableEditButton
     ? langAsString(
-        evalSubformString(component.textResourceBindings.tableEditButton, subformDataSources, 'general.edit'),
+        evalSubformString(component.textResourceBindings.tableEditButton, editButtonDataSource, 'general.edit'),
       )
     : langAsString('general.edit');
 
