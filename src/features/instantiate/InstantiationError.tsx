@@ -5,6 +5,7 @@ import { InstantiateValidationError } from 'src/features/instantiate/containers/
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { isInstantiationValidationResult } from 'src/features/instantiate/InstantiationValidation';
 import { isAxiosError } from 'src/utils/isAxiosError';
 
 export function InstantiationError() {
@@ -12,10 +13,8 @@ export function InstantiationError() {
   const exception = useInstantiation().error;
 
   if (error === 'forbidden') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const message = isAxiosError(exception) ? (exception.response?.data as any)?.message : undefined;
-    if (message) {
-      return <InstantiateValidationError message={message} />;
+    if (isAxiosError(exception) && isInstantiationValidationResult(exception.response?.data)) {
+      return <InstantiateValidationError validationResult={exception.response.data} />;
     }
 
     return <MissingRolesError />;
