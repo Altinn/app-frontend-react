@@ -29,7 +29,7 @@ export type ValidLangParam = SimpleLangParam | ReactNode | TextReference;
 export type TextReference = {
   key: LooseAutocomplete<ValidLanguageKey> | undefined;
   params?: ValidLangParam[];
-  customTextParameters?: Record<string, string>; // TODO: Implement support for
+  customTextParameters?: Record<string, string>;
   makeLowerCase?: boolean;
 };
 
