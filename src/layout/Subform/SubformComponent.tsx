@@ -39,15 +39,6 @@ export function SubformComponent({ node }: PropsFromGenericComponent<'Subform'>)
     showDeleteButton = true,
   } = useItemWhenType(node.baseId, 'Subform');
 
-  // const {
-  //   id,
-  //   layoutSet,
-  //   textResourceBindings,
-  //   tableColumns = [],
-  //   showAddButton = true,
-  //   showDeleteButton = true,
-  // } = useNodeItem(node);
-
   const isSubformPage = useIsSubformPage();
   if (isSubformPage) {
     window.logErrorOnce('Cannot use a SubformComponent component within a subform');
@@ -206,11 +197,11 @@ function SubformTableRow({
   const component = useExternalItem(node?.baseId, 'Subform');
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
-  const subformDataSources = useExpressionDataSourcesForSubform(
-    dataElement.dataType,
-    subformData,
-    component?.textResourceBindings?.tableEditButton,
-  );
+
+  const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, {
+    tableColumns,
+    tableEditButton: component?.textResourceBindings?.tableEditButton,
+  });
 
   const { langAsString } = useLanguage();
   const { enterSubform } = useNavigatePage();
