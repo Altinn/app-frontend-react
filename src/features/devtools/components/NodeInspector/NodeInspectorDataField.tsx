@@ -11,7 +11,6 @@ import { canBeExpression } from 'src/features/expressions/validation';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useIntermediateItem } from 'src/utils/layout/hooks';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
 
@@ -98,26 +97,6 @@ function ExpandObject(props: { path: string[]; property: string; object: object 
           />
         ))}
       </dl>
-    </Value>
-  );
-}
-
-function OtherNode(props: { property: string; node: LayoutNode }) {
-  const context = useNodeInspectorContext();
-
-  return (
-    <Value property={props.property}>
-      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-      <a
-        href='#'
-        role='button'
-        onClick={(e) => {
-          e.preventDefault();
-          context.selectNode(props.node.id);
-        }}
-      >
-        {props.node.id}
-      </a>
     </Value>
   );
 }
@@ -246,15 +225,6 @@ function NodeInspectorDataFieldInner({
       >
         [uttrykk med ukjent verdi]
       </Value>
-    );
-  }
-
-  if (typeof value === 'object' && value instanceof LayoutNode) {
-    return (
-      <OtherNode
-        property={property}
-        node={value}
-      />
     );
   }
 
