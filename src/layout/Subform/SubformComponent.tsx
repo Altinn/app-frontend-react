@@ -22,9 +22,10 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { ComponentErrorList } from 'src/layout/GenericComponent';
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/SubformComponent.module.css';
-import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
+import { evalSubformString, useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
 import utilClasses from 'src/styles/utils.module.css';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IData } from 'src/types/shared';
@@ -200,15 +201,30 @@ function SubformTableRow({
 }) {
   const id = dataElement.id;
   const { tableColumns = [] } = useItemWhenType(baseComponentId, 'Subform');
+
+  const component = useExternalItem(baseComponentId, 'Subform');
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
+
   const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
+
+  const editButtonDataSource = useExpressionDataSourcesForSubform(
+    dataElement.dataType,
+    subformData,
+    component?.textResourceBindings?.tableEditButton,
+  );
+
   const { langAsString } = useLanguage();
   const { enterSubform } = useNavigatePage();
   const [isDeleting, setIsDeleting] = useState(false);
 
   const deleteEntryMutation = useDeleteEntryMutation(id);
   const deleteButtonText = langAsString('general.delete');
-  const editButtonText = langAsString('general.edit');
+
+  const editButtonText = component?.textResourceBindings?.tableEditButton
+    ? langAsString(
+        evalSubformString(component.textResourceBindings.tableEditButton, editButtonDataSource, 'general.edit'),
+      )
+    : langAsString('general.edit');
   const nodeId = useIndexedId(baseComponentId);
 
   const numColumns = tableColumns.length;

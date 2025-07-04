@@ -4,8 +4,8 @@ import { Button } from 'src/app-components/Button/Button';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useAttachmentState } from 'src/features/attachments/hooks';
 import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
-import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useProcessQuery, useTaskTypeFromBackend } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
@@ -28,7 +28,7 @@ export const ButtonComponent = ({ baseComponentId, ...componentProps }: PropsFro
   const props: IButtonProvidedProps = { baseComponentId, ...componentProps, ...item };
 
   const currentTaskType = useTaskTypeFromBackend();
-  const { actions, write } = useLaxProcessData()?.currentTask || {};
+  const { actions, write } = useProcessQuery().data?.currentTask || {};
   const attachmentState = useAttachmentState();
   const processNext = useProcessNext();
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();

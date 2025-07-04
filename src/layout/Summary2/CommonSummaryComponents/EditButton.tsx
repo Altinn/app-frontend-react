@@ -61,7 +61,10 @@ export function EditButton({
   const pdfModeActive = usePdfModeActive();
   const isMobile = useIsMobile();
 
-  const { textResourceBindings } = useItemFor(targetBaseComponentId);
+  const componentConfig = useItemFor(targetBaseComponentId);
+  const { textResourceBindings } = componentConfig;
+
+  const isReadOnly = 'readOnly' in componentConfig && componentConfig.readOnly === true;
   const titleTrb = textResourceBindings && 'title' in textResourceBindings ? textResourceBindings.title : undefined;
   const accessibleTitle = titleTrb ? langAsString(titleTrb) : '';
 
@@ -69,6 +72,10 @@ export function EditButton({
   const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
   const indexedId = useIndexedId(targetBaseComponentId, skipLastIdMutator);
   const summary2Id = useSummaryProp('id');
+
+  if (isReadOnly) {
+    return null;
+  }
 
   if (overriddenDataModelUuid) {
     return null;
