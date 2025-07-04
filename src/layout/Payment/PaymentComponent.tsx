@@ -4,7 +4,7 @@ import { Alert } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useProcessConfirm, useProcessReject } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { usePayment } from 'src/features/payment/PaymentProvider';
@@ -17,8 +17,9 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>) => {
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, process } = useIsProcessing<'next' | 'reject'>();
+  const { mutate: processConfirm, isPending: isConfirming } = useProcessConfirm();
+  const { mutate: processReject, isPending: isRejecting } = useProcessReject();
+  const { isAnyProcessing } = useIsProcessing<'next' | 'reject'>();
   const paymentInfo = usePaymentInformation();
   const { performPayment, paymentError } = usePayment();
   const { title, description } = useItemWhenType(node.baseId, 'Payment').textResourceBindings ?? {};
@@ -26,6 +27,8 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
   if (useIsSubformPage()) {
     throw new Error('Cannot use PaymentComponent in a subform');
   }
+
+  const disabled = isAnyProcessing || isConfirming || isRejecting;
 
   return (
     <ComponentStructureWrapper node={node}>
@@ -52,9 +55,9 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
             <>
               <Button
                 variant='secondary'
-                disabled={isAnyProcessing}
-                isLoading={process === 'reject'}
-                onClick={() => performProcess('reject', () => processNext({ action: 'reject' }))}
+                disabled={disabled}
+                isLoading={isRejecting}
+                onClick={() => processReject()}
               >
                 <Lang id='general.back' />
               </Button>
@@ -69,9 +72,9 @@ export const PaymentComponent = ({ node }: PropsFromGenericComponent<'Payment'>)
           {paymentInfo?.status === PaymentStatus.Paid && (
             <Button
               variant='secondary'
-              disabled={isAnyProcessing}
-              isLoading={process === 'next'}
-              onClick={() => performProcess('next', () => processNext({ action: 'confirm' }))}
+              disabled={disabled}
+              isLoading={isConfirming}
+              onClick={() => processConfirm()}
             >
               <Lang id='general.next' />
             </Button>

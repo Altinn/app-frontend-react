@@ -3,7 +3,6 @@ import React from 'react';
 import type { PropsFromGenericComponent } from '..';
 
 import { Button, type ButtonColor, type ButtonVariant } from 'src/app-components/Button/Button';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
@@ -20,12 +19,10 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ node }: IActionButton) {
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const { mutate: processNext, isPending: isPerformingProcessNext } = useProcessNext();
   const isAuthorized = useIsAuthorized();
 
   const { action, buttonStyle, id, textResourceBindings } = useItemWhenType(node.baseId, 'ActionButton');
-  const disabled = !isAuthorized(action) || isAnyProcessing;
 
   if (useIsSubformPage()) {
     throw new Error('Cannot use process navigation in a subform');
@@ -40,9 +37,9 @@ export function ActionButtonComponent({ node }: IActionButton) {
         id={`action-button-${id}`}
         variant={variant}
         color={color}
-        disabled={disabled}
-        isLoading={isThisProcessing}
-        onClick={() => performProcess(() => processNext({ action }))}
+        disabled={!isAuthorized(action)}
+        isLoading={isPerformingProcessNext}
+        onClick={() => processNext({ action })}
       >
         <Lang id={textResourceBindings?.title ?? `actions.${action}`} />
       </Button>
