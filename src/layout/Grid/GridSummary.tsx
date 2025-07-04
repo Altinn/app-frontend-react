@@ -49,7 +49,6 @@ import type {
   ITableColumnProperties,
 } from 'src/layout/common.generated';
 import type { CompTypes, ITextResourceBindings } from 'src/layout/layout';
-import type { EditButtonProps } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export const GridSummary = ({ targetBaseComponentId }: Summary2Props) => {
@@ -173,7 +172,7 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   const isHiddenSelector = Hidden.useIsHiddenSelector();
   const pdfModeActive = usePdfModeActive();
   const isSmall = isMobile && !pdfModeActive;
-  const firstNodeId = useFirstFormNodeId(row);
+  const firstComponentId = useFirstFormComponentId(row);
 
   const idMutator = useComponentIdMutator();
   const onlyEmptyChildren = useHasOnlyEmptyChildren();
@@ -217,7 +216,7 @@ function SummaryGridRowRenderer(props: GridRowProps) {
           )}
           {!pdfModeActive && !row.header && !isSmall && (
             <Table.Cell align='right'>
-              {firstNodeId && !row.readOnly && <WrappedEditButton componentNodeId={firstNodeId} />}
+              {firstComponentId && !row.readOnly && <EditButton targetBaseComponentId={firstComponentId} />}
             </Table.Cell>
           )}
         </Table.Row>
@@ -226,9 +225,8 @@ function SummaryGridRowRenderer(props: GridRowProps) {
   );
 }
 
-function useFirstFormNodeId(row: GridRow): string | undefined {
+function useFirstFormComponentId(row: GridRow): string | undefined {
   const layoutLookups = useLayoutLookups();
-  const idMutator = useComponentIdMutator();
   const canRender = useHasCapability('renderInTable');
   return useMemo(() => {
     for (const cell of row.cells) {
@@ -236,29 +234,12 @@ function useFirstFormNodeId(row: GridRow): string | undefined {
         const type = layoutLookups.getComponent(cell.component)?.type;
         const def = getComponentDef(type);
         if (def && def.category === CompCategory.Form) {
-          return idMutator(cell.component);
+          return cell.component;
         }
       }
     }
     return undefined;
-  }, [canRender, idMutator, layoutLookups, row.cells]);
-}
-
-function WrappedEditButton({
-  componentNodeId,
-  ...rest
-}: { componentNodeId: string } & Omit<EditButtonProps, 'targetBaseComponentId'>) {
-  const node = useNode(componentNodeId);
-  if (!node) {
-    return null;
-  }
-
-  return (
-    <EditButton
-      targetBaseComponentId={node.baseId}
-      {...rest}
-    />
-  );
+  }, [canRender, layoutLookups, row.cells]);
 }
 
 interface CellProps extends GridRowProps {
@@ -269,14 +250,14 @@ interface CellProps extends GridRowProps {
 
 function SummaryCell(props: CellProps) {
   const cell = props.headerRow?.cells[props.idx];
-  const referencedNode = useNode(cell && 'labelFrom' in cell ? cell.labelFrom : undefined);
+  const referencedId = cell && 'labelFrom' in cell ? cell.labelFrom : undefined;
   const { langAsString } = useLanguage();
 
-  if (referencedNode) {
+  if (referencedId) {
     return (
       <SummaryCellInnerWithLabel
         {...props}
-        labelFrom={referencedNode}
+        labelFrom={referencedId}
       />
     );
   }
@@ -289,9 +270,9 @@ function SummaryCell(props: CellProps) {
   );
 }
 
-function SummaryCellInnerWithLabel(props: CellProps & { labelFrom: LayoutNode }) {
+function SummaryCellInnerWithLabel(props: CellProps & { labelFrom: string }) {
   const { langAsString, langAsNonProcessedString } = useLanguage();
-  const item = useItemFor(props.labelFrom.baseId);
+  const item = useItemFor(props.labelFrom);
   const required = 'required' in item ? item.required : false;
   const title =
     item.textResourceBindings && 'title' in item.textResourceBindings ? item.textResourceBindings.title : undefined;
@@ -507,20 +488,15 @@ function SummaryCellWithLabel({
   headerTitle,
   isSmall,
 }: CellWithLabelProps) {
-  const referenceNode = useNode(cell.labelFrom);
-  const refItem = useItemFor(referenceNode.baseId);
+  const refItem = useItemFor(cell.labelFrom);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
     | ITextResourceBindings
     | undefined;
   const title = trb && 'title' in trb ? trb.title : undefined;
-  const required = (referenceNode && refItem && 'required' in refItem && refItem.required) ?? false;
+  const required = (refItem && 'required' in refItem && refItem.required) ?? false;
 
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-
-  if (!referenceNode) {
-    return <CellComponent />;
-  }
 
   return (
     <CellComponent
@@ -528,13 +504,11 @@ function SummaryCellWithLabel({
       style={columnStyles}
       data-header-title={isSmall ? headerTitle : ''}
     >
-      {referenceNode && (
-        <LabelContent
-          componentId={referenceNode.id}
-          label={title}
-          required={required}
-        />
-      )}
+      <LabelContent
+        id={useIndexedId(cell.labelFrom)}
+        label={title}
+        required={required}
+      />
     </CellComponent>
   );
 }
