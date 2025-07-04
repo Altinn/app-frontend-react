@@ -13,15 +13,16 @@ import { SplitView } from 'src/features/devtools/components/SplitView/SplitView'
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
-import { implementsAnyValidation } from 'src/layout';
+import { getComponentDef, implementsAnyValidation } from 'src/layout';
 import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
-import { useNode } from 'src/utils/layout/NodesContext';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 
 export const NodeInspector = () => {
   const pageKey = useCurrentView();
   const selectedId = useDevToolsStore((state) => state.nodeInspector.selectedNodeId);
-  const selectedNode = useNode(selectedId);
+  const { baseComponentId } = splitDashedKey(selectedId ?? '');
   const lookups = useLayoutLookups();
+  const def = baseComponentId ? getComponentDef(lookups.getComponent(baseComponentId).type) : undefined;
   const children = pageKey ? lookups.topLevelComponents[pageKey] : undefined;
   const setSelected = useDevToolsStore((state) => state.actions.nodeInspectorSet);
   const focusLayoutInspector = useDevToolsStore((state) => state.actions.focusLayoutInspector);
@@ -38,7 +39,7 @@ export const NodeInspector = () => {
           onClick={setSelected}
         />
       </div>
-      {selectedId && selectedNode && (
+      {selectedId && def && baseComponentId && (
         <>
           <div className={reusedClasses.closeButtonContainer}>
             <div className={reusedClasses.closeButtonBackground}>
@@ -63,39 +64,41 @@ export const NodeInspector = () => {
               selectNode: setSelected,
             }}
           >
-            <Tabs
-              data-size='sm'
-              defaultValue='properties'
-              className={reusedClasses.tabs}
-            >
-              <Tabs.List className={reusedClasses.tabList}>
-                <Tabs.Tab value='properties'>Egenskaper</Tabs.Tab>
-                {implementsAnyValidation(selectedNode.def) && <Tabs.Tab value='validation'>Validering</Tabs.Tab>}
-              </Tabs.List>
-              <Tabs.Panel value='properties'>
-                <div className={reusedClasses.properties}>
-                  <div className={reusedClasses.headerLink}>
-                    <a
-                      href='#'
-                      onClick={(e) => {
-                        e.preventDefault();
-                        focusLayoutInspector(selectedNode?.baseId);
-                      }}
-                    >
-                      Rediger konfigurasjonen i Layout-fanen
-                    </a>
+            <DataModelLocationProviderFromNode nodeId={selectedId}>
+              <Tabs
+                data-size='sm'
+                defaultValue='properties'
+                className={reusedClasses.tabs}
+              >
+                <Tabs.List className={reusedClasses.tabList}>
+                  <Tabs.Tab value='properties'>Egenskaper</Tabs.Tab>
+                  {implementsAnyValidation(def) && <Tabs.Tab value='validation'>Validering</Tabs.Tab>}
+                </Tabs.List>
+                <Tabs.Panel value='properties'>
+                  <div className={reusedClasses.properties}>
+                    <div className={reusedClasses.headerLink}>
+                      <a
+                        href='#'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          focusLayoutInspector(baseComponentId);
+                        }}
+                      >
+                        Rediger konfigurasjonen i Layout-fanen
+                      </a>
+                    </div>
+                    <DataModelLocationProviderFromNode nodeId={selectedId}>
+                      {def.renderDevToolsInspector(baseComponentId)}
+                    </DataModelLocationProviderFromNode>
                   </div>
-                  <DataModelLocationProviderFromNode nodeId={selectedNode.id}>
-                    {selectedNode.def.renderDevToolsInspector(selectedNode.baseId)}
-                  </DataModelLocationProviderFromNode>
-                </div>
-              </Tabs.Panel>
-              <Tabs.Panel value='validation'>
-                <div className={reusedClasses.scrollable}>
-                  <ValidationInspector node={selectedNode} />
-                </div>
-              </Tabs.Panel>
-            </Tabs>
+                </Tabs.Panel>
+                <Tabs.Panel value='validation'>
+                  <div className={reusedClasses.scrollable}>
+                    <ValidationInspector baseComponentId={baseComponentId} />
+                  </div>
+                </Tabs.Panel>
+              </Tabs>
+            </DataModelLocationProviderFromNode>
           </NodeInspectorContextProvider>
         </>
       )}
