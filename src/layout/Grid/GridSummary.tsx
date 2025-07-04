@@ -15,7 +15,7 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { getComponentDef, implementsDisplayData } from 'src/layout';
 import { CompCategory } from 'src/layout/common';
-import { GenericComponentByBaseId } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Grid/GridSummary.module.css';
 import { isGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
@@ -420,7 +420,7 @@ function SummaryCellWithComponent({
   const displayData = useDisplayData(baseComponentId);
   const validations = useUnifiedValidationsForNode(baseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const isHidden = Hidden.useIsHidden(useIndexedId(baseComponentId));
+  const isHidden = Hidden.useIsHidden(useIndexedId(baseComponentId), 'node');
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const item = useItemFor(baseComponentId);
   const textResourceBindings = item.textResourceBindings;
@@ -554,8 +554,8 @@ function getComponentCellData<T extends CompTypes>(
     return <Lang id={textResourceBindings.title} />;
   } else {
     return (
-      <GenericComponentByBaseId
-        id={baseComponentId}
+      <GenericComponent
+        baseComponentId={baseComponentId}
         overrideDisplay={{
           renderLabel: false,
           renderLegend: false,

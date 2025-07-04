@@ -22,7 +22,7 @@ export const LinkToPotentialNode = (props: Props) => {
   const resolvedNode = useNode(componentId ?? undefined);
 
   const nodeExists = resolvedNode != null;
-  const isNodeHidden = Hidden.useIsHidden(resolvedNode);
+  const isNodeHidden = Hidden.useIsHidden(resolvedNode?.id, 'node');
   const shouldShowLink = nodeExists && !isNodeHidden;
 
   if (shouldShowLink) {

@@ -140,7 +140,7 @@ function RegularRepeatingGroupRow({
   const childSummaryComponents = children
     .filter((n) => !inExcludedChildren(n))
     .map((child) => {
-      if (!isHidden(child) && child.isCategory(CompCategory.Form)) {
+      if (!isHidden(child.id, 'node') && child.isCategory(CompCategory.Form)) {
         return { component: child.def.renderCompactSummary.bind(child.def), id: child.baseId };
       }
     })
@@ -187,7 +187,7 @@ function LargeRepeatingGroup({ targetBaseComponentId, overrides, inExcludedChild
             baseComponentId={targetBaseComponentId}
             restriction={row.index}
             renderLayoutNode={(n) => {
-              if (inExcludedChildren(n) || isHidden(n)) {
+              if (inExcludedChildren(n) || isHidden(n.id, 'node')) {
                 return null;
               }
 

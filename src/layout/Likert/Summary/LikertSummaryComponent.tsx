@@ -66,7 +66,7 @@ export function LikertSummaryComponent({
               likertBaseId={targetBaseComponentId}
               restriction={row.index}
               renderLayoutNode={(n) => {
-                if (inExcludedChildren(n) || isHidden(n)) {
+                if (inExcludedChildren(n) || isHidden(n.id, 'node')) {
                   return null;
                 }
 
@@ -162,7 +162,7 @@ function Row({ row, inExcludedChildren, onChangeClick, changeText, targetBaseCom
   if (!node || inExcludedChildren(node)) {
     return null;
   }
-  if (isHidden(node) || !node.isCategory(CompCategory.Form)) {
+  if (isHidden(node.id, 'node') || !node.isCategory(CompCategory.Form)) {
     return null;
   }
 

@@ -10,7 +10,7 @@ import type { CompExternal } from 'src/layout/layout';
 const render = async (component: Partial<CompExternal> = {}, waitUntilLoaded = true) =>
   await renderWithNode({
     nodeId: component.id ?? 'mockId',
-    renderer: ({ node }) => <GenericComponent node={node} />,
+    renderer: ({ node }) => <GenericComponent baseComponentId={node.baseId} />,
     waitUntilLoaded,
     inInstance: true,
     queries: {

@@ -87,7 +87,7 @@ interface PageProps {
 
 function PageGenerator({ layout, name, layoutSet }: PageProps) {
   const page = useMemo(() => new LayoutPage(), []);
-  useGeneratorErrorBoundaryNodeRef().current = page;
+  useGeneratorErrorBoundaryNodeRef().current = { type: 'page', id: page.pageKey };
   const layoutLookups = useLayoutLookups();
   const topLevel = layoutLookups.topLevelComponents[name];
   const pageOrder = useRawPageOrder();
@@ -121,7 +121,7 @@ function PageGenerator({ layout, name, layoutSet }: PageProps) {
       </GeneratorCondition>
       {GeneratorDebug.displayState && <h2>Page: {name}</h2>}
       <GeneratorPageProvider
-        parent={page}
+        parent={page.pageKey}
         isValid={isValid}
       >
         <GenerateNodeChildren

@@ -6,8 +6,6 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompIntermediate, CompIntermediateExact, CompTypes, ILayouts } from 'src/layout/layout';
 import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { MultiPageMapping } from 'src/utils/layout/generator/NodeRepeatingChildren';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export type ChildIdMutator = (id: string) => string;
 export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompIntermediate<T>) => void;
@@ -27,12 +25,12 @@ export interface ChildClaimsMap {
 type GlobalProviderProps = Pick<GeneratorContext, 'layouts' | 'registry'>;
 
 type PageProviderProps = Pick<GeneratorContext, 'isValid'> & {
-  parent: LayoutPage;
+  parent: string;
 };
 
 type NodeGeneratorProps = {
   item: CompIntermediateExact<CompTypes>;
-  parent: LayoutNode;
+  parent: string;
 };
 
 type RowGeneratorProps = Pick<
@@ -48,8 +46,9 @@ interface GeneratorContext {
   idMutators?: ChildIdMutator[];
   recursiveMutators?: ChildMutator[];
   layouts: ILayouts;
-  page: LayoutPage | undefined;
-  parent: LayoutNode | LayoutPage | undefined;
+  pageKey: string | undefined;
+  parent: string | undefined;
+  parentType: 'node' | 'page' | undefined;
   item: CompIntermediateExact<CompTypes> | undefined;
   forceHidden: boolean;
   multiPageMapping?: MultiPageMapping;
@@ -84,6 +83,7 @@ export function GeneratorNodeProvider({ children, parent, item }: PropsWithChild
       // Inherit all values from the parent, overwrite with our own if they are passed
       ...parentCtx,
       parent,
+      parentType: 'node',
       item,
       multiPageMapping: undefined,
 
@@ -108,7 +108,8 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
   const value: GeneratorContext = useMemo(
     () => ({
       ...parent,
-      page: rest.parent,
+      pageKey: rest.parent,
+      parentType: 'page',
 
       // For a page, the depth starts at 1 because in principle the page is the top level node, at depth 0, so
       // when a page provides a depth indicator to its children (the top level components on that page), it should be 1.
@@ -168,7 +169,8 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
       multiPageIndex: undefined,
       childrenMap: undefined,
       parent: undefined,
-      page: undefined,
+      parentType: undefined,
+      pageKey: undefined,
       forceHidden: false,
       ...rest,
     }),
@@ -187,8 +189,11 @@ export const GeneratorInternal = {
   useRecursiveMutators: () => useCtx().recursiveMutators ?? emptyArray,
   useDepth: () => useCtx().depth,
   useLayouts: () => useCtx().layouts,
-  useParent: () => useCtx().parent,
-  usePage: () => useCtx().page,
+  useParent: () => {
+    const ctx = useCtx();
+    return { type: ctx.parentType, id: ctx.parent };
+  },
+  usePage: () => useCtx().pageKey,
   useRowIndex: () => useCtx().row?.index,
   useMultiPageIndex: (baseId: string) => useCtx().multiPageMapping?.[baseId] ?? undefined,
   useIntermediateItem: () => useCtx().item,

@@ -29,7 +29,7 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities } from 'src/layout';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 import type { NavigateToComponentOptions } from 'src/features/form/layout/NavigateToNode';
@@ -118,9 +118,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
         alignItems='flex-start'
       >
         {mainIds.map((id) => (
-          <GenericComponentById
+          <GenericComponent
             key={id}
-            id={id}
+            baseComponentId={id}
           />
         ))}
         <Flex
@@ -139,9 +139,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
             }
           >
             {errorReportIds.map((id) => (
-              <GenericComponentById
+              <GenericComponent
                 key={id}
-                id={id}
+                baseComponentId={id}
               />
             ))}
           </ErrorReport>

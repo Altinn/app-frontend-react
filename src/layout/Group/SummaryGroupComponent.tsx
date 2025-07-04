@@ -68,7 +68,7 @@ export function SummaryGroupComponent({
   }
 
   const childSummaryComponents = children.map((child) => {
-    if (!child.isCategory(CompCategory.Form) || isHidden(child)) {
+    if (!child.isCategory(CompCategory.Form) || isHidden(child.id, 'node')) {
       return;
     }
     const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<SummaryRendererProps>;
@@ -137,7 +137,7 @@ function SummaryComponentFromNode({
   overrides,
 }: SummaryComponentFromRefProps) {
   const node = useNode(useIndexedId(targetBaseComponentId));
-  const isHidden = Hidden.useIsHidden(node);
+  const isHidden = Hidden.useIsHidden(node.id, 'node');
   if (inExcludedChildren(node) || isHidden) {
     return null;
   }

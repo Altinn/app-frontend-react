@@ -36,7 +36,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
 
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
   const id = useIndexedId(baseComponentId);
-  const isHidden = Hidden.useIsHidden(id);
+  const isHidden = Hidden.useIsHidden(id, 'node');
 
   if (isHidden) {
     return null;

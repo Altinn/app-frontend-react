@@ -14,7 +14,7 @@ import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
-import { GenericComponent, GenericComponentByBaseId } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import {
   isGridCellLabelFrom,
@@ -199,7 +199,7 @@ function CellWithComponent({
   rowReadOnly,
 }: CellWithComponentProps) {
   const node = useNode(nodeId);
-  const isHidden = Hidden.useIsHidden(node);
+  const isHidden = Hidden.useIsHidden(node?.id, 'node');
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
 
   if (node && !isHidden) {
@@ -210,7 +210,7 @@ function CellWithComponent({
         style={columnStyles}
       >
         <GenericComponent
-          node={node}
+          baseComponentId={node.baseId}
           overrideDisplay={{
             renderLabel: false,
             renderLegend: false,
@@ -286,6 +286,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
 function MobileGrid({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Grid'>) {
   const baseIds = useBaseIdsFromGrid(baseComponentId);
   const isHidden = Hidden.useIsHiddenSelector();
+  const idMutator = useComponentIdMutator();
 
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
     baseComponentId,
@@ -302,11 +303,11 @@ function MobileGrid({ baseComponentId, overrideDisplay }: PropsFromGenericCompon
       className={css.mobileFieldset}
     >
       {baseIds
-        .filter((childId) => !isHidden(childId))
+        .filter((childId) => !isHidden(idMutator(childId), 'node'))
         .map((childId) => (
-          <GenericComponentByBaseId
+          <GenericComponent
             key={childId}
-            id={childId}
+            baseComponentId={childId}
           />
         ))}
     </Fieldset>

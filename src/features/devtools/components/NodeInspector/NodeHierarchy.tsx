@@ -65,7 +65,7 @@ const NodeHierarchyItem = ({ baseId, onClick, selected }: INodeHierarchyItemProp
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
   const children = useNodeDirectChildren(node);
   const hasChildren = children.length > 0;
-  const isHidden = Hidden.useIsHidden(node, { respectDevTools: false });
+  const isHidden = Hidden.useIsHidden(node.id, 'node', { respectDevTools: false });
 
   const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
