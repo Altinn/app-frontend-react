@@ -3,10 +3,10 @@ import React from 'react';
 import { Details } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import classes from 'src/app-components/Accordion/Accordion.module.css';
+import classes from 'src/app-components/Accordion/AccordionItem.module.css';
 
 interface AccordionProps {
-  title: string;
+  title: React.ReactNode;
   children: React.ReactNode;
   className?: string;
   open?: boolean;
@@ -14,7 +14,7 @@ interface AccordionProps {
   onToggle?: (isOpen: boolean) => void;
 }
 
-export const Accordion = ({
+export const AccordionItem = ({
   title,
   children,
   className,

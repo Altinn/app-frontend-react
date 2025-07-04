@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Card } from '@digdir/designsystemet-react';
 
-import { Accordion as AccordionComponent } from 'src/app-components/Accordion/Accordion';
+import { AccordionItem as AccordionComponent } from 'src/app-components/Accordion/AccordionItem';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/Accordion/Accordion.module.css';
