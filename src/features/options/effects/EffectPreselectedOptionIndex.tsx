@@ -20,7 +20,7 @@ interface Props {
  */
 export function EffectPreselectedOptionIndex({ preselectedOption, valueType, options }: Props) {
   const parent = GeneratorInternal.useParent();
-  const isHidden = Hidden.useIsHidden(parent.id, parent.type);
+  const isHidden = Hidden.useIsHidden(parent.indexedId, parent.type);
   const hasSelectedInitial = useRef(false);
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;

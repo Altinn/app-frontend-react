@@ -25,7 +25,7 @@ interface Props {
 export function EffectStoreLabelInGroup({ options }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const parent = GeneratorInternal.useParent();
-  const isHidden = Hidden.useIsHidden(parent.id, parent.type);
+  const isHidden = Hidden.useIsHidden(parent.indexedId, parent.type);
   const { langAsString } = useLanguage();
   const setLeafValue = FD.useSetLeafValue();
   const formDataSelector = FD.useCurrentSelector();

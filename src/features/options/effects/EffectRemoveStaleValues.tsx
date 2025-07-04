@@ -22,7 +22,7 @@ interface Props {
  */
 export function EffectRemoveStaleValues({ valueType, options }: Props) {
   const parent = GeneratorInternal.useParent();
-  const isHidden = Hidden.useIsHidden(parent.id, parent.type);
+  const isHidden = Hidden.useIsHidden(parent.indexedId, parent.type);
 
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;

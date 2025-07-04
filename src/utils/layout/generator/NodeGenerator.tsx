@@ -69,7 +69,7 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
         <MarkAsHidden {...commonProps} />
       </GeneratorCondition>
       <GeneratorNodeProvider
-        parent={externalItem.id}
+        parentBaseId={externalItem.id}
         item={intermediateItem}
       >
         <GeneratorCondition
@@ -123,7 +123,7 @@ function AddRemoveNode<T extends CompTypes>({
   const stateFactoryProps = {
     id: intermediateItem.id,
     baseId: baseComponentId,
-    parentId: parent?.type === 'node' ? parent.id : undefined,
+    parentId: parent?.type === 'node' ? parent.indexedId : undefined,
     depth,
     rowIndex,
     pageKey,

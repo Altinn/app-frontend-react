@@ -40,7 +40,7 @@ export function RunOptionsEffects({ valueType }: RunOptionEffectsProps) {
   // we don't store option values here so it makes no sense to do this,
   // consider solving this more elegantly in the future.
   // AFAIK, stale values are not removed from attachment tags, maybe they should?
-  const parentComponent = parent.type === 'node' ? lookups.getComponent(parent.id) : undefined;
+  const parentComponent = parent.type === 'node' ? lookups.getComponent(parent.baseId) : undefined;
   const shouldRemoveStaleValues =
     parentComponent?.type !== 'FileUploadWithTag' && !('renderAsSummary' in item && item.renderAsSummary);
 

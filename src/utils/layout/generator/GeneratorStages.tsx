@@ -494,10 +494,10 @@ interface WhenProps extends PropsWithChildren {
 
 function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {
   const parent = GeneratorInternal.useParent();
-  const ready = NodesInternal.useIsAdded(parent.id, parent.type);
+  const ready = NodesInternal.useIsAdded(parent.indexedId, parent.type);
   useMarkFinished(id, stage, ready);
   registryRef.current.conditions =
-    parent.type === 'node' ? `node ${parent.id} must be added` : `page ${parent?.id} must be added`;
+    parent.type === 'node' ? `node ${parent.indexedId} must be added` : `page ${parent?.indexedId} must be added`;
 
   return ready ? children : null;
 }
@@ -505,13 +505,13 @@ function WhenParentAdded({ id, stage, registryRef, children }: WhenProps) {
 function WhenAllAdded({ id, stage, registryRef, children }: WhenProps) {
   const parent = GeneratorInternal.useParent();
   const allAdded = GeneratorStages.useIsDoneAddingNodes();
-  const parentAdded = NodesInternal.useIsAdded(parent.id, parent.type);
+  const parentAdded = NodesInternal.useIsAdded(parent.indexedId, parent.type);
   const ready = allAdded && parentAdded;
   useMarkFinished(id, stage, ready);
   registryRef.current.conditions =
     parent.type === 'node'
-      ? `node ${parent.id} and all others are added`
-      : `page ${parent?.id} and all others are added`;
+      ? `node ${parent.indexedId} and all others are added`
+      : `page ${parent?.indexedId} and all others are added`;
 
   return ready ? children : null;
 }

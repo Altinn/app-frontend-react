@@ -8,7 +8,7 @@ import { useRegisterNavigationHandler } from 'src/features/form/layout/NavigateT
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
-import { renderWithNode } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { ILayoutCollection } from 'src/layout/layout';
 
 type NodeId = 'input1' | 'input2' | 'input3' | 'repeating-group';
@@ -145,13 +145,11 @@ describe('RepeatingGroupTableSummary', () => {
   };
 
   const render = async ({ navigate = jest.fn(), layout = layoutWithHidden([]) }: IRenderProps = {}) =>
-    await renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
-      nodeId: 'repeating-group',
-      inInstance: true,
-      renderer: ({ node }) => (
+    await renderWithInstanceAndLayout({
+      renderer: (
         <NavigationHook fn={navigate}>
-          <RepeatingGroupProvider baseComponentId={node.baseId}>
-            <RepeatingGroupTableSummary baseComponentId={node.baseId} />
+          <RepeatingGroupProvider baseComponentId='repeating-group'>
+            <RepeatingGroupTableSummary baseComponentId='repeating-group' />
           </RepeatingGroupProvider>
         </NavigationHook>
       ),

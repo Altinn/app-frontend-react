@@ -1054,7 +1054,7 @@ export const NodesInternal = {
       if (type === undefined) {
         throw new Error('useIsAdded() requires an id and a type. When id is given, type has to be given too.');
       }
-      if (type === 'node') {
+      if (type === 'page') {
         return s.pagesData.pages[id] !== undefined;
       }
       return s.nodeData[id] !== undefined;

@@ -10,7 +10,6 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useLaxInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition, StageFormValidation } from 'src/utils/layout/generator/GeneratorStages';
@@ -38,19 +37,18 @@ export function StoreAttachmentsInNode() {
 
 function StoreAttachmentsInNodeWorker() {
   const parent = GeneratorInternal.useParent();
-  if (parent?.type !== 'node' || !parent.id) {
+  if (parent?.type !== 'node' || !parent.baseId || !parent.indexedId) {
     throw new Error('StoreAttachmentsInNodeWorker must be used inside a node');
   }
-  const parentIndexedId = useIndexedId(parent.id);
   const item = GeneratorInternal.useIntermediateItem();
   const attachments = useNodeAttachments();
-  const errors = NodesInternal.useNodeErrors(parentIndexedId);
+  const errors = NodesInternal.useNodeErrors(parent.indexedId);
   const hasErrors = errors && Object.values(errors).length > 0;
 
-  const hasBeenSet = NodesInternal.useNodeData(parentIndexedId, undefined, (data) =>
+  const hasBeenSet = NodesInternal.useNodeData(parent.indexedId, undefined, (data) =>
     deepEqual('attachments' in data ? data.attachments : undefined, attachments),
   );
-  NodesStateQueue.useSetNodeProp({ nodeId: parentIndexedId, prop: 'attachments', value: attachments }, !hasBeenSet);
+  NodesStateQueue.useSetNodeProp({ nodeId: parent.indexedId, prop: 'attachments', value: attachments }, !hasBeenSet);
 
   if (hasErrors) {
     // If there are errors, we don't want to run the effects. It could be the case that multiple FileUpload components
@@ -77,26 +75,25 @@ function StoreAttachmentsInNodeWorker() {
 
 function useNodeAttachments(): AttachmentRecord {
   const parent = GeneratorInternal.useParent();
-  if (!parent.id) {
+  if (!parent.baseId || !parent.indexedId || parent.type !== 'node') {
     throw new Error('useNodeAttachments must be used inside a node');
   }
-  const nodeId = useIndexedId(parent.id);
-  const baseId = parent.id;
-  const nodeData = useFormDataFor(parent.id) as IComponentFormData<CompWithBehavior<'canHaveAttachments'>>;
+  const { indexedId, baseId } = parent;
+  const nodeData = useFormDataFor(baseId) as IComponentFormData<CompWithBehavior<'canHaveAttachments'>>;
 
   const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
 
   const application = useApplicationMetadata();
   const currentTask = useProcessQuery().data?.currentTask?.elementId;
-  const data = useLaxInstanceDataElements(parent.id);
+  const data = useLaxInstanceDataElements(baseId);
 
   const mappedAttachments = useMemoDeepEqual(() => {
     const taskId = overriddenTaskId ? overriddenTaskId : currentTask;
 
-    return mapAttachments(nodeId, baseId, data, application, taskId, nodeData);
-  }, [nodeId, baseId, data, application, currentTask, nodeData, overriddenTaskId]);
+    return mapAttachments(indexedId, baseId, data, application, taskId, nodeData);
+  }, [indexedId, baseId, data, application, currentTask, nodeData, overriddenTaskId]);
 
-  const prev = NodesInternal.useNodeData(nodeId, undefined, (data) =>
+  const prev = NodesInternal.useNodeData(indexedId, undefined, (data) =>
     'attachments' in data ? data.attachments : undefined,
   );
 
@@ -230,7 +227,7 @@ function empty(a: unknown, b: unknown): boolean {
  */
 function MaintainSimpleDataModelBinding({ bindings, attachments }: MaintainSimpleDataModelBindingProps) {
   const parent = GeneratorInternal.useParent();
-  if (!parent || !parent.id || parent.type !== 'node') {
+  if (!parent || !parent.baseId || parent.type !== 'node') {
     throw new Error('MaintainSimpleDataModelBinding must be used inside a node');
   }
 
@@ -239,7 +236,7 @@ function MaintainSimpleDataModelBinding({ bindings, attachments }: MaintainSimpl
   useEffect(() => {
     if (Object.keys(attachments).length > 1) {
       window.logErrorOnce(
-        `Node ${parent.id} has more than one attachment, but only one is supported with \`dataModelBindings.simpleBinding\``,
+        `Node ${parent.baseId} has more than one attachment, but only one is supported with \`dataModelBindings.simpleBinding\``,
       );
       return;
     }
@@ -254,7 +251,7 @@ function MaintainSimpleDataModelBinding({ bindings, attachments }: MaintainSimpl
     ) {
       setValue('simpleBinding', firstAttachment.data.id);
     }
-  }, [attachments, formData.simpleBinding, parent.id, setValue]);
+  }, [attachments, formData.simpleBinding, parent.baseId, setValue]);
 
   return null;
 }
