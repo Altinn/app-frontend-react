@@ -3,7 +3,7 @@ import React from 'react';
 import { screen } from '@testing-library/react';
 
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import { renderWithNode } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 
 describe('EditButton', () => {
@@ -24,10 +24,8 @@ describe('EditButton', () => {
   });
 
   test('should return null when component is readOnly', async () => {
-    await renderWithNode<true, LayoutNode<'Input'>>({
-      nodeId: 'TestInput',
-      inInstance: true,
-      renderer: ({ node }) => <EditButton targetBaseComponentId={node.baseId} />,
+    await renderWithInstanceAndLayout({
+      renderer: <EditButton targetBaseComponentId='TestInput' />,
       queries: {
         fetchLayouts: async () => layoutMock(true),
       },
@@ -37,10 +35,8 @@ describe('EditButton', () => {
   });
 
   test('should render edit button when component is not readOnly', async () => {
-    await renderWithNode<true, LayoutNode<'Input'>>({
-      nodeId: 'TestInput',
-      inInstance: true,
-      renderer: ({ node }) => <EditButton targetBaseComponentId={node.baseId} />,
+    await renderWithInstanceAndLayout({
+      renderer: <EditButton targetBaseComponentId='TestInput' />,
       queries: {
         fetchLayouts: async () => layoutMock(false),
       },

@@ -17,7 +17,7 @@ import {
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
-import { renderWithNode } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { ILayout } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 
@@ -97,15 +97,13 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
     },
   });
 
-  return await renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
-    renderer: ({ node }) => (
-      <RepeatingGroupProvider baseComponentId={node.baseId}>
+  return await renderWithInstanceAndLayout({
+    renderer: (
+      <RepeatingGroupProvider baseComponentId={group.id}>
         <LeakEditIndex />
         <RepeatingGroupContainer />
       </RepeatingGroupProvider>
     ),
-    nodeId: group.id,
-    inInstance: true,
     queries: {
       fetchLayouts: async () => ({
         FormLayout: {

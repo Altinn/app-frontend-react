@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { CompIntermediate, CompIntermediateExact, CompTypes, ILayouts } from 'src/layout/layout';
 import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
@@ -25,12 +26,12 @@ export interface ChildClaimsMap {
 type GlobalProviderProps = Pick<GeneratorContext, 'layouts' | 'registry'>;
 
 type PageProviderProps = Pick<GeneratorContext, 'isValid'> & {
-  parent: string;
+  pageKey: string;
 };
 
 type NodeGeneratorProps = {
   item: CompIntermediateExact<CompTypes>;
-  parent: string;
+  parentBaseId: string;
 };
 
 type RowGeneratorProps = Pick<
@@ -47,7 +48,8 @@ interface GeneratorContext {
   recursiveMutators?: ChildMutator[];
   layouts: ILayouts;
   pageKey: string | undefined;
-  parent: string | undefined;
+  parentBaseId: string | undefined;
+  parentIndexedId: string | undefined;
   parentType: 'node' | 'page' | undefined;
   item: CompIntermediateExact<CompTypes> | undefined;
   forceHidden: boolean;
@@ -76,13 +78,15 @@ const emptyArray: never[] = [];
  *
  * This provider is meant to be used for nodes, i.e. the lowest level components in the hierarchy.
  */
-export function GeneratorNodeProvider({ children, parent, item }: PropsWithChildren<NodeGeneratorProps>) {
+export function GeneratorNodeProvider({ children, parentBaseId, item }: PropsWithChildren<NodeGeneratorProps>) {
   const parentCtx = useCtx();
+  const parentIndexedId = useIndexedId(parentBaseId);
   const value: GeneratorContext = useMemo(
     () => ({
       // Inherit all values from the parent, overwrite with our own if they are passed
       ...parentCtx,
-      parent,
+      parentBaseId,
+      parentIndexedId,
       parentType: 'node',
       item,
       multiPageMapping: undefined,
@@ -93,7 +97,7 @@ export function GeneratorNodeProvider({ children, parent, item }: PropsWithChild
 
       depth: parentCtx.depth + 1,
     }),
-    [parentCtx, parent, item],
+    [parentCtx, parentBaseId, item, parentIndexedId],
   );
 
   return <Provider value={value}>{children}</Provider>;
@@ -108,7 +112,8 @@ export function GeneratorPageProvider({ children, ...rest }: PropsWithChildren<P
   const value: GeneratorContext = useMemo(
     () => ({
       ...parent,
-      pageKey: rest.parent,
+      parentBaseId: rest.pageKey,
+      parentIndexedId: rest.pageKey,
       parentType: 'page',
 
       // For a page, the depth starts at 1 because in principle the page is the top level node, at depth 0, so
@@ -168,7 +173,8 @@ export function GeneratorGlobalProvider({ children, ...rest }: PropsWithChildren
       depth: 0,
       multiPageIndex: undefined,
       childrenMap: undefined,
-      parent: undefined,
+      parentBaseId: undefined,
+      parentIndexedId: undefined,
       parentType: undefined,
       pageKey: undefined,
       forceHidden: false,
@@ -191,11 +197,10 @@ export const GeneratorInternal = {
   useLayouts: () => useCtx().layouts,
   useParent: () => {
     const ctx = useCtx();
-    return { type: ctx.parentType, id: ctx.parent };
+    return { type: ctx.parentType, baseId: ctx.parentBaseId, indexedId: ctx.parentIndexedId };
   },
   usePage: () => useCtx().pageKey,
   useRowIndex: () => useCtx().row?.index,
-  useMultiPageIndex: (baseId: string) => useCtx().multiPageMapping?.[baseId] ?? undefined,
   useIntermediateItem: () => useCtx().item,
   useIsValid: () => useCtx().isValid ?? true,
   useForceHidden: () => useCtx().forceHidden,

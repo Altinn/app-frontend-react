@@ -13,7 +13,7 @@ import {
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
-import { renderWithNode } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { ILayout } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
@@ -96,14 +96,12 @@ describe('openByDefault', () => {
       },
     ];
 
-    return renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
-      renderer: ({ node }) => (
-        <RepeatingGroupProvider baseComponentId={node.baseId}>
+    return renderWithInstanceAndLayout({
+      renderer: (
+        <RepeatingGroupProvider baseComponentId='myGroup'>
           <RenderTest />
         </RepeatingGroupProvider>
       ),
-      nodeId: 'myGroup',
-      inInstance: true,
       queries: {
         fetchFormData: async () => ({
           MyGroup: existingRows ?? [],

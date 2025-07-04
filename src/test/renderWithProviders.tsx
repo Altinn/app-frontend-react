@@ -325,16 +325,13 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
 
 interface InstanceProvidersProps extends PropsWithChildren {
   formDataProxies: FormDataWriteProxies;
-  waitForAllNodes: boolean;
 }
 
-function InstanceFormAndLayoutProviders({ children, formDataProxies, waitForAllNodes }: InstanceProvidersProps) {
+function InstanceFormAndLayoutProviders({ children, formDataProxies }: InstanceProvidersProps) {
   return (
     <InstanceProvider>
       <FormDataWriteProxyProvider value={formDataProxies}>
-        <FormProvider>
-          <WaitForNodes waitForAllNodes={waitForAllNodes}>{children}</WaitForNodes>
-        </FormProvider>
+        <FormProvider>{children}</FormProvider>
       </FormDataWriteProxyProvider>
     </InstanceProvider>
   );
@@ -621,12 +618,7 @@ export const renderWithInstanceAndLayout = async ({
       renderer,
       Providers: ({ children, ...props }: ProvidersProps) => (
         <DefaultProviders {...props}>
-          <InstanceFormAndLayoutProviders
-            formDataProxies={formDataProxies}
-            waitForAllNodes={true}
-          >
-            {children}
-          </InstanceFormAndLayoutProviders>
+          <InstanceFormAndLayoutProviders formDataProxies={formDataProxies}>{children}</InstanceFormAndLayoutProviders>
         </DefaultProviders>
       ),
       router: ({ children }) => (
@@ -669,79 +661,6 @@ export const renderWithInstanceAndLayout = async ({
   };
 };
 
-const WaitForNodes = ({
-  children,
-  waitForAllNodes,
-  nodeId,
-}: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
-  const nodes = useNodes();
-  const node = useNode(nodeId);
-
-  if (!nodes && waitForAllNodes) {
-    return (
-      <>
-        <div>Loading...</div>
-        <div>Waiting for nodes</div>
-      </>
-    );
-  }
-
-  if (nodeId !== undefined && waitForAllNodes && !node) {
-    return <div>Unable to find target node: {nodeId}</div>;
-  }
-
-  return children;
-};
-
-export interface RenderWithNodeTestProps<T extends LayoutNode, InInstance extends boolean>
-  extends Omit<ExtendedRenderOptions, 'renderer'>,
-    InstanceRouterProps {
-  renderer: (props: { node: T; root: LayoutPages }) => React.ReactElement;
-  nodeId: string;
-  inInstance: InInstance;
-}
-
-type RenderWithNodeReturnType<InInstance extends boolean> = InInstance extends false
-  ? ReturnType<typeof renderWithoutInstanceAndLayout>
-  : ReturnType<typeof renderWithInstanceAndLayout>;
-
-export async function renderWithNode<InInstance extends boolean, T extends LayoutNode = LayoutNode>({
-  renderer,
-  inInstance,
-  ...props
-}: RenderWithNodeTestProps<T, InInstance>): Promise<RenderWithNodeReturnType<InInstance>> {
-  function Child() {
-    const root = useNodes();
-    const node = useNode(props.nodeId);
-
-    if (!root) {
-      return <div>Unable to find root context</div>;
-    }
-
-    if (!node) {
-      return <div>Unable to find node: {props.nodeId}</div>;
-    }
-    return renderer({ node: node as T, root });
-  }
-
-  const funcToCall = inInstance === false ? renderWithoutInstanceAndLayout : renderWithInstanceAndLayout;
-  const extraPropsNotInInstance: Partial<Parameters<typeof renderWithoutInstanceAndLayout>[0]> =
-    inInstance === false ? { withFormProvider: true } : {};
-
-  return (await funcToCall({
-    ...props,
-    ...extraPropsNotInInstance,
-    renderer: () => (
-      <WaitForNodes
-        waitForAllNodes={true}
-        nodeId={props.nodeId}
-      >
-        <Child />
-      </WaitForNodes>
-    ),
-  })) as unknown as RenderWithNodeReturnType<InInstance>;
-}
-
 export interface RenderGenericComponentTestProps<T extends CompTypes, InInstance extends boolean = true>
   extends Omit<ExtendedRenderOptions, 'renderer'>,
     InstanceRouterProps {
@@ -752,6 +671,10 @@ export interface RenderGenericComponentTestProps<T extends CompTypes, InInstance
   inInstance?: InInstance;
 }
 
+type RenderGenericComponentReturnType<InInstance extends boolean> = InInstance extends false
+  ? ReturnType<typeof renderWithoutInstanceAndLayout>
+  : ReturnType<typeof renderWithInstanceAndLayout>;
+
 export async function renderGenericComponentTest<T extends CompTypes, InInstance extends boolean = true>({
   type,
   renderer,
@@ -759,7 +682,7 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
   genericProps,
   initialPage = 'FormLayout',
   ...rest
-}: RenderGenericComponentTestProps<T, InInstance>) {
+}: RenderGenericComponentTestProps<T, InInstance>): Promise<RenderGenericComponentReturnType<InInstance>> {
   const realComponentDef = {
     id: 'my-test-component-id',
     type,
@@ -767,25 +690,25 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 
-  const Wrapper = ({ node }: { node: LayoutNode<T> }) => {
+  const Wrapper = () => {
     const props: PropsFromGenericComponent<T> = {
-      baseComponentId: node.baseId,
+      baseComponentId: realComponentDef.id,
       ...(mockGenericComponentProps as unknown as IComponentProps),
       ...genericProps,
     };
 
     return (
-      <FormComponentContextProvider value={{ baseComponentId: node.baseId }}>
+      <FormComponentContextProvider value={{ baseComponentId: realComponentDef.id }}>
         {renderer(props)}
       </FormComponentContextProvider>
     );
   };
 
-  return renderWithNode<InInstance, LayoutNode<T>>({
+  const inInstance = (rest.inInstance ?? true) as InInstance;
+  const funcToCall = inInstance ? renderWithInstanceAndLayout : renderWithoutInstanceAndLayout;
+  return funcToCall({
     ...rest,
-    nodeId: realComponentDef.id,
     renderer: Wrapper,
-    inInstance: (rest.inInstance ?? true) as InInstance,
     initialPage,
     queries: {
       fetchLayouts: async () => ({
@@ -802,7 +725,7 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
       }),
       ...rest.queries,
     },
-  });
+  }) as RenderGenericComponentReturnType<InInstance>;
 }
 
 const mockGenericComponentProps: IComponentProps = {
