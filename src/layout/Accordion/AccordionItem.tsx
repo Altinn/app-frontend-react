@@ -1,8 +1,8 @@
 import React from 'react';
 
-import { Details } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
+import { Accordion } from 'src/app-components/Accordion/Accordion';
 import classes from 'src/layout/Accordion/Accordion.module.css';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 
@@ -14,18 +14,16 @@ interface AccordionBaseComponentProps {
 }
 
 export const AccordionItem = ({ title, children, className, open }: AccordionBaseComponentProps): React.JSX.Element => {
-  const [isOpen, setOpen] = React.useState(open);
+  const [isOpen, setOpen] = React.useState(Boolean(open));
 
   return (
-    <Details
-      open={isOpen as boolean}
-      onToggle={() => {
-        setOpen(!isOpen);
-      }}
+    <Accordion
+      title={title}
+      open={isOpen}
+      onToggle={(newOpen) => setOpen(newOpen)}
       className={cn(className, classes.accordion)}
     >
-      <Details.Summary>{title}</Details.Summary>
-      <Details.Content>{children}</Details.Content>
-    </Details>
+      {children}
+    </Accordion>
   );
 };
