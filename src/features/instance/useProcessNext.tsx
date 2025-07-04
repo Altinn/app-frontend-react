@@ -2,6 +2,7 @@ import React from 'react';
 import { toast } from 'react-toastify';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { AxiosError, isAxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -17,7 +18,6 @@ import { useUpdateInitialValidations } from 'src/features/validation/backendVali
 import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
-import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -45,11 +45,21 @@ export function useProcessNext() {
   const queryClient = useQueryClient();
   const hasPendingScans = useHasPendingScans();
 
-  const { mutateAsync } = useMutation({
-    mutationFn: async ({ action }: ProcessNextProps = {}) => {
-      if (!instanceId) {
-        throw new Error('Missing instance ID, cannot perform process/next');
+  const mutation = useMutation({
+    mutationFn: async ({ action }: ProcessNextProps) => {
+      if (hasPendingScans) {
+        await reFetchInstanceData();
       }
+
+      const hasErrors = await onFormSubmitValidation();
+      if (hasErrors) {
+        return [null, null];
+      }
+
+      if (!instanceId) {
+        throw new Error('Missing instance ID. Cannot perform process/next.');
+      }
+
       return doProcessNext(instanceId, language, action)
         .then((process) => [process as IProcess, null] as const)
         .catch((error) => {
@@ -63,6 +73,9 @@ export function useProcessNext() {
           ) {
             // If process next fails due to the PDF generator failing, don't show unknown error if the app unlocks data elements
             toast(<Lang id='process_error.submit_error_please_retry' />, { type: 'error', autoClose: false });
+            return [null, null];
+          } else if (isAxiosError(error) && error.code === AxiosError.ECONNABORTED) {
+            // TODO:
             return [null, null];
           } else {
             throw error;
@@ -91,17 +104,30 @@ export function useProcessNext() {
     },
   });
 
-  return useEffectEvent(async (props?: ProcessNextProps) => {
-    if (hasPendingScans) {
-      await reFetchInstanceData();
-    }
+  return {
+    ...mutation,
+    mutate: (props?: ProcessNextProps) => mutation.mutate(props ?? {}),
+    mutateAsync: (props?: ProcessNextProps) => mutation.mutateAsync(props ?? {}),
+  };
+}
 
-    const hasErrors = await onFormSubmitValidation();
-    if (hasErrors) {
-      return;
-    }
-    await mutateAsync(props ?? {}).catch(() => {});
-  });
+export function useProcessReject() {
+  const processNext = useProcessNext();
+
+  return {
+    ...processNext,
+    mutate: () => processNext.mutate({ action: 'reject' }),
+    mutateAsync: () => processNext.mutateAsync({ action: 'reject' }),
+  };
+}
+export function useProcessConfirm() {
+  const processNext = useProcessNext();
+
+  return {
+    ...processNext,
+    mutate: () => processNext.mutate({ action: 'confirm' }),
+    mutateAsync: () => processNext.mutateAsync({ action: 'confirm' }),
+  };
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {
