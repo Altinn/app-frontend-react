@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigation } from 'react-router-dom';
 
 import { Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import classNames from 'classnames';
@@ -108,6 +109,7 @@ export function SubformSummaryTable({
   targetBaseComponentId,
 }: Pick<Summary2Props, 'targetBaseComponentId'>): React.JSX.Element | null {
   const { id, layoutSet, textResourceBindings, tableColumns = [] } = useItemWhenType(targetBaseComponentId, 'Subform');
+  const navigation = useNavigation();
 
   const isSubformPage = useIsSubformPage();
   const dataType = useDataTypeFromLayoutSet(layoutSet);
@@ -122,7 +124,7 @@ export function SubformSummaryTable({
   const pdfModeActive = usePdfModeActive();
   const dataElements = useStrictDataElements(dataType);
 
-  if (isSubformPage) {
+  if (isSubformPage && navigation.state !== 'loading') {
     return (
       <ComponentErrorList
         baseComponentId={targetBaseComponentId}

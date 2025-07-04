@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
@@ -48,6 +49,7 @@ export function FileUploadComponent({
   const attachments = useAttachmentsFor(baseComponentId);
   const addRejectedAttachments = useAddRejectedAttachments();
   const uploadAttachments = useAttachmentsUploader();
+  const navigation = useNavigation();
 
   const validations = useUnifiedValidationsForNode(baseComponentId).filter(
     (v) => !('attachmentId' in v) || !v.attachmentId,
@@ -96,7 +98,7 @@ export function FileUploadComponent({
     }
   };
 
-  if (isSubformPage) {
+  if (isSubformPage && navigation.state !== 'loading') {
     return (
       <ComponentErrorList
         baseComponentId={baseComponentId}

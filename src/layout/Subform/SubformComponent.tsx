@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigation } from 'react-router-dom';
 
 import { Spinner, Table } from '@digdir/designsystemet-react';
 import { PencilIcon, PlusIcon, TrashIcon } from '@navikt/aksel-icons';
@@ -42,6 +43,7 @@ export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<
 
   const isSubformPage = useIsSubformPage();
   const dataType = useDataTypeFromLayoutSet(layoutSet);
+  const navigation = useNavigation();
 
   if (!dataType) {
     window.logErrorOnce(`Unable to find data type for subform with id ${id}`);
@@ -73,7 +75,7 @@ export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<
       }
     });
 
-  if (isSubformPage) {
+  if (isSubformPage && navigation.state !== 'loading') {
     return (
       <ComponentErrorList
         baseComponentId={baseComponentId}
