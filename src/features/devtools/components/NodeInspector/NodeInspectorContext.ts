@@ -2,7 +2,8 @@ import { createContext } from 'src/core/contexts/context';
 
 interface NodeInspectorContextValue {
   selectedNodeId: string | undefined;
-  selectNode: (id: string) => void;
+  selectedBaseId: string | undefined;
+  selectNode: (nodeId: string, baseId: string) => void;
 }
 
 const { Provider, useCtx } = createContext<NodeInspectorContextValue>({

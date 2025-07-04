@@ -5,7 +5,7 @@ import { screen } from '@testing-library/react';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { type BackendValidationIssue } from 'src/features/validation';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
-import { renderWithNode } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
 
@@ -481,10 +481,8 @@ describe('SummaryComponent', () => {
       overrides: summary2Config?.overrides ?? [],
     });
 
-    return await renderWithNode<true, LayoutNode<'Summary2'>>({
-      nodeId: 'mySummary2',
-      inInstance: true,
-      renderer: ({ node }) => <SummaryComponent2 baseComponentId={node.baseId} />,
+    return await renderWithInstanceAndLayout({
+      renderer: <SummaryComponent2 baseComponentId='mySummary2' />,
       initialPage: currentPageId,
       queries: {
         fetchLayouts: async () => layout,

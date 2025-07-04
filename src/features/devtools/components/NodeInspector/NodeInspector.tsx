@@ -61,6 +61,7 @@ export const NodeInspector = () => {
           <NodeInspectorContextProvider
             value={{
               selectedNodeId: selectedId,
+              selectedBaseId: baseComponentId,
               selectNode: setSelected,
             }}
           >

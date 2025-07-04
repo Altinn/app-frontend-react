@@ -33,6 +33,7 @@ import { getComponentCapabilities } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { NavigateToComponentOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 
@@ -283,14 +284,13 @@ function HandleNavigationFocusComponent() {
   const componentId = useQueryKey(SearchParams.FocusComponentId);
   const exitSubform = useQueryKey(SearchParams.ExitSubform)?.toLocaleLowerCase() === 'true';
   const validate = useQueryKey(SearchParams.Validate)?.toLocaleLowerCase() === 'true';
-  const focusNode = useNode(componentId ?? undefined);
   const navigateTo = useNavigateTo();
   const navigate = useNavigate();
 
   React.useEffect(() => {
     (async () => {
       // Replace URL if we have query params
-      if (focusNode || exitSubform || validate) {
+      if (componentId || exitSubform || validate) {
         const location = new URLSearchParams(searchStringRef.current);
         location.delete(SearchParams.FocusComponentId);
         location.delete(SearchParams.ExitSubform);
@@ -300,17 +300,18 @@ function HandleNavigationFocusComponent() {
       }
 
       // Focus on node?
-      if (focusNode) {
+      if (componentId) {
         const nodeNavOptions: NavigateToComponentOptions = {
           shouldFocus: true,
           pageNavOptions: {
             resetReturnToView: !exitSubform,
           },
         };
-        await navigateTo(focusNode.id, focusNode.baseId, nodeNavOptions);
+        const { baseComponentId } = splitDashedKey(componentId);
+        await navigateTo(componentId, baseComponentId, nodeNavOptions);
       }
     })();
-  }, [navigateTo, focusNode, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation]);
+  }, [navigateTo, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation, componentId]);
 
   return null;
 }

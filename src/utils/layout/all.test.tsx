@@ -59,12 +59,8 @@ function TestApp() {
 
 function RenderAllComponents() {
   const state = NodesInternal.useStore().getState();
-  const nodes = useNodes();
-  if (!nodes) {
-    throw new Error('No nodes found');
-  }
   const all = Object.values(state.nodeData)
-    .filter((nodeData) => nodeData.isValid)
+    .filter((nodeData) => nodeData.isValid && nodeData.parentId === undefined)
     .map((nodeData) => nodeData.id);
 
   return (
