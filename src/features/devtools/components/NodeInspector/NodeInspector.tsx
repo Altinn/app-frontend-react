@@ -14,6 +14,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { implementsAnyValidation } from 'src/layout';
+import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
 import { useNode } from 'src/utils/layout/NodesContext';
 
 export const NodeInspector = () => {
@@ -85,8 +86,9 @@ export const NodeInspector = () => {
                       Rediger konfigurasjonen i Layout-fanen
                     </a>
                   </div>
-                  {/*  eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                  {selectedNode.def.renderDevToolsInspector(selectedNode as any)}
+                  <DataModelLocationProviderFromNode nodeId={selectedNode.id}>
+                    {selectedNode.def.renderDevToolsInspector(selectedNode.baseId)}
+                  </DataModelLocationProviderFromNode>
                 </div>
               </Tabs.Panel>
               <Tabs.Panel value='validation'>
