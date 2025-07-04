@@ -25,7 +25,7 @@ import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGr
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ButtonPosition } from 'src/layout/common.generated';

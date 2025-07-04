@@ -8,7 +8,6 @@ import { randomUUID } from 'crypto';
 import { type SigningDocument, useDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListComponent } from 'src/layout/SigningDocumentList/SigningDocumentListComponent';
 import { ProcessTaskType } from 'src/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodeItemFromNode } from 'src/utils/layout/types';
 
 const mockDocumentList: SigningDocument[] = [

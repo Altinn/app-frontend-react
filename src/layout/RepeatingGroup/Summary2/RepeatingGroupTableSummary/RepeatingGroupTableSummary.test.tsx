@@ -10,7 +10,6 @@ import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/Repe
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayoutCollection } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type NodeId = 'input1' | 'input2' | 'input3' | 'repeating-group';
 

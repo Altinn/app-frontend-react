@@ -32,7 +32,7 @@ import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavig
 import { getComponentCapabilities } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { NavigateToComponentOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 

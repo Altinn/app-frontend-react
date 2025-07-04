@@ -10,7 +10,6 @@ import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const availableOptions = {
   'https://local.altinn.cloud/ttd/test/api/options/a?language=nb': {

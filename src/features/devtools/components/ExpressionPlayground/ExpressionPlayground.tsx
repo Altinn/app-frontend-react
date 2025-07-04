@@ -13,7 +13,7 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { Expression, ExprFunctionName } from 'src/features/expressions/types';
 

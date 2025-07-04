@@ -36,7 +36,7 @@ import utilClasses from 'src/styles/utils.module.css';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type {
@@ -51,7 +51,6 @@ import type {
 import type { CompTypes, ITextResourceBindings } from 'src/layout/layout';
 import type { EditButtonProps } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export const GridSummary = ({ targetBaseComponentId }: Summary2Props) => {
   const indexedId = useIndexedId(targetBaseComponentId);

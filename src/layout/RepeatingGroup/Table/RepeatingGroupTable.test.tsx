@@ -20,7 +20,6 @@ import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.genera
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 global.ResizeObserver = ResizeObserverModule;
 

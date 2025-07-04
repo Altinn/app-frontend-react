@@ -19,15 +19,13 @@ import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries
 import { renderWithNode } from 'src/test/renderWithProviders';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ExprPositionalArgs, ExprValToActualOrExpr, ExprValueArgs } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { RepeatingComponents } from 'src/features/form/layout/utils/repeating';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { IDataModelBindings, ILayoutCollection } from 'src/layout/layout';
 import type { IData, IDataType } from 'src/types/shared';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 jest.mock('src/features/externalApi/useExternalApi');
 

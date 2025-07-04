@@ -8,7 +8,6 @@ import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/Summary
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 import type { CompSummary2External } from 'src/layout/Summary2/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryComponent', () => {
   const layoutMock = (

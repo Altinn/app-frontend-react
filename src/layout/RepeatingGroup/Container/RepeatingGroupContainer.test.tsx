@@ -20,7 +20,6 @@ import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { ILayout } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const mockContainer = getFormLayoutRepeatingGroupMock({
   id: 'myGroup',

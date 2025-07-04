@@ -5,7 +5,6 @@ import { screen } from '@testing-library/react';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('EditButton', () => {
   const layoutMock = (readOnly = false): ILayoutCollection => ({

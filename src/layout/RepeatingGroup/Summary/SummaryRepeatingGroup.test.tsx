@@ -6,8 +6,6 @@ import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { renderWithNode } from 'src/test/renderWithProviders';
-import { useNode } from 'src/utils/layout/NodesContext';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryRepeatingGroup', () => {
   let mockHandleDataChange: () => void;

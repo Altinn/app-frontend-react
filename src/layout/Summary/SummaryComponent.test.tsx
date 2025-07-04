@@ -9,7 +9,6 @@ import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
 import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompInputExternal } from 'src/layout/Input/config.generated';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('SummaryComponent', () => {
   const layoutMock = (): ILayoutCollection => ({

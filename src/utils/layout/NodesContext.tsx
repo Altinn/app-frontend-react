@@ -7,7 +7,7 @@ import { createStore } from 'zustand';
 import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
-import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
@@ -39,8 +39,6 @@ import {
 } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ValidationsProcessedLast } from 'src/features/validation';
@@ -431,11 +429,6 @@ const Conditionally = {
   },
 };
 
-const { Provider: ProvideLayoutPages, useCtx: useLayoutPages } = createContext<LayoutPages>({
-  name: 'LayoutPages',
-  required: true,
-});
-
 interface NodesProviderProps extends PropsWithChildren {
   readOnly: boolean;
   isEmbedded: boolean;
@@ -478,15 +471,10 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const markNotReady = NodesInternal.useMarkNotReady();
   const reset = Store.useSelector((s) => s.reset);
   const getProcessedLast = Validation.useGetProcessedLast();
-  const pagesRef = useRef<LayoutPages>();
-  if (!pagesRef.current) {
-    pagesRef.current = new LayoutPages();
-  }
 
   useEffect(() => {
     if (layouts !== latestLayouts) {
       markNotReady('new layouts');
-      pagesRef.current = new LayoutPages();
       reset(latestLayouts, getProcessedLast());
     }
   }, [latestLayouts, layouts, markNotReady, reset, getProcessedLast]);
@@ -497,14 +485,12 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   }
 
   return (
-    <ProvideLayoutPages value={pagesRef.current}>
-      <GeneratorGlobalProvider
-        layouts={layouts}
-        registry={registry}
-      >
-        {children}
-      </GeneratorGlobalProvider>
-    </ProvideLayoutPages>
+    <GeneratorGlobalProvider
+      layouts={layouts}
+      registry={registry}
+    >
+      {children}
+    </GeneratorGlobalProvider>
   );
 }
 
@@ -677,52 +663,6 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
 function NodesLoader() {
   return <Loader reason='nodes' />;
 }
-
-/**
- * Use the expression context. This will return a LayoutPages object containing the full tree of resolved
- * nodes (meaning, instances of layout components in a tree, with their expressions evaluated and resolved to
- * scalar values).
- *
- * Usually, if you're looking for a specific component/node, useResolvedNode() is better.
- */
-export function useNode<T extends string | LayoutNode>(id: T): LayoutNode;
-// eslint-disable-next-line no-redeclare
-export function useNode<T extends string | undefined | LayoutNode>(id: T): LayoutNode | undefined;
-// eslint-disable-next-line no-redeclare
-export function useNode<T extends string | undefined | LayoutNode>(id: T): LayoutNode | undefined {
-  const lastValue = useRef<LayoutNode | undefined | typeof NeverInitialized>(NeverInitialized);
-  const nodes = useNodes();
-  const node = Store.useSelector((state) => {
-    if (!id) {
-      return undefined;
-    }
-
-    if (state.readiness !== NodesReadiness.Ready && lastValue.current !== NeverInitialized) {
-      return lastValue.current;
-    }
-
-    const node = id instanceof LayoutNode ? id : nodes.findById(id);
-    lastValue.current = node;
-    return node;
-  });
-  return node ?? undefined;
-}
-
-export const useGetPage = (pageId: string | undefined) => {
-  const nodes = useNodes();
-  return Store.useSelector(() => {
-    if (!pageId) {
-      return undefined;
-    }
-
-    if (!nodes) {
-      return undefined;
-    }
-    return nodes.findLayout(pageId);
-  });
-};
-
-export const useNodes = () => useLayoutPages();
 
 export interface IsHiddenOptions {
   /**
@@ -1062,32 +1002,6 @@ export const NodesInternal = {
         return undefined;
       }
       return s.nodeData[nodeId]?.errors;
-    });
-  },
-
-  useNodeDataWhenType<T extends CompTypes, Out>(
-    nodeId: string | undefined,
-    type: T,
-    selector: (nodeData: NodeData<T>) => Out,
-  ) {
-    const insideGenerator = GeneratorInternal.useIsInsideGenerator();
-    return Conditionally.useMemoSelector((s) => {
-      if (!nodeId) {
-        return undefined;
-      }
-
-      const data =
-        insideGenerator && s.nodeData[nodeId]
-          ? s.nodeData[nodeId]
-          : s.readiness === NodesReadiness.Ready
-            ? s.nodeData[nodeId]
-            : (s.prevNodeData?.[nodeId] ?? s.nodeData[nodeId]);
-
-      if (!data || data.nodeType !== type) {
-        return undefined;
-      }
-
-      return selector(data as NodeData<T>);
     });
   },
   useNodeData<Id extends string | undefined, Type extends CompTypes, Out>(

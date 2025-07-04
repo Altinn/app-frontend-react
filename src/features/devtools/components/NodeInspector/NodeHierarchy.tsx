@@ -10,7 +10,7 @@ import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponen
 import { baseIdsFromGridRow } from 'src/layout/Grid/tools';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemWhenType, useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import type { GridRows } from 'src/layout/common.generated';
 

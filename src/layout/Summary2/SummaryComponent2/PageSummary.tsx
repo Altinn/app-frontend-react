@@ -5,7 +5,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { ComponentSummary, HideWhenAllChildrenEmpty } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverridesForPage, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { Hidden, useGetPage } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 
 interface PageSummaryProps {
   pageId: string;

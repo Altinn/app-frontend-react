@@ -13,7 +13,6 @@ import { useLayoutValidationForPage } from 'src/features/devtools/layoutValidati
 import { useLayouts, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentView } from 'src/hooks/useNavigatePage';
 import { parseAndCleanText } from 'src/language/sharedLanguage';
-import { useNode } from 'src/utils/layout/NodesContext';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 
 export const LayoutInspector = () => {
