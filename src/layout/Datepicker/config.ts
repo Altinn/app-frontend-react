@@ -23,13 +23,12 @@ export const Config = new CG.component({
     new CG.prop(
       'minDate',
       new CG.union(
-        new CG.str(),
+        new CG.expr(ExprVal.String),
         new CG.const('today'),
         new CG.const('yesterday'),
         new CG.const('tomorrow'),
         new CG.const('oneYearAgo'),
         new CG.const('oneYearFromNow'),
-        new CG.expr(ExprVal.String),
       )
         .optional({ default: '1900-01-01T12:00:00.000Z' })
         .setTitle('Earliest date')
@@ -43,13 +42,12 @@ export const Config = new CG.component({
     new CG.prop(
       'maxDate',
       new CG.union(
-        new CG.str(),
+        new CG.expr(ExprVal.String),
         new CG.const('today'),
         new CG.const('yesterday'),
         new CG.const('tomorrow'),
         new CG.const('oneYearAgo'),
         new CG.const('oneYearFromNow'),
-        new CG.expr(ExprVal.String),
       )
         .optional({ default: '2100-01-01T12:00:00.000Z' })
         .setTitle('Latest date')
