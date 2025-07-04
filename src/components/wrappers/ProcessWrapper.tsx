@@ -24,7 +24,6 @@ import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
 import { getPageTitle } from 'src/utils/getPageTitle';
-import { useNode } from 'src/utils/layout/NodesContext';
 
 interface NavigationErrorProps {
   label: string;

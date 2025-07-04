@@ -17,7 +17,6 @@ import { renderWithNode } from 'src/test/renderWithProviders';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { ILayout } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 // Mocking so that we can predict the UUIDs for new rows
 const nextUuids: string[] = [];

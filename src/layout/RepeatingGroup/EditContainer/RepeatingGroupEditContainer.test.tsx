@@ -17,7 +17,6 @@ import { renderWithNode } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompExternal } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 describe('RepeatingGroupsEditContainer', () => {
   const options: IRawOption[] = [{ value: 'option.value', label: 'option.label' }];

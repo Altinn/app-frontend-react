@@ -14,7 +14,6 @@ import type { IOptionInternal } from 'src/features/options/castOptionsToStrings'
 import type { IRawOption, ISelectionComponentFull } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
 import type { fetchOptions } from 'src/queries/queries';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface RenderProps {
   type: 'single' | 'multi';

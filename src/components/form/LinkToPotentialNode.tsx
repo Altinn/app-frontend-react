@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { LinkProps } from 'react-router-dom';
 
 import { SearchParams } from 'src/features/routing/AppRoutingContext';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 
 type Props = LinkProps & { children?: React.ReactNode };
 

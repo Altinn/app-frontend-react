@@ -19,7 +19,6 @@ import {
 } from 'src/layout/Subform/utils';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import { useExternalItem } from 'src/utils/layout/hooks';
-import { useNode } from 'src/utils/layout/NodesContext';
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IData } from 'src/types/shared';
 

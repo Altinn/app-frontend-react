@@ -5,8 +5,6 @@ import type { CompCategory } from 'src/layout/common';
 import type { IDataModelReference, ILayoutFile } from 'src/layout/common.generated';
 import type { ComponentTypeConfigs, getComponentConfigs } from 'src/layout/components.generated';
 import type { CompClassMapCategories } from 'src/layout/index';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 export interface ILayouts {
   [id: string]: ILayout | undefined;
@@ -95,8 +93,6 @@ export type TypesFromCategory<Cat extends CompCategory> = $Keys<PickByValue<Comp
 export type CompWithPlugin<Plugin> = {
   [Type in CompTypes]: Extract<ComponentTypeConfigs[Type]['plugins'], Plugin> extends never ? never : Type;
 }[CompTypes];
-
-export type LayoutNodeFromCategory<Type> = Type extends CompCategory ? LayoutNode<TypesFromCategory<Type>> : LayoutNode;
 
 export type ILayoutCollection = { [pageName: string]: ILayoutFile };
 
