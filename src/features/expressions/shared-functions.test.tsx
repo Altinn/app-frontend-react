@@ -63,9 +63,11 @@ function DataModelLocationFromNode({ nodeId, children }: PropsWithChildren<{ nod
   }
 
   const [closestRepeating, rowIndex] = getClosestRepeating(realNode);
-  const dataModelBindings = NodesInternal.useNodeData(closestRepeating, (d) => d.dataModelBindings) as
-    | IDataModelBindings<RepeatingComponents>
-    | undefined;
+  const dataModelBindings = NodesInternal.useNodeData(
+    closestRepeating?.id,
+    closestRepeating?.type,
+    (d) => d.dataModelBindings,
+  ) as IDataModelBindings<RepeatingComponents> | undefined;
   const repeatingBinding = closestRepeating && getRepeatingBinding(closestRepeating.type, dataModelBindings);
 
   if (closestRepeating === undefined || rowIndex === undefined || !repeatingBinding) {

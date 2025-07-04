@@ -3,7 +3,6 @@ import type { CompDef } from 'src/layout';
 import type { CompExternal, CompInternal, CompTypes, IDataModelBindings, TypeFromNode } from 'src/layout/layout';
 import type { ChildIdMutator } from 'src/utils/layout/generator/GeneratorContext';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPage } from 'src/utils/layout/LayoutPage';
 
 /**
  * A row (from the data model) in a repeating group, or other components using such a structure (object[]).
@@ -20,7 +19,6 @@ export interface StateFactoryProps<T extends CompTypes = CompTypes> {
   pageKey: string;
   id: string;
   baseId: string;
-  parent: LayoutNode | LayoutPage;
   parentId: string | undefined;
   depth: number;
   rowIndex: number | undefined;

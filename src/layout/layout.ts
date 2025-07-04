@@ -113,7 +113,6 @@ export type CompWithBinding<BindingKey extends string> = {
 }[CompTypes];
 
 export interface NodeValidationProps<T extends CompTypes> {
-  node: LayoutNode<T>;
   externalItem: CompExternal<T>;
   intermediateItem: CompIntermediate<T>;
 }

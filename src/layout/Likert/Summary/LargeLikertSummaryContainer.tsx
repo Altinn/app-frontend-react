@@ -38,7 +38,7 @@ export function LargeLikertSummaryContainer({
   const container = useItemWhenType(likertBaseId, 'Likert');
   const { title, summaryTitle } = container.textResourceBindings ?? {};
   const indexedId = useIndexedId(likertBaseId, true);
-  const isHidden = Hidden.useIsHidden(indexedId);
+  const isHidden = Hidden.useIsHidden(indexedId, 'node');
   const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
   const likertNode = useNode(indexedId);
   const children = useNodeDirectChildren(likertNode, restriction);

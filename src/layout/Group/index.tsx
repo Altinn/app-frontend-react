@@ -20,7 +20,7 @@ export class Group extends GroupDef {
           renderLayoutNode={(node) => (
             <GenericComponent
               key={node.id}
-              node={node}
+              baseComponentId={node.baseId}
             />
           )}
         />

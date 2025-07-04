@@ -20,7 +20,7 @@ export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeIns
   // Hidden state is removed from the item by the hierarchy generator, but we simulate adding it back here (but only
   // if it's an expression). This allows app developers to inspect this as well.
   const _item = useItemFor(node.baseId);
-  const hidden = Hidden.useIsHidden(node);
+  const hidden = Hidden.useIsHidden(node.id, 'node');
   const component = useExternalItem(node.baseId);
   const hiddenIsExpression = Array.isArray(component?.hidden);
   const item = hiddenIsExpression ? { ..._item, hidden } : _item;

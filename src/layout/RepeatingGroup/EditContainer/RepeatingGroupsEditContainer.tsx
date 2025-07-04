@@ -263,14 +263,9 @@ function ChildComponent({
     return null;
   }
 
-  if (tableColumns && tableColumns[node.baseId]?.showInExpandedEdit === false) {
+  if (tableColumns && tableColumns[baseId]?.showInExpandedEdit === false) {
     return null;
   }
 
-  return (
-    <GenericComponent
-      key={node.id}
-      node={node}
-    />
-  );
+  return <GenericComponent baseComponentId={baseId} />;
 }

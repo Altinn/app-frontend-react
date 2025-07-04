@@ -16,7 +16,7 @@ const fullWidth: CSSProperties = { width: '100%' };
 export function PageSummary({ pageId }: PageSummaryProps) {
   const page = useGetPage(pageId);
   const children = useLayoutLookups().topLevelComponents[pageId];
-  const isHiddenPage = Hidden.useIsHiddenPage(page);
+  const isHiddenPage = Hidden.useIsHiddenPage(page?.pageKey);
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   const overrides = useSummaryOverridesForPage(pageId);
 

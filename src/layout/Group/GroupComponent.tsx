@@ -43,7 +43,7 @@ export function GroupComponent({
 }: IGroupComponent) {
   const container = useItemWhenType(baseComponentId, 'Group');
   const { title, summaryTitle, description } = container.textResourceBindings ?? {};
-  const isHidden = Hidden.useIsHidden(useIndexedId(baseComponentId));
+  const isHidden = Hidden.useIsHidden(useIndexedId(baseComponentId), 'node');
 
   const groupNode = useNode(useIndexedId(baseComponentId));
   const children = useNodeDirectChildren(groupNode, restriction);

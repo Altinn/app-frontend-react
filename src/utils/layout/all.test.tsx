@@ -11,7 +11,7 @@ import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
 
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { quirks } from 'src/features/form/layout/quirks';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { SubformWrapper } from 'src/layout/Subform/SubformWrapper';
 import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
@@ -70,8 +70,8 @@ function RenderAllComponents() {
   return (
     <>
       {all.map((id) => (
-        <GenericComponentById
-          id={id}
+        <GenericComponent
+          baseComponentId={id}
           key={id}
         />
       ))}

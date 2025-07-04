@@ -40,7 +40,6 @@ import {
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { LayoutPage } from 'src/utils/layout/LayoutPage';
 import { LayoutPages } from 'src/utils/layout/LayoutPages';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
@@ -51,7 +50,7 @@ import type { CompTypes, ILayouts } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
-import type { GeneratorErrors, NodeData, NodeDataFromNode } from 'src/utils/layout/types';
+import type { GeneratorErrors, NodeData } from 'src/utils/layout/types';
 
 export interface PagesData {
   type: 'pages';
@@ -87,17 +86,17 @@ type ExtraHooks = AllFlat<{
 }>;
 
 export interface AddNodeRequest<T extends CompTypes = CompTypes> {
-  node: LayoutNode<T>;
+  nodeId: string;
   targetState: NodeData<T>;
 }
 
-export interface RemoveNodeRequest<T extends CompTypes = CompTypes> {
-  node: LayoutNode<T>;
+export interface RemoveNodeRequest {
+  nodeId: string;
   layouts: ILayouts;
 }
 
 export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
-  node: LayoutNode<T>;
+  nodeId: string;
   prop: K;
   value: NodeData<T>[K];
 }
@@ -129,7 +128,7 @@ export type NodesContext = {
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNodes: (request: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
-  addError: (error: string, node: LayoutPage | LayoutNode | string) => void;
+  addError: (error: string, id: string, type: 'node' | 'page') => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
   addPage: (pageKey: string) => void;
@@ -191,9 +190,8 @@ export function createNodesDataStore({ registry, validationsProcessedLast, ...pr
     addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        for (const { node, targetState } of requests) {
-          nodeData[node.id] = targetState;
-          node.page._addChild(node);
+        for (const { nodeId, targetState } of requests) {
+          nodeData[nodeId] = targetState;
         }
 
         return {
@@ -206,8 +204,8 @@ export function createNodesDataStore({ registry, validationsProcessedLast, ...pr
         const nodeData = { ...state.nodeData };
 
         let count = 0;
-        for (const { node, layouts } of requests) {
-          if (!nodeData[node.id]) {
+        for (const { nodeId, layouts } of requests) {
+          if (!nodeData[nodeId]) {
             continue;
           }
 
@@ -217,8 +215,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast, ...pr
             continue;
           }
 
-          delete nodeData[node.id];
-          node.page._removeChild(node);
+          delete nodeData[nodeId];
           count += 1;
         }
 
@@ -235,29 +232,27 @@ export function createNodesDataStore({ registry, validationsProcessedLast, ...pr
       set((state) => {
         let changes = false;
         const nodeData = { ...state.nodeData };
-        for (const { node, prop, value } of requests) {
-          if (!nodeData[node.id]) {
+        for (const { nodeId, prop, value } of requests) {
+          if (!nodeData[nodeId]) {
             continue;
           }
 
-          const thisNode = { ...nodeData[node.id] };
+          const thisNode = { ...nodeData[nodeId] };
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           thisNode[prop as any] = value;
 
-          if (!deepEqual(nodeData[node.id][prop], thisNode[prop])) {
+          if (!deepEqual(nodeData[nodeId][prop], thisNode[prop])) {
             changes = true;
-            nodeData[node.id] = thisNode;
+            nodeData[nodeId] = thisNode;
           }
         }
         return changes ? { nodeData } : {};
       }),
-    addError: (error, node) =>
+    addError: (error, id, type) =>
       set(
         nodesProduce((state) => {
-          const nodeId = typeof node === 'string' ? node : node instanceof LayoutNode ? node.id : '';
-          const data = node instanceof LayoutPage ? state.pagesData.pages[node.pageKey] : state.nodeData[nodeId];
-
+          const data = type === 'page' ? state.pagesData.pages[id] : state.nodeData[id];
           if (!data) {
             return;
           }
@@ -837,30 +832,29 @@ function useIsForcedVisibleByDevTools() {
 
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
-  useIsHidden(nodeOrId: LayoutNode | LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
+  useIsHidden(nodeId: string | undefined, type: 'page' | 'node' | undefined, options?: AccessibleIsHiddenOptions) {
     const lookups = useLayoutLookups();
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    const type = nodeOrId instanceof LayoutPage ? ('page' as const) : ('node' as const);
-    const id =
-      nodeOrId instanceof LayoutPage ? nodeOrId.pageKey : typeof nodeOrId === 'string' ? nodeOrId : nodeOrId?.id;
-    return WhenReady.useSelector((s) => isHidden(s, type, id, lookups, makeOptions(forcedVisibleByDevTools, options)));
+    if (typeof nodeId === 'string' && type === undefined) {
+      throw new Error(
+        'useIsHidden() requires a node ID/page ID and a type. When id is given, type has to be given too.',
+      );
+    }
+
+    return WhenReady.useSelector((s) =>
+      isHidden(s, type!, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)),
+    );
   },
-  useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
+  useIsHiddenPage(pageKey: string | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    return WhenReady.useSelector((s) => {
-      const pageKey = page instanceof LayoutPage ? page.pageKey : page;
-      return isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options));
-    });
+    return WhenReady.useSelector((s) => isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPageSelector() {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (page: LayoutPage | string) => (state) => {
-          const pageKey = page instanceof LayoutPage ? page.pageKey : page;
-          return isHiddenPage(state, pageKey, makeOptions(forcedVisibleByDevTools));
-        },
+        selector: (pageKey: string) => (state) => isHiddenPage(state, pageKey, makeOptions(forcedVisibleByDevTools)),
       },
       [forcedVisibleByDevTools],
     );
@@ -878,11 +872,8 @@ export const Hidden = {
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) => {
-          const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
-          const id = node instanceof LayoutPage ? node.pageKey : typeof node === 'string' ? node : node?.id;
-          return isHidden(state, type, id, lookups, makeOptions(forcedVisibleByDevTools, options));
-        },
+        selector: (nodeId: string, type: 'node' | 'page', options?: IsHiddenOptions) => (state) =>
+          isHidden(state, type, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)),
       },
       [forcedVisibleByDevTools],
     );
@@ -893,11 +884,8 @@ export const Hidden = {
     return Store.useDelayedSelectorProps(
       {
         mode: 'simple',
-        selector: (node: LayoutNode | LayoutPage | string, options?: IsHiddenOptions) => (state) => {
-          const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
-          const id = node instanceof LayoutPage ? node.pageKey : typeof node === 'string' ? node : node?.id;
-          return isHidden(state, type, id, lookups, makeOptions(forcedVisibleByDevTools, options));
-        },
+        selector: (nodeId: string, type: 'node' | 'page', options?: IsHiddenOptions) => (state) =>
+          isHidden(state, type, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)),
       },
       [forcedVisibleByDevTools],
     );
@@ -1068,12 +1056,12 @@ export const NodesInternal = {
     });
   },
 
-  useNodeErrors(node: LayoutNode | undefined) {
+  useNodeErrors(nodeId: string | undefined) {
     return Store.useSelector((s) => {
-      if (!node) {
+      if (!nodeId) {
         return undefined;
       }
-      return s.nodeData[node.id]?.errors;
+      return s.nodeData[nodeId]?.errors;
     });
   },
 
@@ -1102,24 +1090,29 @@ export const NodesInternal = {
       return selector(data as NodeData<T>);
     });
   },
-  useNodeData<N extends LayoutNode | undefined, Out>(
-    node: N,
-    selector: (nodeData: NodeDataFromNode<N>, readiness: NodesReadiness, fullState: NodesContext) => Out,
+  useNodeData<Id extends string | undefined, Type extends CompTypes, Out>(
+    nodeId: Id,
+    type: Type | undefined,
+    selector: (nodeData: NodeData<Type>, readiness: NodesReadiness, fullState: NodesContext) => Out,
   ) {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
     return Conditionally.useMemoSelector((s) => {
-      if (!node) {
+      if (!nodeId) {
         return undefined;
       }
       const data =
-        insideGenerator && s.nodeData[node.id]
-          ? s.nodeData[node.id]
+        insideGenerator && s.nodeData[nodeId]
+          ? s.nodeData[nodeId]
           : s.readiness === NodesReadiness.Ready
-            ? s.nodeData[node.id]
-            : (s.prevNodeData?.[node.id] ?? s.nodeData[node.id]);
+            ? s.nodeData[nodeId]
+            : (s.prevNodeData?.[nodeId] ?? s.nodeData[nodeId]);
 
-      return data ? selector(data as NodeDataFromNode<N>, s.readiness, s) : undefined;
-    }) as N extends undefined ? Out | undefined : Out;
+      if (data && type && data.nodeType !== type) {
+        throw new Error(`Expected id ${nodeId} to be of type ${type}, but it is of type ${data.nodeType}`);
+      }
+
+      return data ? selector(data as NodeData<Type>, s.readiness, s) : undefined;
+    }) as Id extends undefined ? Out | undefined : Out;
   },
   useNodeDataSelector: () => {
     const insideGenerator = GeneratorInternal.useIsInsideGenerator();
@@ -1139,15 +1132,18 @@ export const NodesInternal = {
       ],
     });
   },
-  useIsAdded: (node: LayoutNode | LayoutPage | undefined) =>
+  useIsAdded: (id: string | undefined, type: 'node' | 'page' | undefined) =>
     Store.useSelector((s) => {
-      if (!node) {
+      if (!id) {
         return false;
       }
-      if (node instanceof LayoutPage) {
-        return s.pagesData.pages[node.pageKey] !== undefined;
+      if (type === undefined) {
+        throw new Error('useIsAdded() requires an id and a type. When id is given, type has to be given too.');
       }
-      return s.nodeData[node.id] !== undefined;
+      if (type === 'node') {
+        return s.pagesData.pages[id] !== undefined;
+      }
+      return s.nodeData[id] !== undefined;
     }),
   useHasErrors: () => Store.useSelector((s) => s.hasErrors),
 
