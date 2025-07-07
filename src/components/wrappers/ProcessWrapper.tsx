@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import type { PropsWithChildren } from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
-import { FormFirstPage } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
@@ -86,7 +86,7 @@ export function NavigateToStartUrl() {
   return <Loader reason='navigate-to-process-start' />;
 }
 
-export function ProcessWrapper() {
+export function ProcessWrapper({ children }: PropsWithChildren) {
   const isCurrentTask = useIsCurrentTask();
   const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
@@ -136,7 +136,7 @@ export function ProcessWrapper() {
   }
 
   if (taskType === ProcessTaskType.Data) {
-    return <FormFirstPage />;
+    return children;
   }
 
   throw new Error(`Unknown task type: ${taskType}`);

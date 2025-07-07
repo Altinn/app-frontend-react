@@ -35,7 +35,9 @@ export const App = () => (
         path=':pageKey'
         element={
           <PresentationComponent type={PresentationType.Stateless}>
-            <Form />
+            <FormProvider>
+              <Form />
+            </FormProvider>
           </PresentationComponent>
         }
       />
@@ -53,9 +55,7 @@ export const App = () => (
       path='/instance/:instanceOwnerPartyId/:instanceGuid'
       element={
         <InstanceProvider>
-          <FormProvider>
-            <Outlet />
-          </FormProvider>
+          <Outlet />
         </InstanceProvider>
       }
     >
@@ -64,10 +64,63 @@ export const App = () => (
         element={<NavigateToStartUrl />}
       />
 
-      <Route path=':taskId'>
+      <Route
+        path={TaskKeys.ProcessEnd}
+        element={<DefaultReceipt />}
+      />
+
+      <Route
+        path={TaskKeys.CustomReceipt}
+        element={
+          <PresentationComponent
+            type={ProcessTaskType.Archived}
+            showNavigation={false}
+          >
+            <FormProvider>
+              <CustomReceipt />
+            </FormProvider>
+          </PresentationComponent>
+        }
+      >
         <Route
           index
-          element={<ProcessWrapper />}
+          element={<FormFirstPage />}
+        />
+        <Route path=':pageKey'>
+          <Route
+            index
+            element={
+              <PDFWrapper>
+                <Form />
+              </PDFWrapper>
+            }
+          />
+          <Route path=':componentId'>
+            <Route
+              index
+              element={<ComponentRouting />}
+            />
+            <Route
+              path='*'
+              element={<ComponentRouting />}
+            />
+          </Route>
+        </Route>
+      </Route>
+
+      <Route
+        path=':taskId'
+        element={
+          <ProcessWrapper>
+            <FormProvider>
+              <Outlet />
+            </FormProvider>
+          </ProcessWrapper>
+        }
+      >
+        <Route
+          index
+          element={<FormFirstPage />}
         />
         <Route path=':pageKey'>
           <Route
@@ -90,10 +143,6 @@ export const App = () => (
               element={<ComponentRouting />}
             />
           </Route>
-          <Route
-            path='*'
-            element={<FormFirstPage />}
-          />
         </Route>
       </Route>
 
@@ -101,22 +150,6 @@ export const App = () => (
         path='*'
         element={<NavigateToStartUrl />}
       />
-
-      <Route
-        path={TaskKeys.ProcessEnd}
-        element={<DefaultReceipt />}
-      />
-
-      <Route path={TaskKeys.CustomReceipt}>
-        <Route
-          index
-          element={<CustomReceipt />}
-        />
-        <Route
-          path='*'
-          element={<CustomReceipt />}
-        />
-      </Route>
     </Route>
 
     {/**
