@@ -1,6 +1,5 @@
 import type { Expression, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -176,7 +175,7 @@ export type SubformValidation<Severity extends ValidationSeverity = ValidationSe
   subformDataElementIds: string[];
 };
 
-export function isSubformValidation(validation: NodeValidation): validation is NodeValidation<SubformValidation> {
+export function isSubformValidation(validation: NodeRefValidation): validation is NodeRefValidation<SubformValidation> {
   return 'subformDataElementIds' in validation;
 }
 
@@ -187,19 +186,11 @@ export type AnyValidation<Severity extends ValidationSeverity = ValidationSeveri
   | SubformValidation<Severity>;
 
 /**
- * Validation message format used by frontend components.
- * This type is derived from other validation types, but a reference to the node is added.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type NodeValidation<Validation extends AnyValidation<any> = AnyValidation<any>> = Validation & {
-  node: LayoutNode;
-};
-
-/**
  * The same as NodeValidation, but with a nodeId instead of a node.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type NodeRefValidation<Validation extends AnyValidation<any> = AnyValidation<any>> = Validation & {
+  baseComponentId: string;
   nodeId: string;
 };
 

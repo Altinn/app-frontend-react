@@ -6,21 +6,21 @@ import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useTaskTypeFromBackend } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { type fetchSigneeList, NotificationStatus, useSigneeList } from 'src/layout/SigneeList/api';
 import { SigneeListComponent } from 'src/layout/SigneeList/SigneeListComponent';
 import { SigneeListError } from 'src/layout/SigneeList/SigneeListError';
 import { ProcessTaskType } from 'src/types';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 jest.mock('src/utils/layout/useNodeItem');
 jest.mock('react-router-dom');
 jest.mock('src/features/language/useLanguage');
 jest.mock('src/features/language/Lang');
-jest.mock('src/features/instance/ProcessContext');
+jest.mock('src/features/instance/useProcessQuery');
 jest.mock('src/layout/SigneeList/api');
 jest.mock('src/layout/SigneeList/SigneeListError');
 
@@ -82,13 +82,13 @@ describe('SigneeListComponent', () => {
       partyId: 'partyId',
       instanceGuid: randomUUID(),
     });
-    jest.mocked(useNodeItem).mockReturnValue({
+    jest.mocked(useItemWhenType).mockReturnValue({
       textResourceBindings: {
         title: 'Signee List',
         description: 'description',
         help: 'help',
       },
-    } as ReturnType<typeof useNodeItem>);
+    } as ReturnType<typeof useItemWhenType>);
   });
 
   it('should render correctly', () => {

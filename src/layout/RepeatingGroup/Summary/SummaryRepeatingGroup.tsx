@@ -12,8 +12,9 @@ import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType, useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
@@ -30,7 +31,7 @@ interface FullRowProps extends Omit<FullProps, 'rows'> {
 
 export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGroup'>) {
   const { excludedChildren, largeGroup } = props.overrides ?? {};
-  const rows = RepGroupHooks.useVisibleRows(props.targetNode);
+  const rows = RepGroupHooks.useVisibleRows(props.targetNode.baseId);
 
   const inExcludedChildren = (n: LayoutNode) =>
     excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false;
@@ -57,11 +58,11 @@ export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGrou
 function RegularRepeatingGroup(props: FullProps) {
   const { onChangeClick, changeText, targetNode, overrides, rows: _rows } = props;
   const rows = _rows.filter(typedBoolean);
-  const { textResourceBindings: trb } = useNodeItem(targetNode);
+  const { textResourceBindings: trb } = useItemWhenType(targetNode.baseId, 'RepeatingGroup');
   const display = overrides?.display;
   const { langAsString } = useLanguage();
 
-  const groupValidations = useDeepValidationsForNode(targetNode);
+  const groupValidations = useDeepValidationsForNode(targetNode.baseId);
   const groupHasErrors = hasValidationErrors(groupValidations);
 
   const summaryAccessibleTitleTrb = trb && 'summaryAccessibleTitle' in trb ? trb.summaryAccessibleTitle : undefined;
@@ -127,7 +128,7 @@ function RegularRepeatingGroup(props: FullProps) {
 function RegularRepeatingGroupRow({ targetNode, inExcludedChildren, row, onChangeClick, changeText }: FullRowProps) {
   const isHidden = Hidden.useIsHiddenSelector();
   const children = useNodeDirectChildren(targetNode, row.index);
-  const dataModelBindings = useNodeItem(targetNode, (i) => i.dataModelBindings);
+  const dataModelBindings = useDataModelBindingsFor(targetNode.baseId, 'RepeatingGroup');
 
   const childSummaryComponents = children
     .filter((n) => !inExcludedChildren(n))
@@ -164,7 +165,7 @@ function RegularRepeatingGroupRow({ targetNode, inExcludedChildren, row, onChang
 
 function LargeRepeatingGroup({ targetNode, overrides, inExcludedChildren, rows }: FullProps) {
   const isHidden = Hidden.useIsHiddenSelector();
-  const groupBinding = useNodeItem(targetNode, (i) => i.dataModelBindings.group);
+  const groupBinding = useDataModelBindingsFor(targetNode.baseId, 'RepeatingGroup').group;
 
   return (
     <>

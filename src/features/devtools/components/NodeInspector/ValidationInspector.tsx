@@ -9,10 +9,9 @@ import { Lang } from 'src/features/language/Lang';
 import { ValidationMask } from 'src/features/validation';
 import { isValidationVisible } from 'src/features/validation/utils';
 import { implementsAnyValidation } from 'src/layout';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { FileUploaderNode } from 'src/features/attachments';
-import type { AttachmentValidation, NodeValidation, ValidationSeverity } from 'src/features/validation';
+import type { AttachmentValidation, NodeRefValidation, ValidationSeverity } from 'src/features/validation';
 import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface ValidationInspectorProps {
@@ -31,8 +30,9 @@ const categories = [
 export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
   const validations = NodesInternal.useRawValidations(node);
   const nodeVisibility = NodesInternal.useRawValidationVisibility(node);
-  const { dataModelBindings, type } = useNodeItem(node);
-  const attachments = useAttachmentsFor(node as FileUploaderNode);
+  const dataModelBindings = useDataModelBindingsFor(node.baseId);
+  const type = node.type;
+  const attachments = useAttachmentsFor(node.baseId);
 
   if (!implementsAnyValidation(node.def)) {
     return (
@@ -42,7 +42,8 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
     );
   }
 
-  const componentValidations: NodeValidation[] = validations.map((validation) => ({ ...validation, node })) ?? [];
+  const componentValidations: NodeRefValidation[] =
+    validations.map((validation) => ({ ...validation, nodeId: node.id, baseComponentId: node.baseId })) ?? [];
 
   // Validations that are not bound to any data model field or attachment
   const unboundComponentValidations = componentValidations.filter(
@@ -51,7 +52,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
 
   // Validations for attachments
   const attachmentValidations: {
-    [key: string]: { attachmentVisibility: number; validations: NodeValidation<AttachmentValidation>[] };
+    [key: string]: { attachmentVisibility: number; validations: NodeRefValidation<AttachmentValidation>[] };
   } = componentValidations.reduce((obj, val) => {
     const attachmentValidation = 'attachmentId' in val ? val : undefined;
     if (attachmentValidation) {
@@ -68,7 +69,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
   }, {});
 
   // Validations for data model bindings
-  const bindingValidations: { [key: string]: NodeValidation[] } = {};
+  const bindingValidations: { [key: string]: NodeRefValidation[] } = {};
   for (const bindingKey of Object.keys(dataModelBindings ?? {})) {
     const key = `Datamodell ${bindingKey}`;
 
@@ -127,7 +128,7 @@ const CategoryVisibility = ({ mask }: { mask: number }) => (
 
 interface ValidationItemsProps {
   grouping: string;
-  validations: NodeValidation[];
+  validations: NodeRefValidation[];
   visibility: number;
 }
 const ValidationItems = ({ grouping, validations, visibility }: ValidationItemsProps) => {
@@ -141,7 +142,7 @@ const ValidationItems = ({ grouping, validations, visibility }: ValidationItemsP
       <ul style={{ padding: 0 }}>
         {validations.map((validation) => (
           <ValidationItem
-            key={`${validation.node.id}-${validation.source}-${validation.message.key}-${validation.severity}`}
+            key={`${validation.nodeId}-${validation.source}-${validation.message.key}-${validation.severity}`}
             validation={validation}
             visibility={visibility}
           />
@@ -152,7 +153,7 @@ const ValidationItems = ({ grouping, validations, visibility }: ValidationItemsP
 };
 
 interface ValidationItemProps {
-  validation: NodeValidation;
+  validation: NodeRefValidation;
   visibility: number;
 }
 const ValidationItem = ({ validation, visibility }: ValidationItemProps) => {

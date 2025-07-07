@@ -4,12 +4,12 @@ import type { PropsFromGenericComponent } from '..';
 
 import { Button, type ButtonColor, type ButtonVariant } from 'src/app-components/Button/Button';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { useIsAuthorized } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ActionButtonStyle } from 'src/layout/ActionButton/config.generated';
 
 export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
@@ -24,7 +24,7 @@ export function ActionButtonComponent({ node }: IActionButton) {
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
   const isAuthorized = useIsAuthorized();
 
-  const { action, buttonStyle, id, textResourceBindings } = useNodeItem(node);
+  const { action, buttonStyle, id, textResourceBindings } = useItemWhenType(node.baseId, 'ActionButton');
   const disabled = !isAuthorized(action) || isAnyProcessing;
 
   if (useIsSubformPage()) {

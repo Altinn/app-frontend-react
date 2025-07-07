@@ -4,7 +4,7 @@ import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
 import { AttachmentGroupings } from 'src/components/organisms/AttachmentGroupings';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import {
@@ -14,7 +14,7 @@ import {
   getRefAsPdfAttachments,
   toDisplayAttachments,
 } from 'src/utils/attachmentsUtils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataType } from 'src/types/shared';
 
@@ -23,14 +23,15 @@ export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
 const emptyDataTypeArray: IDataType[] = [];
 
 export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
-  const showLinks = useNodeItem(node, (i) => i.links);
-  const allowedAttachmentTypes = new Set(useNodeItem(node, (i) => i.dataTypeIds) ?? []);
-  const groupAttachments = useNodeItem(node, (i) => i.groupByDataTypeGrouping) ?? false;
-  const showDescription = useNodeItem(node, (i) => i.showDataTypeDescriptions) ?? false;
+  const item = useItemWhenType(node.baseId, 'AttachmentList');
+  const textResourceBindings = item.textResourceBindings;
+  const showLinks = item.links;
+  const allowedAttachmentTypes = new Set(item.dataTypeIds ?? []);
+  const groupAttachments = item.groupByDataTypeGrouping ?? false;
+  const showDescription = item.showDataTypeDescriptions ?? false;
 
   const instanceData = useLaxInstanceData((data) => data.data) ?? [];
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
   const appMetadataDataTypes = useApplicationMetadata().dataTypes ?? emptyDataTypeArray;
   const dataTypeIdsInCurrentTask = appMetadataDataTypes.filter((it) => it.taskId === currentTaskId).map((it) => it.id);
 

@@ -20,7 +20,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindings, NodeValidationProps } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Row = Record<string, string | number | boolean>;
 
@@ -73,18 +72,15 @@ export class MultipleSelect extends MultipleSelectDef {
     return <MultipleSelectSummary {...props} />;
   }
 
-  useEmptyFieldValidation(node: LayoutNode<'MultipleSelect'>): ComponentValidation[] {
-    return useValidateGroupIsEmpty(node);
+  useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateGroupIsEmpty(baseComponentId, 'MultipleSelect');
   }
 
   renderLayoutValidators(props: NodeValidationProps<'MultipleSelect'>): JSX.Element | null {
     return <ObjectToGroupLayoutValidator {...props} />;
   }
 
-  useDataModelBindingValidation(
-    node: LayoutNode<'MultipleSelect'>,
-    bindings: IDataModelBindings<'MultipleSelect'>,
-  ): string[] {
-    return useValidateSimpleBindingWithOptionalGroup(node, bindings);
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'MultipleSelect'>): string[] {
+    return useValidateSimpleBindingWithOptionalGroup(baseComponentId, bindings);
   }
 }

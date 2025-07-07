@@ -10,7 +10,7 @@ import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
@@ -23,18 +23,18 @@ import {
   useQueryKeysAsString,
 } from 'src/features/routing/AppRoutingContext';
 import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
+import { implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { useNode } from 'src/utils/layout/NodesContext';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface NavigationErrorProps {
   label: string;
 }
 
 function NavigationError({ label }: NavigationErrorProps) {
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
   const navigateToTask = useNavigateToTask();
 
   const appName = useAppName();
@@ -75,7 +75,7 @@ function NavigationError({ label }: NavigationErrorProps) {
 
 export function NavigateToStartUrl() {
   const navigate = useNavigate();
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
 
   const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
@@ -94,7 +94,7 @@ export const ProcessWrapper = () => {
   const isValidTaskId = useIsValidTaskId();
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
-  const process = useLaxProcessData();
+  const { data: process } = useProcessQuery();
 
   if (process?.ended) {
     return <NavigateToStartUrl />;
@@ -178,17 +178,14 @@ export const ComponentRouting = () => {
     return <RedirectBackToMainForm />;
   }
 
-  function isSubroutingNode(node: LayoutNode): node is LayoutNode<'Subform'> {
-    return node.isType('Subform') && !!node.def.subRouting;
-  }
-
-  if (isSubroutingNode(node)) {
-    const SubRouting = node.def.subRouting;
+  const def = node.def;
+  if (implementsSubRouting(def)) {
+    const SubRouting = def.subRouting;
 
     return (
       <SubRouting
         key={node.id}
-        node={node}
+        baseComponentId={node.baseId}
       />
     );
   }

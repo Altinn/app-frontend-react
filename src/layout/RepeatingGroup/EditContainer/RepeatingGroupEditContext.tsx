@@ -4,12 +4,13 @@ import type { PropsWithChildren } from 'react';
 import { createContext } from 'src/core/contexts/context';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { useRepeatingGroupComponentId } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { LayoutNode } from 'src/utils/layout/LayoutNode';
 import { LayoutPage } from 'src/utils/layout/LayoutPage';
-import { isHidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
 
 interface RepeatingGroupEditRowContext {
   multiPageEnabled: boolean;
@@ -26,13 +27,13 @@ const { Provider, useCtx } = createContext<RepeatingGroupEditRowContext>({
 });
 
 function useRepeatingGroupEditRowState(
-  node: LayoutNode<'RepeatingGroup'>,
+  baseComponentId: string,
 ): RepeatingGroupEditRowContext & { setMultiPageIndex: (index: number) => void } {
-  const edit = useNodeItem(node, (item) => item.edit);
+  const edit = useExternalItem(baseComponentId, 'RepeatingGroup').edit;
   const multiPageEnabled = edit?.multiPage ?? false;
   const lookups = useLayoutLookups();
 
-  const children = RepGroupHooks.useChildIdsWithMultiPage(node);
+  const children = RepGroupHooks.useChildIdsWithMultiPage(baseComponentId);
 
   const hiddenState = NodesInternal.useMemoSelector((state) =>
     children.map(({ id, multiPageIndex }) => ({
@@ -86,8 +87,9 @@ function useRepeatingGroupEditRowState(
 }
 
 export function RepeatingGroupEditRowProvider({ children }: PropsWithChildren) {
-  const { node } = useRepeatingGroup();
-  const { setMultiPageIndex, ...state } = useRepeatingGroupEditRowState(node);
+  const baseComponentId = useRepeatingGroupComponentId();
+  const { setMultiPageIndex, ...state } = useRepeatingGroupEditRowState(baseComponentId);
+  const node = useNode(useIndexedId(baseComponentId));
 
   useRegisterNodeNavigationHandler(async (targetNode) => {
     if (!state.multiPageEnabled) {

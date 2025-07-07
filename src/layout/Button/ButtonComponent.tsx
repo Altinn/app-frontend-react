@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { useAttachmentState, useHasPendingAttachments } from 'src/features/attachments/hooks';
+import { useAttachmentState } from 'src/features/attachments/hooks';
 import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
-import { useLaxProcessData, useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useProcessQuery, useTaskTypeFromBackend } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
@@ -13,7 +13,7 @@ import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { alignStyle } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
 import { ProcessTaskType } from 'src/types';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
 
@@ -23,14 +23,13 @@ export type IButtonProvidedProps =
   | (PropsFromGenericComponent<'InstantiationButton'> & CompInternal<'InstantiationButton'>);
 
 export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProps) => {
-  const item = useNodeItem(node);
+  const item = useItemWhenType(node.baseId, node.type);
   const { mode } = item;
   const { langAsString } = useLanguage();
   const props: IButtonProvidedProps = { ...componentProps, ...item, node };
 
   const currentTaskType = useTaskTypeFromBackend();
-  const { actions, write } = useLaxProcessData()?.currentTask || {};
-  const attachmentsPending = useHasPendingAttachments();
+  const { actions, write } = useProcessQuery().data?.currentTask || {};
   const attachmentState = useAttachmentState();
   const processNext = useProcessNext();
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
@@ -42,7 +41,7 @@ export const ButtonComponent = ({ node, ...componentProps }: IButtonReceivedProp
 
   const disabled =
     isAnyProcessing ||
-    attachmentsPending ||
+    attachmentState.hasPending ||
     attachmentState.state === 'Infected' ||
     (currentTaskType === ProcessTaskType.Data && !write) ||
     (currentTaskType === ProcessTaskType.Confirm && !actions?.confirm);

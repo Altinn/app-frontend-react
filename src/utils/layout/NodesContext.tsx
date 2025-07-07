@@ -139,7 +139,8 @@ export type NodesContext = {
 
   waitForCommits: undefined | (() => Promise<void>);
   setWaitForCommits: (waitForCommits: () => Promise<void>) => void;
-} & ExtraFunctions;
+} & NodesProviderProps &
+  ExtraFunctions;
 
 /**
  * Using the inferred types in the immer produce() function here introduces a lot of typescript overhead, which slows
@@ -149,13 +150,13 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
   return produce(fn) as unknown as Partial<NodesContext>;
 }
 
-interface CreateStoreProps {
+interface CreateStoreProps extends NodesProviderProps {
   validationsProcessedLast: ValidationsProcessedLast;
   registry: MutableRefObject<Registry>;
 }
 
 export type NodesContextStore = StoreApi<NodesContext>;
-export function createNodesDataStore({ registry, validationsProcessedLast }: CreateStoreProps) {
+export function createNodesDataStore({ registry, validationsProcessedLast, ...props }: CreateStoreProps) {
   const defaultState = {
     readiness: NodesReadiness.NotReady,
     hasErrors: false,
@@ -172,6 +173,7 @@ export function createNodesDataStore({ registry, validationsProcessedLast }: Cre
 
   return createStore<NodesContext>((set) => ({
     ...defaultState,
+    ...props,
 
     layouts: undefined,
     stages: createStagesStore(registry, set),
@@ -437,12 +439,18 @@ const { Provider: ProvideLayoutPages, useCtx: useLayoutPages } = createContext<L
   required: true,
 });
 
-export const NodesProvider = ({ children }: React.PropsWithChildren) => {
+interface NodesProviderProps extends PropsWithChildren {
+  readOnly: boolean;
+  isEmbedded: boolean;
+}
+
+export const NodesProvider = ({ children, ...props }: NodesProviderProps) => {
   const registry = useRegistry();
   const getProcessedLast = Validation.useGetProcessedLast();
 
   return (
     <Store.Provider
+      {...props}
       registry={registry}
       validationsProcessedLast={getProcessedLast()}
     >
@@ -827,11 +835,12 @@ function useIsForcedVisibleByDevTools() {
 
 export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
-  useIsHidden(node: LayoutNode | LayoutPage | undefined, options?: AccessibleIsHiddenOptions) {
+  useIsHidden(nodeOrId: LayoutNode | LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
     const lookups = useLayoutLookups();
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    const type = node instanceof LayoutPage ? ('page' as const) : ('node' as const);
-    const id = node instanceof LayoutPage ? node.pageKey : node?.id;
+    const type = nodeOrId instanceof LayoutPage ? ('page' as const) : ('node' as const);
+    const id =
+      nodeOrId instanceof LayoutPage ? nodeOrId.pageKey : typeof nodeOrId === 'string' ? nodeOrId : nodeOrId?.id;
     return WhenReady.useSelector((s) => isHidden(s, type, id, lookups, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenPage(page: LayoutPage | string | undefined, options?: AccessibleIsHiddenOptions) {
@@ -967,6 +976,12 @@ function selectNodeData<T extends CompTypes = CompTypes>(
  * A set of tools, selectors and functions to use internally in node generator components.
  */
 export const NodesInternal = {
+  useIsReadOnly() {
+    return Store.useSelector((s) => s.readOnly);
+  },
+  useIsEmbedded() {
+    return Store.useSelector((s) => s.isEmbedded);
+  },
   useIsReadyRef() {
     const ref = useRef(true); // Defaults to true if context is not provided
     Store.useLaxSelectorAsRef((s) => {
