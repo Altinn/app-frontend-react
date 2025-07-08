@@ -21,7 +21,7 @@ export function AltinnCollapsibleAttachments({
   showLinks = true,
   showDescription,
 }: IAltinnCollapsibleAttachmentsProps) {
-  const isCollapsible = useIsPrint() ? false : Boolean(attachments && attachments.length > 0);
+  const isCollapsible = useIsPrint() ? false : Boolean(attachments && attachments.length > 4);
   const [open, setOpen] = React.useState(true);
 
   function handleOpenClose() {

@@ -1,9 +1,9 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { Heading } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
+import { MainAttachmentHeader, SubAttachmentHeader } from 'src/components/atoms/AttachmentHeader';
 import { AltinnCollapsibleAttachments } from 'src/components/molecules/AltinnCollapsibleAttachments';
 import classes from 'src/components/organisms/AttachmentGroupings.module.css';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -100,23 +100,25 @@ function GroupingTitle({ groupTitle, hideCollapsibleCount, groupings, mainTitle 
 
   if (groupTitle === defaultGroupingKey) {
     return (
-      <Heading
-        level={2}
-        data-size='sm'
+      <MainAttachmentHeader
+        title={
+          <>
+            {mainTitle}&nbsp;{numAttachmentsInGroup}
+          </>
+        }
         className={cn({ [classes.paddingBottom]: !hasAnyAttachmentsWithoutGrouping })}
-      >
-        {mainTitle}&nbsp;{numAttachmentsInGroup}
-      </Heading>
+      />
     );
   }
 
   return (
-    <Heading
-      level={3}
-      data-size='xs'
-    >
-      {groupTitle}&nbsp;{numAttachmentsInGroup}
-    </Heading>
+    <SubAttachmentHeader
+      title={
+        <>
+          {groupTitle}&nbsp;{numAttachmentsInGroup}
+        </>
+      }
+    />
   );
 }
 
