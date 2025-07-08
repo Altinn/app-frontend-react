@@ -3,7 +3,6 @@ import { getComponentDef } from 'src/layout';
 import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import { useExpressionResolverProps } from 'src/utils/layout/generator/NodeGenerator';
 import { useDataModelBindingsFor, useIntermediateItem } from 'src/utils/layout/hooks';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings } from 'src/layout/layout';
@@ -77,28 +76,6 @@ export function useItemFor<T extends CompTypes = CompTypes>(baseComponentId: str
   const props = useExpressionResolverProps(`Invalid expression for ${baseComponentId}`, intermediate, dataSources);
   const def = getComponentDef(intermediate.type);
   return def.evalExpressions(props as never) as CompInternal<T>;
-}
-
-const emptyArray = [];
-export function useNodeDirectChildren_DO_NOT_USE(
-  parentIndexedId: string | undefined,
-  restriction?: number | undefined,
-): string[] {
-  return (
-    NodesInternal.useMemoSelector((state) => {
-      if (!parentIndexedId) {
-        return emptyArray;
-      }
-
-      const out: string[] = [];
-      for (const n of Object.values(state.nodeData)) {
-        if (n.parentId === parentIndexedId && (restriction === undefined || restriction === n.rowIndex)) {
-          out.push(n.id);
-        }
-      }
-      return out;
-    }) ?? emptyArray
-  );
 }
 
 type FormDataFromType<T extends CompTypes | undefined> = T extends undefined
