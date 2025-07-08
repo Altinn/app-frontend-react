@@ -1,8 +1,8 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 
 import { useSetOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -29,7 +29,7 @@ export function EffectPreselectedOptionIndex({ preselectedOption, valueType, opt
   const shouldSelectOptionAutomatically =
     !hasValue && !hasSelectedInitial.current && preselectedOption !== undefined && isHidden !== true;
 
-  NodesInternal.useEffectWhenReady(() => {
+  useEffect(() => {
     if (shouldSelectOptionAutomatically) {
       setData([preselectedOption.value]);
       hasSelectedInitial.current = true;
