@@ -17,7 +17,6 @@ describe('Custom Button', () => {
     cy.goto('changename');
 
     cy.findByRole('textbox', { name: /Her kan man skrive input/ }).type('Hello b');
-    cy.waitUntilSaved();
 
     cy.findByRole('button', { name: 'Fyll ut skjema' }).click();
     cy.get(appFrontend.toast).should('have.text', 'Her kommer det en feilmelding');
@@ -33,7 +32,6 @@ describe('Custom Button', () => {
 
   it('It should execute frontend actions that are specified in the component', () => {
     cy.goto('changename');
-    cy.waitUntilSaved();
 
     cy.findByRole('button', { name: 'Trigger frontend actions' }).click();
     cy.findByRole('textbox', { name: /Hvor mye gjeld har du?/ }).should('be.visible');
