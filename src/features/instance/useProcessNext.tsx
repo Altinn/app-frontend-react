@@ -18,10 +18,10 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { Validation } from 'src/features/validation/validationContext';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { doProcessNext } from 'src/queries/queries';
+import { ELEMENT_TYPE, type IActionType, type IProcess } from 'src/types/shared';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
-import type { IActionType, IProcess } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface ProcessNextProps {
@@ -103,9 +103,17 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
         }
       }
     },
-    onError: (error: HttpClientError) => {
+    onError: async (error: HttpClientError) => {
       window.logError('Process next failed:\n', error);
-      displayError(error);
+      const { data: process } = await refetchProcessData();
+      const currentTask = process?.currentTask;
+      const isCurrentTaskServiceTask = currentTask && currentTask.elementType === ELEMENT_TYPE.SERVICE_TASK;
+
+      if (isCurrentTaskServiceTask) {
+        navigateToTask(currentTask.elementId);
+      } else {
+        displayError(error);
+      }
     },
   });
 }
