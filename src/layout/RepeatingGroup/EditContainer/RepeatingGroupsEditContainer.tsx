@@ -23,7 +23,6 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { CompInternal } from 'src/layout/layout';
 import type { RepGroupRow } from 'src/layout/RepeatingGroup/utils';
 
 export interface IRepeatingGroupsEditContainer {
@@ -61,7 +60,7 @@ function RepeatingGroupsEditContainerInternal({
 }): JSX.Element | null {
   const { baseComponentId, closeForEditing, deleteRow, openNextForEditing, isDeleting } = useRepeatingGroup();
   const { visibleRows } = useRepeatingGroupRowState();
-  const childIds = RepGroupHooks.useChildIds(baseComponentId);
+  const childIds = RepGroupHooks.useChildIdsWithMultiPage(baseComponentId);
 
   const editingRowIndex = visibleRows.find((r) => r.uuid === editId)?.index;
   let moreVisibleRowsAfterEditIndex = false;
@@ -152,15 +151,22 @@ function RepeatingGroupsEditContainerInternal({
           style={{ flexBasis: 'auto' }}
           ref={(n) => refSetter && editingRowIndex !== undefined && refSetter(editingRowIndex, 'editContainer', n)}
         >
-          {childIds.map((baseId) => (
-            <ChildComponent
-              key={baseId}
-              baseId={baseId}
-              multiPageIndex={multiPageIndex}
-              multiPageEnabled={multiPageEnabled}
-              tableColumns={tableColumns}
-            />
-          ))}
+          {childIds.map((child) => {
+            if (multiPageEnabled && multiPageIndex !== child.multiPageIndex) {
+              return null;
+            }
+
+            if (tableColumns && tableColumns[child.baseId]?.showInExpandedEdit === false) {
+              return null;
+            }
+
+            return (
+              <GenericComponent
+                key={child.baseId}
+                baseComponentId={child.baseId}
+              />
+            );
+          })}
         </Flex>
         <Flex
           item
@@ -239,27 +245,4 @@ function RepeatingGroupsEditContainerInternal({
       </Flex>
     </div>
   );
-}
-
-function ChildComponent({
-  baseId,
-  multiPageIndex,
-  multiPageEnabled,
-  tableColumns,
-}: {
-  baseId: string;
-  multiPageEnabled: boolean;
-  multiPageIndex: number | undefined;
-  tableColumns: CompInternal<'RepeatingGroup'>['tableColumns'] | undefined;
-}) {
-  const isOnOtherMultiPage = multiPageEnabled && node.multiPageIndex !== multiPageIndex;
-  if (isOnOtherMultiPage) {
-    return null;
-  }
-
-  if (tableColumns && tableColumns[baseId]?.showInExpandedEdit === false) {
-    return null;
-  }
-
-  return <GenericComponent baseComponentId={baseId} />;
 }
