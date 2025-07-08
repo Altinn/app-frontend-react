@@ -4,14 +4,13 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import { NODES_TICK_TIMEOUT, StageFinished } from 'src/utils/layout/generator/GeneratorStages';
+import { NODES_TICK_TIMEOUT } from 'src/utils/layout/generator/GeneratorStages';
 import {
   type AddNodeRequest,
   NodesInternal,
   NodesStore,
   type RemoveNodeRequest,
   type SetNodePropRequest,
-  type SetPagePropRequest,
 } from 'src/utils/layout/NodesContext';
 
 /**
@@ -22,29 +21,12 @@ export interface RegistryCommitQueues {
   removeNodes: RemoveNodeRequest[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setNodeProps: SetNodePropRequest<any, any>[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setPageProps: SetPagePropRequest<any>[];
-}
-
-export function useGetAwaitingCommits() {
-  const registry = GeneratorInternal.useRegistry();
-
-  return useCallback(() => {
-    const toCommit = registry.current.toCommit;
-    return (
-      toCommit.addNodes.length +
-      toCommit.removeNodes.length +
-      toCommit.setNodeProps.length +
-      toCommit.setPageProps.length
-    );
-  }, [registry]);
 }
 
 export function useCommit() {
   const addNodes = NodesInternal.useAddNodes();
   const removeNodes = NodesInternal.useRemoveNodes();
   const setNodeProps = NodesInternal.useSetNodeProps();
-  const setPageProps = NodesInternal.useSetPageProps();
   const registry = GeneratorInternal.useRegistry();
 
   return useCallback(() => {
@@ -80,16 +62,9 @@ export function useCommit() {
       changes = true;
     }
 
-    if (toCommit.setPageProps.length) {
-      generatorLog('logCommits', 'Committing', toCommit.setPageProps.length, 'setPageProps requests');
-      setPageProps(toCommit.setPageProps);
-      toCommit.setPageProps.length = 0;
-      changes = true;
-    }
-
     updateCommitsPendingInBody(toCommit);
     return changes;
-  }, [addNodes, removeNodes, setNodeProps, setPageProps, registry]);
+  }, [addNodes, removeNodes, setNodeProps, registry]);
 }
 
 export function SetWaitForCommits() {
@@ -130,9 +105,6 @@ export const NodesStateQueue = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   useSetNodeProp: (req: SetNodePropRequest<any, any>, condition: boolean) =>
     useAddToQueue('setNodeProps', true, req, condition),
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  useSetPageProp: (req: SetPagePropRequest<any>, condition: boolean) =>
-    useAddToQueue('setPageProps', true, req, condition),
 };
 
 function useAddToQueue<T extends keyof RegistryCommitQueues>(
@@ -190,17 +162,12 @@ function useOnUnmount(request: Omit<RemoveNodeRequest, 'layouts'>) {
  */
 export function useCommitWhenFinished() {
   const commit = useCommit();
-  const registry = GeneratorInternal.useRegistry();
-  const stateRef = NodesStore.useSelectorAsRef((s) => s.stages);
 
   return useCallback(() => {
-    if (stateRef.current.currentStage === StageFinished && !registry.current.commitTimeout) {
-      registry.current.commitTimeout = setTimeout(() => {
-        commit();
-        registry.current.commitTimeout = null;
-      }, 4);
-    }
-  }, [stateRef, commit, registry]);
+    setTimeout(() => {
+      commit();
+    }, 4);
+  }, [commit]);
 }
 
 function updateCommitsPendingInBody(toCommit: RegistryCommitQueues) {

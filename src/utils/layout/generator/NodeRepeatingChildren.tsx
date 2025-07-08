@@ -6,7 +6,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -21,10 +21,7 @@ interface Props {
 
 export function NodeRepeatingChildren(props: Props) {
   return (
-    <GeneratorCondition
-      stage={StageAddNodes}
-      mustBeAdded='parent'
-    >
+    <GeneratorCondition mustBeAdded='parent'>
       <NodeRepeatingChildrenWorker {...props} />
     </GeneratorCondition>
   );
@@ -43,7 +40,7 @@ function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
   );
 
   return (
-    <GeneratorRunProvider>
+    <>
       {Array.from({ length: numRows }).map((_, index) => (
         <Fragment key={index}>
           {/* Do not remove this space.
@@ -61,7 +58,7 @@ function NodeRepeatingChildrenWorker({ claims, plugin }: Props) {
           />
         </Fragment>
       ))}
-    </GeneratorRunProvider>
+    </>
   );
 }
 

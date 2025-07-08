@@ -6,17 +6,14 @@ import { useNodeValidation } from 'src/features/validation/nodeValidation/useNod
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition, StageFormValidation } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
 import type { CompExternal, CompIntermediate } from 'src/layout/layout';
 
 export function StoreValidationsInNode() {
   return (
-    <GeneratorCondition
-      stage={StageFormValidation}
-      mustBeAdded='parent'
-    >
+    <GeneratorCondition mustBeAdded='parent'>
       <StoreValidationsInNodeWorker />
     </GeneratorCondition>
   );
