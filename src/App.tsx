@@ -35,18 +35,12 @@ export const App = () => (
         path=':pageKey'
         element={
           <PresentationComponent type={PresentationType.Stateless}>
-            <FormProvider>
-              <Form />
-            </FormProvider>
+            <Form />
           </PresentationComponent>
         }
       />
       <Route
         index
-        element={<FormFirstPage />}
-      />
-      <Route
-        path='*'
         element={<FormFirstPage />}
       />
     </Route>
