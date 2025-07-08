@@ -7,7 +7,6 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
@@ -15,9 +14,8 @@ import {
   GeneratorCondition,
   GeneratorRunProvider,
   StageAddNodes,
-  StageMarkHidden,
+  StageFormValidation,
 } from 'src/utils/layout/generator/GeneratorStages';
-import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
@@ -62,18 +60,12 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
           intermediateItem={intermediateItem}
         />
       </GeneratorCondition>
-      <GeneratorCondition
-        stage={StageMarkHidden}
-        mustBeAdded='parent'
-      >
-        <MarkAsHidden {...commonProps} />
-      </GeneratorCondition>
       <GeneratorNodeProvider
         parentBaseId={externalItem.id}
         item={intermediateItem}
       >
         <GeneratorCondition
-          stage={StageMarkHidden}
+          stage={StageFormValidation}
           mustBeAdded='parent'
         >
           <NodePropertiesValidation
@@ -90,22 +82,6 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
 interface CommonProps<T extends CompTypes> {
   baseComponentId: string;
   externalItem: CompExternalExact<T>;
-}
-
-function MarkAsHidden<T extends CompTypes>({ baseComponentId, externalItem }: CommonProps<T>) {
-  const indexedId = useIndexedId(baseComponentId);
-  const forceHidden = GeneratorInternal.useForceHidden();
-  const hiddenResult =
-    useEvalExpressionInGenerator(externalItem.hidden, {
-      returnType: ExprVal.Boolean,
-      defaultValue: false,
-      errorIntroText: `Invalid hidden expression for ${baseComponentId}`,
-    }) ?? false;
-  const hidden = forceHidden ? true : hiddenResult;
-  const isSet = NodesInternal.useNodeData(indexedId, undefined, (data) => data.hidden === hidden);
-  NodesStateQueue.useSetNodeProp({ nodeId: indexedId, prop: 'hidden', value: hidden }, !isSet);
-
-  return null;
 }
 
 function AddRemoveNode<T extends CompTypes>({

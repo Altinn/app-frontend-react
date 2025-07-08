@@ -10,11 +10,10 @@ import type { RegistryCommitQueues } from 'src/utils/layout/generator/CommitQueu
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 
 export const StageAddNodes = Symbol('AddNodes');
-export const StageMarkHidden = Symbol('MarkHidden');
 export const StageFormValidation = Symbol('FormValidation');
 export const StageFinished = Symbol('Finished');
 
-const List = [StageAddNodes, StageMarkHidden, StageFormValidation, StageFinished] as const;
+const List = [StageAddNodes, StageFormValidation, StageFinished] as const;
 
 type StageList = typeof List;
 type Stage = StageList[number];
