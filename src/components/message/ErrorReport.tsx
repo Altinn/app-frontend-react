@@ -9,6 +9,10 @@ import classes from 'src/components/message/ErrorReport.module.css';
 import { useAllAttachments } from 'src/features/attachments/hooks';
 import { FileScanResults } from 'src/features/attachments/types';
 import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
+import {
+  InstantiationValidation,
+  isInstantiationValidationResult,
+} from 'src/features/instantiate/InstantiationValidation';
 import { Lang } from 'src/features/language/Lang';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -118,6 +122,7 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
         <ErrorReportListItem key={getUniqueKeyFromObject(error)}>
           <Lang
             id={error.message.key}
+            customTextParameters={error.message.customTextParameters}
             params={error.message.params}
           />
         </ErrorReportListItem>
@@ -145,15 +150,14 @@ export function ErrorListFromInstantiation({ error }: { error: unknown }) {
   const selectedParty = useSelectedParty();
 
   if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const message = (error.response?.data as any)?.message;
-    if (message) {
+    if (isInstantiationValidationResult(error.response.data)) {
       return (
         <ErrorReportListItem>
-          <Lang id={message} />
+          <InstantiationValidation validationResult={error.response.data} />
         </ErrorReportListItem>
       );
     }
+
     return (
       <ErrorReportListItem>
         <span>
@@ -207,6 +211,7 @@ function ErrorWithLink({ error }: { error: NodeRefValidation }) {
           <Lang
             id={error.message.key}
             params={error.message.params}
+            customTextParameters={error.message.customTextParameters}
           />
         </DataModelLocationProviderFromNode>
       </button>
