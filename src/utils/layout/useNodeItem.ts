@@ -5,7 +5,6 @@ import { useExpressionResolverProps } from 'src/utils/layout/generator/NodeGener
 import { useDataModelBindingsFor, useIntermediateItem } from 'src/utils/layout/hooks';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import { typedBoolean } from 'src/utils/typing';
 import type { FormDataSelector } from 'src/layout';
 import type { CompInternal, CompTypes, IDataModelBindings } from 'src/layout/layout';
 import type { IComponentFormData } from 'src/utils/formComponentUtils';
@@ -80,22 +79,24 @@ export function useItemFor<T extends CompTypes = CompTypes>(baseComponentId: str
   return def.evalExpressions(props as never) as CompInternal<T>;
 }
 
-const emptyArray: LayoutNode[] = [];
-export function useNodeDirectChildren(parent: LayoutNode | undefined, restriction?: number | undefined): LayoutNode[] {
-  const nodes = useNodes();
+const emptyArray = [];
+export function useNodeDirectChildren_DO_NOT_USE(
+  parentIndexedId: string | undefined,
+  restriction?: number | undefined,
+): string[] {
   return (
     NodesInternal.useMemoSelector((state) => {
-      if (!parent) {
+      if (!parentIndexedId) {
         return emptyArray;
       }
 
-      const out: (LayoutNode | undefined)[] = [];
+      const out: string[] = [];
       for (const n of Object.values(state.nodeData)) {
-        if (n.parentId === parent.id && (restriction === undefined || restriction === n.rowIndex)) {
-          out.push(nodes.findById(n.id));
+        if (n.parentId === parentIndexedId && (restriction === undefined || restriction === n.rowIndex)) {
+          out.push(n.id);
         }
       }
-      return out.filter(typedBoolean);
+      return out;
     }) ?? emptyArray
   );
 }

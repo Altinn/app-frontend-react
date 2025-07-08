@@ -37,7 +37,6 @@ export const LayoutInspector = () => {
   }, [componentProperties]);
 
   const currentLayout = currentView ? layouts?.[currentView] : undefined;
-  const matchingNode = useNode(selectedComponent);
   const validationErrorsForPage = useLayoutValidationForPage() || {};
 
   useEffect(() => {
@@ -153,8 +152,8 @@ export const LayoutInspector = () => {
               </Alert>
             )}
             <div className={classes.headerLink}>
-              {!matchingNode && 'Ingen aktive komponenter funnet'}
-              {matchingNode && <NodeLink nodeId={matchingNode.id} />}
+              {!selectedComponent && 'Ingen aktive komponenter funnet'}
+              {selectedComponent && <NodeLink nodeId={selectedComponent} />}
             </div>
           </div>
           <textarea

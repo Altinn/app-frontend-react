@@ -77,7 +77,6 @@ function ModeOnlyTable() {
 
 function ModeOnlyEdit({ editingId }: { editingId: string }) {
   const baseComponentId = useRepeatingGroupComponentId();
-  const node = useNode(useIndexedId(baseComponentId));
   const parent = useLayoutLookups().componentToParent[baseComponentId];
   const isNested = parent?.type === 'node';
 
@@ -85,7 +84,7 @@ function ModeOnlyEdit({ editingId }: { editingId: string }) {
   const grid = useExternalItem(baseComponentId, 'RepeatingGroup').grid;
   const rowIndex = RepGroupHooks.useAllBaseRows(baseComponentId).find((r) => r.uuid === editingId)?.index;
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
-    baseComponentId: node.baseId,
+    baseComponentId,
     overrideDisplay: undefined,
   });
 
