@@ -49,7 +49,7 @@ import type { FormDataMethods } from 'src/features/formData/FormDataWriteStateMa
 import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IRawOption } from 'src/layout/common.generated';
-import type { CompExternalExact, CompTypes } from 'src/layout/layout';
+import type { CompExternal, CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppMutations, AppQueries, AppQueriesContext } from 'src/queries/types';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
@@ -687,8 +687,7 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
     id: 'my-test-component-id',
     type,
     ...component,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any;
+  } as CompExternal;
 
   const Wrapper = () => {
     const props: PropsFromGenericComponent<T> = {
