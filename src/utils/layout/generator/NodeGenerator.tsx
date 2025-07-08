@@ -10,12 +10,7 @@ import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import {
-  GeneratorCondition,
-  GeneratorRunProvider,
-  StageAddNodes,
-  StageFormValidation,
-} from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
@@ -49,12 +44,8 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
   const commonProps: CommonProps<CompTypes> = { baseComponentId: externalItem.id, externalItem };
 
   return (
-    // Adding id as a key to make it easier to see which component is being rendered in the React DevTools
-    <GeneratorRunProvider key={intermediateItem.id}>
-      <GeneratorCondition
-        stage={StageAddNodes}
-        mustBeAdded='parent'
-      >
+    <>
+      <GeneratorCondition mustBeAdded='parent'>
         <AddRemoveNode
           {...commonProps}
           intermediateItem={intermediateItem}
@@ -64,10 +55,7 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
         parentBaseId={externalItem.id}
         item={intermediateItem}
       >
-        <GeneratorCondition
-          stage={StageFormValidation}
-          mustBeAdded='parent'
-        >
+        <GeneratorCondition mustBeAdded='parent'>
           <NodePropertiesValidation
             {...commonProps}
             intermediateItem={intermediateItem}
@@ -75,7 +63,7 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
         </GeneratorCondition>
         {children}
       </GeneratorNodeProvider>
-    </GeneratorRunProvider>
+    </>
   );
 }
 

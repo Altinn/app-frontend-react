@@ -15,8 +15,6 @@ import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAtta
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayoutLookups, useLayouts } from 'src/features/form/layout/LayoutsContext';
-import { usePdfLayoutName, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useIsCurrentView } from 'src/features/routing/AppRoutingContext';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import {
   LoadingBlockerWaitForValidation,
@@ -29,7 +27,7 @@ import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import { createStagesStore, GeneratorStagesEffects, useRegistry } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorStagesEffects, useRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
@@ -38,7 +36,7 @@ import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
 import type { CompTypes, ILayouts } from 'src/layout/layout';
-import type { GeneratorStagesContext, Registry } from 'src/utils/layout/generator/GeneratorStages';
+import type { Registry } from 'src/utils/layout/generator/GeneratorStages';
 import type { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import type { GeneratorErrors, NodeData } from 'src/utils/layout/types';
 
@@ -91,12 +89,6 @@ export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeDat
   value: NodeData<T>[K];
 }
 
-export interface SetPagePropRequest<K extends keyof PageData> {
-  pageKey: string;
-  prop: K;
-  value: PageData[K];
-}
-
 export type NodesContext = {
   hasErrors: boolean;
   pagesData: PagesData;
@@ -105,7 +97,6 @@ export type NodesContext = {
   hiddenViaRulesRan: boolean;
 
   layouts: ILayouts | undefined; // Used to detect if the layouts have changed
-  stages: GeneratorStagesContext;
 
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNodes: (request: RemoveNodeRequest[]) => void;
@@ -114,7 +105,6 @@ export type NodesContext = {
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
   addPage: (pageKey: string) => void;
-  setPageProps: <K extends keyof PageData>(requests: SetPagePropRequest<K>[]) => void;
 
   reset: (layouts: ILayouts, validationsProcessedLast: ValidationsProcessedLast) => void;
 
@@ -133,11 +123,10 @@ export function nodesProduce(fn: (draft: NodesContext) => void) {
 
 interface CreateStoreProps extends NodesProviderProps {
   validationsProcessedLast: ValidationsProcessedLast;
-  registry: MutableRefObject<Registry>;
 }
 
 export type NodesContextStore = StoreApi<NodesContext>;
-export function createNodesDataStore({ registry, validationsProcessedLast, ...props }: CreateStoreProps) {
+export function createNodesDataStore({ validationsProcessedLast, ...props }: CreateStoreProps) {
   const defaultState = {
     hasErrors: false,
     pagesData: {
@@ -155,7 +144,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast, ...pr
     ...props,
 
     layouts: undefined,
-    stages: createStagesStore(registry, set),
 
     markHiddenViaRule: (newState) =>
       set((state) => {
@@ -253,19 +241,6 @@ export function createNodesDataStore({ registry, validationsProcessedLast, ...pr
           };
         }),
       ),
-    setPageProps: (requests) =>
-      set((state) => {
-        const pageData = { ...state.pagesData.pages };
-        for (const { pageKey, prop, value } of requests) {
-          const obj = { ...pageData[pageKey] };
-          if (!obj) {
-            continue;
-          }
-          obj[prop] = value;
-          pageData[pageKey] = obj;
-        }
-        return { pagesData: { type: 'pages', pages: pageData } };
-      }),
 
     reset: (layouts, validationsProcessedLast: ValidationsProcessedLast) =>
       set(() => {
@@ -318,7 +293,6 @@ export const NodesProvider = ({ children, ...props }: NodesProviderProps) => {
   return (
     <Store.Provider
       {...props}
-      registry={registry}
       validationsProcessedLast={getProcessedLast()}
     >
       <ProvideGlobalContext registry={registry}>
@@ -456,7 +430,8 @@ export function isHidden(
     return true;
   }
 
-  const hidden = state.nodeData[id]?.hidden;
+  const hidden = JSON.parse('false'); // TODO: Rewrite all of this
+  // const hidden = state.nodeData[id]?.hidden;
   if (hidden === undefined || hidden === true) {
     return hidden;
   }
@@ -551,28 +526,6 @@ export const Hidden = {
       },
       [forcedVisibleByDevTools],
     );
-  },
-
-  /**
-   * The next ones are primarily for internal use:
-   */
-  useIsPageInOrder(pageKey: string) {
-    const isCurrentView = useIsCurrentView(pageKey);
-    const orderWithHidden = useRawPageOrder();
-    const pdfLayoutName = usePdfLayoutName();
-
-    if (isCurrentView) {
-      // If this is the current view, then it's never hidden. This avoids settings fields as hidden when
-      // code caused this to be the current view even if it's not in the common order.
-      return true;
-    }
-
-    if (pdfLayoutName && pageKey === pdfLayoutName) {
-      // If this is the pdf layout, then it's never hidden.
-      return true;
-    }
-
-    return orderWithHidden.includes(pageKey);
   },
 
   /**
@@ -710,7 +663,6 @@ export const NodesInternal = {
   useStore: () => Store.useStore(),
   useSetNodeProps: () => Store.useStaticSelector((s) => s.setNodeProps),
   useAddPage: () => Store.useStaticSelector((s) => s.addPage),
-  useSetPageProps: () => Store.useStaticSelector((s) => s.setPageProps),
   useAddNodes: () => Store.useStaticSelector((s) => s.addNodes),
   useRemoveNodes: () => Store.useStaticSelector((s) => s.removeNodes),
   useAddError: () => Store.useStaticSelector((s) => s.addError),

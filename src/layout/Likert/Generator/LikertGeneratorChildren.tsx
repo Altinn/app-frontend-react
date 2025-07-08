@@ -5,7 +5,7 @@ import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId
 import { getLikertStartStopIndex } from 'src/layout/Likert/rowUtils';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition, GeneratorRunProvider, StageAddNodes } from 'src/utils/layout/generator/GeneratorStages';
+import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import {
   mutateComponentId,
@@ -19,10 +19,7 @@ import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 
 export function LikertGeneratorChildren() {
   return (
-    <GeneratorCondition
-      stage={StageAddNodes}
-      mustBeAdded='parent'
-    >
+    <GeneratorCondition mustBeAdded='parent'>
       <LikertGeneratorChildrenWorker />
     </GeneratorCondition>
   );
@@ -40,13 +37,12 @@ function LikertGeneratorChildrenWorker() {
   return (
     <>
       {filteredRows.map((row) => (
-        <GeneratorRunProvider key={row.index}>
-          <GenerateLikertRow
-            rowIndex={row.index}
-            rowUuid={row.uuid}
-            questionsBinding={questionsBinding}
-          />
-        </GeneratorRunProvider>
+        <GenerateLikertRow
+          key={row.index}
+          rowIndex={row.index}
+          rowUuid={row.uuid}
+          questionsBinding={questionsBinding}
+        />
       ))}
     </>
   );
