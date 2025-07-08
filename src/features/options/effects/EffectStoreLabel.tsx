@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
@@ -6,7 +6,7 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useSetOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -41,7 +41,7 @@ export function EffectStoreLabel({ valueType, options }: Props) {
   const labelsHaveChanged = !deepEqual(translatedLabels, 'label' in formData ? formData.label : undefined);
   const shouldSetData = labelsHaveChanged && !isHidden && dataModelBindings && 'label' in dataModelBindings;
 
-  NodesInternal.useEffectWhenReady(() => {
+  useEffect(() => {
     if (!shouldSetData) {
       return;
     }

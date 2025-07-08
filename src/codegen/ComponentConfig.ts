@@ -375,16 +375,6 @@ export class ComponentConfig {
       from: 'src/utils/layout/generator/NodeGenerator',
     });
 
-    const NodeData = new CG.import({
-      import: 'NodeData',
-      from: 'src/utils/layout/types',
-    });
-
-    const NodesContext = new CG.import({
-      import: 'NodesContext',
-      from: 'src/utils/layout/NodesContext',
-    });
-
     const DisplayData = new CG.import({
       import: 'DisplayData',
       from: 'src/features/displayData/index',
@@ -471,27 +461,9 @@ export class ComponentConfig {
       implementsInterfaces.push(`${DisplayData}`);
     }
 
-    const readyCheckers: string[] = [];
     for (const plugin of this.plugins) {
       const extraMethodsFromPlugin = plugin.extraMethodsInDef();
       additionalMethods.push(...extraMethodsFromPlugin);
-
-      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState)`);
-    }
-
-    if (readyCheckers.length === 0) {
-      additionalMethods.push(
-        `// No plugins in this component
-        pluginStateIsReady(_state: ${NodeData}<'${this.type}'>): boolean {
-          return true;
-        }`,
-      );
-    } else {
-      additionalMethods.push(
-        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>, fullState: ${NodesContext}): boolean {
-          return ${readyCheckers.join(' && ')};
-        }`,
-      );
     }
 
     const childrenPlugins = this.plugins.filter((plugin) => isNodeDefChildrenPlugin(plugin));
@@ -545,7 +517,6 @@ export class ComponentConfig {
           parentId: props.parentId,
           depth: props.depth,
           isValid: props.isValid,
-          hidden: undefined,
           rowIndex: props.rowIndex,
           errors: undefined,
           dataModelBindings: props.dataModelBindings,

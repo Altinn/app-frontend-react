@@ -22,7 +22,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { Hidden } from 'src/utils/layout/NodesContext';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
 export interface NavigateToPageOptions {
@@ -249,11 +249,9 @@ export function useNavigatePage() {
   }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, queryKeysRef]);
 
   const waitForSave = FD.useWaitForSave();
-  const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const maybeSaveOnPageChange = useCallback(async () => {
     await waitForSave(autoSaveBehavior === 'onChangePage');
-    await waitForNodesReady();
-  }, [autoSaveBehavior, waitForSave, waitForNodesReady]);
+  }, [autoSaveBehavior, waitForSave]);
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {

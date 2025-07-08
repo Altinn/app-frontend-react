@@ -4,7 +4,7 @@ import type { MutableRefObject, PropsWithChildren } from 'react';
 import { SetWaitForCommits, useCommit } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorDebug, generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { NodesInternal, NodesReadiness, NodesStore } from 'src/utils/layout/NodesContext';
+import { NodesInternal, NodesStore } from 'src/utils/layout/NodesContext';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { RegistryCommitQueues } from 'src/utils/layout/generator/CommitQueue';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
@@ -168,7 +168,6 @@ export function createStagesStore(
             registry.current.stages[stage].finished = false;
           }
 
-          state.markReady('new run from stages', NodesReadiness.NotReady);
           const stages = { ...state.stages };
           stages.currentStage = List[0];
           stages.runNum = runNum;
