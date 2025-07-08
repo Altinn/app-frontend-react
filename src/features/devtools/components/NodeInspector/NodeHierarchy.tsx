@@ -7,6 +7,7 @@ import cn from 'classnames';
 
 import classes from 'src/features/devtools/components/LayoutInspector/LayoutInspector.module.css';
 import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponentHighlighter';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { baseIdsFromGridRow } from 'src/layout/Grid/tools';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
@@ -61,9 +62,9 @@ const GridRowList = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
 const NodeHierarchyItem = ({ baseId, onClick, selected }: INodeHierarchyItemProps) => {
   const component = useExternalItem(baseId);
   const nodeId = useIndexedId(baseId);
-  const nodeMultiPageIndex = node?.multiPageIndex;
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
-  const children = useNodeDirectChildren();
+  const layoutLookups = useLayoutLookups();
+  const children = layoutLookups.componentToChildren[baseId] ?? [];
   const hasChildren = children.length > 0;
   const isHidden = Hidden.useIsHidden(nodeId, 'node', { respectDevTools: false });
 
@@ -87,22 +88,18 @@ const NodeHierarchyItem = ({ baseId, onClick, selected }: INodeHierarchyItemProp
         onClick={() => onClick(nodeId)}
       >
         <span className={classes.componentType}>{component.type}</span>
-        <span className={classes.componentId}>
-          {nodeMultiPageIndex !== undefined ? `${nodeMultiPageIndex}:` : ''}
-          {nodeId}
-        </span>
+        <span className={classes.componentId}>{nodeId}</span>
         {isHidden && (
           <span className={classes.listIcon}>
             <EyeSlashIcon title='Denne komponenten er skjult' />
           </span>
         )}
       </li>
-      {/* Support for generic components with children */}
+      {/*Support for generic components with children */}
       {hasChildren && component.type !== 'RepeatingGroup' && (
         <li>
-          {/*TODO: Insert data model location provider here*/}
           <NodeHierarchy
-            baseIds={children.map((child) => child.baseId)}
+            baseIds={children.map((id) => id)}
             selected={selected}
             onClick={onClick}
           />
