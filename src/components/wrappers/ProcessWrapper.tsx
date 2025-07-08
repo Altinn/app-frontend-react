@@ -8,7 +8,6 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
