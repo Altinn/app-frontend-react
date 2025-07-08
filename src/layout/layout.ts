@@ -76,18 +76,6 @@ export type ILayout = CompExternal[];
  */
 export type CompInternal<T extends CompTypes = CompTypes> = ReturnType<ComponentConfigs[T]['def']['evalExpressions']>;
 
-/**
- * Any parent object of a LayoutNode (with for example repeating groups, the parent can be the group node, but above
- * that there will be a LayoutPage).
- */
-export type ParentNode = LayoutNode | LayoutPage;
-
-export type TypeFromNode<N extends LayoutNode | undefined> = N extends undefined
-  ? never
-  : N extends LayoutNode<infer Type>
-    ? Type
-    : CompTypes;
-
 export type TypesFromCategory<Cat extends CompCategory> = $Keys<PickByValue<CompClassMapCategories, Cat>>;
 
 export type CompWithPlugin<Plugin> = {

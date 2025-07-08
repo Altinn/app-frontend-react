@@ -17,10 +17,10 @@ export class Group extends GroupDef {
       return (
         <GroupComponent
           baseComponentId={props.baseComponentId}
-          renderLayoutNode={(node) => (
+          renderLayoutComponent={(id) => (
             <GenericComponent
-              key={node.id}
-              baseComponentId={node.baseId}
+              key={id}
+              baseComponentId={id}
             />
           )}
         />

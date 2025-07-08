@@ -10,8 +10,9 @@ import { useComponentHighlighter } from 'src/features/devtools/hooks/useComponen
 import { baseIdsFromGridRow } from 'src/layout/Grid/tools';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { Hidden } from 'src/utils/layout/NodesContext';
-import { useItemWhenType, useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { GridRows } from 'src/layout/common.generated';
 
 interface Common {
@@ -58,25 +59,20 @@ const GridRowList = ({ rows, onClick, text, selected }: IGridRowsRenderer) => (
 );
 
 const NodeHierarchyItem = ({ baseId, onClick, selected }: INodeHierarchyItemProps) => {
+  const component = useExternalItem(baseId);
   const nodeId = useIndexedId(baseId);
-  const node = useNode(nodeId);
-  const nodeType = node?.type;
   const nodeMultiPageIndex = node?.multiPageIndex;
   const { onMouseEnter, onMouseLeave } = useComponentHighlighter(nodeId, false);
-  const children = useNodeDirectChildren(node);
+  const children = useNodeDirectChildren();
   const hasChildren = children.length > 0;
-  const isHidden = Hidden.useIsHidden(node.id, 'node', { respectDevTools: false });
+  const isHidden = Hidden.useIsHidden(nodeId, 'node', { respectDevTools: false });
 
   const el = useRef<HTMLLIElement>(null);
   useEffect(() => {
-    if (node?.id === selected && el.current) {
+    if (nodeId === selected && el.current) {
       el.current.scrollIntoView({ block: 'nearest' });
     }
-  }, [node, selected]);
-
-  if (!node) {
-    return null;
-  }
+  }, [nodeId, selected]);
 
   return (
     <>
@@ -90,7 +86,7 @@ const NodeHierarchyItem = ({ baseId, onClick, selected }: INodeHierarchyItemProp
         onMouseLeave={onMouseLeave}
         onClick={() => onClick(nodeId)}
       >
-        <span className={classes.componentType}>{nodeType}</span>
+        <span className={classes.componentType}>{component.type}</span>
         <span className={classes.componentId}>
           {nodeMultiPageIndex !== undefined ? `${nodeMultiPageIndex}:` : ''}
           {nodeId}
@@ -102,7 +98,7 @@ const NodeHierarchyItem = ({ baseId, onClick, selected }: INodeHierarchyItemProp
         )}
       </li>
       {/* Support for generic components with children */}
-      {hasChildren && !node.isType('RepeatingGroup') && (
+      {hasChildren && component.type !== 'RepeatingGroup' && (
         <li>
           {/*TODO: Insert data model location provider here*/}
           <NodeHierarchy
@@ -112,7 +108,7 @@ const NodeHierarchyItem = ({ baseId, onClick, selected }: INodeHierarchyItemProp
           />
         </li>
       )}
-      {node.isType('RepeatingGroup') && (
+      {component.type === 'RepeatingGroup' && (
         <RepeatingGroupExtensions
           baseId={baseId}
           selected={selected}
