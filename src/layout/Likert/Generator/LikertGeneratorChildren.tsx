@@ -94,7 +94,6 @@ const GenerateLikertRowInner = React.memo(function ({ rowIndex, questionsBinding
       idMutators={[mutateComponentIdPlain(rowIndex)]}
       recursiveMutators={recursiveMutators}
       groupBinding={questionsBinding}
-      forceHidden={false}
     >
       <GenerateNodeChildren
         claims={childClaims}
