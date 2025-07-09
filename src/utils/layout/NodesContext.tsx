@@ -51,8 +51,6 @@ export interface PagesData {
 export interface PageData {
   type: 'page';
   pageKey: string;
-  hidden: boolean;
-  inOrder: boolean;
   errors: GeneratorErrors | undefined;
 }
 
@@ -236,8 +234,6 @@ export function createNodesDataStore({ validationsProcessedLast, ...props }: Cre
           state.pagesData.pages[pageKey] = {
             type: 'page',
             pageKey,
-            hidden: false,
-            inOrder: true,
             errors: undefined,
           };
         }),
@@ -387,7 +383,7 @@ function withDefaults(options?: IsHiddenOptions): Required<IsHiddenOptions> {
   return { respectDevTools, respectTracks, forcedVisibleByDevTools };
 }
 
-function isHiddenPage(state: NodesContext, pageKey: string | undefined, _options?: IsHiddenOptions) {
+function isHiddenPage(_state: NodesContext, pageKey: string | undefined, _options?: IsHiddenOptions) {
   const options = withDefaults(_options);
   if (!pageKey) {
     return true;
@@ -397,13 +393,14 @@ function isHiddenPage(state: NodesContext, pageKey: string | undefined, _options
     return false;
   }
 
-  const pageState = state.pagesData.pages[pageKey];
-  const hidden = pageState?.hidden;
+  // const pageState = state.pagesData.pages[pageKey];
+  const hidden = JSON.parse('false'); // TODO: Implement this differently
   if (hidden) {
     return true;
   }
 
-  return options.respectTracks ? pageState?.inOrder === false : false;
+  const inOrder = JSON.parse('true'); // TODO: Implement this differently
+  return options.respectTracks ? inOrder === false : false;
 }
 
 export function isHidden(
