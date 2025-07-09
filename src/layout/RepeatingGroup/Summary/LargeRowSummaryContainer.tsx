@@ -36,11 +36,11 @@ export function LargeRowSummaryContainer({
   inExcludedChildren,
 }: IDisplayRepAsLargeGroup) {
   const item = useItemWhenType(baseComponentId, 'RepeatingGroup');
-  const isHidden = Hidden.useIsHiddenSelector();
   const indexedId = useIndexedId(baseComponentId, true);
   const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
   const layoutLookups = useLayoutLookups();
   const children = RepGroupHooks.useChildIds(baseComponentId);
+  const isHidden = Hidden.useIsHiddenMulti(children);
   const idMutator = useComponentIdMutator();
 
   if (typeof depth !== 'number') {
@@ -72,12 +72,12 @@ export function LargeRowSummaryContainer({
         id={id || item.id}
         className={classes.largeGroupContainer}
       >
-        {children.map((id) => {
-          if (inExcludedChildren(idMutator(id), id) || isHidden(idMutator(id), 'node')) {
+        {children.map((baseId) => {
+          if (inExcludedChildren(idMutator(baseId), baseId) || isHidden[baseId]) {
             return null;
           }
 
-          return renderLayoutComponent(id);
+          return renderLayoutComponent(baseId);
         })}
       </div>
     </Fieldset>

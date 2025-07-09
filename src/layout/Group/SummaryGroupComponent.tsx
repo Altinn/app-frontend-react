@@ -28,7 +28,6 @@ export function SummaryGroupComponent({
   const excludedChildren = overrides?.excludedChildren;
   const display = overrides?.display;
   const { langAsString } = useLanguage();
-  const isHidden = Hidden.useIsHiddenSelector();
 
   const idMutator = useComponentIdMutator();
   const inExcludedChildren = useCallback(
@@ -46,7 +45,8 @@ export function SummaryGroupComponent({
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
-  const children = targetItem.children.filter((id) => !inExcludedChildren(id));
+  const isHidden = Hidden.useIsHiddenMulti(targetItem.children);
+  const children = targetItem.children.filter((id) => !inExcludedChildren(id) && !isHidden[id]);
   const layoutLookups = useLayoutLookups();
 
   const largeGroup = overrides?.largeGroup ?? false;
@@ -72,8 +72,7 @@ export function SummaryGroupComponent({
   const childSummaryComponents = children.map((child) => {
     const childLayout = layoutLookups.getComponent(child);
     const def = getComponentDef(childLayout.type);
-    const indexedId = idMutator(child);
-    if (def.category !== CompCategory.Form || isHidden(indexedId, 'node')) {
+    if (def.category !== CompCategory.Form) {
       return;
     }
     const RenderCompactSummary = def.renderCompactSummary.bind(def) as React.FC<SummaryRendererProps>;
