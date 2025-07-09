@@ -385,11 +385,6 @@ export class ComponentConfig {
       from: 'src/layout/layout',
     });
 
-    const LayoutLookups = new CG.import({
-      import: 'LayoutLookups',
-      from: 'src/features/form/layout/makeLayoutLookups.ts',
-    });
-
     const isFormComponent = this.config.category === CompCategory.Form;
     const isSummarizable = this.behaviors.isSummarizable;
 
@@ -469,7 +464,6 @@ export class ComponentConfig {
     const childrenPlugins = this.plugins.filter((plugin) => isNodeDefChildrenPlugin(plugin));
     if (childrenPlugins.length > 0) {
       const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
-      const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
 
       const claimChildrenBody = childrenPlugins.map((plugin) =>
         `${pluginRef(plugin)}.claimChildren({
@@ -478,16 +472,9 @@ export class ComponentConfig {
          });`.trim(),
       );
 
-      const isChildHiddenBody = childrenPlugins.map(
-        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childId, lookups)`,
-      );
-
       additionalMethods.push(
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
           ${claimChildrenBody.join('\n')}
-        }`,
-        `isChildHidden(state: ${NodeData}<'${this.type}'>, childId: string, lookups: ${LayoutLookups}) {
-          return [${isChildHiddenBody.join(', ')}].some((h) => h);
         }`,
       );
     }
