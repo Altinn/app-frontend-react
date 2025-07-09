@@ -139,18 +139,18 @@ function RegularRepeatingGroupRow({
   onChangeClick,
   changeText,
 }: FullRowProps) {
-  const isHidden = Hidden.useIsHiddenSelector();
   const children = RepGroupHooks.useChildIds(targetBaseComponentId);
+  const isHidden = Hidden.useIsHiddenMulti(children);
   const idMutator = useComponentIdMutator();
   const layoutLookups = useLayoutLookups();
 
   const childSummaryComponents = children
-    .filter((id) => !inExcludedChildren(idMutator(id), id))
-    .map((id) => {
-      const component = layoutLookups.getComponent(id);
+    .filter((baseId) => !inExcludedChildren(idMutator(baseId), baseId))
+    .map((baseId) => {
+      const component = layoutLookups.getComponent(baseId);
       const def = getComponentDef(component.type);
-      if (!isHidden(idMutator(id), 'node') && def.category === CompCategory.Form) {
-        return { component: def.renderCompactSummary.bind(def), id };
+      if (!isHidden[baseId] && def.category === CompCategory.Form) {
+        return { component: def.renderCompactSummary.bind(def), id: baseId };
       }
     })
     .filter(typedBoolean);

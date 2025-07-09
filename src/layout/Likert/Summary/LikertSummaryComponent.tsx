@@ -31,7 +31,6 @@ export function LikertSummaryComponent({
   const excludedChildren = overrides?.excludedChildren;
   const display = overrides?.display;
   const { lang, langAsString } = useLanguage();
-  const isHidden = Hidden.useIsHiddenSelector();
 
   const inExcludedChildren = (indexedId: string, baseId: string) =>
     (excludedChildren && (excludedChildren.includes(indexedId) || excludedChildren.includes(baseId))) ?? false;
@@ -70,7 +69,7 @@ export function LikertSummaryComponent({
               id={`summary-${indexedId}-${row.index}`}
               likertBaseId={targetBaseComponentId}
               renderLayoutComponent={(indexedId, baseId) => {
-                if (inExcludedChildren(indexedId, baseId) || isHidden(indexedId, 'node')) {
+                if (inExcludedChildren(indexedId, baseId)) {
                   return null;
                 }
 
@@ -158,15 +157,15 @@ interface RowProps extends Pick<SummaryRendererProps, 'onChangeClick' | 'changeT
 }
 
 function Row({ row, inExcludedChildren, onChangeClick, changeText, targetBaseComponentId }: RowProps) {
-  const isHidden = Hidden.useIsHiddenSelector();
   const childId = makeLikertChildId(targetBaseComponentId);
   const indexedId = useIndexedId(childId);
   const component = useExternalItem(childId);
+  const isHidden = Hidden.useIsHidden(indexedId, 'node');
 
   if (inExcludedChildren(indexedId, childId)) {
     return null;
   }
-  if (isHidden(indexedId, 'node') || component.type !== 'LikertItem') {
+  if (isHidden || component.type !== 'LikertItem') {
     return null;
   }
 
