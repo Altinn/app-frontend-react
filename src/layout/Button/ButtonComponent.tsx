@@ -12,6 +12,7 @@ import { getComponentFromMode } from 'src/layout/Button/getComponentFromMode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { alignStyle } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
 import { ProcessTaskType } from 'src/types';
+import { ELEMENT_TYPE } from 'src/types/shared';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal } from 'src/layout/layout';
@@ -27,7 +28,9 @@ export const ButtonComponent = ({ baseComponentId, ...componentProps }: PropsFro
   const props: IButtonProvidedProps = { baseComponentId, ...componentProps, ...item };
 
   const currentTaskType = useTaskTypeFromBackend();
-  const { actions, write } = useProcessQuery().data?.currentTask || {};
+  const { data: process } = useProcessQuery();
+  const currentTask = process?.currentTask;
+  const { actions, write, elementType: currentElementType } = currentTask ?? {};
   const attachmentState = useAttachmentState();
   const { mutate: processNext, isPending: isProcessingNext } = useProcessNext();
   const { mutate: processConfirm, isPending: isConfirming } = useProcessNext({ action: 'confirm' });
@@ -52,8 +55,10 @@ export const ButtonComponent = ({ baseComponentId, ...componentProps }: PropsFro
   }
 
   function submitTask() {
+    const isServiceTask = currentElementType === ELEMENT_TYPE.SERVICE_TASK;
+
     setReturnToView?.(undefined);
-    if (currentTaskType === ProcessTaskType.Data) {
+    if (currentTaskType === ProcessTaskType.Data || isServiceTask) {
       processNext();
     } else if (currentTaskType === ProcessTaskType.Confirm) {
       processConfirm();
