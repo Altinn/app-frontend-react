@@ -469,7 +469,6 @@ function useIsForcedVisibleByDevTools() {
   return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
 }
 
-export type IsHiddenSelector = ReturnType<typeof Hidden.useIsHiddenSelector>;
 export const Hidden = {
   useIsHidden(nodeId: string | undefined, type: 'page' | 'node' | undefined, options?: AccessibleIsHiddenOptions) {
     const lookups = useLayoutLookups();
@@ -517,18 +516,6 @@ export const Hidden = {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     const lookups = useLayoutLookups();
     return Store.useDelayedSelector(
-      {
-        mode: 'simple',
-        selector: (nodeId: string, type: 'node' | 'page', options?: IsHiddenOptions) => (state) =>
-          isHidden(state, type, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)),
-      },
-      [forcedVisibleByDevTools],
-    );
-  },
-  useIsHiddenSelectorProps() {
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    const lookups = useLayoutLookups();
-    return Store.useDelayedSelectorProps(
       {
         mode: 'simple',
         selector: (nodeId: string, type: 'node' | 'page', options?: IsHiddenOptions) => (state) =>

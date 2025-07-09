@@ -79,7 +79,7 @@ function useOverriddenDataSourcesForSubform(
 
 const dataSourcesNotSupportedInSubform = new Set([
   'attachmentsSelector',
-  'isHiddenSelector',
+  'hiddenComponents',
   'nodeDataSelector',
   'layoutLookups',
   'displayValues',
