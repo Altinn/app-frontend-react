@@ -482,6 +482,12 @@ export const Hidden = {
 
     return Store.useSelector((s) => isHidden(s, type!, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)));
   },
+  useIsHiddenAdvanced(nodeId: string, options?: AccessibleIsHiddenOptions) {
+    const lookups = useLayoutLookups();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
+    const hidden = Store.useSelector((s) => isHidden(s, 'node', nodeId, lookups, makeOptions(false, options)));
+    return hidden === undefined ? false : hidden && forcedVisibleByDevTools ? ('pseudoHidden' as const) : hidden;
+  },
   useIsHiddenPage(pageKey: string | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useSelector((s) => isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options)));
