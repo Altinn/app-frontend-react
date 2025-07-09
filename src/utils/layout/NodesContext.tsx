@@ -486,16 +486,6 @@ export const Hidden = {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     return Store.useSelector((s) => isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options)));
   },
-  useIsHiddenPageSelector() {
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    return Store.useDelayedSelector(
-      {
-        mode: 'simple',
-        selector: (pageKey: string) => (state) => isHiddenPage(state, pageKey, makeOptions(forcedVisibleByDevTools)),
-      },
-      [forcedVisibleByDevTools],
-    );
-  },
   useHiddenPages(): Set<string> {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
     const hiddenPages = Store.useLaxMemoSelector((s) =>

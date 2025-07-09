@@ -24,7 +24,7 @@ export function DevNavigationButtons() {
 const InnerDevNavigationButtons = () => {
   const pageKey = useNavigationParam('pageKey');
   const { navigateToPage } = useNavigatePage();
-  const isHiddenPage = Hidden.useIsHiddenPageSelector();
+  const hiddenPages = Hidden.useHiddenPages();
   const rawOrder = useRawPageOrder();
   const allPages = Object.keys(useLayouts() ?? {});
 
@@ -36,11 +36,11 @@ const InnerDevNavigationButtons = () => {
   }
 
   function isHidden(page: string) {
-    return isHiddenPage(page) || !rawOrder.includes(page);
+    return hiddenPages.has(page) || !rawOrder.includes(page);
   }
 
   function hiddenText(page: string) {
-    if (isHiddenPage(page)) {
+    if (hiddenPages.has(page)) {
       return 'Denne siden er skjult for brukeren (via dynamikk)';
     } else if (!rawOrder.includes(page)) {
       return 'Denne siden er ikke med i siderekkefølgen';
