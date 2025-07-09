@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 
 import classNames from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { ExprVal } from 'src/features/expressions/types';
 import { NavigationResult, useFinishNavigation } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
@@ -85,7 +86,16 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const pageBreak = overrideItemProps?.pageBreak ?? { breakBefore, breakAfter };
   const nodeId = useIndexedId(baseComponentId);
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
-  const isHidden = Hidden.useIsHidden(nodeId, 'node');
+  const isHidden = Hidden.useIsHiddenAdvanced(nodeId);
+  const hiddenState = useDevToolsStore((state) => (state.isOpen ? state.hiddenComponents : 'hide'));
+
+  useEffect(() => {
+    if (containerDivRef.current && isHidden === 'pseudoHidden' && hiddenState === 'disabled') {
+      containerDivRef.current.style.filter = 'contrast(0.75)';
+    } else if (containerDivRef.current) {
+      containerDivRef.current.style.filter = '';
+    }
+  }, [hiddenState, isHidden]);
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
@@ -151,7 +161,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     }
   });
 
-  if (isHidden) {
+  if (isHidden && isHidden !== 'pseudoHidden') {
     return null;
   }
 
