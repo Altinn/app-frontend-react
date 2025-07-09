@@ -22,7 +22,7 @@ import {
   Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { getComponentDef } from 'src/layout';
+import { getComponentDef, implementsIsChildHidden } from 'src/layout';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
@@ -30,6 +30,7 @@ import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { GeneratorStagesEffects, useRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ValidationsProcessedLast } from 'src/features/validation';
@@ -443,9 +444,9 @@ export function isHidden(
   const parentId = state.nodeData[id]?.parentId;
   const parent = parentId ? state.nodeData[parentId] : undefined;
   const parentDef = parent ? getComponentDef(parent.nodeType) : undefined;
-  if (parent && parentDef && 'isChildHidden' in parentDef) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const childHidden = parentDef.isChildHidden(parent as any, id, lookups);
+  if (parent && parentDef && implementsIsChildHidden(parentDef)) {
+    const { baseComponentId: childBaseId } = splitDashedKey(id);
+    const childHidden = parentDef.isChildHidden(parent.baseId, childBaseId, lookups);
     if (childHidden) {
       return true;
     }
