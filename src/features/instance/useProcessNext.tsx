@@ -4,7 +4,6 @@ import { toast } from 'react-toastify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useDisplayError } from 'src/core/errorHandling/DisplayErrorProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
 import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
@@ -18,10 +17,10 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { Validation } from 'src/features/validation/validationContext';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { doProcessNext } from 'src/queries/queries';
-import { ELEMENT_TYPE, type IActionType, type IProcess } from 'src/types/shared';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
+import type { IActionType, IProcess, ProblemDetails } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface ProcessNextProps {
@@ -38,7 +37,7 @@ export function getProcessNextMutationKey(action?: IActionType) {
 export function useProcessNext({ action }: ProcessNextProps = {}) {
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
-  const { refetch: refetchProcessData } = useProcessQuery();
+  const { data: process, refetch: refetchProcessData } = useProcessQuery();
   const navigateToTask = useNavigateToTask();
   const instanceId = useLaxInstanceId();
   const onFormSubmitValidation = useOnFormSubmitValidation();
@@ -46,7 +45,6 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
   const setShowAllBackendErrors = Validation.useSetShowAllBackendErrors();
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
-  const displayError = useDisplayError();
   const queryClient = useQueryClient();
   const hasPendingScans = useHasPendingScans();
 
@@ -103,17 +101,20 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
         }
       }
     },
-    onError: async (error: HttpClientError) => {
+    onError: async (error: HttpClientError<ProblemDetails | undefined>) => {
       window.logError('Process next failed:\n', error);
-      const { data: process } = await refetchProcessData();
-      const currentTask = process?.currentTask;
-      const isCurrentTaskServiceTask = currentTask && currentTask.elementType === ELEMENT_TYPE.SERVICE_TASK;
+      const { data: newProcess } = await refetchProcessData();
+      const newCurrentTask = newProcess?.currentTask;
 
-      if (isCurrentTaskServiceTask) {
-        navigateToTask(currentTask.elementId);
-      } else {
-        displayError(error);
+      if (newCurrentTask?.elementId && newCurrentTask?.elementId !== process?.currentTask?.elementId) {
+        await reFetchInstanceData();
+        navigateToTask(newCurrentTask.elementId);
       }
+
+      toast(<Lang id={error.response?.data?.detail ?? error.message ?? 'process_error.submit_error_please_retry'} />, {
+        type: 'error',
+        autoClose: false,
+      });
     },
   });
 }
