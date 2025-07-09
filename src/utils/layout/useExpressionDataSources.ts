@@ -31,7 +31,7 @@ import type { DSProps, DSPropsMatching } from 'src/hooks/delayedSelectors';
 import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
+import type { IsHiddenSelector, NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export interface ExpressionDataSources {
   process?: IProcess;
@@ -44,7 +44,7 @@ export interface ExpressionDataSources {
   langToolsSelector: (dataModelPath: IDataModelReference | undefined) => IUseLanguage;
   currentLanguage: string;
   defaultDataType: string | null;
-  isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
+  isHiddenSelector: IsHiddenSelector;
   nodeDataSelector: NodeDataSelector;
   externalApis: ExternalApisResult;
   currentDataModelPath: IDataModelReference | undefined;
