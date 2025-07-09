@@ -3,7 +3,6 @@ import { toast } from 'react-toastify';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useDisplayError } from 'src/core/errorHandling/DisplayErrorProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -18,6 +17,7 @@ import { appSupportsIncrementalValidationFeatures } from 'src/features/validatio
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
+import { doProcessNext } from 'src/queries/queries';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
@@ -29,7 +29,6 @@ interface ProcessNextProps {
 }
 
 export function useProcessNext() {
-  const { doProcessNext } = useAppMutations();
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
   const { refetch: refetchProcessData } = useProcessQuery();
