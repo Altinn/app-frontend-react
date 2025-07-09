@@ -7,13 +7,6 @@ import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSour
 import type { EvalExprOptions } from 'src/features/expressions';
 import type { ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 
-export function useEvalExpressionInGenerator<V extends ExprVal>(
-  expr: ExprValToActualOrExpr<V> | undefined,
-  options: EvalExprOptions<V>,
-) {
-  return useEvalExpression(expr, options);
-}
-
 /**
  * Resolves one expression and returns the result. This is a hook version of the evalExpr function, and it's probably
  * not what you want to use.

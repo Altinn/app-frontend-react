@@ -441,6 +441,8 @@ export function isHidden(
     return true;
   }
 
+  // TODO: Check if row is hidden inside RepeatingGroup
+
   const parentId = state.nodeData[id]?.parentId;
   const parent = parentId ? state.nodeData[parentId] : undefined;
   const parentDef = parent ? getComponentDef(parent.nodeType) : undefined;
