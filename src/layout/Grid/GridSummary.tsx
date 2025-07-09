@@ -17,7 +17,7 @@ import { getComponentDef, implementsDisplayData } from 'src/layout';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Grid/GridSummary.module.css';
-import { isGridRowHidden } from 'src/layout/Grid/tools';
+import { useIsGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import {
   EmptyChildrenBoundary,
@@ -35,7 +35,7 @@ import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summary
 import utilClasses from 'src/styles/utils.module.css';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
-import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
@@ -169,12 +169,10 @@ interface GridRowProps {
 function SummaryGridRowRenderer(props: GridRowProps) {
   const { row } = props;
   const isMobile = useIsMobile();
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
   const pdfModeActive = usePdfModeActive();
   const isSmall = isMobile && !pdfModeActive;
   const firstComponentId = useFirstFormComponentId(row);
 
-  const idMutator = useComponentIdMutator();
   const onlyEmptyChildren = useHasOnlyEmptyChildren();
   const isHeaderWithoutComponents = row.header === true && !row.cells.some((cell) => cell && 'component' in cell);
   const hideEmptyRows = useSummaryOverrides<'Grid'>(props.baseComponentId)?.hideEmptyRows;
@@ -187,7 +185,8 @@ function SummaryGridRowRenderer(props: GridRowProps) {
         : SummaryContains.SomeUserContent,
   );
 
-  if (isGridRowHidden(row, isHiddenSelector, idMutator)) {
+  const rowHidden = useIsGridRowHidden(row);
+  if (rowHidden) {
     return null;
   }
 

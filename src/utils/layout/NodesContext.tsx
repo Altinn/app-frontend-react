@@ -482,6 +482,20 @@ export const Hidden = {
 
     return Store.useSelector((s) => isHidden(s, type!, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)));
   },
+  useIsHiddenMulti(baseIds: string[], options?: AccessibleIsHiddenOptions): { [baseId: string]: boolean | undefined } {
+    const lookups = useLayoutLookups();
+    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
+    const idMutator = useComponentIdMutator();
+
+    return Store.useShallowSelector((s) => {
+      const hidden: { [nodeId: string]: boolean | undefined } = {};
+      for (const baseId of baseIds) {
+        const nodeId = idMutator(baseId);
+        hidden[baseId] = isHidden(s, 'node', nodeId, lookups, makeOptions(forcedVisibleByDevTools, options));
+      }
+      return hidden;
+    });
+  },
   useIsHiddenAdvanced(nodeId: string, options?: AccessibleIsHiddenOptions) {
     const lookups = useLayoutLookups();
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();

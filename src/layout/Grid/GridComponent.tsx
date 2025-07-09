@@ -20,11 +20,11 @@ import {
   isGridCellLabelFrom,
   isGridCellNode,
   isGridCellText,
-  isGridRowHidden,
   useBaseIdsFromGrid,
+  useIsGridRowHidden,
 } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
-import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -86,9 +86,8 @@ interface GridRowProps {
 }
 
 export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const idMutator = useComponentIdMutator();
-  if (isGridRowHidden(row, isHiddenSelector, idMutator)) {
+  const rowHidden = useIsGridRowHidden(row);
+  if (rowHidden) {
     return null;
   }
 
@@ -292,8 +291,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
 
 function MobileGrid({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Grid'>) {
   const baseIds = useBaseIdsFromGrid(baseComponentId);
-  const isHidden = Hidden.useIsHiddenSelector();
-  const idMutator = useComponentIdMutator();
+  const isHidden = Hidden.useIsHiddenMulti(baseIds);
 
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
     baseComponentId,
@@ -310,7 +308,7 @@ function MobileGrid({ baseComponentId, overrideDisplay }: PropsFromGenericCompon
       className={css.mobileFieldset}
     >
       {baseIds
-        .filter((childId) => !isHidden(idMutator(childId), 'node'))
+        .filter((childId) => !isHidden[childId])
         .map((childId) => (
           <GenericComponent
             key={childId}
