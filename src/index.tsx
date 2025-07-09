@@ -22,7 +22,6 @@ import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
-import { DisplayErrorProvider } from 'src/core/errorHandling/DisplayErrorProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
@@ -107,11 +106,9 @@ function Root() {
                         <KeepAliveProvider>
                           <HelmetProvider>
                             <TaskStoreProvider>
-                              <DisplayErrorProvider>
-                                <ProcessingProvider>
-                                  <App />
-                                </ProcessingProvider>
-                              </DisplayErrorProvider>
+                              <ProcessingProvider>
+                                <App />
+                              </ProcessingProvider>
                             </TaskStoreProvider>
                             <ToastContainer
                               position='top-center'
