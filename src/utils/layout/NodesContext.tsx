@@ -380,16 +380,6 @@ export const Hidden = {
   useIsHidden(_nodeId: string | undefined) {
     return false;
   },
-  useIsHiddenSelector() {
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    return Store.useDelayedSelector(
-      {
-        mode: 'simple',
-        selector: (_nodeId: string) => (_state) => false,
-      },
-      [forcedVisibleByDevTools],
-    );
-  },
 };
 
 /**
