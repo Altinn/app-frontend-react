@@ -47,7 +47,7 @@ export function GroupComponent({
   const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
   const layoutLookups = useLayoutLookups();
 
-  if (isHidden) {
+  if (isHidden || typeof depth !== 'number') {
     return null;
   }
 
