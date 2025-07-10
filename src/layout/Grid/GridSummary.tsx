@@ -36,7 +36,7 @@ import utilClasses from 'src/styles/utils.module.css';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type {
@@ -399,7 +399,7 @@ function SummaryCellWithComponent({
   const displayData = useDisplayData(baseComponentId);
   const validations = useUnifiedValidationsForNode(baseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const isHidden = Hidden.useIsHidden(useIndexedId(baseComponentId), 'node');
+  const isHidden = useIsHidden(baseComponentId);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const item = useItemFor(baseComponentId);
   const textResourceBindings = item.textResourceBindings;

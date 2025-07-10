@@ -13,7 +13,8 @@ import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.mod
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
-import { DataModelLocationProvider, useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { DataModelLocationProvider, useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -176,8 +177,7 @@ function RegularRepeatingGroupRow({
 
 function LargeRepeatingGroup({ targetBaseComponentId, overrides, inExcludedChildren, rows }: FullProps) {
   const groupBinding = useDataModelBindingsFor(targetBaseComponentId, 'RepeatingGroup').group;
-  const indexedId = useIndexedId(targetBaseComponentId);
-  const isHidden = Hidden.useIsHidden(indexedId, 'node');
+  const isHidden = useIsHidden(targetBaseComponentId);
 
   if (isHidden) {
     return null;

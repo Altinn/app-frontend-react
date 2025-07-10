@@ -7,7 +7,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { toRelativePath } from 'src/features/saveToGroup/useSaveToGroup';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsForGroupCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
@@ -25,7 +25,7 @@ interface Props {
 export function EffectStoreLabelInGroup({ options }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const parent = GeneratorInternal.useParent();
-  const isHidden = Hidden.useIsHidden(parent.indexedId, parent.type);
+  const isHidden = useIsHidden(parent.baseId);
   const { langAsString } = useLanguage();
   const setLeafValue = FD.useSetLeafValue();
   const formDataSelector = FD.useCurrentSelector();

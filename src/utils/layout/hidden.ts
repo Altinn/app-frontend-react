@@ -1,0 +1,189 @@
+import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
+import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
+import { ExprValidation } from 'src/features/expressions/validation';
+import { useHiddenLayoutsExpressions, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { getComponentDef, implementsIsChildHidden } from 'src/layout';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIsHiddenByRules } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+import type { EvalExprOptions } from 'src/features/expressions';
+import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
+import type { IHiddenLayoutsExternal } from 'src/types';
+import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
+
+export interface IsHiddenOptions<Reason extends boolean = false> {
+  /**
+   * Return an object that explains why the component was hidden? Defaults to false.
+   */
+  includeReason?: Reason;
+
+  /**
+   * Default = true. When false, we won't check if DevTools have overridden hidden status.
+   */
+  respectDevTools?: boolean;
+
+  /**
+   * Default = false. When true, we'll consider pages not part of the page order as hidden.
+   */
+  respectPageOrder?: boolean;
+}
+
+export function useIsHidden<Reason extends boolean = false>(
+  baseComponentId: string | undefined,
+  options: IsHiddenOptions<Reason> = {},
+) {
+  const layoutLookups = useLayoutLookups();
+  const hiddenPages = useHiddenLayoutsExpressions();
+  const hiddenSources = findHiddenSources(baseComponentId, layoutLookups, hiddenPages).reverse();
+  const dataSources = useExpressionDataSources(hiddenSources);
+  const hiddenByRules = useIsHiddenByRules(useIndexedId(baseComponentId) ?? '');
+  const forcedVisible = useIsForcedVisibleByDevTools();
+  const pageOrder = useRawPageOrder();
+
+  const reason = isHidden({
+    hiddenByRules,
+    hiddenSources,
+    dataSources,
+    pageOrder,
+    pageKey: baseComponentId === undefined ? undefined : layoutLookups.componentToPage[baseComponentId],
+    ...options,
+  });
+
+  if (reason.hidden && forcedVisible && options.respectDevTools !== false) {
+    return (
+      options.includeReason === true ? { reason: 'forcedByDeVTools', hidden: false } : false
+    ) as Reason extends true ? HiddenWithReason : boolean;
+  }
+
+  return (options.includeReason === true ? reason : reason.hidden) as Reason extends true ? HiddenWithReason : boolean;
+}
+
+interface IsHiddenProps extends Pick<IsHiddenOptions<boolean>, 'respectPageOrder'> {
+  hiddenSources: HiddenSource[];
+  dataSources: ExpressionDataSources;
+  hiddenByRules: boolean;
+  pageOrder: string[];
+  pageKey: string | undefined;
+}
+
+export type HiddenWithReason =
+  | {
+      hidden: false;
+      reason: undefined | 'forcedByDeVTools';
+    }
+  | {
+      hidden: true;
+      reason: HiddenSource['type'] | 'rules' | 'pageOrder';
+    };
+
+function isHidden({
+  hiddenSources,
+  dataSources,
+  hiddenByRules,
+  respectPageOrder = false,
+  pageOrder,
+  pageKey,
+}: IsHiddenProps): HiddenWithReason {
+  if (hiddenByRules) {
+    return { reason: 'rules', hidden: true };
+  }
+  if (respectPageOrder && pageKey !== undefined && !pageOrder.includes(pageKey)) {
+    return { reason: 'pageOrder', hidden: true };
+  }
+
+  for (const source of hiddenSources) {
+    if (source.type === 'callback') {
+      const hidden = source.callback();
+      if (hidden) {
+        return { reason: source.type, hidden: true };
+      }
+      continue;
+    }
+
+    const { type, expr, id } = source;
+    const options: EvalExprOptions = {
+      errorIntroText:
+        type === 'hiddenPage'
+          ? `Hidden expression for page ${id} failed`
+          : `Expression in property ${type} for component ${id} failed`,
+      defaultValue: false,
+      returnType: ExprVal.Boolean,
+    };
+
+    if (!ExprValidation.isValidOrScalar(expr, ExprVal.Boolean)) {
+      continue;
+    }
+
+    const hidden = evalExpr(expr, dataSources, options);
+    if (hidden) {
+      return { reason: type, hidden };
+    }
+  }
+
+  return { reason: undefined, hidden: false };
+}
+
+interface Expr {
+  type: 'hidden' | 'hiddenRow' | 'hiddenPage';
+  expr: ExprValToActualOrExpr<ExprVal.Boolean>;
+  id: string;
+}
+
+interface Callback {
+  type: 'callback';
+  callback: () => boolean;
+  id: string;
+}
+
+type HiddenSource = Expr | Callback;
+
+function findHiddenSources(
+  baseComponentId: string | undefined,
+  layoutLookups: LayoutLookups,
+  hiddenPages: IHiddenLayoutsExternal,
+): HiddenSource[] {
+  const out: HiddenSource[] = [];
+  if (baseComponentId === undefined) {
+    return out;
+  }
+
+  const component = layoutLookups.getComponent(baseComponentId);
+  if (component.hidden !== undefined) {
+    out.push({ type: 'hidden', expr: component.hidden, id: baseComponentId });
+  }
+
+  let childId = baseComponentId;
+  let parent = layoutLookups.componentToParent[childId];
+  while (parent?.type === 'node') {
+    const parentComponent = layoutLookups.getComponent(parent.id);
+    const parentDef = getComponentDef(parentComponent.type);
+    if (implementsIsChildHidden(parentDef)) {
+      const parentId = parent.id;
+      const callback = () => parentDef.isChildHidden(parentId, childId, layoutLookups);
+      out.push({ type: 'callback', callback, id: parent.id });
+    }
+    if (parentComponent.type === 'RepeatingGroup' && parentComponent.hiddenRow !== undefined) {
+      out.push({ type: 'hiddenRow', expr: parentComponent.hiddenRow, id: parent.id });
+    }
+    if (parentComponent.hidden !== undefined) {
+      out.push({ type: 'hidden', expr: parentComponent.hidden, id: parent.id });
+    }
+    childId = parent.id;
+    parent = layoutLookups.componentToParent[childId];
+  }
+
+  const page = layoutLookups.componentToPage[baseComponentId];
+  const hiddenExpr = page === undefined ? undefined : hiddenPages[page];
+  if (hiddenExpr !== undefined) {
+    out.push({ type: 'hiddenPage', expr: hiddenExpr, id: page! });
+  }
+
+  return out;
+}
+
+function useIsForcedVisibleByDevTools() {
+  return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
+}

@@ -16,8 +16,9 @@ import { isDev } from 'src/utils/isDev';
 import { ComponentErrorBoundary } from 'src/utils/layout/ComponentErrorBoundary';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { useExternalItem } from 'src/utils/layout/hooks';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { EvalExprOptions } from 'src/features/expressions';
 import type { IGridStyling } from 'src/layout/common.generated';
 import type { GenericComponentOverrideDisplay, IFormComponentContext } from 'src/layout/FormComponentContext';
@@ -86,16 +87,16 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
   const pageBreak = overrideItemProps?.pageBreak ?? { breakBefore, breakAfter };
   const nodeId = useIndexedId(baseComponentId);
   const containerDivRef = React.useRef<HTMLDivElement | null>(null);
-  const isHidden = Hidden.useIsHiddenAdvanced(nodeId);
-  const hiddenState = useDevToolsStore((state) => (state.isOpen ? state.hiddenComponents : 'hide'));
+  const hiddenState = useIsHidden(baseComponentId, { includeReason: true });
+  const howToHide = useDevToolsStore((state) => (state.isOpen ? state.hiddenComponents : 'hide'));
 
   useEffect(() => {
-    if (containerDivRef.current && isHidden === 'pseudoHidden' && hiddenState === 'disabled') {
+    if (containerDivRef.current && hiddenState.reason === 'forcedByDeVTools' && howToHide === 'disabled') {
       containerDivRef.current.style.filter = 'contrast(0.75)';
     } else if (containerDivRef.current) {
       containerDivRef.current.style.filter = '';
     }
-  }, [hiddenState, isHidden]);
+  }, [hiddenState, howToHide]);
 
   const formComponentContext = useMemo<IFormComponentContext>(
     () => ({
@@ -161,7 +162,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     }
   });
 
-  if (isHidden && isHidden !== 'pseudoHidden') {
+  if (hiddenState.hidden) {
     return null;
   }
 

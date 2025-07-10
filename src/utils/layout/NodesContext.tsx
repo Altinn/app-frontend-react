@@ -469,6 +469,10 @@ function useIsForcedVisibleByDevTools() {
   return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
 }
 
+export function useIsHiddenByRules(nodeId: string) {
+  return Store.useSelector((s) => s.hiddenViaRules[nodeId] ?? false);
+}
+
 export const Hidden = {
   useIsHidden(nodeId: string | undefined, type: 'page' | 'node' | undefined, options?: AccessibleIsHiddenOptions) {
     const lookups = useLayoutLookups();
@@ -494,12 +498,6 @@ export const Hidden = {
       }
       return hidden;
     });
-  },
-  useIsHiddenAdvanced(nodeId: string, options?: AccessibleIsHiddenOptions) {
-    const lookups = useLayoutLookups();
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    const hidden = Store.useSelector((s) => isHidden(s, 'node', nodeId, lookups, makeOptions(false, options)));
-    return hidden === undefined ? false : hidden && forcedVisibleByDevTools ? ('pseudoHidden' as const) : hidden;
   },
   useIsHiddenPage(pageKey: string | undefined, options?: AccessibleIsHiddenOptions) {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();

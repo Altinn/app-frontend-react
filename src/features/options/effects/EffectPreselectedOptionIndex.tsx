@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { useSetOptions } from 'src/features/options/useGetOptions';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { OptionsValueType } from 'src/features/options/useGetOptions';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
@@ -20,7 +20,7 @@ interface Props {
  */
 export function EffectPreselectedOptionIndex({ preselectedOption, valueType, options }: Props) {
   const parent = GeneratorInternal.useParent();
-  const isHidden = Hidden.useIsHidden(parent.indexedId, parent.type);
+  const isHidden = useIsHidden(parent.baseId);
   const hasSelectedInitial = useRef(false);
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
   const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;

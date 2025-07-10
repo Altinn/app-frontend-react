@@ -13,8 +13,8 @@ import classes from 'src/layout/Likert/Summary/LikertSummaryComponent.module.css
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
-import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -47,7 +47,7 @@ export function LikertSummaryComponent({
   const title = lang(summaryTitleTrb ?? titleTrb);
   const ariaLabel = langAsString(summaryTitleTrb ?? summaryAccessibleTitleTrb ?? titleTrb);
   const indexedId = useIndexedId(targetBaseComponentId);
-  const isThisHidden = Hidden.useIsHidden(indexedId, 'node');
+  const isThisHidden = useIsHidden(targetBaseComponentId);
 
   const rows = useLikertRows(targetBaseComponentId);
   const largeGroup = overrides?.largeGroup ?? false;
@@ -160,7 +160,7 @@ function Row({ row, inExcludedChildren, onChangeClick, changeText, targetBaseCom
   const childId = makeLikertChildId(targetBaseComponentId);
   const indexedId = useIndexedId(childId);
   const component = useExternalItem(childId);
-  const isHidden = Hidden.useIsHidden(indexedId, 'node');
+  const isHidden = useIsHidden(childId);
 
   if (inExcludedChildren(indexedId, childId)) {
     return null;
