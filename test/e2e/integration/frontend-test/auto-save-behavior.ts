@@ -29,7 +29,6 @@ describe('Auto save behavior', () => {
 
     // Doing an extra wait to be sure no request is sent to backend
     cy.waitUntilSaved();
-    cy.waitUntilNodesReady();
     cy.waitForNetworkIdle(100);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(100);
