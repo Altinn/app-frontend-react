@@ -22,7 +22,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useHiddenPages } from 'src/utils/layout/hidden';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
 export interface NavigateToPageOptions {
@@ -69,7 +69,7 @@ const useNavigate = () => {
 export const useCurrentView = () => useNavigationParam('pageKey');
 export const usePageOrder = () => {
   const rawOrder = useRawPageOrder();
-  const hiddenPages = Hidden.useHiddenPages();
+  const hiddenPages = useHiddenPages();
   return useMemo(() => rawOrder.filter((page) => !hiddenPages.has(page)), [rawOrder, hiddenPages]);
 };
 
