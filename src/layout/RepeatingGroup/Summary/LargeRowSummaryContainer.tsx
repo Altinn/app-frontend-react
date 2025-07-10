@@ -10,7 +10,8 @@ import classes from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContaine
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { HeadingLevel } from 'src/layout/common.generated';
 
@@ -40,7 +41,7 @@ export function LargeRowSummaryContainer({
   const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
   const layoutLookups = useLayoutLookups();
   const children = RepGroupHooks.useChildIds(baseComponentId);
-  const isHidden = Hidden.useIsHiddenMulti(children);
+  const isHidden = useIsHiddenMulti(children);
   const idMutator = useComponentIdMutator();
 
   if (typeof depth !== 'number') {

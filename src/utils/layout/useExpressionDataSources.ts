@@ -19,7 +19,8 @@ import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { ExprFunctionName } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
@@ -150,7 +151,7 @@ export function useExpressionDataSources(toEvaluate: unknown, overrides?: DataSo
     } else if (key === 'displayValues') {
       output[key] = useDisplayDataFor([...displayValueLookups.values()]);
     } else if (key === 'hiddenComponents') {
-      output[key] = Hidden.useIsHiddenMulti([...componentLookups, ...displayValueLookups]);
+      output[key] = useIsHiddenMulti([...componentLookups, ...displayValueLookups]);
     } else {
       throw new Error(`No hook found for data source ${key}`);
     }
