@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
 import { useNodeValidation } from 'src/features/validation/nodeValidation/useNodeValidation';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { useIsHidden } from 'src/utils/layout/hidden';
@@ -47,7 +46,11 @@ function useStoreValidations(baseComponentId: string) {
     undefined,
     (data) => !deepEqual('validations' in data ? data.validations : undefined, validations),
   );
-  NodesStateQueue.useSetNodeProp({ nodeId: indexedId, prop: 'validations', value: validations }, shouldSetValidations);
+
+  const setNodeProps = NodesInternal.useSetNodeProps();
+  useEffect(() => {
+    shouldSetValidations && setNodeProps([{ nodeId: indexedId, prop: 'validations', value: validations }]);
+  }, [indexedId, setNodeProps, shouldSetValidations, validations]);
 
   // Reduce visibility as validations are fixed
   const visibilityToSet = NodesInternal.useNodeData(indexedId, undefined, (data) => {
@@ -62,10 +65,10 @@ function useStoreValidations(baseComponentId: string) {
     return undefined;
   });
 
-  NodesStateQueue.useSetNodeProp(
-    { nodeId: indexedId, prop: 'validationVisibility', value: visibilityToSet },
-    visibilityToSet !== undefined,
-  );
+  useEffect(() => {
+    visibilityToSet !== undefined &&
+      setNodeProps([{ nodeId: indexedId, prop: 'validationVisibility', value: visibilityToSet }]);
+  }, [indexedId, setNodeProps, visibilityToSet]);
 
   // Hidden state needs to be set for validations as a temporary solution
   const hidden = useIsHidden(baseComponentId, { respectPageOrder: true });
@@ -73,7 +76,9 @@ function useStoreValidations(baseComponentId: string) {
     'hidden' in data ? data.hidden !== hidden : true,
   );
 
-  NodesStateQueue.useSetNodeProp({ nodeId: indexedId, prop: 'hidden', value: hidden }, shouldSetHidden);
+  useEffect(() => {
+    shouldSetHidden && setNodeProps([{ nodeId: indexedId, prop: 'hidden', value: hidden }]);
+  }, [hidden, indexedId, setNodeProps, shouldSetHidden]);
 }
 
 function useUpdatedValidations(validations: AnyValidation[], nodeId: string) {

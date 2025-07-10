@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
@@ -7,12 +7,11 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
-import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
 import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal, NodesStore } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -80,35 +79,67 @@ function AddRemoveNode<T extends CompTypes>({
   const depth = GeneratorInternal.useDepth();
   const rowIndex = GeneratorInternal.useRowIndex();
   const pageKey = GeneratorInternal.usePage() ?? '';
-  const idMutators = GeneratorInternal.useIdMutators() ?? [];
+  const idMutators = GeneratorInternal.useIdMutators();
   const layoutMap = useLayoutLookups().allComponents;
   const isValid = GeneratorInternal.useIsValid();
-  const getCapabilities = (type: CompTypes) => getComponentCapabilities(type);
-  const stateFactoryProps = {
-    id: intermediateItem.id,
-    baseId: baseComponentId,
-    parentId: parent?.type === 'node' ? parent.indexedId : undefined,
-    depth,
-    rowIndex,
-    pageKey,
-    idMutators,
-    layoutMap,
-    getCapabilities,
-    isValid,
-    dataModelBindings: intermediateItem.dataModelBindings as never,
-  } satisfies StateFactoryProps;
+  const getCapabilities = useCallback((type: CompTypes) => getComponentCapabilities(type), []);
+  const stateFactoryProps = useMemo(
+    () =>
+      ({
+        id: intermediateItem.id,
+        baseId: baseComponentId,
+        parentId: parent?.type === 'node' ? parent.indexedId : undefined,
+        depth,
+        rowIndex,
+        pageKey,
+        idMutators,
+        layoutMap,
+        getCapabilities,
+        isValid,
+        dataModelBindings: intermediateItem.dataModelBindings as never,
+      }) satisfies StateFactoryProps,
+    [
+      baseComponentId,
+      depth,
+      getCapabilities,
+      idMutators,
+      intermediateItem.dataModelBindings,
+      intermediateItem.id,
+      isValid,
+      layoutMap,
+      pageKey,
+      parent.indexedId,
+      parent?.type,
+      rowIndex,
+    ],
+  );
+
   const isAdded = NodesInternal.useIsAdded(intermediateItem.id, 'node');
 
   const def = getComponentDef(intermediateItem.type);
-  NodesStateQueue.useAddNode(
-    {
-      nodeId: intermediateItem.id,
-      targetState: def.stateFactory(stateFactoryProps as never),
-    },
-    !isAdded,
-  );
+  const addNodes = NodesInternal.useAddNodes();
+  const removeNodes = NodesInternal.useRemoveNodes();
 
-  NodesStateQueue.useRemoveNode({ nodeId: intermediateItem.id });
+  // This state is intentionally not reactive, as we want to commit _what the layout was when this node was created_,
+  // so that we don't accidentally remove a node with the same ID from a future/different layout.
+  const layoutsWas = NodesStore.useStaticSelector((s) => s.layouts!);
+
+  useEffect(() => {
+    !isAdded &&
+      addNodes([
+        {
+          nodeId: intermediateItem.id,
+          targetState: def.stateFactory(stateFactoryProps as never),
+        },
+      ]);
+  }, [addNodes, def, intermediateItem.id, isAdded, layoutsWas, stateFactoryProps]);
+
+  useEffect(
+    () => () => {
+      removeNodes([{ nodeId: intermediateItem.id, layouts: layoutsWas }]);
+    },
+    [intermediateItem.id, layoutsWas, removeNodes],
+  );
 
   return null;
 }

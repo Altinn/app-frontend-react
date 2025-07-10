@@ -21,10 +21,9 @@ import {
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
-import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import { GeneratorStagesEffects, useRegistry } from 'src/utils/layout/generator/GeneratorStages';
+import { useRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import type { ContextNotProvided } from 'src/core/contexts/context';
@@ -78,10 +77,10 @@ export interface RemoveNodeRequest {
   layouts: ILayouts;
 }
 
-export interface SetNodePropRequest<T extends CompTypes, K extends keyof NodeData<T>> {
+export interface SetNodePropRequest {
   nodeId: string;
-  prop: K;
-  value: NodeData<T>[K];
+  prop: string;
+  value: unknown;
 }
 
 export type NodesContext = {
@@ -93,7 +92,7 @@ export type NodesContext = {
   layouts: ILayouts | undefined; // Used to detect if the layouts have changed
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNodes: (request: RemoveNodeRequest[]) => void;
-  setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
+  setNodeProps: (requests: SetNodePropRequest[]) => void;
   addError: (error: string, id: string, type: 'node' | 'page') => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
@@ -234,10 +233,7 @@ export function createNodesDataStore({ validationsProcessedLast, ...props }: Cre
       ),
 
     reset: (layouts, validationsProcessedLast: ValidationsProcessedLast) =>
-      set(() => {
-        generatorLog('logCommits', 'Resetting state');
-        return { ...structuredClone(defaultState), layouts, validationsProcessedLast };
-      }),
+      set(() => ({ ...structuredClone(defaultState), layouts, validationsProcessedLast })),
 
     waitForCommits: undefined,
     setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
@@ -287,7 +283,6 @@ export const NodesProvider = ({ children, ...props }: NodesProviderProps) => {
       validationsProcessedLast={getProcessedLast()}
     >
       <ProvideGlobalContext registry={registry}>
-        <GeneratorStagesEffects />
         <GeneratorValidationProvider>
           <GeneratorData.Provider>
             <LayoutSetGenerator />
