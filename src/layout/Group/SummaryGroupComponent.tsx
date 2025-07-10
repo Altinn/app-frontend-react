@@ -12,7 +12,8 @@ import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
-import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
@@ -139,8 +140,7 @@ function SummaryComponentFromNode({
   inExcludedChildren,
   overrides,
 }: SummaryComponentFromRefProps) {
-  const indexedId = useIndexedId(targetBaseComponentId);
-  const isHidden = Hidden.useIsHidden(indexedId, 'node');
+  const isHidden = useIsHidden(targetBaseComponentId);
   if (inExcludedChildren(targetBaseComponentId) || isHidden) {
     return null;
   }
