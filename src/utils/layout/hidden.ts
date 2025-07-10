@@ -1,3 +1,7 @@
+import { useRef } from 'react';
+
+import deepEqual from 'fast-deep-equal';
+
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
@@ -39,6 +43,11 @@ export function useIsHidden<Reason extends boolean = false>(
   baseComponentId: string | undefined,
   options: IsHiddenOptions<Reason> = {},
 ) {
+  const lastValue = useRef(baseComponentId);
+  if (lastValue.current !== baseComponentId) {
+    throw new Error("useIsHidden doesn't support changing the baseComponentId, that would break the rule of hooks");
+  }
+
   const layoutLookups = useLayoutLookups();
   const hiddenPages = useHiddenLayoutsExpressions();
   const hiddenSources = findHiddenSources(baseComponentId, layoutLookups, hiddenPages).reverse();
@@ -72,6 +81,13 @@ export function useIsHiddenMulti(
   baseComponentIds: string[],
   options: Omit<IsHiddenOptions, 'includeReason'> = {},
 ): { [baseId: string]: boolean | undefined } {
+  const lastValues = useRef(baseComponentIds);
+  if (!deepEqual(lastValues.current, baseComponentIds)) {
+    throw new Error(
+      "useIsHiddenMulti doesn't support changing the baseComponentIds, that would break the rule of hooks",
+    );
+  }
+
   const layoutLookups = useLayoutLookups();
   const hiddenPages = useHiddenLayoutsExpressions();
   const hiddenSources = baseComponentIds.map((baseComponentId) =>
@@ -105,6 +121,11 @@ export function useIsHiddenMulti(
  * Check if a page is hidden
  */
 export function useIsHiddenPage(pageKey: string | undefined, options: Omit<IsHiddenOptions, 'includeReason'> = {}) {
+  const lastValue = useRef(pageKey);
+  if (lastValue.current !== pageKey) {
+    throw new Error("useIsHiddenPage doesn't support changing the pageKey, that would break the rule of hooks");
+  }
+
   const hiddenExpressions = useHiddenLayoutsExpressions();
   const dataSources = useExpressionDataSources(hiddenExpressions);
   const pageOrder = useRawPageOrder();
