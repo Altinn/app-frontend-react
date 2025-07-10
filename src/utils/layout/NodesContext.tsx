@@ -13,7 +13,7 @@ import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStor
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
-import { useLayoutLookups, useLayouts } from 'src/features/form/layout/LayoutsContext';
+import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import {
   LoadingBlockerWaitForValidation,
@@ -30,7 +30,6 @@ import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerato
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import type { ContextNotProvided } from 'src/core/contexts/context';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
-import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
 import type { ObjectOrArray } from 'src/hooks/useShallowMemo';
@@ -357,41 +356,6 @@ function NodesLoader() {
   return <Loader reason='nodes' />;
 }
 
-export interface IsHiddenOptions {
-  /**
-   * Default = true. Set this to false to not check if DevTools have overridden hidden status.
-   */
-  respectDevTools?: boolean;
-
-  /**
-   * Default = false. Set this to true to consider pages hidden from the page order as actually hidden.
-   */
-  respectTracks?: boolean;
-
-  /**
-   * Default = false. Set this to true to force all hidden components to be visible (used by our DevTools).
-   */
-  forcedVisibleByDevTools?: boolean;
-}
-
-type AccessibleIsHiddenOptions = Omit<IsHiddenOptions, 'forcedVisibleByDevTools'>;
-
-export function isHidden(
-  _state: NodesContext,
-  _id: string | undefined,
-  _lookups: LayoutLookups,
-  _options?: IsHiddenOptions,
-): boolean {
-  return false;
-}
-
-function makeOptions(forcedVisibleByDevTools: boolean, options?: AccessibleIsHiddenOptions): IsHiddenOptions {
-  return {
-    ...options,
-    forcedVisibleByDevTools,
-  };
-}
-
 function useIsForcedVisibleByDevTools() {
   return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
 }
@@ -413,30 +377,23 @@ export function useIsHiddenByRulesMulti(baseIds: string[]) {
 }
 
 export const Hidden = {
-  useIsHidden(nodeId: string | undefined, _type: 'node' | undefined, options?: AccessibleIsHiddenOptions) {
-    const lookups = useLayoutLookups();
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    return Store.useSelector((s) => isHidden(s, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)));
+  useIsHidden(_nodeId: string | undefined) {
+    return false;
   },
   useIsHiddenSelector() {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    const lookups = useLayoutLookups();
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (nodeId: string, _type: 'node', options?: IsHiddenOptions) => (state) =>
-          isHidden(state, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)),
+        selector: (_nodeId: string) => (_state) => false,
       },
       [forcedVisibleByDevTools],
     );
   },
   useFirstVisibleBaseId(baseIds: string[]) {
-    const lookups = useLayoutLookups();
-    const idMutator = useComponentIdMutator();
-    return Store.useSelector((state) => {
+    return Store.useSelector((_state) => {
       for (const baseId of baseIds) {
-        const id = idMutator(baseId);
-        if (!isHidden(state, id, lookups)) {
+        if (!JSON.parse('false')) {
           return baseId;
         }
       }
@@ -444,30 +401,6 @@ export const Hidden = {
     });
   },
 };
-
-export type NodeDataSelector = ReturnType<typeof NodesInternal.useNodeDataSelector>;
-
-export type NodeIdPicker = <T extends CompTypes = CompTypes>(
-  id: string | undefined,
-  type: T | undefined,
-) => NodeData<T> | undefined;
-
-function selectNodeData<T extends CompTypes = CompTypes>(
-  id: string | undefined,
-  type: T | undefined,
-  state: NodesContext,
-): NodeData<T> | undefined {
-  if (!id) {
-    return undefined;
-  }
-
-  const data = state.nodeData[id];
-  if (data && type && data.nodeType !== type) {
-    return undefined;
-  }
-
-  return data as NodeData<T>;
-}
 
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
@@ -527,16 +460,6 @@ export const NodesInternal = {
       return data ? selector(data as NodeData<Type>) : undefined;
     }) as Id extends undefined ? Out | undefined : Out;
   },
-  useNodeDataSelector: () =>
-    Store.useDelayedSelector({
-      mode: 'innerSelector',
-      makeArgs: (state) => [((id, type = undefined) => selectNodeData(id, type, state)) satisfies NodeIdPicker],
-    }),
-  useNodeDataSelectorProps: () =>
-    Store.useDelayedSelectorProps({
-      mode: 'innerSelector',
-      makeArgs: (state) => [((id, type = undefined) => selectNodeData(id, type, state)) satisfies NodeIdPicker],
-    }),
   useIsAdded: (id: string | undefined, type: 'node' | 'page' | undefined) =>
     Store.useSelector((s) => {
       if (!id) {

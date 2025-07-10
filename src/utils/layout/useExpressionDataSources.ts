@@ -32,7 +32,6 @@ import type { DSProps, DSPropsMatching } from 'src/hooks/delayedSelectors';
 import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export interface ExpressionDataSources {
   process?: IProcess;
@@ -45,7 +44,6 @@ export interface ExpressionDataSources {
   langToolsSelector: (dataModelPath: IDataModelReference | undefined) => IUseLanguage;
   currentLanguage: string;
   defaultDataType: string | null;
-  nodeDataSelector: NodeDataSelector;
   externalApis: ExternalApisResult;
   currentDataModelPath: IDataModelReference | undefined;
   codeListSelector: CodeListSelector;
@@ -57,7 +55,6 @@ export interface ExpressionDataSources {
 const multiSelectors = {
   formDataSelector: () => FD.useDebouncedSelectorProps(),
   attachmentsSelector: () => NodesInternal.useAttachmentsSelectorProps(),
-  nodeDataSelector: () => NodesInternal.useNodeDataSelectorProps(),
   dataElementSelector: () => useLaxDataElementsSelectorProps(),
   codeListSelector: () => useCodeListSelectorProps(),
 } satisfies {

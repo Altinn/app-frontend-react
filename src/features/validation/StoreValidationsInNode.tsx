@@ -7,6 +7,7 @@ import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AnyValidation, AttachmentValidation } from 'src/features/validation/index';
 import type { CompExternal, CompIntermediate } from 'src/layout/layout';
@@ -65,6 +66,14 @@ function useStoreValidations(baseComponentId: string) {
     { nodeId: indexedId, prop: 'validationVisibility', value: visibilityToSet },
     visibilityToSet !== undefined,
   );
+
+  // Hidden state needs to be set for validations as a temporary solution
+  const hidden = useIsHidden(baseComponentId, { respectPageOrder: true });
+  const shouldSetHidden = NodesInternal.useNodeData(indexedId, undefined, (data) =>
+    'hidden' in data ? data.hidden !== hidden : true,
+  );
+
+  NodesStateQueue.useSetNodeProp({ nodeId: indexedId, prop: 'hidden', value: hidden }, shouldSetHidden);
 }
 
 function useUpdatedValidations(validations: AnyValidation[], nodeId: string) {

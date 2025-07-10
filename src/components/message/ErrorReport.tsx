@@ -180,7 +180,7 @@ export function ErrorListFromInstantiation({ error }: { error: unknown }) {
 
 function ErrorWithLink({ error }: { error: NodeRefValidation }) {
   const navigateTo = useNavigateTo();
-  const isHidden = Hidden.useIsHidden(error.nodeId, 'node');
+  const isHidden = Hidden.useIsHidden(error.nodeId);
 
   const handleErrorClick = async (ev: React.KeyboardEvent | React.MouseEvent) => {
     if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
