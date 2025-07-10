@@ -10,6 +10,7 @@ import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { fetchProcessState } from 'src/queries/queries';
 import { isProcessTaskType, ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
+import type { IActionType } from 'src/types/shared';
 
 export const processQueries = {
   processStateKey: (instanceId?: string) => ['fetchProcessState', instanceId],
@@ -55,7 +56,7 @@ export function useProcessQuery() {
 export const useIsAuthorized = () => {
   const { data } = useProcessQuery();
 
-  return (action: string): boolean => {
+  return (action: IActionType | (string & {})): boolean => {
     const userAction = data?.currentTask?.userActions?.find((a) => a.id === action);
     return !!userAction?.authorized;
   };
