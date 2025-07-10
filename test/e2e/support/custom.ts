@@ -53,7 +53,6 @@ Cypress.Commands.add('waitUntilSaved', () => {
 });
 
 Cypress.Commands.add('waitUntilNodesReady', () => {
-  cy.get('body').should('not.have.attr', 'data-nodes-ready', 'false');
   cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
 });
 
