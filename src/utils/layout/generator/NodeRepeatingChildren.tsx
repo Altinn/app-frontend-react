@@ -5,7 +5,7 @@ import dot from 'dot-object';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
+import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { ChildClaims, ChildIdMutator, ChildMutator } from 'src/utils/layout/generator/GeneratorContext';
@@ -18,9 +18,9 @@ interface Props {
 
 export function NodeRepeatingChildren(props: Props) {
   return (
-    <GeneratorCondition mustBeAdded='parent'>
+    <WhenParentAdded>
       <NodeRepeatingChildrenWorker {...props} />
-    </GeneratorCondition>
+    </WhenParentAdded>
   );
 }
 

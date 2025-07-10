@@ -10,7 +10,7 @@ import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
+import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
@@ -45,22 +45,22 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
 
   return (
     <>
-      <GeneratorCondition mustBeAdded='parent'>
+      <WhenParentAdded>
         <AddRemoveNode
           {...commonProps}
           intermediateItem={intermediateItem}
         />
-      </GeneratorCondition>
+      </WhenParentAdded>
       <GeneratorNodeProvider
         parentBaseId={externalItem.id}
         item={intermediateItem}
       >
-        <GeneratorCondition mustBeAdded='parent'>
+        <WhenParentAdded>
           <NodePropertiesValidation
             {...commonProps}
             intermediateItem={intermediateItem}
           />
-        </GeneratorCondition>
+        </WhenParentAdded>
         {children}
       </GeneratorNodeProvider>
     </>

@@ -16,7 +16,6 @@ export const NODES_TICK_TIMEOUT = 10;
  *
  */
 export type Registry = {
-  restartAfter: boolean;
   toCommit: RegistryCommitQueues;
   toCommitCount: number;
   validationsProcessed: {
@@ -39,7 +38,6 @@ export function useRegistry() {
   );
 
   return useRef<Registry>({
-    restartAfter: false,
     toCommitCount: 0,
     toCommit: {
       addNodes: [],
@@ -54,23 +52,11 @@ export function GeneratorStagesEffects() {
   return <SetWaitForCommits />;
 }
 
-interface ConditionProps {
-  mustBeAdded?: 'parent';
-}
-
 /**
  * A component you can wrap around your own components to make sure they only run when the generator has reached a
  * certain stage, and optionally only if a certain condition is met.
  */
-export function GeneratorCondition({ mustBeAdded, children }: PropsWithChildren<ConditionProps>) {
-  if (mustBeAdded === 'parent') {
-    return <WhenParentAdded>{children}</WhenParentAdded>;
-  }
-
-  throw new Error(`Invalid mustBeAdded value: ${mustBeAdded}`);
-}
-
-function WhenParentAdded({ children }: PropsWithChildren) {
+export function WhenParentAdded({ children }: PropsWithChildren) {
   const parent = GeneratorInternal.useParent();
   const ready = NodesInternal.useIsAdded(parent.indexedId, parent.type);
 

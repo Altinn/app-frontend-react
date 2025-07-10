@@ -5,7 +5,7 @@ import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId
 import { getLikertStartStopIndex } from 'src/layout/Likert/rowUtils';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal, GeneratorRowProvider } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
+import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import {
   mutateComponentId,
@@ -19,9 +19,9 @@ import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 
 export function LikertGeneratorChildren() {
   return (
-    <GeneratorCondition mustBeAdded='parent'>
+    <WhenParentAdded>
       <LikertGeneratorChildrenWorker />
-    </GeneratorCondition>
+    </WhenParentAdded>
   );
 }
 

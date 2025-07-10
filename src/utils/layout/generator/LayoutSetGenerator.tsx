@@ -8,7 +8,7 @@ import {
   GeneratorErrorBoundary,
   useGeneratorErrorBoundaryNodeRef,
 } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
+import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
 import type { NodeGeneratorProps } from 'src/layout/LayoutComponent';
@@ -120,7 +120,7 @@ export function GenerateNodeChildren({ claims, pluginKey }: NodeChildrenProps) {
   const map = useLayoutLookups().childClaims;
 
   return (
-    <GeneratorCondition mustBeAdded='parent'>
+    <WhenParentAdded>
       {Object.keys(filteredClaims).map((id) => {
         const layout = layoutMap[id];
         if (!layout) {
@@ -137,7 +137,7 @@ export function GenerateNodeChildren({ claims, pluginKey }: NodeChildrenProps) {
           </GeneratorErrorBoundary>
         );
       })}
-    </GeneratorCondition>
+    </WhenParentAdded>
   );
 }
 
