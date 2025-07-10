@@ -12,7 +12,7 @@ import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
 import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { GeneratorCondition } from 'src/utils/layout/generator/GeneratorStages';
+import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useFormDataFor } from 'src/utils/layout/useNodeItem';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
@@ -26,9 +26,9 @@ type AttachmentRecord = Record<string, IAttachment>;
 
 export function StoreAttachmentsInNode() {
   return (
-    <GeneratorCondition mustBeAdded='parent'>
+    <WhenParentAdded>
       <StoreAttachmentsInNodeWorker />
-    </GeneratorCondition>
+    </WhenParentAdded>
   );
 }
 
