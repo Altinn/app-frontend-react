@@ -10,7 +10,6 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { useLaxInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useMemoDeepEqual } from 'src/hooks/useStateDeepEqual';
-import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -53,7 +52,11 @@ function StoreAttachmentsInNodeWorker() {
   const hasBeenSet = NodesInternal.useNodeData(parent.indexedId, undefined, (data) =>
     deepEqual('attachments' in data ? data.attachments : undefined, attachments),
   );
-  NodesStateQueue.useSetNodeProp({ nodeId: parent.indexedId, prop: 'attachments', value: attachments }, !hasBeenSet);
+
+  const setNodeProps = NodesInternal.useSetNodeProps();
+  useEffect(() => {
+    !hasBeenSet && setNodeProps([{ nodeId: parent.indexedId!, prop: 'attachments', value: attachments }]);
+  }, [attachments, hasBeenSet, parent.indexedId, setNodeProps]);
 
   if (hasErrors) {
     // If there are errors, we don't want to run the effects. It could be the case that multiple FileUpload components

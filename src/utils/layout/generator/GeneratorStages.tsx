@@ -1,13 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import { useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
-import { SetWaitForCommits } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ValidationsProcessedLast } from 'src/features/validation';
-import type { RegistryCommitQueues } from 'src/utils/layout/generator/CommitQueue';
-
-export const NODES_TICK_TIMEOUT = 10;
 
 /**
  * The registry is a collection of state kept in a ref, and is used to keep track of the progress in the node generator.
@@ -16,8 +12,6 @@ export const NODES_TICK_TIMEOUT = 10;
  *
  */
 export type Registry = {
-  toCommit: RegistryCommitQueues;
-  toCommitCount: number;
   validationsProcessed: {
     [nodeId: string]: ValidationsProcessedLast;
   };
@@ -29,27 +23,9 @@ export type Registry = {
  * @see GeneratorInternal.useRegistry
  */
 export function useRegistry() {
-  document.body.setAttribute('data-commits-pending', 'false');
-  useEffect(
-    () => () => {
-      document.body.removeAttribute('data-commits-pending');
-    },
-    [],
-  );
-
   return useRef<Registry>({
-    toCommitCount: 0,
-    toCommit: {
-      addNodes: [],
-      removeNodes: [],
-      setNodeProps: [],
-    },
     validationsProcessed: {},
   });
-}
-
-export function GeneratorStagesEffects() {
-  return <SetWaitForCommits />;
 }
 
 /**
