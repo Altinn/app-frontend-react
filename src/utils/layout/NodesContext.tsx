@@ -390,16 +390,6 @@ export const Hidden = {
       [forcedVisibleByDevTools],
     );
   },
-  useFirstVisibleBaseId(baseIds: string[]) {
-    return Store.useSelector((_state) => {
-      for (const baseId of baseIds) {
-        if (!JSON.parse('false')) {
-          return baseId;
-        }
-      }
-      return undefined;
-    });
-  },
 };
 
 /**
