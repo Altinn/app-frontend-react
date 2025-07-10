@@ -5,6 +5,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -226,5 +227,19 @@ export const RepGroupHooks = {
     }
 
     return children;
+  },
+
+  useChildIdsWithMultiPageAndHidden(
+    baseComponentId: string,
+  ): { baseId: string; indexedId: string; multiPageIndex: number | undefined; hidden: boolean }[] {
+    const withMultiPage = RepGroupHooks.useChildIdsWithMultiPage(baseComponentId);
+    const hidden = useIsHiddenMulti(withMultiPage.map(({ baseId }) => baseId));
+
+    return withMultiPage.map(({ baseId, indexedId, multiPageIndex }) => ({
+      baseId,
+      indexedId,
+      multiPageIndex,
+      hidden: hidden[baseId] ?? false,
+    }));
   },
 };
