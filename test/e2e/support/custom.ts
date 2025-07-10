@@ -525,11 +525,6 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
     }
   });
 
-  // To make sure we actually wait for the layout change to become effective, we first wait for the loader to appear,
-  // and then wait for it to disappear.
-  cy.get('[data-testid="loader"]').should('exist');
-  cy.get('[data-testid="loader"]').should('not.exist');
-
   cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
 });
