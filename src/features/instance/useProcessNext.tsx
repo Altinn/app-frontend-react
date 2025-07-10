@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
+import { useDisplayError } from 'src/core/errorHandling/DisplayErrorProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
 import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
@@ -39,6 +40,7 @@ export function useProcessNext() {
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
   const queryClient = useQueryClient();
+  const displayError = useDisplayError();
   const hasPendingScans = useHasPendingScans();
 
   const mutation = useMutation({
@@ -65,7 +67,7 @@ export function useProcessNext() {
           } else if (
             error.response?.status === 500 &&
             error.response?.data?.['detail'] === 'Pdf generation failed' &&
-            appUnlocksOnPDFFailure(applicationMetadata)
+            appSupportsUnlockingOnProcessNextFailure(applicationMetadata)
           ) {
             // If process next fails due to the PDF generator failing, don't show unknown error if the app unlocks data elements
             toast(<Lang id='process_error.submit_error_please_retry' />, { type: 'error', autoClose: false });
@@ -95,6 +97,11 @@ export function useProcessNext() {
       window.logError('Process next failed:\n', error);
       const { data: newProcess } = await refetchProcessData();
       const newCurrentTask = newProcess?.currentTask;
+
+      if (!appSupportsUnlockingOnProcessNextFailure(applicationMetadata)) {
+        displayError(error);
+        return;
+      }
 
       if (newCurrentTask?.elementId && newCurrentTask?.elementId !== process?.currentTask?.elementId) {
         await reFetchInstanceData();
@@ -134,6 +141,6 @@ export function useProcessConfirm() {
   };
 }
 
-function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {
+function appSupportsUnlockingOnProcessNextFailure({ altinnNugetVersion }: ApplicationMetadata) {
   return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.1.0.115' });
 }
