@@ -13,8 +13,7 @@ import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
-import { useIsHidden } from 'src/utils/layout/hidden';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useIsHidden, useIsHiddenMulti } from 'src/utils/layout/hidden';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -46,7 +45,7 @@ export function SummaryGroupComponent({
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
-  const isHidden = Hidden.useIsHiddenMulti(targetItem.children);
+  const isHidden = useIsHiddenMulti(targetItem.children);
   const children = targetItem.children.filter((id) => !inExcludedChildren(id) && !isHidden[id]);
   const layoutLookups = useLayoutLookups();
 

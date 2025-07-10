@@ -473,6 +473,18 @@ export function useIsHiddenByRules(nodeId: string) {
   return Store.useSelector((s) => s.hiddenViaRules[nodeId] ?? false);
 }
 
+export function useIsHiddenByRulesMulti(baseIds: string[]) {
+  const idMutator = useComponentIdMutator();
+  return Store.useShallowSelector((s) => {
+    const hidden: { [baseId: string]: boolean | undefined } = {};
+    for (const baseId of baseIds) {
+      const nodeId = idMutator(baseId);
+      hidden[baseId] = s.hiddenViaRules[nodeId] ?? false;
+    }
+    return hidden;
+  });
+}
+
 export const Hidden = {
   useIsHidden(nodeId: string | undefined, type: 'page' | 'node' | undefined, options?: AccessibleIsHiddenOptions) {
     const lookups = useLayoutLookups();
@@ -484,20 +496,6 @@ export const Hidden = {
     }
 
     return Store.useSelector((s) => isHidden(s, type!, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)));
-  },
-  useIsHiddenMulti(baseIds: string[], options?: AccessibleIsHiddenOptions): { [baseId: string]: boolean | undefined } {
-    const lookups = useLayoutLookups();
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    const idMutator = useComponentIdMutator();
-
-    return Store.useShallowSelector((s) => {
-      const hidden: { [nodeId: string]: boolean | undefined } = {};
-      for (const baseId of baseIds) {
-        const nodeId = idMutator(baseId);
-        hidden[baseId] = isHidden(s, 'node', nodeId, lookups, makeOptions(forcedVisibleByDevTools, options));
-      }
-      return hidden;
-    });
   },
   useIsHiddenSelector() {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();

@@ -14,9 +14,8 @@ import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { DataModelLocationProvider, useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
-import { useIsHidden } from 'src/utils/layout/hidden';
+import { useIsHidden, useIsHiddenMulti } from 'src/utils/layout/hidden';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
-import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -141,7 +140,7 @@ function RegularRepeatingGroupRow({
   changeText,
 }: FullRowProps) {
   const children = RepGroupHooks.useChildIds(targetBaseComponentId);
-  const isHidden = Hidden.useIsHiddenMulti(children);
+  const isHidden = useIsHiddenMulti(children);
   const idMutator = useComponentIdMutator();
   const layoutLookups = useLayoutLookups();
 

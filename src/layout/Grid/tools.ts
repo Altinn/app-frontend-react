@@ -1,6 +1,6 @@
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
 import { useExternalItem } from 'src/utils/layout/hooks';
-import { Hidden } from 'src/utils/layout/NodesContext';
 import { typedBoolean } from 'src/utils/typing';
 import type {
   GridCell,
@@ -57,7 +57,7 @@ function useIsHiddenInRow(row: GridRow) {
     .map((cell) => (isGridCellNode(cell) && cell.component ? cell.component : undefined))
     .filter(typedBoolean);
 
-  return Hidden.useIsHiddenMulti(baseIds);
+  return useIsHiddenMulti(baseIds);
 }
 
 function useHiddenInRows(rows: GridRows | undefined) {
@@ -67,7 +67,7 @@ function useHiddenInRows(rows: GridRows | undefined) {
       .flat()
       .filter(typedBoolean) ?? emptyArray;
 
-  return Hidden.useIsHiddenMulti(baseIds);
+  return useIsHiddenMulti(baseIds);
 }
 
 export function useIsGridRowHidden(row: GridRow) {

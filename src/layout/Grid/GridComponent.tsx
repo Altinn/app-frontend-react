@@ -25,8 +25,7 @@ import {
 } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { useIsHidden } from 'src/utils/layout/hidden';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useIsHidden, useIsHiddenMulti } from 'src/utils/layout/hidden';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -291,7 +290,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
 
 function MobileGrid({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Grid'>) {
   const baseIds = useBaseIdsFromGrid(baseComponentId);
-  const isHidden = Hidden.useIsHiddenMulti(baseIds);
+  const isHidden = useIsHiddenMulti(baseIds);
 
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
     baseComponentId,

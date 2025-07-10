@@ -6,7 +6,7 @@ import { useHiddenLayoutsExpressions, useLayoutLookups, useLayouts } from 'src/f
 import { useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { getComponentDef, implementsIsChildHidden } from 'src/layout';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { useIsHiddenByRules } from 'src/utils/layout/NodesContext';
+import { useIsHiddenByRules, useIsHiddenByRulesMulti } from 'src/utils/layout/NodesContext';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { EvalExprOptions } from 'src/features/expressions';
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -31,6 +31,10 @@ export interface IsHiddenOptions<Reason extends boolean = false> {
   respectPageOrder?: boolean;
 }
 
+/**
+ * Check if a given component is hidden.
+ * @see
+ */
 export function useIsHidden<Reason extends boolean = false>(
   baseComponentId: string | undefined,
   options: IsHiddenOptions<Reason> = {},
@@ -61,6 +65,45 @@ export function useIsHidden<Reason extends boolean = false>(
   return (options.includeReason === true ? reason : reason.hidden) as Reason extends true ? HiddenWithReason : boolean;
 }
 
+/**
+ * Check if multiple components are hidden. Returns a mapping detailing which components are hidden.
+ */
+export function useIsHiddenMulti(
+  baseComponentIds: string[],
+  options: Omit<IsHiddenOptions, 'includeReason'> = {},
+): { [baseId: string]: boolean | undefined } {
+  const layoutLookups = useLayoutLookups();
+  const hiddenPages = useHiddenLayoutsExpressions();
+  const hiddenSources = baseComponentIds.map((baseComponentId) =>
+    findHiddenSources(baseComponentId, layoutLookups, hiddenPages).reverse(),
+  );
+  const dataSources = useExpressionDataSources(hiddenSources);
+  const hiddenByRules = useIsHiddenByRulesMulti(baseComponentIds);
+  const forcedVisible = useIsForcedVisibleByDevTools();
+  const pageOrder = useRawPageOrder();
+
+  const out: { [baseId: string]: boolean | undefined } = {};
+  for (const [idx, baseComponentId] of baseComponentIds.entries()) {
+    const reason = isHidden({
+      hiddenByRules: hiddenByRules[baseComponentId] ?? false,
+      hiddenSources: hiddenSources[idx],
+      dataSources,
+      pageOrder,
+      pageKey: layoutLookups.componentToPage[baseComponentId],
+    });
+    if (reason.hidden && forcedVisible && options.respectDevTools !== false) {
+      out[baseComponentId] = false;
+    } else {
+      out[baseComponentId] = reason.hidden;
+    }
+  }
+
+  return out;
+}
+
+/**
+ * Check if a page is hidden
+ */
 export function useIsHiddenPage(pageKey: string | undefined, options: Omit<IsHiddenOptions, 'includeReason'> = {}) {
   const hiddenExpressions = useHiddenLayoutsExpressions();
   const dataSources = useExpressionDataSources(hiddenExpressions);
@@ -76,6 +119,9 @@ export function useIsHiddenPage(pageKey: string | undefined, options: Omit<IsHid
   return hidden;
 }
 
+/**
+ * Check which pages are hidden, returning a Set with the ones that are hidden
+ */
 export function useHiddenPages(options: Omit<IsHiddenOptions, 'includeReason'> = {}): Set<string> {
   const pages = Object.keys(useLayouts());
   const hiddenExpressions = useHiddenLayoutsExpressions();
