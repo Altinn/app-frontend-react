@@ -21,7 +21,7 @@ import { doProcessNext } from 'src/queries/queries';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
-import type { IActionType, IProcess } from 'src/types/shared';
+import type { IActionType, IProcess, ProblemDetails } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface ProcessNextProps {
@@ -31,7 +31,7 @@ interface ProcessNextProps {
 export function useProcessNext() {
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
-  const { refetch: refetchProcessData } = useProcessQuery();
+  const { data: process, refetch: refetchProcessData } = useProcessQuery();
   const navigateToTask = useNavigateToTask();
   const instanceId = useLaxInstanceId();
   const onFormSubmitValidation = useOnFormSubmitValidation();
@@ -39,8 +39,8 @@ export function useProcessNext() {
   const setShowAllBackendErrors = Validation.useSetShowAllBackendErrors();
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
-  const displayError = useDisplayError();
   const queryClient = useQueryClient();
+  const displayError = useDisplayError();
   const hasPendingScans = useHasPendingScans();
 
   const mutation = useMutation({
@@ -67,7 +67,7 @@ export function useProcessNext() {
           } else if (
             error.response?.status === 500 &&
             error.response?.data?.['detail'] === 'Pdf generation failed' &&
-            appUnlocksOnPDFFailure(applicationMetadata)
+            appSupportsUnlockingOnProcessNextFailure(applicationMetadata)
           ) {
             // If process next fails due to the PDF generator failing, don't show unknown error if the app unlocks data elements
             toast(<Lang id='process_error.submit_error_please_retry' />, { type: 'error', autoClose: false });
@@ -93,9 +93,25 @@ export function useProcessNext() {
         }
       }
     },
-    onError: (error: HttpClientError) => {
+    onError: async (error: HttpClientError<ProblemDetails | undefined>) => {
       window.logError('Process next failed:\n', error);
-      displayError(error);
+      const { data: newProcess } = await refetchProcessData();
+      const newCurrentTask = newProcess?.currentTask;
+
+      if (!appSupportsUnlockingOnProcessNextFailure(applicationMetadata)) {
+        displayError(error);
+        return;
+      }
+
+      if (newCurrentTask?.elementId && newCurrentTask?.elementId !== process?.currentTask?.elementId) {
+        await reFetchInstanceData();
+        navigateToTask(newCurrentTask.elementId);
+      }
+
+      toast(<Lang id={error.response?.data?.detail ?? error.message ?? 'process_error.submit_error_please_retry'} />, {
+        type: 'error',
+        autoClose: false,
+      });
     },
   });
 
@@ -125,6 +141,6 @@ export function useProcessConfirm() {
   };
 }
 
-function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {
+function appSupportsUnlockingOnProcessNextFailure({ altinnNugetVersion }: ApplicationMetadata) {
   return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.1.0.115' });
 }
