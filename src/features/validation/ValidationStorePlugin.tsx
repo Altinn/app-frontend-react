@@ -324,7 +324,7 @@ function getValidations({
     return emptyArray;
   }
 
-  if (!includeHidden && lookups && isHidden(state, 'node', id, lookups, hiddenOptions)) {
+  if (!includeHidden && lookups && isHidden(state, id, lookups, hiddenOptions)) {
     return emptyArray;
   }
 

@@ -37,7 +37,7 @@ function useRepeatingGroupEditRowState(
     children.map(({ indexedId, multiPageIndex }) => ({
       nodeId: indexedId,
       page: multiPageIndex,
-      hidden: isHidden(state, 'node', indexedId, lookups),
+      hidden: isHidden(state, indexedId, lookups),
     })),
   );
 

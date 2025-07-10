@@ -21,7 +21,6 @@ import {
   Validation,
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
-import { getComponentDef, implementsIsChildHidden } from 'src/layout';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { generatorLog } from 'src/utils/layout/generator/debug';
 import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
@@ -29,7 +28,6 @@ import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { GeneratorStagesEffects, useRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { ContextNotProvided } from 'src/core/contexts/context';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
@@ -378,83 +376,12 @@ export interface IsHiddenOptions {
 
 type AccessibleIsHiddenOptions = Omit<IsHiddenOptions, 'forcedVisibleByDevTools'>;
 
-function withDefaults(options?: IsHiddenOptions): Required<IsHiddenOptions> {
-  const { respectDevTools = true, respectTracks = false, forcedVisibleByDevTools = false } = options ?? {};
-  return { respectDevTools, respectTracks, forcedVisibleByDevTools };
-}
-
-function isHiddenPage(_state: NodesContext, pageKey: string | undefined, _options?: IsHiddenOptions) {
-  const options = withDefaults(_options);
-  if (!pageKey) {
-    return true;
-  }
-
-  if (options.forcedVisibleByDevTools && options.respectDevTools) {
-    return false;
-  }
-
-  // const pageState = state.pagesData.pages[pageKey];
-  const hidden = JSON.parse('false'); // TODO: Implement this differently
-  if (hidden) {
-    return true;
-  }
-
-  const inOrder = JSON.parse('true'); // TODO: Implement this differently
-  return options.respectTracks ? inOrder === false : false;
-}
-
 export function isHidden(
-  state: NodesContext,
-  type: 'page' | 'node',
-  id: string | undefined,
-  lookups: LayoutLookups,
+  _state: NodesContext,
+  _id: string | undefined,
+  _lookups: LayoutLookups,
   _options?: IsHiddenOptions,
-): boolean | undefined {
-  if (!id) {
-    return undefined;
-  }
-
-  if (type === 'page') {
-    return isHiddenPage(state, id, _options);
-  }
-
-  const options = withDefaults(_options);
-  if (options.forcedVisibleByDevTools && options.respectDevTools) {
-    return false;
-  }
-
-  const pageKey = state.nodeData[id]?.pageKey;
-  if (pageKey && isHiddenPage(state, pageKey, _options)) {
-    return true;
-  }
-
-  const hidden = JSON.parse('false'); // TODO: Rewrite all of this
-  // const hidden = state.nodeData[id]?.hidden;
-  if (hidden === undefined || hidden === true) {
-    return hidden;
-  }
-
-  if (state.hiddenViaRules[id]) {
-    return true;
-  }
-
-  // TODO: Check if row is hidden inside RepeatingGroup
-
-  const parentId = state.nodeData[id]?.parentId;
-  const parent = parentId ? state.nodeData[parentId] : undefined;
-  const parentDef = parent ? getComponentDef(parent.nodeType) : undefined;
-  if (parent && parentDef && implementsIsChildHidden(parentDef)) {
-    const { baseComponentId: childBaseId } = splitDashedKey(id);
-    const childHidden = parentDef.isChildHidden(parent.baseId, childBaseId, lookups);
-    if (childHidden) {
-      return true;
-    }
-  }
-
-  if (parent) {
-    return isHidden(state, 'node', parent.id, lookups, options);
-  }
-
+): boolean {
   return false;
 }
 
@@ -486,16 +413,10 @@ export function useIsHiddenByRulesMulti(baseIds: string[]) {
 }
 
 export const Hidden = {
-  useIsHidden(nodeId: string | undefined, type: 'page' | 'node' | undefined, options?: AccessibleIsHiddenOptions) {
+  useIsHidden(nodeId: string | undefined, _type: 'node' | undefined, options?: AccessibleIsHiddenOptions) {
     const lookups = useLayoutLookups();
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    if (typeof nodeId === 'string' && type === undefined) {
-      throw new Error(
-        'useIsHidden() requires a node ID/page ID and a type. When id is given, type has to be given too.',
-      );
-    }
-
-    return Store.useSelector((s) => isHidden(s, type!, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)));
+    return Store.useSelector((s) => isHidden(s, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)));
   },
   useIsHiddenSelector() {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
@@ -503,23 +424,19 @@ export const Hidden = {
     return Store.useDelayedSelector(
       {
         mode: 'simple',
-        selector: (nodeId: string, type: 'node' | 'page', options?: IsHiddenOptions) => (state) =>
-          isHidden(state, type, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)),
+        selector: (nodeId: string, _type: 'node', options?: IsHiddenOptions) => (state) =>
+          isHidden(state, nodeId, lookups, makeOptions(forcedVisibleByDevTools, options)),
       },
       [forcedVisibleByDevTools],
     );
   },
-
-  /**
-   * Iterate through a list of node IDs and find the first one that is not hidden
-   */
   useFirstVisibleBaseId(baseIds: string[]) {
     const lookups = useLayoutLookups();
     const idMutator = useComponentIdMutator();
     return Store.useSelector((state) => {
       for (const baseId of baseIds) {
         const id = idMutator(baseId);
-        if (!isHidden(state, 'node', id, lookups)) {
+        if (!isHidden(state, id, lookups)) {
           return baseId;
         }
       }
