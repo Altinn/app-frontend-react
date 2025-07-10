@@ -11,7 +11,6 @@ import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
 import { UpdateAttachmentsForCypress } from 'src/features/attachments/UpdateAttachmentsForCypress';
-import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { HiddenComponentsProvider } from 'src/features/form/dynamics/HiddenComponentsProvider';
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
@@ -356,10 +355,6 @@ function NodesLoader() {
   return <Loader reason='nodes' />;
 }
 
-function useIsForcedVisibleByDevTools() {
-  return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
-}
-
 export function useIsHiddenByRules(nodeId: string) {
   return Store.useSelector((s) => s.hiddenViaRules[nodeId] ?? false);
 }
@@ -375,12 +370,6 @@ export function useIsHiddenByRulesMulti(baseIds: string[]) {
     return hidden;
   });
 }
-
-export const Hidden = {
-  useIsHidden(_nodeId: string | undefined) {
-    return false;
-  },
-};
 
 /**
  * A set of tools, selectors and functions to use internally in node generator components.
