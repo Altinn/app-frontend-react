@@ -90,9 +90,7 @@ export type NodesContext = {
   nodeData: { [key: string]: NodeData };
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
-
   layouts: ILayouts | undefined; // Used to detect if the layouts have changed
-
   addNodes: (requests: AddNodeRequest[]) => void;
   removeNodes: (request: RemoveNodeRequest[]) => void;
   setNodeProps: (requests: SetNodePropRequest<CompTypes, keyof NodeData>[]) => void;
@@ -237,7 +235,7 @@ export function createNodesDataStore({ validationsProcessedLast, ...props }: Cre
 
     reset: (layouts, validationsProcessedLast: ValidationsProcessedLast) =>
       set(() => {
-        generatorLog('logStages', 'Resetting state');
+        generatorLog('logCommits', 'Resetting state');
         return { ...structuredClone(defaultState), layouts, validationsProcessedLast };
       }),
 
