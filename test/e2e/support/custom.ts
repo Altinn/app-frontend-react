@@ -52,10 +52,6 @@ Cypress.Commands.add('waitUntilSaved', () => {
   cy.get('[data-testid=NavigationButtons] button[disabled]').should('not.exist');
 });
 
-Cypress.Commands.add('waitUntilNodesReady', () => {
-  cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
-});
-
 Cypress.Commands.add('dsReady', (selector) => {
   // In case the option is dynamic, wait for save and progress bars to go away, otherwise the component could
   // rerender after opening, causing it to close again
@@ -63,7 +59,6 @@ Cypress.Commands.add('dsReady', (selector) => {
 
   cy.get(selector).should('not.be.disabled');
   cy.waitUntilSaved();
-  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
@@ -305,7 +300,6 @@ const defaultSnapshotOptions: SnapshotOptions = {
 Cypress.Commands.add('snapshot', (name, _options) => {
   const options = { ...defaultSnapshotOptions, ..._options };
   cy.clearSelectionAndWait();
-  cy.waitUntilNodesReady();
   cy.waitUntilSaved();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
@@ -332,7 +326,6 @@ Cypress.Commands.add('snapshot', (name, _options) => {
 
         // Saving happens after a debounce timeout, and even though we checked for unsaved changes above, there might
         // be new ones that appeared after viewport resizing. Let's check again right before we snapshot.
-        cy.waitUntilNodesReady();
         cy.waitUntilSaved();
 
         cy.percySnapshot(`${name} (${viewport})`, { percyCSS, widths: [width] });
@@ -539,7 +532,6 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
 
   cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
-  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('interceptLayoutSetsUiSettings', (uiSettings) => {

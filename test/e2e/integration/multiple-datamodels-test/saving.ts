@@ -119,7 +119,6 @@ describe('saving multiple data models', () => {
     cy.findAllByRole('button', { name: /slett/i }).first().click();
 
     cy.waitUntilSaved();
-    cy.waitUntilNodesReady();
     cy.findByRole('table').find('td').first().should('have.text', 'Hanne');
 
     cy.findByRole('button', { name: /rediger/i }).click();
