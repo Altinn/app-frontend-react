@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { MutableRefObject, PropsWithChildren } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -7,7 +7,6 @@ import { createStore } from 'zustand';
 import type { UnionToIntersection } from 'utility-types';
 import type { StoreApi } from 'zustand';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { Loader } from 'src/core/loading/Loader';
 import { AttachmentsStorePlugin } from 'src/features/attachments/AttachmentsStorePlugin';
@@ -31,6 +30,7 @@ import { GeneratorStagesEffects, useRegistry } from 'src/utils/layout/generator/
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
+import type { ContextNotProvided } from 'src/core/contexts/context';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ValidationsProcessedLast } from 'src/features/validation';
@@ -498,17 +498,6 @@ export const Hidden = {
       }
       return hidden;
     });
-  },
-  useIsHiddenPage(pageKey: string | undefined, options?: AccessibleIsHiddenOptions) {
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    return Store.useSelector((s) => isHiddenPage(s, pageKey, makeOptions(forcedVisibleByDevTools, options)));
-  },
-  useHiddenPages(): Set<string> {
-    const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();
-    const hiddenPages = Store.useLaxMemoSelector((s) =>
-      Object.keys(s.pagesData.pages).filter((key) => isHiddenPage(s, key, makeOptions(forcedVisibleByDevTools))),
-    );
-    return useMemo(() => new Set(hiddenPages === ContextNotProvided ? [] : hiddenPages), [hiddenPages]);
   },
   useIsHiddenSelector() {
     const forcedVisibleByDevTools = useIsForcedVisibleByDevTools();

@@ -2,7 +2,7 @@ import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
-import { useHiddenLayoutsExpressions, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { useHiddenLayoutsExpressions, useLayoutLookups, useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { getComponentDef, implementsIsChildHidden } from 'src/layout';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
@@ -59,6 +59,38 @@ export function useIsHidden<Reason extends boolean = false>(
   }
 
   return (options.includeReason === true ? reason : reason.hidden) as Reason extends true ? HiddenWithReason : boolean;
+}
+
+export function useIsHiddenPage(pageKey: string | undefined, options: Omit<IsHiddenOptions, 'includeReason'> = {}) {
+  const hiddenExpressions = useHiddenLayoutsExpressions();
+  const dataSources = useExpressionDataSources(hiddenExpressions);
+  const pageOrder = useRawPageOrder();
+  const forcedVisible = useIsForcedVisibleByDevTools();
+
+  const hidden = isHiddenPage({ pageKey, dataSources, pageOrder, hiddenExpressions, ...options });
+
+  if (hidden && forcedVisible && options.respectDevTools !== false) {
+    return false;
+  }
+
+  return hidden;
+}
+
+export function useHiddenPages(options: Omit<IsHiddenOptions, 'includeReason'> = {}): Set<string> {
+  const pages = Object.keys(useLayouts());
+  const hiddenExpressions = useHiddenLayoutsExpressions();
+  const dataSources = useExpressionDataSources(hiddenExpressions);
+  const pageOrder = useRawPageOrder();
+
+  const out = new Set<string>();
+  for (const pageKey of pages) {
+    const hidden = isHiddenPage({ pageKey, dataSources, pageOrder, hiddenExpressions, ...options });
+    if (hidden) {
+      out.add(pageKey);
+    }
+  }
+
+  return out;
 }
 
 interface IsHiddenProps extends Pick<IsHiddenOptions<boolean>, 'respectPageOrder'> {
@@ -186,4 +218,39 @@ function findHiddenSources(
 
 function useIsForcedVisibleByDevTools() {
   return useDevToolsStore((state) => state.isOpen && state.hiddenComponents !== 'hide');
+}
+
+interface IsHiddenPageProps extends Pick<IsHiddenOptions<boolean>, 'respectPageOrder'> {
+  pageKey: string | undefined;
+  hiddenExpressions: IHiddenLayoutsExternal;
+  dataSources: ExpressionDataSources;
+  pageOrder: string[];
+}
+
+function isHiddenPage({
+  pageOrder,
+  pageKey,
+  hiddenExpressions,
+  dataSources,
+  respectPageOrder = false,
+}: IsHiddenPageProps) {
+  if (pageKey === undefined) {
+    return false;
+  }
+  if (respectPageOrder && !pageOrder.includes(pageKey)) {
+    return true;
+  }
+  const hiddenExpr = hiddenExpressions[pageKey];
+  if (hiddenExpr === undefined) {
+    return false;
+  }
+  const options: EvalExprOptions = {
+    errorIntroText: `Hidden expression for page ${pageKey} failed`,
+    defaultValue: false,
+    returnType: ExprVal.Boolean,
+  };
+  if (!ExprValidation.isValidOrScalar(hiddenExpr, ExprVal.Boolean)) {
+    return false;
+  }
+  return evalExpr(hiddenExpr, dataSources, options);
 }
