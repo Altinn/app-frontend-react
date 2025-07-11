@@ -260,8 +260,9 @@ function findHiddenSources(
     const parentComponent = layoutLookups.getComponent(parent.id);
     const parentDef = getComponentDef(parentComponent.type);
     if (implementsIsChildHidden(parentDef)) {
-      const parentId = parent.id;
-      const callback = () => parentDef.isChildHidden(parentId, childId, layoutLookups);
+      const tmpParentId = parent.id;
+      const tmpChildId = childId;
+      const callback = () => parentDef.isChildHidden(tmpParentId, tmpChildId, layoutLookups);
       out.push({ type: 'callback', callback, id: parent.id });
     }
     if (parentComponent.type === 'RepeatingGroup' && parentComponent.hiddenRow !== undefined) {
