@@ -9,22 +9,15 @@ type ReqCounter = { count: number };
 describe('Auto save behavior', () => {
   it('onChangeFormData: Should save form data when interacting with form element(checkbox) but not on navigation', () => {
     cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangeFormData' });
+    cy.intercept('PATCH', '**/data/**').as('saveFormData');
+
     cy.goto('group');
 
-    cy.wrap<ReqCounter>({ count: 0 }).as('formDataReq');
-    cy.get<ReqCounter>('@formDataReq').then((formDataReq) => {
-      cy.intercept('PATCH', '**/data/**', () => {
-        formDataReq.count++;
-      }).as('saveFormData');
-    });
-
     cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
-    cy.wait('@saveFormData');
-    cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-      expect(count).to.be.eq(1);
-    });
+    cy.get('@saveFormData.all').should('have.length', 1);
 
     cy.findByRole('button', { name: 'Neste' }).clickAndGone();
+    cy.get('@saveFormData.all').should('have.length', 2); // The row has a fiels with preselectedOptionIndex
     cy.findByRole('button', { name: 'Forrige' }).clickAndGone();
 
     // Doing an extra wait to be sure no request is sent to backend
@@ -32,34 +25,24 @@ describe('Auto save behavior', () => {
     cy.waitForNetworkIdle(100);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(100);
-    cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-      expect(count).to.be.eq(1);
-    });
+    cy.get('@saveFormData.all').should('have.length', 2);
   });
 
   it('onChangePage: Should not save form when interacting with form element(checkbox), but should save on navigating between pages', () => {
     cy.interceptLayoutSetsUiSettings({ autoSaveBehavior: 'onChangePage' });
+    cy.intercept('PATCH', '**/data/**').as('saveFormData');
     cy.goto('group');
 
-    cy.wrap<ReqCounter>({ count: 0 }).as('formDataReq');
-    cy.get<ReqCounter>('@formDataReq').then((formDataReq) => {
-      cy.intercept('PATCH', '**/data/**', () => {
-        formDataReq.count++;
-      }).as('saveFormData');
-    });
     cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     // Doing a hard wait to be sure no request is sent to backend
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-      expect(count).to.be.eq(0);
-    });
+    cy.get('@saveFormData.all').should('have.length', 0);
 
-    // NavigationButtons
+    // At this point we've saved the prefill value (1), and when we got the reply back we immediately saw that one of
+    // those new rows should have a preselectedOptionIndex, so that gets set and saved as well (2).
     cy.findByRole('button', { name: 'Neste' }).clickAndGone();
-    cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-      expect(count).to.be.eq(1);
-    });
+    cy.get('@saveFormData.all').should('have.length', 2);
 
     // Clicking the back button does not save anything, because we didn't
     // change anything in the form data worth saving
@@ -72,27 +55,25 @@ describe('Auto save behavior', () => {
     cy.findByRole('button', { name: 'Neste' }).clickAndGone();
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroup).should('be.visible');
-    // Doing a hard wait to let EffectPreselectedOptionIndex trigger
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(100);
+
+    // We have now clicked 'Ja' to show the repeating group (3)
     cy.findByRole('button', { name: 'Forrige' }).clickAndGone();
-    cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-      expect(count).to.be.eq(2);
-    });
+    cy.get('@saveFormData.all').should('have.length', 3);
 
     // NavigationBar
     cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+
+    // Now we've added 'middels' (4) and when we get that reply back we'll also notice this
+    // row needs a preselectedOptionIndex (5)
     cy.gotoNavPage('repeating');
-    cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-      expect(count).to.be.eq(3);
-    });
+    cy.get('@saveFormData.all').should('have.length', 5);
 
     // Icon previous button
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).uncheck();
+
+    // Now we've unchecked 'ja' (6)
     cy.findByRole('button', { name: 'Forrige' }).clickAndGone();
-    cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-      expect(count).to.be.eq(4);
-    });
+    cy.get('@saveFormData.all').should('have.length', 6);
   });
 
   (['current', 'all'] as const).forEach((pages) => {
@@ -108,14 +89,8 @@ describe('Auto save behavior', () => {
         }
       });
 
+      cy.intercept('PATCH', '**/data/**').as('saveFormData');
       cy.goto('changename');
-
-      cy.wrap<ReqCounter>({ count: 0 }).as('formDataReq');
-      cy.get<ReqCounter>('@formDataReq').then((formDataReq) => {
-        cy.intercept('PATCH', '**/data/**', () => {
-          formDataReq.count++;
-        }).as('saveFormData');
-      });
 
       // The newFirstName field has a trigger for single field validation, and it should cause a very specific error
       // message to appear if the field is set to 'test'. Regardless of the trigger on page navigation, if we're saving
@@ -134,10 +109,7 @@ describe('Auto save behavior', () => {
       cy.get('button[aria-label*="Today"]').click();
 
       cy.findByRole('button', { name: /Neste/ }).click();
-      cy.wait('@saveFormData');
-      cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-        expect(count).to.be.eq(1);
-      });
+      cy.get('@saveFormData.all').should('have.length', 1);
 
       // None of the triggers should cause the page to change, because all of them should be triggered validation
       // and stopped by the error message.
@@ -187,14 +159,8 @@ describe('Auto save behavior', () => {
         }
       });
 
+      cy.intercept('PATCH', '**/data/**').as('saveFormData');
       cy.goto('changename');
-
-      cy.wrap<ReqCounter>({ count: 0 }).as('formDataReq');
-      cy.get<ReqCounter>('@formDataReq').then((formDataReq) => {
-        cy.intercept('PATCH', '**/data/**', () => {
-          formDataReq.count++;
-        }).as('saveFormData');
-      });
 
       // The newFirstName field has a trigger for single field validation, and it should cause a very specific error
       // message to appear if the field is set to 'test'. Regardless of the trigger on page navigation, if we're saving
@@ -210,9 +176,7 @@ describe('Auto save behavior', () => {
 
       cy.findByRole('button', { name: /Neste/ }).click();
       cy.wait('@saveFormData');
-      cy.get<ReqCounter>('@formDataReq').then(({ count }) => {
-        expect(count).to.be.eq(1);
-      });
+      cy.get('@saveFormData.all').should('have.length', 1);
 
       if (validateOnNext === undefined) {
         // We moved to the next page here, as there was nothing stopping it
