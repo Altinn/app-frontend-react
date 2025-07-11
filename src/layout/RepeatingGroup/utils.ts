@@ -179,21 +179,6 @@ export const RepGroupHooks = {
     return withHidden.filter((row) => !row.hidden);
   },
 
-  useLastMultiPageIndex(baseComponentId: string) {
-    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
-    if (!component.edit?.multiPage) {
-      return undefined;
-    }
-
-    let lastMultiPageIndex = 0;
-    for (const id of component.children) {
-      const [multiPageIndex] = id.split(':', 2);
-      lastMultiPageIndex = Math.max(lastMultiPageIndex, parseInt(multiPageIndex));
-    }
-
-    return lastMultiPageIndex;
-  },
-
   useChildIds(baseComponentId: string) {
     const component = useExternalItem(baseComponentId, 'RepeatingGroup');
     if (!component?.edit?.multiPage) {
