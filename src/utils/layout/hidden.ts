@@ -249,8 +249,8 @@ function findHiddenSources(
     return out;
   }
 
-  const component = layoutLookups.getComponent(baseComponentId);
-  if (component.hidden !== undefined) {
+  const component = layoutLookups.allComponents[baseComponentId];
+  if (component?.hidden !== undefined) {
     out.push({ type: 'hidden', expr: component.hidden, id: baseComponentId });
   }
 
