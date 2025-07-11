@@ -39,10 +39,9 @@ describe('Auto save behavior', () => {
     cy.wait(1000);
     cy.get('@saveFormData.all').should('have.length', 0);
 
-    // At this point we've saved the prefill value (1), and when we got the reply back we immediately saw that one of
-    // those new rows should have a preselectedOptionIndex, so that gets set and saved as well (2).
+    // At this point we've saved the prefill value (1).
     cy.findByRole('button', { name: 'Neste' }).clickAndGone();
-    cy.get('@saveFormData.all').should('have.length', 2);
+    cy.get('@saveFormData.all').should('have.length', 1);
 
     // Clicking the back button does not save anything, because we didn't
     // change anything in the form data worth saving
@@ -53,6 +52,11 @@ describe('Auto save behavior', () => {
 
     // Go forward again, change something and then observe the back button saves
     cy.findByRole('button', { name: 'Neste' }).clickAndGone();
+
+    // At some point when we got the reply back we saw that one of those new rows should have a preselectedOptionIndex,
+    // so that gets set and saved as well during a page navigation (2).
+    cy.get('@saveFormData.all').should('have.length', 2);
+
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroup).should('be.visible');
 
@@ -63,17 +67,22 @@ describe('Auto save behavior', () => {
     // NavigationBar
     cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
 
-    // Now we've added 'middels' (4) and when we get that reply back we'll also notice this
-    // row needs a preselectedOptionIndex (5)
+    // Now we've added 'middels' (4)
     cy.gotoNavPage('repeating');
-    cy.get('@saveFormData.all').should('have.length', 5);
+    cy.get('@saveFormData.all').should('have.length', 4);
 
     // Icon previous button
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).uncheck();
 
-    // Now we've unchecked 'ja' (6)
+    // Now we've unchecked 'ja' and added a preselectedOptionIndex for the new row (5)
     cy.findByRole('button', { name: 'Forrige' }).clickAndGone();
-    cy.get('@saveFormData.all').should('have.length', 6);
+    cy.get('@saveFormData.all').should('have.length', 5);
+
+    // Doing a hard wait to be sure no request is sent to backend
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+    cy.waitUntilSaved();
+    cy.get('@saveFormData.all').should('have.length', 5);
   });
 
   (['current', 'all'] as const).forEach((pages) => {
