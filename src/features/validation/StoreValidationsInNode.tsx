@@ -47,10 +47,10 @@ function useStoreValidations(baseComponentId: string) {
     (data) => !deepEqual('validations' in data ? data.validations : undefined, validations),
   );
 
-  const setNodeProps = NodesInternal.useSetNodeProps();
+  const setNodeProp = NodesInternal.useSetNodeProp();
   useEffect(() => {
-    shouldSetValidations && setNodeProps([{ nodeId: indexedId, prop: 'validations', value: validations }]);
-  }, [indexedId, setNodeProps, shouldSetValidations, validations]);
+    shouldSetValidations && setNodeProp({ nodeId: indexedId, prop: 'validations', value: validations });
+  }, [indexedId, setNodeProp, shouldSetValidations, validations]);
 
   // Reduce visibility as validations are fixed
   const visibilityToSet = NodesInternal.useNodeData(indexedId, undefined, (data) => {
@@ -67,8 +67,8 @@ function useStoreValidations(baseComponentId: string) {
 
   useEffect(() => {
     visibilityToSet !== undefined &&
-      setNodeProps([{ nodeId: indexedId, prop: 'validationVisibility', value: visibilityToSet }]);
-  }, [indexedId, setNodeProps, visibilityToSet]);
+      setNodeProp({ nodeId: indexedId, prop: 'validationVisibility', value: visibilityToSet });
+  }, [indexedId, setNodeProp, visibilityToSet]);
 
   // Hidden state needs to be set for validations as a temporary solution
   const hidden = useIsHidden(baseComponentId, { respectPageOrder: true });
@@ -77,8 +77,8 @@ function useStoreValidations(baseComponentId: string) {
   );
 
   useEffect(() => {
-    shouldSetHidden && setNodeProps([{ nodeId: indexedId, prop: 'hidden', value: hidden }]);
-  }, [hidden, indexedId, setNodeProps, shouldSetHidden]);
+    shouldSetHidden && setNodeProp({ nodeId: indexedId, prop: 'hidden', value: hidden });
+  }, [hidden, indexedId, setNodeProp, shouldSetHidden]);
 }
 
 function useUpdatedValidations(validations: AnyValidation[], nodeId: string) {

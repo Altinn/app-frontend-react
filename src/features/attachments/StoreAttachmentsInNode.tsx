@@ -53,10 +53,10 @@ function StoreAttachmentsInNodeWorker() {
     deepEqual('attachments' in data ? data.attachments : undefined, attachments),
   );
 
-  const setNodeProps = NodesInternal.useSetNodeProps();
+  const setNodeProp = NodesInternal.useSetNodeProp();
   useEffect(() => {
-    !hasBeenSet && setNodeProps([{ nodeId: parent.indexedId!, prop: 'attachments', value: attachments }]);
-  }, [attachments, hasBeenSet, parent.indexedId, setNodeProps]);
+    !hasBeenSet && setNodeProp({ nodeId: parent.indexedId!, prop: 'attachments', value: attachments });
+  }, [attachments, hasBeenSet, parent.indexedId, setNodeProp]);
 
   if (hasErrors) {
     // If there are errors, we don't want to run the effects. It could be the case that multiple FileUpload components

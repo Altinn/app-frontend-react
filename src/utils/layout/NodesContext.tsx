@@ -89,9 +89,9 @@ export type NodesContext = {
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
   layouts: ILayouts | undefined; // Used to detect if the layouts have changed
-  addNodes: (requests: AddNodeRequest[]) => void;
-  removeNodes: (request: RemoveNodeRequest[]) => void;
-  setNodeProps: (requests: SetNodePropRequest[]) => void;
+  addNode: (request: AddNodeRequest) => void;
+  removeNode: (request: RemoveNodeRequest) => void;
+  setNodeProp: (request: SetNodePropRequest) => void;
   addError: (error: string, id: string, type: 'node' | 'page') => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
@@ -142,61 +142,44 @@ export function createNodesDataStore({ validationsProcessedLast, ...props }: Cre
         return { hiddenViaRules: newState, hiddenViaRulesRan: true };
       }),
 
-    addNodes: (requests) =>
+    addNode: ({ nodeId, targetState }) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        for (const { nodeId, targetState } of requests) {
-          nodeData[nodeId] = targetState;
-        }
-
+        nodeData[nodeId] = targetState;
         return { nodeData };
       }),
-    removeNodes: (requests) =>
+    removeNode: ({ nodeId, layouts }) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-
-        let count = 0;
-        for (const { nodeId, layouts } of requests) {
-          if (!nodeData[nodeId]) {
-            continue;
-          }
-
-          if (layouts !== state.layouts) {
-            // The layouts have changed since the request was added, so there's no need to remove the node (it was
-            // automatically removed when resetting the NodesContext state upon the layout change)
-            continue;
-          }
-
-          delete nodeData[nodeId];
-          count += 1;
-        }
-
-        if (count === 0) {
+        if (!nodeData[nodeId]) {
           return {};
         }
 
+        if (layouts !== state.layouts) {
+          // The layouts have changed since the request was added, so there's no need to remove the node (it was
+          // automatically removed when resetting the NodesContext state upon the layout change)
+          return {};
+        }
+
+        delete nodeData[nodeId];
         return { nodeData };
       }),
-    setNodeProps: (requests) =>
+    setNodeProp: ({ nodeId, prop, value }) =>
       set((state) => {
-        let changes = false;
         const nodeData = { ...state.nodeData };
-        for (const { nodeId, prop, value } of requests) {
-          if (!nodeData[nodeId]) {
-            continue;
-          }
-
-          const thisNode = { ...nodeData[nodeId] };
-
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          thisNode[prop as any] = value;
-
-          if (!deepEqual(nodeData[nodeId][prop], thisNode[prop])) {
-            changes = true;
-            nodeData[nodeId] = thisNode;
-          }
+        if (!nodeData[nodeId]) {
+          return {};
         }
-        return changes ? { nodeData } : {};
+
+        const thisNode = { ...nodeData[nodeId] };
+        thisNode[prop] = value;
+
+        if (deepEqual(nodeData[nodeId][prop], thisNode[prop])) {
+          return {};
+        }
+
+        nodeData[nodeId] = thisNode;
+        return { nodeData };
       }),
     addError: (error, id, type) =>
       set(
@@ -423,10 +406,10 @@ export const NodesInternal = {
   useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T) => Store.useLaxMemoSelector(selector),
 
   useStore: () => Store.useStore(),
-  useSetNodeProps: () => Store.useStaticSelector((s) => s.setNodeProps),
+  useSetNodeProp: () => Store.useStaticSelector((s) => s.setNodeProp),
   useAddPage: () => Store.useStaticSelector((s) => s.addPage),
-  useAddNodes: () => Store.useStaticSelector((s) => s.addNodes),
-  useRemoveNodes: () => Store.useStaticSelector((s) => s.removeNodes),
+  useAddNode: () => Store.useStaticSelector((s) => s.addNode),
+  useRemoveNode: () => Store.useStaticSelector((s) => s.removeNode),
   useAddError: () => Store.useStaticSelector((s) => s.addError),
   useMarkHiddenViaRule: () => Store.useStaticSelector((s) => s.markHiddenViaRule),
 

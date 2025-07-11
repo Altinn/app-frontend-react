@@ -117,8 +117,8 @@ function AddRemoveNode<T extends CompTypes>({
   const isAdded = NodesInternal.useIsAdded(intermediateItem.id, 'node');
 
   const def = getComponentDef(intermediateItem.type);
-  const addNodes = NodesInternal.useAddNodes();
-  const removeNodes = NodesInternal.useRemoveNodes();
+  const addNode = NodesInternal.useAddNode();
+  const removeNode = NodesInternal.useRemoveNode();
 
   // This state is intentionally not reactive, as we want to commit _what the layout was when this node was created_,
   // so that we don't accidentally remove a node with the same ID from a future/different layout.
@@ -126,19 +126,17 @@ function AddRemoveNode<T extends CompTypes>({
 
   useEffect(() => {
     !isAdded &&
-      addNodes([
-        {
-          nodeId: intermediateItem.id,
-          targetState: def.stateFactory(stateFactoryProps as never),
-        },
-      ]);
-  }, [addNodes, def, intermediateItem.id, isAdded, layoutsWas, stateFactoryProps]);
+      addNode({
+        nodeId: intermediateItem.id,
+        targetState: def.stateFactory(stateFactoryProps as never),
+      });
+  }, [addNode, def, intermediateItem.id, isAdded, layoutsWas, stateFactoryProps]);
 
   useEffect(
     () => () => {
-      removeNodes([{ nodeId: intermediateItem.id, layouts: layoutsWas }]);
+      removeNode({ nodeId: intermediateItem.id, layouts: layoutsWas });
     },
-    [intermediateItem.id, layoutsWas, removeNodes],
+    [intermediateItem.id, layoutsWas, removeNode],
   );
 
   return null;
