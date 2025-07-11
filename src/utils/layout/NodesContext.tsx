@@ -26,7 +26,6 @@ import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { useRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
-import type { ContextNotProvided } from 'src/core/contexts/context';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
@@ -99,9 +98,6 @@ export type NodesContext = {
   addPage: (pageKey: string) => void;
 
   reset: (layouts: ILayouts, validationsProcessedLast: ValidationsProcessedLast) => void;
-
-  waitForCommits: undefined | (() => Promise<void>);
-  setWaitForCommits: (waitForCommits: () => Promise<void>) => void;
 } & NodesProviderProps &
   ExtraFunctions;
 
@@ -235,9 +231,6 @@ export function createNodesDataStore({ validationsProcessedLast, ...props }: Cre
     reset: (layouts, validationsProcessedLast: ValidationsProcessedLast) =>
       set(() => ({ ...structuredClone(defaultState), layouts, validationsProcessedLast })),
 
-    waitForCommits: undefined,
-    setWaitForCommits: (waitForCommits) => set(() => ({ waitForCommits })),
-
     ...(Object.values(StorePlugins)
       .map((plugin) => plugin.extraFunctions(set))
       .reduce((acc, val) => ({ ...acc, ...val }), {}) as ExtraFunctions),
@@ -252,21 +245,6 @@ const Store = createZustandContext<NodesContextStore, NodesContext>({
 
 export const NodesStore = Store; // Should be considered internal, do not use unless you know what you're doing
 export type NodesStoreFull = typeof Store;
-
-/**
- * Another set of hooks for internal use that will work different ways depending on the render context. If you use
- * these selectors inside GeneratorStages (aka. inside the node generation process), they will re-run every time the
- * store changes, even if the store is not ready. Thus you have to make due with partially generated data. However,
- * if you use these selectors outside of the generation stages, they will only re-run when the store is ready.
- */
-const Conditionally = {
-  useSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => Store.useSelector(selector),
-  useMemoSelector: <T,>(selector: (state: NodesContext) => T): T | undefined => Store.useMemoSelector(selector),
-  useLaxSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided =>
-    Store.useLaxSelector(selector),
-  useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T): T | typeof ContextNotProvided =>
-    Store.useLaxMemoSelector(selector),
-};
 
 interface NodesProviderProps extends PropsWithChildren {
   readOnly: boolean;
@@ -409,7 +387,7 @@ export const NodesInternal = {
     type: Type | undefined,
     selector: (nodeData: NodeData<Type>) => Out,
   ) {
-    return Conditionally.useMemoSelector((s) => {
+    return Store.useMemoSelector((s) => {
       if (!nodeId) {
         return undefined;
       }
@@ -451,7 +429,6 @@ export const NodesInternal = {
   useRemoveNodes: () => Store.useStaticSelector((s) => s.removeNodes),
   useAddError: () => Store.useStaticSelector((s) => s.addError),
   useMarkHiddenViaRule: () => Store.useStaticSelector((s) => s.markHiddenViaRule),
-  useSetWaitForCommits: () => Store.useStaticSelector((s) => s.setWaitForCommits),
 
   ...(Object.values(StorePlugins)
     .map((plugin) => plugin.extraHooks(Store))
