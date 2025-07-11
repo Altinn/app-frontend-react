@@ -3,7 +3,7 @@ import type { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImpor
 import type { SerializableSetting } from 'src/codegen/SerializableSetting';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
-import type { BaseNodeData, StateFactoryProps } from 'src/utils/layout/types';
+import type { StateFactoryProps } from 'src/utils/layout/types';
 
 interface DefPluginConfig {
   componentType: CompTypes;
@@ -21,7 +21,6 @@ type DefPluginCompType<Config extends DefPluginConfig> = Config['componentType']
 export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraState'] extends undefined
   ? unknown
   : Config['extraState'];
-export type DefPluginState<Config extends DefPluginConfig> = BaseNodeData & DefPluginExtraState<Config>;
 export type DefPluginStateFactoryProps = StateFactoryProps;
 export type DefPluginCompExternal<Config extends DefPluginConfig> = Config['expectedFromExternal'];
 export type DefPluginChildClaimerProps<Config extends DefPluginConfig> = Omit<
