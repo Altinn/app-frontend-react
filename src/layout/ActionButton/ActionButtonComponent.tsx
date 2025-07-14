@@ -19,10 +19,9 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
 export function ActionButtonComponent({ baseComponentId }: IActionButton) {
-  const { mutate: processNext, isPending: isPerformingProcessNext } = useProcessNext();
-  const isAuthorized = useIsAuthorized();
-
   const { action, buttonStyle, id, textResourceBindings } = useItemWhenType(baseComponentId, 'ActionButton');
+  const { mutate: processNext, isPending: isPerformingProcessNext } = useProcessNext({ action });
+  const isAuthorized = useIsAuthorized();
 
   if (useIsSubformPage()) {
     throw new Error('Cannot use process navigation in a subform');
@@ -39,7 +38,7 @@ export function ActionButtonComponent({ baseComponentId }: IActionButton) {
         color={color}
         disabled={!isAuthorized(action)}
         isLoading={isPerformingProcessNext}
-        onClick={() => processNext({ action })}
+        onClick={() => processNext()}
       >
         <Lang id={textResourceBindings?.title ?? `actions.${action}`} />
       </Button>
