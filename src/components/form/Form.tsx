@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { useNavigation, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
@@ -286,7 +286,6 @@ function HandleNavigationFocusComponent() {
   const focusNode = useNode(componentId ?? undefined);
   const navigateTo = useNavigateTo();
   const navigate = useNavigate();
-  const isNavigating = useNavigation().state !== 'idle';
 
   React.useEffect(() => {
     (async () => {
@@ -311,7 +310,7 @@ function HandleNavigationFocusComponent() {
         await navigateTo(focusNode.id, focusNode.baseId, nodeNavOptions);
       }
     })();
-  }, [navigateTo, focusNode, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation, isNavigating]);
+  }, [navigateTo, focusNode, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation]);
 
   return null;
 }
