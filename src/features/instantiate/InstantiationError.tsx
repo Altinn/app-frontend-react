@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { InstantiateValidationError } from 'src/features/instantiate/containers/InstantiateValidationError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { isAxiosError } from 'src/utils/isAxiosError';
 
 export function InstantiationError() {
