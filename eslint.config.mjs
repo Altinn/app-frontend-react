@@ -5,6 +5,7 @@ import pluginCypress from 'eslint-plugin-cypress/flat';
 import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths';
 import preferredImportPath from 'eslint-plugin-preferred-import-path';
 import reactPlugin from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
 import testingLibrary from 'eslint-plugin-testing-library';
@@ -13,7 +14,6 @@ import globals from 'globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
-import reactCompiler from 'eslint-plugin-react-compiler';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
 import langKey from './src/language/eslint.js';
