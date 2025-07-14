@@ -155,7 +155,7 @@ function ActualGenericComponent<Type extends CompTypes = CompTypes>({
     return null;
   }
 
-  const layoutComponent = getComponentDef(component.type as Type);
+  const layoutComponent = getComponentDef(component.type);
   const RenderComponent = layoutComponent.render as AnyComponent<Type>['render'];
 
   const componentProps: PropsFromGenericComponent<Type> = {

@@ -151,12 +151,12 @@ export const ComponentRouting = () => {
     return <Loader reason='component-routing' />;
   }
 
-  if (!layoutLookups.allComponents[componentId]) {
+  const component = layoutLookups.allComponents[componentId];
+  if (!component) {
     // Consider adding a 404 page?
     return <RedirectBackToMainForm />;
   }
 
-  const component = layoutLookups.allComponents[componentId];
   const def = getComponentDef(component.type);
   if (implementsSubRouting(def)) {
     const SubRouting = def.subRouting;

@@ -53,7 +53,7 @@ export const ExpressionPlayground = () => {
   const nodeInspectorSet = useDevToolsStore((state) => state.actions.nodeInspectorSet);
   const currentPageId = useNavigationParam('pageKey');
   const layoutLookups = useLayoutLookups();
-  const nodePage = layoutLookups.componentToPage[baseId ?? ''] ?? '';
+  const nodePage = (baseId && layoutLookups.componentToPage[baseId]) ?? '';
 
   const { showAllSteps, setShowAllSteps, activeOutputTab, setActiveOutputTab, outputs, setOutputs } =
     usePlaygroundState();

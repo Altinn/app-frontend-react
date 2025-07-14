@@ -35,9 +35,17 @@ export function StoreAttachmentsInNode() {
   );
 }
 
+function isNode(parent: ReturnType<typeof GeneratorInternal.useParent>): parent is {
+  type: 'node';
+  baseId: string;
+  indexedId: string;
+} {
+  return parent?.type === 'node' && !!parent.baseId && !!parent.indexedId;
+}
+
 function StoreAttachmentsInNodeWorker() {
   const parent = GeneratorInternal.useParent();
-  if (parent?.type !== 'node' || !parent.baseId || !parent.indexedId) {
+  if (!isNode(parent)) {
     throw new Error('StoreAttachmentsInNodeWorker must be used inside a node');
   }
   const item = GeneratorInternal.useIntermediateItem();
@@ -75,7 +83,7 @@ function StoreAttachmentsInNodeWorker() {
 
 function useNodeAttachments(): AttachmentRecord {
   const parent = GeneratorInternal.useParent();
-  if (!parent.baseId || !parent.indexedId || parent.type !== 'node') {
+  if (!isNode(parent)) {
     throw new Error('useNodeAttachments must be used inside a node');
   }
   const { indexedId, baseId } = parent;
@@ -227,7 +235,7 @@ function empty(a: unknown, b: unknown): boolean {
  */
 function MaintainSimpleDataModelBinding({ bindings, attachments }: MaintainSimpleDataModelBindingProps) {
   const parent = GeneratorInternal.useParent();
-  if (!parent || !parent.baseId || parent.type !== 'node') {
+  if (!isNode(parent)) {
     throw new Error('MaintainSimpleDataModelBinding must be used inside a node');
   }
 
