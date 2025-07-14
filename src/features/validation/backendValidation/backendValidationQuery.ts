@@ -6,7 +6,7 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { type BackendValidationIssue, BackendValidationSeverity } from '..';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';

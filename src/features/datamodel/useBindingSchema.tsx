@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import type { JSONSchema7 } from 'json-schema';
 
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import {
   getCurrentDataTypeForApplication,
   getCurrentTaskDataElementId,

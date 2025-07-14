@@ -5,9 +5,8 @@ import cn from 'classnames';
 
 import { AltinnLogo, LogoColor } from 'src/components/logo/AltinnLogo';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
-import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { FooterEmail } from 'src/features/footer/components/FooterEmail';
 import { FooterLink } from 'src/features/footer/components/FooterLink';
 import { FooterPhone } from 'src/features/footer/components/FooterPhone';
@@ -23,13 +22,13 @@ export const Footer = () => {
     staleTime: 1000 * 60 * 60 * 24, // 24 hours
   });
 
-  const application = useLaxApplicationMetadata();
+  const application = useApplicationMetadata();
 
   if (footerLayoutError) {
     return <DisplayError error={footerLayoutError} />;
   }
 
-  const shouldUseOrgLogo = application !== ContextNotProvided && application.logoOptions != null;
+  const shouldUseOrgLogo = application.logoOptions != null;
 
   const footerElements = data?.footer;
   if (!footerElements && !shouldUseOrgLogo) {

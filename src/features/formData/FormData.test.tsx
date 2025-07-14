@@ -11,7 +11,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { defaultDataTypeMock, statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
-import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { AppDataContextProvider } from 'src/features/appData/AppDataProvider';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
@@ -136,7 +136,7 @@ async function statelessRender(props: RenderProps) {
         </MemoryRouter>
       ),
       renderer: () => (
-        <ApplicationMetadataProvider>
+        <AppDataContextProvider>
           <GlobalFormDataReadersProvider>
             <LayoutSetsProvider>
               <LayoutsProvider>
@@ -154,7 +154,7 @@ async function statelessRender(props: RenderProps) {
               </LayoutsProvider>
             </LayoutSetsProvider>
           </GlobalFormDataReadersProvider>
-        </ApplicationMetadataProvider>
+        </AppDataContextProvider>
       ),
       queries: {
         fetchDataModelSchema: async () => mockSchema,

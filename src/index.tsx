@@ -24,7 +24,7 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { DisplayErrorProvider } from 'src/core/errorHandling/DisplayErrorProvider';
-import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { AppDataContextProvider } from 'src/features/appData/AppDataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -93,8 +93,8 @@ function Root() {
   return (
     <>
       <InstantiationUrlReset />
-      <TaskStoreProvider>
-        <ApplicationMetadataProvider>
+      <AppDataContextProvider>
+        <TaskStoreProvider>
           <GlobalFormDataReadersProvider>
             <LayoutSetsProvider>
               <SetShouldFetchAppLanguages />
@@ -127,8 +127,8 @@ function Root() {
               <PartyPrefetcher />
             </LayoutSetsProvider>
           </GlobalFormDataReadersProvider>
-        </ApplicationMetadataProvider>
-      </TaskStoreProvider>
+        </TaskStoreProvider>
+      </AppDataContextProvider>
     </>
   );
 }

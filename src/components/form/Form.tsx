@@ -8,7 +8,7 @@ import { ErrorReport, ErrorReportList } from 'src/components/message/ErrorReport
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { NavigateToStartUrl } from 'src/components/wrappers/ProcessWrapper';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { useAllAttachments } from 'src/features/attachments/hooks';
 import { FileScanResults } from 'src/features/attachments/types';
 import { useExpandedWidthLayouts, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';

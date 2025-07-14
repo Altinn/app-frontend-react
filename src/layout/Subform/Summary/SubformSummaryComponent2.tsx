@@ -5,7 +5,7 @@ import { Heading, Paragraph } from '@digdir/designsystemet-react';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Label, LabelInner } from 'src/components/label/Label';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
