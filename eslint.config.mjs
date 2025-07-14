@@ -13,6 +13,7 @@ import globals from 'globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
+import reactCompiler from 'eslint-plugin-react-compiler';
 
 // eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
 import langKey from './src/language/eslint.js';
@@ -61,6 +62,7 @@ export default tseslint.config(
       'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
       react: fixupPluginRules(reactPlugin),
+      'react-compiler': reactCompiler,
       local: {
         rules: {
           'language-key': langKey,
@@ -148,6 +150,8 @@ export default tseslint.config(
       'no-relative-import-paths/no-relative-import-paths': ['warn', { allowSameFolder: false }],
 
       'preferred-import-path/preferred-import-path': ['warn', { '^/src': 'src', '^/test/': 'test/' }],
+
+      'react-compiler/react-compiler': 'error',
 
       'simple-import-sort/imports': [
         'error',
