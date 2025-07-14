@@ -1,6 +1,6 @@
 import React from 'react';
 import { matchPath, useLocation, useNavigate as useNativeNavigate } from 'react-router-dom';
-import type { MutableRefObject, PropsWithChildren } from 'react';
+import type { PropsWithChildren, RefObject } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { createStore } from 'zustand';
@@ -31,7 +31,7 @@ interface Context {
   updateHash: (hash: string) => void;
   effectCallback: NavigationEffectCb | null;
   setEffectCallback: (cb: NavigationEffectCb | null) => void;
-  navigateRef: MutableRefObject<SimpleNavigate | undefined>;
+  navigateRef: RefObject<SimpleNavigate | undefined>;
 }
 
 export type SimpleNavigate = (target: string, options?: NavigateOptions) => void;
