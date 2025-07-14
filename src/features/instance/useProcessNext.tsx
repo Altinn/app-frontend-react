@@ -28,7 +28,7 @@ interface ProcessNextProps {
   action?: IActionType;
 }
 
-export function useProcessNext() {
+export function useProcessNext({ action }: ProcessNextProps = {}) {
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
   const { refetch: refetchProcessData } = useProcessQuery();
@@ -44,7 +44,7 @@ export function useProcessNext() {
   const hasPendingScans = useHasPendingScans();
 
   const mutation = useMutation({
-    mutationFn: async ({ action }: ProcessNextProps) => {
+    mutationFn: async () => {
       if (hasPendingScans) {
         await reFetchInstanceData();
       }
@@ -99,30 +99,7 @@ export function useProcessNext() {
     },
   });
 
-  return {
-    ...mutation,
-    mutate: (props?: ProcessNextProps) => mutation.mutate(props ?? {}),
-    mutateAsync: (props?: ProcessNextProps) => mutation.mutateAsync(props ?? {}),
-  };
-}
-
-export function useProcessReject() {
-  const processNext = useProcessNext();
-
-  return {
-    ...processNext,
-    mutate: () => processNext.mutate({ action: 'reject' }),
-    mutateAsync: () => processNext.mutateAsync({ action: 'reject' }),
-  };
-}
-export function useProcessConfirm() {
-  const processNext = useProcessNext();
-
-  return {
-    ...processNext,
-    mutate: () => processNext.mutate({ action: 'confirm' }),
-    mutateAsync: () => processNext.mutateAsync({ action: 'confirm' }),
-  };
+  return mutation;
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {

@@ -5,7 +5,7 @@ import { Dialog, Heading, Paragraph, ValidationMessage } from '@digdir/designsys
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
-import { useProcessReject } from 'src/features/instance/useProcessNext';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/SigningActions/SigningActions.module.css';
@@ -66,7 +66,7 @@ type RejectTextProps = {
 
 function RejectButton({ baseComponentId }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const { mutate: processReject, isPending: isRejecting } = useProcessReject();
+  const { mutate: processReject, isPending: isRejecting } = useProcessNext({ action: 'reject' });
   const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
   const modalTitle = textResourceBindings?.rejectModalTitle ?? 'signing.reject_modal_title';

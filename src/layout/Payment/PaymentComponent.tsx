@@ -4,7 +4,7 @@ import { Alert } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { useProcessConfirm, useProcessReject } from 'src/features/instance/useProcessNext';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { Lang } from 'src/features/language/Lang';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { usePayment } from 'src/features/payment/PaymentProvider';
@@ -17,8 +17,8 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<'Payment'>) => {
-  const { mutate: processConfirm, isPending: isConfirming } = useProcessConfirm();
-  const { mutate: processReject, isPending: isRejecting } = useProcessReject();
+  const { mutate: processConfirm, isPending: isConfirming } = useProcessNext({ action: 'confirm' });
+  const { mutate: processReject, isPending: isRejecting } = useProcessNext({ action: 'reject' });
   const { isAnyProcessing } = useIsProcessing<'next' | 'reject'>();
   const paymentInfo = usePaymentInformation();
   const { performPayment, paymentError } = usePayment();

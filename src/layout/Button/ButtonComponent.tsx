@@ -3,7 +3,7 @@ import React from 'react';
 import { Button } from 'src/app-components/Button/Button';
 import { useAttachmentState } from 'src/features/attachments/hooks';
 import { useSetReturnToView } from 'src/features/form/layout/PageNavigationContext';
-import { useProcessConfirm, useProcessNext } from 'src/features/instance/useProcessNext';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useProcessQuery, useTaskTypeFromBackend } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -30,7 +30,7 @@ export const ButtonComponent = ({ baseComponentId, ...componentProps }: PropsFro
   const { actions, write } = useProcessQuery().data?.currentTask || {};
   const attachmentState = useAttachmentState();
   const { mutate: processNext, isPending: isProcessingNext } = useProcessNext();
-  const { mutate: processConfirm, isPending: isConfirming } = useProcessConfirm();
+  const { mutate: processConfirm, isPending: isConfirming } = useProcessNext({ action: 'confirm' });
 
   const setReturnToView = useSetReturnToView();
 

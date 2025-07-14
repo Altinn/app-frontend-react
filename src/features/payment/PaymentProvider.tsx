@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
-import { useProcessConfirm } from 'src/features/instance/useProcessNext';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
@@ -34,7 +34,7 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
     error: paymentError,
     isPending: isPaymentPending,
   } = usePerformPayActionMutation(instanceOwnerPartyId, instanceGuid);
-  const { mutateAsync: processConfirm, isPending: isConfirmPending } = useProcessConfirm();
+  const { mutateAsync: processConfirm, isPending: isConfirmPending } = useProcessNext({ action: 'confirm' });
 
   const isLoading = isPaymentPending || isConfirmPending;
 

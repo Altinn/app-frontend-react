@@ -5,7 +5,7 @@ import { Button } from 'src/app-components/Button/Button';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppOwner } from 'src/core/texts/appTexts';
-import { useProcessConfirm } from 'src/features/instance/useProcessNext';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -78,7 +78,7 @@ export const ConfirmPage = ({ instance, instanceOwnerParty, appName, application
 
 const ConfirmButton = () => {
   const canConfirm = useIsAuthorized()('confirm');
-  const { mutateAsync: processConfirm, isPending: isConfirming } = useProcessConfirm();
+  const { mutateAsync: processConfirm, isPending: isConfirming } = useProcessNext({ action: 'confirm' });
 
   return (
     <div style={{ marginTop: 'var(--button-margin-top)' }}>
