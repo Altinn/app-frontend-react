@@ -107,11 +107,11 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             className={cn(comboboxClasses.container, { [classes.readOnly]: readOnly })}
             style={{ width: '100%' }}
           >
+            <EXPERIMENTAL_Suggestion.Chips />
             <EXPERIMENTAL_Suggestion.Input
               readOnly={readOnly}
               aria-invalid={!isValid}
             />
-            <EXPERIMENTAL_Suggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
             <EXPERIMENTAL_Suggestion.List>
               <EXPERIMENTAL_Suggestion.Empty>
                 <Lang id='form_filler.no_options_found' />
