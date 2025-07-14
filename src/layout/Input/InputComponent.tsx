@@ -139,7 +139,7 @@ export const InputVariant = ({
     readOnly,
     textonly: overrideDisplay?.rowReadOnly && readOnly,
     required,
-    onBlur: () => debounce(`blur`),
+    onBlur: () => debounce('blur'),
     error: !useIsValid(baseComponentId),
     prefix: textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined,
     suffix: textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined,
