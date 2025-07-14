@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 
 import { EXPERIMENTAL_Suggestion, Field } from '@digdir/designsystemet-react';
 
-import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { getDescriptionId } from 'src/components/label/Label';
@@ -74,19 +73,9 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     });
   }
 
-  const [componentKey, setComponentKey] = React.useState(0);
-
-  // This is a workaround to force the component to update its internal state, when the user cancels the alert on change
-  const onCancelClick = () => {
-    cancelChange();
-    setComponentKey((prevKey) => prevKey + 1);
-  };
-
   if (isFetching) {
     return <AltinnSpinner />;
   }
-
-  console.log('selectedValues', selectedValues);
 
   return (
     <Field style={{ width: '100%' }}>
@@ -101,67 +90,63 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
         description={getDescriptionComponent()}
       >
         <ComponentStructureWrapper node={node}>
-          <ConditionalWrapper
-            condition={Boolean(alertOnChange)}
-            wrapper={(children) => (
-              <DeleteWarningPopover
-                onPopoverDeleteClick={confirmChange}
-                onCancelClick={cancelChange}
-                deleteButtonText={langAsString('form_filler.alert_confirm')}
-                messageText={alertMessage}
-                open={alertOpen}
-                setOpen={setAlertOpen}
-              >
-                {children}
-              </DeleteWarningPopover>
-            )}
+          {alertOnChange && (
+            <DeleteWarningPopover
+              onPopoverDeleteClick={confirmChange}
+              onCancelClick={cancelChange}
+              deleteButtonText={langAsString('form_filler.alert_confirm')}
+              messageText={alertMessage}
+              open={alertOpen}
+              setOpen={setAlertOpen}
+              popoverId={`${id}-alert-popover`}
+            />
+          )}
+          <EXPERIMENTAL_Suggestion
+            id={id}
+            data-testid='multiple-select-component'
+            multiple
+            filter={optionFilter}
+            data-size='sm'
+            value={formatSelectedValues(selectedValues, options)}
+            onValueChange={(options) => handleChange(options.map((o) => o.value))}
+            onBlur={debounce}
           >
-            <EXPERIMENTAL_Suggestion
-              key={componentKey}
-              id={id}
-              data-testid='multiple-select-component'
-              multiple
-              filter={optionFilter}
-              data-size='sm'
-              value={formatSelectedValues(selectedValues, options)}
-              // value={selectedValues}
-              onValueChange={(options) => handleChange(options.map((o) => o.value))}
-              onBlur={debounce}
-            >
-              <EXPERIMENTAL_Suggestion.Chips />
-              <EXPERIMENTAL_Suggestion.Input
-                aria-invalid={!isValid}
-                aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-                aria-describedby={
-                  overrideDisplay?.renderedInTable !== true &&
-                  textResourceBindings?.title &&
-                  textResourceBindings?.description
-                    ? getDescriptionId(id)
-                    : undefined
-                }
-                readOnly={readOnly}
-              />
-              <EXPERIMENTAL_Suggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
-              <EXPERIMENTAL_Suggestion.List>
-                <EXPERIMENTAL_Suggestion.Empty>
-                  <Lang id='form_filler.no_options_found' />
-                </EXPERIMENTAL_Suggestion.Empty>
-                {options.map((option) => (
-                  <EXPERIMENTAL_Suggestion.Option
-                    key={option.value}
-                    value={option.value}
-                    label={langAsString(option.label)}
-                  >
-                    <span>
-                      <wbr />
-                      <Lang id={option.label} />
-                      {option.description && <Lang id={option.description} />}
-                    </span>
-                  </EXPERIMENTAL_Suggestion.Option>
-                ))}
-              </EXPERIMENTAL_Suggestion.List>
-            </EXPERIMENTAL_Suggestion>
-          </ConditionalWrapper>
+            <EXPERIMENTAL_Suggestion.Chips />
+            <EXPERIMENTAL_Suggestion.Input
+              aria-invalid={!isValid}
+              aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+              aria-describedby={
+                overrideDisplay?.renderedInTable !== true &&
+                textResourceBindings?.title &&
+                textResourceBindings?.description
+                  ? getDescriptionId(id)
+                  : undefined
+              }
+              readOnly={readOnly}
+            />
+            <EXPERIMENTAL_Suggestion.Clear
+              aria-label={langAsString('form_filler.clear_selection')}
+              popovertarget={`${id}-alert-popover`}
+            />
+            <EXPERIMENTAL_Suggestion.List>
+              <EXPERIMENTAL_Suggestion.Empty>
+                <Lang id='form_filler.no_options_found' />
+              </EXPERIMENTAL_Suggestion.Empty>
+              {options.map((option) => (
+                <EXPERIMENTAL_Suggestion.Option
+                  key={option.value}
+                  value={option.value}
+                  label={langAsString(option.label)}
+                >
+                  <span>
+                    <wbr />
+                    <Lang id={option.label} />
+                    {option.description && <Lang id={option.description} />}
+                  </span>
+                </EXPERIMENTAL_Suggestion.Option>
+              ))}
+            </EXPERIMENTAL_Suggestion.List>
+          </EXPERIMENTAL_Suggestion>
         </ComponentStructureWrapper>
       </Label>
     </Field>
