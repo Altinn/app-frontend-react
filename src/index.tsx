@@ -27,7 +27,6 @@ import { ApplicationSettingsProvider } from 'src/features/applicationSettings/Ap
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
-import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
@@ -92,43 +91,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function Root() {
   return (
-    <InstantiationProvider>
-      <TaskStoreProvider>
-        <ApplicationMetadataProvider>
-          <GlobalFormDataReadersProvider>
-            <LayoutSetsProvider>
-              <SetShouldFetchAppLanguages />
-              <ProfileProvider>
-                <TextResourcesProvider>
-                  <OrgsProvider>
-                    <ApplicationSettingsProvider>
-                      <PartyProvider>
-                        <KeepAliveProvider>
-                          <TaskStoreProvider>
-                            <DisplayErrorProvider>
-                              <ProcessingProvider>
-                                <App />
-                              </ProcessingProvider>
-                            </DisplayErrorProvider>
-                          </TaskStoreProvider>
-                          <ToastContainer
-                            position='top-center'
-                            theme='colored'
-                            transition={Slide}
-                            draggable={false}
-                          />
-                          <ScrollRestoration />
-                        </KeepAliveProvider>
-                      </PartyProvider>
-                    </ApplicationSettingsProvider>
-                  </OrgsProvider>
-                </TextResourcesProvider>
-              </ProfileProvider>
-              <PartyPrefetcher />
-            </LayoutSetsProvider>
-          </GlobalFormDataReadersProvider>
-        </ApplicationMetadataProvider>
-      </TaskStoreProvider>
-    </InstantiationProvider>
+    <TaskStoreProvider>
+      <ApplicationMetadataProvider>
+        <GlobalFormDataReadersProvider>
+          <LayoutSetsProvider>
+            <SetShouldFetchAppLanguages />
+            <ProfileProvider>
+              <TextResourcesProvider>
+                <OrgsProvider>
+                  <ApplicationSettingsProvider>
+                    <PartyProvider>
+                      <KeepAliveProvider>
+                        <TaskStoreProvider>
+                          <DisplayErrorProvider>
+                            <ProcessingProvider>
+                              <App />
+                            </ProcessingProvider>
+                          </DisplayErrorProvider>
+                        </TaskStoreProvider>
+                        <ToastContainer
+                          position='top-center'
+                          theme='colored'
+                          transition={Slide}
+                          draggable={false}
+                        />
+                        <ScrollRestoration />
+                      </KeepAliveProvider>
+                    </PartyProvider>
+                  </ApplicationSettingsProvider>
+                </OrgsProvider>
+              </TextResourcesProvider>
+            </ProfileProvider>
+            <PartyPrefetcher />
+          </LayoutSetsProvider>
+        </GlobalFormDataReadersProvider>
+      </ApplicationMetadataProvider>
+    </TaskStoreProvider>
   );
 }
