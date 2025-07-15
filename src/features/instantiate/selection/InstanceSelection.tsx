@@ -21,6 +21,7 @@ import classes from 'src/features/instantiate/selection/InstanceSelection.module
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
@@ -65,8 +66,7 @@ function InstanceSelection() {
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const instantiation = useInstantiation();
   const selectedParty = useSelectedParty();
-  // const storeCallback = useSetNavigationEffect();
-  const storeCallback = (_arg: unknown) => {}; // TODO: Fix
+  const storeCallback = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
 
   const appName = useAppName();

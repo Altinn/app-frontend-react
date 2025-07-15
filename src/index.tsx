@@ -32,6 +32,7 @@ import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataRea
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
+import { NavigationEffectProvider } from 'src/features/navigation/NavigationEffectContext';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
@@ -63,9 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
                       {
                         path: '*',
                         element: (
-                          <ErrorBoundary>
-                            <Root />
-                          </ErrorBoundary>
+                          <NavigationEffectProvider>
+                            <ErrorBoundary>
+                              <Root />
+                            </ErrorBoundary>
+                          </NavigationEffectProvider>
                         ),
                       },
                     ],

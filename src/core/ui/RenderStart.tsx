@@ -5,6 +5,7 @@ import { useIsLoading } from 'src/core/loading/LoadingContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { DataModelFetcher } from 'src/features/formData/FormDataReaders';
 import { LangDataSourcesProvider } from 'src/features/language/LangDataSourcesProvider';
+import { useNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 import { useNavigationParam } from 'src/hooks/navigation';
 
 interface Props extends PropsWithChildren {
@@ -28,18 +29,16 @@ export function RenderStart({ children, devTools = true, dataModelFetcher = true
   );
 }
 
-const navigationEffect = () => undefined; // TODO: Fix
-
 function RunNavigationEffect() {
   const isLoading = useIsLoading();
   const pageKey = useNavigationParam('pageKey');
-  // const navigationEffect = useNavigationEffect();
+  const navigationEffect = useNavigationEffect();
 
   useEffect(() => {
     if (!isLoading && navigationEffect) {
       navigationEffect();
     }
-  }, [isLoading, pageKey]);
+  }, [isLoading, navigationEffect, pageKey]);
 
   return null;
 }

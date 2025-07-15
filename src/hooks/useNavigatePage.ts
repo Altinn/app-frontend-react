@@ -8,6 +8,7 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
+import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import {
   SearchParams,
@@ -20,6 +21,7 @@ import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { useHiddenPages } from 'src/utils/layout/hidden';
+import type { NavigationEffectCb } from 'src/features/navigation/NavigationEffectContext';
 
 export interface NavigateToPageOptions {
   replace?: boolean;
@@ -41,10 +43,8 @@ export enum TaskKeys {
  * Takes an optional callback
  */
 
-const storeCallback = (_arg: unknown) => undefined; // TODO: Fix
-type NavigationEffectCb = () => void;
 const useNavigate = () => {
-  // const storeCallback = useSetNavigationEffect();
+  const storeCallback = useSetNavigationEffect();
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
   const navigate = useNativeNavigate();
@@ -61,7 +61,7 @@ const useNavigate = () => {
       }
       navigate(path, theirOptions);
     },
-    [setReturnToView, setSummaryNodeOfOrigin, navigate],
+    [navigate, setReturnToView, setSummaryNodeOfOrigin, storeCallback],
   );
 };
 
