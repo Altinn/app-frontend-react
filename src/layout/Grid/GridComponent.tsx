@@ -84,16 +84,37 @@ interface GridRowsProps {
 }
 
 export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColumnSettings }: GridRowsProps) {
+  const batchedRows: { type: 'header' | 'body'; rows: GridRow[] }[] = [];
+
+  // Group consecutive rows by type (header/body)
+  for (const row of rows) {
+    const type = row.header === true ? 'header' : 'body';
+
+    if (batchedRows.length === 0 || batchedRows[batchedRows.length - 1].type !== type) {
+      batchedRows.push({ type, rows: [row] });
+    } else {
+      batchedRows[batchedRows.length - 1].rows.push(row);
+    }
+  }
+
   return (
     <>
-      {rows.map((row, rowIdx) => (
-        <GridRowRenderer
-          key={rowIdx}
-          row={{ ...row, cells: [...row.cells, ...extraCells] }}
-          isNested={isNested}
-          mutableColumnSettings={mutableColumnSettings}
-        />
-      ))}
+      {batchedRows.map((batch, batchIdx) => {
+        const WrapperComponent = batch.type === 'header' ? Table.Head : Table.Body;
+
+        return (
+          <WrapperComponent key={batchIdx}>
+            {batch.rows.map((row, rowIdx) => (
+              <GridRowRenderer
+                key={rowIdx}
+                row={{ ...row, cells: [...row.cells, ...extraCells] }}
+                isNested={isNested}
+                mutableColumnSettings={mutableColumnSettings}
+              />
+            ))}
+          </WrapperComponent>
+        );
+      })}
     </>
   );
 }
@@ -109,10 +130,7 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
   }
 
   return (
-    <InternalRow
-      header={row.header}
-      readOnly={row.readOnly}
-    >
+    <Table.Row className={row.readOnly ? css.rowReadOnly : undefined}>
       {row.cells.map((cell, cellIdx) => {
         const isFirst = cellIdx === 0;
         const isLast = cellIdx === row.cells.length - 1;
@@ -179,24 +197,8 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
           />
         );
       })}
-    </InternalRow>
+    </Table.Row>
   );
-}
-
-type InternalRowProps = PropsWithChildren<Pick<GridRow, 'header' | 'readOnly'>>;
-
-function InternalRow({ header, readOnly, children }: InternalRowProps) {
-  const className = readOnly ? css.rowReadOnly : undefined;
-
-  if (header) {
-    return (
-      <Table.Head>
-        <Table.Row className={className}>{children}</Table.Row>
-      </Table.Head>
-    );
-  }
-
-  return <Table.Row className={className}>{children}</Table.Row>;
 }
 
 interface CellProps {
