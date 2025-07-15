@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useLocation, useNavigate as useNativeNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -43,11 +43,11 @@ export enum TaskKeys {
  * Takes an optional callback
  */
 
-const useNavigate = () => {
+const useOurNavigate = () => {
   const storeCallback = useSetNavigationEffect();
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
-  const navigate = useNativeNavigate();
+  const navigate = useNavigate();
 
   return useCallback(
     (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, cb?: NavigationEffectCb) => {
@@ -154,7 +154,7 @@ export const useStartUrl = (forcedTaskId?: string) => {
 };
 
 export function useNavigateToTask() {
-  const navigate = useNavigate();
+  const navigate = useOurNavigate();
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useAsRef(useLocation().search);
   const layoutSets = useLayoutSets();
@@ -202,7 +202,7 @@ export function useIsValidTaskId() {
 
 export function useNavigatePage() {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
-  const navigate = useNavigate();
+  const navigate = useOurNavigate();
   const navParams = useAllNavigationParamsAsRef();
   const queryKeysRef = useAsRef(useLocation().search);
   const getTaskType = useGetTaskTypeById();
