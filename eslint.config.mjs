@@ -50,6 +50,7 @@ export default tseslint.config(
       'schemas/**/*.json',
       'webpack*.js', // FIXME: should this be included?
       '.yarn/*',
+      'snapshots.js',
     ],
   },
 

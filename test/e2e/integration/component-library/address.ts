@@ -49,7 +49,7 @@ describe('Address component', () => {
     cy.findByText('Du må fylle ut bolignummer').should('not.exist');
 
     cy.findByRole('button', { name: /next/i }).click();
-    cy.snapshot('Required and validated address with empty fields');
+    cy.visualTesting('Required and validated address with empty fields');
 
     cy.findAllByText('Du må fylle ut gateadresse').first().should('exist');
     cy.findAllByText('Du må fylle ut C/O eller annen tilleggsadresse').first().should('exist');
