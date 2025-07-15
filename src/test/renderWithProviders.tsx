@@ -36,6 +36,7 @@ import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
+import { NavigationEffectProvider } from 'src/features/navigation/NavigationEffectContext';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
@@ -291,22 +292,24 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
             <UiConfigProvider>
               <PageNavigationProvider>
                 <Router>
-                  <ApplicationMetadataProvider>
-                    <GlobalFormDataReadersProvider>
-                      <OrgsProvider>
-                        <ApplicationSettingsProvider>
-                          <LayoutSetsProvider>
-                            <SetShouldFetchAppLanguages />
-                            <ProfileProvider>
-                              <PartyProvider>
+                  <NavigationEffectProvider>
+                    <ApplicationMetadataProvider>
+                      <GlobalFormDataReadersProvider>
+                        <OrgsProvider>
+                          <ApplicationSettingsProvider>
+                            <LayoutSetsProvider>
+                              <SetShouldFetchAppLanguages />
+                              <ProfileProvider>
+                                <PartyProvider>
                                   <TextResourcesProvider>{children}</TextResourcesProvider>
-                              </PartyProvider>
-                            </ProfileProvider>
-                          </LayoutSetsProvider>
-                        </ApplicationSettingsProvider>
-                      </OrgsProvider>
-                    </GlobalFormDataReadersProvider>
-                  </ApplicationMetadataProvider>
+                                </PartyProvider>
+                              </ProfileProvider>
+                            </LayoutSetsProvider>
+                          </ApplicationSettingsProvider>
+                        </OrgsProvider>
+                      </GlobalFormDataReadersProvider>
+                    </ApplicationMetadataProvider>
+                  </NavigationEffectProvider>
                 </Router>
               </PageNavigationProvider>
             </UiConfigProvider>
@@ -339,7 +342,9 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
     >
       <TaskStoreProvider>
         <LangToolsStoreProvider>
-          <Router>{children}</Router>
+          <Router>
+            <NavigationEffectProvider>{children}</NavigationEffectProvider>
+          </Router>
         </LangToolsStoreProvider>
       </TaskStoreProvider>
     </AppQueriesProvider>
