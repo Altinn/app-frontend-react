@@ -161,12 +161,6 @@ dl {
   text-decoration-style: solid;
   text-decoration-thickness: var(--dsc-link-text-decoration-thickness);
   text-underline-offset: 0.27em;
-
-  /*padding-bottom: 2px;
-  color: var(--colors-primary-black);
-  text-decoration: none;
-  cursor: pointer;
-  border-bottom: 2px solid var(--colors-primary-blueMedium);*/
 }
 .altinnLink:hover {
   color: var(--dsc-link-color--hover);
