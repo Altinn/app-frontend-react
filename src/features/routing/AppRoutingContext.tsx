@@ -5,6 +5,7 @@ import type { NavigateOptions } from 'react-router-dom';
 
 import { useQueryClient } from '@tanstack/react-query';
 import { createStore } from 'zustand';
+import type { QueryClient } from '@tanstack/react-query';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 
@@ -249,7 +250,12 @@ export function useInstantiationUrlReset() {
     // Reset instantiation mutations when navigating away from instance pages
     // This prevents duplicate instantiation attempts
     if (!location.pathname.includes('/instance/')) {
-      queryClient.resetQueries({ queryKey: ['instantiate'] });
+      removeMutations(queryClient);
     }
   }, [location.pathname, queryClient]);
+}
+
+function removeMutations(queryClient: QueryClient) {
+  const mutations = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] });
+  mutations.forEach((mutation) => queryClient.getMutationCache().remove(mutation));
 }
