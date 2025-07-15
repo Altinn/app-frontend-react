@@ -1,5 +1,5 @@
 import { getLayoutSetForDataElement } from 'src/utils/layout';
-import type { ApplicationMetadata, ShowTypes } from 'src/features/applicationMetadata/types';
+import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ILayoutSet } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 
@@ -65,11 +65,6 @@ export function getDataTypeByTaskId({ taskId, application, layoutSets }: GetData
 
   return undefined;
 }
-
-/**
- * Application metadata onEntry.show values that have a state full application
- */
-export const onEntryValuesThatHaveState: ShowTypes[] = ['new-instance', 'select-instance'];
 
 /**
  * Get the current layout set for application if it exists

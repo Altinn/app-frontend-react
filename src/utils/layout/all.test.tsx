@@ -10,10 +10,11 @@ import type { JSONSchema7 } from 'json-schema';
 import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
 
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { quirks } from 'src/features/form/layout/quirks';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { SubformWrapper } from 'src/layout/Subform/SubformWrapper';
-import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
+import { fetchProcessState } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -144,7 +145,7 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
     window.org = org;
     window.app = app;
 
-    jest.mocked(fetchApplicationMetadata).mockImplementation(async () => set.app.getAppMetadata());
+    jest.mocked(useApplicationMetadata).mockReturnValue(set.app.getAppMetadata());
     jest.mocked(fetchProcessState).mockImplementation(async () => mainSet.simulateProcessData());
 
     const children = env.parsed?.ALTINN_ALL_APPS_RENDER_COMPONENTS === 'true' ? <RenderAllComponents /> : <TestApp />;

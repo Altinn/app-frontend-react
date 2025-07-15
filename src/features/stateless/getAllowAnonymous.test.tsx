@@ -3,10 +3,10 @@ import React from 'react';
 import { expect, jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 
-import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
-import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 
 const TestComponent = () => {
@@ -15,16 +15,17 @@ const TestComponent = () => {
 };
 
 const render = async (stateless: boolean, allowAnonymous: boolean) => {
-  jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () => ({
-    ...getIncomingApplicationMetadataMock(),
+  jest.mocked(useApplicationMetadata).mockReturnValue({
+    ...getApplicationMetadataMock(),
     ...(stateless
       ? {
           onEntry: {
             show: allowAnonymous ? 'stateless-anon' : 'stateless',
           },
+          isStatelessApp: true,
         }
       : {}),
-  }));
+  });
 
   return await renderWithoutInstanceAndLayout({
     renderer: () => <TestComponent />,

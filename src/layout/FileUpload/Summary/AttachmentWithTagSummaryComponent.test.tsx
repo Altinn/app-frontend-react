@@ -3,10 +3,10 @@ import React from 'react';
 import { expect, jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 
-import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { AttachmentSummaryComponent } from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent';
-import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompFileUploadWithTagExternal } from 'src/layout/FileUploadWithTag/config.generated';
 import type { IData } from 'src/types/shared';
@@ -103,16 +103,19 @@ const render = async ({ component, addAttachment = true }: RenderProps) => {
     created: '2021-09-08T12:00:00',
   };
 
-  jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
-    getIncomingApplicationMetadataMock((appMetadata) => {
-      appMetadata.dataTypes.push({
+  const appMetadataMock = getApplicationMetadataMock();
+  jest.mocked(useApplicationMetadata).mockReturnValue({
+    ...appMetadataMock,
+    dataTypes: [
+      ...appMetadataMock.dataTypes,
+      {
         id: 'myComponent',
         allowedContentTypes: ['application/pdf'],
         maxCount: 4,
         minCount: 1,
-      });
-    }),
-  );
+      },
+    ],
+  });
 
   return await renderWithInstanceAndLayout({
     renderer: (

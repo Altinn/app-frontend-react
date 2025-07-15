@@ -3,6 +3,8 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
 
+import { useApplicationMetadata } from 'src/features/appData/hooks';
+import { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
 import { AttachmentListComponent } from 'src/layout/AttachmentList/AttachmentListComponent';
 import { CompInternal } from 'src/layout/layout';
@@ -68,12 +70,6 @@ jest.mock('src/features/instance/useProcessQuery', () => ({
   })),
 }));
 
-jest.mock('src/features/appData/hooks', () => ({
-  useApplicationMetadata: jest.fn(() => ({
-    dataTypes: mockDataTypes,
-  })),
-}));
-
 jest.mock('src/features/language/Lang', () => ({
   Lang: ({ id }) => <span data-testid='lang-component'>{id}</span>,
 }));
@@ -134,8 +130,8 @@ describe('AttachmentListComponent', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Set up default mock implementation
     setupMockUseNodeItem();
+    jest.mocked(useApplicationMetadata).mockReturnValue({ dataTypes: mockDataTypes } as ApplicationMetadata);
   });
 
   it('should render AltinnAttachments when groupByDataTypeGrouping is false', () => {

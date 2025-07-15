@@ -24,7 +24,6 @@ import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
-import { AppDataContextProvider } from 'src/features/appData/AppDataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
@@ -302,22 +301,20 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
               <PageNavigationProvider>
                 <Router>
                   <NavigationEffectProvider>
-                    <AppDataContextProvider>
-                      <GlobalFormDataReadersProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <SetShouldFetchAppLanguages />
-                              <ProfileProvider>
-                                <PartyProvider>
-                                  <TextResourcesProvider>{children}</TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </GlobalFormDataReadersProvider>
-                    </AppDataContextProvider>
+                    <GlobalFormDataReadersProvider>
+                      <OrgsProvider>
+                        <ApplicationSettingsProvider>
+                          <LayoutSetsProvider>
+                            <SetShouldFetchAppLanguages />
+                            <ProfileProvider>
+                              <PartyProvider>
+                                <TextResourcesProvider>{children}</TextResourcesProvider>
+                              </PartyProvider>
+                            </ProfileProvider>
+                          </LayoutSetsProvider>
+                        </ApplicationSettingsProvider>
+                      </OrgsProvider>
+                    </GlobalFormDataReadersProvider>
                   </NavigationEffectProvider>
                 </Router>
               </PageNavigationProvider>

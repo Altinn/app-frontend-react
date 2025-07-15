@@ -3,8 +3,8 @@ import '@testing-library/jest-dom/jest-globals';
 import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issues/3363
 import 'jest';
 // Importing CSS for jest-preview to look nicer
-import '@digdir/designsystemet-theme';
 import '@digdir/designsystemet-css';
+import '@digdir/designsystemet-theme';
 
 import { jest } from '@jest/globals';
 import { configure as testingLibraryConfigure } from '@testing-library/dom';
@@ -12,9 +12,9 @@ import dotenv from 'dotenv';
 import { jestPreviewConfigure } from 'jest-preview';
 import { TextDecoder, TextEncoder } from 'util';
 
-import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
-import type { doProcessNext, fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
+import type { doProcessNext, fetchProcessState } from 'src/queries/queries';
 import type { AppQueries } from 'src/queries/types';
 
 // Importing CSS for jest-preview to look nicer
@@ -104,9 +104,10 @@ testingLibraryConfigure({
 
 jest.mock('src/queries/queries', () => ({
   ...jest.requireActual<AppQueries>('src/queries/queries'),
-  fetchApplicationMetadata: jest
-    .fn<typeof fetchApplicationMetadata>()
-    .mockImplementation(async () => getIncomingApplicationMetadataMock()),
   fetchProcessState: jest.fn<typeof fetchProcessState>(async () => getProcessDataMock()),
   doProcessNext: jest.fn<typeof doProcessNext>(async () => getProcessDataMock()),
+}));
+
+jest.mock('src/features/appData/hooks', () => ({
+  useApplicationMetadata: jest.fn().mockReturnValue(getApplicationMetadataMock()),
 }));

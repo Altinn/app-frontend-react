@@ -5,6 +5,7 @@ import type { MutateOptions } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { appDataQueries } from 'src/features/appData/AppDataService';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -36,7 +37,7 @@ function useInstantiateMutation() {
     },
     onSuccess: async (data) => {
       navigate(`/instance/${data.id}`);
-      await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
+      await queryClient.invalidateQueries({ queryKey: appDataQueries.appMetadataKey() });
     },
   });
 }
@@ -55,7 +56,7 @@ function useInstantiateWithPrefillMutation() {
     },
     onSuccess: async (data) => {
       navigate(`/instance/${data.id}`);
-      await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
+      await queryClient.invalidateQueries({ queryKey: appDataQueries.appMetadataKey() });
     },
   });
 }
