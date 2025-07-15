@@ -43,26 +43,6 @@ import 'leaflet/dist/leaflet.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 
-const router = createHashRouter(
-  [
-    {
-      path: '*',
-      element: (
-        <AppRoutingProvider>
-          <ErrorBoundary>
-            <Root />
-          </ErrorBoundary>
-        </AppRoutingProvider>
-      ),
-    },
-  ],
-  {
-    future: {
-      v7_relativeSplatPath: true,
-    },
-  },
-);
-
 document.addEventListener('DOMContentLoaded', () => {
   propagateTraceWhenPdf();
 
@@ -77,7 +57,25 @@ document.addEventListener('DOMContentLoaded', () => {
             <ViewportWrapper>
               <UiConfigProvider>
                 <RouterProvider
-                  router={router}
+                  router={createHashRouter(
+                    [
+                      {
+                        path: '*',
+                        element: (
+                          <AppRoutingProvider>
+                            <ErrorBoundary>
+                              <Root />
+                            </ErrorBoundary>
+                          </AppRoutingProvider>
+                        ),
+                      },
+                    ],
+                    {
+                      future: {
+                        v7_relativeSplatPath: true,
+                      },
+                    },
+                  )}
                   future={{ v7_startTransition: true }}
                 />
               </UiConfigProvider>

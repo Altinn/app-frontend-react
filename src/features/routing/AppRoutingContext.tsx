@@ -3,6 +3,7 @@ import { matchPath, useLocation, useNavigate as useNativeNavigate } from 'react-
 import type { PropsWithChildren, RefObject } from 'react';
 import type { NavigateOptions } from 'react-router-dom';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { createStore } from 'zustand';
 
 import { createZustandContext } from 'src/core/contexts/zustandContext';
@@ -81,6 +82,7 @@ export function AppRoutingProvider({ children }: PropsWithChildren) {
     <Provider initialLocation={initialLocation}>
       <UpdateHash />
       <UpdateNavigate />
+      <InstantiationUrlReset />
       {children}
     </Provider>
   );
@@ -226,6 +228,20 @@ function UpdateNavigate() {
     }
     nativeNavigate(target, options);
   };
+
+  return null;
+}
+
+function InstantiationUrlReset() {
+  const location = useLocation();
+  const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    if (!location.pathname.includes('/instance/')) {
+      const mutations = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] });
+      mutations.forEach((mutation) => queryClient.getMutationCache().remove(mutation));
+    }
+  }, [location.pathname, queryClient]);
 
   return null;
 }
