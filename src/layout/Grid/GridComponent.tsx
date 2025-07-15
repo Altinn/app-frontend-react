@@ -84,22 +84,21 @@ interface GridRowsProps {
 }
 
 export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColumnSettings }: GridRowsProps) {
-  const batchedRows: { type: 'header' | 'body'; rows: GridRow[] }[] = [];
+  const batches: { type: 'header' | 'body'; rows: GridRow[] }[] = [];
 
-  // Group consecutive rows by type (header/body)
   for (const row of rows) {
-    const type = row.header === true ? 'header' : 'body';
-
-    if (batchedRows.length === 0 || batchedRows[batchedRows.length - 1].type !== type) {
-      batchedRows.push({ type, rows: [row] });
+    const type = row.header ? 'header' : 'body';
+    const lastBatch = batches.at(-1);
+    if (lastBatch?.type === type) {
+      lastBatch.rows.push(row);
     } else {
-      batchedRows[batchedRows.length - 1].rows.push(row);
+      batches.push({ type, rows: [row] });
     }
   }
 
   return (
     <>
-      {batchedRows.map((batch, batchIdx) => {
+      {batches.map((batch, batchIdx) => {
         const WrapperComponent = batch.type === 'header' ? Table.Head : Table.Body;
 
         return (
