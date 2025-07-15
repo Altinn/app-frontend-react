@@ -4,15 +4,17 @@ import 'core-js';
 
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { createHashRouter, RouterProvider, ScrollRestoration } from 'react-router-dom';
+import { createHashRouter, RouterProvider, ScrollRestoration, useLocation } from 'react-router-dom';
 import { Slide, ToastContainer } from 'react-toastify';
 
-import 'src/features/baseurlinjection';
-import 'src/features/toggles';
-import 'src/features/logging';
-import 'src/features/styleInjection';
 import '@digdir/designsystemet-css';
 import '@digdir/designsystemet-theme';
+import 'src/features/baseurlinjection';
+import 'src/features/logging';
+import 'src/features/styleInjection';
+import 'src/features/toggles';
+
+import { useQueryClient } from '@tanstack/react-query';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
@@ -89,41 +91,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function Root() {
   return (
-    <TaskStoreProvider>
-      <ApplicationMetadataProvider>
-        <GlobalFormDataReadersProvider>
-          <LayoutSetsProvider>
-            <SetShouldFetchAppLanguages />
-            <ProfileProvider>
-              <TextResourcesProvider>
-                <OrgsProvider>
-                  <ApplicationSettingsProvider>
-                    <PartyProvider>
-                      <KeepAliveProvider>
-                        <TaskStoreProvider>
-                          <DisplayErrorProvider>
-                            <ProcessingProvider>
-                              <App />
-                            </ProcessingProvider>
-                          </DisplayErrorProvider>
-                        </TaskStoreProvider>
-                        <ToastContainer
-                          position='top-center'
-                          theme='colored'
-                          transition={Slide}
-                          draggable={false}
-                        />
-                        <ScrollRestoration />
-                      </KeepAliveProvider>
-                    </PartyProvider>
-                  </ApplicationSettingsProvider>
-                </OrgsProvider>
-              </TextResourcesProvider>
-            </ProfileProvider>
-            <PartyPrefetcher />
-          </LayoutSetsProvider>
-        </GlobalFormDataReadersProvider>
-      </ApplicationMetadataProvider>
-    </TaskStoreProvider>
+    <>
+      <InstantiationUrlReset />
+      <TaskStoreProvider>
+        <ApplicationMetadataProvider>
+          <GlobalFormDataReadersProvider>
+            <LayoutSetsProvider>
+              <SetShouldFetchAppLanguages />
+              <ProfileProvider>
+                <TextResourcesProvider>
+                  <OrgsProvider>
+                    <ApplicationSettingsProvider>
+                      <PartyProvider>
+                        <KeepAliveProvider>
+                          <TaskStoreProvider>
+                            <DisplayErrorProvider>
+                              <ProcessingProvider>
+                                <App />
+                              </ProcessingProvider>
+                            </DisplayErrorProvider>
+                          </TaskStoreProvider>
+                          <ToastContainer
+                            position='top-center'
+                            theme='colored'
+                            transition={Slide}
+                            draggable={false}
+                          />
+                          <ScrollRestoration />
+                        </KeepAliveProvider>
+                      </PartyProvider>
+                    </ApplicationSettingsProvider>
+                  </OrgsProvider>
+                </TextResourcesProvider>
+              </ProfileProvider>
+              <PartyPrefetcher />
+            </LayoutSetsProvider>
+          </GlobalFormDataReadersProvider>
+        </ApplicationMetadataProvider>
+      </TaskStoreProvider>
+    </>
   );
+}
+
+function InstantiationUrlReset() {
+  const location = useLocation();
+  const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    if (!location.pathname.includes('/instance/')) {
+      const mutations = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] });
+      mutations.forEach((mutation) => queryClient.getMutationCache().remove(mutation));
+    }
+  }, [location.pathname, queryClient]);
+
+  return null;
 }
