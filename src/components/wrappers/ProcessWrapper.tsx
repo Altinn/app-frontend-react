@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
-import { useLocation, useNavigate, useNavigation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
+
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
@@ -9,13 +11,14 @@ import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { getProcessNextMutationKey } from 'src/features/instance/useProcessNext';
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
+import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -70,7 +73,6 @@ export function NavigateToStartUrl() {
   const location = useLocation();
 
   const currentLocation = `${location.pathname}${location.search}`;
-  debugger;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
@@ -82,15 +84,20 @@ export function NavigateToStartUrl() {
 }
 
 export function ProcessWrapper({ children }: PropsWithChildren) {
-  const isCurrentTask = useIsCurrentTask();
-  const isValidTaskId = useIsValidTaskId();
-  const taskIdParam = useNavigationParam('taskId');
-  const taskType = useGetTaskTypeById()(taskIdParam);
   const { data: process } = useProcessQuery();
-  const navigation = useNavigation();
-  const isNavigating = navigation.state === 'loading';
+  const currentTaskId = process?.currentTask?.elementId;
+  const taskId = useNavigationParam('taskId');
+  const isCurrentTask =
+    currentTaskId === undefined && taskId === TaskKeys.CustomReceipt ? true : currentTaskId === taskId;
 
-  if (isNavigating) {
+  const isValidTaskId = useIsValidTaskId()(taskId);
+  const taskType = useGetTaskTypeById()(taskId);
+
+  const processNextKey = getProcessNextMutationKey();
+  const queryClient = useQueryClient();
+  const isRunningProcessNext = queryClient.isMutating({ mutationKey: processNextKey }) > 0;
+
+  if (isRunningProcessNext) {
     return <Loader reason='process-wrapper' />;
   }
 
@@ -98,8 +105,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
     return <NavigateToStartUrl />;
   }
 
-  if (!isValidTaskId(taskIdParam)) {
-    debugger;
+  if (!isValidTaskId) {
     return (
       <PresentationComponent
         type={ProcessTaskType.Unknown}
@@ -111,7 +117,6 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
   }
 
   if (!isCurrentTask) {
-    debugger;
     return (
       <PresentationComponent
         type={ProcessTaskType.Unknown}

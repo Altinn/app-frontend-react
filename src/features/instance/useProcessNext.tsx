@@ -28,6 +28,10 @@ interface ProcessNextProps {
   action?: IActionType;
 }
 
+export function getProcessNextMutationKey(action?: IActionType) {
+  return ['processNext', action] as const;
+}
+
 export function useProcessNext({ action }: ProcessNextProps = {}) {
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
@@ -43,7 +47,8 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
   const queryClient = useQueryClient();
   const hasPendingScans = useHasPendingScans();
 
-  const mutation = useMutation({
+  return useMutation({
+    mutationKey: getProcessNextMutationKey(action),
     mutationFn: async () => {
       if (hasPendingScans) {
         await reFetchInstanceData();
@@ -98,8 +103,6 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
       displayError(error);
     },
   });
-
-  return mutation;
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {

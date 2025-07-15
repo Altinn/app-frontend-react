@@ -72,17 +72,6 @@ export const usePageOrder = () => {
   return useMemo(() => rawOrder.filter((page) => !hiddenPages.has(page)), [rawOrder, hiddenPages]);
 };
 
-export const useIsCurrentTask = () => {
-  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
-  const taskId = useNavigationParam('taskId');
-  return useMemo(() => {
-    if (currentTaskId === undefined && taskId === TaskKeys.CustomReceipt) {
-      return true;
-    }
-    return currentTaskId === taskId;
-  }, [currentTaskId, taskId]);
-};
-
 function getPreviousPageKey(order: string[], currentPageId: string | undefined) {
   if (currentPageId === undefined) {
     return undefined;
