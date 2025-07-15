@@ -29,7 +29,7 @@ import { useIsHidden } from 'src/utils/layout/hidden';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridRow, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type { GridCell, GridRow, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { baseComponentId } = props;
@@ -66,26 +66,43 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
             labelSettings={labelSettings}
           />
         )}
-        {rows.map((row, rowIdx) => (
-          <GridRowRenderer
-            key={rowIdx}
-            row={row}
-            isNested={isNested}
-            mutableColumnSettings={columnSettings}
-          />
-        ))}
+        <GridRowsRenderer
+          rows={rows}
+          isNested={isNested}
+          mutableColumnSettings={columnSettings}
+        />
       </Table>
     </ConditionalWrapper>
   );
 }
 
-interface GridRowProps {
-  row: GridRow;
+interface GridRowsProps {
+  rows: GridRow[];
+  extraCells?: GridCell[];
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
 }
 
-export function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
+export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColumnSettings }: GridRowsProps) {
+  return (
+    <>
+      {rows.map((row, rowIdx) => (
+        <GridRowRenderer
+          key={rowIdx}
+          row={{ ...row, cells: [...row.cells, ...extraCells] }}
+          isNested={isNested}
+          mutableColumnSettings={mutableColumnSettings}
+        />
+      ))}
+    </>
+  );
+}
+
+interface GridRowProps extends Omit<GridRowsProps, 'rows'> {
+  row: GridRow;
+}
+
+function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
   const rowHidden = useIsGridRowHidden(row);
   if (rowHidden) {
     return null;
