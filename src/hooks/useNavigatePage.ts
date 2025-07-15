@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate as useNativeNavigate } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -7,23 +8,18 @@ import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
+import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import {
   SearchParams,
+  useAllNavigationParams,
   useAllNavigationParamsAsRef,
-  useNavigate as useCtxNavigate,
   useNavigationParam,
-  useNavigationParams,
-  useQueryKeysAsString,
-  useQueryKeysAsStringAsRef,
-  useSetNavigationEffect,
-} from 'src/features/routing/AppRoutingContext';
-import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
+} from 'src/hooks/navigation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { useHiddenPages } from 'src/utils/layout/hidden';
-import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
 export interface NavigateToPageOptions {
   replace?: boolean;
@@ -44,11 +40,14 @@ export enum TaskKeys {
  * Makes sure to clear returnToView and summaryNodeOfOrigin on navigation
  * Takes an optional callback
  */
+
+const storeCallback = (_arg: unknown) => undefined; // TODO: Fix
+type NavigationEffectCb = () => void;
 const useNavigate = () => {
-  const storeCallback = useSetNavigationEffect();
+  // const storeCallback = useSetNavigationEffect();
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
-  const navigate = useCtxNavigate();
+  const navigate = useNativeNavigate();
 
   return useCallback(
     (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, cb?: NavigationEffectCb) => {
@@ -62,7 +61,7 @@ const useNavigate = () => {
       }
       navigate(path, theirOptions);
     },
-    [setReturnToView, storeCallback, setSummaryNodeOfOrigin, navigate],
+    [setReturnToView, setSummaryNodeOfOrigin, navigate],
   );
 };
 
@@ -114,12 +113,13 @@ export const usePreviousPageKey = () => getPreviousPageKey(usePageOrder(), useNa
 export const useNextPageKey = () => getNextPageKey(usePageOrder(), useNavigationParam('pageKey'));
 
 export const useStartUrl = (forcedTaskId?: string) => {
-  const queryKeys = useQueryKeysAsString();
+  const queryKeys = useLocation().search;
   const order = usePageOrder();
   // This needs up to date params, so using the native hook that re-renders often
   // However, this hook is only used in cases where we immediately navigate to a different path
   // so it does not make a difference here.
-  const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = useNavigationParams();
+  const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } =
+    useAllNavigationParams();
   const isSubformPage = !!mainPageKey;
   const taskType = useGetTaskTypeById()(taskId);
   const isStateless = useApplicationMetadata().isStatelessApp;
@@ -167,7 +167,7 @@ export const useStartUrl = (forcedTaskId?: string) => {
 export function useNavigateToTask() {
   const navigate = useNavigate();
   const navParams = useAllNavigationParamsAsRef();
-  const queryKeysRef = useQueryKeysAsStringAsRef();
+  const queryKeysRef = useAsRef(useLocation().search);
   const layoutSets = useLayoutSets();
 
   return useCallback(
@@ -215,7 +215,7 @@ export function useNavigatePage() {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
   const navigate = useNavigate();
   const navParams = useAllNavigationParamsAsRef();
-  const queryKeysRef = useQueryKeysAsStringAsRef();
+  const queryKeysRef = useAsRef(useLocation().search);
   const getTaskType = useGetTaskTypeById();
   const refetchInitialValidations = useRefetchInitialValidations();
 

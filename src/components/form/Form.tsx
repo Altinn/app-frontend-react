@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
@@ -17,16 +17,10 @@ import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
-import {
-  SearchParams,
-  useNavigate,
-  useNavigationPath,
-  useQueryKey,
-  useQueryKeysAsString,
-  useQueryKeysAsStringAsRef,
-} from 'src/features/routing/AppRoutingContext';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
+import { SearchParams, useQueryKey } from 'src/hooks/navigation';
+import { useAsRef } from 'src/hooks/useAsRef';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -169,8 +163,10 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
 export function FormFirstPage() {
   const navigate = useNavigate();
   const startUrl = useStartUrl();
+  const location = useLocation();
 
-  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
+  const currentLocation = `${location.pathname}${location.search}`;
+  debugger;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
@@ -277,12 +273,12 @@ function useFormState(currentPageId: string | undefined): FormState {
 
 function HandleNavigationFocusComponent() {
   const onFormSubmitValidation = useOnFormSubmitValidation();
-  const searchStringRef = useQueryKeysAsStringAsRef();
   const componentId = useQueryKey(SearchParams.FocusComponentId);
   const exitSubform = useQueryKey(SearchParams.ExitSubform)?.toLocaleLowerCase() === 'true';
   const validate = useQueryKey(SearchParams.Validate)?.toLocaleLowerCase() === 'true';
   const navigateTo = useNavigateTo();
   const navigate = useNavigate();
+  const searchStringRef = useAsRef(useLocation().search);
 
   React.useEffect(() => {
     (async () => {

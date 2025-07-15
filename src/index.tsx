@@ -36,7 +36,6 @@ import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
 import { propagateTraceWhenPdf } from 'src/features/propagateTraceWhenPdf';
-import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { AppPrefetcher } from 'src/queries/appPrefetcher';
 import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
@@ -64,11 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
                       {
                         path: '*',
                         element: (
-                          <AppRoutingProvider>
-                            <ErrorBoundary>
-                              <Root />
-                            </ErrorBoundary>
-                          </AppRoutingProvider>
+                          <ErrorBoundary>
+                            <Root />
+                          </ErrorBoundary>
                         ),
                       },
                     ],

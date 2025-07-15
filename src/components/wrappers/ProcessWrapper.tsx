@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useLocation, useNavigate, useNavigation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
@@ -13,12 +14,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
-import {
-  useNavigate,
-  useNavigationParam,
-  useNavigationPath,
-  useQueryKeysAsString,
-} from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
@@ -71,8 +67,10 @@ export function NavigateToStartUrl() {
   const navigate = useNavigate();
   const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
   const startUrl = useStartUrl(currentTaskId);
+  const location = useLocation();
 
-  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
+  const currentLocation = `${location.pathname}${location.search}`;
+  debugger;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
@@ -89,12 +87,19 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
   const taskIdParam = useNavigationParam('taskId');
   const taskType = useGetTaskTypeById()(taskIdParam);
   const { data: process } = useProcessQuery();
+  const navigation = useNavigation();
+  const isNavigating = navigation.state === 'loading';
+
+  if (isNavigating) {
+    return <Loader reason='process-wrapper' />;
+  }
 
   if (process?.ended) {
     return <NavigateToStartUrl />;
   }
 
   if (!isValidTaskId(taskIdParam)) {
+    debugger;
     return (
       <PresentationComponent
         type={ProcessTaskType.Unknown}
@@ -106,6 +111,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
   }
 
   if (!isCurrentTask) {
+    debugger;
     return (
       <PresentationComponent
         type={ProcessTaskType.Unknown}

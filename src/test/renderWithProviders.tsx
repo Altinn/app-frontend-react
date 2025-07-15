@@ -39,7 +39,6 @@ import { TextResourcesProvider } from 'src/features/language/textResources/TextR
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
 import type { IFooterLayout } from 'src/features/footer/types';
@@ -292,24 +291,22 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
             <UiConfigProvider>
               <PageNavigationProvider>
                 <Router>
-                  <AppRoutingProvider>
-                    <ApplicationMetadataProvider>
-                      <GlobalFormDataReadersProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <SetShouldFetchAppLanguages />
-                              <ProfileProvider>
-                                <PartyProvider>
+                  <ApplicationMetadataProvider>
+                    <GlobalFormDataReadersProvider>
+                      <OrgsProvider>
+                        <ApplicationSettingsProvider>
+                          <LayoutSetsProvider>
+                            <SetShouldFetchAppLanguages />
+                            <ProfileProvider>
+                              <PartyProvider>
                                   <TextResourcesProvider>{children}</TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </GlobalFormDataReadersProvider>
-                    </ApplicationMetadataProvider>
-                  </AppRoutingProvider>
+                              </PartyProvider>
+                            </ProfileProvider>
+                          </LayoutSetsProvider>
+                        </ApplicationSettingsProvider>
+                      </OrgsProvider>
+                    </GlobalFormDataReadersProvider>
+                  </ApplicationMetadataProvider>
                 </Router>
               </PageNavigationProvider>
             </UiConfigProvider>
@@ -342,9 +339,7 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
     >
       <TaskStoreProvider>
         <LangToolsStoreProvider>
-          <Router>
-            <AppRoutingProvider>{children}</AppRoutingProvider>
-          </Router>
+          <Router>{children}</Router>
         </LangToolsStoreProvider>
       </TaskStoreProvider>
     </AppQueriesProvider>
