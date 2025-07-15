@@ -56,7 +56,6 @@ function matchParams(path: string): PathParams {
 
 export const useNavigationParam = <T extends keyof PathParams>(key: T) => {
   const location = useLocation();
-  debugger;
   const matches = matchers.map((matcher) => matchPath(matcher, location.pathname));
   return paramFrom(matches, key) as PathParams[T];
 };

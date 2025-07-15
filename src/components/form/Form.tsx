@@ -166,7 +166,6 @@ export function FormFirstPage() {
   const location = useLocation();
 
   const currentLocation = `${location.pathname}${location.search}`;
-  debugger;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
