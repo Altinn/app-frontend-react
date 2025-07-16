@@ -57,7 +57,7 @@ const useOurNavigate = () => {
         setSummaryNodeOfOrigin?.(undefined);
       }
       if (cb) {
-        storeCallback(cb);
+        storeCallback({ targetLocation: path, callback: cb });
       }
       navigate(path, theirOptions);
     },

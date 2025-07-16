@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
+import { useLocation, useNavigation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import { loadingClassName, useHasElementsByClass } from 'src/components/ReadyForPrint';
 import { useIsLoading } from 'src/core/loading/LoadingContext';
 import { DevTools } from 'src/features/devtools/DevTools';
 import { DataModelFetcher } from 'src/features/formData/FormDataReaders';
 import { LangDataSourcesProvider } from 'src/features/language/LangDataSourcesProvider';
 import { useNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
-import { useNavigationParam } from 'src/hooks/navigation';
 
 interface Props extends PropsWithChildren {
   devTools?: boolean;
@@ -31,14 +32,20 @@ export function RenderStart({ children, devTools = true, dataModelFetcher = true
 
 function RunNavigationEffect() {
   const isLoading = useIsLoading();
-  const pageKey = useNavigationParam('pageKey');
+  const hasLoaders = useHasElementsByClass(loadingClassName);
   const navigationEffect = useNavigationEffect();
+  const navigation = useNavigation();
+  const location = useLocation().pathname;
+
+  const targetLocation = navigationEffect?.targetLocation?.split('?')[0];
+  const shouldRun = !isLoading && !hasLoaders && navigation.state === 'idle' && location === targetLocation;
 
   useEffect(() => {
-    if (!isLoading && navigationEffect) {
-      navigationEffect();
+    if (shouldRun && navigationEffect) {
+      console.log('Running navigation effect at', window.location.hash);
+      navigationEffect.callback();
     }
-  }, [isLoading, navigationEffect, pageKey]);
+  }, [navigationEffect, shouldRun]);
 
   return null;
 }
