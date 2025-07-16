@@ -18,6 +18,7 @@ export type ButtonProps = {
   className?: string;
   fullWidth?: boolean;
   textAlign?: TextAlign;
+  popoverTarget?: string;
 } & Pick<
   DesignSystemButtonProps,
   | 'id'
@@ -37,7 +38,6 @@ export type ButtonProps = {
   | 'aria-describedby'
   | 'onKeyUp'
   | 'asChild'
-  | 'popovertarget'
 >;
 
 type DSButtonColor = 'accent' | 'neutral' | 'success' | 'danger' | 'brand1' | 'brand2' | 'brand3' | undefined;
@@ -73,7 +73,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
     onKeyUp,
     asChild,
     textAlign,
-    popovertarget,
+    popoverTarget,
     'aria-label': ariaLabel,
     'aria-busy': ariaBusy,
     'aria-controls': ariaControls,
@@ -104,7 +104,7 @@ export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProp
       onMouseDown={onMouseDown}
       onKeyUp={onKeyUp}
       asChild={asChild}
-      popovertarget={popovertarget}
+      popoverTarget={popoverTarget}
       aria-label={ariaLabel}
       aria-busy={ariaBusy}
       aria-controls={ariaControls}

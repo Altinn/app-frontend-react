@@ -132,7 +132,7 @@ export function MultipleSelectComponent({
             />
             <EXPERIMENTAL_Suggestion.Clear
               aria-label={langAsString('form_filler.clear_selection')}
-              popovertarget={`${id}-alert-popover`}
+              popoverTarget={`${id}-alert-popover`}
             />
             <EXPERIMENTAL_Suggestion.List>
               <EXPERIMENTAL_Suggestion.Empty>
