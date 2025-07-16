@@ -3,6 +3,7 @@ import React from 'react';
 import { ExprVal } from 'src/features/expressions/types';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
+import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import type { EvalExprOptions } from 'src/features/expressions';
@@ -17,7 +18,10 @@ export const RepeatingGroupTableTitle = ({ baseComponentId, columnSettings }: IP
   const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
   const tableTitle = useTableTitle(baseComponentId);
   return (
-    <span style={style}>
+    <span
+      className={classes.contentFormatting}
+      style={style}
+    >
       <Lang id={tableTitle} />
     </span>
   );
