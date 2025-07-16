@@ -29,6 +29,9 @@ interface ProcessNextProps {
 }
 
 export function getProcessNextMutationKey(action?: IActionType) {
+  if (!action) {
+    return ['processNext'] as const;
+  }
   return ['processNext', action] as const;
 }
 

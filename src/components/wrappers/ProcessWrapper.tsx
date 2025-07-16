@@ -72,7 +72,7 @@ export function NavigateToStartUrl() {
   const startUrl = useStartUrl(currentTaskId);
   const location = useLocation();
 
-  const currentLocation = `${location.pathname}${location.search}`;
+  const currentLocation = location.pathname + location.search;
 
   useEffect(() => {
     if (currentLocation !== startUrl) {
