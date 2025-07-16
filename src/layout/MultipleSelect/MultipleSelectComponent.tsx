@@ -107,11 +107,10 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
             multiple
             filter={optionFilter}
             data-size='sm'
-            value={formatSelectedValues(selectedValues, options)}
-            onValueChange={(options) => handleChange(options.map((o) => o.value))}
+            selected={formatSelectedValues(selectedValues, options)}
+            onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
             onBlur={debounce}
           >
-            <EXPERIMENTAL_Suggestion.Chips />
             <EXPERIMENTAL_Suggestion.Input
               aria-invalid={!isValid}
               aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}

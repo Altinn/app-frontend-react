@@ -100,14 +100,13 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             id={id}
             filter={optionFilter}
             data-size='sm'
-            value={formatSelectedValues(selectedValues, options)}
-            onValueChange={(options) => handleChange(options.map((o) => o.value))}
+            selected={formatSelectedValues(selectedValues, options)}
+            onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
             onBlur={debounce}
             name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={cn(comboboxClasses.container, { [classes.readOnly]: readOnly })}
             style={{ width: '100%' }}
           >
-            <EXPERIMENTAL_Suggestion.Chips />
             <EXPERIMENTAL_Suggestion.Input
               readOnly={readOnly}
               aria-invalid={!isValid}
