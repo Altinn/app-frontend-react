@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useLocation, useNavigation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { loadingClassName, useHasElementsByClass } from 'src/components/ReadyForPrint';
@@ -34,14 +34,12 @@ function RunNavigationEffect() {
   const isLoading = useIsLoading();
   const hasLoaders = useHasElementsByClass(loadingClassName);
   const navigationEffect = useNavigationEffect();
-  const navigation = useNavigation();
   const location = useLocation().pathname;
 
   const targetLocation = navigationEffect?.targetLocation?.split('?')[0];
   const shouldRun =
     !isLoading &&
     !hasLoaders &&
-    navigation.state === 'idle' &&
     targetLocation &&
     (location === targetLocation || (navigationEffect?.matchStart && location.startsWith(targetLocation)));
 
