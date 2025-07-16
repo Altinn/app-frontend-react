@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
@@ -295,10 +295,10 @@ describe('AppNavigation', () => {
     expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'false');
 
     await user.click(screen.getByRole('button', { name: 'form' }));
-    expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'true');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'true'));
 
     await user.click(screen.getByRole('button', { name: 'fourth' }));
-    expect(screen.getByRole('button', { name: 'fourth' })).toHaveAttribute('aria-current', 'page');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'fourth' })).toHaveAttribute('aria-current', 'page'));
     expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'true');
   });
 
