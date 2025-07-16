@@ -21,7 +21,7 @@ import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { useHiddenPages } from 'src/utils/layout/hidden';
-import type { NavigationEffectCb } from 'src/features/navigation/NavigationEffectContext';
+import type { NavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 
 export interface NavigateToPageOptions {
   replace?: boolean;
@@ -50,14 +50,14 @@ const useOurNavigate = () => {
   const navigate = useNavigate();
 
   return useCallback(
-    (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, cb?: NavigationEffectCb) => {
+    (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, effect?: NavigationEffect) => {
       const resetReturnToView = ourOptions?.resetReturnToView ?? true;
       if (resetReturnToView) {
         setReturnToView?.(undefined);
         setSummaryNodeOfOrigin?.(undefined);
       }
-      if (cb) {
-        storeCallback({ targetLocation: path, callback: cb });
+      if (effect) {
+        storeCallback(effect);
       }
       navigate(path, theirOptions);
     },
@@ -174,7 +174,12 @@ export function useNavigateToTask() {
           : TaskKeys.ProcessEnd;
       }
       const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${realTaskId}${queryKeysRef.current}`;
-      navigate(url, undefined, options, runEffect ? () => focusMainContent(options) : undefined);
+      navigate(
+        url,
+        undefined,
+        options,
+        runEffect ? { callback: () => focusMainContent(options), targetLocation: url, matchStart: true } : undefined,
+      );
     },
     [navParams, navigate, queryKeysRef, layoutSets],
   );
@@ -262,7 +267,8 @@ export function useNavigatePage() {
       }
 
       if (isStatelessApp) {
-        return navigate(`/${page}${queryKeysRef.current}`, options, { replace }, () => focusMainContent(options));
+        const url = `/${page}${queryKeysRef.current}`;
+        return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
       const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
@@ -270,7 +276,7 @@ export function useNavigatePage() {
       // Subform
       if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
         const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
-        return navigate(url, options, { replace }, () => focusMainContent(options));
+        return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
       let url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}`;
@@ -289,7 +295,7 @@ export function useNavigatePage() {
       }
 
       url = `${url}?${searchParams.toString()}`;
-      navigate(url, options, { replace }, () => focusMainContent(options));
+      navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
     },
     [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, orderRef, queryKeysRef, refetchInitialValidations],
   );
@@ -377,7 +383,7 @@ export function useNavigatePage() {
 
     await maybeSaveOnPageChange();
     refetchInitialValidations();
-    return navigate(url, undefined, undefined, () => focusMainContent());
+    return navigate(url, undefined, undefined, { targetLocation: url, callback: () => focusMainContent() });
   };
 
   return {

@@ -15,17 +15,10 @@ import { getProcessNextMutationKey, getTargetTaskFromProcess } from 'src/feature
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { useNavigationParam } from 'src/hooks/navigation';
-import {
-  focusMainContent,
-  TaskKeys,
-  useIsValidTaskId,
-  useNavigateToTask,
-  useStartUrl,
-} from 'src/hooks/useNavigatePage';
+import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -78,7 +71,6 @@ export function NavigateToStartUrl({ forceCurrentTask = true }: { forceCurrentTa
   const currentTaskId = getTargetTaskFromProcess(useProcessQuery().data);
   const startUrl = useStartUrl(forceCurrentTask ? currentTaskId : undefined);
   const location = useLocation();
-  const setNavigationEffect = useSetNavigationEffect();
 
   const processNextKey = getProcessNextMutationKey();
   const queryClient = useQueryClient();
@@ -88,13 +80,9 @@ export function NavigateToStartUrl({ forceCurrentTask = true }: { forceCurrentTa
 
   useEffect(() => {
     if (currentLocation !== startUrl && !isRunningProcessNext) {
-      setNavigationEffect({
-        targetLocation: startUrl,
-        callback: () => focusMainContent(),
-      });
       navigate(startUrl, { replace: true });
     }
-  }, [currentLocation, isRunningProcessNext, navigate, startUrl, setNavigationEffect]);
+  }, [currentLocation, isRunningProcessNext, navigate, startUrl]);
 
   if (isRunningProcessNext) {
     return <Loader reason='navigate-to-start-process-next' />;

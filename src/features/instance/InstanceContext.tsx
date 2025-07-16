@@ -164,7 +164,7 @@ const BlockUntilLoaded = ({ children }: PropsWithChildren) => {
 
   const changeData = useSelector((state) => state.changeData);
   const setReFetch = useSelector((state) => state.setReFetch);
-  const instantiation = useInstantiation();
+  const instantiation = useInstantiation(false);
   const isDataSet = useSelector((state) => state.data !== undefined);
 
   const hasPendingScans = useHasPendingScans();

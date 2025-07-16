@@ -14,7 +14,7 @@ type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedP
 
 // TODO(Datamodels): This uses mapping and therefore only supports the "default" data model
 export const InstantiationButton = ({ children, ...props }: Props) => {
-  const instantiation = useInstantiation();
+  const instantiation = useInstantiation(true);
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useSelectedParty();

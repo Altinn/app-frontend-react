@@ -4,6 +4,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
+import { focusMainContent } from 'src/hooks/useNavigatePage';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface Prefill {
@@ -19,11 +21,12 @@ export interface Instantiation {
   prefill: Prefill;
 }
 
-function useInstantiateMutation() {
+function useInstantiateMutation(isUserInitiated: boolean) {
   const { doInstantiate } = useAppMutations();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentLanguage = useCurrentLanguage();
+  const setNavigationEffect = useSetNavigationEffect();
 
   return useMutation({
     mutationKey: ['instantiate', 'simple'],
@@ -31,18 +34,23 @@ function useInstantiateMutation() {
     onError: (error: HttpClientError) => {
       window.logError('Instantiation failed:\n', error);
     },
-    onSuccess: (data) => {
-      navigate(`/instance/${data.id}`);
-      queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
+    onSuccess: async (data) => {
+      const targetLocation = `/instance/${data.id}`;
+      if (isUserInitiated) {
+        setNavigationEffect({ targetLocation, matchStart: true, callback: focusMainContent });
+      }
+      navigate(targetLocation);
+      await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
 }
 
-function useInstantiateWithPrefillMutation() {
+function useInstantiateWithPrefillMutation(isUserInitiated: boolean) {
   const { doInstantiateWithPrefill } = useAppMutations();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentLanguage = useCurrentLanguage();
+  const setNavigationEffect = useSetNavigationEffect();
 
   return useMutation({
     mutationKey: ['instantiate', 'withPrefill'],
@@ -50,17 +58,21 @@ function useInstantiateWithPrefillMutation() {
     onError: (error: HttpClientError) => {
       window.logError('Instantiation with prefill failed:\n', error);
     },
-    onSuccess: (data) => {
-      navigate(`/instance/${data.id}`);
-      queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
+    onSuccess: async (data) => {
+      const targetLocation = `/instance/${data.id}`;
+      if (isUserInitiated) {
+        setNavigationEffect({ targetLocation, matchStart: true, callback: focusMainContent });
+      }
+      navigate(targetLocation);
+      await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
 }
 
-export const useInstantiation = () => {
+export const useInstantiation = (isUserInitiated: boolean) => {
   const queryClient = useQueryClient();
-  const instantiate = useInstantiateMutation();
-  const instantiateWithPrefill = useInstantiateWithPrefillMutation();
+  const instantiate = useInstantiateMutation(isUserInitiated);
+  const instantiateWithPrefill = useInstantiateWithPrefillMutation(isUserInitiated);
 
   const hasAlreadyInstantiated = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] }).length > 0;
 

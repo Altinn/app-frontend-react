@@ -14,7 +14,7 @@ import { HttpStatusCodes } from 'src/utils/network/networking';
 export const InstantiateContainer = () => {
   changeBodyBackground(AltinnPalette.greyLight);
   const party = useSelectedParty();
-  const instantiation = useInstantiation();
+  const instantiation = useInstantiation(false);
 
   useEffect(() => {
     const shouldCreateInstance = !!party;

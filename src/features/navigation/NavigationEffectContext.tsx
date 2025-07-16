@@ -3,14 +3,15 @@ import type { PropsWithChildren } from 'react';
 
 import { createContext } from 'src/core/contexts/context';
 
-export type NavigationEffectCb = () => void;
+export type NavigationEffect = {
+  targetLocation: string;
+  matchStart?: boolean;
+  callback: () => void;
+};
 
 interface Context {
-  effect: {
-    targetLocation: string;
-    callback: NavigationEffectCb;
-  } | null;
-  setEffect: (effect: Context['effect']) => void;
+  effect: NavigationEffect | null;
+  setEffect: (effect: NavigationEffect) => void;
 }
 
 const { useCtx, Provider } = createContext<Context>({

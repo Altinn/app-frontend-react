@@ -38,7 +38,12 @@ function RunNavigationEffect() {
   const location = useLocation().pathname;
 
   const targetLocation = navigationEffect?.targetLocation?.split('?')[0];
-  const shouldRun = !isLoading && !hasLoaders && navigation.state === 'idle' && location === targetLocation;
+  const shouldRun =
+    !isLoading &&
+    !hasLoaders &&
+    navigation.state === 'idle' &&
+    targetLocation &&
+    (location === targetLocation || (navigationEffect?.matchStart && location.startsWith(targetLocation)));
 
   useEffect(() => {
     if (shouldRun && navigationEffect) {
