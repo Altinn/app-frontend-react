@@ -66,7 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         element: (
                           <NavigationEffectProvider>
                             <ErrorBoundary>
-                              <Root />
+                              <AppDataContextProvider>
+                                <Root />
+                              </AppDataContextProvider>
                             </ErrorBoundary>
                           </NavigationEffectProvider>
                         ),
@@ -93,42 +95,40 @@ function Root() {
   return (
     <>
       <InstantiationUrlReset />
-      <AppDataContextProvider>
-        <TaskStoreProvider>
-          <GlobalFormDataReadersProvider>
-            <LayoutSetsProvider>
-              <SetShouldFetchAppLanguages />
-              <ProfileProvider>
-                <TextResourcesProvider>
-                  <OrgsProvider>
-                    <ApplicationSettingsProvider>
-                      <PartyProvider>
-                        <KeepAliveProvider>
-                          <TaskStoreProvider>
-                            <DisplayErrorProvider>
-                              <ProcessingProvider>
-                                <App />
-                              </ProcessingProvider>
-                            </DisplayErrorProvider>
-                          </TaskStoreProvider>
-                          <ToastContainer
-                            position='top-center'
-                            theme='colored'
-                            transition={Slide}
-                            draggable={false}
-                          />
-                          <ScrollRestoration />
-                        </KeepAliveProvider>
-                      </PartyProvider>
-                    </ApplicationSettingsProvider>
-                  </OrgsProvider>
-                </TextResourcesProvider>
-              </ProfileProvider>
-              <PartyPrefetcher />
-            </LayoutSetsProvider>
-          </GlobalFormDataReadersProvider>
-        </TaskStoreProvider>
-      </AppDataContextProvider>
+      <TaskStoreProvider>
+        <GlobalFormDataReadersProvider>
+          <LayoutSetsProvider>
+            <SetShouldFetchAppLanguages />
+            <ProfileProvider>
+              <TextResourcesProvider>
+                <OrgsProvider>
+                  <ApplicationSettingsProvider>
+                    <PartyProvider>
+                      <KeepAliveProvider>
+                        <TaskStoreProvider>
+                          <DisplayErrorProvider>
+                            <ProcessingProvider>
+                              <App />
+                            </ProcessingProvider>
+                          </DisplayErrorProvider>
+                        </TaskStoreProvider>
+                        <ToastContainer
+                          position='top-center'
+                          theme='colored'
+                          transition={Slide}
+                          draggable={false}
+                        />
+                        <ScrollRestoration />
+                      </KeepAliveProvider>
+                    </PartyProvider>
+                  </ApplicationSettingsProvider>
+                </OrgsProvider>
+              </TextResourcesProvider>
+            </ProfileProvider>
+            <PartyPrefetcher />
+          </LayoutSetsProvider>
+        </GlobalFormDataReadersProvider>
+      </TaskStoreProvider>
     </>
   );
 }
