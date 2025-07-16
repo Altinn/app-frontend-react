@@ -47,7 +47,6 @@ function RunNavigationEffect() {
 
   useEffect(() => {
     if (shouldRun && navigationEffect) {
-      console.log('Running navigation effect at', window.location.hash);
       navigationEffect.callback();
     }
   }, [navigationEffect, shouldRun]);
