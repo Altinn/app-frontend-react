@@ -22,6 +22,7 @@ import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -297,32 +298,34 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
     >
       <LanguageProvider>
         <TaskStoreProvider>
-          <LangToolsStoreProvider>
-            <UiConfigProvider>
-              <PageNavigationProvider>
-                <Router>
+          <ProcessingProvider>
+            <LangToolsStoreProvider>
+              <UiConfigProvider>
+                <PageNavigationProvider>
+                  <Router>
                   <NavigationEffectProvider>
-                    <ApplicationMetadataProvider>
-                      <GlobalFormDataReadersProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <SetShouldFetchAppLanguages />
-                              <ProfileProvider>
-                                <PartyProvider>
+                      <ApplicationMetadataProvider>
+                        <GlobalFormDataReadersProvider>
+                          <OrgsProvider>
+                            <ApplicationSettingsProvider>
+                              <LayoutSetsProvider>
+                                <SetShouldFetchAppLanguages />
+                                <ProfileProvider>
+                                  <PartyProvider>
                                   <TextResourcesProvider>{children}</TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </GlobalFormDataReadersProvider>
-                    </ApplicationMetadataProvider>
+                                  </PartyProvider>
+                                </ProfileProvider>
+                              </LayoutSetsProvider>
+                            </ApplicationSettingsProvider>
+                          </OrgsProvider>
+                        </GlobalFormDataReadersProvider>
+                      </ApplicationMetadataProvider>
                   </NavigationEffectProvider>
-                </Router>
-              </PageNavigationProvider>
-            </UiConfigProvider>
-          </LangToolsStoreProvider>
+                  </Router>
+                </PageNavigationProvider>
+              </UiConfigProvider>
+            </LangToolsStoreProvider>
+          </ProcessingProvider>
         </TaskStoreProvider>
       </LanguageProvider>
     </AppQueriesProvider>
