@@ -66,6 +66,7 @@ describe('Expression validation', () => {
     cy.get(appFrontend.errorReport).should('be.visible');
     cy.findByText(/skriftlige samtykke/i).should('be.visible');
     cy.gotoNavPage('Skjul felter');
+    cy.findByText(/basert på stilling/i).should('be.visible');
 
     cy.get(appFrontend.errorReport).should('contain.text', 'Du må fylle ut fornavn');
     cy.findByRole('checkbox', { name: /fornavn/i }).dsCheck();
