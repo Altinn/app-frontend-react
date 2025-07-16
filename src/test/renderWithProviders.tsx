@@ -64,6 +64,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
 }
 
 interface InstanceRouterProps {
+  routerRef?: RouterRef;
   initialPage?: string;
   taskId?: string;
   instanceId?: string;
@@ -71,7 +72,9 @@ interface InstanceRouterProps {
   query?: string;
 }
 
-interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {}
+type RouterRef = { current: ReturnType<typeof createMemoryRouter> | undefined };
+
+interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, Omit<InstanceRouterProps, 'routerRef'> {}
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
   Providers?: typeof DefaultProviders;
@@ -237,6 +240,7 @@ function DefaultRouter({ children }: PropsWithChildren) {
 
 export function InstanceRouter({
   children,
+  routerRef,
   instanceId = exampleInstanceId,
   taskId = 'Task_1',
   initialPage = 'FormLayout',
@@ -265,6 +269,11 @@ export function InstanceRouter({
       future: { v7_relativeSplatPath: true },
     },
   );
+
+  if (routerRef) {
+    // eslint-disable-next-line react-compiler/react-compiler
+    routerRef.current = router;
+  }
 
   return (
     <RouterProvider
@@ -607,8 +616,10 @@ export const renderWithInstanceAndLayout = async ({
     throw new Error('Cannot use custom router with renderWithInstanceAndLayout');
   }
 
+  const routerRef: RouterRef = { current: undefined };
   return {
     formDataMethods,
+    routerRef,
     ...(await renderBase({
       ...renderOptions,
       initialRenderRef,
@@ -620,6 +631,7 @@ export const renderWithInstanceAndLayout = async ({
       ),
       router: ({ children }) => (
         <InstanceRouter
+          routerRef={routerRef}
           instanceId={instanceId}
           taskId={taskId}
           initialPage={initialPage}
@@ -660,7 +672,7 @@ export const renderWithInstanceAndLayout = async ({
 
 export interface RenderGenericComponentTestProps<T extends CompTypes, InInstance extends boolean = true>
   extends Omit<ExtendedRenderOptions, 'renderer'>,
-    InstanceRouterProps {
+    Omit<InstanceRouterProps, 'routerRef'> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => React.ReactElement;
   component?: Partial<CompExternalExact<T>>;
