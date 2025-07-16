@@ -1,8 +1,9 @@
+import { useNavigate } from 'react-router-dom';
+
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useNavigate } from 'src/features/routing/AppRoutingContext';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface Prefill {
