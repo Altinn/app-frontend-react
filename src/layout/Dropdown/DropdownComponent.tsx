@@ -6,6 +6,7 @@ import cn from 'classnames';
 import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { getDescriptionId } from 'src/components/label/Label';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -95,7 +96,6 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           )}
         >
           <EXPERIMENTAL_Suggestion
-            id={id}
             filter={optionFilter}
             data-size='sm'
             selected={formatSelectedValues(selectedValues, options)}
@@ -106,8 +106,17 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
             style={{ width: '100%' }}
           >
             <EXPERIMENTAL_Suggestion.Input
-              readOnly={readOnly}
+              id={id}
               aria-invalid={!isValid}
+              aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+              aria-describedby={
+                overrideDisplay?.renderedInTable !== true &&
+                textResourceBindings?.title &&
+                textResourceBindings?.description
+                  ? getDescriptionId(id)
+                  : undefined
+              }
+              readOnly={readOnly}
             />
             <EXPERIMENTAL_Suggestion.List>
               <EXPERIMENTAL_Suggestion.Empty>

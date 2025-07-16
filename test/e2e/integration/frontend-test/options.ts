@@ -34,6 +34,7 @@ describe('Options', () => {
      * @see https://github.com/Altinn/app-frontend-react/pull/2500
     // If we change the source back to the previous one, the previous selections should be cleared
     // and the previous options should be available again
+    */
     cy.dsSelect(appFrontend.changeOfName.sources, 'Altinn');
     cy.get(appFrontend.changeOfName.reference).should('have.value', '');
     cy.dsSelect(appFrontend.changeOfName.reference, 'Ola Nordmann');
@@ -41,7 +42,6 @@ describe('Options', () => {
     cy.get(appFrontend.changeOfName.reference2).should('have.value', '');
     cy.dsSelect(appFrontend.changeOfName.reference2, 'Ole');
     cy.get(appFrontend.changeOfName.reference2).should('have.value', 'Ole');
-     */
   });
 
   it('is possible to build options from repeating groups', () => {

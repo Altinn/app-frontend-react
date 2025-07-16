@@ -29,7 +29,8 @@ describe('Expression validation', () => {
     cy.findByText(/skriftlige samtykke/i).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
 
-    cy.dsSelect(appFrontend.expressionValidationTest.kjønn, 'Mann');
+    cy.findByRole('combobox', { name: /Kjønn/i }).click();
+    cy.findByRole('option', { name: /Mann/i }).click();
 
     cy.findByRole('textbox', { name: /e-post/i }).type('asdf');
     cy.get(appFrontend.errorReport).should('contain.text', 'Feil format');
@@ -47,7 +48,8 @@ describe('Expression validation', () => {
     cy.findByRole('textbox', { name: /telefonnummer/i }).type('98765432');
     cy.get(appFrontend.errorReport).should('not.exist');
 
-    cy.dsSelect(appFrontend.expressionValidationTest.bosted, 'Oslo');
+    cy.findByRole('combobox', { name: /Bosted/i }).click();
+    cy.findByRole('option', { name: /Oslo/i }).click();
 
     cy.findByRole('button', { name: /neste/i }).click();
     cy.navPage('Skjul felter').should('have.attr', 'aria-current', 'page');
@@ -123,7 +125,8 @@ describe('Expression validation', () => {
       cy.get(appFrontend.expressionValidationTest.uploaders)
         .last()
         .selectFile('test/e2e/fixtures/test.pdf', { force: true });
-      cy.dsSelect(appFrontend.expressionValidationTest.groupTag, 'Sertifisering');
+      cy.findByRole('combobox', { name: /Dokumenttype velg/i }).click();
+      cy.findByRole('option', { name: /Sertifisering/i }).click();
       cy.findByRole('button', { name: /^lagre$/i }).click();
 
       for (let p = 0; p < 2; p++) {
