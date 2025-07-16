@@ -230,7 +230,7 @@ describe('AppNavigation', () => {
 
     await user.click(screen.getByRole('button', { name: 'second' }));
 
-    expect(screen.getByRole('button', { name: 'first' })).not.toHaveAttribute('aria-current');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'first' })).not.toHaveAttribute('aria-current'));
     expect(screen.getByRole('button', { name: 'second' })).toHaveAttribute('aria-current', 'page');
   });
 
@@ -252,7 +252,7 @@ describe('AppNavigation', () => {
     await user.click(screen.getByRole('button', { name: 'part2' }));
     await user.click(screen.getByRole('button', { name: 'third' }));
 
-    expect(screen.getByRole('button', { name: 'part1' })).not.toHaveAttribute('aria-current');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'part1' })).not.toHaveAttribute('aria-current'));
     expect(screen.queryByRole('button', { name: 'first' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'second' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'part2' })).toHaveAttribute('aria-current', 'step');
@@ -275,7 +275,7 @@ describe('AppNavigation', () => {
 
     await user.click(screen.getByRole('button', { name: 'third' }));
 
-    expect(screen.getByRole('button', { name: 'form' })).not.toHaveAttribute('aria-current');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'form' })).not.toHaveAttribute('aria-current'));
     expect(screen.queryByRole('button', { name: 'first' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'second' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'third' })).toHaveAttribute('aria-current', 'page');
