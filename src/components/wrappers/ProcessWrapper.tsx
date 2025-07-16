@@ -11,7 +11,7 @@ import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { getProcessNextMutationKey } from 'src/features/instance/useProcessNext';
+import { getProcessNextMutationKey, getTargetTaskFromProcess } from 'src/features/instance/useProcessNext';
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -66,21 +66,29 @@ function NavigationError({ label }: NavigationErrorProps) {
   );
 }
 
-export function NavigateToStartUrl() {
+export function NavigateToStartUrl({ forceCurrentTask = true }: { forceCurrentTask?: boolean }) {
   const navigate = useNavigate();
-  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
-  const startUrl = useStartUrl(currentTaskId);
+  const currentTaskId = getTargetTaskFromProcess(useProcessQuery().data);
+  const startUrl = useStartUrl(forceCurrentTask ? currentTaskId : undefined);
   const location = useLocation();
+
+  const processNextKey = getProcessNextMutationKey();
+  const queryClient = useQueryClient();
+  const isRunningProcessNext = queryClient.isMutating({ mutationKey: processNextKey });
 
   const currentLocation = location.pathname + location.search;
 
   useEffect(() => {
-    if (currentLocation !== startUrl) {
+    if (currentLocation !== startUrl && !isRunningProcessNext) {
       navigate(startUrl, { replace: true });
     }
-  }, [currentLocation, navigate, startUrl]);
+  }, [currentLocation, isRunningProcessNext, navigate, startUrl]);
 
-  return <Loader reason='navigate-to-process-start' />;
+  if (isRunningProcessNext) {
+    return <Loader reason='navigate-to-start-process-next' />;
+  }
+
+  return <Loader reason='navigate-to-start' />;
 }
 
 export function ProcessWrapper({ children }: PropsWithChildren) {
@@ -95,7 +103,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
 
   const processNextKey = getProcessNextMutationKey();
   const queryClient = useQueryClient();
-  const isRunningProcessNext = queryClient.isMutating({ mutationKey: processNextKey }) > 0;
+  const isRunningProcessNext = queryClient.isMutating({ mutationKey: processNextKey });
 
   if (isRunningProcessNext) {
     return <Loader reason='process-wrapper' />;

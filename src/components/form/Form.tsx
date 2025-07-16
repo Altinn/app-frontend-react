@@ -6,7 +6,7 @@ import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
 import { ErrorReport, ErrorReportList } from 'src/components/message/ErrorReport';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { Loader } from 'src/core/loading/Loader';
+import { NavigateToStartUrl } from 'src/components/wrappers/ProcessWrapper';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useAllAttachments } from 'src/features/attachments/hooks';
@@ -21,7 +21,7 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useQueryKey } from 'src/hooks/navigation';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
+import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
@@ -93,7 +93,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
   });
 
   if (!currentPageId || !isValidPageId(currentPageId)) {
-    return <FormFirstPage />;
+    return <NavigateToStartUrl forceCurrentTask={false} />;
   }
 
   const hasSetCurrentPageId = langAsString(currentPageId) !== currentPageId;
@@ -158,22 +158,6 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
       <HandleNavigationFocusComponent />
     </>
   );
-}
-
-export function FormFirstPage() {
-  const navigate = useNavigate();
-  const startUrl = useStartUrl();
-  const location = useLocation();
-
-  const currentLocation = location.pathname + location.search;
-
-  useEffect(() => {
-    if (currentLocation !== startUrl) {
-      navigate(startUrl, { replace: true });
-    }
-  }, [currentLocation, navigate, startUrl]);
-
-  return <Loader reason='navigate-to-start' />;
 }
 
 /**

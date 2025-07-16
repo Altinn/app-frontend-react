@@ -90,9 +90,11 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
         await reFetchInstanceData();
         await refetchProcessData?.();
         await invalidateFormDataQueries(queryClient);
-        navigateToTask(
-          processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId,
-        );
+        const task = getTargetTaskFromProcess(processData);
+        if (!task) {
+          throw new Error('Missing task in process data. Cannot navigate to task.');
+        }
+        navigateToTask(task);
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues, !appSupportsIncrementalValidationFeatures(applicationMetadata));
@@ -110,4 +112,12 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {
   return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.1.0.115' });
+}
+
+export function getTargetTaskFromProcess(processData: IProcess | undefined) {
+  if (!processData) {
+    return undefined;
+  }
+
+  return processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId;
 }
