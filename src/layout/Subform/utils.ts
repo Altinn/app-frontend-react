@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useCallback, useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
@@ -49,7 +48,8 @@ function useFormDataSelectorForSubform(dataType: string, subformData: unknown) {
       if (reference.dataType !== dataType) {
         return formDataSelector(reference);
       }
-      return dot.pick(reference.field, subformData);
+      const result = dot.pick(reference.field, subformData);
+      return result;
     },
     [formDataSelector, dataType, subformData],
   );
@@ -70,17 +70,18 @@ function useOverriddenDataSourcesForSubform(
   return {
     defaultDataType: () => dataType,
     currentDataModelPath: () => undefined,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     dataModelNames: () => useDataModelNamesForSubform(dataType),
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     formDataSelector: () => useFormDataSelectorForSubform(dataType, subformData),
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     langToolsSelector: () => useLangToolsSelectorForSubform(dataType, subformData),
   };
 }
 
 const dataSourcesNotSupportedInSubform = new Set([
   'attachmentsSelector',
-  'optionsSelector',
-  'isHiddenSelector',
-  'nodeDataSelector',
+  'hiddenComponents',
   'layoutLookups',
   'displayValues',
 ] satisfies (keyof ExpressionDataSources)[]);
@@ -104,9 +105,9 @@ export function useExpressionDataSourcesForSubform(
 export function getSubformEntryDisplayName(
   entryDisplayName: ExprValToActualOrExpr<ExprVal.String>,
   dataSources: ExpressionDataSources,
-  nodeId: string,
+  baseComponentId: string,
 ): string | null {
-  const errorIntroText = `Invalid expression for component '${nodeId}'`;
+  const errorIntroText = `Invalid expression for component '${baseComponentId}'`;
   if (!ExprValidation.isValidOrScalar(entryDisplayName, ExprVal.String, errorIntroText)) {
     return null;
   }
@@ -117,4 +118,26 @@ export function getSubformEntryDisplayName(
     errorIntroText,
   });
   return resolvedValue ? String(resolvedValue) : null;
+}
+
+export function evalSubformString(
+  expr: ExprValToActualOrExpr<ExprVal.String> | undefined,
+  dataSources: ExpressionDataSources,
+  defaultValue = '',
+): string {
+  if (!ExprValidation.isValidOrScalar(expr, ExprVal.String)) {
+    return defaultValue;
+  }
+
+  try {
+    const resolvedValue = evalExpr(expr, dataSources, {
+      returnType: ExprVal.String,
+      defaultValue,
+    });
+
+    return resolvedValue ? String(resolvedValue) : defaultValue;
+  } catch (error) {
+    console.error('Error evaluating subform expression:', error);
+    return defaultValue;
+  }
 }

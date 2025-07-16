@@ -6,8 +6,8 @@ import dot from 'dot-object';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useIsHidden } from 'src/utils/layout/hidden';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompInternal, ITextResourceBindings } from 'src/layout/layout';
@@ -19,7 +19,7 @@ export type ICustomComponentProps = PropsFromGenericComponent<'Custom'> & {
 
 export type IPassedOnProps = Omit<
   PropsFromGenericComponent<'Custom'>,
-  'node' | 'componentValidations' | 'containerDivRef'
+  'baseComponentId' | 'componentValidations' | 'containerDivRef'
 > &
   Omit<CompInternal<'Custom'>, 'tagName' | 'textResourceBindings'> & {
     [key: string]: string | number | boolean | object | null | undefined;
@@ -28,7 +28,7 @@ export type IPassedOnProps = Omit<
   };
 
 export function CustomWebComponent({
-  node,
+  baseComponentId,
   componentValidations,
   summaryMode = false,
   ...passThroughPropsFromGenericComponent
@@ -36,7 +36,10 @@ export function CustomWebComponent({
   const langTools = useLanguage();
   const langAsString = langTools.langAsString;
   const legacyLanguage = useLegacyNestedTexts();
-  const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = useNodeItem(node);
+  const { tagName, textResourceBindings, dataModelBindings, ...passThroughPropsFromNode } = useItemWhenType(
+    baseComponentId,
+    'Custom',
+  );
 
   const { containerDivRef: _unused, ...restFromGeneric } = passThroughPropsFromGenericComponent;
 
@@ -94,7 +97,7 @@ export function CustomWebComponent({
     }
   }, [formData, componentValidations]);
 
-  const isHidden = Hidden.useIsHidden(node);
+  const isHidden = useIsHidden(baseComponentId);
   if (isHidden || !HtmlTag) {
     return null;
   }
@@ -112,7 +115,7 @@ export function CustomWebComponent({
     propsAsAttributes[key] = prop;
   });
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <HtmlTag
         ref={wcRef}
         data-testid={tagName}

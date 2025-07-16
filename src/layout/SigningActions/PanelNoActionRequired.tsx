@@ -7,18 +7,17 @@ import { Lang } from 'src/features/language/Lang';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
 import classes from 'src/layout/SigningActions/SigningActions.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { getMessageBoxUrl } from 'src/utils/urls/urlHelper';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type NoActionRequiredPanelProps = {
-  node: LayoutNode<'SigningActions'>;
+  baseComponentId: string;
   hasSigned: boolean;
 };
 
-export function NoActionRequiredPanel({ node, hasSigned }: NoActionRequiredPanelProps) {
+export function NoActionRequiredPanel({ baseComponentId, hasSigned }: NoActionRequiredPanelProps) {
   const currentUserPartyId = useProfile()?.partyId;
-  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
+  const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
   const titleHasSigned =
     textResourceBindings?.noActionRequiredPanelTitleHasSigned ?? 'signing.no_action_required_panel_title_has_signed';
@@ -34,7 +33,7 @@ export function NoActionRequiredPanel({ node, hasSigned }: NoActionRequiredPanel
 
   return (
     <SigningPanel
-      node={node}
+      baseComponentId={baseComponentId}
       variant={hasSigned ? 'success' : 'info'}
       heading={<Lang id={hasSigned ? titleHasSigned : titleNotSigned} />}
       description={<Lang id={hasSigned ? descriptionHasSigned : descriptionNotSigned} />}

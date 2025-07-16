@@ -8,26 +8,26 @@ import {
 } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export function CheckboxesSummary({ target }: Summary2Props<'Checkboxes'>) {
-  const componentNode = target;
-  const summaryOverride = useSummaryOverrides(componentNode);
+export function CheckboxesSummary({ targetBaseComponentId }: Summary2Props) {
+  const summaryOverride = useSummaryOverrides<'Checkboxes'>(targetBaseComponentId);
   const emptyFieldText = summaryOverride?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
-  const displayData = useDisplayData(componentNode);
+  const displayData = useDisplayData(targetBaseComponentId);
   const maxStringLength = 75;
   const showAsList =
     summaryOverride?.displayType === 'list' ||
     (!summaryOverride?.displayType && displayData?.length >= maxStringLength);
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const required = useNodeItem(componentNode, (i) => i.required);
-  const displayValues = useMultipleValuesForSummary(target);
+  const item = useItemWhenType(targetBaseComponentId, 'Checkboxes');
+  const title = item.textResourceBindings?.title;
+  const required = item.required;
+  const displayValues = useMultipleValuesForSummary(targetBaseComponentId);
 
   return (
     <SummaryFlex
-      target={target}
+      targetBaseId={targetBaseComponentId}
       content={
         displayValues.length === 0
           ? required
@@ -38,7 +38,7 @@ export function CheckboxesSummary({ target }: Summary2Props<'Checkboxes'>) {
     >
       <MultipleValueSummary
         title={<Lang id={title} />}
-        componentNode={componentNode}
+        baseComponentId={targetBaseComponentId}
         displayValues={displayValues}
         isCompact={isCompact}
         showAsList={showAsList}

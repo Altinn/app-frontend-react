@@ -1,5 +1,3 @@
-import React from 'react';
-
 import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/jest-globals';
 import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issues/3363
@@ -16,7 +14,7 @@ import { TextDecoder, TextEncoder } from 'util';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
-import type { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
+import type { doProcessNext, fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
 import type { AppQueries } from 'src/queries/types';
 
 // Importing CSS for jest-preview to look nicer
@@ -83,6 +81,17 @@ global.TextEncoder = TextEncoder;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).TextDecoder = TextDecoder;
 
+// Add Request polyfill for tests that use fetch/Request
+if (!globalThis.Request) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (globalThis as any).Request = class Request {
+    constructor(
+      public url: string,
+      public options?: unknown,
+    ) {}
+  };
+}
+
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 global.ResizeObserver = require('resize-observer-polyfill');
 
@@ -99,9 +108,5 @@ jest.mock('src/queries/queries', () => ({
     .fn<typeof fetchApplicationMetadata>()
     .mockImplementation(async () => getIncomingApplicationMetadataMock()),
   fetchProcessState: jest.fn<typeof fetchProcessState>(async () => getProcessDataMock()),
-}));
-
-jest.mock('react-helmet-async', () => ({
-  Helmet: () => null,
-  HelmetProvider: ({ children }) => React.createElement(React.Fragment, null, children),
+  doProcessNext: jest.fn<typeof doProcessNext>(async () => getProcessDataMock()),
 }));

@@ -11,17 +11,15 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
-import { useComponentValidationsForNode } from 'src/features/validation/selectors/componentValidationsForNode';
+import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useComponentValidationsFor } from 'src/features/validation/selectors/componentValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForAddress } from 'src/layout/Address/config.generated';
-
-export type IAddressProps = PropsFromGenericComponent<'Address'>;
 
 const bindingKeys: { [k in keyof IDataModelBindingsForAddress]: k } = {
   address: 'address',
@@ -31,7 +29,7 @@ const bindingKeys: { [k in keyof IDataModelBindingsForAddress]: k } = {
   careOf: 'careOf',
 };
 
-export function AddressComponent({ node }: IAddressProps) {
+export function AddressComponent({ baseComponentId }: PropsFromGenericComponent<'Address'>) {
   const {
     id,
     required,
@@ -41,11 +39,11 @@ export function AddressComponent({ node }: IAddressProps) {
     textResourceBindings,
     dataModelBindings,
     labelSettings,
-  } = useNodeItem(node);
+  } = useItemWhenType(baseComponentId, 'Address');
   const { langAsString } = useLanguage();
 
-  const bindingValidations = useBindingValidationsForNode(node);
-  const componentValidations = useComponentValidationsForNode(node);
+  const bindingValidations = useBindingValidationsFor<'Address'>(baseComponentId);
+  const componentValidations = useComponentValidationsFor(baseComponentId);
   const { formData, setValue } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const debounce = FD.useDebounceImmediately();
   const { address, careOf, postPlace, zipCode, houseNumber } = formData;
@@ -93,7 +91,7 @@ export function AddressComponent({ node }: IAddressProps) {
               error={hasValidationErrors(bindingValidations?.address)}
               value={address}
               onChange={(ev) => setValue('address', ev.target.value)}
-              onBlur={debounce}
+              onBlur={() => debounce('blur')}
               readOnly={readOnly}
               required={required}
               autoComplete={simplified ? 'street-address' : 'address-line1'}
@@ -102,7 +100,7 @@ export function AddressComponent({ node }: IAddressProps) {
         </Label>
         <ComponentValidations
           validations={bindingValidations?.address}
-          node={node}
+          baseComponentId={baseComponentId}
         />
       </div>
 
@@ -134,13 +132,13 @@ export function AddressComponent({ node }: IAddressProps) {
                 error={hasValidationErrors(bindingValidations?.careOf)}
                 value={careOf}
                 onChange={(ev) => setValue('careOf', ev.target.value)}
-                onBlur={debounce}
+                onBlur={() => debounce('blur')}
                 readOnly={readOnly}
                 autoComplete='address-line2'
               />
               <ComponentValidations
                 validations={bindingValidations?.careOf}
-                node={node}
+                baseComponentId={baseComponentId}
               />
             </Flex>
           </Label>
@@ -181,7 +179,7 @@ export function AddressComponent({ node }: IAddressProps) {
                 error={hasValidationErrors(bindingValidations?.zipCode)}
                 value={zipCode}
                 onChange={(ev) => setValue('zipCode', ev.target.value)}
-                onBlur={debounce}
+                onBlur={() => debounce('blur')}
                 readOnly={readOnly}
                 required={required}
                 inputMode='numeric'
@@ -189,7 +187,7 @@ export function AddressComponent({ node }: IAddressProps) {
               />
               <ComponentValidations
                 validations={bindingValidations?.zipCode}
-                node={node}
+                baseComponentId={baseComponentId}
               />
             </Flex>
           </Label>
@@ -267,7 +265,7 @@ export function AddressComponent({ node }: IAddressProps) {
                   error={hasValidationErrors(bindingValidations?.houseNumber)}
                   value={houseNumber}
                   onChange={(ev) => setValue('houseNumber', ev.target.value)}
-                  onBlur={debounce}
+                  onBlur={() => debounce('blur')}
                   readOnly={readOnly}
                   autoComplete='address-line3'
                 />
@@ -276,13 +274,13 @@ export function AddressComponent({ node }: IAddressProps) {
           </Label>
           <ComponentValidations
             validations={bindingValidations?.houseNumber}
-            node={node}
+            baseComponentId={baseComponentId}
           />
         </div>
       )}
       <ComponentValidations
         validations={componentValidations}
-        node={node}
+        baseComponentId={baseComponentId}
       />
     </div>
   );

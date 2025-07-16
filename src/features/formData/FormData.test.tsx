@@ -118,7 +118,7 @@ async function statelessRender(props: RenderProps) {
       ...props,
       initialRenderRef,
       router: ({ children }: PropsWithChildren) => (
-        <MemoryRouter>
+        <MemoryRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
           <Routes>
             <Route
               path='/'
@@ -186,6 +186,7 @@ async function statefulRender(props: RenderProps) {
 describe('FormData', () => {
   describe('Rendering and re-rendering', () => {
     function RenderCountingReader({ path, countKey, renderCounts }: Props) {
+      // eslint-disable-next-line react-compiler/react-compiler
       renderCounts[countKey]++;
       const {
         formData: { simpleBinding: value },
@@ -197,6 +198,7 @@ describe('FormData', () => {
     }
 
     function RenderCountingWriter({ path, countKey, renderCounts }: Props) {
+      // eslint-disable-next-line react-compiler/react-compiler
       renderCounts[countKey]++;
       const {
         formData: { simpleBinding: value },

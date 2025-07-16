@@ -3,13 +3,12 @@ import React from 'react';
 import type { PropsFromGenericComponent } from '..';
 
 import { Button, type ButtonColor, type ButtonVariant } from 'src/app-components/Button/Button';
-import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { useIsAuthorized } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ActionButtonStyle } from 'src/layout/ActionButton/config.generated';
 
 export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
@@ -19,13 +18,10 @@ export const buttonStyles: { [style in ActionButtonStyle]: { color: ButtonColor;
 
 export type IActionButton = PropsFromGenericComponent<'ActionButton'>;
 
-export function ActionButtonComponent({ node }: IActionButton) {
-  const processNext = useProcessNext();
-  const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+export function ActionButtonComponent({ baseComponentId }: IActionButton) {
+  const { action, buttonStyle, id, textResourceBindings } = useItemWhenType(baseComponentId, 'ActionButton');
+  const { mutate: processNext, isPending: isPerformingProcessNext } = useProcessNext({ action });
   const isAuthorized = useIsAuthorized();
-
-  const { action, buttonStyle, id, textResourceBindings } = useNodeItem(node);
-  const disabled = !isAuthorized(action) || isAnyProcessing;
 
   if (useIsSubformPage()) {
     throw new Error('Cannot use process navigation in a subform');
@@ -35,14 +31,14 @@ export function ActionButtonComponent({ node }: IActionButton) {
   const { color, variant } = buttonStyles[buttonStyle];
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <Button
         id={`action-button-${id}`}
         variant={variant}
         color={color}
-        disabled={disabled}
-        isLoading={isThisProcessing}
-        onClick={() => performProcess(() => processNext({ action }))}
+        disabled={!isAuthorized(action)}
+        isLoading={isPerformingProcessNext}
+        onClick={() => processNext()}
       >
         <Lang id={textResourceBindings?.title ?? `actions.${action}`} />
       </Button>

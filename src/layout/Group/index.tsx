@@ -16,11 +16,11 @@ export class Group extends GroupDef {
     function LayoutComponentGroupRender(props, _): JSX.Element | null {
       return (
         <GroupComponent
-          groupNode={props.node}
-          renderLayoutNode={(node) => (
+          baseComponentId={props.baseComponentId}
+          renderLayoutComponent={(id) => (
             <GenericComponent
-              key={node.id}
-              node={node}
+              key={id}
+              baseComponentId={id}
             />
           )}
         />
@@ -28,14 +28,14 @@ export class Group extends GroupDef {
     },
   );
 
-  renderSummary(props: SummaryRendererProps<'Group'>): JSX.Element | null {
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
     return <SummaryGroupComponent {...props} />;
   }
 
-  renderSummary2(props: Summary2Props<'Group'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return (
       <EmptyChildrenBoundary>
-        <GroupSummary componentNode={props.target} />
+        <GroupSummary {...props} />
       </EmptyChildrenBoundary>
     );
   }

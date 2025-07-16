@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
@@ -7,19 +7,11 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentCapabilities, getComponentDef } from 'src/layout';
-import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
 import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import {
-  GeneratorCondition,
-  GeneratorRunProvider,
-  StageAddNodes,
-  StageMarkHidden,
-} from 'src/utils/layout/generator/GeneratorStages';
-import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
+import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal, NodesStore } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -32,7 +24,6 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ExprResolver, NodeGeneratorProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { StateFactoryProps } from 'src/utils/layout/types';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
@@ -47,96 +38,108 @@ import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSo
  */
 export function NodeGenerator({ children, externalItem }: PropsWithChildren<NodeGeneratorProps>) {
   const intermediateItem = useIntermediateItem(externalItem) as CompIntermediateExact<CompTypes>;
-  const node = useNewNode(intermediateItem.id, externalItem.id, externalItem.type) as LayoutNode;
-  useGeneratorErrorBoundaryNodeRef().current = node;
 
-  const commonProps: CommonProps<CompTypes> = { node, externalItem, intermediateItem };
+  // eslint-disable-next-line react-compiler/react-compiler
+  useGeneratorErrorBoundaryNodeRef().current = { type: 'node', id: intermediateItem.id };
+
+  const commonProps: CommonProps<CompTypes> = { baseComponentId: externalItem.id, externalItem };
 
   return (
-    // Adding id as a key to make it easier to see which component is being rendered in the React DevTools
-    <GeneratorRunProvider key={intermediateItem.id}>
-      <GeneratorCondition
-        stage={StageAddNodes}
-        mustBeAdded='parent'
-      >
-        <AddRemoveNode {...commonProps} />
-      </GeneratorCondition>
-      <GeneratorCondition
-        stage={StageMarkHidden}
-        mustBeAdded='parent'
-      >
-        <MarkAsHidden {...commonProps} />
-      </GeneratorCondition>
+    <>
+      <WhenParentAdded>
+        <AddRemoveNode
+          {...commonProps}
+          intermediateItem={intermediateItem}
+        />
+      </WhenParentAdded>
       <GeneratorNodeProvider
-        parent={node}
+        parentBaseId={externalItem.id}
         item={intermediateItem}
       >
-        <GeneratorCondition
-          stage={StageMarkHidden}
-          mustBeAdded='parent'
-        >
-          <NodePropertiesValidation {...commonProps} />
-        </GeneratorCondition>
+        <WhenParentAdded>
+          <NodePropertiesValidation
+            {...commonProps}
+            intermediateItem={intermediateItem}
+          />
+        </WhenParentAdded>
         {children}
       </GeneratorNodeProvider>
-    </GeneratorRunProvider>
+    </>
   );
 }
 
 interface CommonProps<T extends CompTypes> {
-  node: LayoutNode<T>;
+  baseComponentId: string;
   externalItem: CompExternalExact<T>;
-  intermediateItem: CompIntermediateExact<T>;
 }
 
-function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T>) {
-  const forceHidden = GeneratorInternal.useForceHidden();
-  const hiddenResult =
-    useEvalExpressionInGenerator(externalItem.hidden, {
-      returnType: ExprVal.Boolean,
-      defaultValue: false,
-      errorIntroText: `Invalid hidden expression for node ${node.id}`,
-    }) ?? false;
-  const hidden = forceHidden ? true : hiddenResult;
-  const isSet = NodesInternal.useNodeData(node, (data) => data.hidden === hidden);
-  NodesStateQueue.useSetNodeProp({ node, prop: 'hidden', value: hidden }, !isSet);
-
-  return null;
-}
-
-function AddRemoveNode<T extends CompTypes>({ node, intermediateItem }: CommonProps<T>) {
-  const parent = GeneratorInternal.useParent()!;
+function AddRemoveNode<T extends CompTypes>({
+  baseComponentId,
+  intermediateItem,
+}: CommonProps<T> & { intermediateItem: CompIntermediateExact<T> }) {
+  const parent = GeneratorInternal.useParent();
   const depth = GeneratorInternal.useDepth();
   const rowIndex = GeneratorInternal.useRowIndex();
-  const pageKey = GeneratorInternal.usePage()?.pageKey ?? '';
-  const idMutators = GeneratorInternal.useIdMutators() ?? [];
+  const pageKey = GeneratorInternal.usePage() ?? '';
+  const idMutators = GeneratorInternal.useIdMutators();
   const layoutMap = useLayoutLookups().allComponents;
   const isValid = GeneratorInternal.useIsValid();
-  const getCapabilities = (type: CompTypes) => getComponentCapabilities(type);
-  const stateFactoryProps = {
-    item: intermediateItem,
-    parent,
-    parentId: parent instanceof LayoutNode ? parent.id : undefined,
-    depth,
-    rowIndex,
-    pageKey,
-    idMutators,
-    layoutMap,
-    getCapabilities,
-    isValid,
-  } satisfies StateFactoryProps<T>;
-  const isAdded = NodesInternal.useIsAdded(node);
-
-  NodesStateQueue.useAddNode(
-    {
-      node,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      targetState: node.def.stateFactory(stateFactoryProps as any),
-    },
-    !isAdded,
+  const getCapabilities = useCallback((type: CompTypes) => getComponentCapabilities(type), []);
+  const stateFactoryProps = useMemo(
+    () =>
+      ({
+        id: intermediateItem.id,
+        baseId: baseComponentId,
+        parentId: parent?.type === 'node' ? parent.indexedId : undefined,
+        depth,
+        rowIndex,
+        pageKey,
+        idMutators,
+        layoutMap,
+        getCapabilities,
+        isValid,
+        dataModelBindings: intermediateItem.dataModelBindings as never,
+      }) satisfies StateFactoryProps,
+    [
+      baseComponentId,
+      depth,
+      getCapabilities,
+      idMutators,
+      intermediateItem.dataModelBindings,
+      intermediateItem.id,
+      isValid,
+      layoutMap,
+      pageKey,
+      parent.indexedId,
+      parent?.type,
+      rowIndex,
+    ],
   );
 
-  NodesStateQueue.useRemoveNode({ node });
+  const isAdded = NodesInternal.useIsAdded(intermediateItem.id, 'node');
+
+  const def = getComponentDef(intermediateItem.type);
+  const addNode = NodesInternal.useAddNode();
+  const removeNode = NodesInternal.useRemoveNode();
+
+  // This state is intentionally not reactive, as we want to commit _what the layout was when this node was created_,
+  // so that we don't accidentally remove a node with the same ID from a future/different layout.
+  const layoutsWas = NodesStore.useStaticSelector((s) => s.layouts!);
+
+  useEffect(() => {
+    !isAdded &&
+      addNode({
+        nodeId: intermediateItem.id,
+        targetState: def.stateFactory(stateFactoryProps as never),
+      });
+  }, [addNode, def, intermediateItem.id, isAdded, layoutsWas, stateFactoryProps]);
+
+  useEffect(
+    () => () => {
+      removeNode({ nodeId: intermediateItem.id, layouts: layoutsWas });
+    },
+    [intermediateItem.id, layoutsWas, removeNode],
+  );
 
   return null;
 }
@@ -282,34 +285,10 @@ function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal
   }, [item, recursiveMutators]);
 }
 
-/**
- * Creates a new node instance for a component item, and adds that to the parent node and the store.
- */
-function useNewNode<T extends CompTypes>(id: string, baseId: string, type: T): LayoutNode<T> {
-  const parent = GeneratorInternal.useParent()!;
-  const rowIndex = GeneratorInternal.useRowIndex();
-  const multiPageIndex = GeneratorInternal.useMultiPageIndex(baseId);
-
-  return useMemo(() => {
-    const newNodeProps: LayoutNodeProps<T> = { id, baseId, type, parent, rowIndex, multiPageIndex };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new LayoutNode(newNodeProps as any) as LayoutNode<T>;
-  }, [baseId, id, multiPageIndex, parent, rowIndex, type]);
-}
-
 function isFormItem(item: CompIntermediate): item is CompIntermediate & FormComponentProps {
   return 'readOnly' in item || 'required' in item || 'showValidations' in item;
 }
 
 function isSummarizableItem(item: CompIntermediate): item is CompIntermediate & SummarizableComponentProps {
   return 'renderAsSummary' in item;
-}
-
-export function useDef<T extends CompTypes>(type: T) {
-  const def = getComponentDef<T>(type)!;
-  if (!def) {
-    throw new Error(`Component type "${type}" not found`);
-  }
-
-  return def;
 }

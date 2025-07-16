@@ -1,62 +1,85 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { AddressSummary } from 'src/layout/Address/AddressSummary/AddressSummary';
 import { AddressDef } from 'src/layout/Address/config.def.generated';
 import { useAddressValidation } from 'src/layout/Address/useAddressValidation';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent, ValidateComponent } from 'src/layout';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export class Address extends AddressDef implements ValidateComponent<'Address'> {
+export class Address extends AddressDef implements ValidateComponent {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Address'>>(
     function LayoutComponentAddressRender(props, _): JSX.Element | null {
       return <AddressComponent {...props} />;
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'Address');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'Address');
     return Object.values(formData ?? {}).join(' ');
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'Address'>): JSX.Element | null {
-    const data = useDisplayData(targetNode);
+  renderSummary({ targetBaseComponentId }: SummaryRendererProps): JSX.Element | null {
+    const data = useDisplayData(targetBaseComponentId);
     return <SummaryItemSimple formDataAsString={data} />;
   }
 
-  renderSummary2(props: Summary2Props<'Address'>): JSX.Element | null {
-    return <AddressSummary componentNode={props.target} />;
+  renderSummary2(props: Summary2Props): JSX.Element | null {
+    return <AddressSummary {...props} />;
   }
 
   renderDefaultValidations(): boolean {
     return false;
   }
 
-  useComponentValidation(node: LayoutNode<'Address'>): ComponentValidation[] {
-    return useAddressValidation(node);
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return useAddressValidation(baseComponentId);
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Address'>): string[] {
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'Address'>): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    const layoutLookups = useLayoutLookups();
+    const component = layoutLookups.getComponent(baseComponentId, 'Address');
     const errors: string[] = [
-      ...(this.validateDataModelBindingsAny(ctx, 'address', ['string'])[0] || []),
-      ...(this.validateDataModelBindingsAny(ctx, 'zipCode', ['string', 'number', 'integer'])[0] || []),
-      ...(this.validateDataModelBindingsAny(ctx, 'postPlace', ['string'])[0] || []),
+      ...(validateDataModelBindingsAny(baseComponentId, bindings, lookupBinding, layoutLookups, 'address', [
+        'string',
+      ])[0] || []),
+      ...(validateDataModelBindingsAny(baseComponentId, bindings, lookupBinding, layoutLookups, 'zipCode', [
+        'string',
+        'number',
+        'integer',
+      ])[0] || []),
+      ...(validateDataModelBindingsAny(baseComponentId, bindings, lookupBinding, layoutLookups, 'postPlace', [
+        'string',
+      ])[0] || []),
     ];
 
-    if (ctx.item.simplified === false) {
-      errors.push(...(this.validateDataModelBindingsAny(ctx, 'careOf', ['string'])[0] || []));
-      errors.push(...(this.validateDataModelBindingsAny(ctx, 'houseNumber', ['string', 'number', 'integer'])[0] || []));
+    if (component.simplified === false) {
+      errors.push(
+        ...(validateDataModelBindingsAny(baseComponentId, bindings, lookupBinding, layoutLookups, 'careOf', [
+          'string',
+        ])[0] || []),
+      );
+      errors.push(
+        ...(validateDataModelBindingsAny(baseComponentId, bindings, lookupBinding, layoutLookups, 'houseNumber', [
+          'string',
+          'number',
+          'integer',
+        ])[0] || []),
+      );
     } else {
-      const hasCareOf = ctx.item.dataModelBindings?.careOf;
-      const hasHouseNumber = ctx.item.dataModelBindings?.houseNumber;
+      const hasCareOf = bindings?.careOf;
+      const hasHouseNumber = bindings?.houseNumber;
       if (hasCareOf) {
         errors.push(`Datamodellbindingen 'careOf' støttes ikke for en forenklet adresse-komponent`);
       }

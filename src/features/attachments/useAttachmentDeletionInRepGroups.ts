@@ -6,9 +6,9 @@ import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { attachmentSelector } from 'src/features/attachments/tools';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef } from 'src/layout';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompWithPlugin, IDataModelBindings } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
 
 /**
@@ -21,31 +21,31 @@ import type { NodesContext } from 'src/utils/layout/NodesContext';
  * The 'onBeforeRowDeletion' function you get as a result here gives you a Promise that resolves to true if all
  * attachments were successfully removed, or false if any of them failed to be removed.
  */
-export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGroup'>) {
+export function useAttachmentDeletionInRepGroups(baseComponentId: string) {
   const remove = useAsRef(useAttachmentsRemover());
   const awaiter = useAttachmentsAwaiter();
-  const nodeRef = useAsRef(node);
+  const idRef = useAsRef(useIndexedId(baseComponentId));
   const nodesStore = NodesInternal.useStore();
 
   return useCallback(
     async (restriction: number | undefined): Promise<boolean> => {
       const state = nodesStore.getState();
-      const recursiveChildren = new Set<string>(recursivelyFindChildren(nodeRef.current.id, state, restriction));
+      const recursiveChildren = new Set<string>(recursivelyFindChildren(idRef.current, state, restriction));
       const uploaderNodeIds = Object.values(state.nodeData)
         .filter((n) => {
-          if (!recursiveChildren.has(n.layout.id)) {
+          if (!recursiveChildren.has(n.id)) {
             return false;
           }
-          const def = getComponentDef(n.layout.type);
+          const def = getComponentDef(n.nodeType);
           return def && def.hasPlugin(AttachmentsPlugin);
         })
-        .map((n) => n.layout.id);
+        .map((n) => n.id);
 
       // This code is intentionally not parallelized, as especially LocalTest can't handle parallel requests to
       // delete attachments. It might return a 500 if you try. To be safe, we do them one by one.
       for (const uploaderId of uploaderNodeIds) {
         const nodeData = state.nodeData[uploaderId];
-        const dataModelBindings = nodeData?.layout.dataModelBindings as IDataModelBindings<
+        const dataModelBindings = nodeData?.dataModelBindings as IDataModelBindings<
           CompWithPlugin<typeof AttachmentsPlugin>
         >;
 
@@ -86,14 +86,14 @@ export function useAttachmentDeletionInRepGroups(node: LayoutNode<'RepeatingGrou
 
       return true;
     },
-    [nodesStore, nodeRef, remove, awaiter],
+    [nodesStore, idRef, remove, awaiter],
   );
 }
 
 function recursivelyFindChildren(parentId: string, state: NodesContext, restriction?: number): string[] {
   const children = Object.values(state.nodeData)
     .filter((n) => n.parentId === parentId && (restriction === undefined || n.rowIndex === restriction))
-    .map((n) => n.layout.id);
+    .map((n) => n.id);
 
   return [...children, ...children.flatMap((c) => recursivelyFindChildren(c, state, undefined))];
 }

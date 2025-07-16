@@ -8,15 +8,14 @@ import classes from 'src/features/devtools/components/NodeInspector/ValidationIn
 import { Lang } from 'src/features/language/Lang';
 import { ValidationMask } from 'src/features/validation';
 import { isValidationVisible } from 'src/features/validation/utils';
-import { implementsAnyValidation } from 'src/layout';
+import { getComponentDef, implementsAnyValidation } from 'src/layout';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { FileUploaderNode } from 'src/features/attachments';
-import type { AttachmentValidation, NodeValidation, ValidationSeverity } from 'src/features/validation';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { AttachmentValidation, NodeRefValidation, ValidationSeverity } from 'src/features/validation';
 
 interface ValidationInspectorProps {
-  node: LayoutNode;
+  baseComponentId: string;
 }
 
 const categories = [
@@ -28,13 +27,16 @@ const categories = [
   { name: 'Standard backend', category: ValidationMask.Backend },
 ] as const;
 
-export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
-  const validations = NodesInternal.useRawValidations(node);
-  const nodeVisibility = NodesInternal.useRawValidationVisibility(node);
-  const { dataModelBindings, type } = useNodeItem(node);
-  const attachments = useAttachmentsFor(node as FileUploaderNode);
+export const ValidationInspector = ({ baseComponentId }: ValidationInspectorProps) => {
+  const indexedId = useIndexedId(baseComponentId);
+  const validations = NodesInternal.useRawValidations(indexedId);
+  const nodeVisibility = NodesInternal.useRawValidationVisibility(indexedId);
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId);
+  const type = useExternalItem(baseComponentId).type;
+  const attachments = useAttachmentsFor(baseComponentId);
 
-  if (!implementsAnyValidation(node.def)) {
+  const def = getComponentDef(type);
+  if (!implementsAnyValidation(def)) {
     return (
       <div style={{ padding: 4 }}>
         <b>{type}</b> implementerer ikke validering.
@@ -42,7 +44,8 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
     );
   }
 
-  const componentValidations: NodeValidation[] = validations.map((validation) => ({ ...validation, node })) ?? [];
+  const componentValidations: NodeRefValidation[] =
+    validations.map((validation) => ({ ...validation, nodeId: indexedId, baseComponentId })) ?? [];
 
   // Validations that are not bound to any data model field or attachment
   const unboundComponentValidations = componentValidations.filter(
@@ -51,7 +54,7 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
 
   // Validations for attachments
   const attachmentValidations: {
-    [key: string]: { attachmentVisibility: number; validations: NodeValidation<AttachmentValidation>[] };
+    [key: string]: { attachmentVisibility: number; validations: NodeRefValidation<AttachmentValidation>[] };
   } = componentValidations.reduce((obj, val) => {
     const attachmentValidation = 'attachmentId' in val ? val : undefined;
     if (attachmentValidation) {
@@ -68,12 +71,16 @@ export const ValidationInspector = ({ node }: ValidationInspectorProps) => {
   }, {});
 
   // Validations for data model bindings
-  const bindingValidations: { [key: string]: NodeValidation[] } = {};
+  const bindingValidations: { [key: string]: NodeRefValidation[] } = {};
   for (const bindingKey of Object.keys(dataModelBindings ?? {})) {
     const key = `Datamodell ${bindingKey}`;
 
     const validationsForKey = componentValidations.filter((v) => 'bindingKey' in v && v.bindingKey === bindingKey);
-    bindingValidations[key] = validationsForKey.map((validation) => ({ ...validation, node }));
+    bindingValidations[key] = validationsForKey.map((validation) => ({
+      ...validation,
+      nodeId: indexedId,
+      baseComponentId,
+    }));
   }
 
   return (
@@ -127,7 +134,7 @@ const CategoryVisibility = ({ mask }: { mask: number }) => (
 
 interface ValidationItemsProps {
   grouping: string;
-  validations: NodeValidation[];
+  validations: NodeRefValidation[];
   visibility: number;
 }
 const ValidationItems = ({ grouping, validations, visibility }: ValidationItemsProps) => {
@@ -141,7 +148,7 @@ const ValidationItems = ({ grouping, validations, visibility }: ValidationItemsP
       <ul style={{ padding: 0 }}>
         {validations.map((validation) => (
           <ValidationItem
-            key={`${validation.node.id}-${validation.source}-${validation.message.key}-${validation.severity}`}
+            key={`${validation.nodeId}-${validation.source}-${validation.message.key}-${validation.severity}`}
             validation={validation}
             visibility={visibility}
           />
@@ -152,7 +159,7 @@ const ValidationItems = ({ grouping, validations, visibility }: ValidationItemsP
 };
 
 interface ValidationItemProps {
-  validation: NodeValidation;
+  validation: NodeRefValidation;
   visibility: number;
 }
 const ValidationItem = ({ validation, visibility }: ValidationItemProps) => {

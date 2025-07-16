@@ -3,16 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { Button } from 'src/app-components/Button/Button';
 import { Lang } from 'src/features/language/Lang';
 import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
 type AwaitingOtherSignaturesPanelProps = {
-  node: LayoutNode<'SigningActions'>;
+  baseComponentId: string;
   hasSigned: boolean;
 };
 
-export function AwaitingOtherSignaturesPanel({ node, hasSigned }: AwaitingOtherSignaturesPanelProps) {
-  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
+export function AwaitingOtherSignaturesPanel({ baseComponentId, hasSigned }: AwaitingOtherSignaturesPanelProps) {
+  const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
   const [userTriedToSubmit, setUserTriedToSubmit] = useState<boolean>(false);
 
   useEffect(() => {
@@ -38,7 +37,7 @@ export function AwaitingOtherSignaturesPanel({ node, hasSigned }: AwaitingOtherS
 
   return (
     <SigningPanel
-      node={node}
+      baseComponentId={baseComponentId}
       variant={hasSigned ? 'success' : 'info'}
       heading={<Lang id={heading} />}
       description={<Lang id={hasSigned ? descriptionSigned : descriptionNotSigning} />}

@@ -5,17 +5,15 @@ import { Lang, LangAsParagraph } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Paragraph/ParagraphComponent.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IParagraphProps = PropsFromGenericComponent<'Paragraph'>;
-
-export function ParagraphComponent({ node }: IParagraphProps) {
-  const { id, textResourceBindings } = useNodeItem(node);
+export function ParagraphComponent({ baseComponentId }: PropsFromGenericComponent<'Paragraph'>) {
+  const { id, textResourceBindings } = useItemWhenType(baseComponentId, 'Paragraph');
   const { langAsString } = useLanguage();
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <div className={classes.paragraphWrapper}>
         <div
           id={id}

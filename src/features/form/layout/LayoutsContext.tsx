@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { skipToken, useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
@@ -13,7 +14,7 @@ import { applyLayoutQuirks } from 'src/features/form/layout/quirks';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useHasInstance } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
@@ -44,7 +45,7 @@ export function useLayoutQueryDef(
 
 function useLayoutQuery() {
   const hasInstance = useHasInstance();
-  const process = useLaxProcessData();
+  const { data: process } = useProcessQuery();
   const currentLayoutSetId = useLayoutSetId();
   const defaultDataModel = useCurrentDataModelName() ?? 'unknown';
 
@@ -66,7 +67,7 @@ function useLayoutQuery() {
       }
     : utils;
 }
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
   createQueryContext({
     name: 'LayoutsContext',
     required: true,
@@ -105,10 +106,21 @@ export function useDataTypeFromLayoutSet(layoutSetName: string | undefined) {
 
 const emptyLayouts: ILayouts = {};
 export const LayoutsProvider = Provider;
-export const useLayouts = (): ILayouts => useCtx()?.layouts ?? emptyLayouts;
+export const useLayouts = (): ILayouts => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? emptyLayouts : (ctx.layouts ?? emptyLayouts);
+};
 export const useLayoutLookups = () => useCtx().lookups;
+export const useLayoutLookupsLax = () => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? undefined : ctx.lookups;
+};
 
-export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
+const noExpressions: IHiddenLayoutsExternal = {};
+export const useHiddenLayoutsExpressions = () => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? noExpressions : ctx.hiddenLayoutsExpressions;
+};
 
 export const useExpandedWidthLayouts = () => useCtx().expandedWidthLayouts;
 
@@ -196,7 +208,7 @@ function addLikertItemToLayout(layouts: ILayouts) {
     for (const comp of page.values()) {
       if (comp.type === 'Likert') {
         const likertItem: CompExternal<'LikertItem'> = {
-          id: makeLikertChildId(comp.id, undefined),
+          id: makeLikertChildId(comp.id),
           type: 'LikertItem',
           textResourceBindings: {
             title: comp.textResourceBindings?.questions,

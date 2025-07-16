@@ -19,7 +19,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupComponent.module.css';
 import { validateOrganisationLookupResponse, validateOrgnr } from 'src/layout/OrganisationLookup/validation';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { httpGet } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 
@@ -65,11 +65,14 @@ async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null
 }
 
 export function OrganisationLookupComponent({
-  node,
+  baseComponentId,
   overrideDisplay,
 }: PropsFromGenericComponent<'OrganisationLookup'>) {
-  const { id, dataModelBindings, required } = useNodeItem(node);
-  const { labelText, getHelpTextComponent, getDescriptionComponent } = useLabel({ node, overrideDisplay });
+  const { id, dataModelBindings, required } = useItemWhenType(baseComponentId, 'OrganisationLookup');
+  const { labelText, getHelpTextComponent, getDescriptionComponent } = useLabel({
+    baseComponentId,
+    overrideDisplay,
+  });
   const [tempOrgNr, setTempOrgNr] = useState('');
   const [orgNrErrors, setOrgNrErrors] = useState<string[]>();
 
@@ -128,7 +131,7 @@ export function OrganisationLookupComponent({
       help={getHelpTextComponent()}
       size='sm'
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <div className={classes.componentWrapper}>
           <div className={classes.orgnrLabel}>
             <Label

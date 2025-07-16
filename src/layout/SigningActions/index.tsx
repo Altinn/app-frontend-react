@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { useTaskTypeFromBackend } from 'src/features/instance/ProcessContext';
+import { useTaskTypeFromBackend } from 'src/features/instance/useProcessQuery';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { SigningActionsDef } from 'src/layout/SigningActions/config.def.generated';
 import { SigningActionsComponent } from 'src/layout/SigningActions/SigningActionsComponent';
@@ -24,8 +24,8 @@ export class SigningActions extends SigningActionsDef {
 
     if (taskType !== ProcessTaskType.Signing) {
       const error = langAsString('signing.wrong_task_error', ['SigningActions']);
-      addError(error, _props.node);
-      window.logErrorOnce(`Validation error for '${_props.node.id}': ${error}`);
+      addError(error, _props.intermediateItem.id, 'node');
+      window.logErrorOnce(`Validation error for '${_props.intermediateItem.id}': ${error}`);
     }
 
     return null;

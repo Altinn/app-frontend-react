@@ -4,19 +4,18 @@ import type { JSX } from 'react';
 import { AddToListComponent } from 'src/layout/AddToList/AddToList';
 import { AddToListFeatureFlagLayoutValidator } from 'src/layout/AddToList/AddToListFeatureFlagLayoutValidator';
 import { AddToListDef } from 'src/layout/AddToList/config.def.generated';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { NodeValidationProps } from 'src/layout/layout';
+import type { IDataModelBindings, NodeValidationProps } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class AddToList extends AddToListDef {
-  validateDataModelBindings(_: LayoutValidationCtx<'AddToList'>): string[] {
+  useDataModelBindingValidation(_baseComponentId: string, _bindings: IDataModelBindings<'AddToList'>): string[] {
     return [];
   }
   renderLayoutValidators(props: NodeValidationProps<'AddToList'>): React.JSX.Element | null {
     return <AddToListFeatureFlagLayoutValidator {...props} />;
   }
-  renderSummary(_: SummaryRendererProps<'AddToList'>): JSX.Element | null {
+  renderSummary(_: SummaryRendererProps): JSX.Element | null {
     return <div>summary</div>; // TODO: Implment?
   }
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'AddToList'>>(

@@ -2,20 +2,18 @@ import React, { useRef } from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
 import { Dialog, Heading, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
-import { useIsMutating, useMutation } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
-import { useIsAuthorized } from 'src/features/instance/ProcessContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/SigningActions/SigningActions.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PanelProps } from 'src/app-components/Panel/Panel';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SigningPanelProps = {
-  node: LayoutNode<'SigningActions'>;
+  baseComponentId: string;
   heading: React.ReactElement;
   description?: React.ReactElement;
   variant?: PanelProps['variant'];
@@ -24,7 +22,7 @@ type SigningPanelProps = {
 };
 
 export function SigningPanel({
-  node,
+  baseComponentId,
   heading,
   description,
   variant = 'info',
@@ -53,7 +51,7 @@ export function SigningPanel({
         <div>
           <div className={classes.buttonContainer}>
             {actionButton}
-            {canReject && <RejectButton node={node} />}
+            {canReject && <RejectButton baseComponentId={baseComponentId} />}
           </div>
           {errorMessage && <ValidationMessage>{errorMessage}</ValidationMessage>}
         </div>
@@ -63,35 +61,18 @@ export function SigningPanel({
 }
 
 type RejectTextProps = {
-  node: LayoutNode<'SigningActions'>;
+  baseComponentId: string;
 };
 
-function RejectButton({ node }: RejectTextProps) {
+function RejectButton({ baseComponentId }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const rejectButtonRef = useRef<HTMLButtonElement>(null);
-  const processNext = useProcessNext();
-  const textResourceBindings = useNodeItem(node, (i) => i.textResourceBindings);
+  const { mutate: processReject, isPending: isRejecting } = useProcessNext({ action: 'reject' });
+  const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
   const modalTitle = textResourceBindings?.rejectModalTitle ?? 'signing.reject_modal_title';
   const modalDescription = textResourceBindings?.rejectModalDescription ?? 'signing.reject_modal_description';
   const modalButton = textResourceBindings?.rejectModalButton ?? 'signing.reject_modal_button';
   const modalTriggerButton = textResourceBindings?.rejectModalTriggerButton ?? 'signing.reject_modal_trigger_button';
-
-  const isAnyProcessing = useIsMutating() > 0;
-
-  const { mutate: handleReject, isPending: isRejecting } = useMutation({
-    mutationFn: async () => {
-      if (rejectButtonRef.current) {
-        rejectButtonRef.current.disabled = true;
-      }
-      await processNext({ action: 'reject' });
-    },
-    onSettled: () => {
-      if (rejectButtonRef.current) {
-        rejectButtonRef.current.disabled = false;
-      }
-    },
-  });
 
   return (
     <Dialog.TriggerContext>
@@ -121,11 +102,10 @@ function RejectButton({ node }: RejectTextProps) {
         <Dialog.Block>
           <Button
             color='danger'
-            disabled={isAnyProcessing}
+            disabled={isRejecting}
             size='md'
-            ref={rejectButtonRef}
             isLoading={isRejecting}
-            onClick={() => handleReject()}
+            onClick={() => processReject()}
           >
             <Lang id={modalButton} />
           </Button>

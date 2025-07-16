@@ -6,21 +6,21 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import classes from 'src/layout/Checkboxes/MultipleChoiceSummary.module.css';
-import { useNodeFormData, useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
+import { useFormDataFor } from 'src/utils/layout/useNodeItem';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 type Row = Record<string, string | number | boolean>;
 
-export interface IMultipleChoiceSummaryProps {
-  targetNode: LayoutNode<'Checkboxes' | 'MultipleSelect'>;
-}
-
-export function MultipleChoiceSummary({ targetNode }: IMultipleChoiceSummaryProps) {
-  const rawFormData = useNodeFormData(targetNode);
-  const { dataModelBindings } = useNodeItem(targetNode);
-  const options = useNodeOptions(targetNode).options;
+export function MultipleChoiceSummary({ targetBaseComponentId }: SummaryRendererProps) {
+  const rawFormData = useFormDataFor<'Checkboxes' | 'MultipleSelect'>(targetBaseComponentId);
+  const dataModelBindings = useDataModelBindingsFor<'Checkboxes' | 'MultipleSelect'>(
+    targetBaseComponentId,
+    (t) => t === 'Checkboxes' || t === 'MultipleSelect',
+  );
+  const options = useOptionsFor(targetBaseComponentId, 'multi').options;
   const { langAsString } = useLanguage();
 
   const relativeCheckedPath =

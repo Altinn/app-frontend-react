@@ -3,15 +3,14 @@ import React from 'react';
 import { Lang } from 'src/features/language/Lang';
 import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
 import { SubmitSigningButton } from 'src/layout/SigningActions/SubmitSigningButton';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
 type SubmitPanelProps = {
-  node: LayoutNode<'SigningActions'>;
+  baseComponentId: string;
 };
 
-export function SubmitPanel({ node }: SubmitPanelProps) {
-  const { textResourceBindings } = useNodeItem(node, (i) => ({ textResourceBindings: i.textResourceBindings }));
+export function SubmitPanel({ baseComponentId }: SubmitPanelProps) {
+  const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
   const titleReadyForSubmit = textResourceBindings?.submitPanelTitle ?? 'signing.submit_panel_title';
   const descriptionReadyForSubmit = textResourceBindings?.submitPanelDescription ?? 'signing.submit_panel_description';
@@ -19,7 +18,7 @@ export function SubmitPanel({ node }: SubmitPanelProps) {
 
   return (
     <SigningPanel
-      node={node}
+      baseComponentId={baseComponentId}
       variant='success'
       heading={<Lang id={titleReadyForSubmit} />}
       description={
@@ -33,7 +32,7 @@ export function SubmitPanel({ node }: SubmitPanelProps) {
           ]}
         />
       }
-      actionButton={<SubmitSigningButton node={node} />}
+      actionButton={<SubmitSigningButton baseComponentId={baseComponentId} />}
     />
   );
 }

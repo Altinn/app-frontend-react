@@ -7,7 +7,7 @@ import { Label, LabelInner } from 'src/components/label/Label';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
+import { useDataTypeFromLayoutSet, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useDoOverrideSummary } from 'src/layout/Subform/SubformWrapper';
@@ -22,16 +22,16 @@ import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryCompone
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
 import { useSummaryOverrides } from 'src/layout/Summary2/summaryStoreContext';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-const SummarySubformWrapperInner = ({ nodeId }: PropsWithChildren<{ nodeId: string }>) => {
-  const node = useNode(nodeId) as LayoutNode<'Subform'>;
-  const { layoutSet, id, textResourceBindings, entryDisplayName } = useNodeItem(node);
+const SummarySubformWrapperInner = ({
+  targetBaseComponentId,
+}: PropsWithChildren<{ targetBaseComponentId: string }>) => {
+  const { layoutSet, id, textResourceBindings, entryDisplayName } = useItemWhenType(targetBaseComponentId, 'Subform');
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictDataElements(dataType);
 
@@ -41,7 +41,7 @@ const SummarySubformWrapperInner = ({ nodeId }: PropsWithChildren<{ nodeId: stri
         <>
           <div className={classes.pageBreak} />
           <Label
-            node={node}
+            baseComponentId={targetBaseComponentId}
             id={`subform-summary2-${id}`}
             renderLabelAs='span'
             weight='regular'
@@ -61,7 +61,7 @@ const SummarySubformWrapperInner = ({ nodeId }: PropsWithChildren<{ nodeId: stri
           <DoSummaryWrapper
             dataElement={element}
             layoutSet={layoutSet}
-            node={node}
+            baseComponentId={targetBaseComponentId}
             entryDisplayName={entryDisplayName}
             title={textResourceBindings?.title}
           />
@@ -79,15 +79,15 @@ const DoSummaryWrapper = ({
   layoutSet,
   entryDisplayName,
   title,
-  node,
+  baseComponentId,
 }: React.PropsWithChildren<{
   dataElement: IData;
   layoutSet: string;
   entryDisplayName?: ExprValToActualOrExpr<ExprVal.String>;
   title: string | undefined;
-  node: LayoutNode<'Subform'>;
+  baseComponentId: string;
 }>) => {
-  const item = useNodeItem(node);
+  const item = useItemWhenType(baseComponentId, 'Subform');
   const isDone = useDoOverrideSummary(dataElement.id, layoutSet, dataElement.dataType);
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
@@ -99,12 +99,12 @@ const DoSummaryWrapper = ({
 
   const subformEntryName =
     entryDisplayName && !subformDataError
-      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, node.id)
+      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, baseComponentId)
       : null;
 
   return (
     <div className={classes.summaryWrapperMargin}>
-      <FormProvider>
+      <FormProvider readOnly={true}>
         <Flex
           container
           spacing={6}
@@ -114,7 +114,7 @@ const DoSummaryWrapper = ({
             <div className={classes_singlevaluesummary.labelValueWrapper}>
               <LabelInner
                 item={item}
-                nodeId={node.id}
+                baseComponentId={baseComponentId}
                 id={`subform-summary2-${dataElement.id}`}
                 renderLabelAs='span'
                 weight='regular'
@@ -139,43 +139,44 @@ const DoSummaryWrapper = ({
 };
 
 export function AllSubformSummaryComponent2() {
-  const allIds = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((data) => data.layout.type === 'Subform')
-      .map((data) => data.layout.id),
-  );
+  const lookups = useLayoutLookups();
+  const allIds = Object.values(lookups.topLevelComponents)
+    .flat()
+    .filter((id) => (id ? lookups.allComponents[id]?.type === 'Subform' : false))
+    .filter(typedBoolean);
 
   return (
     <>
       {allIds.map((childId, idx) => (
         <SummarySubformWrapper
           key={idx}
-          nodeId={childId}
+          targetBaseComponentId={childId}
         />
       ))}
     </>
   );
 }
 
-export function SubformSummaryComponent2({ target }: Summary2Props<'Subform'>) {
-  const displayType = useSummaryOverrides(target)?.display;
-  const layoutSet = useNodeItem(target, (i) => i.layoutSet);
+export function SubformSummaryComponent2({ targetBaseComponentId }: Summary2Props) {
+  const displayType = useSummaryOverrides<'Subform'>(targetBaseComponentId)?.display;
+  const { layoutSet } = useItemWhenType(targetBaseComponentId, 'Subform');
   const dataType = useDataTypeFromLayoutSet(layoutSet);
   const dataElements = useStrictDataElements(dataType);
   const minCount = useApplicationMetadata().dataTypes.find((dt) => dt.id === dataType)?.minCount;
   const hasElements = !!(dataType && dataElements.length > 0);
-  const required = useNodeItem(target, (i) => i.required) || (minCount !== undefined && minCount > 0);
+  const required =
+    useItemWhenType(targetBaseComponentId, 'Subform').required || (minCount !== undefined && minCount > 0);
 
   const inner =
-    displayType === 'table' && target ? (
-      <SubformSummaryTable targetNode={target} />
+    displayType === 'table' ? (
+      <SubformSummaryTable targetBaseComponentId={targetBaseComponentId} />
     ) : (
-      <SummarySubformWrapper nodeId={target.id} />
+      <SummarySubformWrapper targetBaseComponentId={targetBaseComponentId} />
     );
 
   return (
     <SummaryFlex
-      target={target}
+      targetBaseId={targetBaseComponentId}
       content={
         hasElements
           ? SummaryContains.SomeUserContent

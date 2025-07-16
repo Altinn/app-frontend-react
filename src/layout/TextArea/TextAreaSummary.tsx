@@ -7,21 +7,21 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export const TextAreaSummary = ({ target }: Summary2Props<'TextArea'>) => {
-  const emptyFieldText = useSummaryOverrides(target)?.emptyFieldText;
+export const TextAreaSummary = ({ targetBaseComponentId }: Summary2Props) => {
+  const emptyFieldText = useSummaryOverrides(targetBaseComponentId)?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
-  const displayData = useDisplayData(target);
-  const validations = useUnifiedValidationsForNode(target);
+  const displayData = useDisplayData(targetBaseComponentId);
+  const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
-  const required = useNodeItem(target, (i) => i.required);
+  const { textResourceBindings, required } = useItemWhenType(targetBaseComponentId, 'TextArea');
+  const title = textResourceBindings?.title;
 
   return (
     <SummaryFlex
-      target={target}
+      targetBaseId={targetBaseComponentId}
       content={
         displayData
           ? SummaryContains.SomeUserContent
@@ -34,7 +34,7 @@ export const TextAreaSummary = ({ target }: Summary2Props<'TextArea'>) => {
         title={title && <Lang id={title} />}
         displayData={displayData}
         errors={errors}
-        componentNode={target}
+        targetBaseComponentId={targetBaseComponentId}
         isCompact={isCompact}
         multiline
         emptyFieldText={emptyFieldText}

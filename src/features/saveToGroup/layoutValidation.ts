@@ -1,21 +1,32 @@
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
-import type { FormComponent } from 'src/layout/LayoutComponent';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import {
+  validateDataModelBindingsAny,
+  validateDataModelBindingsSimple,
+} from 'src/utils/layout/generator/validation/hooks';
+import type { IDataModelBindings } from 'src/layout/layout';
 
-export function validateSimpleBindingWithOptionalGroup<T extends 'Checkboxes' | 'MultipleSelect'>(
-  def: FormComponent<T>,
-  ctx: LayoutValidationCtx<T>,
+export function useValidateSimpleBindingWithOptionalGroup<T extends 'Checkboxes' | 'MultipleSelect'>(
+  baseComponentId: string,
+  bindings: IDataModelBindings<T>,
 ) {
   const errors: string[] = [];
   const allowedLeafTypes = ['string', 'boolean', 'number', 'integer'];
-  const dataModelBindings = ctx.item.dataModelBindings ?? {};
-  const groupBinding = dataModelBindings?.group;
-  const simpleBinding = dataModelBindings?.simpleBinding;
-  const labelBinding = dataModelBindings?.label;
-  const metadataBinding = dataModelBindings?.metadata;
+  const { group: groupBinding, simpleBinding, label: labelBinding, metadata: metadataBinding } = bindings ?? {};
+  const lookupBinding = DataModels.useLookupBinding();
+  const layoutLookups = useLayoutLookups();
 
   if (groupBinding) {
-    const [groupErrors] = def.validateDataModelBindingsAny(ctx, 'group', ['array'], false);
+    const [groupErrors] = validateDataModelBindingsAny(
+      baseComponentId,
+      bindings,
+      lookupBinding,
+      layoutLookups,
+      'group',
+      ['array'],
+      false,
+    );
     errors.push(...(groupErrors || []));
 
     if (!simpleBinding.field.startsWith(`${groupBinding.field}.`)) {
@@ -30,10 +41,11 @@ export function validateSimpleBindingWithOptionalGroup<T extends 'Checkboxes' | 
 
     const simpleBindingsWithoutGroup = simpleBinding.field.replace(`${groupBinding.field}.`, '');
     const fieldWithIndex = `${groupBinding.field}[0].${simpleBindingsWithoutGroup}`;
-    const [schema, err] = ctx.lookupBinding({
-      field: fieldWithIndex,
-      dataType: simpleBinding.dataType,
-    });
+    const [schema, err] =
+      lookupBinding?.({
+        field: fieldWithIndex,
+        dataType: simpleBinding.dataType,
+      }) ?? [];
 
     if (err) {
       errors.push(lookupErrorAsText(err));
@@ -41,7 +53,7 @@ export function validateSimpleBindingWithOptionalGroup<T extends 'Checkboxes' | 
       errors.push(`Field ${simpleBinding} in group must be one of types ${allowedLeafTypes.join(', ')}`);
     }
   } else {
-    const [newErrors] = def.validateDataModelBindingsSimple(ctx);
+    const [newErrors] = validateDataModelBindingsSimple(baseComponentId, bindings, lookupBinding, layoutLookups);
     errors.push(...(newErrors || []));
   }
 

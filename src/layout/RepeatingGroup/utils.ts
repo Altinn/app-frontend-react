@@ -3,15 +3,14 @@ import { useCallback, useMemo } from 'react';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
-import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
@@ -26,18 +25,18 @@ export interface RepGroupRowWithButtons extends RepGroupRow {
 
 export type RepGroupRowWithExpressions = RepGroupRow & GroupExpressions;
 
-const noRows: RepGroupRow[] = [];
+const noRows: never[] = [];
 
 interface EvalExprProps<T extends ExprVal> {
   expr: ExprValToActualOrExpr<T> | undefined;
   defaultValue?: ExprValToActual<T>;
   dataSources: ExpressionDataSources;
-  groupBinding: IDataModelReference;
+  groupBinding: IDataModelReference | undefined;
   rowIndex: number;
 }
 
 function evalString({ expr, defaultValue = '', dataSources, groupBinding, rowIndex }: EvalExprProps<ExprVal.String>) {
-  if (!ExprValidation.isValidOrScalar(expr, ExprVal.String)) {
+  if (!ExprValidation.isValidOrScalar(expr, ExprVal.String) || !groupBinding) {
     return defaultValue;
   }
 
@@ -49,7 +48,7 @@ function evalString({ expr, defaultValue = '', dataSources, groupBinding, rowInd
 }
 
 function evalBool({ expr, defaultValue = false, dataSources, groupBinding, rowIndex }: EvalExprProps<ExprVal.Boolean>) {
-  if (!ExprValidation.isValidOrScalar(expr, ExprVal.Boolean)) {
+  if (!ExprValidation.isValidOrScalar(expr, ExprVal.Boolean) || !groupBinding) {
     return defaultValue;
   }
 
@@ -61,36 +60,37 @@ function evalBool({ expr, defaultValue = false, dataSources, groupBinding, rowIn
 }
 
 export const RepGroupHooks = {
-  useAllBaseRows(node: LayoutNode<'RepeatingGroup'> | undefined) {
-    const groupBinding = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings.group);
+  useAllBaseRows(baseComponentId: string) {
+    const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
     return FD.useFreshRows(groupBinding);
   },
 
-  useAllRowsWithHidden(node: LayoutNode<'RepeatingGroup'> | undefined): RepGroupRow[] {
-    const groupBinding = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings.group);
-    const hiddenRow = NodesInternal.useNodeData(node, (d) => d.layout.hiddenRow);
-    const dataSources = useExpressionDataSources(hiddenRow);
-    const rows = RepGroupHooks.useAllBaseRows(node);
+  useAllRowsWithHidden(baseComponentId: string): RepGroupRow[] {
+    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
+    const dataSources = useExpressionDataSources(component?.hiddenRow);
+    const rows = RepGroupHooks.useAllBaseRows(baseComponentId);
 
     return useMemo(
       () =>
         (groupBinding &&
           rows.map((row) => ({
             ...row,
-            hidden: evalBool({ expr: hiddenRow, dataSources, groupBinding, rowIndex: row.index }),
+            hidden: evalBool({ expr: component?.hiddenRow, dataSources, groupBinding, rowIndex: row.index }),
           }))) ??
         noRows,
-      [rows, hiddenRow, dataSources, groupBinding],
+      [rows, component?.hiddenRow, dataSources, groupBinding],
     );
   },
 
-  useAllRowsWithButtons(node: LayoutNode<'RepeatingGroup'>): RepGroupRowWithButtons[] {
-    const groupBinding = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings.group);
-    const hiddenRow = NodesInternal.useNodeData(node, (d) => d.layout.hiddenRow);
-    const editButton = NodesInternal.useNodeData(node, (d) => d.layout.edit?.editButton);
-    const deleteButton = NodesInternal.useNodeData(node, (d) => d.layout.edit?.deleteButton);
+  useAllRowsWithButtons(baseComponentId: string): RepGroupRowWithButtons[] {
+    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
+    const hiddenRow = component?.hiddenRow;
+    const editButton = component?.edit?.editButton;
+    const deleteButton = component?.edit?.deleteButton;
     const dataSources = useExpressionDataSources({ hiddenRow, editButton, deleteButton });
-    const rows = RepGroupHooks.useAllBaseRows(node);
+    const rows = RepGroupHooks.useAllBaseRows(baseComponentId);
 
     return useMemo(
       () =>
@@ -109,11 +109,12 @@ export const RepGroupHooks = {
     );
   },
 
-  useGetFreshRowsWithButtons(node: LayoutNode<'RepeatingGroup'>): () => RepGroupRowWithButtons[] {
-    const groupBinding = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings.group);
-    const hiddenRow = NodesInternal.useNodeData(node, (d) => d.layout.hiddenRow);
-    const editButton = NodesInternal.useNodeData(node, (d) => d.layout.edit?.editButton);
-    const deleteButton = NodesInternal.useNodeData(node, (d) => d.layout.edit?.deleteButton);
+  useGetFreshRowsWithButtons(baseComponentId: string): () => RepGroupRowWithButtons[] {
+    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
+    const hiddenRow = component?.hiddenRow;
+    const editButton = component?.edit?.editButton;
+    const deleteButton = component?.edit?.deleteButton;
     const dataSources = useExpressionDataSources({ hiddenRow, editButton, deleteButton });
     const getFreshRows = FD.useGetFreshRows();
 
@@ -132,15 +133,16 @@ export const RepGroupHooks = {
   },
 
   useRowWithExpressions(
-    node: LayoutNode<'RepeatingGroup'> | undefined,
+    baseComponentId: string,
     _row: 'first' | { uuid: string } | { index: number },
   ): RepGroupRowWithExpressions | undefined {
-    const groupBinding = NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings.group);
-    const hiddenRow = NodesInternal.useNodeData(node, (d) => d.layout.hiddenRow);
-    const edit = NodesInternal.useNodeData(node, (d) => d.layout.edit);
-    const trb = NodesInternal.useNodeData(node, (d) => d.layout.textResourceBindings);
+    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
+    const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
+    const hiddenRow = component?.hiddenRow;
+    const edit = component?.edit;
+    const trb = component?.textResourceBindings;
     const dataSources = useExpressionDataSources({ hiddenRow, edit, trb });
-    const rows = RepGroupHooks.useAllBaseRows(node);
+    const rows = RepGroupHooks.useAllBaseRows(baseComponentId);
     const row = _row === 'first' ? rows[0] : 'uuid' in _row ? rows.find((r) => r.uuid === _row.uuid) : rows[_row.index];
 
     return useMemo(() => {
@@ -172,39 +174,57 @@ export const RepGroupHooks = {
     }, [groupBinding, row, dataSources, hiddenRow, trb, edit]);
   },
 
-  useVisibleRows(node: LayoutNode<'RepeatingGroup'>) {
-    const withHidden = RepGroupHooks.useAllRowsWithHidden(node);
+  useVisibleRows(baseComponentId: string) {
+    const withHidden = RepGroupHooks.useAllRowsWithHidden(baseComponentId);
     return withHidden.filter((row) => !row.hidden);
   },
 
-  useLastMultiPageIndex(node: LayoutNode<'RepeatingGroup'>) {
-    const component = useLayoutLookups().getComponent(node.baseId, 'RepeatingGroup');
-    if (!component.edit?.multiPage) {
-      return undefined;
-    }
-
-    let lastMultiPageIndex = 0;
-    for (const id of component.children) {
-      const [multiPageIndex] = id.split(':', 2);
-      lastMultiPageIndex = Math.max(lastMultiPageIndex, parseInt(multiPageIndex));
-    }
-
-    return lastMultiPageIndex;
-  },
-
-  useChildIds(node: LayoutNode<'RepeatingGroup'> | undefined) {
-    const component = useLayoutLookups().getComponent(node?.baseId, 'RepeatingGroup');
-    const idMutator = useComponentIdMutator();
+  useChildIds(baseComponentId: string) {
+    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
     if (!component?.edit?.multiPage) {
-      return component?.children.map(idMutator) ?? [];
+      return component?.children ?? [];
     }
 
     const childIds: string[] = [];
     for (const id of component.children) {
       const [_, baseId] = id.split(':', 2);
-      childIds.push(idMutator(baseId));
+      childIds.push(baseId);
     }
 
     return childIds;
+  },
+
+  useChildIdsWithMultiPage(
+    baseComponentId: string,
+  ): { baseId: string; indexedId: string; multiPageIndex: number | undefined }[] {
+    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
+    const idMutator = useComponentIdMutator();
+    if (!component?.edit?.multiPage) {
+      return (
+        component?.children.map((baseId) => ({ baseId, indexedId: idMutator(baseId), multiPageIndex: undefined })) ?? []
+      );
+    }
+
+    const children: { baseId: string; indexedId: string; multiPageIndex: number | undefined }[] = [];
+    for (const id of component.children) {
+      const [multiPageIndex, baseId] = id.split(':', 2);
+      children.push({ baseId, indexedId: idMutator(baseId), multiPageIndex: parseInt(multiPageIndex) });
+    }
+
+    return children;
+  },
+
+  useChildIdsWithMultiPageAndHidden(
+    baseComponentId: string,
+  ): { baseId: string; indexedId: string; multiPageIndex: number | undefined; hidden: boolean }[] {
+    const withMultiPage = RepGroupHooks.useChildIdsWithMultiPage(baseComponentId);
+    const hidden = useIsHiddenMulti(withMultiPage.map(({ baseId }) => baseId));
+
+    return withMultiPage.map(({ baseId, indexedId, multiPageIndex }) => ({
+      baseId,
+      indexedId,
+      multiPageIndex,
+      hidden: hidden[baseId] ?? false,
+    }));
   },
 };

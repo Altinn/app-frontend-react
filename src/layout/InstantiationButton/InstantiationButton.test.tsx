@@ -7,6 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -32,6 +33,7 @@ const render = async () => {
       <MemoryRouter
         basename='/ttd/test'
         initialEntries={['/ttd/test']}
+        future={{ v7_relativeSplatPath: true, v7_startTransition: true }}
       >
         <Routes>
           <Route
@@ -45,7 +47,11 @@ const render = async () => {
         </Routes>
       </MemoryRouter>
     ),
-    renderer: (props) => <InstantiationButtonComponent {...props} />,
+    renderer: (props) => (
+      <FormProvider>
+        <InstantiationButtonComponent {...props} />
+      </FormProvider>
+    ),
   });
 };
 

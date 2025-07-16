@@ -4,11 +4,7 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { TypesFromCategory } from 'src/layout/layout';
-import type {
-  DefPluginChildClaimerProps,
-  DefPluginState,
-  NodeDefChildrenPlugin,
-} from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { DefPluginChildClaimerProps, NodeDefChildrenPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config<
   Type extends TypesFromCategory<CompCategory.Container>,
@@ -120,9 +116,5 @@ export class NonRepeatingChildrenPlugin<E extends ExternalConfig>
       }
       claimChild(id);
     }
-  }
-
-  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string): boolean {
-    return false;
   }
 }

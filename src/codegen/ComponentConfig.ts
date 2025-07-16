@@ -375,19 +375,14 @@ export class ComponentConfig {
       from: 'src/utils/layout/generator/NodeGenerator',
     });
 
-    const NodeData = new CG.import({
-      import: 'NodeData',
-      from: 'src/utils/layout/types',
-    });
-
-    const NodesContext = new CG.import({
-      import: 'NodesContext',
-      from: 'src/utils/layout/NodesContext',
-    });
-
     const DisplayData = new CG.import({
       import: 'DisplayData',
       from: 'src/features/displayData/index',
+    });
+
+    const IDataModelBindings = new CG.import({
+      import: 'IDataModelBindings',
+      from: 'src/layout/layout',
     });
 
     const isFormComponent = this.config.category === CompCategory.Form;
@@ -443,13 +438,9 @@ export class ComponentConfig {
     }
 
     if (this.hasDataModelBindings()) {
-      const LayoutValidationCtx = new CG.import({
-        import: 'LayoutValidationCtx',
-        from: 'src/features/devtools/layoutValidation/types',
-      });
       additionalMethods.push(
         `// You must implement this because the component has data model bindings defined
-        abstract validateDataModelBindings(ctx: ${LayoutValidationCtx}<'${this.type}'>): string[];`,
+        abstract useDataModelBindingValidation(baseComponentId: string, bindings: ${IDataModelBindings}<'${this.type}'>): string[];`,
       );
     }
 
@@ -460,38 +451,19 @@ export class ComponentConfig {
     ) {
       additionalMethods.push(
         `// This component has data model bindings, so it should be able to produce a display string
-        abstract useDisplayData(nodeId: string): string;`,
+        abstract useDisplayData(baseComponentId: string): string;`,
       );
       implementsInterfaces.push(`${DisplayData}`);
     }
 
-    const readyCheckers: string[] = [];
     for (const plugin of this.plugins) {
       const extraMethodsFromPlugin = plugin.extraMethodsInDef();
       additionalMethods.push(...extraMethodsFromPlugin);
-
-      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState)`);
-    }
-
-    if (readyCheckers.length === 0) {
-      additionalMethods.push(
-        `// No plugins in this component
-        pluginStateIsReady(_state: ${NodeData}<'${this.type}'>): boolean {
-          return true;
-        }`,
-      );
-    } else {
-      additionalMethods.push(
-        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>, fullState: ${NodesContext}): boolean {
-          return ${readyCheckers.join(' && ')};
-        }`,
-      );
     }
 
     const childrenPlugins = this.plugins.filter((plugin) => isNodeDefChildrenPlugin(plugin));
     if (childrenPlugins.length > 0) {
       const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
-      const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
 
       const claimChildrenBody = childrenPlugins.map((plugin) =>
         `${pluginRef(plugin)}.claimChildren({
@@ -500,16 +472,9 @@ export class ComponentConfig {
          });`.trim(),
       );
 
-      const isChildHiddenBody = childrenPlugins.map(
-        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childId)`,
-      );
-
       additionalMethods.push(
         `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
           ${claimChildrenBody.join('\n')}
-        }`,
-        `isChildHidden(state: ${NodeData}<'${this.type}'>, childId: string) {
-          return [${isChildHiddenBody.join(', ')}].some((h) => h);
         }`,
       );
     }
@@ -532,14 +497,16 @@ export class ComponentConfig {
       stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
         const baseState: ${BaseNodeData}<'${this.type}'> = {
           type: 'node',
+          id: props.id,
+          baseId: props.baseId,
+          nodeType: '${this.type}',
           pageKey: props.pageKey,
           parentId: props.parentId,
           depth: props.depth,
           isValid: props.isValid,
-          layout: props.item,
-          hidden: undefined,
           rowIndex: props.rowIndex,
           errors: undefined,
+          dataModelBindings: props.dataModelBindings,
         };
 
         return { ...baseState, ${pluginStateFactories} };

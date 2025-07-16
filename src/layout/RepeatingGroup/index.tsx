@@ -3,6 +3,8 @@ import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FrontendValidationSource } from 'src/features/validation';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
@@ -12,21 +14,19 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeData } from 'src/utils/layout/types';
 
-export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
+export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
     function LayoutComponentRepeatingGroupRender(props, ref): JSX.Element | null {
       return (
-        <RepeatingGroupProvider node={props.node}>
+        <RepeatingGroupProvider baseComponentId={props.baseComponentId}>
           <RepeatingGroupsFocusProvider>
             <RepeatingGroupContainer ref={ref} />
           </RepeatingGroupsFocusProvider>
@@ -49,13 +49,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     } as RepGroupInternal;
   }
 
-  renderSummary(props: SummaryRendererProps<'RepeatingGroup'>): JSX.Element | null {
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
     return <SummaryRepeatingGroup {...props} />;
   }
 
-  renderSummary2(props: Summary2Props<'RepeatingGroup'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return (
-      <RepeatingGroupProvider node={props.target}>
+      <RepeatingGroupProvider baseComponentId={props.targetBaseComponentId}>
         <EmptyChildrenBoundary>
           <RepeatingGroupSummary {...props} />
         </EmptyChildrenBoundary>
@@ -67,8 +67,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return false;
   }
 
-  useComponentValidation(node: LayoutNode<'RepeatingGroup'>): ComponentValidation[] {
-    return useValidateRepGroupMinCount(node);
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateRepGroupMinCount(baseComponentId);
   }
 
   /**
@@ -80,8 +80,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     );
   }
 
-  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
-    const component = layoutLookups.getComponent(node.baseId, 'RepeatingGroup');
+  getValidationFilters(baseComponentId: string, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
+    const component = layoutLookups.getComponent(baseComponentId, 'RepeatingGroup');
     if (component.minCount && component.minCount > 0) {
       return [this.schemaMinItemsFilter];
     }
@@ -92,8 +92,17 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return true;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'RepeatingGroup'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'group', ['array']);
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'RepeatingGroup'>): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    const layoutLookups = useLayoutLookups();
+    const [errors, result] = validateDataModelBindingsAny(
+      baseComponentId,
+      bindings,
+      lookupBinding,
+      layoutLookups,
+      'group',
+      ['array'],
+    );
     if (errors) {
       return errors;
     }
@@ -108,15 +117,10 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return [];
   }
 
-  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string): boolean {
-    const hiddenByPlugins = super.isChildHidden(state, childId);
-    if (hiddenByPlugins) {
-      return true;
-    }
-
-    const { baseComponentId } = splitDashedKey(childId);
-    const tableColSetup = state.layout?.tableColumns?.[baseComponentId];
-    const mode = state.layout?.edit?.mode;
+  isChildHidden(parentBaseId: string, childBaseId: string, lookups: LayoutLookups): boolean {
+    const layout = lookups.getComponent(parentBaseId, 'RepeatingGroup');
+    const tableColSetup = layout.tableColumns?.[childBaseId];
+    const mode = layout.edit?.mode;
 
     // This specific configuration hides the component fully, without having set hidden=true on the component itself.
     // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,

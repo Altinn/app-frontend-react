@@ -3,22 +3,21 @@ import { toast } from 'react-toastify';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useDisplayError } from 'src/core/errorHandling/DisplayErrorProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
 import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instance/InstanceContext';
-import { useReFetchProcessData } from 'src/features/instance/ProcessContext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useUpdateInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { appSupportsIncrementalValidationFeatures } from 'src/features/validation/backendValidation/backendValidationUtils';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
 import { Validation } from 'src/features/validation/validationContext';
-import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
+import { doProcessNext } from 'src/queries/queries';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
@@ -29,11 +28,10 @@ interface ProcessNextProps {
   action?: IActionType;
 }
 
-export function useProcessNext() {
-  const { doProcessNext } = useAppMutations();
+export function useProcessNext({ action }: ProcessNextProps = {}) {
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
-  const refetchProcessData = useReFetchProcessData();
+  const { refetch: refetchProcessData } = useProcessQuery();
   const navigateToTask = useNavigateToTask();
   const instanceId = useLaxInstanceId();
   const onFormSubmitValidation = useOnFormSubmitValidation();
@@ -45,11 +43,21 @@ export function useProcessNext() {
   const queryClient = useQueryClient();
   const hasPendingScans = useHasPendingScans();
 
-  const { mutateAsync } = useMutation({
-    mutationFn: async ({ action }: ProcessNextProps = {}) => {
-      if (!instanceId) {
-        throw new Error('Missing instance ID, cannot perform process/next');
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (hasPendingScans) {
+        await reFetchInstanceData();
       }
+
+      const hasErrors = await onFormSubmitValidation();
+      if (hasErrors) {
+        return [null, null];
+      }
+
+      if (!instanceId) {
+        throw new Error('Missing instance ID. Cannot perform process/next.');
+      }
+
       return doProcessNext(instanceId, language, action)
         .then((process) => [process as IProcess, null] as const)
         .catch((error) => {
@@ -91,17 +99,7 @@ export function useProcessNext() {
     },
   });
 
-  return useEffectEvent(async (props?: ProcessNextProps) => {
-    if (hasPendingScans) {
-      await reFetchInstanceData();
-    }
-
-    const hasErrors = await onFormSubmitValidation();
-    if (hasErrors) {
-      return;
-    }
-    await mutateAsync(props ?? {}).catch(() => {});
-  });
+  return mutation;
 }
 
 function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {

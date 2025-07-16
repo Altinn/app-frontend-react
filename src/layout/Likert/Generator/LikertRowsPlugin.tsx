@@ -3,11 +3,7 @@ import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId
 import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { IDataModelBindingsLikert } from 'src/layout/common.generated';
-import type {
-  DefPluginChildClaimerProps,
-  DefPluginState,
-  NodeDefChildrenPlugin,
-} from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { DefPluginChildClaimerProps, NodeDefChildrenPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface Config {
   componentType: 'Likert';
@@ -47,10 +43,6 @@ export class LikertRowsPlugin extends NodeDefPlugin<Config> implements NodeDefCh
   }
 
   claimChildren(props: DefPluginChildClaimerProps<Config>) {
-    props.claimChild(makeLikertChildId(props.item.id, undefined));
-  }
-
-  isChildHidden(_state: DefPluginState<Config>, _childId: string): boolean {
-    return false;
+    props.claimChild(makeLikertChildId(props.item.id));
   }
 }

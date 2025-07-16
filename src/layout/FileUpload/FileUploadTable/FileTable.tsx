@@ -8,14 +8,13 @@ import { FileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRow
 import { FileTableRowProvider } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 import { EditWindowComponent } from 'src/layout/FileUploadWithTag/EditWindowComponent';
 import { atLeastOneTagExists } from 'src/utils/formComponentUtils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
-import type { PropsFromGenericComponent } from 'src/layout';
 import type { FileTableRowContext } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
 
 export interface FileTableProps {
-  node: PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>['node'];
+  baseComponentId: string;
   attachments: IAttachment[];
   mobileView: boolean;
   options?: IOptionInternal[];
@@ -26,12 +25,15 @@ export interface FileTableProps {
 export function FileTable({
   attachments,
   mobileView,
-  node,
+  baseComponentId,
   options,
   isSummary,
   isFetching,
 }: FileTableProps): React.JSX.Element | null {
-  const { textResourceBindings, type, readOnly } = useNodeItem(node);
+  const { textResourceBindings, type, readOnly } = useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
+    baseComponentId,
+    (t) => t === 'FileUpload' || t === 'FileUploadWithTag',
+  );
   const hasTag = type === 'FileUploadWithTag';
   const pdfModeActive = usePdfModeActive();
   const [editIndex, setEditIndex] = React.useState<number>(-1);
@@ -109,7 +111,7 @@ export function FileTable({
               key={`altinn-file-list-row-${isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId}`}
             >
               <FileTableRow
-                node={node}
+                baseComponentId={baseComponentId}
                 attachment={attachment}
                 mobileView={mobileView}
                 tagLabel={label(attachment)}
@@ -127,7 +129,7 @@ export function FileTable({
                   colSpan={!mobileView ? 5 : 3}
                 >
                   <EditWindowComponent
-                    node={node as PropsFromGenericComponent<'FileUploadWithTag'>['node']}
+                    baseComponentId={baseComponentId}
                     attachment={attachment}
                     mobileView={mobileView}
                     options={options}

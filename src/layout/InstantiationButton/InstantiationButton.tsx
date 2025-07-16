@@ -5,8 +5,9 @@ import { ErrorListFromInstantiation, ErrorReport } from 'src/components/message/
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
+import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 
 type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
@@ -25,7 +26,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
     >
       <Button
         {...props}
-        id={props.node.id}
+        id={useIndexedId(props.baseComponentId)}
         onClick={() =>
           performProcess(() =>
             instantiation.instantiateWithPrefill(

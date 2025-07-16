@@ -14,7 +14,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type {
@@ -55,8 +55,6 @@ function getVariantWithFormat(
   }
   return { type: 'text' };
 }
-
-export type IInputProps = PropsFromGenericComponent<'Input'>;
 
 function getMobileKeyboardProps(
   variant: Variant,
@@ -102,7 +100,10 @@ function getMobileKeyboardProps(
   return { inputMode: 'text', pattern: undefined };
 }
 
-export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node' | 'overrideDisplay'>) => {
+export const InputVariant = ({
+  baseComponentId,
+  overrideDisplay,
+}: Pick<PropsFromGenericComponent<'Input'>, 'baseComponentId' | 'overrideDisplay'>) => {
   const {
     id,
     readOnly,
@@ -114,7 +115,7 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     saveWhileTyping,
     autocomplete,
     maxLength,
-  } = useNodeItem(node);
+  } = useItemWhenType(baseComponentId, 'Input');
   const {
     formData: { simpleBinding: realFormValue },
     setValue,
@@ -126,6 +127,7 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
   const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
   const { inputMode, pattern } = getMobileKeyboardProps(variant, autocomplete);
+  const debounce = FD.useDebounceImmediately();
 
   const inputProps: InputProps = {
     id,
@@ -137,8 +139,8 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     readOnly,
     textonly: overrideDisplay?.rowReadOnly && readOnly,
     required,
-    onBlur: FD.useDebounceImmediately(),
-    error: !useIsValid(node),
+    onBlur: () => debounce('blur'),
+    error: !useIsValid(baseComponentId),
     prefix: textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined,
     suffix: textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined,
     style: { width: '100%' },
@@ -234,11 +236,14 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
   }
 };
 
-export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
-  const { grid, id, required } = useNodeItem(node);
+export const InputComponent: React.FunctionComponent<PropsFromGenericComponent<'Input'>> = ({
+  baseComponentId,
+  overrideDisplay,
+}) => {
+  const { grid, id, required } = useItemWhenType(baseComponentId, 'Input');
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId, overrideDisplay });
 
   return (
     <Label
@@ -251,9 +256,9 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
       help={getHelpTextComponent()}
       description={getDescriptionComponent()}
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <InputVariant
-          node={node}
+          baseComponentId={baseComponentId}
           overrideDisplay={overrideDisplay}
         />
       </ComponentStructureWrapper>

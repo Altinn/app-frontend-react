@@ -4,11 +4,7 @@ import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { GridRows } from 'src/layout/common.generated';
 import type { CompTypes, TypesFromCategory } from 'src/layout/layout';
-import type {
-  DefPluginChildClaimerProps,
-  DefPluginState,
-  NodeDefChildrenPlugin,
-} from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { DefPluginChildClaimerProps, NodeDefChildrenPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 
 interface ExternalConfig {
   componentType?: TypesFromCategory<CompCategory.Container>;
@@ -117,11 +113,5 @@ export class GridRowsPlugin<E extends ExternalConfig>
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
     return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
-  }
-
-  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string): boolean {
-    // There are no specific rules for hiding components in a Grid (yet). This should be implemented if we
-    // add support for hiding a row or a cell (which should also hide the component inside)
-    return false;
   }
 }

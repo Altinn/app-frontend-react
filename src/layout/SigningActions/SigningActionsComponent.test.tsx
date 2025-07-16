@@ -6,7 +6,7 @@ import { screen } from '@testing-library/dom';
 import { render } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 
-import { useIsAuthorized } from 'src/features/instance/ProcessContext';
+import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useProfile } from 'src/features/profile/ProfileProvider';
@@ -19,7 +19,6 @@ import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
 import { SubmitPanel } from 'src/layout/SigningActions/PanelSubmit';
 import { SigningActionsComponent } from 'src/layout/SigningActions/SigningActionsComponent';
 import { CurrentUserStatus, getCurrentUserStatus } from 'src/layout/SigningActions/utils';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 jest.mock('src/utils/layout/useNodeItem');
 jest.mock('react-router-dom');
@@ -28,7 +27,7 @@ jest.mock('src/core/contexts/AppQueriesProvider');
 jest.mock('src/features/profile/ProfileProvider');
 jest.mock('src/features/language/useLanguage');
 jest.mock('src/features/language/Lang');
-jest.mock('src/features/instance/ProcessContext');
+jest.mock('src/features/instance/useProcessQuery');
 jest.mock('src/features/validation/backendValidation/backendValidationQuery');
 jest.mock('src/layout/SigneeList/api');
 jest.mock('src/layout/SigningActions/api');
@@ -148,7 +147,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -165,7 +164,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -183,7 +182,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -201,7 +200,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -219,7 +218,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -234,7 +233,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -249,7 +248,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -268,7 +267,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -287,7 +286,7 @@ describe('SigningActionsComponent', () => {
 
     render(
       <SigningActionsComponent
-        node={{} as LayoutNode<'SigningActions'>}
+        baseComponentId='whatever'
         containerDivRef={React.createRef()}
       />,
     );
@@ -308,7 +307,7 @@ describe('SigningActionsComponent', () => {
 
       render(
         <SigningActionsComponent
-          node={{} as LayoutNode<'SigningActions'>}
+          baseComponentId='whatever'
           containerDivRef={React.createRef()}
         />,
       );

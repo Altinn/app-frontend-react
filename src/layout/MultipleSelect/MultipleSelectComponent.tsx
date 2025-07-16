@@ -15,16 +15,23 @@ import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
-export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSelectProps) {
-  const item = useNodeItem(node);
-  const isValid = useIsValid(node);
+export function MultipleSelectComponent({
+  baseComponentId,
+  overrideDisplay,
+}: PropsFromGenericComponent<'MultipleSelect'>) {
+  const item = useItemWhenType(baseComponentId, 'MultipleSelect');
+  const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required, dataModelBindings } = item;
-  const { options, isFetching, selectedValues: selectedFromSimpleBinding, setData } = useGetOptions(node, 'multi');
+  const {
+    options,
+    isFetching,
+    selectedValues: selectedFromSimpleBinding,
+    setData,
+  } = useGetOptions(baseComponentId, 'multi');
   const groupBinding = useSaveValueToGroup(dataModelBindings);
   const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
 
@@ -32,7 +39,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
   const { langAsString, lang } = useLanguage();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId, overrideDisplay });
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {
@@ -89,7 +96,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
         help={getHelpTextComponent()}
         description={getDescriptionComponent()}
       >
-        <ComponentStructureWrapper node={node}>
+        <ComponentStructureWrapper baseComponentId={baseComponentId}>
           {alertOnChange && (
             <DeleteWarningPopover
               onPopoverDeleteClick={confirmChange}
@@ -109,7 +116,7 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
             data-size='sm'
             selected={formatSelectedValues(selectedValues, options)}
             onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
-            onBlur={debounce}
+            onBlur={() => debounce}
           >
             <EXPERIMENTAL_Suggestion.Input
               aria-invalid={!isValid}

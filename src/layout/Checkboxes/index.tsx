@@ -5,23 +5,21 @@ import dot from 'dot-object';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
-import { validateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
+import { useValidateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
 import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToGroupLayoutValidator';
 import { useValidateGroupIsEmpty } from 'src/features/saveToGroup/useValidateGroupIsEmpty';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { NodeValidationProps } from 'src/layout/layout';
+import type { IDataModelBindings, NodeValidationProps } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Row = Record<string, string | number | boolean>;
 
@@ -32,13 +30,12 @@ export class Checkboxes extends CheckboxesDef {
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const node = useNode(nodeId) as LayoutNode<'Checkboxes'> | undefined;
-    const formData = useNodeFormDataWhenType(nodeId, 'Checkboxes');
-    const options = useNodeOptions(nodeId).options;
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'Checkboxes');
+    const options = useOptionsFor(baseComponentId, 'multi').options;
     const langAsString = useLanguage().langAsString;
 
-    const dataModelBindings = NodesInternal.useNodeData(node, (data) => data.layout.dataModelBindings);
+    const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'Checkboxes');
 
     const relativeCheckedPath =
       dataModelBindings?.checked && dataModelBindings?.group
@@ -68,23 +65,23 @@ export class Checkboxes extends CheckboxesDef {
     };
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
-    return <MultipleChoiceSummary targetNode={targetNode} />;
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
+    return <MultipleChoiceSummary {...props} />;
   }
 
-  renderSummary2(props: Summary2Props<'Checkboxes'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return <CheckboxesSummary {...props} />;
   }
 
-  useEmptyFieldValidation(node: LayoutNode<'Checkboxes'>): ComponentValidation[] {
-    return useValidateGroupIsEmpty(node);
+  useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateGroupIsEmpty(baseComponentId, 'Checkboxes');
   }
 
   renderLayoutValidators(props: NodeValidationProps<'Checkboxes'>): JSX.Element | null {
     return <ObjectToGroupLayoutValidator {...props} />;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Checkboxes'>): string[] {
-    return validateSimpleBindingWithOptionalGroup(this, ctx);
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'Checkboxes'>): string[] {
+    return useValidateSimpleBindingWithOptionalGroup(baseComponentId, bindings);
   }
 }

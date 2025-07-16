@@ -9,6 +9,7 @@ import { DummyPresentation } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
@@ -17,14 +18,16 @@ import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { AllSubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
-import { isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useItemIfType } from 'src/utils/layout/useNodeItem';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompTypes } from 'src/layout/layout';
 import type { NodeData } from 'src/utils/layout/types';
@@ -112,11 +115,7 @@ function PlainPage({ pageKey }: { pageKey: string }) {
   const pageExists = NodesInternal.useSelector((state) =>
     Object.values(state.pagesData.pages).some((data) => data.pageKey === pageKey),
   );
-  const children = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((data) => data.pageKey === pageKey && data.parentId === undefined) // Find top-level nodes
-      .map((data) => data.layout.id),
-  );
+  const children = useLayoutLookups().topLevelComponents[pageKey] ?? [];
 
   if (!pageExists) {
     const message = `Error using: "pdfLayoutName": ${JSON.stringify(pageKey)}, could not find a layout with that name.`;
@@ -131,10 +130,10 @@ function PlainPage({ pageKey }: { pageKey: string }) {
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((nodeId) => (
-          <GenericComponentById
-            key={nodeId}
-            id={nodeId}
+        {children.map((baseId) => (
+          <GenericComponent
+            key={baseId}
+            baseComponentId={baseId}
           />
         ))}
       </Flex>
@@ -143,23 +142,22 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 }
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
+  const lookups = useLayoutLookups();
   const children = NodesInternal.useShallowSelector((state) =>
     Object.values(state.nodeData)
       .filter(
         (data) =>
           data.pageKey === pageKey &&
           data.parentId === undefined &&
-          data.layout.type !== 'Subform' &&
-          !isHidden(state, 'node', data.layout.id) &&
-          !pdfSettings?.excludedComponents.includes(data.layout.id),
+          data.nodeType !== 'Subform' &&
+          !pdfSettings?.excludedComponents.includes(data.id),
       )
-      .filter(<T extends CompTypes>(data: NodeData<T>) => {
-        const def = getComponentDef(data.layout.type);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        return def.shouldRenderInAutomaticPDF(data as any);
-      })
-      .map((data) => data.layout.id),
+      .filter(<T extends CompTypes>(data: NodeData<T>) =>
+        getComponentDef(data.nodeType).shouldRenderInAutomaticPDF(lookups.getComponent(data.baseId) as never),
+      )
+      .map((data) => data.id),
   );
+  const hidden = useIsHiddenMulti(children);
 
   return (
     <div className={classes.page}>
@@ -168,40 +166,41 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((nodeId) => (
-          <PdfForNode
-            key={nodeId}
-            nodeId={nodeId}
-          />
-        ))}
+        {children.map((baseComponentId) => {
+          if (hidden[baseComponentId]) {
+            return null;
+          }
+
+          return (
+            <PdfForNode
+              key={baseComponentId}
+              baseComponentId={baseComponentId}
+            />
+          );
+        })}
       </Flex>
     </div>
   );
 }
 
-function PdfForNode({ nodeId }: { nodeId: string }) {
-  const node = useNode(nodeId);
-  const target = useNodeItem(node, (i) => (i.type === 'Summary2' ? i.target : undefined));
+function PdfForNode({ baseComponentId }: { baseComponentId: string }) {
+  const component = useExternalItem(baseComponentId);
+  const item = useItemIfType(baseComponentId, 'Summary2');
 
-  if (node.isType('Summary2') && target?.taskId) {
-    return (
-      <SummaryComponent2
-        key={node.id}
-        summaryNode={node}
-      />
-    );
+  if (item?.target?.taskId) {
+    return <SummaryComponent2 baseComponentId={baseComponentId} />;
   }
 
   const betaEnabled = getFeature('betaPDFenabled');
   if (betaEnabled.value) {
-    return <ComponentSummary target={node} />;
+    return <ComponentSummary targetBaseComponentId={baseComponentId} />;
   }
 
   return (
     <SummaryComponentFor
-      targetNode={node}
+      targetBaseComponentId={baseComponentId}
       overrides={{
-        largeGroup: node.isType('Group'),
+        largeGroup: component.type === 'Group',
         display: {
           hideChangeButton: true,
           hideValidationMessages: true,

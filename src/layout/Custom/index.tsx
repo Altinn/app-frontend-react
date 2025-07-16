@@ -7,7 +7,7 @@ import { CustomWebComponent } from 'src/layout/Custom/CustomWebComponent';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
 import { useHasBindingsAndNoData } from 'src/layout/Summary2/isEmpty/isEmptyComponent';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { useNodeFormData, useNodeFormDataWhenType, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useFormDataFor, useItemWhenType, useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
@@ -19,23 +19,23 @@ export class Custom extends CustomDef {
     },
   );
 
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'Custom');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'Custom');
     return Object.values(formData ?? {}).join(', ');
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'Custom'>): JSX.Element | null {
-    const displayData = useDisplayData(targetNode);
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
+    const displayData = useDisplayData(props.targetBaseComponentId);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(props: Summary2Props<'Custom'>): JSX.Element | null {
-    const formData = useNodeFormData(props.target);
-    const isEmpty = useHasBindingsAndNoData(props.target);
-    const required = useNodeItem(props.target, (i) => i.required);
+  renderSummary2(props: Summary2Props): JSX.Element | null {
+    const formData = useFormDataFor<'Custom'>(props.targetBaseComponentId);
+    const isEmpty = useHasBindingsAndNoData(props.targetBaseComponentId);
+    const required = useItemWhenType(props.targetBaseComponentId, 'Custom').required;
     return (
       <SummaryFlex
-        target={props.target}
+        targetBaseId={props.targetBaseComponentId}
         content={
           isEmpty
             ? required
@@ -47,14 +47,14 @@ export class Custom extends CustomDef {
         <CustomWebComponent
           summaryMode={true}
           formData={formData}
-          node={props.target}
+          baseComponentId={props.targetBaseComponentId}
           containerDivRef={React.createRef()}
         />
       </SummaryFlex>
     );
   }
 
-  validateDataModelBindings(): string[] {
+  useDataModelBindingValidation(): string[] {
     return [];
   }
 }

@@ -5,18 +5,19 @@ import { Heading } from '@digdir/designsystemet-react';
 
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Lang } from 'src/features/language/Lang';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import classes from 'src/layout/Likert/Summary/LikertSummaryComponent.module.css';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden } from 'src/utils/layout/hidden';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { HeadingLevel } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayLikertContainer {
-  groupNode: LayoutNode<'Likert'>;
+  likertBaseId: string;
   divRef?: React.Ref<HTMLDivElement>;
   id?: string;
-  restriction?: number | undefined;
-  renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
+  renderLayoutComponent: (indexedId: string, baseId: string) => JSX.Element | null;
 }
 
 const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['data-size'] } = {
@@ -29,18 +30,19 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['data-s
 
 export function LargeLikertSummaryContainer({
   divRef,
-  groupNode,
+  likertBaseId,
   id,
-  restriction,
-  renderLayoutNode,
+  renderLayoutComponent,
 }: IDisplayLikertContainer) {
-  const container = useNodeItem(groupNode);
+  const container = useItemWhenType(likertBaseId, 'Likert');
   const { title, summaryTitle } = container.textResourceBindings ?? {};
-  const isHidden = Hidden.useIsHidden(groupNode);
-  const depth = NodesInternal.useSelector((state) => state.nodeData?.[groupNode.id]?.depth);
-  const children = useNodeDirectChildren(groupNode, restriction);
+  const indexedId = useIndexedId(likertBaseId, true);
+  const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
+  const childId = makeLikertChildId(likertBaseId);
+  const childIndexedId = useIndexedId(childId);
+  const hidden = useIsHidden(childId);
 
-  if (isHidden) {
+  if (typeof depth !== 'number' || hidden) {
     return null;
   }
 
@@ -61,15 +63,15 @@ export function LargeLikertSummaryContainer({
         )
       }
       className={classes.summary}
-      data-componentid={groupNode.id}
-      data-componentbaseid={groupNode.baseId}
+      data-componentid={childIndexedId}
+      data-componentbaseid={childId}
     >
       <div
         ref={divRef}
         id={id || container.id}
         data-testid='display-group-container'
       >
-        {children.map((n) => renderLayoutNode(n))}
+        {renderLayoutComponent(childIndexedId, childId)}
       </div>
     </Fieldset>
   );

@@ -8,7 +8,6 @@ import type { TypesFromCategory } from 'src/layout/layout';
 import type {
   DefPluginChildClaimerProps,
   DefPluginCompExternal,
-  DefPluginState,
   NodeDefChildrenPlugin,
 } from 'src/utils/layout/plugins/NodeDefPlugin';
 
@@ -122,11 +121,5 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
         claimChild(id);
       }
     }
-  }
-
-  isChildHidden(_state: DefPluginState<ToInternal<E>>, _childId: string): boolean {
-    // Repeating children plugins do not have any specific logic here, but beware that
-    // the RepeatingGroup component does.
-    return false;
   }
 }

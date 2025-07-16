@@ -1,7 +1,7 @@
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
-import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
-import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { typedBoolean } from 'src/utils/typing';
 import type {
   GridCell,
   GridCellLabelFrom,
@@ -10,62 +10,77 @@ import type {
   GridRow,
   GridRows,
 } from 'src/layout/common.generated';
-import type { IdMutator } from 'src/utils/layout/DataModelLocation';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IsHiddenSelector } from 'src/utils/layout/NodesContext';
 
 const emptyArray: never[] = [];
 
-export function useNodeIdsFromGrid(grid: LayoutNode<'Grid'>, enabled = true) {
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const rows = useNodeItem(grid, (item) => item.rows);
-  const idMutator = useComponentIdMutator();
-  return enabled && grid && rows ? nodeIdsFromGridRows(rows, isHiddenSelector, idMutator) : emptyArray;
+export function useBaseIdsFromGrid(baseComponentId: string, enabled = true) {
+  const rows = useExternalItem(baseComponentId, 'Grid').rows;
+  const hiddenInRows = useHiddenInRows(rows);
+  return enabled && rows ? baseIdsFromGridRows(rows, hiddenInRows) : emptyArray;
 }
 
-export function useNodeIdsFromGridRows(rows: GridRows | undefined, enabled = true) {
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-  const idMutator = useComponentIdMutator();
+export function useBaseIdsFromGridRows(rows: GridRows | undefined, enabled = true) {
   const canRender = useHasCapability('renderInTable');
-  return enabled && rows ? nodeIdsFromGridRows(rows, isHiddenSelector, idMutator).filter(canRender) : emptyArray;
+  const hiddenInRows = useHiddenInRows(rows);
+  return enabled && rows ? baseIdsFromGridRows(rows, hiddenInRows).filter(canRender) : emptyArray;
 }
 
-function nodeIdsFromGridRows(
-  rows: GridRows,
-  isHiddenSelector: IsHiddenSelector,
-  idMutator: IdMutator | undefined,
-): string[] {
+function baseIdsFromGridRows(rows: GridRows, hiddenInRow: HiddenInRow): string[] {
   const out: string[] = [];
   for (const row of rows) {
-    if (isGridRowHidden(row, isHiddenSelector, idMutator)) {
+    if (isGridRowHidden(row, hiddenInRow)) {
       continue;
     }
 
-    out.push(...nodeIdsFromGridRow(row, idMutator));
+    out.push(...baseIdsFromGridRow(row));
   }
 
   return out.length ? out : emptyArray;
 }
 
-export function nodeIdsFromGridRow(row: GridRow, idMutator: IdMutator | undefined): string[] {
+export function baseIdsFromGridRow(row: GridRow): string[] {
   const out: string[] = [];
   for (const cell of row.cells) {
     if (isGridCellNode(cell)) {
       const baseId = cell.component ?? '';
-      out.push(idMutator ? idMutator(baseId) : baseId);
+      out.push(baseId);
     }
   }
 
   return out.length ? out : emptyArray;
 }
 
-export function isGridRowHidden(row: GridRow, isHiddenSelector: IsHiddenSelector, idMutator: IdMutator | undefined) {
+type HiddenInRow = ReturnType<typeof useIsHiddenInRow | typeof useHiddenInRows>;
+
+function useIsHiddenInRow(row: GridRow) {
+  const baseIds = row.cells
+    .map((cell) => (isGridCellNode(cell) && cell.component ? cell.component : undefined))
+    .filter(typedBoolean);
+
+  return useIsHiddenMulti(baseIds);
+}
+
+function useHiddenInRows(rows: GridRows | undefined) {
+  const baseIds =
+    rows
+      ?.map((row) => row.cells.map((cell) => (isGridCellNode(cell) && cell.component ? cell.component : undefined)))
+      .flat()
+      .filter(typedBoolean) ?? emptyArray;
+
+  return useIsHiddenMulti(baseIds);
+}
+
+export function useIsGridRowHidden(row: GridRow) {
+  const hiddenFromRow = useIsHiddenInRow(row);
+  return isGridRowHidden(row, hiddenFromRow);
+}
+
+export function isGridRowHidden(row: GridRow, hiddenInRow: HiddenInRow) {
   let atLeastNoneNodeExists = false;
   const allCellsAreHidden = row.cells.every((cell) => {
-    if (isGridCellNode(cell)) {
+    if (isGridCellNode(cell) && cell.component) {
       atLeastNoneNodeExists = true;
-      const baseId = cell.component ?? '';
-      return isHiddenSelector(idMutator ? idMutator(baseId) : baseId);
+      return hiddenInRow[cell.component];
     }
 
     // Non-component cells always collapse and hide if components in other cells are hidden

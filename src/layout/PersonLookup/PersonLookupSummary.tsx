@@ -5,34 +5,26 @@ import { Heading } from '@digdir/designsystemet-react';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
 import classes from 'src/layout/PersonLookup/PersonLookupSummary.module.css';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-interface PersonLookupSummaryProps {
-  componentNode: LayoutNode<'PersonLookup'>;
-}
-
-export function PersonLookupSummary({ componentNode }: PersonLookupSummaryProps) {
-  const { dataModelBindings, title, required } = useNodeItem(componentNode, (i) => ({
-    dataModelBindings: i.dataModelBindings,
-    title: i.textResourceBindings?.title,
-    required: i.required,
-  }));
+export function PersonLookupSummary({ targetBaseComponentId }: Summary2Props) {
+  const { dataModelBindings, textResourceBindings, required } = useItemWhenType(targetBaseComponentId, 'PersonLookup');
   const { formData } = useDataModelBindings(dataModelBindings);
   const { person_lookup_name, person_lookup_ssn } = formData;
-  const emptyFieldText = useSummaryOverrides(componentNode)?.emptyFieldText;
+  const emptyFieldText = useSummaryOverrides<'PersonLookup'>(targetBaseComponentId)?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
-  const bindingValidations = useBindingValidationsForNode(componentNode);
+  const bindingValidations = useBindingValidationsFor<'PersonLookup'>(targetBaseComponentId);
   const isEmpty = !(person_lookup_name || person_lookup_ssn);
 
   return (
     <SummaryFlex
-      target={componentNode}
+      targetBaseId={targetBaseComponentId}
       content={
         isEmpty
           ? required
@@ -46,21 +38,21 @@ export function PersonLookupSummary({ componentNode }: PersonLookupSummaryProps)
           data-size='sm'
           level={2}
         >
-          <Lang id={title} />
+          <Lang id={textResourceBindings?.title} />
         </Heading>
         <div className={classes.personLookupComponent}>
           <div className={classes.personLookupComponentSsn}>
             <SingleValueSummary
               title={<Lang id='person_lookup.ssn_label' />}
               displayData={person_lookup_ssn ? obfuscateSsn(person_lookup_ssn) : ''}
-              componentNode={componentNode}
+              targetBaseComponentId={targetBaseComponentId}
               hideEditButton={true}
               isCompact={isCompact}
               emptyFieldText={emptyFieldText}
             />
             <ComponentValidations
               validations={bindingValidations?.person_lookup_ssn}
-              node={componentNode}
+              baseComponentId={targetBaseComponentId}
             />
           </div>
 
@@ -68,14 +60,14 @@ export function PersonLookupSummary({ componentNode }: PersonLookupSummaryProps)
             <SingleValueSummary
               title={<Lang id='person_lookup.name_label' />}
               displayData={person_lookup_name}
-              componentNode={componentNode}
+              targetBaseComponentId={targetBaseComponentId}
               hideEditButton={false}
               isCompact={isCompact}
               emptyFieldText={emptyFieldText}
             />
             <ComponentValidations
               validations={bindingValidations?.person_lookup_name}
-              node={componentNode}
+              baseComponentId={targetBaseComponentId}
             />
           </div>
         </div>

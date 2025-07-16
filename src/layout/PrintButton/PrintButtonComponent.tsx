@@ -5,13 +5,13 @@ import type { PropsFromGenericComponent } from '..';
 import { Button } from 'src/app-components/Button/Button';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
-export const PrintButtonComponent = ({ node }: PropsFromGenericComponent<'PrintButton'>) => {
-  const { textResourceBindings } = useNodeItem(node);
+export const PrintButtonComponent = ({ baseComponentId }: PropsFromGenericComponent<'PrintButton'>) => {
+  const { textResourceBindings } = useItemWhenType(baseComponentId, 'PrintButton');
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <Button
         variant='secondary'
         color='first'

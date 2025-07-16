@@ -3,12 +3,15 @@ import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent } from '..';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { LikertDef } from 'src/layout/Likert/config.def.generated';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummaryComponent } from 'src/layout/Likert/Summary/LikertSummaryComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary2/LikertSummary';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import type { ComponentValidation } from 'src/features/validation';
+import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
@@ -23,11 +26,11 @@ export class Likert extends LikertDef {
     return false;
   }
 
-  renderSummary(props: SummaryRendererProps<'Likert'>): JSX.Element | null {
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
     return <LikertSummaryComponent {...props} />;
   }
 
-  renderSummary2(props: Summary2Props<'Likert'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return <LikertSummary {...props} />;
   }
 
@@ -40,8 +43,17 @@ export class Likert extends LikertDef {
     return true;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Likert'>): string[] {
-    const [questionsErr, questions] = this.validateDataModelBindingsAny(ctx, 'questions', ['array']);
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'Likert'>): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    const layoutLookups = useLayoutLookups();
+    const [questionsErr, questions] = validateDataModelBindingsAny(
+      baseComponentId,
+      bindings,
+      lookupBinding,
+      layoutLookups,
+      'questions',
+      ['array'],
+    );
     const errors: string[] = [...(questionsErr || [])];
 
     if (

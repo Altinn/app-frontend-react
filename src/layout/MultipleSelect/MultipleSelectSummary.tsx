@@ -8,25 +8,24 @@ import {
 } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export function MultipleSelectSummary({ target }: Summary2Props<'MultipleSelect'>) {
-  const overrides = useSummaryOverrides(target);
+export function MultipleSelectSummary({ targetBaseComponentId }: Summary2Props) {
+  const overrides = useSummaryOverrides<'MultipleSelect'>(targetBaseComponentId);
   const isCompact = useSummaryProp('isCompact');
-  const displayData = useDisplayData(target);
+  const displayData = useDisplayData(targetBaseComponentId);
 
   const maxStringLength = 75;
 
   const showAsList =
     overrides?.displayType === 'list' || (!overrides?.displayType && displayData?.length >= maxStringLength);
-  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
-  const required = useNodeItem(target, (i) => i.required);
-  const displayValues = useMultipleValuesForSummary(target);
+  const { textResourceBindings, required } = useItemWhenType(targetBaseComponentId, 'MultipleSelect');
+  const displayValues = useMultipleValuesForSummary(targetBaseComponentId);
 
   return (
     <SummaryFlex
-      target={target}
+      targetBaseId={targetBaseComponentId}
       content={
         displayValues.length === 0
           ? required
@@ -36,8 +35,8 @@ export function MultipleSelectSummary({ target }: Summary2Props<'MultipleSelect'
       }
     >
       <MultipleValueSummary
-        title={<Lang id={title} />}
-        componentNode={target}
+        title={<Lang id={textResourceBindings?.title} />}
+        baseComponentId={targetBaseComponentId}
         displayValues={displayValues}
         showAsList={showAsList}
         isCompact={isCompact}

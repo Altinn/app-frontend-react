@@ -31,10 +31,14 @@ interface PlainLayoutLookups {
   };
 }
 
+export type PageRef = { type: 'page'; id: string };
+export type NodeRef = { type: 'node'; id: string };
+export type ParentRef = PageRef | NodeRef;
+
 interface RelationshipLookups {
   // Map of all component ids to their parent component id
   componentToParent: {
-    [componentId: string]: { type: 'page'; id: string } | { type: 'node'; id: string } | undefined;
+    [componentId: string]: ParentRef | undefined;
   };
 
   // Map of all component ids to their children component ids
@@ -55,7 +59,7 @@ interface LookupFunctions {
   // Get the component config for a given ID and component type, or crash
   getComponent<ID extends string | undefined, T extends CompTypes | undefined = CompTypes>(
     id: ID,
-    type?: T,
+    type?: T | ((type: CompTypes) => boolean),
   ): ID extends undefined ? undefined : CompExternal<T extends CompTypes ? T : CompTypes>;
 }
 
@@ -172,8 +176,11 @@ function makeLookupFunctions(lookups: PlainLayoutLookups & RelationshipLookups):
     if (!component) {
       throw new Error(`Component '${id}' does not exist`);
     }
-    if (type && component.type !== type) {
+    if (typeof type === 'string' && component.type !== type) {
       throw new Error(`Component '${id}' is of type '${component.type}', not '${type}'`);
+    }
+    if (typeof type === 'function' && !type(component.type)) {
+      throw new Error(`Component '${id}' is of type '${component.type}', not one of the expected types`);
     }
     return component as CompExternal<typeof type extends CompTypes ? typeof type : CompTypes>;
   }) as LayoutLookups['getComponent'];

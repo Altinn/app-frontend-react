@@ -8,14 +8,14 @@ import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthW
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useAllAttachments } from 'src/features/attachments/hooks';
 import { FileScanResults } from 'src/features/attachments/types';
-import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
+import { useNavigateTo } from 'src/features/form/layout/NavigateToNode';
 import { Lang } from 'src/features/language/Lang';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { HttpStatusCodes } from 'src/utils/network/networking';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { UploadedAttachment } from 'src/features/attachments';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
@@ -87,13 +87,16 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
   const allAttachments = useAllAttachments();
 
   const infectedFileErrors: NodeRefValidation[] = Object.entries(allAttachments || {}).flatMap(
-    ([nodeId, attachments]) =>
-      (attachments || [])
+    ([nodeId, attachments]) => {
+      const { baseComponentId } = splitDashedKey(nodeId);
+
+      return (attachments || [])
         .filter((attachment) => attachment.uploaded && attachment.data.fileScanResult === FileScanResults.Infected)
         .map((attachment) => {
           const uploadedAttachment = attachment as UploadedAttachment;
           return {
             nodeId,
+            baseComponentId,
             source: 'Frontend',
             code: 'InfectedFile',
             dataElementId: uploadedAttachment.data.id,
@@ -104,7 +107,8 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
             severity: 'error',
             category: 0,
           };
-        }),
+        });
+    },
   );
 
   return (
@@ -174,21 +178,13 @@ export function ErrorListFromInstantiation({ error }: { error: unknown }) {
 }
 
 function ErrorWithLink({ error }: { error: NodeRefValidation }) {
-  const node = useNode(error.nodeId);
-  const navigateTo = useNavigateToNode();
-  const isHidden = Hidden.useIsHidden(node);
-
+  const navigateTo = useNavigateTo();
   const handleErrorClick = async (ev: React.KeyboardEvent | React.MouseEvent) => {
     if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
       return;
     }
     ev.preventDefault();
-    if (isHidden || !node) {
-      // No point in trying to focus on a hidden component
-      return;
-    }
-
-    await navigateTo(node, { shouldFocus: true, error });
+    await navigateTo(error.nodeId, error.baseComponentId, { shouldFocus: true, error });
   };
 
   return (

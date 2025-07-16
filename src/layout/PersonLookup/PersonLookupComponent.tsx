@@ -15,13 +15,13 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useBindingValidationsForNode } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
 import { validatePersonLookupResponse, validateSsn } from 'src/layout/PersonLookup/validation';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { httpPost } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -79,15 +79,18 @@ async function fetchPerson(
   }
 }
 
-export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGenericComponent<'PersonLookup'>) {
-  const { id, dataModelBindings, required } = useNodeItem(node);
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
+export function PersonLookupComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'PersonLookup'>) {
+  const { id, dataModelBindings, required } = useItemWhenType(baseComponentId, 'PersonLookup');
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
+    baseComponentId,
+    overrideDisplay,
+  });
   const [tempSsn, setTempSsn] = useState('');
   const [tempName, setTempName] = useState('');
   const [ssnErrors, setSsnErrors] = useState<string[]>();
   const [nameError, setNameError] = useState<string>();
 
-  const bindingValidations = useBindingValidationsForNode(node);
+  const bindingValidations = useBindingValidationsFor<'PersonLookup'>(baseComponentId);
   const { langAsString } = useLanguage();
   const {
     formData: { person_lookup_ssn, person_lookup_name },
@@ -161,7 +164,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
       help={getHelpTextComponent()}
       size='sm'
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <div className={classes.componentWrapper}>
           <div className={classes.ssnLabel}>
             <Label
@@ -211,7 +214,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               (hasValidationErrors(bindingValidations?.person_lookup_ssn) && (
                 <ComponentValidations
                   validations={bindingValidations?.person_lookup_ssn}
-                  node={node}
+                  baseComponentId={baseComponentId}
                 />
               ))}
           </Field>
@@ -262,7 +265,7 @@ export function PersonLookupComponent({ node, overrideDisplay }: PropsFromGeneri
               (hasValidationErrors(bindingValidations?.person_lookup_name) && (
                 <ComponentValidations
                   validations={bindingValidations?.person_lookup_name}
-                  node={node}
+                  baseComponentId={baseComponentId}
                 />
               ))}
           </Field>

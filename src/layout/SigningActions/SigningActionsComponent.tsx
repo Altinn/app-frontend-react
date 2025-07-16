@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { Spinner } from '@digdir/designsystemet-react';
 
 import { Panel } from 'src/app-components/Panel/Panel';
-import { useIsAuthorized } from 'src/features/instance/ProcessContext';
+import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useProfile } from 'src/features/profile/ProfileProvider';
@@ -19,7 +19,7 @@ import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { getCurrentUserStatus } from 'src/layout/SigningActions/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export function SigningActionsComponent({ node }: PropsFromGenericComponent<'SigningActions'>) {
+export function SigningActionsComponent({ baseComponentId }: PropsFromGenericComponent<'SigningActions'>) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const {
     data: signeeList,
@@ -59,7 +59,7 @@ export function SigningActionsComponent({ node }: PropsFromGenericComponent<'Sig
   if (signeeListError) {
     return (
       <SigningPanel
-        node={node}
+        baseComponentId={baseComponentId}
         heading={<Lang id='signing.api_error_panel_title' />}
         description={<Lang id='signing.api_error_panel_description' />}
         variant='error'
@@ -71,7 +71,7 @@ export function SigningActionsComponent({ node }: PropsFromGenericComponent<'Sig
   if (hasDelegationError) {
     return (
       <SigningPanel
-        node={node}
+        baseComponentId={baseComponentId}
         heading={<Lang id='signing.delegation_error_panel_title' />}
         description={<Lang id='signing.delegation_error_panel_description' />}
         variant='error'
@@ -82,7 +82,7 @@ export function SigningActionsComponent({ node }: PropsFromGenericComponent<'Sig
   if (currentUserStatus === 'awaitingSignature') {
     return (
       <AwaitingCurrentUserSignaturePanel
-        node={node}
+        baseComponentId={baseComponentId}
         hasMissingSignatures={!!hasMissingSignatures}
       />
     );
@@ -91,7 +91,7 @@ export function SigningActionsComponent({ node }: PropsFromGenericComponent<'Sig
   if (!canWrite) {
     return (
       <NoActionRequiredPanel
-        node={node}
+        baseComponentId={baseComponentId}
         hasSigned={currentUserStatus === 'signed'}
       />
     );
@@ -100,11 +100,11 @@ export function SigningActionsComponent({ node }: PropsFromGenericComponent<'Sig
   if (hasMissingSignatures) {
     return (
       <AwaitingOtherSignaturesPanel
-        node={node}
+        baseComponentId={baseComponentId}
         hasSigned={currentUserStatus === 'signed'}
       />
     );
   }
 
-  return <SubmitPanel node={node} />;
+  return <SubmitPanel baseComponentId={baseComponentId} />;
 }

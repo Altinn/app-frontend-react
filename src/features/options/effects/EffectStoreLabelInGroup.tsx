@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
@@ -7,12 +7,11 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { toRelativePath } from 'src/features/saveToGroup/useSaveToGroup';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsForGroupCheckbox } from 'src/layout/Checkboxes/config.generated';
 import type { CompIntermediate, CompWithBehavior } from 'src/layout/layout';
 import type { IDataModelBindingsForGroupMultiselect } from 'src/layout/MultipleSelect/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type Row = Record<string, unknown>;
 
@@ -25,8 +24,8 @@ interface Props {
  */
 export function EffectStoreLabelInGroup({ options }: Props) {
   const item = GeneratorInternal.useIntermediateItem() as CompIntermediate<CompWithBehavior<'canHaveOptions'>>;
-  const node = GeneratorInternal.useParent() as LayoutNode<CompWithBehavior<'canHaveOptions'>>;
-  const isNodeHidden = Hidden.useIsHidden(node);
+  const parent = GeneratorInternal.useParent();
+  const isHidden = useIsHidden(parent.baseId);
   const { langAsString } = useLanguage();
   const setLeafValue = FD.useSetLeafValue();
   const formDataSelector = FD.useCurrentSelector();
@@ -62,9 +61,9 @@ export function EffectStoreLabelInGroup({ options }: Props) {
     ?.map((row) => (labelPath ? dot.pick(labelPath, row) : undefined))
     .filter((label): label is string => Boolean(label));
 
-  const shouldUpdate = !deepEqual(translatedLabels, formDataLabels) && !isNodeHidden && 'label' in bindings;
+  const shouldUpdate = !deepEqual(translatedLabels, formDataLabels) && !isHidden && 'label' in bindings;
 
-  NodesInternal.useEffectWhenReady(() => {
+  useEffect(() => {
     if (!shouldUpdate || !translatedLabels?.length) {
       return;
     }
@@ -78,7 +77,17 @@ export function EffectStoreLabelInGroup({ options }: Props) {
         }
       });
     }
-  }, [shouldUpdate, translatedLabels]);
+  }, [
+    bindings,
+    formDataSelector,
+    groupBinding,
+    groupRows,
+    labelPath,
+    selectedRows,
+    setLeafValue,
+    shouldUpdate,
+    translatedLabels,
+  ]);
 
   return null;
 }

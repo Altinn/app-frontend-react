@@ -11,20 +11,20 @@ import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPo
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { useDisplayDataFor } from 'src/features/displayData/useDisplayData';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { useIndexedComponentIds } from 'src/features/form/layout/utils/makeIndexedId';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { getComponentDef } from 'src/layout';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
 import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { useNodeItem, useNodeItemWhenType } from 'src/utils/layout/useNodeItem';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { AlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { ITableColumnFormatting } from 'src/layout/common.generated';
@@ -84,26 +84,22 @@ export const RepeatingGroupTableRow = React.memo(function ({
   const mobileViewSmall = useIsMobile();
   const { refSetter } = useRepeatingGroupsFocusContext();
 
-  const { node, deleteRow, isEditing, isDeleting, toggleEditing } = useRepeatingGroup();
+  const { baseComponentId, deleteRow, isEditing, isDeleting, toggleEditing } = useRepeatingGroup();
+  const indexedId = useIndexedId(baseComponentId);
   const langTools = useLanguage();
   const { langAsString } = langTools;
-  const id = node.id;
-  const group = useNodeItem(node);
-  const rowExpressions = RepGroupHooks.useRowWithExpressions(node, { uuid });
+  const { edit: editForGroup, tableColumns: columnSettings } = useItemWhenType(baseComponentId, 'RepeatingGroup');
+  const rowExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid });
   const editForRow = rowExpressions?.edit;
-  const editForGroup = group.edit;
   const trbForRow = rowExpressions?.textResourceBindings;
-  const columnSettings = group.tableColumns;
 
   const alertOnDelete = useAlertOnChange(Boolean(editForRow?.alertOnDelete), deleteRow);
 
   const layoutLookups = useLayoutLookups();
-  const rawTableIds = useTableComponentIds(node);
+  const rawTableIds = useTableComponentIds(baseComponentId);
   const displayData = useDisplayDataFor(rawTableIds);
-  const tableIds = useIndexedComponentIds(rawTableIds);
-  const tableItems = rawTableIds.map((baseId, index) => ({
+  const tableItems = rawTableIds.map((baseId) => ({
     baseId,
-    id: tableIds[index],
     type: layoutLookups.getComponent(baseId).type,
   }));
   const firstCellData = Object.values(displayData).find((c) => !!c);
@@ -112,12 +108,12 @@ export const RepeatingGroupTableRow = React.memo(function ({
 
   // If the row has errors we should highlight the row, unless the errors are for components that are shown in the table,
   // then the component getting highlighted is enough
-  const tableEditingNodeIds = tableItems
+  const tableEditingIds = tableItems
     .filter((i) => shouldEditInTable(editForGroup, i.baseId, i.type, columnSettings))
-    .map((i) => i.id);
-  const rowValidations = useDeepValidationsForNode(node, false, index);
+    .map((i) => i.baseId);
+  const rowValidations = useDeepValidationsForNode(baseComponentId, false, index, true);
   const rowHasErrors = rowValidations.some(
-    (validation) => validation.severity === 'error' && !tableEditingNodeIds.includes(validation.nodeId),
+    (validation) => validation.severity === 'error' && !tableEditingIds.includes(validation.baseComponentId),
   );
 
   const editButtonText = rowHasErrors
@@ -141,12 +137,12 @@ export const RepeatingGroupTableRow = React.memo(function ({
         tableItems.map((item) =>
           shouldEditInTable(editForGroup, item.baseId, item.type, columnSettings) ? (
             <Table.Cell
-              key={item.id}
+              key={item.baseId}
               className={classes.tableCell}
             >
-              <div ref={(ref) => refSetter && refSetter(index, `component-${item.id}`, ref)}>
-                <GenericComponentById
-                  id={item.id}
+              <div ref={(ref) => refSetter && refSetter(index, `component-${item.baseId}`, ref)}>
+                <GenericComponent
+                  baseComponentId={item.baseId}
                   overrideDisplay={{
                     renderedInTable: true,
                     renderLabel: false,
@@ -181,11 +177,11 @@ export const RepeatingGroupTableRow = React.memo(function ({
                   <Flex
                     container
                     item
-                    key={item.id}
-                    ref={(ref) => refSetter && refSetter(index, `component-${item.id}`, ref)}
+                    key={item.baseId}
+                    ref={(ref) => refSetter && refSetter(index, `component-${item.baseId}`, ref)}
                   >
-                    <GenericComponentById
-                      id={item.id}
+                    <GenericComponent
+                      baseComponentId={item.baseId}
                       overrideItemProps={{
                         grid: {},
                       }}
@@ -195,12 +191,12 @@ export const RepeatingGroupTableRow = React.memo(function ({
                   <Flex
                     container
                     item
-                    key={item.id}
+                    key={item.baseId}
                   >
                     <b className={cn(classes.contentFormatting, classes.spaceAfterContent)}>
                       <TableTitle
-                        nodeId={item.id}
-                        nodeType={item.type}
+                        baseComponentId={item.baseId}
+                        compType={item.type}
                       />
                       :
                     </b>
@@ -231,7 +227,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
               <div className={classes.buttonInCellWrapper}>
                 <Button
                   aria-expanded={isEditingRow}
-                  aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
+                  aria-controls={isEditingRow ? `group-edit-container-${indexedId}-${uuid}` : undefined}
                   variant='tertiary'
                   color='second'
                   onClick={() => toggleEditing({ index, uuid })}
@@ -289,7 +285,7 @@ export const RepeatingGroupTableRow = React.memo(function ({
             {editForRow?.editButton !== false && (
               <Button
                 aria-expanded={isEditingRow}
-                aria-controls={isEditingRow ? `group-edit-container-${id}-${uuid}` : undefined}
+                aria-controls={isEditingRow ? `group-edit-container-${indexedId}-${uuid}` : undefined}
                 variant='tertiary'
                 color='second'
                 icon={!isEditingRow && mobileViewSmall}
@@ -392,14 +388,14 @@ function DeleteElement({
           onCancelClick={cancelChange}
           onPopoverDeleteClick={confirmChange}
           open={alertOpen}
-          popoverId={`${uuid}delete-warning-popover`}
+          popoverId={`delete-warning-popover-${uuid}`}
           setOpen={setAlertOpen}
         />
       )}
       <Button
         variant='tertiary'
         color='danger'
-        popovertarget={`${uuid}delete-warning-popover`}
+        popovertarget={`delete-warning-popover-${uuid}`}
         disabled={isDeletingRow || disabled}
         onClick={() => handleDelete({ index, uuid })}
         aria-label={`${deleteButtonText}-${firstCellData}`}
@@ -440,7 +436,7 @@ function NonEditableCell({
   );
 }
 
-function TableTitle({ nodeId, nodeType }: { nodeId: string; nodeType: CompTypes }) {
-  const item = useNodeItemWhenType(nodeId, nodeType);
+function TableTitle({ baseComponentId, compType }: { baseComponentId: string; compType: CompTypes }) {
+  const item = useItemWhenType(baseComponentId, compType);
   return <Lang id={getTableTitle(item?.textResourceBindings ?? {})} />;
 }

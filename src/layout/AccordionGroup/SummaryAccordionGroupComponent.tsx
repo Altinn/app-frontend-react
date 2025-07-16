@@ -5,15 +5,13 @@ import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildren
 import { SummaryFlexForContainer } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export const SummaryAccordionGroupComponent = ({ targetNode, ...rest }: SummaryRendererProps<'AccordionGroup'>) => {
-  const { children } = useNodeItem(targetNode);
-  return children.map((childId) => (
+export const SummaryAccordionGroupComponent = ({ targetBaseComponentId, ...rest }: SummaryRendererProps) => {
+  const children = useExternalItem(targetBaseComponentId, 'AccordionGroup')?.children;
+  return children?.map((childId) => (
     <Child
       key={childId}
       id={childId}
@@ -22,18 +20,17 @@ export const SummaryAccordionGroupComponent = ({ targetNode, ...rest }: SummaryR
   ));
 };
 
-export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Props<'AccordionGroup'>) => {
-  const { children } = useNodeItem(target);
+export const SummaryAccordionGroupComponent2 = ({ targetBaseComponentId, ...rest }: Summary2Props) => {
+  const children = useExternalItem(targetBaseComponentId, 'AccordionGroup')?.children;
   const canRender = useHasCapability('renderInAccordionGroup');
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
   return (
     <SummaryFlexForContainer
       hideWhen={hideEmptyFields}
-      target={target}
+      targetBaseId={targetBaseComponentId}
     >
-      {children.filter(canRender).map((childId) => (
+      {children?.filter(canRender).map((childId) => (
         <Child2
-          target={target}
           key={childId}
           id={childId}
           {...rest}
@@ -43,10 +40,9 @@ export const SummaryAccordionGroupComponent2 = ({ target, ...rest }: Summary2Pro
   );
 };
 
-function Child2({ id, ...rest }: { id: string } & Omit<Summary2Props<'AccordionGroup'>, 'targetNode'>) {
-  const nodeId = useIndexedId(id);
-  const targetNode = useNode(nodeId);
-  if (!targetNode || !targetNode.isType('Accordion')) {
+function Child2({ id, ...rest }: { id: string } & Omit<Summary2Props, 'targetBaseComponentId'>) {
+  const component = useExternalItem(id);
+  if (!component || component.type !== 'Accordion') {
     return null;
   }
 
@@ -54,23 +50,21 @@ function Child2({ id, ...rest }: { id: string } & Omit<Summary2Props<'AccordionG
     <EmptyChildrenBoundary>
       <SummaryAccordionComponent2
         {...rest}
-        target={targetNode}
+        targetBaseComponentId={id}
       />
     </EmptyChildrenBoundary>
   );
 }
 
-function Child({ id: _id, ...rest }: { id: string } & Omit<SummaryRendererProps<'AccordionGroup'>, 'targetNode'>) {
-  const id = useIndexedId(_id);
-  const targetNode = useNode(id);
-  if (!targetNode || !targetNode.isType('Accordion')) {
+function Child({ id, ...rest }: { id: string } & Omit<SummaryRendererProps, 'targetBaseComponentId'>) {
+  const component = useExternalItem(id);
+  if (!component || component.type !== 'Accordion') {
     return null;
   }
 
   return (
     <SummaryAccordionComponent
-      key={targetNode.id}
-      targetNode={targetNode}
+      targetBaseComponentId={id}
       {...rest}
     />
   );

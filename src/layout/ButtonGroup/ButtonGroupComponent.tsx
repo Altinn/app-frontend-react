@@ -9,14 +9,15 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { useHasCapability } from 'src/utils/layout/canRenderIn';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { useNode } from 'src/utils/layout/NodesContext';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 
-export function ButtonGroupComponent({ node, overrideDisplay }: PropsFromGenericComponent<'ButtonGroup'>) {
-  const { grid, children } = useNodeItem(node);
-
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
+export function ButtonGroupComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'ButtonGroup'>) {
+  const { grid, children } = useExternalItem(baseComponentId, 'ButtonGroup');
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
+    baseComponentId,
+    overrideDisplay,
+  });
 
   return (
     <Fieldset
@@ -25,7 +26,7 @@ export function ButtonGroupComponent({ node, overrideDisplay }: PropsFromGeneric
       description={getDescriptionComponent()}
       help={getHelpTextComponent()}
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <Flex
           item
           container
@@ -46,20 +47,18 @@ export function ButtonGroupComponent({ node, overrideDisplay }: PropsFromGeneric
 
 function Child({ baseId }: { baseId: string }) {
   const id = useIndexedId(baseId);
-  const node = useNode(id);
   const canRender = useHasCapability('renderInButtonGroup');
-  if (!node || !canRender(baseId)) {
+  if (!canRender(baseId)) {
     return null;
   }
 
   return (
     <div
-      key={node.id}
-      data-componentid={node.id}
-      data-componentbaseid={node.baseId}
+      data-componentid={id}
+      data-componentbaseid={baseId}
     >
       <GenericComponent
-        node={node}
+        baseComponentId={baseId}
         overrideDisplay={{ directRender: true }}
       />
     </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
+import { useSearchParams } from 'react-router-dom';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
@@ -12,14 +12,14 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useAllAttachments } from 'src/features/attachments/hooks';
 import { FileScanResults } from 'src/features/attachments/types';
 import { useExpandedWidthLayouts, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { useNavigateToNode, useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
+import { useNavigateTo, useRegisterNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import {
   SearchParams,
   useNavigate,
-  useNavigationParam,
   useNavigationPath,
   useQueryKey,
   useQueryKeysAsString,
@@ -29,10 +29,11 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { useCurrentView, useNavigatePage, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities } from 'src/layout';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import type { NavigateToNodeOptions } from 'src/features/form/layout/NavigateToNode';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
+import type { NavigateToComponentOptions } from 'src/features/form/layout/NavigateToNode';
 import type { AnyValidation, BaseValidation, NodeRefValidation } from 'src/features/validation';
 
 interface FormState {
@@ -50,6 +51,20 @@ export function Form() {
 }
 
 export function FormPage({ currentPageId }: { currentPageId: string | undefined }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const shouldValidateFormPage = searchParams.get(SearchParams.Validate);
+  const onFormSubmitValidation = useOnFormSubmitValidation();
+
+  useEffect(() => {
+    if (shouldValidateFormPage) {
+      onFormSubmitValidation();
+      setSearchParams((params) => {
+        params.delete(SearchParams.Validate);
+        return searchParams;
+      });
+    }
+  }, [onFormSubmitValidation, searchParams, setSearchParams, shouldValidateFormPage]);
+
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -66,11 +81,12 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
 
   useRedirectToStoredPage();
   useSetExpandedWidth();
+  const layoutLookups = useLayoutLookups();
 
-  useRegisterNodeNavigationHandler(async (targetNode, options) => {
-    const targetView = targetNode?.pageKey;
-    if (targetView && targetView !== currentPageId) {
-      await navigateToPage(targetView, {
+  useRegisterNavigationHandler(async (_indexedId, baseComponentId, options) => {
+    const targetPage = layoutLookups.componentToPage[baseComponentId];
+    if (targetPage && targetPage !== currentPageId) {
+      await navigateToPage(targetPage, {
         ...options?.pageNavOptions,
         shouldFocusComponent: options?.shouldFocus ?? options?.pageNavOptions?.shouldFocusComponent ?? true,
         replace:
@@ -102,9 +118,7 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
 
   return (
     <>
-      <Helmet>
-        <title>{`${getPageTitle(appName, hasSetCurrentPageId ? langAsString(currentPageId) : undefined, appOwner)}`}</title>
-      </Helmet>
+      <title>{`${getPageTitle(appName, hasSetCurrentPageId ? langAsString(currentPageId) : undefined, appOwner)}`}</title>
       {hasRequired && (
         <MessageBanner
           error={requiredFieldsMissing}
@@ -117,9 +131,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
         alignItems='flex-start'
       >
         {mainIds.map((id) => (
-          <GenericComponentById
+          <GenericComponent
             key={id}
-            id={id}
+            baseComponentId={id}
           />
         ))}
         <Flex
@@ -138,9 +152,9 @@ export function FormPage({ currentPageId }: { currentPageId: string | undefined 
             }
           >
             {errorReportIds.map((id) => (
-              <GenericComponentById
+              <GenericComponent
                 key={id}
-                id={id}
+                baseComponentId={id}
               />
             ))}
           </ErrorReport>
@@ -174,13 +188,11 @@ export function FormFirstPage() {
  */
 function useRedirectToStoredPage() {
   const pageKey = useCurrentView();
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
   const { isValidPageId, navigateToPage } = useNavigatePage();
   const applicationMetadataId = useApplicationMetadata()?.id;
 
-  const instanceId = `${instanceOwnerPartyId}/${instanceGuid}`;
-  const currentViewCacheKey = instanceId || applicationMetadataId;
+  const instanceId = useLaxInstanceId();
+  const currentViewCacheKey = instanceId ?? applicationMetadataId;
 
   useEffect(() => {
     if (!pageKey && !!currentViewCacheKey) {
@@ -269,40 +281,34 @@ function HandleNavigationFocusComponent() {
   const componentId = useQueryKey(SearchParams.FocusComponentId);
   const exitSubform = useQueryKey(SearchParams.ExitSubform)?.toLocaleLowerCase() === 'true';
   const validate = useQueryKey(SearchParams.Validate)?.toLocaleLowerCase() === 'true';
-  const focusNode = useNode(componentId ?? undefined);
-  const navigateTo = useNavigateToNode();
+  const navigateTo = useNavigateTo();
   const navigate = useNavigate();
 
   React.useEffect(() => {
     (async () => {
       // Replace URL if we have query params
-      if (focusNode || exitSubform || validate) {
+      if (componentId || exitSubform || validate) {
         const location = new URLSearchParams(searchStringRef.current);
         location.delete(SearchParams.FocusComponentId);
         location.delete(SearchParams.ExitSubform);
-        location.delete(SearchParams.Validate);
         const baseHash = window.location.hash.slice(1).split('?')[0];
         const nextLocation = location.size > 0 ? `${baseHash}?${location.toString()}` : baseHash;
         navigate(nextLocation, { replace: true });
       }
 
-      // Set validation visibility to the equivalent of trying to submit
-      if (validate) {
-        onFormSubmitValidation();
-      }
-
       // Focus on node?
-      if (focusNode) {
-        const nodeNavOptions: NavigateToNodeOptions = {
+      if (componentId) {
+        const nodeNavOptions: NavigateToComponentOptions = {
           shouldFocus: true,
           pageNavOptions: {
             resetReturnToView: !exitSubform,
           },
         };
-        await navigateTo(focusNode, nodeNavOptions);
+        const { baseComponentId } = splitDashedKey(componentId);
+        await navigateTo(componentId, baseComponentId, nodeNavOptions);
       }
     })();
-  }, [navigateTo, focusNode, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation]);
+  }, [navigateTo, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation, componentId]);
 
   return null;
 }

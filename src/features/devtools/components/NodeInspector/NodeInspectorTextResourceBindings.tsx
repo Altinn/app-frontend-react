@@ -6,24 +6,47 @@ import { canBeExpression } from 'src/features/expressions/validation';
 import { useTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemIfType } from 'src/utils/layout/useNodeItem';
 import type { ITextResourceBindings } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
 
 interface Props {
-  node: LayoutNode;
+  baseComponentId: string;
   textResourceBindings: ITextResourceBindings;
 }
 
-export function NodeInspectorTextResourceBindings({ node, textResourceBindings }: Props) {
+export function NodeInspectorTextResourceBindings(props: Props) {
+  const component = useExternalItem(props.baseComponentId);
+  if (component.type === 'RepeatingGroup') {
+    return <NodeNodeInspectorTextResourceBindingsForFirstRow {...props} />;
+  }
+
+  return <NodeInspectorTextResourceBindingsInner {...props} />;
+}
+
+function NodeNodeInspectorTextResourceBindingsForFirstRow(props: Props) {
+  const firstRowExpr = RepGroupHooks.useRowWithExpressions(props.baseComponentId, 'first');
+  return (
+    <NodeInspectorTextResourceBindingsInner
+      {...props}
+      firstRowExpr={firstRowExpr}
+    />
+  );
+}
+
+function NodeInspectorTextResourceBindingsInner({
+  baseComponentId,
+  textResourceBindings,
+  firstRowExpr,
+}: Props & { firstRowExpr?: GroupExpressions }) {
   const textResources = useTextResources();
   const { langAsString } = useLanguage();
-  const item = useNodeItem(node);
-  const firstRowExpr = RepGroupHooks.useRowWithExpressions(node.isType('RepeatingGroup') ? node : undefined, 'first');
+  const item = useItemIfType(baseComponentId, 'RepeatingGroup');
 
   let actualTextResourceBindings = textResourceBindings || {};
   let isRepGroup = false;
-  if (item.type === 'RepeatingGroup') {
+  if (item) {
     // Text resource bindings are resolved per-row for repeating groups. We'll show the
     // first row here, and inform the user.
     isRepGroup = true;

@@ -7,25 +7,25 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export const DropdownSummary = ({ target }: Summary2Props<'Dropdown'>) => {
-  const emptyFieldText = useSummaryOverrides(target)?.emptyFieldText;
+export const DropdownSummary = ({ targetBaseComponentId }: Summary2Props) => {
+  const emptyFieldText = useSummaryOverrides(targetBaseComponentId)?.emptyFieldText;
   const isCompact = useSummaryProp('isCompact');
-  const displayData = useDisplayData(target);
-  const validations = useUnifiedValidationsForNode(target);
+  const displayData = useDisplayData(targetBaseComponentId);
+  const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(target, (i) => i.textResourceBindings?.title);
-  const required = useNodeItem(target, (i) => i.required);
+  const item = useItemWhenType(targetBaseComponentId, 'Dropdown');
+  const title = item.textResourceBindings?.title;
 
   return (
     <SummaryFlex
-      target={target}
+      targetBaseId={targetBaseComponentId}
       content={
         displayData
           ? SummaryContains.SomeUserContent
-          : required
+          : item.required
             ? SummaryContains.EmptyValueRequired
             : SummaryContains.EmptyValueNotRequired
       }
@@ -34,7 +34,7 @@ export const DropdownSummary = ({ target }: Summary2Props<'Dropdown'>) => {
         title={title && <Lang id={title} />}
         displayData={displayData}
         errors={errors}
-        componentNode={target}
+        targetBaseComponentId={targetBaseComponentId}
         isCompact={isCompact}
         emptyFieldText={emptyFieldText}
       />

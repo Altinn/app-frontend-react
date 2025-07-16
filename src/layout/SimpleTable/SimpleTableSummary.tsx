@@ -8,22 +8,16 @@ import { Lang } from 'src/features/language/Lang';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { isJSONSchema7Definition } from 'src/layout/AddToList/AddToList';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-
-type TableSummaryProps = {
-  componentNode: LayoutNode<'SimpleTable'>;
-};
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 const emptyArray: never[] = [];
 
-export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
-  const { dataModelBindings, textResourceBindings, columns, required } = useNodeItem(componentNode, (item) => ({
-    dataModelBindings: item.dataModelBindings,
-    textResourceBindings: item.textResourceBindings,
-    columns: item.columns,
-    required: item.required,
-  }));
+export function SimpleTableSummary({ targetBaseComponentId }: Summary2Props) {
+  const { dataModelBindings, textResourceBindings, columns, required } = useItemWhenType(
+    targetBaseComponentId,
+    'SimpleTable',
+  );
 
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
   const { title } = textResourceBindings ?? {};
@@ -51,7 +45,7 @@ export function SimpleTableSummary({ componentNode }: TableSummaryProps) {
 
   return (
     <SummaryFlex
-      target={componentNode}
+      targetBaseId={targetBaseComponentId}
       content={
         !Array.isArray(data) || data.length === 0
           ? required

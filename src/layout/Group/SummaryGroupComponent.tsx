@@ -1,40 +1,42 @@
 import React, { useCallback } from 'react';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
+import { getComponentDef } from 'src/layout';
 import { CompCategory } from 'src/layout/common';
 import { GroupComponent } from 'src/layout/Group/GroupComponent';
 import classes from 'src/layout/Group/SummaryGroupComponent.module.css';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
-import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompTypes, ITextResourceBindings } from 'src/layout/layout';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden, useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { ITextResourceBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export function SummaryGroupComponent({
   onChangeClick,
   changeText,
-  targetNode,
+  targetBaseComponentId,
   overrides,
-}: SummaryRendererProps<'Group'>) {
-  const targetItem = useNodeItem(targetNode);
+}: SummaryRendererProps) {
+  const targetItem = useItemWhenType(targetBaseComponentId, 'Group');
   const excludedChildren = overrides?.excludedChildren;
   const display = overrides?.display;
   const { langAsString } = useLanguage();
-  const isHidden = Hidden.useIsHiddenSelector();
 
+  const idMutator = useComponentIdMutator();
   const inExcludedChildren = useCallback(
-    (n: LayoutNode) =>
-      excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false,
-    [excludedChildren],
+    (id: string) =>
+      excludedChildren ? excludedChildren.includes(idMutator(id)) || excludedChildren.includes(id) : false,
+    [excludedChildren, idMutator],
   );
 
-  const groupValidations = useDeepValidationsForNode(targetNode);
+  const groupValidations = useDeepValidationsForNode(targetBaseComponentId);
   const groupHasErrors = hasValidationErrors(groupValidations);
 
   const textBindings = targetItem.textResourceBindings as ITextResourceBindings;
@@ -43,20 +45,22 @@ export function SummaryGroupComponent({
   const summaryTitleTrb = textBindings && 'summaryTitle' in textBindings ? textBindings.summaryTitle : undefined;
   const titleTrb = textBindings && 'title' in textBindings ? textBindings.title : undefined;
   const ariaLabel = langAsString(summaryAccessibleTitleTrb ?? summaryTitleTrb ?? titleTrb);
-  const children = useNodeDirectChildren(targetNode).filter((n) => !inExcludedChildren(n));
+  const isHidden = useIsHiddenMulti(targetItem.children);
+  const children = targetItem.children.filter((id) => !inExcludedChildren(id) && !isHidden[id]);
+  const layoutLookups = useLayoutLookups();
 
   const largeGroup = overrides?.largeGroup ?? false;
   if (largeGroup) {
     return (
       <GroupComponent
-        key={`summary-${targetNode.id}`}
-        id={`summary-${targetNode.id}`}
-        groupNode={targetNode}
+        key={`summary-${targetItem.id}`}
+        id={`summary-${targetItem.id}`}
+        baseComponentId={targetBaseComponentId}
         isSummary={true}
-        renderLayoutNode={(node) => (
+        renderLayoutComponent={(id) => (
           <SummaryComponentFromNode
-            key={node.id}
-            targetNode={node}
+            key={id}
+            targetBaseComponentId={id}
             overrides={overrides}
             inExcludedChildren={inExcludedChildren}
           />
@@ -66,18 +70,18 @@ export function SummaryGroupComponent({
   }
 
   const childSummaryComponents = children.map((child) => {
-    if (!child.isCategory(CompCategory.Form) || isHidden(child)) {
+    const childLayout = layoutLookups.getComponent(child);
+    const def = getComponentDef(childLayout.type);
+    if (def.category !== CompCategory.Form) {
       return;
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const RenderCompactSummary = child.def.renderCompactSummary.bind(child.def) as React.FC<SummaryRendererProps<any>>;
+    const RenderCompactSummary = def.renderCompactSummary.bind(def) as React.FC<SummaryRendererProps>;
     return (
       <RenderCompactSummary
         onChangeClick={onChangeClick}
         changeText={changeText}
-        key={child.id}
-        targetNode={child}
-        overrides={{}}
+        key={child}
+        targetBaseComponentId={child}
       />
     );
   });
@@ -126,19 +130,23 @@ export function SummaryGroupComponent({
   );
 }
 
-interface SummaryComponentFromRefProps extends Pick<SummaryRendererProps<CompTypes>, 'targetNode' | 'overrides'> {
-  inExcludedChildren: (node: LayoutNode) => boolean;
+interface SummaryComponentFromRefProps extends Pick<SummaryRendererProps, 'targetBaseComponentId' | 'overrides'> {
+  inExcludedChildren: (baseId: string) => boolean;
 }
 
-function SummaryComponentFromNode({ targetNode, inExcludedChildren, overrides }: SummaryComponentFromRefProps) {
-  const isHidden = Hidden.useIsHidden(targetNode);
-  if (inExcludedChildren(targetNode) || isHidden) {
+function SummaryComponentFromNode({
+  targetBaseComponentId,
+  inExcludedChildren,
+  overrides,
+}: SummaryComponentFromRefProps) {
+  const isHidden = useIsHidden(targetBaseComponentId);
+  if (inExcludedChildren(targetBaseComponentId) || isHidden) {
     return null;
   }
 
   return (
     <SummaryComponentFor
-      targetNode={targetNode}
+      targetBaseComponentId={targetBaseComponentId}
       overrides={{
         ...overrides,
         grid: {},

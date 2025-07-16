@@ -6,7 +6,7 @@ import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import {
   SearchParams,
   useAllNavigationParamsAsRef,
@@ -22,7 +22,7 @@ import { useAsRef } from 'src/hooks/useAsRef';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useHiddenPages } from 'src/utils/layout/hidden';
 import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
 
 export interface NavigateToPageOptions {
@@ -69,12 +69,12 @@ const useNavigate = () => {
 export const useCurrentView = () => useNavigationParam('pageKey');
 export const usePageOrder = () => {
   const rawOrder = useRawPageOrder();
-  const hiddenPages = Hidden.useHiddenPages();
+  const hiddenPages = useHiddenPages();
   return useMemo(() => rawOrder.filter((page) => !hiddenPages.has(page)), [rawOrder, hiddenPages]);
 };
 
 export const useIsCurrentTask = () => {
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
   const taskId = useNavigationParam('taskId');
   return useMemo(() => {
     if (currentTaskId === undefined && taskId === TaskKeys.CustomReceipt) {
@@ -192,7 +192,7 @@ export function useNavigateToTask() {
 }
 
 export function useIsValidTaskId() {
-  const processTasks = useLaxProcessData()?.processTasks;
+  const processTasks = useProcessQuery().data?.processTasks;
 
   return useCallback(
     (taskId?: string) => {
@@ -249,11 +249,9 @@ export function useNavigatePage() {
   }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, queryKeysRef]);
 
   const waitForSave = FD.useWaitForSave();
-  const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const maybeSaveOnPageChange = useCallback(async () => {
     await waitForSave(autoSaveBehavior === 'onChangePage');
-    await waitForNodesReady();
-  }, [autoSaveBehavior, waitForSave, waitForNodesReady]);
+  }, [autoSaveBehavior, waitForSave]);
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {

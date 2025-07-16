@@ -17,22 +17,20 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import classes from 'src/layout/Dropdown/DropdownComponent.module.css';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IDropdownProps = PropsFromGenericComponent<'Dropdown'>;
-
-export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
-  const item = useNodeItem(node);
-  const isValid = useIsValid(node);
+export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
+  const item = useItemWhenType(baseComponentId, 'Dropdown');
+  const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
   const { langAsString, lang } = useLanguage();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId, overrideDisplay });
 
-  const { options, isFetching, selectedValues, setData } = useGetOptions(node, 'single');
+  const { options, isFetching, selectedValues, setData } = useGetOptions(baseComponentId, 'single');
   const debounce = FD.useDebounceImmediately();
 
   const changeMessageGenerator = useCallback(
@@ -80,7 +78,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
       help={getHelpTextComponent()}
       description={getDescriptionComponent()}
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <ConditionalWrapper
           condition={Boolean(alertOnChange)}
           wrapper={(children) => (
@@ -102,7 +100,7 @@ export function DropdownComponent({ node, overrideDisplay }: IDropdownProps) {
             data-size='sm'
             selected={formatSelectedValues(selectedValues, options)}
             onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
-            onBlur={debounce}
+            onBlur={() => debounce}
             name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={cn(comboboxClasses.container, { [classes.readOnly]: readOnly })}
             style={{ width: '100%' }}
