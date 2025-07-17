@@ -8,8 +8,7 @@ import { fetchUserProfile } from 'src/queries/queries';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import type { IProfile } from 'src/types/shared';
 
-// Also used for prefetching @see appPrefetcher.ts
-export function profileQueryDef(enabled: boolean) {
+function profileQueryOptions(enabled: boolean) {
   return queryOptions<IProfile | null>({
     queryKey: ['fetchUserProfile', enabled],
     queryFn: fetchUserProfile,
@@ -25,7 +24,7 @@ const canHandleProfileQueryError = (error: UseQueryResult<IProfile | undefined>[
 
 export const useProfileQuery = () => {
   const enabled = useShouldFetchProfile();
-  const query = useQuery(profileQueryDef(enabled));
+  const query = useQuery(profileQueryOptions(enabled));
 
   const shouldReturnNull = !enabled || (query.isError && canHandleProfileQueryError(query.error));
 
