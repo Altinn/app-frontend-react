@@ -303,7 +303,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
               <UiConfigProvider>
                 <PageNavigationProvider>
                   <Router>
-                  <NavigationEffectProvider>
+                    <NavigationEffectProvider>
                       <ApplicationMetadataProvider>
                         <GlobalFormDataReadersProvider>
                           <OrgsProvider>
@@ -312,7 +312,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                                 <SetShouldFetchAppLanguages />
                                 <ProfileProvider>
                                   <PartyProvider>
-                                  <TextResourcesProvider>{children}</TextResourcesProvider>
+                                    <TextResourcesProvider>{children}</TextResourcesProvider>
                                   </PartyProvider>
                                 </ProfileProvider>
                               </LayoutSetsProvider>
@@ -320,7 +320,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                           </OrgsProvider>
                         </GlobalFormDataReadersProvider>
                       </ApplicationMetadataProvider>
-                  </NavigationEffectProvider>
+                    </NavigationEffectProvider>
                   </Router>
                 </PageNavigationProvider>
               </UiConfigProvider>
