@@ -64,7 +64,7 @@ function InstanceSelection() {
   const { langAsString } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
-  const instantiation = useInstantiation(true);
+  const instantiation = useInstantiation();
   const selectedParty = useSelectedParty();
   const setNavigationEffect = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
@@ -267,7 +267,15 @@ function InstanceSelection() {
               onClick={() =>
                 performProcess(async () => {
                   if (selectedParty) {
-                    await instantiation.instantiate(selectedParty.partyId, true);
+                    await instantiation.instantiate(selectedParty.partyId, {
+                      force: true,
+                      onSuccess: (data) =>
+                        setNavigationEffect({
+                          targetLocation: `/instance/${data.id}`,
+                          matchStart: true,
+                          callback: focusMainContent,
+                        }),
+                    });
                   }
                 })
               }

@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { MutateOptions } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
-import { focusMainContent } from 'src/hooks/useNavigatePage';
+import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 export interface Prefill {
@@ -21,12 +22,11 @@ export interface Instantiation {
   prefill: Prefill;
 }
 
-function useInstantiateMutation(isUserInitiated: boolean) {
+function useInstantiateMutation() {
   const { doInstantiate } = useAppMutations();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentLanguage = useCurrentLanguage();
-  const setNavigationEffect = useSetNavigationEffect();
 
   return useMutation({
     mutationKey: ['instantiate', 'simple'],
@@ -35,22 +35,17 @@ function useInstantiateMutation(isUserInitiated: boolean) {
       window.logError('Instantiation failed:\n', error);
     },
     onSuccess: async (data) => {
-      const targetLocation = `/instance/${data.id}`;
-      if (isUserInitiated) {
-        setNavigationEffect({ targetLocation, matchStart: true, callback: focusMainContent });
-      }
-      navigate(targetLocation);
+      navigate(`/instance/${data.id}`);
       await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
 }
 
-function useInstantiateWithPrefillMutation(isUserInitiated: boolean) {
+function useInstantiateWithPrefillMutation() {
   const { doInstantiateWithPrefill } = useAppMutations();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const currentLanguage = useCurrentLanguage();
-  const setNavigationEffect = useSetNavigationEffect();
 
   return useMutation({
     mutationKey: ['instantiate', 'withPrefill'],
@@ -59,32 +54,30 @@ function useInstantiateWithPrefillMutation(isUserInitiated: boolean) {
       window.logError('Instantiation with prefill failed:\n', error);
     },
     onSuccess: async (data) => {
-      const targetLocation = `/instance/${data.id}`;
-      if (isUserInitiated) {
-        setNavigationEffect({ targetLocation, matchStart: true, callback: focusMainContent });
-      }
-      navigate(targetLocation);
+      navigate(`/instance/${data.id}`);
       await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
   });
 }
 
-export const useInstantiation = (isUserInitiated: boolean) => {
+type Options<Vars> = MutateOptions<IInstance, AxiosError, Vars, unknown> & { force?: boolean };
+
+export const useInstantiation = () => {
   const queryClient = useQueryClient();
-  const instantiate = useInstantiateMutation(isUserInitiated);
-  const instantiateWithPrefill = useInstantiateWithPrefillMutation(isUserInitiated);
+  const instantiate = useInstantiateMutation();
+  const instantiateWithPrefill = useInstantiateWithPrefillMutation();
 
   const hasAlreadyInstantiated = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] }).length > 0;
 
   return {
-    instantiate: async (instanceOwnerPartyId: number, force: boolean = false) => {
+    instantiate: async (instanceOwnerPartyId: number, { force = false, ...options }: Options<number> = {}) => {
       if (!hasAlreadyInstantiated || force) {
-        await instantiate.mutateAsync(instanceOwnerPartyId).catch(() => {});
+        await instantiate.mutateAsync(instanceOwnerPartyId, options).catch(() => {});
       }
     },
-    instantiateWithPrefill: async (value: Instantiation, force: boolean = false) => {
+    instantiateWithPrefill: async (value: Instantiation, { force = false, ...options }: Options<Instantiation>) => {
       if (!hasAlreadyInstantiated || force) {
-        await instantiateWithPrefill.mutateAsync(value).catch(() => {});
+        await instantiateWithPrefill.mutateAsync(value, options).catch(() => {});
       }
     },
 
