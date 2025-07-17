@@ -10,7 +10,7 @@ import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getSubFormLayoutSetMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { getProfileMock } from 'src/__mocks__/getProfileMock';
-import { useApplicationMetadata } from 'src/features/appData/hooks';
+import { useApplicationMetadata, useLayoutSets } from 'src/features/appData/hooks';
 import { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import { type FunctionTestBase, getSharedTests, type SharedTestFunctionContext } from 'src/features/expressions/shared';
 import { ExprVal } from 'src/features/expressions/types';
@@ -329,6 +329,9 @@ describe('Expressions shared function tests', () => {
       jest.mocked(useApplicationMetadata).mockReturnValue(applicationMetadata);
       jest.mocked(useExternalApis).mockReturnValue(externalApis as ExternalApisResult);
       jest.mocked(fetchProcessState).mockImplementation(async () => process ?? getProcessDataMock());
+      jest
+        .mocked(useLayoutSets)
+        .mockReturnValue([{ id: 'layout-set', dataType: 'default', tasks: ['Task_1'] }, getSubFormLayoutSetMock()]);
 
       const renderFunc = stateless ? renderWithoutInstanceAndLayout : renderWithInstanceAndLayout;
       const { rerender } = await renderFunc({
@@ -341,9 +344,6 @@ describe('Expressions shared function tests', () => {
           />
         ),
         queries: {
-          fetchLayoutSets: async () => ({
-            sets: [{ id: 'layout-set', dataType: 'default', tasks: ['Task_1'] }, getSubFormLayoutSetMock()],
-          }),
           fetchLayouts: async () => layouts,
           fetchFormData,
           fetchInstanceData,

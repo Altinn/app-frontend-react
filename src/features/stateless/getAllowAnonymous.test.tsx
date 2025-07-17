@@ -5,7 +5,7 @@ import { screen } from '@testing-library/react';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
-import { useApplicationMetadata } from 'src/features/appData/hooks';
+import { useApplicationMetadata, useLayoutSets } from 'src/features/appData/hooks';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 
@@ -27,11 +27,10 @@ const render = async (stateless: boolean, allowAnonymous: boolean) => {
       : {}),
   });
 
+  jest.mocked(useLayoutSets).mockReturnValue(getLayoutSetsMock());
+
   return await renderWithoutInstanceAndLayout({
     renderer: () => <TestComponent />,
-    queries: {
-      fetchLayoutSets: () => Promise.resolve(getLayoutSetsMock()),
-    },
   });
 };
 

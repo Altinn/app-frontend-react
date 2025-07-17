@@ -27,7 +27,6 @@ import { DisplayErrorProvider } from 'src/core/errorHandling/DisplayErrorProvide
 import { AppDataContextProvider } from 'src/features/appData/AppDataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
-import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
@@ -97,36 +96,34 @@ function Root() {
       <InstantiationUrlReset />
       <TaskStoreProvider>
         <GlobalFormDataReadersProvider>
-          <LayoutSetsProvider>
-            <SetShouldFetchAppLanguages />
-            <ProfileProvider>
-              <TextResourcesProvider>
-                <OrgsProvider>
-                  <ApplicationSettingsProvider>
-                    <PartyProvider>
-                      <KeepAliveProvider>
-                        <TaskStoreProvider>
-                          <DisplayErrorProvider>
-                            <ProcessingProvider>
-                              <App />
-                            </ProcessingProvider>
-                          </DisplayErrorProvider>
-                        </TaskStoreProvider>
-                        <ToastContainer
-                          position='top-center'
-                          theme='colored'
-                          transition={Slide}
-                          draggable={false}
-                        />
-                        <ScrollRestoration />
-                      </KeepAliveProvider>
-                    </PartyProvider>
-                  </ApplicationSettingsProvider>
-                </OrgsProvider>
-              </TextResourcesProvider>
-            </ProfileProvider>
-            <PartyPrefetcher />
-          </LayoutSetsProvider>
+          <SetShouldFetchAppLanguages />
+          <ProfileProvider>
+            <TextResourcesProvider>
+              <OrgsProvider>
+                <ApplicationSettingsProvider>
+                  <PartyProvider>
+                    <KeepAliveProvider>
+                      <TaskStoreProvider>
+                        <DisplayErrorProvider>
+                          <ProcessingProvider>
+                            <App />
+                          </ProcessingProvider>
+                        </DisplayErrorProvider>
+                      </TaskStoreProvider>
+                      <ToastContainer
+                        position='top-center'
+                        theme='colored'
+                        transition={Slide}
+                        draggable={false}
+                      />
+                      <ScrollRestoration />
+                    </KeepAliveProvider>
+                  </PartyProvider>
+                </ApplicationSettingsProvider>
+              </OrgsProvider>
+            </TextResourcesProvider>
+          </ProfileProvider>
+          <PartyPrefetcher />
         </GlobalFormDataReadersProvider>
       </TaskStoreProvider>
     </>

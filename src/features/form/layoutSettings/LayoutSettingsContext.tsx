@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,8 +7,8 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
+import { AppDataContext } from 'src/features/appData/AppDataProvider';
 import { useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
-import { useLaxGlobalUISettings } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
@@ -129,12 +129,12 @@ const defaults: Required<GlobalPageSettings> = {
 };
 
 export const usePageSettings = (): Required<GlobalPageSettings> => {
-  const globalUISettings = useLaxGlobalUISettings();
+  const globalUISettings = useContext(AppDataContext)?.layoutSets.uiSettings;
   const layoutSettings = useLaxCtx();
 
   return useShallowMemo({
     ...defaults,
-    ...(globalUISettings === ContextNotProvided ? {} : globalUISettings),
+    ...(globalUISettings ?? {}),
     ...(layoutSettings === ContextNotProvided ? {} : layoutSettings.pageSettings),
   });
 };

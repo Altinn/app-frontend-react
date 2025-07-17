@@ -15,7 +15,6 @@ import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
-import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
@@ -137,21 +136,19 @@ async function statelessRender(props: RenderProps) {
       ),
       renderer: () => (
         <GlobalFormDataReadersProvider>
-          <LayoutSetsProvider>
-            <LayoutsProvider>
-              <DataModelsProvider>
-                <LayoutSettingsProvider>
-                  <DynamicsProvider>
-                    <RulesProvider>
-                      <FormDataWriteProxyProvider value={formDataProxies}>
-                        <FormDataWriteProvider>{props.renderer}</FormDataWriteProvider>
-                      </FormDataWriteProxyProvider>
-                    </RulesProvider>
-                  </DynamicsProvider>
-                </LayoutSettingsProvider>
-              </DataModelsProvider>
-            </LayoutsProvider>
-          </LayoutSetsProvider>
+          <LayoutsProvider>
+            <DataModelsProvider>
+              <LayoutSettingsProvider>
+                <DynamicsProvider>
+                  <RulesProvider>
+                    <FormDataWriteProxyProvider value={formDataProxies}>
+                      <FormDataWriteProvider>{props.renderer}</FormDataWriteProvider>
+                    </FormDataWriteProxyProvider>
+                  </RulesProvider>
+                </DynamicsProvider>
+              </LayoutSettingsProvider>
+            </DataModelsProvider>
+          </LayoutsProvider>
         </GlobalFormDataReadersProvider>
       ),
       queries: {

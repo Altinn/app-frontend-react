@@ -1,6 +1,5 @@
-import { useApplicationMetadata } from 'src/features/appData/hooks';
+import { useApplicationMetadata, useLayoutSets } from 'src/features/appData/hooks';
 import { getDataTypeByLayoutSetId } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 
 export const useAllowAnonymous = () => {
   const application = useApplicationMetadata();

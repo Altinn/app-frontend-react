@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
-import { useApplicationMetadata } from 'src/features/appData/hooks';
+import { useApplicationMetadata, useLayoutSets } from 'src/features/appData/hooks';
 import { DataModelFetcher } from 'src/features/formData/FormDataReaders';
 import { Lang } from 'src/features/language/Lang';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -101,6 +101,10 @@ async function render(props: TestProps) {
     return false;
   }
 
+  jest
+    .mocked(useLayoutSets)
+    .mockReturnValue(getLayoutSetsMock().map((set) => ({ ...set, dataType: props.defaultDataModel })));
+
   const utils = await renderWithInstanceAndLayout({
     renderer: () => (
       <>
@@ -111,13 +115,6 @@ async function render(props: TestProps) {
     instanceId: instanceData.id,
     queries: {
       fetchInstanceData: async () => instanceData,
-      fetchLayoutSets: async () => {
-        const mock = getLayoutSetsMock();
-        for (const set of mock.sets) {
-          set.dataType = props.defaultDataModel;
-        }
-        return mock;
-      },
       fetchTextResources: async () => ({
         resources: props.textResources,
         language: 'nb',

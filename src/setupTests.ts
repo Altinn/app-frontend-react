@@ -13,11 +13,12 @@ import { jestPreviewConfigure } from 'jest-preview';
 import { TextDecoder, TextEncoder } from 'util';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+// Importing CSS for jest-preview to look nicer
+import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import type { doProcessNext, fetchProcessState } from 'src/queries/queries';
 import type { AppQueries } from 'src/queries/types';
 
-// Importing CSS for jest-preview to look nicer
 import 'src/index.css';
 import 'src/styles/shared.css';
 
@@ -110,4 +111,6 @@ jest.mock('src/queries/queries', () => ({
 
 jest.mock('src/features/appData/hooks', () => ({
   useApplicationMetadata: jest.fn().mockReturnValue(getApplicationMetadataMock()),
+  useLayoutSets: jest.fn().mockReturnValue(getLayoutSetsMock()),
+  useGlobalUISettings: jest.fn().mockReturnValue(undefined),
 }));

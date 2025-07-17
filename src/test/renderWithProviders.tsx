@@ -24,11 +24,11 @@ import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
+import { useLayoutSets } from 'src/features/appData/hooks';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
-import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
@@ -129,13 +129,14 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doSubformEntryDelete: makeMock('doSubformEntryDelete'),
 });
 
+jest.mocked(useLayoutSets).mockReturnValue(getLayoutSetsMock());
+
 const defaultQueryMocks: AppQueries = {
   fetchLogo: async () => getLogoMock(),
   fetchActiveInstances: async () => [],
   fetchSelectedParty: async () => getPartyMock(),
   fetchApplicationSettings: async () => ({}),
   fetchFooterLayout: async () => ({ footer: [] }) as IFooterLayout,
-  fetchLayoutSets: async () => getLayoutSetsMock(),
   fetchOrgs: async () => ({ orgs: getOrgsMock() }),
   fetchUserProfile: async () => getProfileMock(),
   fetchReturnUrl: async () => Promise.reject(),
@@ -304,14 +305,12 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                     <GlobalFormDataReadersProvider>
                       <OrgsProvider>
                         <ApplicationSettingsProvider>
-                          <LayoutSetsProvider>
-                            <SetShouldFetchAppLanguages />
-                            <ProfileProvider>
-                              <PartyProvider>
-                                <TextResourcesProvider>{children}</TextResourcesProvider>
-                              </PartyProvider>
-                            </ProfileProvider>
-                          </LayoutSetsProvider>
+                          <SetShouldFetchAppLanguages />
+                          <ProfileProvider>
+                            <PartyProvider>
+                              <TextResourcesProvider>{children}</TextResourcesProvider>
+                            </PartyProvider>
+                          </ProfileProvider>
                         </ApplicationSettingsProvider>
                       </OrgsProvider>
                     </GlobalFormDataReadersProvider>

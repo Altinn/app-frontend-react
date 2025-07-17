@@ -2,8 +2,7 @@ import { useEffect } from 'react';
 
 import { queryOptions, skipToken, useQuery } from '@tanstack/react-query';
 
-import { useApplicationMetadata } from 'src/features/appData/hooks';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useApplicationMetadata, useLayoutSets } from 'src/features/appData/hooks';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';

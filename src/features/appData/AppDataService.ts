@@ -1,7 +1,8 @@
 import { queryOptions } from '@tanstack/react-query';
+import { v4 as uuidv4 } from 'uuid';
 
 import { MINIMUM_APPLICATION_VERSION } from 'src/features/applicationMetadata/minVersion';
-import { fetchApplicationMetadata } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchLayoutSets } from 'src/queries/queries';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type {
   ApplicationMetadata,
@@ -41,6 +42,23 @@ export const appDataQueries = {
           isStatelessApp: isStatelessApp(!!instanceGuid, onEntry.show),
           logoOptions: data.logo,
         };
+      },
+    }),
+  layoutSets: () =>
+    queryOptions({
+      queryKey: ['layoutSets'],
+      queryFn: async () => {
+        const layoutSets = await fetchLayoutSets();
+        if (layoutSets?.uiSettings?.taskNavigation) {
+          return {
+            ...layoutSets,
+            uiSettings: {
+              ...layoutSets.uiSettings,
+              taskNavigation: layoutSets.uiSettings.taskNavigation.map((g) => ({ ...g, id: uuidv4() })),
+            },
+          };
+        }
+        return layoutSets;
       },
     }),
 } as const;

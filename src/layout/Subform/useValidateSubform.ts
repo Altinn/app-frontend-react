@@ -1,5 +1,4 @@
-import { useApplicationMetadata } from 'src/features/appData/hooks';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useApplicationMetadata, useLayoutSets } from 'src/features/appData/hooks';
 import { useStrictDataElements } from 'src/features/instance/InstanceContext';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { Validation } from 'src/features/validation/validationContext';
