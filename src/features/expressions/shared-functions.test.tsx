@@ -166,7 +166,7 @@ describe('Expressions shared function tests', () => {
 
   const sharedTests = getSharedTests('functions').content;
 
-  describe.skip.each(sharedTests)('Function: $folderName', (folder) => {
+  describe.each(sharedTests)('Function: $folderName', (folder) => {
     it.each(folder.content)('$name', async (test) => {
       const {
         disabledFrontend,
