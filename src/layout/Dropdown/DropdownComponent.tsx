@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState } from 'react';
 
 import { Combobox } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -33,17 +33,19 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
   const { options, isFetching, selectedValues, setData } = useGetOptions(baseComponentId, 'single');
   const debounce = FD.useDebounceImmediately();
 
-  const changeMessageGenerator = useCallback(
-    (values: string[]) => {
-      const label = options
-        .filter((o) => values.includes(o.value))
-        .map((o) => langAsString(o.label))
-        .join(', ');
+  // Hack to make sure DeleteWarningPopover forces the underlying component to re-render when we cancel the change.
+  // Without this, react-compiler will optimize everything away and the dropdown will keep showing the
+  // value we canceled.
+  const [key, setForceReRender] = useState(0);
 
-      return lang('form_filler.dropdown_alert', [label]);
-    },
-    [lang, langAsString, options],
-  );
+  const changeMessageGenerator = (values: string[]) => {
+    const label = options
+      .filter((o) => values.includes(o.value))
+      .map((o) => langAsString(o.label))
+      .join(', ');
+
+    return lang('form_filler.dropdown_alert', [label]);
+  };
 
   const { alertOpen, setAlertOpen, handleChange, confirmChange, cancelChange, alertMessage } = useAlertOnChange(
     Boolean(alertOnChange),
@@ -73,7 +75,10 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           wrapper={(children) => (
             <DeleteWarningPopover
               onPopoverDeleteClick={confirmChange}
-              onCancelClick={cancelChange}
+              onCancelClick={() => {
+                cancelChange();
+                setForceReRender((prev) => prev + 1);
+              }}
               deleteButtonText={langAsString('form_filler.alert_confirm')}
               messageText={alertMessage}
               open={alertOpen}
@@ -85,6 +90,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
         >
           <Combobox
             id={id}
+            key={key + JSON.stringify(selectedValues)} // This also works around https://github.com/digdir/designsystemet/issues/2264
             filter={optionSearchFilter}
             size='sm'
             hideLabel={true}
