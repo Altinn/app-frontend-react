@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import type { MouseEventHandler } from 'react';
 
 import { Heading, Paragraph, Table } from '@digdir/designsystemet-react';
@@ -14,12 +13,12 @@ import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
   ActiveInstancesProvider,
   useActiveInstances,
 } from 'src/features/instantiate/selection/ActiveInstancesProvider';
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
+import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -245,10 +244,7 @@ function InstanceSelection() {
 
   return (
     <TaskStoreProvider>
-      <Helmet>
-        <title>{`${getPageTitle(appName, langAsString('instance_selection.left_of'), appOwner)}`}</title>
-      </Helmet>
-
+      <title>{`${getPageTitle(appName, langAsString('instance_selection.left_of'), appOwner)}`}</title>
       <div id='instance-selection-container'>
         <div>
           <Heading

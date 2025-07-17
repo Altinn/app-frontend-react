@@ -13,12 +13,12 @@ import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { getComponentDef } from 'src/layout';
-import { GenericComponentByBaseId } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Summary/SummaryComponent.module.css';
 import { SummaryContent } from 'src/layout/Summary/SummaryContent';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { ExprResolved } from 'src/features/expressions/types';
@@ -130,7 +130,7 @@ const SummaryComponentInner = React.forwardRef(function (
 
   const targetView = useLayoutLookups().componentToPage[targetBaseComponentId];
   const indexedId = useIndexedId(targetBaseComponentId);
-  const targetIsHidden = Hidden.useIsHidden(indexedId);
+  const targetIsHidden = useIsHidden(targetBaseComponentId);
 
   const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
@@ -194,7 +194,7 @@ const SummaryComponentInner = React.forwardRef(function (
             RenderSummary={RenderSummary}
           />
         ) : (
-          <GenericComponentByBaseId id={targetBaseComponentId} />
+          <GenericComponent baseComponentId={targetBaseComponentId} />
         )}
         {errors.length && targetItem.type !== 'Group' && !display?.hideValidationMessages ? (
           <Flex

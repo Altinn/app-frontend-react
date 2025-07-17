@@ -4,7 +4,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLayoutLookups, useLayoutLookupsLax } from 'src/features/form/layout/LayoutsContext';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation/index';
 import { selectValidations } from 'src/features/validation/utils';
-import { isHidden, nodesProduce } from 'src/utils/layout/NodesContext';
+import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
@@ -15,19 +15,18 @@ import type {
   NodeVisibility,
   ValidationSeverity,
 } from 'src/features/validation/index';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { IsHiddenOptions, NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
+import type { NodesContext, NodesStoreFull } from 'src/utils/layout/NodesContext';
 import type { NodeDataPluginSetState } from 'src/utils/layout/plugins/NodeDataPlugin';
 
 export type ValidationsSelector = (
-  nodeOrId: LayoutNode | string,
+  nodeId: string,
   mask: NodeVisibility,
   severity?: ValidationSeverity,
   includeHidden?: boolean, // Defaults to false
 ) => AnyValidation[];
 
 export type LaxValidationsSelector = (
-  nodeOrId: LayoutNode | string,
+  nodeId: string,
   mask: NodeVisibility,
   severity?: ValidationSeverity,
   includeHidden?: boolean, // Defaults to false
@@ -35,7 +34,7 @@ export type LaxValidationsSelector = (
 
 export interface ValidationStorePluginConfig {
   extraFunctions: {
-    setNodeVisibility: (nodes: LayoutNode[] | string[], newVisibility: number) => void;
+    setNodeVisibility: (nodeIds: string[], newVisibility: number) => void;
     setAttachmentVisibility: (attachmentId: string, nodeId: string, newVisibility: number) => void;
   };
   extraHooks: {
@@ -44,8 +43,8 @@ export interface ValidationStorePluginConfig {
       | ValidationStorePluginConfig['extraFunctions']['setNodeVisibility']
       | typeof ContextNotProvided;
     useSetAttachmentVisibility: () => ValidationStorePluginConfig['extraFunctions']['setAttachmentVisibility'];
-    useRawValidationVisibility: (node: LayoutNode | undefined) => number;
-    useRawValidations: (node: LayoutNode | undefined) => AnyValidation[];
+    useRawValidationVisibility: (nodeId: string | undefined) => number;
+    useRawValidations: (nodeId: string | undefined) => AnyValidation[];
     useVisibleValidations: (indexedId: string, showAll?: boolean) => AnyValidation[];
     useVisibleValidationsDeep: (
       indexedId: string,
@@ -71,7 +70,6 @@ export interface ValidationStorePluginConfig {
 }
 
 const emptyArray: never[] = [];
-const hiddenOptions: IsHiddenOptions = { respectTracks: true };
 
 export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginConfig> {
   extraFunctions(set: NodeDataPluginSetState) {
@@ -79,9 +77,8 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       setNodeVisibility: (nodes, newVisibility) => {
         set(
           nodesProduce((state) => {
-            for (const node of nodes) {
-              const nodeData = typeof node === 'string' ? state.nodeData[node] : state.nodeData[node.id];
-
+            for (const nodeId of nodes) {
+              const nodeData = state.nodeData[nodeId];
               if (nodeData && 'validationVisibility' in nodeData && 'initialVisibility' in nodeData) {
                 nodeData.validationVisibility = newVisibility | nodeData.initialVisibility;
               }
@@ -114,23 +111,23 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
       useSetNodeVisibility: () => store.useSelector((state) => state.setNodeVisibility),
       useLaxSetNodeVisibility: () => store.useLaxSelector((state) => state.setNodeVisibility),
       useSetAttachmentVisibility: () => store.useSelector((state) => state.setAttachmentVisibility),
-      useRawValidationVisibility: (node) =>
+      useRawValidationVisibility: (nodeId) =>
         store.useSelector((state) => {
-          if (!node) {
+          if (!nodeId) {
             return 0;
           }
-          const nodeData = state.nodeData[node.id];
+          const nodeData = state.nodeData[nodeId];
           if (!nodeData) {
             return 0;
           }
           return 'validationVisibility' in nodeData ? nodeData.validationVisibility : 0;
         }),
-      useRawValidations: (node) =>
+      useRawValidations: (nodeId) =>
         store.useShallowSelector((state) => {
-          if (!node) {
+          if (!nodeId) {
             return emptyArray;
           }
-          const nodeData = state.nodeData[node.id];
+          const nodeData = state.nodeData[nodeId];
           if (!nodeData) {
             return emptyArray;
           }
@@ -174,18 +171,12 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         return store.useDelayedSelector({
           mode: 'simple',
           selector:
-            (
-              nodeOrId: LayoutNode | string,
-              mask: NodeVisibility,
-              severity?: ValidationSeverity,
-              includeHidden: boolean = false,
-            ) =>
+            (nodeId: string, mask: NodeVisibility, severity?: ValidationSeverity, includeHidden: boolean = false) =>
             (state: NodesContext) => {
-              const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
-              const { baseComponentId } = splitDashedKey(id);
+              const { baseComponentId } = splitDashedKey(nodeId);
               return getValidations({
                 state,
-                id,
+                id: nodeId,
                 baseId: baseComponentId,
                 mask,
                 severity,
@@ -200,18 +191,12 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         return store.useLaxDelayedSelector({
           mode: 'simple',
           selector:
-            (
-              nodeOrId: LayoutNode | string,
-              mask: NodeVisibility,
-              severity?: ValidationSeverity,
-              includeHidden: boolean = false,
-            ) =>
+            (nodeId: string, mask: NodeVisibility, severity?: ValidationSeverity, includeHidden: boolean = false) =>
             (state: NodesContext) => {
-              const id = typeof nodeOrId === 'string' ? nodeOrId : nodeOrId.id;
-              const { baseComponentId } = splitDashedKey(id);
+              const { baseComponentId } = splitDashedKey(nodeId);
               return getValidations({
                 state,
-                id,
+                id: nodeId,
                 baseId: baseComponentId,
                 mask,
                 severity,
@@ -338,7 +323,7 @@ function getValidations({
     return emptyArray;
   }
 
-  if (!includeHidden && lookups && isHidden(state, 'node', id, lookups, hiddenOptions)) {
+  if (!includeHidden && lookups && nodeData.hidden) {
     return emptyArray;
   }
 

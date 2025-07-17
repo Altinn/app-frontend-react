@@ -5,6 +5,7 @@ import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
@@ -178,21 +179,6 @@ export const RepGroupHooks = {
     return withHidden.filter((row) => !row.hidden);
   },
 
-  useLastMultiPageIndex(baseComponentId: string) {
-    const component = useExternalItem(baseComponentId, 'RepeatingGroup');
-    if (!component.edit?.multiPage) {
-      return undefined;
-    }
-
-    let lastMultiPageIndex = 0;
-    for (const id of component.children) {
-      const [multiPageIndex] = id.split(':', 2);
-      lastMultiPageIndex = Math.max(lastMultiPageIndex, parseInt(multiPageIndex));
-    }
-
-    return lastMultiPageIndex;
-  },
-
   useChildIds(baseComponentId: string) {
     const component = useExternalItem(baseComponentId, 'RepeatingGroup');
     if (!component?.edit?.multiPage) {
@@ -208,19 +194,37 @@ export const RepGroupHooks = {
     return childIds;
   },
 
-  useChildIdsWithMultiPage(baseComponentId: string): { id: string; multiPageIndex: number | undefined }[] {
+  useChildIdsWithMultiPage(
+    baseComponentId: string,
+  ): { baseId: string; indexedId: string; multiPageIndex: number | undefined }[] {
     const component = useExternalItem(baseComponentId, 'RepeatingGroup');
     const idMutator = useComponentIdMutator();
     if (!component?.edit?.multiPage) {
-      return component?.children.map(idMutator).map((id) => ({ id, multiPageIndex: undefined })) ?? [];
+      return (
+        component?.children.map((baseId) => ({ baseId, indexedId: idMutator(baseId), multiPageIndex: undefined })) ?? []
+      );
     }
 
-    const children: { id: string; multiPageIndex: number | undefined }[] = [];
+    const children: { baseId: string; indexedId: string; multiPageIndex: number | undefined }[] = [];
     for (const id of component.children) {
       const [multiPageIndex, baseId] = id.split(':', 2);
-      children.push({ id: idMutator(baseId), multiPageIndex: parseInt(multiPageIndex) });
+      children.push({ baseId, indexedId: idMutator(baseId), multiPageIndex: parseInt(multiPageIndex) });
     }
 
     return children;
+  },
+
+  useChildIdsWithMultiPageAndHidden(
+    baseComponentId: string,
+  ): { baseId: string; indexedId: string; multiPageIndex: number | undefined; hidden: boolean }[] {
+    const withMultiPage = RepGroupHooks.useChildIdsWithMultiPage(baseComponentId);
+    const hidden = useIsHiddenMulti(withMultiPage.map(({ baseId }) => baseId));
+
+    return withMultiPage.map(({ baseId, indexedId, multiPageIndex }) => ({
+      baseId,
+      indexedId,
+      multiPageIndex,
+      hidden: hidden[baseId] ?? false,
+    }));
   },
 };

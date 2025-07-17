@@ -51,13 +51,14 @@ export const ControlledRadioGroup = (props: PropsFromGenericComponent<'RadioButt
   let leftColumnHeader: string | undefined = undefined;
   if (parent?.type === 'node' && layoutLookups.getComponent(parent.id).type === 'Likert') {
     // The parent node type never changes, so this doesn't break the rule of hooks
+    // eslint-disable-next-line react-compiler/react-compiler
     // eslint-disable-next-line react-hooks/rules-of-hooks
     leftColumnHeader = useItemWhenType(parent.id, 'Likert').textResourceBindings?.leftColumnHeader;
   }
 
   const labelText = (
     <LabelContent
-      componentId={id}
+      id={id}
       label={
         <>
           {leftColumnHeader ? (
