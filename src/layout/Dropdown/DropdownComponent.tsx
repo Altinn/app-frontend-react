@@ -90,7 +90,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
         >
           <Combobox
             id={id}
-            key={key + JSON.stringify(selectedValues)} // This also works around https://github.com/digdir/designsystemet/issues/2264
+            key={key}
             filter={optionSearchFilter}
             size='sm'
             hideLabel={true}
