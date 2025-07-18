@@ -52,8 +52,6 @@ type AddRowResult =
 interface ContextMethods extends ExtendedState {
   addRow: () => Promise<AddRowResult>;
   deleteRow: (row: BaseRow) => Promise<boolean>;
-  isEditing: (uuid: string) => boolean;
-  isDeleting: (uuid: string) => boolean;
   changePage: (page: number) => Promise<void>;
   changePageToRow: (row: BaseRow) => Promise<void>;
 }
@@ -411,19 +409,6 @@ function useExtendedRepeatingGroupState(baseComponentId: string): ExtendedContex
     rawChangePage(page);
   };
 
-  const isEditing = (uuid: string) => {
-    const editingAll = delayedSelector((s) => s.editingAll, []);
-    const editingId = delayedSelector((s) => s.editingId, []);
-    const editingNone = delayedSelector((s) => s.editingNone, []);
-    if (editingAll) {
-      return true;
-    }
-    if (editingNone) {
-      return false;
-    }
-    return editingId === uuid;
-  };
-
   const addRow = async (): Promise<AddRowResult> => {
     if (!groupBinding) {
       return { result: 'stoppedByBinding', uuid: undefined, index: undefined };
@@ -494,15 +479,11 @@ function useExtendedRepeatingGroupState(baseComponentId: string): ExtendedContex
     return false;
   };
 
-  const isDeleting = (uuid: string) => delayedSelector((s) => s.deletingIds, []).includes(uuid);
-
   return {
     baseComponentId,
     addRow,
     deleteRow,
-    isDeleting,
     closeForEditing,
-    isEditing,
     openForEditing,
     openNextForEditing,
     toggleEditing,
@@ -592,3 +573,23 @@ export const useRepeatingGroupPagination = () => {
 export function useRepeatingGroupSelector<T>(selector: (state: Store) => T): T {
   return ZStore.useMemoSelector(selector);
 }
+
+export const RepGroupContext = {
+  useIsEditingRow(uuid: string | undefined) {
+    return ZStore.useSelector((state) => {
+      if (state.editingAll) {
+        return true;
+      }
+      if (state.editingNone) {
+        return false;
+      }
+      if (uuid === undefined) {
+        return false;
+      }
+      return state.editingId === uuid;
+    });
+  },
+  useIsDeletingRow(uuid: string | undefined) {
+    return ZStore.useSelector((state) => (uuid ? state.deletingIds.includes(uuid) : false));
+  },
+};
