@@ -299,17 +299,14 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
 
   useLayoutEffect(() => {
     if (addNodeRequests.length > 0) {
-      console.log('debug, committing', addNodeRequests.length, 'add node requests');
       addNodes(addNodeRequests);
       setAddNodeRequests([]);
     }
     if (removeNodeRequests.length > 0) {
-      console.log('debug, committing', removeNodeRequests.length, 'remove node requests');
       removeNodes(removeNodeRequests);
       setRemoveNodeRequests([]);
     }
     if (nodePropsRequests.length > 0) {
-      console.log('debug, committing', nodePropsRequests.length, 'node props requests');
       setNodeProps(nodePropsRequests);
       setNodePropsRequests([]);
     }
