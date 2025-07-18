@@ -101,8 +101,8 @@ function AddRemoveNode<T extends CompTypes>({
   const isAdded = NodesInternal.useIsAdded(intermediateItem.id, 'node');
 
   const def = getComponentDef(intermediateItem.type);
-  const addNode = NodesInternal.useAddNode();
-  const removeNode = NodesInternal.useRemoveNode();
+  const addNode = GeneratorInternal.useAddNode();
+  const removeNode = GeneratorInternal.useRemoveNode();
 
   // This state is intentionally not reactive, as we want to commit _what the layout was when this node was created_,
   // so that we don't accidentally remove a node with the same ID from a future/different layout.

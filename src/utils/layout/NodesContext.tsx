@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useLayoutEffect, useRef } from 'react';
 import type { PropsWithChildren, RefObject } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -89,9 +89,9 @@ export type NodesContext = {
   hiddenViaRules: { [key: string]: true | undefined };
   hiddenViaRulesRan: boolean;
   layouts: ILayouts | undefined; // Used to detect if the layouts have changed
-  addNode: (request: AddNodeRequest) => void;
-  removeNode: (request: RemoveNodeRequest) => void;
-  setNodeProp: (request: SetNodePropRequest) => void;
+  addNodes: (requests: AddNodeRequest[]) => void;
+  removeNodes: (requests: RemoveNodeRequest[]) => void;
+  setNodeProps: (requests: SetNodePropRequest[]) => void;
   addError: (error: string, id: string, type: 'node' | 'page') => void;
   markHiddenViaRule: (hiddenFields: { [nodeId: string]: true }) => void;
 
@@ -142,44 +142,61 @@ export function createNodesDataStore({ validationsProcessedLast, ...props }: Cre
         return { hiddenViaRules: newState, hiddenViaRulesRan: true };
       }),
 
-    addNode: ({ nodeId, targetState }) =>
+    addNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        nodeData[nodeId] = targetState;
+        for (const { nodeId, targetState } of requests) {
+          nodeData[nodeId] = targetState;
+        }
+
         return { nodeData };
       }),
-    removeNode: ({ nodeId, layouts }) =>
+    removeNodes: (requests) =>
       set((state) => {
         const nodeData = { ...state.nodeData };
-        if (!nodeData[nodeId]) {
+
+        let count = 0;
+        for (const { nodeId, layouts } of requests) {
+          if (!nodeData[nodeId]) {
+            continue;
+          }
+
+          if (layouts !== state.layouts) {
+            // The layouts have changed since the request was added, so there's no need to remove the node (it was
+            // automatically removed when resetting the NodesContext state upon the layout change)
+            continue;
+          }
+
+          delete nodeData[nodeId];
+          count += 1;
+        }
+
+        if (count === 0) {
           return {};
         }
 
-        if (layouts !== state.layouts) {
-          // The layouts have changed since the request was added, so there's no need to remove the node (it was
-          // automatically removed when resetting the NodesContext state upon the layout change)
-          return {};
-        }
-
-        delete nodeData[nodeId];
         return { nodeData };
       }),
-    setNodeProp: ({ nodeId, prop, value }) =>
+    setNodeProps: (requests) =>
       set((state) => {
+        let changes = false;
         const nodeData = { ...state.nodeData };
-        if (!nodeData[nodeId]) {
-          return {};
+        for (const { nodeId, prop, value } of requests) {
+          if (!nodeData[nodeId]) {
+            continue;
+          }
+
+          const thisNode = { ...nodeData[nodeId] };
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          thisNode[prop as any] = value;
+
+          if (!deepEqual(nodeData[nodeId][prop], thisNode[prop])) {
+            changes = true;
+            nodeData[nodeId] = thisNode;
+          }
         }
-
-        const thisNode = { ...nodeData[nodeId] };
-        thisNode[prop] = value;
-
-        if (deepEqual(nodeData[nodeId][prop], thisNode[prop])) {
-          return {};
-        }
-
-        nodeData[nodeId] = thisNode;
-        return { nodeData };
+        return changes ? { nodeData } : {};
       }),
     addError: (error, id, type) =>
       set(
@@ -267,11 +284,36 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const reset = Store.useSelector((s) => s.reset);
   const getProcessedLast = Validation.useGetProcessedLast();
 
+  const addNodes = Store.useStaticSelector((s) => s.addNodes);
+  const removeNodes = Store.useStaticSelector((s) => s.removeNodes);
+  const setNodeProps = Store.useStaticSelector((s) => s.setNodeProps);
+  const [addNodeRequests, setAddNodeRequests] = React.useState<AddNodeRequest[]>([]);
+  const [removeNodeRequests, setRemoveNodeRequests] = React.useState<RemoveNodeRequest[]>([]);
+  const [nodePropsRequests, setNodePropsRequests] = React.useState<SetNodePropRequest[]>([]);
+
   useEffect(() => {
     if (layouts !== latestLayouts) {
       reset(latestLayouts, getProcessedLast());
     }
   }, [latestLayouts, layouts, reset, getProcessedLast]);
+
+  useLayoutEffect(() => {
+    if (addNodeRequests.length > 0) {
+      console.log('debug, committing', addNodeRequests.length, 'add node requests');
+      addNodes(addNodeRequests);
+      setAddNodeRequests([]);
+    }
+    if (removeNodeRequests.length > 0) {
+      console.log('debug, committing', removeNodeRequests.length, 'remove node requests');
+      removeNodes(removeNodeRequests);
+      setRemoveNodeRequests([]);
+    }
+    if (nodePropsRequests.length > 0) {
+      console.log('debug, committing', nodePropsRequests.length, 'node props requests');
+      setNodeProps(nodePropsRequests);
+      setNodePropsRequests([]);
+    }
+  }, [addNodeRequests, addNodes, nodePropsRequests, removeNodeRequests, removeNodes, setNodeProps]);
 
   if (layouts !== latestLayouts) {
     // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
@@ -282,6 +324,9 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     <GeneratorGlobalProvider
       layouts={layouts}
       registry={registry}
+      addNode={(req) => setAddNodeRequests((reqs) => [...reqs, req])}
+      removeNode={(req) => setRemoveNodeRequests((reqs) => [...reqs, req])}
+      setNodeProp={(req) => setNodePropsRequests((reqs) => [...reqs, req])}
     >
       {children}
     </GeneratorGlobalProvider>
@@ -406,10 +451,7 @@ export const NodesInternal = {
   useLaxMemoSelector: <T,>(selector: (state: NodesContext) => T) => Store.useLaxMemoSelector(selector),
 
   useStore: () => Store.useStore(),
-  useSetNodeProp: () => Store.useStaticSelector((s) => s.setNodeProp),
   useAddPage: () => Store.useStaticSelector((s) => s.addPage),
-  useAddNode: () => Store.useStaticSelector((s) => s.addNode),
-  useRemoveNode: () => Store.useStaticSelector((s) => s.removeNode),
   useAddError: () => Store.useStaticSelector((s) => s.addError),
   useMarkHiddenViaRule: () => Store.useStaticSelector((s) => s.markHiddenViaRule),
 
