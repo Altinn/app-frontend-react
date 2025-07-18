@@ -1,7 +1,4 @@
-import {
-  useApplicationMetadata,
-  useHasApplicationMetadata,
-} from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useHasTextResources } from 'src/features/language/textResources/TextResourcesProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -19,11 +16,10 @@ export function useTextResourceOr<T extends string | undefined>(resource: string
 }
 
 export function useHasAppTextsYet() {
-  const hasAppMetadata = useHasApplicationMetadata();
   const hasOrgs = useHasOrgs();
   const hasTexts = useHasTextResources();
 
-  return hasAppMetadata && hasOrgs && hasTexts;
+  return hasOrgs && hasTexts;
 }
 
 export function useAppName() {

@@ -6,13 +6,13 @@ import { userEvent } from '@testing-library/user-event';
 import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
 
-import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getAttachmentsMock } from 'src/__mocks__/getAttachmentsMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderGenericComponentTest, renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IGetAttachmentsMock } from 'src/__mocks__/getAttachmentsMock';
 import type { IRawOption } from 'src/layout/common.generated';
@@ -501,17 +501,20 @@ describe('File uploading components', () => {
     attachments: attachmentsGenerator = (dataType) => getDataElements({ dataType }),
     queries,
   }: Props<T>) {
-    jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
-      getIncomingApplicationMetadataMock((a) => {
-        a.dataTypes.push({
+    const id = uuidv4();
+    const appMetadataMock = getApplicationMetadataMock();
+    jest.mocked(useApplicationMetadata).mockReturnValue({
+      ...appMetadataMock,
+      dataTypes: [
+        ...appMetadataMock.dataTypes,
+        {
           id,
           allowedContentTypes: ['image/png'],
           maxCount: 4,
           minCount: 1,
-        });
-      }),
-    );
-    const id = uuidv4();
+        },
+      ],
+    });
     const attachments = attachmentsGenerator(id);
 
     const textResourceBindings = {

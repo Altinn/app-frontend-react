@@ -24,10 +24,9 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { DisplayErrorProvider } from 'src/core/errorHandling/DisplayErrorProvider';
-import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { AppDataContextProvider } from 'src/features/appData/AppDataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
-import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
@@ -66,7 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         element: (
                           <NavigationEffectProvider>
                             <ErrorBoundary>
-                              <Root />
+                              <AppDataContextProvider>
+                                <Root />
+                              </AppDataContextProvider>
                             </ErrorBoundary>
                           </NavigationEffectProvider>
                         ),
@@ -94,40 +95,36 @@ function Root() {
     <>
       <InstantiationUrlReset />
       <TaskStoreProvider>
-        <ApplicationMetadataProvider>
-          <GlobalFormDataReadersProvider>
-            <LayoutSetsProvider>
-              <SetShouldFetchAppLanguages />
-              <ProfileProvider>
-                <TextResourcesProvider>
-                  <OrgsProvider>
-                    <ApplicationSettingsProvider>
-                      <PartyProvider>
-                        <KeepAliveProvider>
-                          <TaskStoreProvider>
-                            <DisplayErrorProvider>
-                              <ProcessingProvider>
-                                <App />
-                              </ProcessingProvider>
-                            </DisplayErrorProvider>
-                          </TaskStoreProvider>
-                          <ToastContainer
-                            position='top-center'
-                            theme='colored'
-                            transition={Slide}
-                            draggable={false}
-                          />
-                          <ScrollRestoration />
-                        </KeepAliveProvider>
-                      </PartyProvider>
-                    </ApplicationSettingsProvider>
-                  </OrgsProvider>
-                </TextResourcesProvider>
-              </ProfileProvider>
-              <PartyPrefetcher />
-            </LayoutSetsProvider>
-          </GlobalFormDataReadersProvider>
-        </ApplicationMetadataProvider>
+        <GlobalFormDataReadersProvider>
+          <SetShouldFetchAppLanguages />
+          <ProfileProvider>
+            <TextResourcesProvider>
+              <OrgsProvider>
+                <ApplicationSettingsProvider>
+                  <PartyProvider>
+                    <KeepAliveProvider>
+                      <TaskStoreProvider>
+                        <DisplayErrorProvider>
+                          <ProcessingProvider>
+                            <App />
+                          </ProcessingProvider>
+                        </DisplayErrorProvider>
+                      </TaskStoreProvider>
+                      <ToastContainer
+                        position='top-center'
+                        theme='colored'
+                        transition={Slide}
+                        draggable={false}
+                      />
+                      <ScrollRestoration />
+                    </KeepAliveProvider>
+                  </PartyProvider>
+                </ApplicationSettingsProvider>
+              </OrgsProvider>
+            </TextResourcesProvider>
+          </ProfileProvider>
+          <PartyPrefetcher />
+        </GlobalFormDataReadersProvider>
       </TaskStoreProvider>
     </>
   );

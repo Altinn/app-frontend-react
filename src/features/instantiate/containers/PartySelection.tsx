@@ -10,7 +10,7 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
 import { AltinnParty } from 'src/components/altinnParty';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { InstantiationContainer } from 'src/features/instantiate/containers/InstantiationContainer';
 import classes from 'src/features/instantiate/containers/PartySelection.module.css';
 import { Lang } from 'src/features/language/Lang';

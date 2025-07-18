@@ -1,4 +1,3 @@
-import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import {
   getCurrentDataTypeForApplication,
@@ -10,7 +9,14 @@ import type { ILayoutSet } from 'src/layout/common.generated';
 import type { IData } from 'src/types/shared';
 
 describe('appMetadata.ts', () => {
-  const incomingAppMetadata = getIncomingApplicationMetadataMock({
+  const appMetadata: ApplicationMetadata = {
+    id: 'mockOrg/test-app',
+    org: 'mockOrg',
+    title: {
+      nb: 'Test App',
+    },
+    autoDeleteOnProcessEnd: false,
+    altinnNugetVersion: '8.5.0.141',
     dataTypes: [
       {
         id: 'ref-data-as-pdf',
@@ -67,13 +73,16 @@ describe('appMetadata.ts', () => {
         minCount: 1,
       },
     ],
-  });
-  const appMetadata: ApplicationMetadata = {
-    ...incomingAppMetadata,
+    partyTypesAllowed: {
+      bankruptcyEstate: false,
+      organisation: false,
+      person: true,
+      subUnit: true,
+    },
+    onEntry: { show: 'new-instance' },
     isStatelessApp: false,
     isValidVersion: true,
-    logoOptions: incomingAppMetadata.logo,
-    onEntry: { show: 'new-instance' },
+    logoOptions: undefined,
   };
 
   const instance = getInstanceDataMock();

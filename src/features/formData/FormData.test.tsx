@@ -1,6 +1,6 @@
+import type { PropsWithChildren } from 'react';
 import React, { useState } from 'react';
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
-import type { PropsWithChildren } from 'react';
 
 import { afterAll, beforeAll, expect, jest } from '@jest/globals';
 import { act, screen, waitFor } from '@testing-library/react';
@@ -8,27 +8,25 @@ import { userEvent } from '@testing-library/user-event';
 import dot from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
-import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { defaultDataTypeMock, statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
-import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
-import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
+import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { fetchApplicationMetadata } from 'src/queries/queries';
 import {
   makeFormDataMethodProxies,
   renderWithInstanceAndLayout,
   renderWithMinimalProviders,
 } from 'src/test/renderWithProviders';
-import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 
 interface DataModelFlat {
   'obj1.prop1': string;
@@ -102,11 +100,12 @@ const mockSchema: JSONSchema7 = {
 type MinimalRenderProps = Partial<Omit<Parameters<typeof renderWithInstanceAndLayout>[0], 'renderer'>>;
 type RenderProps = MinimalRenderProps & { renderer: React.ReactElement };
 async function statelessRender(props: RenderProps) {
-  jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
-    getIncomingApplicationMetadataMock({
+  jest.mocked(useApplicationMetadata).mockReturnValue(
+    getApplicationMetadataMock({
       onEntry: {
         show: 'stateless',
       },
+      isStatelessApp: true,
     }),
   );
   const initialRenderRef = { current: true };
@@ -136,25 +135,21 @@ async function statelessRender(props: RenderProps) {
         </MemoryRouter>
       ),
       renderer: () => (
-        <ApplicationMetadataProvider>
-          <GlobalFormDataReadersProvider>
-            <LayoutSetsProvider>
-              <LayoutsProvider>
-                <DataModelsProvider>
-                  <LayoutSettingsProvider>
-                    <DynamicsProvider>
-                      <RulesProvider>
-                        <FormDataWriteProxyProvider value={formDataProxies}>
-                          <FormDataWriteProvider>{props.renderer}</FormDataWriteProvider>
-                        </FormDataWriteProxyProvider>
-                      </RulesProvider>
-                    </DynamicsProvider>
-                  </LayoutSettingsProvider>
-                </DataModelsProvider>
-              </LayoutsProvider>
-            </LayoutSetsProvider>
-          </GlobalFormDataReadersProvider>
-        </ApplicationMetadataProvider>
+        <GlobalFormDataReadersProvider>
+          <LayoutsProvider>
+            <DataModelsProvider>
+              <LayoutSettingsProvider>
+                <DynamicsProvider>
+                  <RulesProvider>
+                    <FormDataWriteProxyProvider value={formDataProxies}>
+                      <FormDataWriteProvider>{props.renderer}</FormDataWriteProvider>
+                    </FormDataWriteProxyProvider>
+                  </RulesProvider>
+                </DynamicsProvider>
+              </LayoutSettingsProvider>
+            </DataModelsProvider>
+          </LayoutsProvider>
+        </GlobalFormDataReadersProvider>
       ),
       queries: {
         fetchDataModelSchema: async () => mockSchema,
@@ -167,9 +162,11 @@ async function statelessRender(props: RenderProps) {
 }
 
 async function statefulRender(props: RenderProps) {
-  jest
-    .mocked(fetchApplicationMetadata)
-    .mockImplementationOnce(() => Promise.resolve(getIncomingApplicationMetadataMock()));
+  jest.mocked(useApplicationMetadata).mockReturnValue(
+    getApplicationMetadataMock({
+      isStatelessApp: false,
+    }),
+  );
   return await renderWithInstanceAndLayout({
     ...props,
     alwaysRouteToChildren: true,

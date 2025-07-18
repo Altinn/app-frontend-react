@@ -1,5 +1,5 @@
 import { createHookContext } from 'src/core/contexts/hookContext';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useApplicationMetadata } from 'src/features/appData/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';

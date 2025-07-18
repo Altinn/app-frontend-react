@@ -1,11 +1,11 @@
 import React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
+import { useAttachmentsFor } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import classes from 'src/layout/FileUpload/Summary/AttachmentSummaryComponent.module.css';
-import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { CompTypes } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
@@ -17,7 +17,7 @@ function isValidType(type: CompTypes): boolean {
 }
 
 export function AttachmentSummaryComponent({ targetBaseComponentId }: SummaryRendererProps) {
-  const attachments = useUploaderSummaryData(targetBaseComponentId);
+  const attachments = useAttachmentsFor(targetBaseComponentId);
   const { langAsString } = useLanguage();
   const component = useItemWhenType<ValidTypes>(targetBaseComponentId, isValidType);
   const hasTag = component.type === 'FileUploadWithTag';

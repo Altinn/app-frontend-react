@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { screen } from '@testing-library/dom';
+import { v4 as uuidv4 } from 'uuid';
 
-import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
+import { AppDataContext } from 'src/features/appData/AppDataProvider';
 import {
   usePageGroups,
   usePageSettings,
@@ -10,12 +11,14 @@ import {
 } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type {
-  ILayoutSets,
   ILayoutSettings,
   NavigationPageGroup,
   NavigationReceipt,
   NavigationTask,
 } from 'src/layout/common.generated';
+
+// Store original useContext to avoid circular dependency
+const originalUseContext = React.useContext;
 
 describe('LayoutSettingsContext', () => {
   const UUID = /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/;
@@ -32,6 +35,22 @@ describe('LayoutSettingsContext', () => {
     taskNavigation?: (Omit<NavigationTask, 'id'> | Omit<NavigationReceipt, 'id'>)[];
     overrideTaskNavigation?: (Omit<NavigationTask, 'id'> | Omit<NavigationReceipt, 'id'>)[];
   }) {
+    jest.spyOn(React, 'useContext').mockImplementation((context) => {
+      if (context === AppDataContext) {
+        return {
+          appMetadata: {},
+          layoutSets: {
+            sets: [],
+            uiSettings: taskNavigation
+              ? { taskNavigation: taskNavigation.map((g) => ({ ...g, id: uuidv4() })) }
+              : undefined,
+          },
+        };
+      }
+
+      return originalUseContext(context);
+    });
+
     return renderWithInstanceAndLayout({
       renderer,
       initialPage: order?.[0] ?? groups?.[0].order[0],
@@ -44,13 +63,6 @@ describe('LayoutSettingsContext', () => {
               ...(overrideTaskNavigation && { taskNavigation: overrideTaskNavigation }),
             },
           }) as ILayoutSettings,
-        fetchLayoutSets: async () =>
-          ({
-            ...getLayoutSetsMock(),
-            ...(taskNavigation && {
-              uiSettings: { taskNavigation },
-            }),
-          }) as ILayoutSets,
       },
     });
   }
@@ -170,7 +182,7 @@ describe('LayoutSettingsContext', () => {
       );
     };
 
-    it('returns empy array when not specified', async () => {
+    it('returns empty array when not specified', async () => {
       await render({ renderer: () => <UseTaskNavigation />, order: ['first'] });
       expect(screen.queryByTestId('task-group-id')).not.toBeInTheDocument();
       expect(screen.queryByTestId('task-group-name')).not.toBeInTheDocument();
