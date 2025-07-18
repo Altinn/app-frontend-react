@@ -14,7 +14,6 @@ import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditCont
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination';
 import {
   RepGroupContext,
-  useRepeatingGroup,
   useRepeatingGroupComponentId,
   useRepeatingGroupPagination,
   useRepeatingGroupRowState,
@@ -35,7 +34,7 @@ import type { BaseRow } from 'src/utils/layout/types';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { baseComponentId } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
   const { rowsToDisplay } = useRepeatingGroupPagination();
   const rows = RepGroupHooks.useAllRowsWithButtons(baseComponentId);
   const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, dataModelBindings } =

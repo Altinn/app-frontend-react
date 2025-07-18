@@ -6,7 +6,10 @@ import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useRegisterNavigationHandler } from 'src/features/form/layout/NavigateToNode';
 import { isRepeatingComponentType } from 'src/features/form/layout/utils/repeating';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useRepeatingGroup } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import {
+  RepGroupContext,
+  useRepeatingGroupComponentId,
+} from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useIntermediateItem } from 'src/utils/layout/hooks';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { ParentRef } from 'src/features/form/layout/makeLayoutLookups';
@@ -41,7 +44,9 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   const elementRefs = useMemo(() => new Map<string, HTMLElement | null>(), []);
   const waitingForFocus = useRef<number | null>(null);
 
-  const { baseComponentId, openForEditing, changePageToRow } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
+  const openForEditing = RepGroupContext.useOpenForEditing();
+  const changePageToRow = RepGroupContext.useChangePageToRow();
   const { dataModelBindings, pagination, tableColumns, edit } = useIntermediateItem(baseComponentId, 'RepeatingGroup');
   const rowsSelector = FD.useDebouncedRowsSelector();
   const layoutLookups = useLayoutLookups();

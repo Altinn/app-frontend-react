@@ -19,7 +19,6 @@ import { getComponentDef } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import {
   RepGroupContext,
-  useRepeatingGroup,
   useRepeatingGroupComponentId,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupFocusContext';
@@ -88,7 +87,9 @@ export function RepeatingGroupTableRow({
   const mobileViewSmall = useIsMobile();
   const { refSetter } = useRepeatingGroupsFocusContext();
 
-  const { baseComponentId, deleteRow, toggleEditing } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
+  const deleteRow = RepGroupContext.useDeleteRow();
+  const toggleEditing = RepGroupContext.useToggleEditing();
   const indexedId = useIndexedId(baseComponentId);
   const langTools = useLanguage();
   const { langAsString } = langTools;
