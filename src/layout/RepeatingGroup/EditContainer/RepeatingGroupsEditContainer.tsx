@@ -15,7 +15,6 @@ import {
 } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupEditContext';
 import {
   RepGroupContext,
-  useRepeatingGroup,
   useRepeatingGroupComponentId,
   useRepeatingGroupRowState,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
@@ -59,7 +58,10 @@ function RepeatingGroupsEditContainerInternal({
 }: IRepeatingGroupsEditContainer & {
   row: RepGroupRow;
 }): JSX.Element | null {
-  const { baseComponentId, closeForEditing, deleteRow, openNextForEditing } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
+  const closeForEditing = RepGroupContext.useCloseForEditing();
+  const deleteRow = RepGroupContext.useDeleteRow();
+  const openNextForEditing = RepGroupContext.useOpenNextForEditing();
   const { visibleRows } = useRepeatingGroupRowState();
   const childIds = RepGroupHooks.useChildIdsWithMultiPage(baseComponentId);
 

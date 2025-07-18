@@ -8,7 +8,8 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMini, useIsMobile, useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import classes from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination.module.css';
 import {
-  useRepeatingGroup,
+  RepGroupContext,
+  useRepeatingGroupComponentId,
   useRepeatingGroupPagination,
   useRepeatingGroupRowState,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
@@ -33,7 +34,8 @@ export function RepeatingGroupPagination(props: RepeatingGroupPaginationProps) {
   return <RGPagination {...props} />;
 }
 function RGPagination({ inTable = true }: RepeatingGroupPaginationProps) {
-  const { changePage, baseComponentId } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
+  const changePage = RepGroupContext.useChangePage();
   const { hasPagination, rowsPerPage, currentPage, totalPages } = useRepeatingGroupPagination();
   const pagesWithErrors = usePagesWithErrors(rowsPerPage, baseComponentId);
   const isTablet = useIsMobileOrTablet();
