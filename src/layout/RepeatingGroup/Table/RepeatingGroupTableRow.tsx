@@ -336,7 +336,7 @@ function EditElement({
   editButtonText: string;
   rowHasErrors: boolean;
 }) {
-  const firstCellData = useFirstCellData();
+  const ariaLabel = useAriaLabel(editButtonText);
   return (
     <Button
       aria-expanded={ariaExpanded}
@@ -345,7 +345,7 @@ function EditElement({
       color='second'
       icon={!ariaExpanded && mobileViewSmall}
       onClick={onClick}
-      aria-label={`${editButtonText} ${firstCellData}`}
+      aria-label={ariaLabel}
       className={classes.tableButton}
     >
       {(ariaExpanded || !mobileViewSmall) && editButtonText}
@@ -388,7 +388,7 @@ function DeleteElement({
   disabled?: boolean;
   children: React.ReactNode;
 }) {
-  const firstCellData = useFirstCellData();
+  const ariaLabel = useAriaLabel(deleteButtonText);
   return (
     <>
       {editForRow?.alertOnDelete && (
@@ -409,7 +409,7 @@ function DeleteElement({
         popoverTarget={`delete-warning-popover-${uuid}`}
         disabled={isDeletingRow || disabled}
         onClick={() => handleDelete({ index, uuid })}
-        aria-label={`${deleteButtonText}-${firstCellData}`}
+        aria-label={ariaLabel}
         icon={!children}
         className={classes.tableButton}
       >
@@ -456,13 +456,13 @@ function DisplayData({ baseComponentId }: { baseComponentId: string }) {
   return useDisplayData(baseComponentId);
 }
 
-function useFirstCellData() {
+function useAriaLabel(prefix: string) {
   const baseComponentId = useRepeatingGroupComponentId();
   const rawTableIds = useTableComponentIds(baseComponentId);
   const displayData = useDisplayDataFor(rawTableIds);
-  const firstCellData = Object.values(displayData).find((c) => !!c);
+  const firstCellData = Object.values(displayData).find((c) => !!c) ?? '';
 
-  return firstCellData ?? '';
+  return firstCellData ? `${prefix} ${firstCellData}` : prefix;
 }
 
 function FindDeepValidations({
