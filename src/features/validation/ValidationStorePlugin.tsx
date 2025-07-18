@@ -354,18 +354,12 @@ export function getRecursiveValidations(props: GetDeepValidationsProps): NodeRef
     }
   }
 
-  const children = Object.values(props.state.nodeData)
-    .filter(
-      (nodeData) =>
-        nodeData.parentId === props.id && (props.restriction === undefined || props.restriction === nodeData.rowIndex),
-    )
-    .map((nodeData) => nodeData.id);
-
-  for (const id of children) {
+  for (const c of getChildren(props)) {
     out.push(
       ...getRecursiveValidations({
         ...props,
-        id,
+        id: c.id,
+        baseId: c.baseId,
 
         // Restriction and includeSelf should only be applied to the first level (not recursively)
         restriction: undefined,
@@ -375,4 +369,28 @@ export function getRecursiveValidations(props: GetDeepValidationsProps): NodeRef
   }
 
   return out;
+}
+
+function getChildren(props: GetDeepValidationsProps): { id: string; baseId: string }[] {
+  const children: { id: string; baseId: string }[] = [];
+  if (!props.lookups) {
+    return children;
+  }
+
+  const { depth } = splitDashedKey(props.id);
+  const suffix = depth.length ? `-${depth.join('-')}` : '';
+  const childBaseIds = props.lookups.componentToChildren[props.baseId] ?? [];
+
+  for (const childBaseId of childBaseIds) {
+    const lookForSuffix = props.restriction === undefined ? suffix : `${suffix}-${props.restriction}`;
+    const childId = `${childBaseId}${lookForSuffix}`;
+    if (props.state.nodeData[childId]) {
+      children.push({
+        id: childId,
+        baseId: childBaseId,
+      });
+    }
+  }
+
+  return children;
 }
