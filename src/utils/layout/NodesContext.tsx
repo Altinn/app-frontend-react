@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import type { PropsWithChildren, RefObject } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -287,9 +287,14 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const addNodes = Store.useStaticSelector((s) => s.addNodes);
   const removeNodes = Store.useStaticSelector((s) => s.removeNodes);
   const setNodeProps = Store.useStaticSelector((s) => s.setNodeProps);
-  const [addNodeRequests, setAddNodeRequests] = React.useState<AddNodeRequest[]>([]);
-  const [removeNodeRequests, setRemoveNodeRequests] = React.useState<RemoveNodeRequest[]>([]);
-  const [nodePropsRequests, setNodePropsRequests] = React.useState<SetNodePropRequest[]>([]);
+
+  const requestsRef = useRef({
+    addNodeRequests: [] as AddNodeRequest[],
+    removeNodeRequests: [] as RemoveNodeRequest[],
+    nodePropsRequests: [] as SetNodePropRequest[],
+  });
+
+  const [renderCount, setRenderCount] = React.useState(0);
 
   useEffect(() => {
     if (layouts !== latestLayouts) {
@@ -298,19 +303,34 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   }, [latestLayouts, layouts, reset, getProcessedLast]);
 
   useLayoutEffect(() => {
-    if (addNodeRequests.length > 0) {
-      addNodes(addNodeRequests);
-      setAddNodeRequests([]);
+    if (requestsRef.current.addNodeRequests.length > 0) {
+      addNodes(requestsRef.current.addNodeRequests);
+      requestsRef.current.addNodeRequests.length = 0;
     }
-    if (removeNodeRequests.length > 0) {
-      removeNodes(removeNodeRequests);
-      setRemoveNodeRequests([]);
+    if (requestsRef.current.removeNodeRequests.length > 0) {
+      removeNodes(requestsRef.current.removeNodeRequests);
+      requestsRef.current.removeNodeRequests.length = 0;
     }
-    if (nodePropsRequests.length > 0) {
-      setNodeProps(nodePropsRequests);
-      setNodePropsRequests([]);
+    if (requestsRef.current.nodePropsRequests.length > 0) {
+      setNodeProps(requestsRef.current.nodePropsRequests);
+      requestsRef.current.nodePropsRequests.length = 0;
     }
-  }, [addNodeRequests, addNodes, nodePropsRequests, removeNodeRequests, removeNodes, setNodeProps]);
+  }, [addNodes, removeNodes, setNodeProps, renderCount]);
+
+  const addNode = useCallback((req: AddNodeRequest) => {
+    requestsRef.current.addNodeRequests.push(req);
+    setRenderCount((count) => count + 1);
+  }, []);
+
+  const removeNode = useCallback((req: RemoveNodeRequest) => {
+    requestsRef.current.removeNodeRequests.push(req);
+    setRenderCount((count) => count + 1);
+  }, []);
+
+  const setNodeProp = useCallback((req: SetNodePropRequest) => {
+    requestsRef.current.nodePropsRequests.push(req);
+    setRenderCount((count) => count + 1);
+  }, []);
 
   if (layouts !== latestLayouts) {
     // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
@@ -321,9 +341,9 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
     <GeneratorGlobalProvider
       layouts={layouts}
       registry={registry}
-      addNode={(req) => setAddNodeRequests((reqs) => [...reqs, req])}
-      removeNode={(req) => setRemoveNodeRequests((reqs) => [...reqs, req])}
-      setNodeProp={(req) => setNodePropsRequests((reqs) => [...reqs, req])}
+      addNode={addNode}
+      removeNode={removeNode}
+      setNodeProp={setNodeProp}
     >
       {children}
     </GeneratorGlobalProvider>
