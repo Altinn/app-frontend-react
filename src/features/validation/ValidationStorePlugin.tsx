@@ -154,7 +154,8 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
         const lookups = useLayoutLookups();
         return store.useMemoSelector((state) => {
           const { baseComponentId } = splitDashedKey(indexedId);
-          return getRecursiveValidations({
+          const output: NodeRefValidation[] = [];
+          getRecursiveValidations({
             state,
             id: indexedId,
             baseId: baseComponentId,
@@ -163,7 +164,9 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             includeSelf,
             restriction,
             lookups,
+            output,
           });
+          return output;
         });
       },
       useValidationsSelector: () => {
@@ -340,35 +343,30 @@ function getValidations({
 }
 
 interface GetDeepValidationsProps extends GetValidationsProps {
+  output: NodeRefValidation[];
   includeSelf: boolean;
   restriction?: number | undefined;
 }
 
-export function getRecursiveValidations(props: GetDeepValidationsProps): NodeRefValidation[] {
-  const out: NodeRefValidation[] = [];
-
+export function getRecursiveValidations(props: GetDeepValidationsProps) {
   if (props.includeSelf) {
     const nodeValidations = getValidations(props);
     for (const validation of nodeValidations) {
-      out.push({ ...validation, nodeId: props.id, baseComponentId: props.baseId });
+      props.output.push({ ...validation, nodeId: props.id, baseComponentId: props.baseId });
     }
   }
 
-  for (const c of getChildren(props)) {
-    out.push(
-      ...getRecursiveValidations({
-        ...props,
-        id: c.id,
-        baseId: c.baseId,
+  for (const child of getChildren(props)) {
+    getRecursiveValidations({
+      ...props,
+      id: child.id,
+      baseId: child.baseId,
 
-        // Restriction and includeSelf should only be applied to the first level (not recursively)
-        restriction: undefined,
-        includeSelf: true,
-      }),
-    );
+      // Restriction and includeSelf should only be applied to the first level (not recursively)
+      restriction: undefined,
+      includeSelf: true,
+    });
   }
-
-  return out;
 }
 
 function getChildren(props: GetDeepValidationsProps): { id: string; baseId: string }[] {
@@ -378,11 +376,11 @@ function getChildren(props: GetDeepValidationsProps): { id: string; baseId: stri
   }
 
   const { depth } = splitDashedKey(props.id);
-  const suffix = depth.length ? `-${depth.join('-')}` : '';
+  const parentSuffix = depth.length ? `-${depth.join('-')}` : '';
   const childBaseIds = props.lookups.componentToChildren[props.baseId] ?? [];
 
   for (const childBaseId of childBaseIds) {
-    const lookForSuffix = props.restriction === undefined ? suffix : `${suffix}-${props.restriction}`;
+    const lookForSuffix = props.restriction === undefined ? parentSuffix : `${parentSuffix}-${props.restriction}`;
     const childId = `${childBaseId}${lookForSuffix}`;
     if (props.state.nodeData[childId]) {
       children.push({
