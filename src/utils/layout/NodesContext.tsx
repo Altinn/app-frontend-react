@@ -21,7 +21,7 @@ import {
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
-import { GeneratorGlobalProvider } from 'src/utils/layout/generator/GeneratorContext';
+import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { useRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
@@ -288,12 +288,6 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const removeNodes = Store.useStaticSelector((s) => s.removeNodes);
   const setNodeProps = Store.useStaticSelector((s) => s.setNodeProps);
 
-  const requestsRef = useRef({
-    addNodeRequests: [] as AddNodeRequest[],
-    removeNodeRequests: [] as RemoveNodeRequest[],
-    nodePropsRequests: [] as SetNodePropRequest[],
-  });
-
   const [renderCount, setRenderCount] = React.useState(0);
 
   useEffect(() => {
@@ -303,34 +297,44 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   }, [latestLayouts, layouts, reset, getProcessedLast]);
 
   useLayoutEffect(() => {
-    if (requestsRef.current.addNodeRequests.length > 0) {
-      addNodes(requestsRef.current.addNodeRequests);
-      requestsRef.current.addNodeRequests.length = 0;
+    if (registry.current.toCommit.addNodeRequests.length > 0) {
+      addNodes(registry.current.toCommit.addNodeRequests);
+      // eslint-disable-next-line react-compiler/react-compiler
+      registry.current.toCommit.addNodeRequests.length = 0;
     }
-    if (requestsRef.current.removeNodeRequests.length > 0) {
-      removeNodes(requestsRef.current.removeNodeRequests);
-      requestsRef.current.removeNodeRequests.length = 0;
+    if (registry.current.toCommit.removeNodeRequests.length > 0) {
+      removeNodes(registry.current.toCommit.removeNodeRequests);
+      registry.current.toCommit.removeNodeRequests.length = 0;
     }
-    if (requestsRef.current.nodePropsRequests.length > 0) {
-      setNodeProps(requestsRef.current.nodePropsRequests);
-      requestsRef.current.nodePropsRequests.length = 0;
+    if (registry.current.toCommit.nodePropsRequests.length > 0) {
+      setNodeProps(registry.current.toCommit.nodePropsRequests);
+      registry.current.toCommit.nodePropsRequests.length = 0;
     }
-  }, [addNodes, removeNodes, setNodeProps, renderCount]);
+  }, [addNodes, removeNodes, setNodeProps, renderCount, registry]);
 
-  const addNode = useCallback((req: AddNodeRequest) => {
-    requestsRef.current.addNodeRequests.push(req);
-    setRenderCount((count) => count + 1);
-  }, []);
+  const addNode = useCallback(
+    (req: AddNodeRequest) => {
+      registry.current.toCommit.addNodeRequests.push(req);
+      setRenderCount((count) => count + 1);
+    },
+    [registry],
+  );
 
-  const removeNode = useCallback((req: RemoveNodeRequest) => {
-    requestsRef.current.removeNodeRequests.push(req);
-    setRenderCount((count) => count + 1);
-  }, []);
+  const removeNode = useCallback(
+    (req: RemoveNodeRequest) => {
+      registry.current.toCommit.removeNodeRequests.push(req);
+      setRenderCount((count) => count + 1);
+    },
+    [registry],
+  );
 
-  const setNodeProp = useCallback((req: SetNodePropRequest) => {
-    requestsRef.current.nodePropsRequests.push(req);
-    setRenderCount((count) => count + 1);
-  }, []);
+  const setNodeProp = useCallback(
+    (req: SetNodePropRequest) => {
+      registry.current.toCommit.nodePropsRequests.push(req);
+      setRenderCount((count) => count + 1);
+    },
+    [registry],
+  );
 
   if (layouts !== latestLayouts) {
     // You changed the layouts, possibly by using devtools. Hold on while we re-generate!
@@ -417,6 +421,23 @@ export const NodesInternal = {
 
       return errors;
     });
+  },
+  useWaitUntilReady() {
+    const registry = GeneratorInternal.useRegistry();
+
+    return useCallback(async () => {
+      const toCommit = registry.current.toCommit;
+      let didWait = false;
+      while (Object.values(toCommit).some((arr) => arr.length > 0)) {
+        await new Promise((resolve) => setTimeout(resolve, 4));
+        didWait = true;
+      }
+
+      // If we did wait, wait some more (until the commits have been stored)
+      if (didWait) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+    }, [registry]);
   },
 
   useNodeErrors(nodeId: string | undefined) {

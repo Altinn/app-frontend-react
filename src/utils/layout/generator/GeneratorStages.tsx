@@ -4,16 +4,21 @@ import type { PropsWithChildren } from 'react';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ValidationsProcessedLast } from 'src/features/validation';
+import type { AddNodeRequest, RemoveNodeRequest, SetNodePropRequest } from 'src/utils/layout/NodesContext';
 
 /**
  * The registry is a collection of state kept in a ref, and is used to keep track of the progress in the node generator.
  * Consider it an 'inner workings' state store that is frequently updated. Since it is stored in a ref, it cannot be
  * reactive.
- *
  */
 export type Registry = {
   validationsProcessed: {
     [nodeId: string]: ValidationsProcessedLast;
+  };
+  toCommit: {
+    addNodeRequests: AddNodeRequest[];
+    removeNodeRequests: RemoveNodeRequest[];
+    nodePropsRequests: SetNodePropRequest[];
   };
 };
 
@@ -25,6 +30,11 @@ export type Registry = {
 export function useRegistry() {
   return useRef<Registry>({
     validationsProcessed: {},
+    toCommit: {
+      addNodeRequests: [],
+      removeNodeRequests: [],
+      nodePropsRequests: [],
+    },
   });
 }
 
