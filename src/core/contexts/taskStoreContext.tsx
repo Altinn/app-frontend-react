@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React from 'react';
 
-import { create } from 'zustand';
+import { createStore } from 'zustand';
+
+import { createZustandContext } from 'src/core/contexts/zustandContext';
 
 interface TaskState {
   overriddenTaskId?: string;
@@ -16,8 +18,8 @@ interface TaskState {
   clearTaskId?: () => void;
 }
 
-export const createTaskStore = () =>
-  create<TaskState>((set) => ({
+export const initialCreateStore = () =>
+  createStore<TaskState>((set) => ({
     overriddenTaskId: undefined,
     overriddenDataModelType: undefined,
     overriddenDataModelUuid: undefined,
@@ -31,20 +33,14 @@ export const createTaskStore = () =>
     setDepth: (depth: number) => set({ depth }),
   }));
 
-const StoreContext = createContext<ReturnType<typeof createTaskStore> | null>(null);
+const { Provider, useSelector } = createZustandContext({
+  name: 'TaskStore',
+  required: true,
+  initialCreateStore,
+});
 
 export function TaskStoreProvider({ children }: React.PropsWithChildren) {
-  const storeRef = useRef<ReturnType<typeof createTaskStore>>(undefined);
-  if (!storeRef.current) {
-    storeRef.current = createTaskStore();
-  }
-  return <StoreContext.Provider value={storeRef.current}>{children}</StoreContext.Provider>;
+  return <Provider>{children}</Provider>;
 }
 
-export const useTaskStore = <T,>(selector: (state: TaskState) => T) => {
-  const store = useContext(StoreContext);
-  if (!store) {
-    throw new Error('useTaskStore must be used within a TaskStoreProvider');
-  }
-  return store(selector);
-};
+export const useTaskStore = <T,>(selector: (state: TaskState) => T) => useSelector(selector);
