@@ -105,13 +105,14 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
     },
     onError: async (error: HttpClientError<ProblemDetails | undefined>) => {
       window.logError('Process next failed:\n', error);
-      const { data: newProcess } = await refetchProcessData();
-      const newCurrentTask = newProcess?.currentTask;
 
       if (!appSupportsUnlockingOnProcessNextFailure(applicationMetadata)) {
         displayError(error);
         return;
       }
+
+      const { data: newProcess } = await refetchProcessData();
+      const newCurrentTask = newProcess?.currentTask;
 
       if (newCurrentTask?.elementId && newCurrentTask?.elementId !== process?.currentTask?.elementId) {
         await reFetchInstanceData();

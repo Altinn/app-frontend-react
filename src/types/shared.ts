@@ -241,9 +241,9 @@ export type ITask = {
   flow: number;
   started: string;
   elementId: string;
-  elementType: ElementType;
   name: string;
   altinnTaskType: string;
+  elementType?: ElementType;
   ended?: string | null;
   validated?: IValidated | null;
 
