@@ -21,17 +21,24 @@ import { doProcessNext } from 'src/queries/queries';
 import { isAtLeastVersion } from 'src/utils/versionCompare';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { BackendValidationIssue } from 'src/features/validation';
-import type { IActionType, IProcess } from 'src/types/shared';
+import type { IActionType, IProcess, ProblemDetails } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
 interface ProcessNextProps {
   action?: IActionType;
 }
 
+export function getProcessNextMutationKey(action?: IActionType) {
+  if (!action) {
+    return ['processNext'] as const;
+  }
+  return ['processNext', action] as const;
+}
+
 export function useProcessNext({ action }: ProcessNextProps = {}) {
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
-  const { refetch: refetchProcessData } = useProcessQuery();
+  const { data: process, refetch: refetchProcessData } = useProcessQuery();
   const navigateToTask = useNavigateToTask();
   const instanceId = useLaxInstanceId();
   const onFormSubmitValidation = useOnFormSubmitValidation();
@@ -39,11 +46,12 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
   const setShowAllBackendErrors = Validation.useSetShowAllBackendErrors();
   const onSubmitFormValidation = useOnFormSubmitValidation();
   const applicationMetadata = useApplicationMetadata();
-  const displayError = useDisplayError();
   const queryClient = useQueryClient();
+  const displayError = useDisplayError();
   const hasPendingScans = useHasPendingScans();
 
-  const mutation = useMutation({
+  return useMutation({
+    mutationKey: getProcessNextMutationKey(action),
     mutationFn: async () => {
       if (hasPendingScans) {
         await reFetchInstanceData();
@@ -67,7 +75,7 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
           } else if (
             error.response?.status === 500 &&
             error.response?.data?.['detail'] === 'Pdf generation failed' &&
-            appUnlocksOnPDFFailure(applicationMetadata)
+            appSupportsUnlockingOnProcessNextFailure(applicationMetadata)
           ) {
             // If process next fails due to the PDF generator failing, don't show unknown error if the app unlocks data elements
             toast(<Lang id='process_error.submit_error_please_retry' />, { type: 'error', autoClose: false });
@@ -82,9 +90,11 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
         await reFetchInstanceData();
         await refetchProcessData?.();
         await invalidateFormDataQueries(queryClient);
-        navigateToTask(
-          processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId,
-        );
+        const task = getTargetTaskFromProcess(processData);
+        if (!task) {
+          throw new Error('Missing task in process data. Cannot navigate to task.');
+        }
+        navigateToTask(task);
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues, !appSupportsIncrementalValidationFeatures(applicationMetadata));
@@ -93,15 +103,38 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
         }
       }
     },
-    onError: (error: HttpClientError) => {
+    onError: async (error: HttpClientError<ProblemDetails | undefined>) => {
       window.logError('Process next failed:\n', error);
-      displayError(error);
+
+      if (!appSupportsUnlockingOnProcessNextFailure(applicationMetadata)) {
+        displayError(error);
+        return;
+      }
+
+      const { data: newProcess } = await refetchProcessData();
+      const newCurrentTask = newProcess?.currentTask;
+
+      if (newCurrentTask?.elementId && newCurrentTask?.elementId !== process?.currentTask?.elementId) {
+        await reFetchInstanceData();
+        navigateToTask(newCurrentTask.elementId);
+      }
+
+      toast(<Lang id={error.response?.data?.detail ?? error.message ?? 'process_error.submit_error_please_retry'} />, {
+        type: 'error',
+        autoClose: false,
+      });
     },
   });
-
-  return mutation;
 }
 
-function appUnlocksOnPDFFailure({ altinnNugetVersion }: ApplicationMetadata) {
+function appSupportsUnlockingOnProcessNextFailure({ altinnNugetVersion }: ApplicationMetadata) {
   return !altinnNugetVersion || isAtLeastVersion({ actualVersion: altinnNugetVersion, minimumVersion: '8.1.0.115' });
+}
+
+export function getTargetTaskFromProcess(processData: IProcess | undefined) {
+  if (!processData) {
+    return undefined;
+  }
+
+  return processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId;
 }

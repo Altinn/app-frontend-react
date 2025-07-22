@@ -17,7 +17,7 @@ import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { IData, IInstance, IInstanceDataSources } from 'src/types/shared';
@@ -126,12 +126,12 @@ export function useInstanceDataQueryDef(
 
 function useGetInstanceDataQuery(
   hasResultFromInstantiation: boolean,
-  partyId: string | undefined,
+  instanceOwnerPartyId: string | undefined,
   instanceGuid: string | undefined,
   enablePolling: boolean = false,
   enabled: boolean = true,
 ) {
-  const queryDef = useInstanceDataQueryDef(hasResultFromInstantiation, partyId, instanceGuid);
+  const queryDef = useInstanceDataQueryDef(hasResultFromInstantiation, instanceOwnerPartyId, instanceGuid);
 
   const utils = useQuery({
     ...queryDef,

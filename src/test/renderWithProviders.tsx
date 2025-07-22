@@ -19,7 +19,6 @@ import { orderDetailsResponsePayload } from 'src/__mocks__/getOrderDetailsPayloa
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
-import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
@@ -36,10 +35,10 @@ import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
+import { NavigationEffectProvider } from 'src/features/navigation/NavigationEffectContext';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
 import type { IFooterLayout } from 'src/features/footer/types';
@@ -64,6 +63,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
 }
 
 interface InstanceRouterProps {
+  routerRef?: RouterRef;
   initialPage?: string;
   taskId?: string;
   instanceId?: string;
@@ -71,7 +71,9 @@ interface InstanceRouterProps {
   query?: string;
 }
 
-interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {}
+type RouterRef = { current: ReturnType<typeof createMemoryRouter> | undefined };
+
+interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, Omit<InstanceRouterProps, 'routerRef'> {}
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
   Providers?: typeof DefaultProviders;
@@ -135,7 +137,6 @@ const defaultQueryMocks: AppQueries = {
   fetchFooterLayout: async () => ({ footer: [] }) as IFooterLayout,
   fetchLayoutSets: async () => getLayoutSetsMock(),
   fetchOrgs: async () => ({ orgs: getOrgsMock() }),
-  fetchUserProfile: async () => getProfileMock(),
   fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
   fetchPartiesAllowedToInstantiate: async () => [getPartyMock()],
@@ -237,6 +238,7 @@ function DefaultRouter({ children }: PropsWithChildren) {
 
 export function InstanceRouter({
   children,
+  routerRef,
   instanceId = exampleInstanceId,
   taskId = 'Task_1',
   initialPage = 'FormLayout',
@@ -266,6 +268,11 @@ export function InstanceRouter({
     },
   );
 
+  if (routerRef) {
+    // eslint-disable-next-line react-compiler/react-compiler
+    routerRef.current = router;
+  }
+
   return (
     <RouterProvider
       router={router}
@@ -292,7 +299,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
             <UiConfigProvider>
               <PageNavigationProvider>
                 <Router>
-                  <AppRoutingProvider>
+                  <NavigationEffectProvider>
                     <ApplicationMetadataProvider>
                       <GlobalFormDataReadersProvider>
                         <OrgsProvider>
@@ -309,7 +316,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                         </OrgsProvider>
                       </GlobalFormDataReadersProvider>
                     </ApplicationMetadataProvider>
-                  </AppRoutingProvider>
+                  </NavigationEffectProvider>
                 </Router>
               </PageNavigationProvider>
             </UiConfigProvider>
@@ -343,7 +350,7 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       <TaskStoreProvider>
         <LangToolsStoreProvider>
           <Router>
-            <AppRoutingProvider>{children}</AppRoutingProvider>
+            <NavigationEffectProvider>{children}</NavigationEffectProvider>
           </Router>
         </LangToolsStoreProvider>
       </TaskStoreProvider>
@@ -607,8 +614,10 @@ export const renderWithInstanceAndLayout = async ({
     throw new Error('Cannot use custom router with renderWithInstanceAndLayout');
   }
 
+  const routerRef: RouterRef = { current: undefined };
   return {
     formDataMethods,
+    routerRef,
     ...(await renderBase({
       ...renderOptions,
       initialRenderRef,
@@ -620,6 +629,7 @@ export const renderWithInstanceAndLayout = async ({
       ),
       router: ({ children }) => (
         <InstanceRouter
+          routerRef={routerRef}
           instanceId={instanceId}
           taskId={taskId}
           initialPage={initialPage}
@@ -660,7 +670,7 @@ export const renderWithInstanceAndLayout = async ({
 
 export interface RenderGenericComponentTestProps<T extends CompTypes, InInstance extends boolean = true>
   extends Omit<ExtendedRenderOptions, 'renderer'>,
-    InstanceRouterProps {
+    Omit<InstanceRouterProps, 'routerRef'> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => React.ReactElement;
   component?: Partial<CompExternalExact<T>>;
