@@ -76,6 +76,9 @@ Cypress.Commands.add('dsClear', (selector) => {
 Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
   cy.log(`Selecting ${value} in ${selector}, with debounce: ${debounce}`);
   cy.dsReady(selector);
+  // Clear the input value before selecting a new option because the previous value acts as a filter
+  // and prevents the new option from being displayed.
+  cy.dsClear(selector);
   cy.get(selector).click();
 
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
