@@ -5,7 +5,6 @@ const appFrontend = new AppFrontend();
 
 describe('Anonymous (stateless)', () => {
   beforeEach(() => {
-    cy.log('Testing, testing');
     cy.intercept('**/api/layoutsettings/stateless').as('getLayoutStateless');
     cy.startAppInstance(appFrontend.apps.anonymousStateless, { cyUser: null });
     cy.wait('@getLayoutStateless');
