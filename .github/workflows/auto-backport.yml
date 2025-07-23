@@ -1,9 +1,9 @@
-name: Auto Backport
+name: Auto Backport PR
 
 on:
   pull_request:
     types: [closed]
-    branches: [feature/backport-gh-action]
+    branches: [main]
 
 jobs:
   backport:
