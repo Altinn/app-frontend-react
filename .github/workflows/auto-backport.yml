@@ -151,7 +151,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: response.data.number,
-                labels: ['backport', 'automated']
+                labels: ['backport-ignore', 'automated', kind/other]
               });
 
               // Assign the person who merged the original PR
