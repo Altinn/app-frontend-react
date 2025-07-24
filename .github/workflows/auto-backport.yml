@@ -51,15 +51,30 @@ jobs:
           if git ls-remote --heads origin "$RELEASE_BRANCH" | grep -q "$RELEASE_BRANCH"; then
             echo "Release branch $RELEASE_BRANCH exists remotely"
             # Fetch and checkout the existing branch
-            git fetch origin "$RELEASE_BRANCH"
-            git checkout -b "temp-$RELEASE_BRANCH" "origin/$RELEASE_BRANCH"
-            git pull origin "$RELEASE_BRANCH"
+            if ! git fetch origin "$RELEASE_BRANCH"; then
+              echo "Failed to fetch release branch $RELEASE_BRANCH"
+              exit 1
+            fi
+            if ! git checkout "$RELEASE_BRANCH"; then
+              echo "Failed to checkout release branch $RELEASE_BRANCH"
+              exit 1
+            fi
+            if ! git pull origin "$RELEASE_BRANCH"; then
+              echo "Failed to pull latest changes for $RELEASE_BRANCH"
+              exit 1
+            fi
             echo "branch_exists=true" >> $GITHUB_OUTPUT
           else
             echo "Release branch $RELEASE_BRANCH does not exist, creating it"
             # Create new branch from the latest release tag
-            git checkout -b "temp-$RELEASE_BRANCH" "$LATEST_RELEASE_TAG"
-            git push origin "temp-$RELEASE_BRANCH:$RELEASE_BRANCH"
+            if ! git checkout -b "$RELEASE_BRANCH" "$LATEST_RELEASE_TAG"; then
+              echo "Failed to create release branch $RELEASE_BRANCH from tag $LATEST_RELEASE_TAG"
+              exit 1
+            fi
+            if ! git push origin "$RELEASE_BRANCH"; then
+              echo "Failed to push new release branch $RELEASE_BRANCH to origin"
+              exit 1
+            fi
             echo "branch_exists=false" >> $GITHUB_OUTPUT
             echo "Created new release branch: $RELEASE_BRANCH"
           fi
@@ -82,7 +97,7 @@ jobs:
           echo "Release Branch: $RELEASE_BRANCH"
           echo "Backport Branch: $BACKPORT_BRANCH"
 
-          # Create backport branch from the current temp release branch
+          # Create backport branch from the current release branch
           git checkout -b "$BACKPORT_BRANCH"
 
           # Attempt cherry-pick
@@ -93,7 +108,6 @@ jobs:
             echo "Cherry-pick failed with conflicts"
             git cherry-pick --abort
             echo "success=false" >> $GITHUB_OUTPUT
-            echo "conflicts=true" >> $GITHUB_OUTPUT
           fi
 
           echo "backport_branch=$BACKPORT_BRANCH" >> $GITHUB_OUTPUT
@@ -151,7 +165,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: response.data.number,
-                labels: ['backport-ignore', 'automated', kind/other]
+                labels: ['backport-ignore', 'automated', 'kind/other']
               });
 
               // Assign the person who merged the original PR
@@ -205,15 +219,24 @@ jobs:
             });
 
       - name: Comment on original PR (conflicts)
-        if: steps.cherry-pick.outputs.conflicts == 'true'
+        if: steps.cherry-pick.outputs.success == 'false'
         uses: actions/github-script@v7
         with:
           script: |
             const releaseBranch = '${{ steps.find-release-branch.outputs.release_branch }}';
+            const branchExists = '${{ steps.find-release-branch.outputs.branch_exists }}' === 'true';
+            const latestReleaseTag = '${{ steps.find-release-branch.outputs.latest_release_tag }}';
             const prNumber = context.payload.pull_request.number;
+
+            const branchStatus = branchExists
+              ? `The release branch \`${releaseBranch}\` already existed and was updated.`
+              : `A new release branch \`${releaseBranch}\` was created from release \`${latestReleaseTag}\`.`;
+
             const comment = `⚠️ **Automatic backport failed due to conflicts**
 
             The automatic backport to \`${releaseBranch}\` failed because of merge conflicts.
+
+            ${branchStatus}
 
             **Manual backport required:**
             \`\`\`bash
@@ -234,8 +257,6 @@ jobs:
             # Push and create PR
             git push origin backport/${prNumber}
             \`\`\`
-
-            🤖 Remove the \`backport\` label from this PR once the manual backport is complete.`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
