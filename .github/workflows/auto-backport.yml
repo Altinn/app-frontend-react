@@ -3,7 +3,7 @@ name: Auto Backport PR
 on:
   pull_request:
     types: [closed]
-    branches: [main]
+    branches: [feature/backport-gh-action]
 
 jobs:
   backport:
