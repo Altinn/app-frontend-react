@@ -49,6 +49,7 @@ const useOurNavigate = () => {
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
   const navigate = useNavigate();
 
+  console.log('testing testing');
   return useCallback(
     (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, effect?: NavigationEffect) => {
       const resetReturnToView = ourOptions?.resetReturnToView ?? true;
