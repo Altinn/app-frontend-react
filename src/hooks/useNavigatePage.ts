@@ -50,6 +50,7 @@ const useNavigate = () => {
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
   const navigate = useCtxNavigate();
 
+  console.log('testing testing');
   return useCallback(
     (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, cb?: NavigationEffectCb) => {
       const resetReturnToView = ourOptions?.resetReturnToView ?? true;
