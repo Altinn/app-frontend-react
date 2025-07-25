@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -36,6 +37,7 @@ export function getProcessNextMutationKey(action?: IActionType) {
 }
 
 export function useProcessNext({ action }: ProcessNextProps = {}) {
+  const navigation = useNavigation();
   const reFetchInstanceData = useStrictInstanceRefetch();
   const language = useCurrentLanguage();
   const { data: process, refetch: refetchProcessData } = useProcessQuery();
@@ -51,8 +53,12 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
   const hasPendingScans = useHasPendingScans();
 
   return useMutation({
+    scope: { id: 'process/next' },
     mutationKey: getProcessNextMutationKey(action),
     mutationFn: async () => {
+      // Wait for navigation to be idle before proceeding
+      await waitForIdleNavigation(navigation);
+
       if (hasPendingScans) {
         await reFetchInstanceData();
       }
@@ -137,4 +143,17 @@ export function getTargetTaskFromProcess(processData: IProcess | undefined) {
   }
 
   return processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId;
+}
+
+function waitForIdleNavigation(navigation: ReturnType<typeof useNavigation>) {
+  return new Promise<void>((resolve) => {
+    const checkNavigation = async () => {
+      while (navigation.state !== 'idle') {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      resolve();
+    };
+    checkNavigation();
+  });
 }
