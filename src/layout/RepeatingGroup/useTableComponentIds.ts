@@ -3,6 +3,7 @@ import { useMemo } from 'react';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { getComponentDef } from 'src/layout';
 import { CompCategory } from 'src/layout/common';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
 import type { CompTypes } from 'src/layout/layout';
 
 const emptyArray: never[] = [];
@@ -22,8 +23,11 @@ export function useTableComponentIds(baseComponentId: string) {
       return layoutLookups.getComponent(id);
     }) ?? emptyArray;
 
+  const hiddenIds = useIsHiddenMulti(children.map((child) => child.id));
+
   return useMemo(() => {
     const ids = children
+      .filter((child) => !isHidden(child.id, hiddenIds))
       .filter((child) =>
         tableHeaders
           ? tableHeaders.includes(child.id)
@@ -41,5 +45,9 @@ export function useTableComponentIds(baseComponentId: string) {
     }
 
     return ids;
-  }, [children, tableHeaders]);
+  }, [children, hiddenIds, tableHeaders]);
+}
+
+function isHidden(id: string, hiddenIds: Record<string, boolean | undefined>): boolean {
+  return hiddenIds[id] === true;
 }
