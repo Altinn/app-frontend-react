@@ -285,20 +285,24 @@ export function useNavigatePage() {
 
       let url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}`;
 
-      const searchParamsToUse = options?.searchParams ?? searchParams;
+      if (options?.searchParams) {
+        options.searchParams.forEach((value, key) => {
+          searchParams.set(key, value);
+        });
+      }
 
       // Special cases for component focus and subform exit
       if (options?.focusComponentId || options?.exitSubform) {
         if (options?.focusComponentId) {
-          searchParamsToUse.set(SearchParams.FocusComponentId, options.focusComponentId);
+          searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
         }
 
         if (options?.exitSubform) {
-          searchParamsToUse.set(SearchParams.ExitSubform, 'true');
+          searchParams.set(SearchParams.ExitSubform, 'true');
         }
       }
 
-      url = `${url}?${searchParamsToUse.toString()}`;
+      url = `${url}?${searchParams.toString()}`;
       navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
     },
     [
@@ -445,10 +449,8 @@ export function useNavigateToComponent() {
     const targetPage = layoutLookups.componentToPage[baseComponentId];
 
     const errorBindingKey = options?.error?.['bindingKey'];
-    const updatedSearchParams = new URLSearchParams(searchParams);
 
     if (errorBindingKey) {
-      updatedSearchParams.set(SearchParams.FocusErrorBinding, errorBindingKey);
       setSearchParams((prev) => {
         prev.set(SearchParams.FocusErrorBinding, errorBindingKey);
         return prev;
@@ -460,7 +462,7 @@ export function useNavigateToComponent() {
         ...options?.pageNavOptions,
         shouldFocusComponent: true,
         focusComponentId: indexedId,
-        searchParams: updatedSearchParams,
+        searchParams,
         replace: !!searchParams.get(SearchParams.FocusComponentId) || !!searchParams.get(SearchParams.ExitSubform),
       });
     } else {

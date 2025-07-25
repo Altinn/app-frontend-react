@@ -20,7 +20,7 @@ import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onF
 import { useTaskErrors } from 'src/features/validation/selectors/taskErrors';
 import { SearchParams, useQueryKey } from 'src/hooks/navigation';
 import { useAsRef } from 'src/hooks/useAsRef';
-import { useCurrentView, useNavigatePage, useNavigateToComponent } from 'src/hooks/useNavigatePage';
+import { useCurrentView, useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getComponentCapabilities } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import { getPageTitle } from 'src/utils/getPageTitle';
@@ -239,7 +239,6 @@ function HandleNavigationFocusComponent() {
   const onFormSubmitValidation = useOnFormSubmitValidation();
   const exitSubform = useQueryKey(SearchParams.ExitSubform)?.toLocaleLowerCase() === 'true';
   const validate = useQueryKey(SearchParams.Validate)?.toLocaleLowerCase() === 'true';
-  const navigateToComponent = useNavigateToComponent();
   const navigate = useNavigate();
   const searchStringRef = useAsRef(useLocation().search);
 
@@ -254,7 +253,7 @@ function HandleNavigationFocusComponent() {
         navigate(nextLocation, { replace: true });
       }
     })();
-  }, [navigateToComponent, navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation]);
+  }, [navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation]);
 
   return null;
 }
