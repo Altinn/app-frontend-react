@@ -104,7 +104,9 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues, !appSupportsIncrementalValidationFeatures(applicationMetadata));
-        if (!(await onSubmitFormValidation(true))) {
+
+        const hasValidationErrors = await onSubmitFormValidation(true);
+        if (!hasValidationErrors) {
           setShowAllBackendErrors !== ContextNotProvided && setShowAllBackendErrors();
         }
       }
