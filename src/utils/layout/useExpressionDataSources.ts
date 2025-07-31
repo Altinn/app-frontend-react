@@ -10,7 +10,7 @@ import { ExprFunctionDefinitions } from 'src/features/expressions/expression-fun
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
+import { useDataElementsSelectorProps, useInstanceDataSources } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedPathSelector } from 'src/features/language/useLanguage';
@@ -37,7 +37,7 @@ export interface ExpressionDataSources {
   process?: IProcess;
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
-  dataElementSelector: ReturnType<typeof useLaxDataElementsSelectorProps>;
+  dataElementSelector: ReturnType<typeof useDataElementsSelectorProps>;
   dataModelNames: string[];
   formDataSelector: FormDataSelector;
   attachmentsSelector: AttachmentsSelector;
@@ -66,9 +66,9 @@ const directHooks = {
   currentLanguage: () => useCurrentLanguage(),
   currentDataModelPath: () => useCurrentDataModelLocation(),
   layoutLookups: () => useLayoutLookups(),
-  dataElementSelector: () => useLaxDataElementsSelectorProps(),
+  dataElementSelector: () => useDataElementsSelectorProps(),
   instanceDataSources: (isInGenerator) =>
-    isInGenerator ? GeneratorData.useLaxInstanceDataSources() : useLaxInstanceDataSources(),
+    isInGenerator ? GeneratorData.useLaxInstanceDataSources() : useInstanceDataSources(),
   defaultDataType: (isInGenerator) =>
     (isInGenerator ? GeneratorData.useDefaultDataType() : DataModels.useDefaultDataType()) ?? null,
   dataModelNames: (isInGenerator) =>
@@ -85,7 +85,7 @@ const directHooks = {
   [K in keyof Omit<ExpressionDataSources, 'dataElementSelector'>]?: (
     isInGenerator: boolean,
   ) => ExpressionDataSources[K];
-} & { dataElementSelector: () => ReturnType<typeof useLaxDataElementsSelectorProps> };
+} & { dataElementSelector: () => ReturnType<typeof useDataElementsSelectorProps> };
 
 export type DataSourceOverrides = {
   dataSources?: { [K in keyof ExpressionDataSources]?: () => ExpressionDataSources[K] };
