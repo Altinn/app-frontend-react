@@ -363,7 +363,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 action.dataModelBindings,
               );
               uploadFinished(fullAction, results);
-              appendDataElements?.(
+              appendDataElements(
                 results.filter(isAttachmentUploadSuccess).map(({ newInstanceData }) => newInstanceData),
               );
             }
@@ -412,7 +412,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 );
               }
               fulfill(action);
-              mutateDataElement?.(attachment.data.id, (dataElement) => ({ ...dataElement, tags }));
+              mutateDataElement(attachment.data.id, (dataElement) => ({ ...dataElement, tags }));
             } catch (error) {
               reject(action, error);
               toast(lang('form_filler.file_uploader_validation_error_update'), { type: 'error' });
@@ -449,7 +449,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               }
 
               fulfill(action);
-              removeDataElement?.(action.attachment.data.id);
+              removeDataElement(action.attachment.data.id);
 
               return true;
             } catch (error) {

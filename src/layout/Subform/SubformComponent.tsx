@@ -11,7 +11,7 @@ import { Caption } from 'src/components/form/caption/Caption';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useStrictDataElements } from 'src/features/instance/InstanceContext';
+import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useAddEntryMutation, useDeleteEntryMutation } from 'src/features/subformData/useSubformMutations';
@@ -52,7 +52,7 @@ export function SubformComponent({ baseComponentId }: PropsFromGenericComponent<
 
   const { langAsString } = useLanguage();
   const addSubformEntryMutation = useAddEntryMutation(dataType);
-  const subformEntries = useStrictDataElements(dataType);
+  const subformEntries = useInstanceDataElements(dataType);
 
   const { enterSubform } = useNavigatePage();
   const lock = FD.useLocking(id);

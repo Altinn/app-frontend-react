@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
@@ -7,7 +7,7 @@ import deepEqual from 'fast-deep-equal';
 
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
-import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
+import { FileScanResults } from 'src/features/attachments/types';
 import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
@@ -16,6 +16,66 @@ import { useNavigationParam } from 'src/hooks/navigation';
 import { fetchInstanceData } from 'src/queries/queries';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { IData, IInstance, IInstanceDataSources } from 'src/types/shared';
+
+const InstanceContext = React.createContext<IInstance | null>(null);
+
+export const InstanceProvider = ({ children }: PropsWithChildren) => {
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  const instantiation = useInstantiation();
+  const navigation = useNavigation();
+
+  const hasPendingScans = useHasPendingScans();
+  const { isLoading: isLoadingProcess, error: processError } = useProcessQuery();
+
+  const {
+    error: queryError,
+    isError,
+    status,
+    data,
+  } = useInstanceDataQuery({
+    enablePolling: hasPendingScans,
+  });
+
+  const instantiationError = instantiation.error ?? queryError;
+
+  if (!window.inUnitTest && data && instanceGuid && !data.id.endsWith(instanceGuid)) {
+    throw new Error(
+      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
+    );
+  }
+
+  if (isError) {
+    return <DisplayError error={queryError} />;
+  }
+
+  const error = instantiationError ?? processError;
+  if (error) {
+    return <DisplayError error={error} />;
+  }
+
+  if (status === 'pending') {
+    return <Loader reason='loading-instance' />;
+  }
+  if (isLoadingProcess) {
+    return <Loader reason='fetching-process' />;
+  }
+
+  if (navigation.state === 'loading') {
+    return <Loader reason='navigating' />;
+  }
+
+  if (!instanceOwnerPartyId || !instanceGuid) {
+    throw new Error('Missing instanceOwnerPartyId or instanceGuid when creating instance context');
+  }
+  if (!window.inUnitTest && data && !data.id.endsWith(instanceGuid)) {
+    throw new Error(
+      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
+    );
+  }
+
+  return <InstanceContext.Provider value={data}>{children}</InstanceContext.Provider>;
+};
 
 export const useLaxInstanceId = () => {
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
@@ -55,43 +115,43 @@ export const instanceQueries = {
   }) =>
     queryOptions({
       queryKey: [...instanceQueries.all(), { instanceOwnerPartyId, instanceGuid }] as const,
-      queryFn:
-        instanceOwnerPartyId && instanceGuid ? () => fetchInstanceData(instanceOwnerPartyId, instanceGuid) : skipToken,
-      enabled: !!instanceOwnerPartyId && !!instanceGuid && !hasResultFromInstantiation,
+      queryFn: !(!!instanceOwnerPartyId && !!instanceGuid && !hasResultFromInstantiation)
+        ? skipToken
+        : async () => {
+            try {
+              return await fetchInstanceData(instanceOwnerPartyId, instanceGuid);
+            } catch (error) {
+              window.logError('Fetching instance data failed:\n', error);
+              throw error;
+            }
+          },
+      refetchIntervalInBackground: false,
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     }),
 };
 
-export function useGetInstanceDataQuery<R = IInstance>({
+export function useInstanceDataQuery<R = IInstance>({
   enablePolling = false,
-  enabled = true,
   select,
 }: {
   enablePolling?: boolean;
-  enabled?: boolean;
-  select?: ((data: IInstance) => R) | undefined;
+  select?: (data: IInstance) => R;
 } = {}) {
-  const query = useQuery({
+  const query = useQuery<IInstance, Error, R>({
     ...instanceQueries.instanceData(useInstanceDataQueryArgs()),
     refetchInterval: enablePolling ? 5000 : false,
-    refetchIntervalInBackground: false,
     refetchOnWindowFocus: enablePolling,
-    retry: 3,
-    enabled,
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     select,
   });
-
-  useEffect(() => {
-    query.error && window.logError('Fetching instance data failed:\n', query.error);
-  }, [query.error]);
 
   return query;
 }
 
 const emptyArray: never[] = [];
 
-export const useLaxInstanceData = <U,>(selector: (data: IInstance) => U) =>
-  useGetInstanceDataQuery({ select: selector }).data;
+export const useLaxInstanceData = <R,>(selector: (data: IInstance) => R) =>
+  useInstanceDataQuery({ select: selector }).data;
 
 export function useCurrentInstanceQueryKey(): readonly unknown[] | undefined {
   const { hasResultFromInstantiation, instanceOwnerPartyId, instanceGuid } = useInstanceDataQueryArgs();
@@ -188,114 +248,29 @@ export const useOptimisticallyUpdateCachedInstance = (): ChangeInstanceData | un
   };
 };
 
-export const useHasInstance = () => {
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  return !!(instanceOwnerPartyId && instanceGuid);
-};
-
 export function useLaxInstanceDataSources(): IInstanceDataSources | null {
   const instanceOwnerParty = useInstanceOwnerParty();
   return (
-    useGetInstanceDataQuery({
+    useInstanceDataQuery({
       select: (instance) => buildInstanceDataSources(instance, instanceOwnerParty),
     }).data ?? null
   );
 }
 
 export const useLaxDataElementsSelectorProps = () => {
-  const { data: dataElements } = useGetInstanceDataQuery({ select: (instance) => instance.data });
+  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data;
 
-  return <U,>(selectDataElements: (data: IData[]) => U) => {
-    if (!dataElements) {
-      return undefined;
-    }
-
-    return selectDataElements(dataElements);
-  };
-};
-
-const InstanceContext = React.createContext<IInstance | null>(null);
-
-export const InstanceProvider = ({ children }: PropsWithChildren) => {
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  const instantiation = useInstantiation();
-  const enabled = !!instanceOwnerPartyId && !!instanceGuid;
-  const navigation = useNavigation();
-
-  const hasPendingScans = useHasPendingScans();
-  const { isLoading: isProcessLoading, error: processError } = useProcessQuery();
-
-  const {
-    error: queryError,
-    isLoading,
-    data: queryData,
-  } = useGetInstanceDataQuery({
-    enablePolling: hasPendingScans,
-    enabled,
-  });
-
-  const instantiationError = instantiation.error ?? queryError;
-  const data = instantiation.lastResult ?? queryData;
-  const isDataSet = data !== undefined;
-
-  if (!window.inUnitTest && data && instanceGuid && !data.id.endsWith(instanceGuid)) {
-    throw new Error(
-      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
-    );
-  }
-
-  const error = instantiationError ?? processError;
-  if (error) {
-    return <DisplayError error={error} />;
-  }
-
-  if (isLoading || !isDataSet || !enabled) {
-    return <Loader reason='instance' />;
-  }
-  if (isProcessLoading) {
-    return <Loader reason='fetching-process' />;
-  }
-
-  if (navigation.state === 'loading') {
-    return <Loader reason='navigation' />;
-  }
-
-  if (!instanceOwnerPartyId || !instanceGuid) {
-    throw new Error('Missing instanceOwnerPartyId or instanceGuid when creating instance context');
-  }
-  if (!window.inUnitTest && data && !data.id.endsWith(instanceGuid)) {
-    throw new Error(
-      `Mismatch between instanceGuid in URL and fetched instance data (URL: '${instanceGuid}', data: '${data.id}')`,
-    );
-  }
-
-  return <InstanceContext.Provider value={data}>{children}</InstanceContext.Provider>;
+  return <U,>(selectDataElements: (data: IData[]) => U) =>
+    dataElements ? selectDataElements(dataElements) : undefined;
 };
 
 /** Beware that in later versions, this will re-render your component after every save, as
  * the backend sends us updated instance data */
-export const useLaxInstanceDataElements = (dataType: string | undefined) =>
-  useGetInstanceDataQuery({
-    select: (instance) => instance.data.filter((dataElement) => dataElement.dataType === dataType),
+export const useInstanceDataElements = (dataType: string | undefined) =>
+  useInstanceDataQuery({
+    select: (instance) =>
+      dataType ? instance.data.filter((dataElement) => dataElement.dataType === dataType) : instance.data,
   }).data ?? emptyArray;
-
-export function useStrictDataElements(dataType: string | undefined) {
-  const { data: dataElements, isError } = useGetInstanceDataQuery({
-    select: (instanceData) => instanceData.data.filter((dataElement) => dataElement.dataType === dataType),
-  });
-
-  if (!dataElements) {
-    return [];
-  }
-
-  if (isError) {
-    throw new Error('An error occurred when fetching instance data elements.');
-  }
-
-  return dataElements;
-}
 
 export function useInvalidateInstanceData() {
   const queryClient = useQueryClient();
@@ -303,4 +278,13 @@ export function useInvalidateInstanceData() {
   return () => {
     queryClient.invalidateQueries({ queryKey: instanceQueries.all() });
   };
+}
+
+export function useHasPendingScans(): boolean {
+  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data ?? [];
+  if (dataElements.length === 0) {
+    return false;
+  }
+
+  return dataElements.some((dataElement) => dataElement.fileScanResult === FileScanResults.Pending);
 }

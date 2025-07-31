@@ -15,7 +15,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useGetInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
@@ -117,7 +117,7 @@ export const ReceiptContainer = () => {
     instanceOrg,
     instanceOwner,
     dataElements = [],
-  } = useGetInstanceDataQuery({
+  } = useInstanceDataQuery({
     select: (instance) => ({
       lastChanged: instance.lastChanged,
       instanceOrg: instance.org,

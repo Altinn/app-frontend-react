@@ -29,8 +29,8 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import {
   instanceQueries,
+  useInstanceDataElements,
   useInstanceDataQueryArgs,
-  useLaxInstanceDataElements,
 } from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useIsPdf } from 'src/hooks/useIsPdf';
@@ -306,7 +306,7 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const setInitialData = useSelector((state) => state.setInitialData);
   const setDataElementId = useSelector((state) => state.setDataElementId);
   const setError = useSelector((state) => state.setError);
-  const dataElements = useLaxInstanceDataElements(dataType);
+  const dataElements = useInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const metaData = useApplicationMetadata();
 
