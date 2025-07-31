@@ -9,7 +9,7 @@ import { useDisplayError } from 'src/core/errorHandling/DisplayErrorProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
 import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
-import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instance/InstanceContext';
+import { useGetInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -38,7 +38,7 @@ export function getProcessNextMutationKey(action?: IActionType) {
 
 export function useProcessNext({ action }: ProcessNextProps = {}) {
   const navigation = useNavigation();
-  const reFetchInstanceData = useStrictInstanceRefetch();
+  const reFetchInstanceData = useGetInstanceDataQuery().refetch;
   const language = useCurrentLanguage();
   const { data: process, refetch: refetchProcessData } = useProcessQuery();
   const navigateToTask = useNavigateToTask();
