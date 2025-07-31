@@ -169,75 +169,53 @@ export function useCurrentInstanceQueryKey(): readonly unknown[] | undefined {
   return queryKey;
 }
 
-export const useOptimisticallyAppendDataElements = () => {
+const useOptimisticInstanceUpdate = () => {
   const queryClient = useQueryClient();
   const queryKey = useCurrentInstanceQueryKey();
 
-  return (elements: IData[]) => {
-    if (!queryKey) {
-      return undefined;
-    }
-
-    queryClient.setQueryData(queryKey, (oldData: IInstance | undefined) => {
-      if (!oldData) {
-        throw new Error('Cannot append data element when instance data is not set');
-      }
-      return {
-        ...oldData,
-        data: [...oldData.data, ...elements],
-      };
-    });
+  return (updater: (oldData: IInstance) => IInstance | undefined) => {
+    queryKey &&
+      queryClient.setQueryData(queryKey, (oldData: IInstance | undefined) => {
+        if (!oldData) {
+          throw new Error('Cannot update instance data cache when there is not cached data');
+        }
+        return updater(oldData);
+      });
   };
 };
 
-export const useOptimisticallyUpdateDataElement = () => {
-  const queryClient = useQueryClient();
-  const queryKey = useCurrentInstanceQueryKey();
+export const useOptimisticallyAppendDataElements = () => {
+  const updateInstance = useOptimisticInstanceUpdate();
 
-  return (elementId: string, mutator: (element: IData) => IData) => {
-    if (!queryKey) {
-      return undefined;
-    }
-    queryClient.setQueryData(queryKey, (oldData: IInstance | undefined) => {
-      if (!oldData) {
-        throw new Error('Cannot mutate data element when instance data is not set');
-      }
-      return {
-        ...oldData,
-        data: oldData.data.map((element) => (element.id === elementId ? mutator(element) : element)),
-      };
-    });
-  };
+  return (elements: IData[]) =>
+    updateInstance((oldData) => ({
+      ...oldData,
+      data: [...oldData.data, ...elements],
+    }));
+};
+export const useOptimisticallyUpdateDataElement = () => {
+  const updateInstance = useOptimisticInstanceUpdate();
+
+  return (elementId: string, mutator: (element: IData) => IData) =>
+    updateInstance((oldData) => ({
+      ...oldData,
+      data: oldData.data.map((element) => (element.id === elementId ? mutator(element) : element)),
+    }));
 };
 export const useOptimisticallyRemoveDataElement = () => {
-  const queryClient = useQueryClient();
-  const queryKey = useCurrentInstanceQueryKey();
+  const updateInstance = useOptimisticInstanceUpdate();
 
-  return (elementId: string) => {
-    if (!queryKey) {
-      return undefined;
-    }
-    queryClient.setQueryData(queryKey, (oldData: IInstance | undefined) => {
-      if (!oldData) {
-        throw new Error('Cannot remove data element when instance data is not set');
-      }
-      return {
-        ...oldData,
-        data: oldData.data.filter((element) => element.id !== elementId),
-      };
-    });
-  };
+  return (elementId: string) =>
+    updateInstance((oldData) => ({
+      ...oldData,
+      data: oldData.data.filter((element) => element.id !== elementId),
+    }));
 };
-
 export const useOptimisticallyUpdateCachedInstance = (): ChangeInstanceData | undefined => {
-  const queryClient = useQueryClient();
-  const queryKey = useCurrentInstanceQueryKey();
+  const updateInstance = useOptimisticInstanceUpdate();
 
   return (callback: (instance: IInstance | undefined) => IInstance | undefined) => {
-    if (!queryKey) {
-      return undefined;
-    }
-    queryClient.setQueryData(queryKey, (oldData: IInstance | undefined) => {
+    updateInstance((oldData) => {
       const next = callback(oldData);
       const clean = cleanUpInstanceData(next);
       if (clean && !deepEqual(oldData, clean)) {
