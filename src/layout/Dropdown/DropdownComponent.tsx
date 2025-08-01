@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { EXPERIMENTAL_Suggestion } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
@@ -17,6 +17,7 @@ import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Dropdown/DropdownComponent.module.css';
 import comboboxClasses from 'src/styles/combobox.module.css';
+import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
@@ -95,6 +96,16 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
             </DeleteWarningPopover>
           )}
         >
+          {overrideDisplay?.renderedInTable && (
+            // workaround until this issue is resolved in DS:  https://github.com/digdir/designsystemet/issues/3893
+            <DSLabel
+              htmlFor={id}
+              className={utilClasses.visuallyHidden}
+            >
+              <Lang id={textResourceBindings?.title} />
+              {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+            </DSLabel>
+          )}
           <EXPERIMENTAL_Suggestion
             filter={optionFilter}
             data-size='sm'
