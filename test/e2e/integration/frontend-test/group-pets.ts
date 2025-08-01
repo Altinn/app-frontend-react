@@ -173,7 +173,7 @@ describe('Group (Pets)', () => {
       'Pelskledd og lojal mot mennesker', // Description
     );
     cy.get(appFrontend.pets.group(true).tableRow(0).editButton).click();
-    cy.dsSelect(appFrontend.pets.group().editContainer.species, 'Katt');
+    cy.dsSelect(appFrontend.pets.group().editContainer.species, 'Katt Ofte sett i morsomme videoer på nettet');
     cy.get(appFrontend.pets.group(true).tableRow(0).speciesOption).should('contain.text', 'Katt');
 
     // Prevents wcag test from running before this element is ready (needs to re-render after changing to cat)
