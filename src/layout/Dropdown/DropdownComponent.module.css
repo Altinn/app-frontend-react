@@ -3,3 +3,8 @@
   border-color: var(--ds-color-neutral-border-subtle);
   color: var(--ds-color-neutral-text-default);
 }
+
+.optionContent {
+  display: flex;
+  flex-direction: column;
+}
