@@ -1,11 +1,12 @@
 import React, { useCallback } from 'react';
 
-import { Combobox } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
+import { getDescriptionId } from 'src/components/label/Label';
 import { DeleteWarningPopover } from 'src/features/alertOnChange/DeleteWarningPopover';
 import { useAlertOnChange } from 'src/features/alertOnChange/useAlertOnChange';
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -16,9 +17,10 @@ import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Dropdown/DropdownComponent.module.css';
 import comboboxClasses from 'src/styles/combobox.module.css';
+import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import { optionSearchFilter } from 'src/utils/options';
+import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
@@ -52,6 +54,17 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
     changeMessageGenerator,
   );
 
+  // return a new array of objects with value and label properties without changing the selectedValues array
+  function formatSelectedValues(
+    selectedValues: string[],
+    options: { value: string; label: string }[],
+  ): { value: string; label: string }[] {
+    return selectedValues.map((value) => {
+      const option = options.find((o) => o.value === value);
+      return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
+    });
+  }
+
   if (isFetching) {
     return <AltinnSpinner />;
   }
@@ -83,38 +96,57 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
             </DeleteWarningPopover>
           )}
         >
-          <Combobox
-            id={id}
-            filter={optionSearchFilter}
-            size='sm'
-            hideLabel={true}
-            value={selectedValues}
-            readOnly={readOnly}
-            onValueChange={handleChange}
-            onBlur={() => debounce(`blur`)}
-            error={!isValid}
-            label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-            aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+          {overrideDisplay?.renderedInTable && (
+            // workaround until this issue is resolved in DS:  https://github.com/digdir/designsystemet/issues/3893
+            <DSLabel
+              htmlFor={id}
+              className={utilClasses.visuallyHidden}
+            >
+              <Lang id={textResourceBindings?.title} />
+              {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+            </DSLabel>
+          )}
+          <EXPERIMENTAL_Suggestion
+            filter={optionFilter}
+            data-size='sm'
+            selected={formatSelectedValues(selectedValues, options)}
+            onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
+            onBlur={() => debounce}
+            name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             className={cn(comboboxClasses.container, { [classes.readOnly]: readOnly })}
             style={{ width: '100%' }}
           >
-            <Combobox.Empty>
-              <Lang id='form_filler.no_options_found' />
-            </Combobox.Empty>
-            {options.map((option) => (
-              <Combobox.Option
-                key={option.value}
-                value={option.value}
-                description={option.description ? langAsString(option.description) : undefined}
-                displayValue={langAsString(option.label) || '\u200b'} // Workaround to prevent component from crashing due to empty string
-              >
-                <span>
-                  <wbr />
-                  <Lang id={option.label} />
-                </span>
-              </Combobox.Option>
-            ))}
-          </Combobox>
+            <EXPERIMENTAL_Suggestion.Input
+              id={id}
+              aria-invalid={!isValid}
+              aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+              aria-describedby={
+                overrideDisplay?.renderedInTable !== true &&
+                textResourceBindings?.title &&
+                textResourceBindings?.description
+                  ? getDescriptionId(id)
+                  : undefined
+              }
+              readOnly={readOnly}
+            />
+            <EXPERIMENTAL_Suggestion.List>
+              <EXPERIMENTAL_Suggestion.Empty>
+                <Lang id='form_filler.no_options_found' />
+              </EXPERIMENTAL_Suggestion.Empty>
+              {options.map((option) => (
+                <EXPERIMENTAL_Suggestion.Option
+                  key={option.value}
+                  value={option.value}
+                  label={langAsString(option.label)}
+                >
+                  <span className={classes.optionContent}>
+                    <Lang id={option.label} />
+                    {option.description && <Lang id={option.description} />}
+                  </span>
+                </EXPERIMENTAL_Suggestion.Option>
+              ))}
+            </EXPERIMENTAL_Suggestion.List>
+          </EXPERIMENTAL_Suggestion>
         </ConditionalWrapper>
       </ComponentStructureWrapper>
     </Label>

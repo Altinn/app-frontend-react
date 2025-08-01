@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { EXPERIMENTAL_MultiSuggestion, Field } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion, Field } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -14,7 +14,6 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import utilclasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
@@ -70,13 +69,16 @@ export function MultipleSelectComponent({
     changeMessageGenerator,
   );
 
-  const [componentKey, setComponentKey] = React.useState(0);
-
-  // This is a workaround to force the component to update its internal state, when the user cancels the alert on change
-  const onCancelClick = () => {
-    cancelChange();
-    setComponentKey((prevKey) => prevKey + 1);
-  };
+  // return a new array of objects with value and label properties without changing the selectedValues array
+  function formatSelectedValues(
+    selectedValues: string[],
+    options: { value: string; label: string }[],
+  ): { value: string; label: string }[] {
+    return selectedValues.map((value) => {
+      const option = options.find((o) => o.value === value);
+      return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
+    });
+  }
 
   if (isFetching) {
     return <AltinnSpinner />;
@@ -95,35 +97,28 @@ export function MultipleSelectComponent({
         description={getDescriptionComponent()}
       >
         <ComponentStructureWrapper baseComponentId={baseComponentId}>
-          <EXPERIMENTAL_MultiSuggestion
-            key={componentKey}
+          {alertOnChange && (
+            <DeleteWarningPopover
+              onPopoverDeleteClick={confirmChange}
+              onCancelClick={cancelChange}
+              deleteButtonText={langAsString('form_filler.alert_confirm')}
+              messageText={alertMessage}
+              open={alertOpen}
+              setOpen={setAlertOpen}
+              popoverId={`${id}-alert-popover`}
+            />
+          )}
+          <EXPERIMENTAL_Suggestion
             id={id}
             data-testid='multiple-select-component'
+            multiple
             filter={optionFilter}
             data-size='sm'
-            value={selectedValues}
-            onValueChange={handleChange}
-            onBlur={() => debounce('blur')}
+            selected={formatSelectedValues(selectedValues, options)}
+            onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
+            onBlur={() => debounce}
           >
-            <EXPERIMENTAL_MultiSuggestion.Chips render={(e) => e.text} />
-            {alertOnChange && (
-              <DeleteWarningPopover
-                deleteButtonText={langAsString('form_filler.alert_confirm')}
-                messageText={alertMessage}
-                onCancelClick={onCancelClick}
-                onPopoverDeleteClick={confirmChange}
-                open={alertOpen}
-                setOpen={setAlertOpen}
-              >
-                <span
-                  className={utilclasses.visuallyHidden}
-                  aria-hidden='true'
-                >
-                  Trigger
-                </span>
-              </DeleteWarningPopover>
-            )}
-            <EXPERIMENTAL_MultiSuggestion.Input
+            <EXPERIMENTAL_Suggestion.Input
               aria-invalid={!isValid}
               aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
               aria-describedby={
@@ -135,25 +130,29 @@ export function MultipleSelectComponent({
               }
               readOnly={readOnly}
             />
-            <EXPERIMENTAL_MultiSuggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
-            <EXPERIMENTAL_MultiSuggestion.List>
-              <EXPERIMENTAL_MultiSuggestion.Empty>
+            <EXPERIMENTAL_Suggestion.Clear
+              aria-label={langAsString('form_filler.clear_selection')}
+              popoverTarget={`${id}-alert-popover`}
+            />
+            <EXPERIMENTAL_Suggestion.List>
+              <EXPERIMENTAL_Suggestion.Empty>
                 <Lang id='form_filler.no_options_found' />
-              </EXPERIMENTAL_MultiSuggestion.Empty>
+              </EXPERIMENTAL_Suggestion.Empty>
               {options.map((option) => (
-                <EXPERIMENTAL_MultiSuggestion.Option
+                <EXPERIMENTAL_Suggestion.Option
                   key={option.value}
                   value={option.value}
+                  label={langAsString(option.label)}
                 >
                   <span>
                     <wbr />
                     <Lang id={option.label} />
                     {option.description && <Lang id={option.description} />}
                   </span>
-                </EXPERIMENTAL_MultiSuggestion.Option>
+                </EXPERIMENTAL_Suggestion.Option>
               ))}
-            </EXPERIMENTAL_MultiSuggestion.List>
-          </EXPERIMENTAL_MultiSuggestion>
+            </EXPERIMENTAL_Suggestion.List>
+          </EXPERIMENTAL_Suggestion>
         </ComponentStructureWrapper>
       </Label>
     </Field>
