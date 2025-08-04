@@ -9,7 +9,7 @@ import type { UseQueryOptions } from '@tanstack/react-query';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
 import { FileScanResults } from 'src/features/attachments/types';
-import { cleanUpInstanceData } from 'src/features/instance/instanceUtils';
+import { removeProcessFromInstance } from 'src/features/instance/instanceUtils';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
@@ -182,13 +182,13 @@ export const useOptimisticallyRemoveDataElement = () => {
       data: oldData.data.filter((element) => element.id !== elementId),
     }));
 };
-export const useOptimisticallyUpdateCachedInstance = (): ChangeInstanceData | undefined => {
+export const useOptimisticallyUpdateCachedInstance = (): ChangeInstanceData => {
   const updateInstance = useOptimisticInstanceUpdate();
 
   return (callback: (instance: IInstance | undefined) => IInstance | undefined) => {
     updateInstance((oldData) => {
       const next = callback(oldData);
-      const clean = cleanUpInstanceData(next);
+      const clean = next ? removeProcessFromInstance(next) : undefined;
       if (clean && !deepEqual(oldData, clean)) {
         return next;
       }

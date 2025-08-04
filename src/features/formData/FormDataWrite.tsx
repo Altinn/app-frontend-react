@@ -55,7 +55,7 @@ interface FormDataContextInitialProps {
   proxies: FormDataWriteProxies;
   ruleConnections: IRuleConnections | null;
   schemaLookup: { [dataType: string]: SchemaLookupTool };
-  changeInstance: ChangeInstanceData | undefined;
+  changeInstance: ChangeInstanceData;
 }
 
 const {
