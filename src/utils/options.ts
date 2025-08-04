@@ -120,17 +120,28 @@ export function optionSearchFilter(inputValue: string, option: Option): boolean 
   return label.includes(search) || (!!desc && desc.includes(search));
 }
 
-export function optionFilter(args: {
-  index: number;
-  text: string;
-  value: string;
-  optionElement: HTMLOptionElement;
-  input: HTMLInputElement;
-}): boolean {
-  const { value, optionElement, input } = args;
+export function optionFilter(
+  args: {
+    index: number;
+    text: string;
+    value: string;
+    optionElement: HTMLOptionElement;
+    input: HTMLInputElement;
+  },
+  selectedLabels: string[],
+): boolean {
+  const { value, optionElement, input, text } = args;
   const search = input.value.toLowerCase();
-  const label = value.toLowerCase();
+  const label = text.toLowerCase();
   const desc = optionElement.getAttribute('aria-description')?.toLowerCase();
+
+  //show all options if no search text is entered or a selected values label is equal to the search text
+  if (!search || (selectedLabels.length > 0 && selectedLabels.includes(search))) {
+    console.log('showing all options', { search, selectedLabels, value });
+    return true;
+  }
+
+  console.log('result', label, label.includes(search), !!desc && desc.includes(search));
 
   return label.includes(search) || (!!desc && desc.includes(search));
 }

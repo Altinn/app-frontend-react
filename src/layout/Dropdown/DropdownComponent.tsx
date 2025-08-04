@@ -19,6 +19,7 @@ import comboboxClasses from 'src/styles/combobox.module.css';
 import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
@@ -32,6 +33,11 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
 
   const { options, isFetching, selectedValues, setData } = useGetOptions(baseComponentId, 'single');
   const debounce = FD.useDebounceImmediately();
+
+  const selectedLabels = selectedValues.map((value) => {
+    const option = options.find((o) => o.value === value);
+    return option ? langAsString(option.label).toLowerCase() : value;
+  });
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {
@@ -102,7 +108,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           </DSLabel>
         )}
         <EXPERIMENTAL_Suggestion
-          filter={true}
+          filter={(args) => optionFilter(args, selectedLabels)}
           data-size='sm'
           selected={formatSelectedValues(selectedValues, options)}
           onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
@@ -141,7 +147,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
               </EXPERIMENTAL_Suggestion.Option>
             ))}
           </EXPERIMENTAL_Suggestion.List>
-          <span popovertarget={`${id}-popover`} />
+          <span popoverTarget={`${id}-popover`} />
         </EXPERIMENTAL_Suggestion>
       </ComponentStructureWrapper>
     </Label>

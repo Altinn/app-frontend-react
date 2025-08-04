@@ -34,6 +34,10 @@ export function MultipleSelectComponent({
   } = useGetOptions(baseComponentId, 'multi');
   const groupBinding = useSaveValueToGroup(dataModelBindings);
   const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
+  const selectedLabels = selectedValues.map((value) => {
+    const option = options.find((o) => o.value === value);
+    return option ? langAsString(option.label).toLowerCase() : value;
+  });
 
   const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage();
@@ -112,7 +116,7 @@ export function MultipleSelectComponent({
             id={id}
             data-testid='multiple-select-component'
             multiple
-            filter={optionFilter}
+            filter={(args) => optionFilter(args, selectedLabels)}
             data-size='sm'
             selected={formatSelectedValues(selectedValues, options)}
             onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
