@@ -3,7 +3,6 @@ import React, { useCallback } from 'react';
 import { EXPERIMENTAL_Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
-import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { getDescriptionId } from 'src/components/label/Label';
@@ -81,73 +80,70 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
       description={getDescriptionComponent()}
     >
       <ComponentStructureWrapper baseComponentId={baseComponentId}>
-        <ConditionalWrapper
-          condition={Boolean(alertOnChange)}
-          wrapper={(children) => (
-            <DeleteWarningPopover
-              onPopoverDeleteClick={confirmChange}
-              onCancelClick={cancelChange}
-              deleteButtonText={langAsString('form_filler.alert_confirm')}
-              messageText={alertMessage}
-              open={alertOpen}
-              setOpen={setAlertOpen}
-            >
-              {children}
-            </DeleteWarningPopover>
-          )}
-        >
-          {overrideDisplay?.renderedInTable && (
-            // workaround until this issue is resolved in DS:  https://github.com/digdir/designsystemet/issues/3893
-            <DSLabel
-              htmlFor={id}
-              className={utilClasses.visuallyHidden}
-            >
-              <Lang id={textResourceBindings?.title} />
-              {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
-            </DSLabel>
-          )}
-          <EXPERIMENTAL_Suggestion
-            filter={optionFilter}
-            data-size='sm'
-            selected={formatSelectedValues(selectedValues, options)}
-            onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
-            onBlur={() => debounce}
-            name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-            className={cn(comboboxClasses.container, { [classes.readOnly]: readOnly })}
-            style={{ width: '100%' }}
+        {alertOnChange && (
+          <DeleteWarningPopover
+            onPopoverDeleteClick={confirmChange}
+            onCancelClick={cancelChange}
+            deleteButtonText={langAsString('form_filler.alert_confirm')}
+            messageText={alertMessage}
+            open={alertOpen}
+            setOpen={setAlertOpen}
+            popoverId={`${id}-popover`}
+          />
+        )}
+        {overrideDisplay?.renderedInTable && (
+          // Setting aria-label on the input component does not work in DS Combobox.
+          // Workaround until this issue is resolved in DS: https://github.com/digdir/designsystemet/issues/3893
+          <DSLabel
+            htmlFor={id}
+            className={utilClasses.visuallyHidden}
           >
-            <EXPERIMENTAL_Suggestion.Input
-              id={id}
-              aria-invalid={!isValid}
-              aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
-              aria-describedby={
-                overrideDisplay?.renderedInTable !== true &&
-                textResourceBindings?.title &&
-                textResourceBindings?.description
-                  ? getDescriptionId(id)
-                  : undefined
-              }
-              readOnly={readOnly}
-            />
-            <EXPERIMENTAL_Suggestion.List>
-              <EXPERIMENTAL_Suggestion.Empty>
-                <Lang id='form_filler.no_options_found' />
-              </EXPERIMENTAL_Suggestion.Empty>
-              {options.map((option) => (
-                <EXPERIMENTAL_Suggestion.Option
-                  key={option.value}
-                  value={option.value}
-                  label={langAsString(option.label)}
-                >
-                  <span className={classes.optionContent}>
-                    <Lang id={option.label} />
-                    {option.description && <Lang id={option.description} />}
-                  </span>
-                </EXPERIMENTAL_Suggestion.Option>
-              ))}
-            </EXPERIMENTAL_Suggestion.List>
-          </EXPERIMENTAL_Suggestion>
-        </ConditionalWrapper>
+            <Lang id={textResourceBindings?.title} />
+            {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+          </DSLabel>
+        )}
+        <EXPERIMENTAL_Suggestion
+          filter={optionFilter}
+          data-size='sm'
+          selected={formatSelectedValues(selectedValues, options)}
+          onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
+          onBlur={() => debounce}
+          name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+          className={cn(comboboxClasses.container, classes.showCaretsWithoutClear, { [classes.readOnly]: readOnly })}
+          style={{ width: '100%' }}
+        >
+          <EXPERIMENTAL_Suggestion.Input
+            id={id}
+            aria-invalid={!isValid}
+            aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
+            aria-describedby={
+              overrideDisplay?.renderedInTable !== true &&
+              textResourceBindings?.title &&
+              textResourceBindings?.description
+                ? getDescriptionId(id)
+                : undefined
+            }
+            readOnly={readOnly}
+          />
+          <span popovertarget={`${id}-popover`} />
+          <EXPERIMENTAL_Suggestion.List>
+            <EXPERIMENTAL_Suggestion.Empty>
+              <Lang id='form_filler.no_options_found' />
+            </EXPERIMENTAL_Suggestion.Empty>
+            {options.map((option) => (
+              <EXPERIMENTAL_Suggestion.Option
+                key={option.value}
+                value={option.value}
+                label={langAsString(option.label)}
+              >
+                <span className={classes.optionContent}>
+                  <Lang id={option.label} />
+                  {option.description && <Lang id={option.description} />}
+                </span>
+              </EXPERIMENTAL_Suggestion.Option>
+            ))}
+          </EXPERIMENTAL_Suggestion.List>
+        </EXPERIMENTAL_Suggestion>
       </ComponentStructureWrapper>
     </Label>
   );
