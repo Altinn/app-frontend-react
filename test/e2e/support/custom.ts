@@ -66,7 +66,7 @@ Cypress.Commands.add('dsClear', (selector) => {
   cy.get(selector).invoke('val', '').trigger('input');
 
   // Close any open dropdowns by clicking outside
-  cy.get('body').click();
+  cy.get('body').click('bottomRight');
 
   // Additional step to ensure dropdown is reset
   cy.get(selector).click();
@@ -86,7 +86,7 @@ Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
   cy.findByRole('option', { name: value }).click();
   if (debounce) {
-    cy.get('body').click();
+    cy.get('body').click('bottomRight');
   }
 });
 
