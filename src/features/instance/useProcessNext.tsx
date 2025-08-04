@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,9 +7,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useDisplayError } from 'src/core/errorHandling/DisplayErrorProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useHasPendingScans } from 'src/features/attachments/useHasPendingScans';
 import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
-import { useLaxInstanceId, useStrictInstanceRefetch } from 'src/features/instance/InstanceContext';
+import { useHasPendingScans, useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -36,7 +36,8 @@ export function getProcessNextMutationKey(action?: IActionType) {
 }
 
 export function useProcessNext({ action }: ProcessNextProps = {}) {
-  const reFetchInstanceData = useStrictInstanceRefetch();
+  const navigation = useNavigation();
+  const reFetchInstanceData = useInstanceDataQuery().refetch;
   const language = useCurrentLanguage();
   const { data: process, refetch: refetchProcessData } = useProcessQuery();
   const navigateToTask = useNavigateToTask();
@@ -51,8 +52,12 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
   const hasPendingScans = useHasPendingScans();
 
   return useMutation({
+    scope: { id: 'process/next' },
     mutationKey: getProcessNextMutationKey(action),
     mutationFn: async () => {
+      // Wait for navigation to be idle before proceeding
+      await waitForIdleNavigation(navigation);
+
       if (hasPendingScans) {
         await reFetchInstanceData();
       }
@@ -98,7 +103,9 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
       } else if (validationIssues) {
         // Set initial validation to validation issues from process/next and make all errors visible
         updateInitialValidations(validationIssues, !appSupportsIncrementalValidationFeatures(applicationMetadata));
-        if (!(await onSubmitFormValidation(true))) {
+
+        const hasValidationErrors = await onSubmitFormValidation(true);
+        if (!hasValidationErrors) {
           setShowAllBackendErrors !== ContextNotProvided && setShowAllBackendErrors();
         }
       }
@@ -137,4 +144,17 @@ export function getTargetTaskFromProcess(processData: IProcess | undefined) {
   }
 
   return processData.ended || !processData.currentTask ? TaskKeys.ProcessEnd : processData.currentTask.elementId;
+}
+
+function waitForIdleNavigation(navigation: ReturnType<typeof useNavigation>) {
+  return new Promise<void>((resolve) => {
+    const checkNavigation = async () => {
+      while (navigation.state !== 'idle') {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      resolve();
+    };
+    checkNavigation();
+  });
 }
