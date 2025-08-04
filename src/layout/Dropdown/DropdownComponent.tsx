@@ -19,7 +19,6 @@ import comboboxClasses from 'src/styles/combobox.module.css';
 import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
@@ -103,7 +102,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           </DSLabel>
         )}
         <EXPERIMENTAL_Suggestion
-          filter={optionFilter}
+          filter={true}
           data-size='sm'
           selected={formatSelectedValues(selectedValues, options)}
           onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
@@ -125,7 +124,6 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
             }
             readOnly={readOnly}
           />
-          <span popovertarget={`${id}-popover`} />
           <EXPERIMENTAL_Suggestion.List>
             <EXPERIMENTAL_Suggestion.Empty>
               <Lang id='form_filler.no_options_found' />
@@ -143,6 +141,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
               </EXPERIMENTAL_Suggestion.Option>
             ))}
           </EXPERIMENTAL_Suggestion.List>
+          <span popovertarget={`${id}-popover`} />
         </EXPERIMENTAL_Suggestion>
       </ComponentStructureWrapper>
     </Label>
