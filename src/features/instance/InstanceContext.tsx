@@ -131,6 +131,51 @@ export function useInstanceDataQuery<R = IInstance>(
   });
 }
 
+export function useInstanceDataSources(): IInstanceDataSources | null {
+  const instanceOwnerParty = useInstanceOwnerParty();
+  return (
+    useInstanceDataQuery({
+      select: (instance) => buildInstanceDataSources(instance, instanceOwnerParty),
+    }).data ?? null
+  );
+}
+
+export const useDataElementsSelectorProps = () => {
+  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data;
+
+  return <U,>(selectDataElements: (data: IData[]) => U) =>
+    dataElements ? selectDataElements(dataElements) : undefined;
+};
+
+/** Beware that in later versions, this will re-render your component after every save, as
+ * the backend sends us updated instance data */
+export const useInstanceDataElements = (dataType: string | undefined) =>
+  useInstanceDataQuery({
+    select: (instance) =>
+      dataType ? instance.data.filter((dataElement) => dataElement.dataType === dataType) : instance.data,
+  }).data ?? emptyArray;
+
+export function useHasPendingScans(): boolean {
+  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data ?? [];
+  if (dataElements.length === 0) {
+    return false;
+  }
+
+  return dataElements.some((dataElement) => dataElement.fileScanResult === FileScanResults.Pending);
+}
+
+export function useInvalidateInstanceDataCache() {
+  const queryClient = useQueryClient();
+
+  return async () => {
+    queryClient.invalidateQueries({ queryKey: instanceQueries.all() });
+  };
+}
+
+/*********************
+ * OPTIMISTIC UPDATES
+ *********************/
+
 const useOptimisticInstanceUpdate = () => {
   const queryClient = useQueryClient();
   const { hasResultFromInstantiation, instanceOwnerPartyId, instanceGuid } = useInstanceDataQueryArgs();
@@ -196,44 +241,3 @@ export const useOptimisticallyUpdateCachedInstance = (): ChangeInstanceData => {
     });
   };
 };
-
-export function useInstanceDataSources(): IInstanceDataSources | null {
-  const instanceOwnerParty = useInstanceOwnerParty();
-  return (
-    useInstanceDataQuery({
-      select: (instance) => buildInstanceDataSources(instance, instanceOwnerParty),
-    }).data ?? null
-  );
-}
-
-export const useDataElementsSelectorProps = () => {
-  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data;
-
-  return <U,>(selectDataElements: (data: IData[]) => U) =>
-    dataElements ? selectDataElements(dataElements) : undefined;
-};
-
-/** Beware that in later versions, this will re-render your component after every save, as
- * the backend sends us updated instance data */
-export const useInstanceDataElements = (dataType: string | undefined) =>
-  useInstanceDataQuery({
-    select: (instance) =>
-      dataType ? instance.data.filter((dataElement) => dataElement.dataType === dataType) : instance.data,
-  }).data ?? emptyArray;
-
-export function useInvalidateInstanceData() {
-  const queryClient = useQueryClient();
-
-  return () => {
-    queryClient.invalidateQueries({ queryKey: instanceQueries.all() });
-  };
-}
-
-export function useHasPendingScans(): boolean {
-  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data ?? [];
-  if (dataElements.length === 0) {
-    return false;
-  }
-
-  return dataElements.some((dataElement) => dataElement.fileScanResult === FileScanResults.Pending);
-}
