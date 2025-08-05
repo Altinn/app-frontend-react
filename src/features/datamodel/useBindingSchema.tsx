@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import type { JSONSchema7 } from 'json-schema';
 
@@ -15,15 +15,10 @@ import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { useAsRef } from 'src/hooks/useAsRef';
-import {
-  getAnonymousStatelessDataModelUrl,
-  getStatefulDataModelUrl,
-  getStatelessDataModelUrl,
-  getStatelessDataModelUrlWithPrefill,
-} from 'src/utils/urls/appUrlHelper';
-import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
+import { getStatefulDataModelUrl, getStatelessDataModelUrl } from 'src/utils/urls/appUrlHelper';
+import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 
 export type AsSchema<T> = {
   [P in keyof T]: JSONSchema7 | null;
@@ -52,7 +47,6 @@ export function useCurrentDataModelDataElementId() {
 type DataModelDeps = {
   language: string;
   isAnonymous: boolean;
-  isStateless: boolean;
   instanceId?: string;
 };
 
@@ -68,20 +62,11 @@ function getDataModelUrl({
   dataElementId,
   language,
   isAnonymous,
-  isStateless,
   instanceId,
   prefillFromQueryParams,
 }: DataModelDeps & DataModelProps) {
-  if (prefillFromQueryParams && !isAnonymous && isStateless && dataType) {
-    return getUrlWithLanguage(getStatelessDataModelUrlWithPrefill(dataType, prefillFromQueryParams), language);
-  }
-
-  if (isStateless && isAnonymous && dataType) {
-    return getUrlWithLanguage(getAnonymousStatelessDataModelUrl(dataType), language);
-  }
-
-  if (isStateless && !isAnonymous && dataType) {
-    return getUrlWithLanguage(getStatelessDataModelUrl(dataType), language);
+  if (!instanceId && dataType) {
+    return getUrlWithLanguage(getStatelessDataModelUrl({ dataType, prefillFromQueryParams, isAnonymous }), language);
   }
 
   if (instanceId && dataElementId) {
@@ -93,40 +78,18 @@ function getDataModelUrl({
 
 export function useGetDataModelUrl() {
   const isAnonymous = useAllowAnonymous();
-  const isStateless = useApplicationMetadata().isStatelessApp;
   const instanceId = useLaxInstanceId();
   const currentLanguage = useAsRef(useCurrentLanguage());
 
-  return useCallback(
-    ({ dataType, dataElementId, language }: DataModelProps) =>
-      getDataModelUrl({
-        dataType,
-        dataElementId,
-        language: language ?? currentLanguage.current,
-        isAnonymous,
-        isStateless,
-        instanceId,
-      }),
-    [currentLanguage, instanceId, isAnonymous, isStateless],
-  );
-}
-
-// We assume that the first data element of the correct type is the one we should use, same as isDataTypeWritable
-export function useDataModelUrl({ dataType, dataElementId, language, prefillFromQueryParams }: DataModelProps) {
-  const isAnonymous = useAllowAnonymous();
-  const isStateless = useApplicationMetadata().isStatelessApp;
-  const instanceId = useLaxInstanceId();
-  const currentLanguage = useAsRef(useCurrentLanguage());
-
-  return getDataModelUrl({
-    dataType,
-    dataElementId,
-    language: language ?? currentLanguage.current,
-    isAnonymous,
-    isStateless,
-    instanceId,
-    prefillFromQueryParams,
-  });
+  return ({ dataType, dataElementId, language, prefillFromQueryParams }: DataModelProps) =>
+    getDataModelUrl({
+      dataType,
+      dataElementId,
+      language: language ?? currentLanguage.current,
+      isAnonymous,
+      instanceId,
+      prefillFromQueryParams,
+    });
 }
 
 export function useCurrentDataModelName() {
