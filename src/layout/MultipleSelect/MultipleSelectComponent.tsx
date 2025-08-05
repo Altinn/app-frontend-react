@@ -34,13 +34,14 @@ export function MultipleSelectComponent({
   } = useGetOptions(baseComponentId, 'multi');
   const groupBinding = useSaveValueToGroup(dataModelBindings);
   const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
+
+  const debounce = FD.useDebounceImmediately();
+  const { langAsString, lang } = useLanguage();
+
   const selectedLabels = selectedValues.map((value) => {
     const option = options.find((o) => o.value === value);
     return option ? langAsString(option.label).toLowerCase() : value;
   });
-
-  const debounce = FD.useDebounceImmediately();
-  const { langAsString, lang } = useLanguage();
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
