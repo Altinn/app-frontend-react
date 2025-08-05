@@ -15,12 +15,7 @@ import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import { useAsRef } from 'src/hooks/useAsRef';
-import {
-  getAnonymousStatelessDataModelUrl,
-  getStatefulDataModelUrl,
-  getStatelessDataModelUrl,
-  getStatelessDataModelUrlWithPrefill,
-} from 'src/utils/urls/appUrlHelper';
+import { getStatefulDataModelUrl, getStatelessDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -52,7 +47,6 @@ export function useCurrentDataModelGuid() {
 type DataModelDeps = {
   language: string;
   isAnonymous: boolean;
-  isStateless: boolean;
   instanceId?: string;
 };
 
@@ -70,23 +64,14 @@ function getDataModelUrl({
   includeRowIds = false,
   language,
   isAnonymous,
-  isStateless,
   instanceId,
   prefillFromQueryParams,
 }: DataModelDeps & DataModelProps) {
-  if (prefillFromQueryParams && !isAnonymous && isStateless && dataType) {
+  if (!instanceId && dataType) {
     return getUrlWithLanguage(
-      getStatelessDataModelUrlWithPrefill(dataType, includeRowIds, prefillFromQueryParams),
+      getStatelessDataModelUrl({ dataType, includeRowIds, prefillFromQueryParams, isAnonymous }),
       language,
     );
-  }
-
-  if (isStateless && isAnonymous && dataType) {
-    return getUrlWithLanguage(getAnonymousStatelessDataModelUrl(dataType, includeRowIds), language);
-  }
-
-  if (isStateless && !isAnonymous && dataType) {
-    return getUrlWithLanguage(getStatelessDataModelUrl(dataType, includeRowIds), language);
   }
 
   if (instanceId && dataElementId) {
@@ -98,7 +83,6 @@ function getDataModelUrl({
 
 export function useGetDataModelUrl() {
   const isAnonymous = useAllowAnonymous();
-  const isStateless = useApplicationMetadata().isStatelessApp;
   const instanceId = useLaxInstanceId();
   const currentLanguage = useAsRef(useCurrentLanguage());
 
@@ -109,7 +93,6 @@ export function useGetDataModelUrl() {
       includeRowIds,
       language: language ?? currentLanguage.current,
       isAnonymous,
-      isStateless,
       instanceId,
       prefillFromQueryParams,
     });
