@@ -14,7 +14,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
 import { UpdateDataElementIdsForCypress } from 'src/features/datamodel/DataElementIdsForCypress';
-import { useCurrentDataModelName, useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import {
   getAllReferencedDataTypes,
@@ -31,6 +31,7 @@ import {
   instanceQueries,
   useInstanceDataElements,
   useInstanceDataQueryArgs,
+  useLaxInstanceId,
 } from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useIsPdf } from 'src/hooks/useIsPdf';
@@ -320,22 +321,22 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const dataElements = useInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const metaData = useApplicationMetadata();
+  const instanceId = useLaxInstanceId();
 
-  const url = useGetDataModelUrl()({
+  const { data, error } = useFormDataQuery({
     dataType,
     dataElementId,
+    instanceId,
     prefillFromQueryParams: getValidPrefillDataFromQueryParams(metaData, dataType),
   });
 
-  const { data, error } = useFormDataQuery(url);
-
   useEffect(() => {
-    if (!data || !url) {
+    if (!data) {
       return;
     }
     sessionStorage.removeItem('queryParams');
     setInitialData(dataType, data);
-  }, [data, dataType, metaData.id, setInitialData, url]);
+  }, [data, dataType, metaData.id, setInitialData]);
 
   useEffect(() => {
     setDataElementId(dataType, dataElementId ?? null);

@@ -11,14 +11,13 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import { useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
-import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
+import { formDataQueries, useGetDataModelUrl } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceId, useOptimisticallyUpdateCachedInstance } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -110,11 +109,15 @@ function useFormDataSaveMutation() {
   // the main form and a subform).
   function updateQueryCache(result: FDSaveFinished) {
     for (const { dataType, data, dataElementId } of result.newDataModels) {
-      const url = getDataModelUrl({ dataType, dataElementId });
-      if (!url) {
+      if (!dataType) {
         continue;
       }
-      const queryKey = getFormDataQueryKey(url);
+      const queryKey = formDataQueries.formDataKey({
+        dataType,
+        dataElementId,
+        isAnonymous: false,
+        instanceId,
+      });
       queryClient.setQueryData(queryKey, data);
     }
   }

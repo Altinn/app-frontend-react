@@ -15,14 +15,16 @@ import {
   type ExpressionDataSources,
   useExpressionDataSources,
 } from 'src/utils/layout/useExpressionDataSources';
-import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
 
 export function useSubformFormData(dataElementId: string) {
   const instanceId = useStrictInstanceId();
-  const url = getStatefulDataModelUrl(instanceId, dataElementId);
-  const { isFetching: isSubformDataFetching, data: subformData, error: subformDataError } = useFormDataQuery(url);
+  const {
+    isFetching: isSubformDataFetching,
+    data: subformData,
+    error: subformDataError,
+  } = useFormDataQuery({ instanceId, dataElementId });
 
   useEffect(() => {
     if (subformDataError) {

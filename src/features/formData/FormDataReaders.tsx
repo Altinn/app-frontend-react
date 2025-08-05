@@ -6,10 +6,8 @@ import dot from 'dot-object';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useAvailableDataModels } from 'src/features/datamodel/useAvailableDataModels';
-import { useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useInstanceDataElements, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -198,9 +196,14 @@ function SpecificDataModelFetcher({ reader, isAvailable }: { reader: DataModelRe
   const dataType = reader.getName();
   const dataElements = useInstanceDataElements(dataType);
   const dataElementId = getFirstDataElementId(dataElements, dataType);
-  const url = useGetDataModelUrl()({ dataType, dataElementId, language: useCurrentLanguage() });
+  const instanceId = useLaxInstanceId();
   const enabled = isAvailable && reader.isLoading();
-  const { data, error } = useFormDataQuery(enabled ? url : undefined);
+  const { data, error } = useFormDataQuery({
+    enabled,
+    dataType,
+    dataElementId,
+    instanceId,
+  });
   const { updateModel } = useCtx();
 
   useEffect(() => {
