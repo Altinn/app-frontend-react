@@ -14,7 +14,7 @@ import { useApplicationMetadata } from 'src/features/applicationMetadata/Applica
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useCustomValidationConfigQuery } from 'src/features/customValidation/useCustomValidationQuery';
 import { UpdateDataElementIdsForCypress } from 'src/features/datamodel/DataElementIdsForCypress';
-import { useCurrentDataModelName, useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelName, useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useDataModelSchemaQuery } from 'src/features/datamodel/useDataModelSchemaQuery';
 import {
   getAllReferencedDataTypes,
@@ -321,7 +321,7 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const metaData = useApplicationMetadata();
 
-  const url = useDataModelUrl({
+  const url = useGetDataModelUrl()({
     dataType,
     dataElementId,
     prefillFromQueryParams: getValidPrefillDataFromQueryParams(metaData, dataType),

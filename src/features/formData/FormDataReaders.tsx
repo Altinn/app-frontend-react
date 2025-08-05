@@ -6,7 +6,7 @@ import dot from 'dot-object';
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useAvailableDataModels } from 'src/features/datamodel/useAvailableDataModels';
-import { useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { useGetDataModelUrl } from 'src/features/datamodel/useBindingSchema';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -198,7 +198,7 @@ function SpecificDataModelFetcher({ reader, isAvailable }: { reader: DataModelRe
   const dataType = reader.getName();
   const dataElements = useInstanceDataElements(dataType);
   const dataElementId = getFirstDataElementId(dataElements, dataType);
-  const url = useDataModelUrl({ dataType, dataElementId, language: useCurrentLanguage() });
+  const url = useGetDataModelUrl()({ dataType, dataElementId, language: useCurrentLanguage() });
   const enabled = isAvailable && reader.isLoading();
   const { data, error } = useFormDataQuery(enabled ? url : undefined);
   const { updateModel } = useCtx();
