@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { EXPERIMENTAL_Suggestion, Field } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion, Field, Label as DSLabel } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -14,6 +14,7 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
@@ -113,8 +114,18 @@ export function MultipleSelectComponent({
               popoverId={`${id}-alert-popover`}
             />
           )}
+          {overrideDisplay?.renderedInTable && (
+            // Setting aria-label on the input component does not work in DS Combobox.
+            // Workaround until this issue is resolved in DS: https://github.com/digdir/designsystemet/issues/3893
+            <DSLabel
+              htmlFor={id}
+              className={utilClasses.visuallyHidden}
+            >
+              <Lang id={textResourceBindings?.title} />
+              {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+            </DSLabel>
+          )}
           <EXPERIMENTAL_Suggestion
-            id={id}
             data-testid='multiple-select-component'
             multiple
             filter={(args) => optionFilter(args, selectedLabels)}
@@ -124,6 +135,7 @@ export function MultipleSelectComponent({
             onBlur={() => debounce}
           >
             <EXPERIMENTAL_Suggestion.Input
+              id={id}
               aria-invalid={!isValid}
               aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
               aria-describedby={
