@@ -10,13 +10,8 @@ import {
 } from 'src/features/applicationMetadata/appMetadataUtils';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
-import { useAsRef } from 'src/hooks/useAsRef';
-import { getStatefulDataModelUrl, getStatelessDataModelUrl } from 'src/utils/urls/appUrlHelper';
-import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -42,60 +37,6 @@ export function useCurrentDataModelGuid() {
       return getCurrentTaskDataElementId({ application, dataElements: data.data, taskId, layoutSets });
     },
   }).data;
-}
-
-type DataModelDeps = {
-  language: string;
-  isAnonymous: boolean;
-  instanceId?: string;
-};
-
-type DataModelProps = {
-  dataType?: string;
-  dataElementId?: string;
-  includeRowIds?: boolean;
-  language?: string;
-  prefillFromQueryParams?: string;
-};
-
-function getDataModelUrl({
-  dataType,
-  dataElementId,
-  includeRowIds = false,
-  language,
-  isAnonymous,
-  instanceId,
-  prefillFromQueryParams,
-}: DataModelDeps & DataModelProps) {
-  if (!instanceId && dataType) {
-    return getUrlWithLanguage(
-      getStatelessDataModelUrl({ dataType, includeRowIds, prefillFromQueryParams, isAnonymous }),
-      language,
-    );
-  }
-
-  if (instanceId && dataElementId) {
-    return getUrlWithLanguage(getStatefulDataModelUrl(instanceId, dataElementId, includeRowIds), language);
-  }
-
-  return undefined;
-}
-
-export function useGetDataModelUrl() {
-  const isAnonymous = useAllowAnonymous();
-  const instanceId = useLaxInstanceId();
-  const currentLanguage = useAsRef(useCurrentLanguage());
-
-  return ({ dataType, dataElementId, includeRowIds, language, prefillFromQueryParams }: DataModelProps) =>
-    getDataModelUrl({
-      dataType,
-      dataElementId,
-      includeRowIds,
-      language: language ?? currentLanguage.current,
-      isAnonymous,
-      instanceId,
-      prefillFromQueryParams,
-    });
 }
 
 export function useCurrentDataModelName() {
