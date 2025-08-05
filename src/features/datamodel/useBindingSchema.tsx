@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 
 import type { JSONSchema7 } from 'json-schema';
 
@@ -102,44 +102,17 @@ export function useGetDataModelUrl() {
   const instanceId = useLaxInstanceId();
   const currentLanguage = useAsRef(useCurrentLanguage());
 
-  return useCallback(
-    ({ dataType, dataElementId, includeRowIds, language }: DataModelProps) =>
-      getDataModelUrl({
-        dataType,
-        dataElementId,
-        includeRowIds,
-        language: language ?? currentLanguage.current,
-        isAnonymous,
-        isStateless,
-        instanceId,
-      }),
-    [currentLanguage, instanceId, isAnonymous, isStateless],
-  );
-}
-
-// We assume that the first data element of the correct type is the one we should use, same as isDataTypeWritable
-export function useDataModelUrl({
-  dataType,
-  dataElementId,
-  includeRowIds,
-  language,
-  prefillFromQueryParams,
-}: DataModelProps) {
-  const isAnonymous = useAllowAnonymous();
-  const isStateless = useApplicationMetadata().isStatelessApp;
-  const instanceId = useLaxInstanceId();
-  const currentLanguage = useAsRef(useCurrentLanguage());
-
-  return getDataModelUrl({
-    dataType,
-    dataElementId,
-    includeRowIds,
-    language: language ?? currentLanguage.current,
-    isAnonymous,
-    isStateless,
-    instanceId,
-    prefillFromQueryParams,
-  });
+  return ({ dataType, dataElementId, includeRowIds, language, prefillFromQueryParams }: DataModelProps) =>
+    getDataModelUrl({
+      dataType,
+      dataElementId,
+      includeRowIds,
+      language: language ?? currentLanguage.current,
+      isAnonymous,
+      isStateless,
+      instanceId,
+      prefillFromQueryParams,
+    });
 }
 
 export function useCurrentDataModelName() {
