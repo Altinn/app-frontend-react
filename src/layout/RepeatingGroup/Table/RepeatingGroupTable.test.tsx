@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import ResizeObserverModule from 'resize-observer-polyfill';
@@ -14,6 +15,7 @@ import {
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
+import { fetchFormData } from 'src/queries/queries';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
@@ -172,8 +174,16 @@ describe('RepeatingGroupTable', () => {
     });
   });
 
-  const render = async (layout = getLayout(group, components)) =>
-    await renderWithInstanceAndLayout({
+  const render = async (layout = getLayout(group, components)) => {
+    jest.mocked(fetchFormData).mockImplementation(async () => ({
+      'some-group': [
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 0' },
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 1' },
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 2' },
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 3' },
+      ],
+    }));
+    return await renderWithInstanceAndLayout({
       renderer: (
         <RepeatingGroupProvider baseComponentId={group.id}>
           <LeakEditIndex />
@@ -191,16 +201,9 @@ describe('RepeatingGroupTable', () => {
             },
           ],
         }),
-        fetchFormData: async () => ({
-          'some-group': [
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 0' },
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 1' },
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 2' },
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 3' },
-          ],
-        }),
       },
     });
+  };
 });
 
 function LeakEditIndex() {

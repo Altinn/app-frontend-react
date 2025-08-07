@@ -133,7 +133,6 @@ const render = async ({ autoDeleteOnProcessEnd = false, hasPdf = true }: IRender
           },
         },
       }),
-      fetchFormData: async () => ({}),
     },
   });
 };

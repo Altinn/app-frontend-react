@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -7,6 +8,7 @@ import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { AppNavigation } from 'src/features/navigation/AppNavigation';
 import { BackendValidationSeverity } from 'src/features/validation';
 import * as UseNavigatePage from 'src/hooks/useNavigatePage';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type {
   ILayoutFile,
@@ -39,6 +41,11 @@ describe('AppNavigation', () => {
     overrideTaskNavigation?: (Omit<NavigationTask, 'id'> | Omit<NavigationReceipt, 'id'>)[];
   }) {
     const rawOrder = order ?? groups?.flatMap((g) => g.order) ?? [];
+
+    jest
+      .mocked(fetchFormData)
+      .mockImplementationOnce(async () => Object.fromEntries(rawOrder.map((page) => [`field-${page}`, 'some value'])));
+
     return renderWithInstanceAndLayout({
       renderer: () => <AppNavigation />,
       initialPage: initialPage ?? order?.[0] ?? groups?.[0].order[0],
@@ -108,7 +115,6 @@ describe('AppNavigation', () => {
             ]),
           ),
         }),
-        fetchFormData: async () => Object.fromEntries(rawOrder.map((page) => [`field-${page}`, 'some value'])),
       },
     });
   }

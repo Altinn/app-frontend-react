@@ -1,9 +1,11 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { MultipleSelectComponent } from 'src/layout/MultipleSelect/MultipleSelectComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -37,6 +39,7 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
 
 describe('MultipleSelect', () => {
   it('required validation should only show for simpleBinding', async () => {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ simpleBinding: '', label: '', metadata: '' }));
     await render({
       component: {
         showValidations: ['Required'],
@@ -46,9 +49,6 @@ describe('MultipleSelect', () => {
           label: { dataType: defaultDataTypeMock, field: 'label' },
           metadata: { dataType: defaultDataTypeMock, field: 'metadata' },
         },
-      },
-      queries: {
-        fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
       },
     });
 

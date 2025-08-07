@@ -1,10 +1,12 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { InputComponent } from 'src/layout/Input/InputComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -17,11 +19,8 @@ describe('InputComponent', () => {
   });
 
   it('should have correct value with specified form data', async () => {
-    await render({
-      queries: {
-        fetchFormData: () => Promise.resolve({ some: { field: 'some value' } }),
-      },
-    });
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ some: { field: 'some value' } }));
+    await render();
     const inputComponent = screen.getByRole('textbox') as HTMLInputElement;
 
     expect(inputComponent.value).toEqual('some value');
@@ -58,6 +57,7 @@ describe('InputComponent', () => {
     const typedValue = '789';
     const finalValuePlainText = `${inputValuePlainText}${typedValue}`;
     const finalValueFormatted = '$123,456,789';
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ some: { field: inputValuePlainText } }));
     const { formDataMethods } = await render({
       component: {
         formatting: {
@@ -66,9 +66,6 @@ describe('InputComponent', () => {
             prefix: '$',
           },
         },
-      },
-      queries: {
-        fetchFormData: () => Promise.resolve({ some: { field: inputValuePlainText } }),
       },
     });
     const inputComponent = screen.getByRole('textbox');
@@ -171,12 +168,10 @@ describe('InputComponent', () => {
 
   it('should prevent pasting when readOnly is true', async () => {
     const initialValue = 'initial value';
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ some: { field: initialValue } }));
     await render({
       component: {
         readOnly: true,
-      },
-      queries: {
-        fetchFormData: () => Promise.resolve({ some: { field: initialValue } }),
       },
     });
 
@@ -192,12 +187,10 @@ describe('InputComponent', () => {
 
   it('should render autocomplete prop if provided', async () => {
     const initialValue = 'initial value';
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ some: { field: initialValue } }));
     await render({
       component: {
         autocomplete: 'name',
-      },
-      queries: {
-        fetchFormData: () => Promise.resolve({ some: { field: initialValue } }),
       },
     });
 

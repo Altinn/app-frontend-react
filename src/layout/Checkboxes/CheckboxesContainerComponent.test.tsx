@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
@@ -8,6 +9,7 @@ import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepG
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { LayoutStyle } from 'src/layout/common.generated';
+import { fetchFormData } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { AppQueries } from 'src/queries/types';
@@ -45,8 +47,9 @@ const render = async ({
   formData,
   groupData = getFormDataMockForRepGroup(),
   queries,
-}: Props = {}) =>
-  await renderGenericComponentTest({
+}: Props = {}) => {
+  jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ selectedValues: formData, ...groupData }));
+  return await renderGenericComponentTest({
     type: 'Checkboxes',
     renderer: (props) => <CheckboxContainerComponent {...props} />,
     component: {
@@ -65,10 +68,10 @@ const render = async ({
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             Promise.resolve({ data: options, headers: {} } as AxiosResponse<IRawOption[], any>)
           : Promise.reject(new Error('No options provided to render()')),
-      fetchFormData: async () => (formData ? { selectedValues: formData, ...groupData } : { ...groupData }),
       ...queries,
     },
   });
+};
 
 const getCheckbox = ({ name, isChecked = false }) =>
   screen.getByRole('checkbox', {
@@ -302,6 +305,7 @@ describe('CheckboxesContainerComponent', () => {
   });
 
   it('required validation should show for simpleBinding', async () => {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ simpleBinding: '', label: '', metadata: '' }));
     await render({
       component: {
         showValidations: ['Required'],
@@ -313,9 +317,6 @@ describe('CheckboxesContainerComponent', () => {
         },
       },
       options: [],
-      queries: {
-        fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
-      },
     });
 
     expect(screen.getAllByRole('listitem')).toHaveLength(1);
@@ -323,6 +324,7 @@ describe('CheckboxesContainerComponent', () => {
   });
 
   it('required validation should show for group', async () => {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ simpleBinding: '', group: [] }));
     await render({
       component: {
         showValidations: ['Required'],
@@ -334,9 +336,6 @@ describe('CheckboxesContainerComponent', () => {
         deletionStrategy: 'hard',
       },
       options: [],
-      queries: {
-        fetchFormData: () => Promise.resolve({ simpleBinding: '', group: [] }),
-      },
     });
 
     expect(screen.getAllByRole('listitem')).toHaveLength(1);

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
+import { jest } from '@jest/globals';
 import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
@@ -9,6 +10,7 @@ import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { Form } from 'src/components/form/Form';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
 
@@ -37,6 +39,9 @@ describe('ValidationPlugin', () => {
       validateOnNext: AllowedValidationMasks;
       backendValidations?: string[];
     }) {
+      jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+        TextField: text,
+      }));
       return renderWithInstanceAndLayout({
         renderer: () => (
           <>
@@ -46,10 +51,6 @@ describe('ValidationPlugin', () => {
         ),
         initialPage: 'Form',
         queries: {
-          fetchFormData: () =>
-            Promise.resolve({
-              TextField: text,
-            }),
           fetchBackendValidations: () =>
             Promise.resolve(
               backendValidations.map(

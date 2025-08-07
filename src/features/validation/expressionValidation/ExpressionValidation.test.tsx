@@ -8,6 +8,7 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ExpressionValidation } from 'src/features/validation/expressionValidation/ExpressionValidation';
 import { Validation } from 'src/features/validation/validationContext';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IRawTextResource } from 'src/features/language/textResources';
 import type { FieldValidations, IExpressionValidationConfig } from 'src/features/validation';
@@ -82,13 +83,13 @@ describe('Expression validation shared tests', () => {
       result = validations;
     });
     jest.spyOn(Validation, 'useUpdateDataModelValidations').mockImplementation(() => updateDataModelValidations);
+    jest.mocked(fetchFormData).mockImplementation(async () => formData);
 
     await renderWithInstanceAndLayout({
       renderer: () => <ExpressionValidation />,
       queries: {
         fetchLayouts: async () => layouts,
         fetchCustomValidationConfig: async () => validationConfig,
-        fetchFormData: async () => formData,
         fetchTextResources: async (language) => ({
           language,
           resources: textResources ?? [],

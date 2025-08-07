@@ -1,10 +1,12 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { MapComponent } from 'src/layout/Map/MapComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -51,26 +53,20 @@ describe('MapComponent', () => {
   });
 
   it('should show correct footer text when location is set', async () => {
-    await render({
-      queries: {
-        fetchFormData: async () => ({
-          myCoords: '59.2641592,10.4036248',
-        }),
-      },
-    });
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+      myCoords: '59.2641592,10.4036248',
+    }));
+    await render();
 
     expect(screen.queryByText('Ingen lokasjon valgt')).not.toBeInTheDocument();
     expect(screen.getByText('Valgt lokasjon: 59.2641592° nord, 10.4036248° øst')).toBeInTheDocument();
   });
 
   it('should show marker when marker is set', async () => {
-    await render({
-      queries: {
-        fetchFormData: async () => ({
-          myCoords: '59.2641592,10.4036248',
-        }),
-      },
-    });
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+      myCoords: '59.2641592,10.4036248',
+    }));
+    await render();
     expect(screen.queryByRole('button', { name: 'Marker' })).toBeInTheDocument();
   });
 

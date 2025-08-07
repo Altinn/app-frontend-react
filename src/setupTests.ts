@@ -20,11 +20,12 @@ import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import type {
   doProcessNext,
   fetchApplicationMetadata,
+  fetchFormData,
   fetchInstanceData,
   fetchProcessState,
   fetchUserProfile,
 } from 'src/queries/queries';
-import type { AppQueries } from 'src/queries/types';
+import type { IgnoredQueriesAndMutations } from 'src/queries/types';
 
 import 'src/index.css';
 import 'src/styles/shared.css';
@@ -112,7 +113,8 @@ testingLibraryConfigure({
 });
 
 jest.mock('src/queries/queries', () => ({
-  ...jest.requireActual<AppQueries>('src/queries/queries'),
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  ...jest.requireActual<Pick<typeof import('src/queries/queries'), IgnoredQueriesAndMutations>>('src/queries/queries'),
   fetchApplicationMetadata: jest
     .fn<typeof fetchApplicationMetadata>()
     .mockImplementation(async () => getIncomingApplicationMetadataMock()),
@@ -120,4 +122,5 @@ jest.mock('src/queries/queries', () => ({
   doProcessNext: jest.fn<typeof doProcessNext>(async () => getProcessDataMock()),
   fetchUserProfile: jest.fn<typeof fetchUserProfile>(async () => getProfileMock()),
   fetchInstanceData: jest.fn<typeof fetchInstanceData>(async () => getInstanceDataMock()),
+  fetchFormData: jest.fn<typeof fetchFormData>(async () => ({})),
 }));

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
@@ -7,6 +8,7 @@ import type { AxiosResponse } from 'axios';
 import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepGroup';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
+import { fetchFormData } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { AppQueries } from 'src/queries/types';
@@ -41,8 +43,11 @@ const render = async ({
   formData,
   groupData = getFormDataMockForRepGroup(),
   queries,
-}: Props = {}) =>
-  await renderGenericComponentTest({
+}: Props = {}) => {
+  jest
+    .mocked(fetchFormData)
+    .mockImplementation(async () => (formData ? { myRadio: formData, ...groupData } : { ...groupData }));
+  return await renderGenericComponentTest({
     type: 'RadioButtons',
     renderer: (props) => <ControlledRadioGroup {...props} />,
     component: {
@@ -60,10 +65,10 @@ const render = async ({
           ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
             Promise.resolve({ data: options, headers: {} } as AxiosResponse<IRawOption[], any>)
           : Promise.reject(new Error('No options provided to render()')),
-      fetchFormData: async () => (formData ? { myRadio: formData, ...groupData } : { ...groupData }),
       ...queries,
     },
   });
+};
 
 const getRadio = ({ name, isChecked = false }) =>
   screen.getByRole('radio', {
@@ -252,6 +257,7 @@ describe('RadioButtonsContainerComponent', () => {
   });
 
   it('required validation should only show for simpleBinding', async () => {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ simpleBinding: '', label: '', metadata: '' }));
     await render({
       component: {
         showValidations: ['Required'],
@@ -263,9 +269,6 @@ describe('RadioButtonsContainerComponent', () => {
         },
       },
       options: [],
-      queries: {
-        fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
-      },
     });
 
     expect(screen.getAllByRole('listitem')).toHaveLength(1);

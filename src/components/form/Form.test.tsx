@@ -7,6 +7,7 @@ import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { Form } from 'src/components/form/Form';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompExternal, ILayout } from 'src/layout/layout';
 import type { CompSummaryExternal } from 'src/layout/Summary/config.generated';
@@ -224,19 +225,20 @@ describe('Form', () => {
   });
 
   async function render(layout = mockComponents, validationIssues: BackendValidationIssue[] = []) {
+    jest.mocked(fetchFormData).mockImplementation(async () => ({
+      Group: [
+        {
+          prop1: 'value1',
+          prop2: 'value2',
+          prop3: 'value3',
+        },
+      ],
+    }));
+
     await renderWithInstanceAndLayout({
       renderer: () => <Form />,
       initialPage: 'FormLayout',
       queries: {
-        fetchFormData: async () => ({
-          Group: [
-            {
-              prop1: 'value1',
-              prop2: 'value2',
-              prop3: 'value3',
-            },
-          ],
-        }),
         fetchLayouts: () =>
           Promise.resolve({
             FormLayout: {

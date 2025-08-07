@@ -1,10 +1,12 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
@@ -105,6 +107,7 @@ describe('AddressComponent', () => {
   });
 
   it('should show error message on blur if zipcode is invalid', async () => {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ address: 'initial address', zipCode: '0001' }));
     await render({
       component: {
         showValidations: ['Component'],
@@ -112,7 +115,6 @@ describe('AddressComponent', () => {
         simplified: true,
       },
       queries: {
-        fetchFormData: async () => ({ address: 'initial address', zipCode: '0001' }),
         fetchPostPlace: (zipCode: string) =>
           zipCode === '0001'
             ? Promise.resolve({ valid: true, result: 'OSLO' })
@@ -129,13 +131,12 @@ describe('AddressComponent', () => {
   });
 
   it('should update postplace on mount', async () => {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ address: 'initial address', zipCode: '0001' }));
+
     const { formDataMethods } = await render({
       component: {
         required: true,
         simplified: false,
-      },
-      queries: {
-        fetchFormData: async () => ({ address: 'initial address', zipCode: '0001' }),
       },
     });
 
@@ -167,11 +168,11 @@ describe('AddressComponent', () => {
   });
 
   it('should call dispatch for post place when zip code is cleared', async () => {
-    const { formDataMethods, queries } = await render({
-      queries: {
-        fetchFormData: async () => ({ address: 'a', zipCode: '0001', postPlace: 'Oslo' }),
-      },
-    });
+    jest
+      .mocked(fetchFormData)
+      .mockImplementationOnce(async () => ({ address: 'a', zipCode: '0001', postPlace: 'Oslo' }));
+
+    const { formDataMethods, queries } = await render();
 
     expect(screen.getByDisplayValue('0001')).toBeInTheDocument();
     expect(screen.getByDisplayValue('OSLO')).toBeInTheDocument();
@@ -192,11 +193,9 @@ describe('AddressComponent', () => {
   });
 
   it('should only call fetchPostPlace once at the end, when debouncing', async () => {
-    const { queries } = await render({
-      queries: {
-        fetchFormData: async () => ({ address: 'a', zipCode: '', postPlace: '' }),
-      },
-    });
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ address: 'a', zipCode: '', postPlace: '' }));
+
+    const { queries } = await render();
 
     await userEvent.type(screen.getByRole('textbox', { name: 'Postnr' }), '0001{backspace}2');
     await waitFor(() => expect(screen.getByRole('textbox', { name: 'Poststed' })).toHaveDisplayValue('BERGEN'), {

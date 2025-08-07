@@ -12,7 +12,7 @@ import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { FileUploadComponent } from 'src/layout/FileUpload/FileUploadComponent';
 import { GenericComponent } from 'src/layout/GenericComponent';
-import { fetchApplicationMetadata, fetchInstanceData } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchFormData, fetchInstanceData } from 'src/queries/queries';
 import { renderGenericComponentTest, renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IGetAttachmentsMock } from 'src/__mocks__/getAttachmentsMock';
 import type { IRawOption } from 'src/layout/common.generated';
@@ -204,15 +204,13 @@ describe('File uploading components', () => {
       });
 
       it('should evaluate conditional expression for maxNumberOfAttachments', async () => {
+        jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ user: { type: 'admin' } }));
         await render({
           component: {
             maxNumberOfAttachments: ['if', ['equals', ['dataModel', 'user.type'], 'admin'], 10, 'else', 3], // Conditional expression
             displayMode: 'list',
           },
           attachments: (dataType) => getDataElements({ count: 2, dataType }),
-          queries: {
-            fetchFormData: () => Promise.resolve({ user: { type: 'admin' } }),
-          },
         });
 
         // Should show drop area since user is admin (max=10) and we only have 2 attachments
@@ -221,15 +219,13 @@ describe('File uploading components', () => {
       });
 
       it('should evaluate conditional expression for non-admin user', async () => {
+        jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ user: { type: 'regular' } }));
         await render({
           component: {
             maxNumberOfAttachments: ['if', ['equals', ['dataModel', 'user.type'], 'admin'], 10, 'else', 3], // Conditional expression
             displayMode: 'list',
           },
           attachments: (dataType) => getDataElements({ count: 3, dataType }),
-          queries: {
-            fetchFormData: () => Promise.resolve({ user: { type: 'regular' } }),
-          },
         });
 
         // Should not show drop area since user is regular (max=3) and we have 3 attachments
@@ -238,6 +234,7 @@ describe('File uploading components', () => {
       });
 
       it('should evaluate dataModel expression for minNumberOfAttachments validation', async () => {
+        jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ form: { requiredFiles: 3 } }));
         await render({
           component: {
             minNumberOfAttachments: ['dataModel', 'form.requiredFiles'], // Expression using form data
@@ -246,9 +243,6 @@ describe('File uploading components', () => {
             showValidations: ['Required'],
           },
           attachments: (dataType) => getDataElements({ count: 1, dataType }),
-          queries: {
-            fetchFormData: () => Promise.resolve({ form: { requiredFiles: 3 } }),
-          },
         });
 
         // Should show validation error since expression resolves to 3 but we only have 1
@@ -258,6 +252,7 @@ describe('File uploading components', () => {
       });
 
       it('should evaluate complex expression with greaterThan for minNumberOfAttachments', async () => {
+        jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ form: { priority: 8 } }));
         await render({
           component: {
             minNumberOfAttachments: ['if', ['greaterThan', ['dataModel', 'form.priority'], 5], 2, 'else', 1], // Complex expression
@@ -266,9 +261,6 @@ describe('File uploading components', () => {
             showValidations: ['Required'],
           },
           attachments: (dataType) => getDataElements({ count: 1, dataType }),
-          queries: {
-            fetchFormData: () => Promise.resolve({ form: { priority: 8 } }),
-          },
         });
 
         // Should show validation error since priority > 5, so min=2 but we only have 1
@@ -278,6 +270,7 @@ describe('File uploading components', () => {
       });
 
       it('should handle expression that resolves to zero for minNumberOfAttachments', async () => {
+        jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ form: { optionalFiles: 0 } }));
         await render({
           component: {
             minNumberOfAttachments: ['dataModel', 'form.optionalFiles'], // Expression that resolves to 0
@@ -285,9 +278,6 @@ describe('File uploading components', () => {
             displayMode: 'list',
           },
           attachments: (dataType) => getDataElements({ count: 0, dataType }),
-          queries: {
-            fetchFormData: () => Promise.resolve({ form: { optionalFiles: 0 } }),
-          },
         });
 
         // Should not show validation error since expression resolves to 0
@@ -295,6 +285,7 @@ describe('File uploading components', () => {
       });
 
       it('should use default values when expressions resolve to null/undefined', async () => {
+        jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ form: {} })); // Empty form data
         await render({
           component: {
             minNumberOfAttachments: ['dataModel', 'form.nonExistentMin'], // Expression that resolves to undefined
@@ -302,9 +293,6 @@ describe('File uploading components', () => {
             displayMode: 'list',
           },
           attachments: (dataType) => getDataElements({ count: 1, dataType }),
-          queries: {
-            fetchFormData: () => Promise.resolve({ form: {} }), // Empty form data
-          },
         });
 
         // Should show drop area since default maxNumberOfAttachments is Infinity

@@ -1,22 +1,21 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { TextAreaComponent } from 'src/layout/TextArea/TextAreaComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 describe('TextAreaComponent', () => {
   it('should render with initial text value', async () => {
-    await render({
-      queries: {
-        fetchFormData: async () => ({
-          myTextArea: 'initial text content',
-        }),
-      },
-    });
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+      myTextArea: 'initial text content',
+    }));
+    await render();
 
     const textarea = screen.getByRole('textbox');
 
@@ -27,13 +26,10 @@ describe('TextAreaComponent', () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
 
-    const { formDataMethods } = await render({
-      queries: {
-        fetchFormData: async () => ({
-          myTextArea: initialText,
-        }),
-      },
-    });
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+      myTextArea: initialText,
+    }));
+    const { formDataMethods } = await render();
 
     const textarea = screen.getByRole('textbox');
     await userEvent.type(textarea, addedText);
@@ -48,14 +44,12 @@ describe('TextAreaComponent', () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
 
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+      myTextArea: initialText,
+    }));
     const { formDataMethods } = await render({
       component: {
         readOnly: true,
-      },
-      queries: {
-        fetchFormData: async () => ({
-          myTextArea: initialText,
-        }),
       },
     });
 

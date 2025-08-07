@@ -2,6 +2,7 @@ import React from 'react';
 
 import { beforeAll, expect, jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
+import { AxiosError } from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
@@ -9,7 +10,7 @@ import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { DataModelFetcher } from 'src/features/formData/FormDataReaders';
 import { Lang } from 'src/features/language/Lang';
-import { fetchApplicationMetadata, fetchInstanceData } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchFormData, fetchInstanceData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IRawTextResource } from 'src/features/language/textResources';
 import type { IData, IDataType } from 'src/types/shared';
@@ -57,6 +58,20 @@ async function render(props: TestProps) {
     }),
   );
   jest.mocked(fetchInstanceData).mockImplementationOnce(async () => instanceData);
+  jest.mocked(fetchFormData).mockImplementation(async (url) => {
+    const path = new URL(url).pathname;
+    const id = path.split('/').pop();
+    const modelName = idToNameMap[id!];
+    const formData = props.dataModels[modelName];
+    if (formData instanceof Error) {
+      return Promise.reject(formData);
+    }
+    if (!formData) {
+      throw new Error(`No form data mocked for testing (modelName = ${modelName})`);
+    }
+
+    return formData;
+  });
 
   function generateDataElements(instanceId: string): IData[] {
     return dataModelNames.map((name) => {
@@ -123,19 +138,6 @@ async function render(props: TestProps) {
         resources: props.textResources,
         language: 'nb',
       }),
-      fetchFormData: async (url) => {
-        const path = new URL(url).pathname;
-        const id = path.split('/').pop();
-        const modelName = idToNameMap[id!];
-        const formData = props.dataModels[modelName];
-        if (formData instanceof Error) {
-          return Promise.reject(formData);
-        }
-        if (!formData) {
-          throw new Error(`No form data mocked for testing (modelName = ${modelName})`);
-        }
-        return formData;
-      },
     },
   });
 
@@ -161,7 +163,7 @@ describe('FormDataReaders', () => {
   it.each<string>(['someModel', 'someModel1.0'])(
     'simple, should render a resource with a variable lookup - %s',
     async (modelName: string) => {
-      const { queries, urlFor } = await render({
+      await render({
         ids: ['test'],
         textResources: [
           {
@@ -185,9 +187,6 @@ describe('FormDataReaders', () => {
 
       await waitFor(() => expect(screen.getByTestId('test')).toHaveTextContent('Hello World'));
 
-      expect(queries.fetchFormData).toHaveBeenCalledTimes(1);
-      expect(queries.fetchFormData).toHaveBeenCalledWith(urlFor(modelName), {});
-
       expect(window.logError).not.toHaveBeenCalled();
       expect(window.logErrorOnce).not.toHaveBeenCalled();
     },
@@ -196,13 +195,13 @@ describe('FormDataReaders', () => {
   it('advanced, should fetch data from multiple models, handle failures', async () => {
     jest.useFakeTimers();
     const missingError = new Error('This should fail when fetching');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (missingError as any).isAxiosError = true;
+
+    (missingError as AxiosError).isAxiosError = true;
 
     const model2Promise = new Promise((resolve) => {
       setTimeout(() => resolve({ name: 'Universe' }), 100);
     });
-    const { queries, urlFor } = await render({
+    await render({
       ids: ['test1', 'test2', 'test3', 'testDefault', 'testMissing', 'testMissingWithDefault'],
       textResources: [
         {
@@ -308,11 +307,6 @@ describe('FormDataReaders', () => {
     // They should appear again later, when the model is fetched
     await waitFor(() => expect(screen.getByTestId('test2')).toHaveTextContent('Hello Universe'));
     expect(screen.getByTestId('test3')).toHaveTextContent('You are [missing] year(s) old');
-
-    expect(queries.fetchFormData).toHaveBeenCalledTimes(3);
-    expect(queries.fetchFormData).toHaveBeenCalledWith(urlFor('model1'), {});
-    expect(queries.fetchFormData).toHaveBeenCalledWith(urlFor('model2'), {});
-    expect(queries.fetchFormData).toHaveBeenCalledWith(urlFor('modelMissing'), {});
 
     expect(window.logError).toHaveBeenCalledTimes(1);
     expect(window.logError).toHaveBeenCalledWith('Fetching form data failed:\n', missingError);

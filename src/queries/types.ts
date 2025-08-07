@@ -1,6 +1,6 @@
 import type * as queries from 'src/queries/queries';
 
-type IgnoredQueriesAndMutations = keyof Pick<
+export type IgnoredQueriesAndMutations = keyof Pick<
   typeof queries,
   | 'fetchApplicationMetadata'
   | 'fetchExternalApi'
@@ -8,6 +8,7 @@ type IgnoredQueriesAndMutations = keyof Pick<
   | 'doProcessNext'
   | 'fetchUserProfile'
   | 'fetchInstanceData'
+  | 'fetchFormData'
 >;
 
 type KeysStartingWith<T, U extends string> = {
