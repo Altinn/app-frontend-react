@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
+import { useQueryClient } from '@tanstack/react-query';
+
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/components/form/Form.module.css';
 import { MessageBanner } from 'src/components/form/MessageBanner';
@@ -14,6 +16,7 @@ import { FileScanResults } from 'src/features/attachments/types';
 import { useExpandedWidthLayouts, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { invalidateFormDataQueries } from 'src/features/formData/useFormDataQuery';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useOnFormSubmitValidation } from 'src/features/validation/callbacks/onFormSubmitValidation';
@@ -241,6 +244,7 @@ function HandleNavigationFocusComponent() {
   const validate = useQueryKey(SearchParams.Validate)?.toLocaleLowerCase() === 'true';
   const navigate = useNavigate();
   const searchStringRef = useAsRef(useLocation().search);
+  const queryClient = useQueryClient();
 
   React.useEffect(() => {
     (async () => {
@@ -250,10 +254,13 @@ function HandleNavigationFocusComponent() {
         location.delete(SearchParams.ExitSubform);
         const baseHash = window.location.hash.slice(1).split('?')[0];
         const nextLocation = location.size > 0 ? `${baseHash}?${location.toString()}` : baseHash;
+        if (exitSubform) {
+          invalidateFormDataQueries(queryClient);
+        }
         navigate(nextLocation, { replace: true });
       }
     })();
-  }, [navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation]);
+  }, [navigate, searchStringRef, exitSubform, validate, onFormSubmitValidation, queryClient]);
 
   return null;
 }
