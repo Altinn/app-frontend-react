@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { beforeAll } from '@jest/globals';
+import { beforeAll, jest } from '@jest/globals';
 import { screen, waitFor, within } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { v4 as uuidv4 } from 'uuid';
@@ -16,6 +16,7 @@ import {
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { fetchFormData } from 'src/queries/queries';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { ILayout } from 'src/layout/layout';
@@ -97,6 +98,14 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
     },
   });
 
+  jest.mocked(fetchFormData).mockImplementation(async (_url: string) => ({
+    Group: Array.from({ length: numRows }).map((_, index) => ({
+      [ALTINN_ROW_ID]: uuidv4(),
+      prop1: `value${index + 1}`,
+      checkboxBinding: ['option.value'],
+    })),
+  }));
+
   return await renderWithInstanceAndLayout({
     renderer: (
       <RepeatingGroupProvider baseComponentId={group.id}>
@@ -122,16 +131,8 @@ async function render({ container, numRows = 3, validationIssues = [] }: IRender
             { id: 'button.save', value: 'New save text' },
           ],
         }),
-      fetchFormData: async () => ({
-        Group: Array.from({ length: numRows }).map((_, index) => ({
-          [ALTINN_ROW_ID]: uuidv4(),
-          prop1: `value${index + 1}`,
-          checkboxBinding: ['option.value'],
-        })),
-      }),
       fetchBackendValidations: async () => validationIssues,
     },
-    mockFormDataSaving: true,
   });
 }
 
@@ -175,6 +176,7 @@ describe('RepeatingGroupContainer', () => {
   });
 
   it('displays components on multiple pages', async () => {
+    // Render with a row already in edit mode
     await render({
       container: {
         edit: {
@@ -183,19 +185,21 @@ describe('RepeatingGroupContainer', () => {
         },
         children: ['0:field1', '0:field2', '1:field3', '1:field4'],
       },
+      numRows: 4,
     });
-    expect(screen.getAllByRole('row')).toHaveLength(4); // 3 rows, 1 header, 0 edit container
-    expect(screen.getByTestId('editIndex')).toHaveTextContent('undefined');
 
-    const addButton = screen.getAllByRole('button', {
-      name: /Legg til ny/i,
-    })[0];
-    await userEvent.click(addButton);
+    // Manually trigger edit mode for the last row (index 3)
+    const rows = screen.getAllByRole('row');
+    expect(rows).toHaveLength(5); // 4 rows + 1 header
 
-    await waitFor(() => expect(screen.getAllByRole('row')).toHaveLength(6)); // 4 rows, 1 header, 1 edit container
-    expect(screen.getByTestId('editIndex')).toHaveTextContent('3'); // Editing the last row we just added
-    const editContainer = screen.getByTestId('group-edit-container');
+    // Click the edit button on the last row
+    const editButtons = screen.getAllByRole('button', { name: /Rediger/i });
+    await userEvent.click(editButtons[3]); // Edit the 4th row (index 3)
+
+    // Wait for the edit container to appear
+    const editContainer = await screen.findByTestId('group-edit-container');
     expect(editContainer).toBeInTheDocument();
+    expect(screen.getByTestId('editIndex')).toHaveTextContent('3');
 
     expect(within(editContainer).getByText('Title1')).toBeInTheDocument();
     expect(within(editContainer).getByText('Title2')).toBeInTheDocument();

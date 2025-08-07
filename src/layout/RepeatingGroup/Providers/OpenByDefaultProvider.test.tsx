@@ -13,6 +13,7 @@ import {
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { ILayout } from 'src/layout/layout';
@@ -73,6 +74,9 @@ describe('openByDefault', () => {
   }
 
   async function render({ existingRows, edit, hiddenRow }: Props) {
+    jest.mocked(fetchFormData).mockImplementation(async () => ({
+      MyGroup: existingRows ?? [],
+    }));
     const layout: ILayout = [
       {
         id: 'myGroup',
@@ -103,9 +107,6 @@ describe('openByDefault', () => {
         </RepeatingGroupProvider>
       ),
       queries: {
-        fetchFormData: async () => ({
-          MyGroup: existingRows ?? [],
-        }),
         fetchLayouts: async () => ({
           FormLayout: {
             data: { layout },
