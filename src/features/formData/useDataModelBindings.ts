@@ -50,10 +50,7 @@ export function useDataModelBindings<B extends IDataModelBindings | undefined, D
   const isValid = FD.useBindingsAreValid(bindings);
   const { setValue, setValues } = useSaveDataModelBindings(bindings, debounceTimeout);
 
-  return useMemo(
-    () => ({ formData: formData as Output<B, DA>['formData'], setValue, setValues, isValid }),
-    [formData, isValid, setValue, setValues],
-  );
+  return { formData: formData as Output<B, DA>['formData'], setValue, setValues, isValid };
 }
 
 export function useSaveDataModelBindings<B extends IDataModelBindings | undefined>(
