@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { EXPERIMENTAL_Suggestion, Field, Label as DSLabel } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion as Suggestion, Field, Label as DSLabel } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -125,7 +125,7 @@ export function MultipleSelectComponent({
               {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
             </DSLabel>
           )}
-          <EXPERIMENTAL_Suggestion
+          <Suggestion
             data-testid='multiple-select-component'
             multiple
             filter={(args) => optionFilter(args, selectedLabels)}
@@ -134,7 +134,7 @@ export function MultipleSelectComponent({
             onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
             onBlur={() => debounce}
           >
-            <EXPERIMENTAL_Suggestion.Input
+            <Suggestion.Input
               id={id}
               aria-invalid={!isValid}
               aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
@@ -147,16 +147,16 @@ export function MultipleSelectComponent({
               }
               readOnly={readOnly}
             />
-            <EXPERIMENTAL_Suggestion.Clear
+            <Suggestion.Clear
               aria-label={langAsString('form_filler.clear_selection')}
               popoverTarget={`${id}-alert-popover`}
             />
-            <EXPERIMENTAL_Suggestion.List>
-              <EXPERIMENTAL_Suggestion.Empty>
+            <Suggestion.List>
+              <Suggestion.Empty>
                 <Lang id='form_filler.no_options_found' />
-              </EXPERIMENTAL_Suggestion.Empty>
+              </Suggestion.Empty>
               {options.map((option) => (
-                <EXPERIMENTAL_Suggestion.Option
+                <Suggestion.Option
                   key={option.value}
                   value={option.value}
                   label={langAsString(option.label)}
@@ -166,10 +166,10 @@ export function MultipleSelectComponent({
                     <Lang id={option.label} />
                     {option.description && <Lang id={option.description} />}
                   </span>
-                </EXPERIMENTAL_Suggestion.Option>
+                </Suggestion.Option>
               ))}
-            </EXPERIMENTAL_Suggestion.List>
-          </EXPERIMENTAL_Suggestion>
+            </Suggestion.List>
+          </Suggestion>
         </ComponentStructureWrapper>
       </Label>
     </Field>

@@ -122,9 +122,7 @@ export function optionSearchFilter(inputValue: string, option: Option): boolean 
 
 export function optionFilter(
   args: {
-    index: number;
     text: string;
-    value: string;
     optionElement: HTMLOptionElement;
     input: HTMLInputElement;
   },

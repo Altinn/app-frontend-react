@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { EXPERIMENTAL_Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion as Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Label } from 'src/app-components/Label/Label';
@@ -107,7 +107,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
             {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
           </DSLabel>
         )}
-        <EXPERIMENTAL_Suggestion
+        <Suggestion
           filter={(args) => optionFilter(args, selectedLabels)}
           data-size='sm'
           selected={formatSelectedValues(selectedValues, options)}
@@ -117,7 +117,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           className={cn(comboboxClasses.container, classes.showCaretsWithoutClear, { [classes.readOnly]: readOnly })}
           style={{ width: '100%' }}
         >
-          <EXPERIMENTAL_Suggestion.Input
+          <Suggestion.Input
             id={id}
             aria-invalid={!isValid}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
@@ -130,12 +130,12 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
             }
             readOnly={readOnly}
           />
-          <EXPERIMENTAL_Suggestion.List>
-            <EXPERIMENTAL_Suggestion.Empty>
+          <Suggestion.List>
+            <Suggestion.Empty>
               <Lang id='form_filler.no_options_found' />
-            </EXPERIMENTAL_Suggestion.Empty>
+            </Suggestion.Empty>
             {options.map((option) => (
-              <EXPERIMENTAL_Suggestion.Option
+              <Suggestion.Option
                 key={option.value}
                 value={option.value}
                 label={langAsString(option.label)}
@@ -144,11 +144,11 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
                   <Lang id={option.label} />
                   {option.description && <Lang id={option.description} />}
                 </span>
-              </EXPERIMENTAL_Suggestion.Option>
+              </Suggestion.Option>
             ))}
-          </EXPERIMENTAL_Suggestion.List>
+          </Suggestion.List>
           <span popoverTarget={`${id}-popover`} />
-        </EXPERIMENTAL_Suggestion>
+        </Suggestion>
       </ComponentStructureWrapper>
     </Label>
   );
