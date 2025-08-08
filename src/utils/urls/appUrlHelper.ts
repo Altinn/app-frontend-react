@@ -48,18 +48,31 @@ export const getFileTagUrl = (instanceId: string, dataGuid: string, tag: string 
   return `${appPath}/instances/${instanceId}/data/${dataGuid}/tags`;
 };
 
-export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
-  `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+export const getStatelessDataModelUrl = ({
+  dataType,
+  includeRowIds,
+  prefillFromQueryParams,
+  isAnonymous = false,
+}: {
+  dataType: string;
+  includeRowIds: boolean;
+  prefillFromQueryParams?: string;
+  isAnonymous?: boolean;
+}) => {
+  const queryParams = new URLSearchParams({
+    dataType,
+    includeRowId: includeRowIds.toString(),
+  });
+  if (isAnonymous) {
+    return `${appPath}/v1/data/anonymous?${queryParams}`;
+  }
 
-export const getStatelessDataModelUrlWithPrefill = (
-  dataType: string,
-  includeRowIds: boolean,
-  prefillFromQueryParams: string,
-) =>
-  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}&prefill=${prefillFromQueryParams}`;
+  if (prefillFromQueryParams) {
+    queryParams.append('prefill', prefillFromQueryParams);
+  }
 
-export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
-  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+  return `${appPath}/v1/data?${queryParams}`;
+};
 
 export const getStatefulDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
   `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;

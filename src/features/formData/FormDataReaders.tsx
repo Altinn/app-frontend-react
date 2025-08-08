@@ -4,12 +4,11 @@ import type { PropsWithChildren } from 'react';
 import dot from 'dot-object';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getFirstDataElementId } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useAvailableDataModels } from 'src/features/datamodel/useAvailableDataModels';
-import { useDataModelUrl } from 'src/features/datamodel/useBindingSchema';
+import { DataTypeVariant, getDataTypeVariant } from 'src/features/datamodel/useAvailableDataModels';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useInstanceDataElements, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -104,7 +103,10 @@ export class DataModelReaders {
  * to render FormDataReadersProvider somewhere inside if rendering in a form, and render DataModelFetcher.
  */
 export function GlobalFormDataReadersProvider({ children }: PropsWithChildren) {
-  const availableModels = useAvailableDataModels().map((dm) => dm.id);
+  const dataTypes = useApplicationMetadata().dataTypes;
+  const availableModels = dataTypes
+    .filter((dataType) => getDataTypeVariant(dataType) === DataTypeVariant.DataModel)
+    .map((dm) => dm.id);
   const [readerMap, setReaderMap] = useState<{ [name: string]: DataModelReader }>({});
 
   const updateModel = useCallback((newModel: DataModelReader) => {
@@ -198,9 +200,15 @@ function SpecificDataModelFetcher({ reader, isAvailable }: { reader: DataModelRe
   const dataType = reader.getName();
   const dataElements = useInstanceDataElements(dataType);
   const dataElementId = getFirstDataElementId(dataElements, dataType);
-  const url = useDataModelUrl({ includeRowIds: false, dataType, dataElementId, language: useCurrentLanguage() });
+  const instanceId = useLaxInstanceId();
   const enabled = isAvailable && reader.isLoading();
-  const { data, error } = useFormDataQuery(enabled ? url : undefined);
+  const { data, error } = useFormDataQuery({
+    enabled,
+    includeRowIds: false,
+    dataType,
+    dataElementId,
+    instanceId,
+  });
   const { updateModel } = useCtx();
 
   useEffect(() => {
