@@ -207,6 +207,7 @@ describe('Subform test', () => {
       'contain.text',
       'Det er feil i en eller flere moped oppføringer',
     );
+    cy.waitForLoad();
     cy.findAllByRole('button', { name: /slett/i }).last().clickAndGone();
 
     // Test that fixing the validations works
