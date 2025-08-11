@@ -20,7 +20,6 @@ import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
-import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
@@ -294,34 +293,32 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
     >
       <LanguageProvider>
         <TaskStoreProvider>
-          <ProcessingProvider>
-            <LangToolsStoreProvider>
-              <UiConfigProvider>
-                <PageNavigationProvider>
-                  <Router>
-                    <NavigationEffectProvider>
-                      <ApplicationMetadataProvider>
-                        <GlobalFormDataReadersProvider>
-                          <OrgsProvider>
-                            <ApplicationSettingsProvider>
-                              <LayoutSetsProvider>
-                                <SetShouldFetchAppLanguages />
-                                <ProfileProvider>
-                                  <PartyProvider>
-                                    <TextResourcesProvider>{children}</TextResourcesProvider>
-                                  </PartyProvider>
-                                </ProfileProvider>
-                              </LayoutSetsProvider>
-                            </ApplicationSettingsProvider>
-                          </OrgsProvider>
-                        </GlobalFormDataReadersProvider>
-                      </ApplicationMetadataProvider>
-                    </NavigationEffectProvider>
-                  </Router>
-                </PageNavigationProvider>
-              </UiConfigProvider>
-            </LangToolsStoreProvider>
-          </ProcessingProvider>
+          <LangToolsStoreProvider>
+            <UiConfigProvider>
+              <PageNavigationProvider>
+                <Router>
+                  <NavigationEffectProvider>
+                    <ApplicationMetadataProvider>
+                      <GlobalFormDataReadersProvider>
+                        <OrgsProvider>
+                          <ApplicationSettingsProvider>
+                            <LayoutSetsProvider>
+                              <SetShouldFetchAppLanguages />
+                              <ProfileProvider>
+                                <PartyProvider>
+                                  <TextResourcesProvider>{children}</TextResourcesProvider>
+                                </PartyProvider>
+                              </ProfileProvider>
+                            </LayoutSetsProvider>
+                          </ApplicationSettingsProvider>
+                        </OrgsProvider>
+                      </GlobalFormDataReadersProvider>
+                    </ApplicationMetadataProvider>
+                  </NavigationEffectProvider>
+                </Router>
+              </PageNavigationProvider>
+            </UiConfigProvider>
+          </LangToolsStoreProvider>
         </TaskStoreProvider>
       </LanguageProvider>
     </AppQueriesProvider>
