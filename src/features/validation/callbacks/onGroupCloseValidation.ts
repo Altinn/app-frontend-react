@@ -1,9 +1,7 @@
-import { useCallback } from 'react';
-
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getRecursiveValidations } from 'src/features/validation/ValidationStorePlugin';
+import { getRecursiveValidations, makeComponentIdIndex } from 'src/features/validation/ValidationStorePlugin';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -37,6 +35,7 @@ export function useOnGroupCloseValidation() {
         mask,
         state,
         lookups,
+        baseToIndexedMap: makeComponentIdIndex(state),
         output: errors,
       });
 
@@ -51,11 +50,8 @@ export function useOnGroupCloseValidation() {
     },
   );
 
-  return useCallback(
-    async (baseComponentId: string, restriction: number | undefined, masks: AllowedValidationMasks) => {
-      await validating();
-      return callback(baseComponentId, restriction, masks);
-    },
-    [callback, validating],
-  );
+  return async (baseComponentId: string, restriction: number | undefined, masks: AllowedValidationMasks) => {
+    await validating();
+    return callback(baseComponentId, restriction, masks);
+  };
 }

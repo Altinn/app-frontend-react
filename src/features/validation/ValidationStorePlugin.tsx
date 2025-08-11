@@ -164,6 +164,7 @@ export class ValidationStorePlugin extends NodeDataPlugin<ValidationStorePluginC
             includeSelf,
             restriction,
             lookups,
+            baseToIndexedMap: makeComponentIdIndex(state),
             output,
           });
           return output;
@@ -346,6 +347,7 @@ interface GetDeepValidationsProps extends GetValidationsProps {
   output: NodeRefValidation[];
   includeSelf: boolean;
   restriction?: number | undefined;
+  baseToIndexedMap: Map<string, string[]>;
 }
 
 export function getRecursiveValidations(props: GetDeepValidationsProps) {
@@ -378,17 +380,34 @@ function getChildren(props: GetDeepValidationsProps): { id: string; baseId: stri
   const { depth } = splitDashedKey(props.id);
   const parentSuffix = depth.length ? `-${depth.join('-')}` : '';
   const childBaseIds = props.lookups.componentToChildren[props.baseId] ?? [];
-
   for (const childBaseId of childBaseIds) {
     const lookForSuffix = props.restriction === undefined ? parentSuffix : `${parentSuffix}-${props.restriction}`;
     const childId = `${childBaseId}${lookForSuffix}`;
-    if (props.state.nodeData[childId]) {
-      children.push({
-        id: childId,
-        baseId: childBaseId,
-      });
+
+    for (const idToCheck of props.baseToIndexedMap.get(childBaseId) ?? []) {
+      const childData = props.state.nodeData[idToCheck];
+      if (!childData || !idToCheck.startsWith(childId)) {
+        continue;
+      }
+      children.push({ id: childData.id, baseId: childData.baseId });
     }
   }
 
   return children;
+}
+
+export function makeComponentIdIndex(state: NodesContext) {
+  const out = new Map<string, string[]>();
+  for (const id of Object.keys(state.nodeData)) {
+    const data = state.nodeData[id];
+    if (!data) {
+      continue;
+    }
+    const baseId = data.baseId;
+    const children = out.get(baseId) ?? [];
+    children.push(id);
+    out.set(baseId, children);
+  }
+
+  return out;
 }
