@@ -1,6 +1,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
+import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
@@ -12,7 +13,7 @@ import {
   useValidParties,
 } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
-import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
+import { useIsAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import type { ShowTypes } from 'src/features/applicationMetadata/types';
 
 const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
@@ -47,7 +48,7 @@ export const Entrypoint = () => {
   const validParties = useValidParties();
   const partyIsValid = useSelectedPartyIsValid();
   const userHasSelectedParty = useHasSelectedParty();
-  const allowAnonymous = useAllowAnonymousIs(true);
+  const allowAnonymous = useIsAllowAnonymous(true);
   const party = useSelectedParty();
 
   if (isStateless && allowAnonymous && !party) {
@@ -59,6 +60,10 @@ export const Entrypoint = () => {
         <Outlet />
       </FormProvider>
     );
+  }
+
+  if (!profile) {
+    return <Loader reason='loading-profile' />;
   }
 
   if (!partyIsValid) {

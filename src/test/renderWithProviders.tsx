@@ -12,14 +12,12 @@ import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getDataListMock } from 'src/__mocks__/getDataListMock';
-import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
 import { orderDetailsResponsePayload } from 'src/__mocks__/getOrderDetailsPayloadMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
-import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { ProcessingProvider } from 'src/core/contexts/processingContext';
@@ -139,7 +137,6 @@ const defaultQueryMocks: AppQueries = {
   fetchFooterLayout: async () => ({ footer: [] }) as IFooterLayout,
   fetchLayoutSets: async () => getLayoutSetsMock(),
   fetchOrgs: async () => ({ orgs: getOrgsMock() }),
-  fetchUserProfile: async () => getProfileMock(),
   fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
   fetchPartiesAllowedToInstantiate: async () => [getPartyMock()],
@@ -158,7 +155,6 @@ const defaultQueryMocks: AppQueries = {
   fetchPostPlace: async () => ({ valid: true, result: 'OSLO' }),
   fetchLayoutSettings: async () => ({ pages: { order: [] } }),
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
-  fetchInstanceData: async () => getInstanceDataMock(),
   fetchBackendValidations: async () => [],
   fetchBackendValidationsForDataElement: async () => [],
   fetchPaymentInformation: async () => paymentResponsePayload,
