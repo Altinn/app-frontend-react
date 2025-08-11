@@ -14,8 +14,6 @@ import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
-import { getStatefulDataModelUrl, getStatelessDataModelUrl } from 'src/utils/urls/appUrlHelper';
-import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 
 export type AsSchema<T> = {
   [P in keyof T]: JSONSchema7 | null;

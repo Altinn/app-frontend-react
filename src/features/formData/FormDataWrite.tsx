@@ -1,35 +1,23 @@
-import type { PropsWithChildren } from 'react';
 import React, { useCallback, useEffect, useRef } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
-import type { AxiosRequestConfig } from 'axios';
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
+import type { AxiosRequestConfig } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
-import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
-import type { IRuleConnections } from 'src/features/form/dynamics';
 import { useRuleConnections } from 'src/features/form/dynamics/DynamicsContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
 import { useFormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
-import type {
-  DataModelState,
-  FDActionResult,
-  FDSaveFinished,
-  FormDataContext,
-  UpdatedDataModel,
-} from 'src/features/formData/FormDataWriteStateMachine';
 import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteStateMachine';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
-import type { DebounceReason, IPatchListItem } from 'src/features/formData/types';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { formDataQueries, useGetDataModelUrl } from 'src/features/formData/useFormDataQuery';
-import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import { useLaxInstanceId, useOptimisticallyUpdateCachedInstance } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -37,13 +25,25 @@ import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/featur
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
+import { doPatchMultipleFormData } from 'src/queries/queries';
+import { getMultiPatchUrl } from 'src/utils/urls/appUrlHelper';
+import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
+import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
+import type { IRuleConnections } from 'src/features/form/dynamics';
+import type { FormDataWriteProxies } from 'src/features/formData/FormDataWriteProxies';
+import type {
+  DataModelState,
+  FDActionResult,
+  FDSaveFinished,
+  FormDataContext,
+  UpdatedDataModel,
+} from 'src/features/formData/FormDataWriteStateMachine';
+import type { DebounceReason, IPatchListItem } from 'src/features/formData/types';
+import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, IMapping } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
-import { doPatchMultipleFormData } from 'src/queries/queries';
 import type { BaseRow } from 'src/utils/layout/types';
-import { getMultiPatchUrl } from 'src/utils/urls/appUrlHelper';
-import { getUrlWithLanguage } from 'src/utils/urls/urlHelper';
 
 export type FDLeafValue = string | number | boolean | null | undefined | string[];
 export type FDValue = FDLeafValue | object | FDValue[];
