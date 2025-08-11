@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigation } from 'react-router-dom';
+import { useNavigate, useNavigation } from 'react-router-dom';
 
 import { Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import classNames from 'classnames';
@@ -8,13 +8,13 @@ import { Flex } from 'src/app-components/Flex/Flex';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Label } from 'src/components/label/Label';
 import { useDataTypeFromLayoutSet, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { useStrictDataElements } from 'src/features/instance/InstanceContext';
+import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
-import { useIsSubformPage, useNavigate, useNavigationParams } from 'src/features/routing/AppRoutingContext';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsFor } from 'src/features/validation/selectors/componentValidationsForNode';
+import { useAllNavigationParams, useIsSubformPage } from 'src/hooks/navigation';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { ComponentErrorList } from 'src/layout/GenericComponent';
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
@@ -43,7 +43,7 @@ function SubformTableRow({
   const id = dataElement.id;
   const page = useLayoutLookups().componentToPage[baseComponentId] ?? 'unknown';
   const { id: nodeId, tableColumns } = useItemWhenType(baseComponentId, 'Subform');
-  const { instanceOwnerPartyId, instanceGuid, taskId } = useNavigationParams();
+  const { instanceOwnerPartyId, instanceGuid, taskId } = useAllNavigationParams();
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
   const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
@@ -122,7 +122,7 @@ export function SubformSummaryTable({
   }
 
   const pdfModeActive = usePdfModeActive();
-  const dataElements = useStrictDataElements(dataType);
+  const dataElements = useInstanceDataElements(dataType);
 
   if (isSubformPage && navigation.state !== 'loading') {
     return (
