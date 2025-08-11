@@ -24,7 +24,7 @@ import type {
   ValidationFilterFunction,
 } from 'src/layout';
 import type { IDataModelBindings } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Datepicker extends DatepickerDef implements ValidateComponent, ValidationFilter {
@@ -48,8 +48,8 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     return formatISOString(data, dateFormat) ?? data;
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'Datepicker'>): JSX.Element | null {
-    const displayData = useDisplayData(targetNode);
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
+    const displayData = useDisplayData(props.targetBaseComponentId);
     return (
       <SummaryItemSimple
         formDataAsString={displayData}
@@ -58,7 +58,7 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     );
   }
 
-  renderSummary2(props: Summary2Props<'Datepicker'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return <DatepickerSummary {...props} />;
   }
 
@@ -137,5 +137,13 @@ export class Datepicker extends DatepickerDef implements ValidateComponent, Vali
     }
 
     return errors;
+  }
+
+  evalExpressions(props: ExprResolver<'Datepicker'>) {
+    return {
+      ...this.evalDefaultExpressions(props),
+      minDate: props.evalStr(props.item.minDate, ''),
+      maxDate: props.evalStr(props.item.maxDate, ''),
+    };
   }
 }

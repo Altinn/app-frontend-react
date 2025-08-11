@@ -136,7 +136,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.currentValue).type('1');
     cy.get(appFrontend.group.newValue).type('0');
     cy.get(appFrontend.fieldValidation('newValue-0')).should('have.text', texts.zeroIsNotValid);
-    cy.snapshot('group:validation');
+    cy.visualTesting('group:validation');
     cy.get(appFrontend.group.newValue).clear();
     cy.get(appFrontend.group.newValue).type('1');
     cy.get(appFrontend.fieldValidation('newValue-0')).should('not.exist');
@@ -272,7 +272,7 @@ describe('Group', () => {
 
     checkPrefills({ middels: true, svaer: true });
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
-    cy.snapshot('group:prefill');
+    cy.visualTesting('group:prefill');
 
     checkPrefills({ middels: false, svaer: false });
     expectRows(['NOK 1', 'NOK 5']);
@@ -476,7 +476,7 @@ describe('Group', () => {
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
-    cy.snapshot('group:edit-in-table');
+    cy.visualTesting('group:edit-in-table');
 
     for (const row of [0, 1, 2]) {
       cy.get(appFrontend.group.mainGroupTableBody)
@@ -560,7 +560,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
-    cy.snapshot('group:only-table');
+    cy.visualTesting('group:only-table');
 
     for (const extraRows of [6, 7]) {
       cy.get(appFrontend.group.addNewItem).click();
@@ -900,7 +900,7 @@ describe('Group', () => {
     // page in one of the rows in order to also snapshot the Cards component inside a repeating group edit container.
     cy.get(editContainers).eq(1).findByRole('button', { name: 'Neste' }).click();
     cy.get(editContainers).eq(1).should('contain.text', 'Hvem tipset deg om dette skjemaet?');
-    cy.snapshot('group:showAll');
+    cy.visualTesting('group:showAll');
 
     // Verify that the label and add button still shows up when there are no rows in this mode
     hideAllRows();
@@ -966,5 +966,57 @@ describe('Group', () => {
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
+  });
+
+  it('Navigation on multiPage Group should skip pages with hidden components only', () => {
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
+        component.children = [
+          '0:currentValue',
+          '1:newValue',
+          '2:cards',
+          '3:mainUploaderSingle',
+          '3:mainUploaderMulti',
+          '4:subGroup',
+        ];
+        if (component.textResourceBindings) {
+          component.textResourceBindings.multipage_back_button = 'Forrige side';
+          component.textResourceBindings.multipage_next_button = 'Neste side';
+        }
+      }
+      if (
+        (component.id === 'newValue' && component.type === 'Input') ||
+        (component.id === 'mainUploaderSingle' && component.type === 'FileUpload')
+      ) {
+        component.hidden = true;
+      }
+    });
+    init();
+
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.mainGroup).should('exist');
+    cy.findByRole('textbox', { name: '1. Endre fra' }).should('exist');
+    cy.findByRole('textbox', { name: '2. Endre verdi til' }).should('not.exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Neste side/ })
+      .click();
+
+    //Make sure this page is skipped when component is hidden.
+    cy.findByRole('textbox', { name: '2. Endre verdi til' }).should('not.exist');
+    cy.findByRole('heading', { level: 2, name: 'Kilde' }).should('exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Neste side/ })
+      .click();
+    cy.findByRole('presentation', { name: 'Last opp alle vedlegg med kilde Altinn her' }).should('not.exist');
+    cy.findByRole('presentation', { name: 'Multi uploader in repeating group' }).should('exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Neste side/ })
+      .click();
+    cy.findByRole('table', { name: 'Nested group' }).should('exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Forrige side/ })
+      .click();
+    cy.findByRole('presentation', { name: 'Multi uploader in repeating group' }).should('exist');
   });
 });

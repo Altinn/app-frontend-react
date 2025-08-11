@@ -282,6 +282,9 @@ describe('Repeating group attachments', () => {
             .parent()
             .find(appFrontend.group.addNewItemSubGroup)
             .click();
+          // Wait for new subgroup DOM elements to stabilize before continuing. This prevents ResizeObserver loop.
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
+          cy.wait(200);
         }
       });
       cy.get(appFrontend.group.saveMainGroup).click();
@@ -328,7 +331,7 @@ describe('Repeating group attachments', () => {
     // deduplicated so two rows becomes one option.
     cy.get('#reduxOptions-expressions-radiobuttons').findAllByRole('radio').should('have.length', 1);
 
-    cy.snapshot('attachments-in-group');
+    cy.visualTesting('attachments-in-group');
 
     // Now that all attachments described above have been uploaded and verified, start deleting the middle attachment
     // of the first-row multi-uploader to verify that the next attachment is shifted upwards.
@@ -495,7 +498,6 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.row(0).deleteBtn).click();
-    cy.waitUntilNodesReady();
 
     verifyPreview(true);
     waitForFormDataSave();

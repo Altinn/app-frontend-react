@@ -1,25 +1,16 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { useAsRef } from 'src/hooks/useAsRef';
-import { getComponentCapabilities } from 'src/layout';
-import { NodesStateQueue } from 'src/utils/layout/generator/CommitQueue';
+import { getComponentCapabilities, getComponentDef } from 'src/layout';
 import { GeneratorInternal, GeneratorNodeProvider } from 'src/utils/layout/generator/GeneratorContext';
 import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/GeneratorErrorBoundary';
-import {
-  GeneratorCondition,
-  GeneratorRunProvider,
-  StageAddNodes,
-  StageMarkHidden,
-} from 'src/utils/layout/generator/GeneratorStages';
-import { useEvalExpressionInGenerator } from 'src/utils/layout/generator/useEvalExpression';
+import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { NodesInternal, NodesStore } from 'src/utils/layout/NodesContext';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -32,7 +23,6 @@ import type {
   ITextResourceBindings,
 } from 'src/layout/layout';
 import type { ExprResolver, NodeGeneratorProps } from 'src/layout/LayoutComponent';
-import type { LayoutNodeProps } from 'src/utils/layout/LayoutNode';
 import type { StateFactoryProps } from 'src/utils/layout/types';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
@@ -47,85 +37,57 @@ import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSo
  */
 export function NodeGenerator({ children, externalItem }: PropsWithChildren<NodeGeneratorProps>) {
   const intermediateItem = useIntermediateItem(externalItem) as CompIntermediateExact<CompTypes>;
-  const node = useNewNode(intermediateItem.id, externalItem.id, externalItem.type) as LayoutNode;
-  useGeneratorErrorBoundaryNodeRef().current = node;
 
-  const commonProps: CommonProps<CompTypes> = { node, externalItem };
+  // eslint-disable-next-line react-compiler/react-compiler
+  useGeneratorErrorBoundaryNodeRef().current = { type: 'node', id: intermediateItem.id };
+
+  const commonProps: CommonProps<CompTypes> = { baseComponentId: externalItem.id, externalItem };
 
   return (
-    // Adding id as a key to make it easier to see which component is being rendered in the React DevTools
-    <GeneratorRunProvider key={intermediateItem.id}>
-      <GeneratorCondition
-        stage={StageAddNodes}
-        mustBeAdded='parent'
-      >
+    <>
+      <WhenParentAdded>
         <AddRemoveNode
           {...commonProps}
           intermediateItem={intermediateItem}
         />
-      </GeneratorCondition>
-      <GeneratorCondition
-        stage={StageMarkHidden}
-        mustBeAdded='parent'
-      >
-        <MarkAsHidden {...commonProps} />
-      </GeneratorCondition>
+      </WhenParentAdded>
       <GeneratorNodeProvider
-        parent={node}
+        parentBaseId={externalItem.id}
         item={intermediateItem}
       >
-        <GeneratorCondition
-          stage={StageMarkHidden}
-          mustBeAdded='parent'
-        >
+        <WhenParentAdded>
           <NodePropertiesValidation
             {...commonProps}
             intermediateItem={intermediateItem}
           />
-        </GeneratorCondition>
+        </WhenParentAdded>
         {children}
       </GeneratorNodeProvider>
-    </GeneratorRunProvider>
+    </>
   );
 }
 
 interface CommonProps<T extends CompTypes> {
-  node: LayoutNode<T>;
+  baseComponentId: string;
   externalItem: CompExternalExact<T>;
 }
 
-function MarkAsHidden<T extends CompTypes>({ node, externalItem }: CommonProps<T>) {
-  const forceHidden = GeneratorInternal.useForceHidden();
-  const hiddenResult =
-    useEvalExpressionInGenerator(externalItem.hidden, {
-      returnType: ExprVal.Boolean,
-      defaultValue: false,
-      errorIntroText: `Invalid hidden expression for node ${node.id}`,
-    }) ?? false;
-  const hidden = forceHidden ? true : hiddenResult;
-  const isSet = NodesInternal.useNodeData(node, (data) => data.hidden === hidden);
-  NodesStateQueue.useSetNodeProp({ node, prop: 'hidden', value: hidden }, !isSet);
-
-  return null;
-}
-
 function AddRemoveNode<T extends CompTypes>({
-  node,
+  baseComponentId,
   intermediateItem,
 }: CommonProps<T> & { intermediateItem: CompIntermediateExact<T> }) {
-  const parent = GeneratorInternal.useParent()!;
+  const parent = GeneratorInternal.useParent();
   const depth = GeneratorInternal.useDepth();
   const rowIndex = GeneratorInternal.useRowIndex();
-  const pageKey = GeneratorInternal.usePage()?.pageKey ?? '';
-  const idMutators = GeneratorInternal.useIdMutators() ?? [];
+  const pageKey = GeneratorInternal.usePage() ?? '';
+  const idMutators = GeneratorInternal.useIdMutators();
   const layoutMap = useLayoutLookups().allComponents;
   const isValid = GeneratorInternal.useIsValid();
-  const getCapabilities = (type: CompTypes) => getComponentCapabilities(type);
+  const getCapabilities = useCallback((type: CompTypes) => getComponentCapabilities(type), []);
   const stateFactoryProps = {
-    parent,
-    id: node.id,
-    baseId: node.baseId,
-    parentId: parent instanceof LayoutNode ? parent.id : undefined,
+    id: intermediateItem.id,
+    baseId: baseComponentId,
+    parentId: parent?.type === 'node' ? parent.indexedId : undefined,
     depth,
     rowIndex,
     pageKey,
@@ -135,18 +97,31 @@ function AddRemoveNode<T extends CompTypes>({
     isValid,
     dataModelBindings: intermediateItem.dataModelBindings as never,
   } satisfies StateFactoryProps;
-  const isAdded = NodesInternal.useIsAdded(node);
 
-  NodesStateQueue.useAddNode(
-    {
-      node,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      targetState: node.def.stateFactory(stateFactoryProps as any),
+  const isAdded = NodesInternal.useIsAdded(intermediateItem.id, 'node');
+
+  const def = getComponentDef(intermediateItem.type);
+  const addNode = NodesInternal.useAddNode();
+  const removeNode = NodesInternal.useRemoveNode();
+
+  // This state is intentionally not reactive, as we want to commit _what the layout was when this node was created_,
+  // so that we don't accidentally remove a node with the same ID from a future/different layout.
+  const layoutsWas = NodesStore.useStaticSelector((s) => s.layouts!);
+
+  useEffect(() => {
+    !isAdded &&
+      addNode({
+        nodeId: intermediateItem.id,
+        targetState: def.stateFactory(stateFactoryProps as never),
+      });
+  }, [addNode, def, intermediateItem.id, isAdded, layoutsWas, stateFactoryProps]);
+
+  useEffect(
+    () => () => {
+      removeNode({ nodeId: intermediateItem.id, layouts: layoutsWas });
     },
-    !isAdded,
+    [intermediateItem.id, layoutsWas, removeNode],
   );
-
-  NodesStateQueue.useRemoveNode({ node });
 
   return null;
 }
@@ -160,8 +135,6 @@ export function useExpressionResolverProps<T extends CompTypes>(
   rawItem: CompIntermediateExact<T> | undefined,
   allDataSources: ExpressionDataSources,
 ): ExprResolver<T> {
-  const allDataSourcesAsRef = useAsRef(allDataSources);
-
   // The hidden property is handled elsewhere, and should never be passed to the item (and resolved as an
   // expression) which could be read. Try useIsHidden() or useIsHiddenSelector() if you need to know if a
   // component is hidden.
@@ -170,49 +143,33 @@ export function useExpressionResolverProps<T extends CompTypes>(
     return rest;
   }, [rawItem]) as CompIntermediate<T>;
 
-  const evalProto = useCallback(
-    <T extends ExprVal>(
-      type: T,
-      expr: ExprValToActualOrExpr<T> | undefined,
-      defaultValue: ExprValToActual<T>,
-      dataSources?: Partial<ExpressionDataSources>,
-    ) => {
-      if (!ExprValidation.isValidOrScalar(expr, type, errorIntroText)) {
-        return defaultValue;
-      }
+  const evalProto = <T extends ExprVal>(
+    type: T,
+    expr: ExprValToActualOrExpr<T> | undefined,
+    defaultValue: ExprValToActual<T>,
+    dataSources?: Partial<ExpressionDataSources>,
+  ) => {
+    if (!ExprValidation.isValidOrScalar(expr, type, errorIntroText)) {
+      return defaultValue;
+    }
 
-      return evalExpr(
-        expr,
-        { ...allDataSourcesAsRef.current, ...dataSources },
-        { returnType: type, defaultValue, errorIntroText },
-      );
-    },
-    [allDataSourcesAsRef, errorIntroText],
-  );
+    return evalExpr(expr, { ...allDataSources, ...dataSources }, { returnType: type, defaultValue, errorIntroText });
+  };
 
-  const evalBool = useCallback<SimpleEval<ExprVal.Boolean>>(
-    (expr, defaultValue, dataSources) => evalProto(ExprVal.Boolean, expr, defaultValue, dataSources),
-    [evalProto],
-  );
+  const evalBool: SimpleEval<ExprVal.Boolean> = (expr, defaultValue, dataSources) =>
+    evalProto(ExprVal.Boolean, expr, defaultValue, dataSources);
 
-  const evalStr = useCallback<SimpleEval<ExprVal.String>>(
-    (expr, defaultValue, dataSources) => evalProto(ExprVal.String, expr, defaultValue, dataSources),
-    [evalProto],
-  );
+  const evalStr: SimpleEval<ExprVal.String> = (expr, defaultValue, dataSources) =>
+    evalProto(ExprVal.String, expr, defaultValue, dataSources);
 
-  const evalNum = useCallback<SimpleEval<ExprVal.Number>>(
-    (expr, defaultValue, dataSources) => evalProto(ExprVal.Number, expr, defaultValue, dataSources),
-    [evalProto],
-  );
-
-  const evalAny = useCallback<SimpleEval<ExprVal.Any>>(
-    (expr, defaultValue, dataSources) => evalProto(ExprVal.Any, expr, defaultValue, dataSources),
-    [evalProto],
-  );
+  const evalNum: SimpleEval<ExprVal.Number> = (expr, defaultValue, dataSources) =>
+    evalProto(ExprVal.Number, expr, defaultValue, dataSources);
+  const evalAny: SimpleEval<ExprVal.Any> = (expr, defaultValue, dataSources) =>
+    evalProto(ExprVal.Any, expr, defaultValue, dataSources);
 
   // This resolves common expressions that are used by multiple components
   // and are not specific to a single component type.
-  const evalBase = useCallback<ExprResolver<T>['evalBase']>(() => {
+  const evalBase = () => {
     const { hidden: _hidden, ...rest } = item;
     return {
       ...rest,
@@ -225,9 +182,9 @@ export function useExpressionResolverProps<T extends CompTypes>(
           }
         : {}),
     };
-  }, [evalStr, item]);
+  };
 
-  const evalFormProps = useCallback<ExprResolver<T>['evalFormProps']>(() => {
+  const evalFormProps = () => {
     const out: ExprResolved<FormComponentProps> = {};
     if (isFormItem(item)) {
       if (Array.isArray(item.required)) {
@@ -239,19 +196,19 @@ export function useExpressionResolverProps<T extends CompTypes>(
     }
 
     return out;
-  }, [evalBool, item]);
+  };
 
-  const evalSummarizable = useCallback<ExprResolver<T>['evalSummarizable']>(() => {
+  const evalSummarizable = () => {
     const out: ExprResolved<SummarizableComponentProps> = {};
     if (isSummarizableItem(item) && Array.isArray(item.forceShowInSummary)) {
       out.forceShowInSummary = evalBool(item.forceShowInSummary, false);
     }
 
     return out;
-  }, [evalBool, item]);
+  };
 
   // This resolves all text resource bindings in a component
-  const evalTrb = useCallback<ExprResolver<T>['evalTrb']>(() => {
+  const evalTrb = () => {
     const trb: Record<string, string> = {};
     if (item.textResourceBindings) {
       for (const [key, value] of Object.entries(item.textResourceBindings)) {
@@ -262,20 +219,9 @@ export function useExpressionResolverProps<T extends CompTypes>(
     return {
       textResourceBindings: (item.textResourceBindings ? trb : undefined) as ExprResolved<ITextResourceBindings<T>>,
     };
-  }, [evalStr, item]);
-
-  return {
-    item,
-    evalBool,
-    evalNum,
-    evalStr,
-    evalAny,
-    evalBase,
-    evalFormProps,
-    evalSummarizable,
-    evalTrb,
-    formDataSelector: allDataSources.formDataSelector,
   };
+
+  return { item, evalBool, evalNum, evalStr, evalAny, evalBase, evalFormProps, evalSummarizable, evalTrb };
 }
 
 function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal<T>): CompIntermediate<T> {
@@ -290,21 +236,6 @@ function useIntermediateItem<T extends CompTypes = CompTypes>(item: CompExternal
 
     return newItem;
   }, [item, recursiveMutators]);
-}
-
-/**
- * Creates a new node instance for a component item, and adds that to the parent node and the store.
- */
-function useNewNode<T extends CompTypes>(id: string, baseId: string, type: T): LayoutNode<T> {
-  const parent = GeneratorInternal.useParent()!;
-  const rowIndex = GeneratorInternal.useRowIndex();
-  const multiPageIndex = GeneratorInternal.useMultiPageIndex(baseId);
-
-  return useMemo(() => {
-    const newNodeProps: LayoutNodeProps<T> = { id, baseId, type, parent, rowIndex, multiPageIndex };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return new LayoutNode(newNodeProps as any) as LayoutNode<T>;
-  }, [baseId, id, multiPageIndex, parent, rowIndex, type]);
 }
 
 function isFormItem(item: CompIntermediate): item is CompIntermediate & FormComponentProps {

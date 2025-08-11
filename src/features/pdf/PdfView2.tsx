@@ -18,13 +18,15 @@ import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { InstanceInformation } from 'src/layout/InstanceInformation/InstanceInformationComponent';
 import { AllSubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformSummaryComponent2';
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
-import { isHidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useItemIfType } from 'src/utils/layout/useNodeItem';
 import type { IPdfFormat } from 'src/features/pdf/types';
 import type { CompTypes } from 'src/layout/layout';
@@ -128,10 +130,10 @@ function PlainPage({ pageKey }: { pageKey: string }) {
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((nodeId) => (
-          <GenericComponentById
-            key={nodeId}
-            id={nodeId}
+        {children.map((baseId) => (
+          <GenericComponent
+            key={baseId}
+            baseComponentId={baseId}
           />
         ))}
       </Flex>
@@ -148,7 +150,6 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
           data.pageKey === pageKey &&
           data.parentId === undefined &&
           data.nodeType !== 'Subform' &&
-          !isHidden(state, 'node', data.id, lookups) &&
           !pdfSettings?.excludedComponents.includes(data.id),
       )
       .filter(<T extends CompTypes>(data: NodeData<T>) =>
@@ -156,6 +157,7 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
       )
       .map((data) => data.id),
   );
+  const hidden = useIsHiddenMulti(children);
 
   return (
     <div className={classes.page}>
@@ -164,40 +166,41 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
         spacing={6}
         alignItems='flex-start'
       >
-        {children.map((nodeId) => (
-          <PdfForNode
-            key={nodeId}
-            nodeId={nodeId}
-          />
-        ))}
+        {children.map((baseComponentId) => {
+          if (hidden[baseComponentId]) {
+            return null;
+          }
+
+          return (
+            <PdfForNode
+              key={baseComponentId}
+              baseComponentId={baseComponentId}
+            />
+          );
+        })}
       </Flex>
     </div>
   );
 }
 
-function PdfForNode({ nodeId }: { nodeId: string }) {
-  const node = useNode(nodeId);
-  const item = useItemIfType(node.baseId, 'Summary2');
+function PdfForNode({ baseComponentId }: { baseComponentId: string }) {
+  const component = useExternalItem(baseComponentId);
+  const item = useItemIfType(baseComponentId, 'Summary2');
 
-  if (node.isType('Summary2') && item?.target?.taskId) {
-    return (
-      <SummaryComponent2
-        key={node.id}
-        summaryNode={node}
-      />
-    );
+  if (item?.target?.taskId) {
+    return <SummaryComponent2 baseComponentId={baseComponentId} />;
   }
 
   const betaEnabled = getFeature('betaPDFenabled');
   if (betaEnabled.value) {
-    return <ComponentSummary target={node} />;
+    return <ComponentSummary targetBaseComponentId={baseComponentId} />;
   }
 
   return (
     <SummaryComponentFor
-      targetNode={node}
+      targetBaseComponentId={baseComponentId}
       overrides={{
-        largeGroup: node.isType('Group'),
+        largeGroup: component.type === 'Group',
         display: {
           hideChangeButton: true,
           hideValidationMessages: true,

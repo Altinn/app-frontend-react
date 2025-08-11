@@ -13,9 +13,9 @@ import { makeLayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import { applyLayoutQuirks } from 'src/features/form/layout/quirks';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
-import { useHasInstance } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
@@ -44,10 +44,10 @@ export function useLayoutQueryDef(
 }
 
 function useLayoutQuery() {
-  const hasInstance = useHasInstance();
   const { data: process } = useProcessQuery();
   const currentLayoutSetId = useLayoutSetId();
   const defaultDataModel = useCurrentDataModelName() ?? 'unknown';
+  const hasInstance = !!useInstanceDataQuery().data;
 
   // Waiting to fetch layouts until we have an instance, if we're supposed to have one
   // We don't want to fetch form layouts for a process step which we are currently not on
@@ -106,14 +106,21 @@ export function useDataTypeFromLayoutSet(layoutSetName: string | undefined) {
 
 const emptyLayouts: ILayouts = {};
 export const LayoutsProvider = Provider;
-export const useLayouts = (): ILayouts => useCtx()?.layouts ?? emptyLayouts;
+export const useLayouts = (): ILayouts => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? emptyLayouts : (ctx.layouts ?? emptyLayouts);
+};
 export const useLayoutLookups = () => useCtx().lookups;
 export const useLayoutLookupsLax = () => {
   const ctx = useLaxCtx();
   return ctx === ContextNotProvided ? undefined : ctx.lookups;
 };
 
-export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
+const noExpressions: IHiddenLayoutsExternal = {};
+export const useHiddenLayoutsExpressions = () => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? noExpressions : ctx.hiddenLayoutsExpressions;
+};
 
 export const useExpandedWidthLayouts = () => useCtx().expandedWidthLayouts;
 
@@ -201,7 +208,7 @@ function addLikertItemToLayout(layouts: ILayouts) {
     for (const comp of page.values()) {
       if (comp.type === 'Likert') {
         const likertItem: CompExternal<'LikertItem'> = {
-          id: makeLikertChildId(comp.id, undefined),
+          id: makeLikertChildId(comp.id),
           type: 'LikertItem',
           textResourceBindings: {
             title: comp.textResourceBindings?.questions,

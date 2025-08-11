@@ -16,7 +16,7 @@ import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ComponentValidation } from 'src/features/validation';
 import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
-import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
+import type { PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternal,
   CompExternalExact,
@@ -29,10 +29,8 @@ import type {
 import type { LegacySummaryOverrides } from 'src/layout/Summary/SummaryComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesContext } from 'src/utils/layout/NodesContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { NodeData, StateFactoryProps } from 'src/utils/layout/types';
+import type { StateFactoryProps } from 'src/utils/layout/types';
 
 export interface NodeGeneratorProps {
   externalItem: CompExternalExact<CompTypes>;
@@ -42,7 +40,6 @@ export interface NodeGeneratorProps {
 
 export interface ExprResolver<Type extends CompTypes> {
   item: CompIntermediateExact<Type>;
-  formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
   evalFormProps: () => ExprResolved<FormComponentProps>;
   evalSummarizable: () => ExprResolved<SummarizableComponentProps>;
@@ -67,7 +64,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
-  renderSummary2?(props: Summary2Props<Type>): JSX.Element | null;
+  renderSummary2?(props: Summary2Props): JSX.Element | null;
 
   /**
    * Render a node generator for this component. This can be overridden if you want to extend
@@ -95,19 +92,6 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
-   * This is called to figure out if the nodes state is ready to be rendered. This can be overridden to add
-   * additional checks for any component.
-   */
-  public stateIsReady(state: NodeData<Type>): boolean {
-    return state.hidden !== undefined;
-  }
-
-  /**
-   * Same as the above, but implemented by plugins automatically in the generated code.
-   */
-  abstract pluginStateIsReady(state: NodeData<Type>, fullState: NodesContext): boolean;
-
-  /**
    * Creates the zustand store default state for a node of this component type. Usually this is implemented
    * automatically by code generation, but you can override it if you need to add additional properties to the state.
    */
@@ -129,8 +113,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
   /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
    */
-  renderDevToolsInspector(node: LayoutNode<Type>): JSX.Element | null {
-    return <DefaultNodeInspector node={node} />;
+  renderDevToolsInspector(baseComponentId: string): JSX.Element | null {
+    return <DefaultNodeInspector baseComponentId={baseComponentId} />;
   }
 
   /**
@@ -180,8 +164,8 @@ export abstract class PresentationComponent<Type extends CompTypes> extends AnyC
   readonly category = CompCategory.Presentation;
 }
 
-export interface SummaryRendererProps<Type extends CompTypes> {
-  targetNode: LayoutNode<Type>;
+export interface SummaryRendererProps {
+  targetBaseComponentId: string;
   onChangeClick: () => void;
   changeText: string | null;
   overrides?: LegacySummaryOverrides;
@@ -192,7 +176,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * Render a summary for this component. For most components, this will return a:
    * <SingleInputSummary formDataAsString={displayData} />
    */
-  abstract renderSummary(props: SummaryRendererProps<Type>): JSX.Element | null;
+  abstract renderSummary(props: SummaryRendererProps): JSX.Element | null;
 
   /**
    * Lets you control if the component renders something like <SummaryBoilerplate /> first, or if the Summary should
@@ -206,11 +190,11 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * When rendering a summary of a repeating group with `largeGroup: false`, every FormComponent inside each row is
    * rendered in a compact way. The default
    */
-  public renderCompactSummary({ targetNode }: SummaryRendererProps<Type>): JSX.Element | null {
-    const displayData = useDisplayData(targetNode);
+  public renderCompactSummary({ targetBaseComponentId }: SummaryRendererProps): JSX.Element | null {
+    const displayData = useDisplayData(targetBaseComponentId);
     return (
       <SummaryItemCompact
-        targetNode={targetNode}
+        targetBaseComponentId={targetBaseComponentId}
         displayData={displayData}
       />
     );

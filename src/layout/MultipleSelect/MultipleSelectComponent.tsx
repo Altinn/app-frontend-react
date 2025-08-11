@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { EXPERIMENTAL_MultiSuggestion, Field } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion as Suggestion, Field, Label as DSLabel } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -14,31 +14,38 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import utilclasses from 'src/styles/utils.module.css';
+import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IMultipleSelectProps = PropsFromGenericComponent<'MultipleSelect'>;
-export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSelectProps) {
-  const item = useItemWhenType(node.baseId, 'MultipleSelect');
-  const isValid = useIsValid(node.baseId);
+export function MultipleSelectComponent({
+  baseComponentId,
+  overrideDisplay,
+}: PropsFromGenericComponent<'MultipleSelect'>) {
+  const item = useItemWhenType(baseComponentId, 'MultipleSelect');
+  const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required, dataModelBindings } = item;
   const {
     options,
     isFetching,
     selectedValues: selectedFromSimpleBinding,
     setData,
-  } = useGetOptions(node.baseId, 'multi');
+  } = useGetOptions(baseComponentId, 'multi');
   const groupBinding = useSaveValueToGroup(dataModelBindings);
   const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
 
   const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage();
 
+  const selectedLabels = selectedValues.map((value) => {
+    const option = options.find((o) => o.value === value);
+    return option ? langAsString(option.label).toLowerCase() : value;
+  });
+
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ baseComponentId: node.baseId, overrideDisplay });
+    useLabel({ baseComponentId, overrideDisplay });
 
   const changeMessageGenerator = useCallback(
     (values: string[]) => {
@@ -68,13 +75,16 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
     changeMessageGenerator,
   );
 
-  const [componentKey, setComponentKey] = React.useState(0);
-
-  // This is a workaround to force the component to update its internal state, when the user cancels the alert on change
-  const onCancelClick = () => {
-    cancelChange();
-    setComponentKey((prevKey) => prevKey + 1);
-  };
+  // return a new array of objects with value and label properties without changing the selectedValues array
+  function formatSelectedValues(
+    selectedValues: string[],
+    options: { value: string; label: string }[],
+  ): { value: string; label: string }[] {
+    return selectedValues.map((value) => {
+      const option = options.find((o) => o.value === value);
+      return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
+    });
+  }
 
   if (isFetching) {
     return <AltinnSpinner />;
@@ -92,36 +102,40 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
         help={getHelpTextComponent()}
         description={getDescriptionComponent()}
       >
-        <ComponentStructureWrapper node={node}>
-          <EXPERIMENTAL_MultiSuggestion
-            key={componentKey}
-            id={id}
+        <ComponentStructureWrapper baseComponentId={baseComponentId}>
+          {alertOnChange && (
+            <DeleteWarningPopover
+              onPopoverDeleteClick={confirmChange}
+              onCancelClick={cancelChange}
+              deleteButtonText={langAsString('form_filler.alert_confirm')}
+              messageText={alertMessage}
+              open={alertOpen}
+              setOpen={setAlertOpen}
+              popoverId={`${id}-alert-popover`}
+            />
+          )}
+          {overrideDisplay?.renderedInTable && (
+            // Setting aria-label on the input component does not work in DS Combobox.
+            // Workaround until this issue is resolved in DS: https://github.com/digdir/designsystemet/issues/3893
+            <DSLabel
+              htmlFor={id}
+              className={utilClasses.visuallyHidden}
+            >
+              <Lang id={textResourceBindings?.title} />
+              {textResourceBindings?.description && <Lang id={textResourceBindings?.description} />}
+            </DSLabel>
+          )}
+          <Suggestion
             data-testid='multiple-select-component'
-            filter={optionFilter}
+            multiple
+            filter={(args) => optionFilter(args, selectedLabels)}
             data-size='sm'
-            value={selectedValues}
-            onValueChange={handleChange}
-            onBlur={debounce}
+            selected={formatSelectedValues(selectedValues, options)}
+            onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
+            onBlur={() => debounce}
           >
-            <EXPERIMENTAL_MultiSuggestion.Chips render={(e) => e.text} />
-            {alertOnChange && (
-              <DeleteWarningPopover
-                deleteButtonText={langAsString('form_filler.alert_confirm')}
-                messageText={alertMessage}
-                onCancelClick={onCancelClick}
-                onPopoverDeleteClick={confirmChange}
-                open={alertOpen}
-                setOpen={setAlertOpen}
-              >
-                <span
-                  className={utilclasses.visuallyHidden}
-                  aria-hidden='true'
-                >
-                  Trigger
-                </span>
-              </DeleteWarningPopover>
-            )}
-            <EXPERIMENTAL_MultiSuggestion.Input
+            <Suggestion.Input
+              id={id}
               aria-invalid={!isValid}
               aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
               aria-describedby={
@@ -133,25 +147,29 @@ export function MultipleSelectComponent({ node, overrideDisplay }: IMultipleSele
               }
               readOnly={readOnly}
             />
-            <EXPERIMENTAL_MultiSuggestion.Clear aria-label={langAsString('form_filler.clear_selection')} />
-            <EXPERIMENTAL_MultiSuggestion.List>
-              <EXPERIMENTAL_MultiSuggestion.Empty>
+            <Suggestion.Clear
+              aria-label={langAsString('form_filler.clear_selection')}
+              popoverTarget={`${id}-alert-popover`}
+            />
+            <Suggestion.List>
+              <Suggestion.Empty>
                 <Lang id='form_filler.no_options_found' />
-              </EXPERIMENTAL_MultiSuggestion.Empty>
+              </Suggestion.Empty>
               {options.map((option) => (
-                <EXPERIMENTAL_MultiSuggestion.Option
+                <Suggestion.Option
                   key={option.value}
                   value={option.value}
+                  label={langAsString(option.label)}
                 >
                   <span>
                     <wbr />
                     <Lang id={option.label} />
                     {option.description && <Lang id={option.description} />}
                   </span>
-                </EXPERIMENTAL_MultiSuggestion.Option>
+                </Suggestion.Option>
               ))}
-            </EXPERIMENTAL_MultiSuggestion.List>
-          </EXPERIMENTAL_MultiSuggestion>
+            </Suggestion.List>
+          </Suggestion>
         </ComponentStructureWrapper>
       </Label>
     </Field>

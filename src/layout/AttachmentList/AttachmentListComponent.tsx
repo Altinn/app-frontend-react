@@ -3,7 +3,7 @@ import React from 'react';
 import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
 import { AttachmentGroupings } from 'src/components/organisms/AttachmentGroupings';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -18,25 +18,23 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataType } from 'src/types/shared';
 
-export type IAttachmentListProps = PropsFromGenericComponent<'AttachmentList'>;
-
 const emptyDataTypeArray: IDataType[] = [];
 
-export function AttachmentListComponent({ node }: IAttachmentListProps) {
-  const item = useItemWhenType(node.baseId, 'AttachmentList');
+export function AttachmentListComponent({ baseComponentId }: PropsFromGenericComponent<'AttachmentList'>) {
+  const item = useItemWhenType(baseComponentId, 'AttachmentList');
   const textResourceBindings = item.textResourceBindings;
   const showLinks = item.links;
   const allowedAttachmentTypes = new Set(item.dataTypeIds ?? []);
   const groupAttachments = item.groupByDataTypeGrouping ?? false;
   const showDescription = item.showDataTypeDescriptions ?? false;
 
-  const instanceData = useLaxInstanceData((data) => data.data) ?? [];
+  const dataElements = useInstanceDataElements(undefined);
   const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
   const appMetadataDataTypes = useApplicationMetadata().dataTypes ?? emptyDataTypeArray;
   const dataTypeIdsInCurrentTask = appMetadataDataTypes.filter((it) => it.taskId === currentTaskId).map((it) => it.id);
 
   const attachmentsWithDataType = getAttachmentsWithDataType({
-    attachments: instanceData ?? [],
+    attachments: dataElements ?? [],
     appMetadataDataTypes,
   });
 
@@ -69,12 +67,14 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
 
   const displayAttachments = toDisplayAttachments([...pdfAttachments, ...filteredAttachments]);
 
+  const title = textResourceBindings?.title ? <Lang id={textResourceBindings?.title} /> : undefined;
+
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       {groupAttachments ? (
         <AttachmentGroupings
           attachments={displayAttachments}
-          collapsibleTitle={<Lang id={textResourceBindings?.title} />}
+          title={title}
           hideCollapsibleCount={true}
           showLinks={showLinks}
           showDescription={showDescription}
@@ -82,7 +82,7 @@ export function AttachmentListComponent({ node }: IAttachmentListProps) {
       ) : (
         <AltinnAttachments
           attachments={displayAttachments}
-          title={<Lang id={textResourceBindings?.title} />}
+          title={title}
           showLinks={showLinks}
           showDescription={showDescription}
         />

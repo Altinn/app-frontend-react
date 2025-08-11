@@ -8,7 +8,6 @@ import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthW
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useAllAttachments } from 'src/features/attachments/hooks';
 import { FileScanResults } from 'src/features/attachments/types';
-import { useNavigateToNode } from 'src/features/form/layout/NavigateToNode';
 import {
   InstantiationValidation,
   isInstantiationValidationResult,
@@ -16,9 +15,9 @@ import {
 import { Lang } from 'src/features/language/Lang';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+import { useNavigateToComponent } from 'src/hooks/useNavigatePage';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { DataModelLocationProviderFromNode } from 'src/utils/layout/DataModelLocation';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
@@ -183,22 +182,16 @@ export function ErrorListFromInstantiation({ error }: { error: unknown }) {
 }
 
 function ErrorWithLink({ error }: { error: NodeRefValidation }) {
-  const node = useNode(error.nodeId);
-  const navigateTo = useNavigateToNode();
-  const isHidden = Hidden.useIsHidden(node);
+  const navigateToComponent = useNavigateToComponent();
 
-  const handleErrorClick = async (ev: React.KeyboardEvent | React.MouseEvent) => {
+  function handleErrorClick(ev: React.KeyboardEvent | React.MouseEvent) {
     if (ev.type === 'keydown' && (ev as React.KeyboardEvent).key !== 'Enter') {
       return;
     }
     ev.preventDefault();
-    if (isHidden || !node) {
-      // No point in trying to focus on a hidden component
-      return;
-    }
 
-    await navigateTo(node, { shouldFocus: true, error });
-  };
+    navigateToComponent(error.nodeId, error.baseComponentId, { error });
+  }
 
   return (
     <ErrorReportListItem>

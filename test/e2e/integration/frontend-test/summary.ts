@@ -160,10 +160,16 @@ describe('Summary', () => {
     cy.get(referencesSelector).eq(1).should('contain.text', 'Referanse : Test');
     cy.get(referencesSelector).eq(2).should('contain.text', 'Referanse 2 : Doffen');
 
-    cy.snapshot('summary:change-name');
+    cy.visualTesting('summary:change-name');
   });
 
   it('is possible to view summary of repeating group', () => {
+    Cypress.on('uncaught:exception', (err) => {
+      if (err.message.includes('ResizeObserver loop completed with undelivered notifications')) {
+        return false;
+      }
+    });
+
     cy.goto('group');
 
     // Verify empty group summary
@@ -319,7 +325,7 @@ describe('Summary', () => {
       .last()
       .should('contain.text', texts.emptySummary);
 
-    cy.snapshot('summary:repeating-groups');
+    cy.visualTesting('summary:repeating-groups');
 
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary1]').should('be.visible');

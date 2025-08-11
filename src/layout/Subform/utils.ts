@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useCallback, useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
@@ -22,7 +21,7 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 
 export function useSubformFormData(dataElementId: string) {
   const instanceId = useStrictInstanceId();
-  const url = getStatefulDataModelUrl(instanceId, dataElementId, true);
+  const url = getStatefulDataModelUrl(instanceId, dataElementId);
   const { isFetching: isSubformDataFetching, data: subformData, error: subformDataError } = useFormDataQuery(url);
 
   useEffect(() => {
@@ -71,16 +70,18 @@ function useOverriddenDataSourcesForSubform(
   return {
     defaultDataType: () => dataType,
     currentDataModelPath: () => undefined,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     dataModelNames: () => useDataModelNamesForSubform(dataType),
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     formDataSelector: () => useFormDataSelectorForSubform(dataType, subformData),
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     langToolsSelector: () => useLangToolsSelectorForSubform(dataType, subformData),
   };
 }
 
 const dataSourcesNotSupportedInSubform = new Set([
   'attachmentsSelector',
-  'isHiddenSelector',
-  'nodeDataSelector',
+  'hiddenComponents',
   'layoutLookups',
   'displayValues',
 ] satisfies (keyof ExpressionDataSources)[]);
@@ -104,9 +105,9 @@ export function useExpressionDataSourcesForSubform(
 export function getSubformEntryDisplayName(
   entryDisplayName: ExprValToActualOrExpr<ExprVal.String>,
   dataSources: ExpressionDataSources,
-  nodeId: string,
+  baseComponentId: string,
 ): string | null {
-  const errorIntroText = `Invalid expression for component '${nodeId}'`;
+  const errorIntroText = `Invalid expression for component '${baseComponentId}'`;
   if (!ExprValidation.isValidOrScalar(entryDisplayName, ExprVal.String, errorIntroText)) {
     return null;
   }

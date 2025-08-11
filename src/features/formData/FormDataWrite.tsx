@@ -19,7 +19,7 @@ import { createFormDataWriteStore } from 'src/features/formData/FormDataWriteSta
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { getFormDataQueryKey } from 'src/features/formData/useFormDataQuery';
-import { useLaxChangeInstance, useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useLaxInstanceId, useOptimisticallyUpdateCachedInstance } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
@@ -39,7 +39,7 @@ import type {
   FormDataContext,
   UpdatedDataModel,
 } from 'src/features/formData/FormDataWriteStateMachine';
-import type { IPatchListItem } from 'src/features/formData/types';
+import type { DebounceReason, IPatchListItem } from 'src/features/formData/types';
 import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import type { FormDataRowsSelector, FormDataSelector } from 'src/layout';
 import type { IDataModelReference, IMapping } from 'src/layout/common.generated';
@@ -55,7 +55,7 @@ interface FormDataContextInitialProps {
   proxies: FormDataWriteProxies;
   ruleConnections: IRuleConnections | null;
   schemaLookup: { [dataType: string]: SchemaLookupTool };
-  changeInstance: ChangeInstanceData | undefined;
+  changeInstance: ChangeInstanceData;
 }
 
 const {
@@ -109,7 +109,7 @@ function useFormDataSaveMutation() {
   // the main form and a subform).
   function updateQueryCache(result: FDSaveFinished) {
     for (const { dataType, data, dataElementId } of result.newDataModels) {
-      const url = getDataModelUrl({ dataType, dataElementId, includeRowIds: true });
+      const url = getDataModelUrl({ dataType, dataElementId });
       if (!url) {
         continue;
       }
@@ -179,7 +179,7 @@ function useFormDataSaveMutation() {
       // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
       // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
       // navigating away from the form context.
-      debounce();
+      debounce('beforeSave');
       const { next, prev } = await waitFor((state, setReturnValue) => {
         if (!hasUnDebouncedCurrentChanges(state)) {
           setReturnValue({
@@ -304,7 +304,7 @@ function useFormDataSaveMutation() {
           if (!dataElementId) {
             throw new Error(`Cannot patch data, dataElementId for dataType '${dataType}' could not be determined`);
           }
-          const url = getDataModelUrl({ dataElementId, includeRowIds: true });
+          const url = getDataModelUrl({ dataElementId });
           if (!url) {
             throw new Error(`Cannot patch data, url for dataType '${dataType}' could not be determined`);
           }
@@ -357,10 +357,14 @@ export function useIsSaving() {
 export function FormDataWriteProvider({ children }: PropsWithChildren) {
   const proxies = useFormDataWriteProxies();
   const ruleConnections = useRuleConnections();
-  const { allDataTypes, writableDataTypes, defaultDataType, initialData, schemaLookup, dataElementIds } =
-    DataModels.useFullStateRef().current;
-  const autoSaveBehaviour = usePageSettings().autoSaveBehavior;
-  const changeInstance = useLaxChangeInstance();
+  const allDataTypes = DataModels.useReadableDataTypes();
+  const writableDataTypes = DataModels.useWritableDataTypes();
+  const defaultDataType = DataModels.useDefaultDataType();
+  const initialData = DataModels.useInitialData();
+  const dataElementIds = DataModels.useDataElementIds();
+  const schemaLookup = DataModels.useSchemaLookup();
+  const autoSaveBehavior = usePageSettings().autoSaveBehavior;
+  const changeInstance = useOptimisticallyUpdateCachedInstance();
 
   if (!writableDataTypes || !allDataTypes) {
     throw new Error('FormDataWriteProvider failed because data types have not been loaded, see DataModelsProvider.');
@@ -385,7 +389,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
   return (
     <Provider
       initialDataModels={initialDataModels}
-      autoSaving={!autoSaveBehaviour || autoSaveBehaviour === 'onChangeFormData'}
+      autoSaving={!autoSaveBehavior || autoSaveBehavior === 'onChangeFormData'}
       proxies={proxies}
       ruleConnections={ruleConnections}
       schemaLookup={schemaLookup}
@@ -447,7 +451,7 @@ function FormDataEffects() {
   useEffect(() => {
     const timer = shouldDebounce
       ? setTimeout(() => {
-          debounce();
+          debounce('timeout');
         }, debounceTimeout)
       : undefined;
 
@@ -532,11 +536,14 @@ const useRequestManualSave = () => {
 
 const useDebounceImmediately = () => {
   const debounce = useLaxSelector((s) => s.debounce);
-  return useCallback(() => {
-    if (debounce !== ContextNotProvided) {
-      debounce();
-    }
-  }, [debounce]);
+  return useCallback(
+    (reason: DebounceReason) => {
+      if (debounce !== ContextNotProvided) {
+        debounce(reason);
+      }
+    },
+    [debounce],
+  );
 };
 
 function hasDebouncedUnsavedChanges(state: FormDataContext) {
@@ -658,14 +665,14 @@ const emptyObject = {};
 const emptyArray = [];
 
 const currentSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
-  dot.pick(reference.field, state.dataModels[reference.dataType].currentData);
+  dot.pick(reference.field, state.dataModels[reference.dataType]?.currentData);
 const debouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
-  dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
+  dot.pick(reference.field, state.dataModels[reference.dataType]?.debouncedCurrentData);
 const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
-  dot.pick(reference.field, state.dataModels[reference.dataType].invalidDebouncedCurrentData);
+  dot.pick(reference.field, state.dataModels[reference.dataType]?.invalidDebouncedCurrentData);
 
 const debouncedRowSelector = (reference: IDataModelReference) => (state: FormDataContext) => {
-  const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType].debouncedCurrentData);
+  const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType]?.debouncedCurrentData);
   if (!Array.isArray(rawRows) || !rawRows.length) {
     return emptyArray;
   }
@@ -717,13 +724,6 @@ export const FD = {
     });
   },
 
-  useDebouncedRowsSelectorProps() {
-    return useDelayedSelectorProps({
-      mode: 'simple',
-      selector: debouncedRowSelector,
-    });
-  },
-
   /**
    * Same as useDebouncedSelector(), but for invalid data.
    */
@@ -739,7 +739,7 @@ export const FD = {
    * This will always give you the debounced data, which may or may not be saved to the backend yet.
    */
   useDebounced(dataType: string): object {
-    return useSelector((v) => v.dataModels[dataType].debouncedCurrentData);
+    return useSelector((v) => v.dataModels[dataType]?.debouncedCurrentData);
   },
 
   /**
@@ -749,7 +749,7 @@ export const FD = {
   useDebouncedSelect<O>(selector: (pick: (reference: IDataModelReference) => FDValue) => O): O {
     return useMemoSelector((v) =>
       selector((reference: IDataModelReference) =>
-        dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData),
+        dot.pick(reference.field, v.dataModels[reference.dataType]?.debouncedCurrentData),
       ),
     );
   },
@@ -772,7 +772,7 @@ export const FD = {
    */
   useDebouncedPick(reference: IDataModelReference | undefined): FDValue {
     return useSelector((v) =>
-      reference ? dot.pick(reference.field, v.dataModels[reference.dataType].debouncedCurrentData) : undefined,
+      reference ? dot.pick(reference.field, v.dataModels[reference.dataType]?.debouncedCurrentData) : undefined,
     );
   },
 
@@ -795,13 +795,13 @@ export const FD = {
       for (const key of Object.keys(bindings)) {
         const field = bindings[key].field;
         const dataType = bindings[key].dataType;
-        const invalidValue = dot.pick(field, s.dataModels[dataType].invalidCurrentData);
+        const invalidValue = dot.pick(field, s.dataModels[dataType]?.invalidCurrentData);
         if (invalidValue !== undefined) {
           out[key] = invalidValue;
           continue;
         }
 
-        const value = dot.pick(field, s.dataModels[dataType].currentData);
+        const value = dot.pick(field, s.dataModels[dataType]?.currentData);
         if (dataAs === 'raw') {
           out[key] = value;
         } else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
@@ -834,7 +834,7 @@ export const FD = {
       for (const key of Object.keys(bindings)) {
         const field = bindings[key].field;
         const dataType = bindings[key].dataType;
-        out[key] = dot.pick(field, s.dataModels[dataType].invalidCurrentData) === undefined;
+        out[key] = dot.pick(field, s.dataModels[dataType]?.invalidCurrentData) === undefined;
       }
       return out;
     }),
@@ -846,7 +846,7 @@ export const FD = {
    * while, so that this model can be used for i.e. validation messages.
    */
   useInvalidDebounced(dataType: string): object {
-    return useSelector((v) => v.dataModels[dataType].invalidDebouncedCurrentData);
+    return useSelector((v) => v.dataModels[dataType]?.invalidDebouncedCurrentData);
   },
 
   /**
@@ -854,7 +854,7 @@ export const FD = {
    */
   useInvalidDebouncedPick(reference: IDataModelReference | undefined): FDValue {
     return useSelector((v) =>
-      reference ? dot.pick(reference.field, v.dataModels[reference.dataType].invalidDebouncedCurrentData) : undefined,
+      reference ? dot.pick(reference.field, v.dataModels[reference.dataType]?.invalidDebouncedCurrentData) : undefined,
     );
   },
 
@@ -878,7 +878,7 @@ export const FD = {
       if (mapping && defaultDataType) {
         for (const key of Object.keys(mapping)) {
           const outputKey = mapping[key];
-          const value = dot.pick(key, s.dataModels[defaultDataType].debouncedCurrentData);
+          const value = dot.pick(key, s.dataModels[defaultDataType]?.debouncedCurrentData);
 
           if (realDataAs === 'raw') {
             out[outputKey] = value;
@@ -962,7 +962,7 @@ export const FD = {
         return emptyArray;
       }
 
-      const rawRows = dot.pick(reference.field, s.dataModels[reference.dataType].currentData);
+      const rawRows = dot.pick(reference.field, s.dataModels[reference.dataType]?.currentData);
       if (!Array.isArray(rawRows) || !rawRows.length) {
         return emptyArray;
       }
@@ -991,7 +991,7 @@ export const FD = {
         if (!reference) {
           return emptyArray;
         }
-        const rawRows = dot.pick(reference.field, store.getState().dataModels[reference.dataType].currentData);
+        const rawRows = dot.pick(reference.field, store.getState().dataModels[reference.dataType]?.currentData);
         if (!Array.isArray(rawRows) || !rawRows.length) {
           return emptyArray;
         }

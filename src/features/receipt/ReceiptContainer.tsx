@@ -1,30 +1,26 @@
 import React, { useMemo } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Route, Routes } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 
 import { formatDate } from 'date-fns';
 
 import { PrettyDateAndTime } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
-import { Form } from 'src/components/form/Form';
 import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
 import { ReceiptComponent } from 'src/components/organisms/AltinnReceipt';
 import { ReceiptComponentSimple } from 'src/components/organisms/AltinnReceiptSimple';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
-import { ComponentRouting } from 'src/components/wrappers/ProcessWrapper';
 import { useAppName, useAppOwner, useAppReceiver } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useLaxInstanceAllDataElements, useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
-import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { getInstanceSender } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
 import {
@@ -104,54 +100,31 @@ export function CustomReceipt() {
     window.logWarnOnce(
       'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
     );
-    return (
-      <PresentationComponent
-        type={ProcessTaskType.Archived}
-        showNavigation={false}
-      >
-        <ReceiptContainer />
-      </PresentationComponent>
-    );
+    return <ReceiptContainer />;
   }
 
   return (
     <FormProvider>
-      <Routes>
-        <Route
-          path=':pageKey/:componentId/*'
-          element={
-            <PresentationComponent
-              type={ProcessTaskType.Archived}
-              showNavigation={false}
-            >
-              <ComponentRouting />
-            </PresentationComponent>
-          }
-        />
-        <Route
-          path='*'
-          element={
-            <PDFWrapper>
-              <PresentationComponent
-                type={ProcessTaskType.Archived}
-                showNavigation={false}
-              >
-                <Form />
-              </PresentationComponent>
-            </PDFWrapper>
-          }
-        />
-      </Routes>
+      <Outlet />
     </FormProvider>
   );
 }
 
 export const ReceiptContainer = () => {
   const applicationMetadata = useApplicationMetadata();
-  const lastChanged = useLaxInstanceData((i) => i.lastChanged);
-  const instanceOrg = useLaxInstanceData((i) => i.org);
-  const instanceOwner = useLaxInstanceData((i) => i.instanceOwner);
-  const dataElements = useLaxInstanceAllDataElements();
+  const {
+    lastChanged,
+    instanceOrg,
+    instanceOwner,
+    dataElements = [],
+  } = useInstanceDataQuery({
+    select: (instance) => ({
+      lastChanged: instance.lastChanged,
+      instanceOrg: instance.org,
+      instanceOwner: instance.instanceOwner,
+      dataElements: instance.data,
+    }),
+  }).data ?? {};
   const langTools = useLanguage();
   const receiver = useAppReceiver();
   const instanceOwnerParty = useInstanceOwnerParty();
@@ -228,9 +201,7 @@ export const ReceiptContainer = () => {
 
   return (
     <div id='ReceiptContainer'>
-      <Helmet>
-        <title>{`${getPageTitle(appName, langAsString('receipt.title'), appOwner)}`}</title>
-      </Helmet>
+      <title>{`${getPageTitle(appName, langAsString('receipt.title'), appOwner)}`}</title>
 
       {!applicationMetadata.autoDeleteOnProcessEnd && (
         <ReceiptComponent

@@ -26,19 +26,19 @@ export class SigneeList extends SigneeListDef {
 
     if (taskType !== ProcessTaskType.Signing) {
       const error = langAsString('signing.wrong_task_error', ['SigneeList']);
-      addError(error, _props.node);
-      window.logErrorOnce(`Validation error for '${_props.node.id}': ${error}`);
+      addError(error, _props.intermediateItem.id, 'node');
+      window.logErrorOnce(`Validation error for '${_props.intermediateItem.id}': ${error}`);
     }
 
     return null;
   }
 
-  renderSummary2({ target }: Summary2Props<'SigneeList'>): JSX.Element | null {
-    const { textResourceBindings } = useItemWhenType(target.baseId, 'SigneeList');
+  renderSummary2({ targetBaseComponentId }: Summary2Props): JSX.Element | null {
+    const { textResourceBindings } = useItemWhenType(targetBaseComponentId, 'SigneeList');
 
     return (
       <SigneeListSummary
-        componentNode={target}
+        targetBaseComponentId={targetBaseComponentId}
         titleOverride={textResourceBindings?.summaryTitle}
       />
     );

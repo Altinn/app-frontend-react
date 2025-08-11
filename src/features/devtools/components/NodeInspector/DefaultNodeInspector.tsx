@@ -6,22 +6,21 @@ import classes from 'src/features/devtools/components/NodeInspector/NodeInspecto
 import { NodeInspectorDataField } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataField';
 import { NodeInspectorDataModelBindings } from 'src/features/devtools/components/NodeInspector/NodeInspectorDataModelBindings';
 import { NodeInspectorTextResourceBindings } from 'src/features/devtools/components/NodeInspector/NodeInspectorTextResourceBindings';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { useExternalItem } from 'src/utils/layout/hooks';
-import { Hidden } from 'src/utils/layout/NodesContext';
 import { useItemFor } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface DefaultNodeInspectorParams {
-  node: LayoutNode;
+  baseComponentId: string;
   ignoredProperties?: string[];
 }
 
-export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeInspectorParams) {
+export function DefaultNodeInspector({ baseComponentId, ignoredProperties }: DefaultNodeInspectorParams) {
   // Hidden state is removed from the item by the hierarchy generator, but we simulate adding it back here (but only
   // if it's an expression). This allows app developers to inspect this as well.
-  const _item = useItemFor(node.baseId);
-  const hidden = Hidden.useIsHidden(node);
-  const component = useExternalItem(node.baseId);
+  const _item = useItemFor(baseComponentId);
+  const hidden = useIsHidden(baseComponentId);
+  const component = useExternalItem(baseComponentId);
   const hiddenIsExpression = Array.isArray(component?.hidden);
   const item = hiddenIsExpression ? { ..._item, hidden } : _item;
 
@@ -48,15 +47,10 @@ export function DefaultNodeInspector({ node, ignoredProperties }: DefaultNodeIns
           return (
             <NodeInspectorTextResourceBindings
               key={key}
-              node={node}
+              baseComponentId={baseComponentId}
               textResourceBindings={value}
             />
           );
-        }
-
-        if (node.isType('RepeatingGroup') && key === 'rows') {
-          // Don't show rows for repeating groups, as they are extracted and shown in the inspector sidebar
-          return null;
         }
 
         return (

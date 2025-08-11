@@ -52,11 +52,6 @@ Cypress.Commands.add('waitUntilSaved', () => {
   cy.get('[data-testid=NavigationButtons] button[disabled]').should('not.exist');
 });
 
-Cypress.Commands.add('waitUntilNodesReady', () => {
-  cy.get('body').should('not.have.attr', 'data-nodes-ready', 'false');
-  cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
-});
-
 Cypress.Commands.add('dsReady', (selector) => {
   // In case the option is dynamic, wait for save and progress bars to go away, otherwise the component could
   // rerender after opening, causing it to close again
@@ -64,20 +59,34 @@ Cypress.Commands.add('dsReady', (selector) => {
 
   cy.get(selector).should('not.be.disabled');
   cy.waitUntilSaved();
-  cy.waitUntilNodesReady();
+});
+
+Cypress.Commands.add('dsClear', (selector) => {
+  // Clear the input value and trigger input event to reset dropdown's internal state
+  cy.get(selector).invoke('val', '').trigger('input');
+
+  // Close any open dropdowns by clicking outside
+  cy.get('body').click('bottomRight');
+
+  // Additional step to ensure dropdown is reset
+  cy.get(selector).click();
+  cy.get(selector).type('{esc}');
 });
 
 Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
   cy.log(`Selecting ${value} in ${selector}, with debounce: ${debounce}`);
   cy.dsReady(selector);
+  // Clear the input value before selecting a new option because the previous value acts as a filter
+  // and prevents the new option from being displayed.
+  cy.dsClear(selector);
   cy.get(selector).click();
 
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
   // as it never retries if the element re-renders. More information here:
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
-  cy.get('[class*="ds-combobox__option"]').findByText(value).click();
+  cy.findByRole('option', { name: value }).click();
   if (debounce) {
-    cy.get('body').click();
+    cy.get('body').click('bottomRight');
   }
 });
 
@@ -98,6 +107,7 @@ Cypress.Commands.add('navPage', (page: string) => {
 Cypress.Commands.add('gotoNavPage', (page: string) => {
   cy.navPage(page).click();
   cy.navPage(page).should('have.attr', 'aria-current', 'page');
+  cy.findByRole('progressbar').should('not.exist');
 });
 
 Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
@@ -180,14 +190,8 @@ const knownWcagViolations: KnownViolation[] = [
   {
     spec: 'frontend-test/hide-row-in-group.ts',
     test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
-    id: 'page-has-heading-one',
+    id: 'heading-order',
     nodeLength: 1,
-  },
-  {
-    spec: 'frontend-test/hide-row-in-group.ts',
-    test: 'should be possible to hide rows when "Endre fra" is greater or equals to [...]',
-    id: 'aria-hidden-focus', // floating-ui marks everything else as aria-hidden, when dropdown from DS is open, swap to suggestion component when it is no longer experimental
-    nodeLength: 18,
   },
   {
     spec: 'frontend-test/likert.ts',
@@ -302,10 +306,9 @@ const defaultSnapshotOptions: SnapshotOptions = {
   wcag: true,
 };
 
-Cypress.Commands.add('snapshot', (name, _options) => {
+Cypress.Commands.add('visualTesting', (name, _options) => {
   const options = { ...defaultSnapshotOptions, ..._options };
   cy.clearSelectionAndWait();
-  cy.waitUntilNodesReady();
   cy.waitUntilSaved();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
@@ -332,7 +335,6 @@ Cypress.Commands.add('snapshot', (name, _options) => {
 
         // Saving happens after a debounce timeout, and even though we checked for unsaved changes above, there might
         // be new ones that appeared after viewport resizing. Let's check again right before we snapshot.
-        cy.waitUntilNodesReady();
         cy.waitUntilSaved();
 
         cy.percySnapshot(`${name} (${viewport})`, { percyCSS, widths: [width] });
@@ -532,14 +534,8 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
     }
   });
 
-  // To make sure we actually wait for the layout change to become effective, we first wait for the loader to appear,
-  // and then wait for it to disappear.
-  cy.get('[data-testid="loader"]').should('exist');
-  cy.get('[data-testid="loader"]').should('not.exist');
-
   cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
-  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('interceptLayoutSetsUiSettings', (uiSettings) => {

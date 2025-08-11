@@ -1,6 +1,7 @@
 import React, { Fragment, useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 
@@ -10,7 +11,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxInstanceData } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import {
   type BaseValidation,
   type DataModelValidations,
@@ -32,7 +33,6 @@ import { SchemaValidation } from 'src/features/validation/schemaValidation/Schem
 import { hasValidationErrors, mergeFieldValidations, selectValidations } from 'src/features/validation/utils';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
 
 interface Internals {
   individualValidations: {
@@ -173,7 +173,6 @@ export function ValidationProvider({ children }: PropsWithChildren) {
 }
 
 function useWaitForValidation(): WaitForValidation {
-  const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const waitForSave = FD.useWaitForSave();
   const waitForState = useWaitForState<ValidationsProcessedLast['initial'], ValidationContext & Internals>(useStore());
   const hasPendingAttachments = useHasPendingAttachments();
@@ -196,16 +195,14 @@ function useWaitForValidation(): WaitForValidation {
       await waitForAttachments((state) => !state);
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
-      await waitForNodesReady();
       const validationsFromSave = await waitForSave(forceSave);
       // If validationsFromSave is not defined, we check if initial validations are done processing
       await waitForState(async (state) => {
         const { isFetching, cachedInitialValidations } = getCachedInitialValidations();
+        const incrementalMatch = deepEqual(state.processedLast.incremental, validationsFromSave);
+        const initialMatch = deepEqual(state.processedLast.initial, cachedInitialValidations);
 
-        const validationsReady =
-          state.processedLast.incremental === validationsFromSave &&
-          state.processedLast.initial === cachedInitialValidations &&
-          !isFetching;
+        const validationsReady = incrementalMatch && initialMatch && !isFetching;
 
         if (validationsReady) {
           await waitForNodesToValidate(state.processedLast);
@@ -214,14 +211,12 @@ function useWaitForValidation(): WaitForValidation {
 
         return false;
       });
-      await waitForNodesReady();
     },
     [
       enabled,
       getCachedInitialValidations,
       hasWritableDataTypes,
       waitForAttachments,
-      waitForNodesReady,
       waitForNodesToValidate,
       waitForSave,
       waitForState,
@@ -241,8 +236,8 @@ export function ProvideWaitForValidation() {
 }
 
 export function LoadingBlockerWaitForValidation({ children }: PropsWithChildren) {
-  const validating = useSelector((state) => state.validating);
-  if (!validating) {
+  const validationFn = useSelector((state) => state.validating);
+  if (!validationFn) {
     return <Loader reason='validation-awaiter' />;
   }
 
@@ -268,9 +263,9 @@ function UpdateShowAllErrors() {
    * also check useLastSaveValidationIssues which will change on each patch.
    */
   const lastSaved = FD.useLastSaveValidationIssues();
-  const instanceDataChanges = useLaxInstanceData((instance) =>
-    instance.data.map(({ id, lastChanged }) => ({ id, lastChanged })),
-  );
+  const instanceDataChanges = useInstanceDataQuery({
+    select: (instance) => instance.data.map(({ id, lastChanged }) => ({ id, lastChanged })),
+  }).data;
 
   // Since process/next returns non-incremental validations, we need to also check these to see when they are removed
   const refetchInitialValidations = useRefetchInitialValidations(false);

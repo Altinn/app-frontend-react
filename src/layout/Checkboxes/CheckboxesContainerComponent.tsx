@@ -14,12 +14,16 @@ import classes from 'src/layout/Checkboxes/CheckboxesContainerComponent.module.c
 import { WrappedCheckbox } from 'src/layout/Checkboxes/WrappedCheckbox';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { shouldUseRowLayout } from 'src/utils/layout';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export const CheckboxContainerComponent = ({ node, overrideDisplay }: PropsFromGenericComponent<'Checkboxes'>) => {
-  const item = useItemWhenType(node.baseId, 'Checkboxes');
+export const CheckboxContainerComponent = ({
+  baseComponentId,
+  overrideDisplay,
+}: PropsFromGenericComponent<'Checkboxes'>) => {
+  const item = useItemWhenType(baseComponentId, 'Checkboxes');
   const {
     id,
     layout,
@@ -37,11 +41,11 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: PropsFromG
     isFetching,
     setData,
     selectedValues: selectedFromSimpleBinding,
-  } = useGetOptions(node.baseId, 'multi');
+  } = useGetOptions(baseComponentId, 'multi');
   const groupBinding = useSaveValueToGroup(dataModelBindings);
   const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
 
-  const isValid = useIsValid(node.baseId);
+  const isValid = useIsValid(baseComponentId);
   const horizontal = shouldUseRowLayout({
     layout,
     optionsCount: calculatedOptions.length,
@@ -68,7 +72,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: PropsFromG
 
   const labelTextGroup = (
     <LabelContent
-      componentId={id}
+      id={useIndexedId(baseComponentId)}
       label={textResourceBindings?.title}
       readOnly={readOnly}
       required={required}
@@ -78,7 +82,7 @@ export const CheckboxContainerComponent = ({ node, overrideDisplay }: PropsFromG
   );
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       {isFetching ? (
         <AltinnSpinner />
       ) : (

@@ -83,7 +83,7 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.upload).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.get(appFrontend.changeOfName.uploadedTable).should('be.visible');
     cy.get(appFrontend.changeOfName.fileUploadSuccess).should('exist');
-    cy.snapshot('components:attachment');
+    cy.visualTesting('components:attachment');
 
     cy.findByRole('button', { name: 'Slett vedlegg' }).click();
     cy.findByRole('button', { name: 'Slett vedlegg' }).should('not.exist');
@@ -128,7 +128,6 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.wait('@upload');
-    cy.waitUntilNodesReady();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('be.visible');
     cy.get(appFrontend.fieldValidation(appFrontend.changeOfName.uploadWithTag.uploadZone)).should('not.exist');
     cy.dsReady(appFrontend.changeOfName.uploadWithTag.saveTag);
@@ -146,7 +145,7 @@ describe('UI Components', () => {
       cy.wrap(table).find('tbody > tr > td').eq(2).should('have.text', 'Adresse');
       cy.wrap(table).find('tbody > tr > td').last().find('button').click();
     });
-    cy.snapshot('components:attachment-with-tags');
+    cy.visualTesting('components:attachment-with-tags');
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).find('button:contains("Slett")').click();
     cy.get(appFrontend.changeOfName.uploadWithTag.editWindow).should('not.exist');
   });
@@ -365,7 +364,7 @@ describe('UI Components', () => {
       name: /ja, jeg bekrefter at navnet er riktig og slik jeg ønsker det/i,
     }).should('have.attr', 'readonly');
     cy.get(appFrontend.changeOfName.reasons).find('input').should('have.attr', 'readonly');
-    cy.snapshot('components:read-only');
+    cy.visualTesting('components:read-only');
   });
 
   it('description and helptext for options in radio and checkbox groups', () => {
@@ -470,21 +469,21 @@ describe('UI Components', () => {
     cy.findByRole('option', { name: /gul/i }).should('have.attr', 'aria-selected', 'true');
 
     cy.findByRole('button', {
-      name: /Grønn, Press to remove, 2 of 4/i,
+      name: /Grønn, Press to remove, 3 of 4/i,
     }).click('right', { force: true });
     cy.get(appFrontend.deleteWarningPopover).should('contain.text', 'Er du sikker på at du vil slette Grønn?');
     cy.findByRole('button', { name: /Avbryt/ }).click();
     cy.findByRole('button', {
-      name: /Grønn, Press to remove, 2 of 4/i,
+      name: /Grønn, Press to remove, 3 of 4/i,
     }).should('exist');
 
     cy.findByRole('button', {
-      name: /Gul, Press to remove, 3 of 4/i,
+      name: /Gul, Press to remove, 4 of 4/i,
     }).click('right', { force: true });
     cy.get(appFrontend.deleteWarningPopover).should('contain.text', 'Er du sikker på at du vil slette Gul?');
     cy.findByRole('button', { name: /Bekreft/ }).click();
     cy.findByRole('button', {
-      name: /Gul, Press to remove, 3 of 4/i,
+      name: /Gul, Press to remove, 4 of 4/i,
     }).should('not.exist');
   });
 
@@ -839,7 +838,7 @@ describe('UI Components', () => {
       cy.wrap(tile).should('have.class', 'leaflet-tile-loaded').and('have.css', 'opacity', '1'),
     );
 
-    cy.snapshot('components:map-simpleBinding');
+    cy.visualTesting('components:map-simpleBinding');
   });
 
   it('Map component with geometries should center the map around the geometries', () => {
@@ -938,7 +937,7 @@ describe('UI Components', () => {
       cy.wrap(tile).should('have.class', 'leaflet-tile-loaded').and('have.css', 'opacity', '1'),
     );
 
-    cy.snapshot('components:map-geometries');
+    cy.visualTesting('components:map-geometries');
   });
 
   it('number formatting should never update/change the form data', () => {

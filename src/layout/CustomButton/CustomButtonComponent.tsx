@@ -9,16 +9,16 @@ import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
+import { useIsSubformPage, useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ButtonColor, ButtonVariant } from 'src/app-components/Button/Button';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
@@ -26,8 +26,6 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IInstance } from 'src/types/shared';
-
-type Props = PropsFromGenericComponent<'CustomButton'>;
 
 type UpdatedDataModels = {
   [dataModelGuid: string]: object;
@@ -143,7 +141,6 @@ function useHandleServerActionMutationFn(acquireLock: FormDataLocking) {
   const queryClient = useQueryClient();
   const { doPerformAction } = useAppMutations();
   const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
-  const markNotReady = NodesInternal.useMarkNotReady();
 
   return async ({ action, buttonId }: PerformActionMutationProps) => {
     const lock = await acquireLock();
@@ -159,9 +156,6 @@ function useHandleServerActionMutationFn(acquireLock: FormDataLocking) {
         selectedLanguage,
         queryClient,
       );
-      // Server actions can bring back changes to the data model, which could cause the node tree to update. Marking
-      // it as not ready now will prevent some re-renders with stale data while the result is handled later.
-      markNotReady();
 
       await handleDataModelUpdate(lock, result);
       if (result.clientActions) {
@@ -199,9 +193,9 @@ function toShorthandSize(size?: CBTypes.CustomButtonSize): 'sm' | 'md' | 'lg' {
   }
 }
 
-export const CustomButtonComponent = ({ node }: Props) => {
+export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericComponent<'CustomButton'>) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useItemWhenType(
-    node.baseId,
+    baseComponentId,
     'CustomButton',
   );
 
@@ -214,6 +208,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
 
   const onPageNavigationValidation = useOnPageNavigationValidation();
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const layoutLookups = useLayoutLookups();
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -253,7 +248,12 @@ export const CustomButtonComponent = ({ node }: Props) => {
       for (const action of actions) {
         if (action.validation) {
           const prevScrollPosition = getScrollPosition();
-          const hasErrors = await onPageNavigationValidation(node.page, action.validation);
+          const page = layoutLookups.componentToPage[baseComponentId];
+          if (!page) {
+            throw new Error('Could not find page for component');
+          }
+
+          const hasErrors = await onPageNavigationValidation(page, action.validation);
           if (hasErrors) {
             resetScrollPosition(prevScrollPosition);
             return;
@@ -271,7 +271,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const style = buttonStyles[interceptedButtonStyle];
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <Button
         id={`custom-button-${id}`}
         disabled={disabled}

@@ -16,7 +16,6 @@ import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
-type AddToListProps = PropsFromGenericComponent<'AddToList'>;
 
 export function isJSONSchema7Definition(obj: unknown): obj is JSONSchema7 {
   if (typeof obj === 'boolean') {
@@ -42,7 +41,7 @@ interface ModalDynamicFormProps {
   locale?: string;
   backdropClose?: boolean;
   onClose?: () => void;
-  modalRef?: React.RefObject<HTMLDialogElement>;
+  modalRef?: React.RefObject<HTMLDialogElement | null>;
   DropdownCaption: typeof MonthCaption;
 }
 
@@ -55,7 +54,7 @@ export function AddToListModal({
   DropdownCaption,
 }: ModalDynamicFormProps) {
   const appendToList = FD.useAppendToList();
-  let addToListModalRef = useRef<HTMLDialogElement>(null);
+  let addToListModalRef = useRef<HTMLDialogElement | null>(null);
   addToListModalRef = modalRef ?? addToListModalRef;
 
   const { schemaLookup } = DataModels.useFullStateRef().current;
@@ -121,8 +120,8 @@ export function AddToListModal({
   );
 }
 
-export function AddToListComponent({ node }: AddToListProps) {
-  const dataModelBindings = useDataModelBindingsFor(node.baseId, 'AddToList');
+export function AddToListComponent({ baseComponentId }: PropsFromGenericComponent<'AddToList'>) {
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'AddToList');
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 

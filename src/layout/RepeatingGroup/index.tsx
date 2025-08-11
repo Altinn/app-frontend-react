@@ -15,20 +15,18 @@ import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/Repeat
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { NodeData } from 'src/utils/layout/types';
 
 export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
     function LayoutComponentRepeatingGroupRender(props, ref): JSX.Element | null {
       return (
-        <RepeatingGroupProvider baseComponentId={props.node.baseId}>
+        <RepeatingGroupProvider baseComponentId={props.baseComponentId}>
           <RepeatingGroupsFocusProvider>
             <RepeatingGroupContainer ref={ref} />
           </RepeatingGroupsFocusProvider>
@@ -51,13 +49,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     } as RepGroupInternal;
   }
 
-  renderSummary(props: SummaryRendererProps<'RepeatingGroup'>): JSX.Element | null {
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
     return <SummaryRepeatingGroup {...props} />;
   }
 
-  renderSummary2(props: Summary2Props<'RepeatingGroup'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return (
-      <RepeatingGroupProvider baseComponentId={props.target.baseId}>
+      <RepeatingGroupProvider baseComponentId={props.targetBaseComponentId}>
         <EmptyChildrenBoundary>
           <RepeatingGroupSummary {...props} />
         </EmptyChildrenBoundary>
@@ -119,15 +117,9 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return [];
   }
 
-  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string, lookups: LayoutLookups): boolean {
-    const hiddenByPlugins = super.isChildHidden(state, childId, lookups);
-    if (hiddenByPlugins) {
-      return true;
-    }
-
-    const { baseComponentId } = splitDashedKey(childId);
-    const layout = lookups.getComponent(state.baseId, 'RepeatingGroup');
-    const tableColSetup = layout.tableColumns?.[baseComponentId];
+  isChildHidden(parentBaseId: string, childBaseId: string, lookups: LayoutLookups): boolean {
+    const layout = lookups.getComponent(parentBaseId, 'RepeatingGroup');
+    const tableColSetup = layout.tableColumns?.[childBaseId];
     const mode = layout.edit?.mode;
 
     // This specific configuration hides the component fully, without having set hidden=true on the component itself.

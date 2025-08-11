@@ -24,8 +24,8 @@ import { useRepeatingGroupsFocusContext } from 'src/layout/RepeatingGroup/Provid
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden } from 'src/utils/layout/hidden';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ButtonPosition } from 'src/layout/common.generated';
@@ -36,7 +36,7 @@ export const RepeatingGroupContainer = forwardRef((_, ref: React.ForwardedRef<HT
 
   const editingId = useRepeatingGroupSelector((state) => state.editingId);
   const id = useIndexedId(baseComponentId);
-  const isHidden = Hidden.useIsHidden(id);
+  const isHidden = useIsHidden(baseComponentId);
 
   if (isHidden) {
     return null;
@@ -77,7 +77,6 @@ function ModeOnlyTable() {
 
 function ModeOnlyEdit({ editingId }: { editingId: string }) {
   const baseComponentId = useRepeatingGroupComponentId();
-  const node = useNode(useIndexedId(baseComponentId));
   const parent = useLayoutLookups().componentToParent[baseComponentId];
   const isNested = parent?.type === 'node';
 
@@ -85,7 +84,7 @@ function ModeOnlyEdit({ editingId }: { editingId: string }) {
   const grid = useExternalItem(baseComponentId, 'RepeatingGroup').grid;
   const rowIndex = RepGroupHooks.useAllBaseRows(baseComponentId).find((r) => r.uuid === editingId)?.index;
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
-    baseComponentId: node.baseId,
+    baseComponentId,
     overrideDisplay: undefined,
   });
 

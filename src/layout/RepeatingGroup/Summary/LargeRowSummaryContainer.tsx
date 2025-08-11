@@ -7,17 +7,19 @@ import cn from 'classnames';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer.module.css';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { pageBreakStyles } from 'src/utils/formComponentUtils';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import { useItemWhenType, useNodeDirectChildren } from 'src/utils/layout/useNodeItem';
+import { useComponentIdMutator, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { HeadingLevel } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export interface IDisplayRepAsLargeGroup {
-  groupNode: LayoutNode<'RepeatingGroup'>;
+  baseComponentId: string;
   id?: string;
-  restriction?: number | undefined;
-  renderLayoutNode: (node: LayoutNode) => JSX.Element | null;
+  renderLayoutComponent: (baseId: string) => JSX.Element | null;
+  inExcludedChildren: (indexedId: string, baseId: string) => boolean;
 }
 
 const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['data-size'] } = {
@@ -28,18 +30,26 @@ const headingSizes: { [k in HeadingLevel]: Parameters<typeof Heading>[0]['data-s
   [6]: 'xs',
 };
 
-export function LargeGroupSummaryContainer({ groupNode, id, restriction, renderLayoutNode }: IDisplayRepAsLargeGroup) {
-  const item = useItemWhenType(groupNode.baseId, 'RepeatingGroup');
-  const isHidden = Hidden.useIsHidden(groupNode);
-  const depth = NodesInternal.useSelector((state) => state.nodeData?.[groupNode.id]?.depth);
-  const children = useNodeDirectChildren(groupNode, restriction);
+export function LargeRowSummaryContainer({
+  baseComponentId,
+  id,
+  renderLayoutComponent,
+  inExcludedChildren,
+}: IDisplayRepAsLargeGroup) {
+  const item = useItemWhenType(baseComponentId, 'RepeatingGroup');
+  const indexedId = useIndexedId(baseComponentId, true);
+  const depth = NodesInternal.useSelector((state) => state.nodeData?.[indexedId]?.depth);
   const layoutLookups = useLayoutLookups();
-  if (isHidden) {
+  const children = RepGroupHooks.useChildIds(baseComponentId);
+  const isHidden = useIsHiddenMulti(children);
+  const idMutator = useComponentIdMutator();
+
+  if (typeof depth !== 'number') {
     return null;
   }
-  const { title, summaryTitle } = item.textResourceBindings || {};
 
-  const parent = layoutLookups.componentToParent[groupNode.baseId];
+  const { title, summaryTitle } = item.textResourceBindings || {};
+  const parent = layoutLookups.componentToParent[baseComponentId];
   const isNested = parent?.type === 'node';
   const headingLevel = Math.min(Math.max(depth + 1, 2), 6) as HeadingLevel;
   const headingSize = headingSizes[headingLevel];
@@ -63,7 +73,13 @@ export function LargeGroupSummaryContainer({ groupNode, id, restriction, renderL
         id={id || item.id}
         className={classes.largeGroupContainer}
       >
-        {children.map((n) => renderLayoutNode(n))}
+        {children.map((baseId) => {
+          if (inExcludedChildren(idMutator(baseId), baseId) || isHidden[baseId]) {
+            return null;
+          }
+
+          return renderLayoutComponent(baseId);
+        })}
       </div>
     </Fieldset>
   );

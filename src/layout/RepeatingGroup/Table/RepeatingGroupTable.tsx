@@ -7,9 +7,9 @@ import { Caption } from 'src/components/form/caption/Caption';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
-import { GenericComponentById } from 'src/layout/GenericComponent';
-import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
-import { useNodeIdsFromGridRows } from 'src/layout/Grid/tools';
+import { GenericComponent } from 'src/layout/GenericComponent';
+import { GridRowsRenderer } from 'src/layout/Grid/GridComponent';
+import { useBaseIdsFromGridRows } from 'src/layout/Grid/tools';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination';
 import {
@@ -208,13 +208,13 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const isNested = parent?.type === 'node';
 
   const rows = where === 'Before' ? rowsBefore : rowsAfter;
-  const mobileNodeIds = useNodeIdsFromGridRows(rows, mobileView);
+  const mobileBaseIds = useBaseIdsFromGridRows(rows, mobileView);
   if (isEmpty || !rows) {
     return null;
   }
 
   if (mobileView) {
-    if (!mobileNodeIds || mobileNodeIds.length === 0) {
+    if (!mobileBaseIds || mobileBaseIds.length === 0) {
       return null;
     }
 
@@ -222,10 +222,10 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
       <Table.Body>
         <Table.Row>
           <Table.Cell className={classes.mobileTableCell}>
-            {mobileNodeIds.map((childId) => (
-              <GenericComponentById
+            {mobileBaseIds.map((childId) => (
+              <GenericComponent
                 key={childId}
-                id={childId}
+                baseComponentId={childId}
               />
             ))}
           </Table.Cell>
@@ -237,16 +237,12 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   }
 
   return (
-    <>
-      {rows.map((row, index) => (
-        <GridRowRenderer
-          key={`grid${where}-${index}`}
-          row={{ ...row, cells: [...row.cells, ...extraCells] }}
-          isNested={isNested}
-          mutableColumnSettings={columnSettings}
-        />
-      ))}
-    </>
+    <GridRowsRenderer
+      rows={rows}
+      extraCells={extraCells}
+      isNested={isNested}
+      mutableColumnSettings={columnSettings}
+    />
   );
 }
 

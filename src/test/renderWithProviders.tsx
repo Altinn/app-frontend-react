@@ -12,14 +12,12 @@ import type { AxiosResponse } from 'axios';
 import type { JSONSchema7 } from 'json-schema';
 
 import { getDataListMock } from 'src/__mocks__/getDataListMock';
-import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getLogoMock } from 'src/__mocks__/getLogoMock';
 import { orderDetailsResponsePayload } from 'src/__mocks__/getOrderDetailsPayloadMock';
 import { getOrgsMock } from 'src/__mocks__/getOrgsMock';
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
-import { getProfileMock } from 'src/__mocks__/getProfileMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
@@ -33,27 +31,23 @@ import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvi
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
-import { InstantiationProvider } from 'src/features/instantiate/InstantiationContext';
 import { LangToolsStoreProvider } from 'src/features/language/LangToolsStore';
 import { LanguageProvider, SetShouldFetchAppLanguages } from 'src/features/language/LanguageProvider';
 import { TextResourcesProvider } from 'src/features/language/textResources/TextResourcesProvider';
+import { NavigationEffectProvider } from 'src/features/navigation/NavigationEffectContext';
 import { OrgsProvider } from 'src/features/orgs/OrgsProvider';
 import { PartyProvider } from 'src/features/party/PartiesProvider';
 import { ProfileProvider } from 'src/features/profile/ProfileProvider';
-import { AppRoutingProvider } from 'src/features/routing/AppRoutingContext';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import { PageNavigationRouter } from 'src/test/routerUtils';
-import { useNode, useNodes } from 'src/utils/layout/NodesContext';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
 import type { FormDataMethods } from 'src/features/formData/FormDataWriteStateMachine';
 import type { IDataModelPatchRequest, IDataModelPatchResponse } from 'src/features/formData/types';
 import type { IComponentProps, PropsFromGenericComponent } from 'src/layout';
 import type { IRawOption } from 'src/layout/common.generated';
-import type { CompExternalExact, CompTypes } from 'src/layout/layout';
+import type { CompExternal, CompExternalExact, CompTypes } from 'src/layout/layout';
 import type { AppMutations, AppQueries, AppQueriesContext } from 'src/queries/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LayoutPages } from 'src/utils/layout/LayoutPages';
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
   renderer: (() => React.ReactElement) | React.ReactElement;
@@ -68,6 +62,7 @@ interface ExtendedRenderOptions extends Omit<RenderOptions, 'queries'> {
 }
 
 interface InstanceRouterProps {
+  routerRef?: RouterRef;
   initialPage?: string;
   taskId?: string;
   instanceId?: string;
@@ -75,7 +70,9 @@ interface InstanceRouterProps {
   query?: string;
 }
 
-interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, InstanceRouterProps {}
+type RouterRef = { current: ReturnType<typeof createMemoryRouter> | undefined };
+
+interface ExtendedRenderOptionsWithInstance extends ExtendedRenderOptions, Omit<InstanceRouterProps, 'routerRef'> {}
 
 interface BaseRenderOptions extends ExtendedRenderOptions {
   Providers?: typeof DefaultProviders;
@@ -85,7 +82,7 @@ interface InitialRenderRef {
   current: boolean;
 }
 
-const env = dotenv.config();
+const env = dotenv.config({ quiet: true });
 
 const exampleGuid = '75154373-aed4-41f7-95b4-e5b5115c2edc';
 const exampleInstanceId = `512345/${exampleGuid}`;
@@ -125,7 +122,6 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doPostStatelessFormData: makeMock('doPostStatelessFormData'),
   doSetSelectedParty: makeMock('doSetSelectedParty'),
   doInstantiate: makeMock('doInstantiate'),
-  doProcessNext: makeMock('doProcessNext'),
   doInstantiateWithPrefill: makeMock('doInstantiateWithPrefill'),
   doPerformAction: makeMock('doPerformAction'),
   doSubformEntryAdd: makeMock('doSubformEntryAdd'),
@@ -140,7 +136,6 @@ const defaultQueryMocks: AppQueries = {
   fetchFooterLayout: async () => ({ footer: [] }) as IFooterLayout,
   fetchLayoutSets: async () => getLayoutSetsMock(),
   fetchOrgs: async () => ({ orgs: getOrgsMock() }),
-  fetchUserProfile: async () => getProfileMock(),
   fetchReturnUrl: async () => Promise.reject(),
   fetchDataModelSchema: async () => ({}),
   fetchPartiesAllowedToInstantiate: async () => [getPartyMock()],
@@ -159,7 +154,6 @@ const defaultQueryMocks: AppQueries = {
   fetchPostPlace: async () => ({ valid: true, result: 'OSLO' }),
   fetchLayoutSettings: async () => ({ pages: { order: [] } }),
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
-  fetchInstanceData: async () => getInstanceDataMock(),
   fetchBackendValidations: async () => [],
   fetchBackendValidationsForDataElement: async () => [],
   fetchPaymentInformation: async () => paymentResponsePayload,
@@ -225,7 +219,7 @@ function NotFound() {
 
 function DefaultRouter({ children }: PropsWithChildren) {
   return (
-    <MemoryRouter future={{ v7_startTransition: true }}>
+    <MemoryRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
       <Routes>
         <Route
           path='/'
@@ -242,6 +236,7 @@ function DefaultRouter({ children }: PropsWithChildren) {
 
 export function InstanceRouter({
   children,
+  routerRef,
   instanceId = exampleInstanceId,
   taskId = 'Task_1',
   initialPage = 'FormLayout',
@@ -267,10 +262,21 @@ export function InstanceRouter({
     {
       basename: '/ttd/test',
       initialEntries: [query ? `${path}?${query}` : path],
+      future: { v7_relativeSplatPath: true },
     },
   );
 
-  return <RouterProvider router={router} />;
+  if (routerRef) {
+    // eslint-disable-next-line react-compiler/react-compiler
+    routerRef.current = router;
+  }
+
+  return (
+    <RouterProvider
+      router={router}
+      future={{ v7_startTransition: true }}
+    />
+  );
 }
 
 interface ProvidersProps extends PropsWithChildren {
@@ -291,7 +297,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
             <UiConfigProvider>
               <PageNavigationProvider>
                 <Router>
-                  <AppRoutingProvider>
+                  <NavigationEffectProvider>
                     <ApplicationMetadataProvider>
                       <GlobalFormDataReadersProvider>
                         <OrgsProvider>
@@ -300,9 +306,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                               <SetShouldFetchAppLanguages />
                               <ProfileProvider>
                                 <PartyProvider>
-                                  <TextResourcesProvider>
-                                    <InstantiationProvider>{children}</InstantiationProvider>
-                                  </TextResourcesProvider>
+                                  <TextResourcesProvider>{children}</TextResourcesProvider>
                                 </PartyProvider>
                               </ProfileProvider>
                             </LayoutSetsProvider>
@@ -310,7 +314,7 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
                         </OrgsProvider>
                       </GlobalFormDataReadersProvider>
                     </ApplicationMetadataProvider>
-                  </AppRoutingProvider>
+                  </NavigationEffectProvider>
                 </Router>
               </PageNavigationProvider>
             </UiConfigProvider>
@@ -323,16 +327,13 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
 
 interface InstanceProvidersProps extends PropsWithChildren {
   formDataProxies: FormDataWriteProxies;
-  waitForAllNodes: boolean;
 }
 
-function InstanceFormAndLayoutProviders({ children, formDataProxies, waitForAllNodes }: InstanceProvidersProps) {
+function InstanceFormAndLayoutProviders({ children, formDataProxies }: InstanceProvidersProps) {
   return (
     <InstanceProvider>
       <FormDataWriteProxyProvider value={formDataProxies}>
-        <FormProvider>
-          <WaitForNodes waitForAllNodes={waitForAllNodes}>{children}</WaitForNodes>
-        </FormProvider>
+        <FormProvider>{children}</FormProvider>
       </FormDataWriteProxyProvider>
     </InstanceProvider>
   );
@@ -347,7 +348,7 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       <TaskStoreProvider>
         <LangToolsStoreProvider>
           <Router>
-            <AppRoutingProvider>{children}</AppRoutingProvider>
+            <NavigationEffectProvider>{children}</NavigationEffectProvider>
           </Router>
         </LangToolsStoreProvider>
       </TaskStoreProvider>
@@ -611,24 +612,22 @@ export const renderWithInstanceAndLayout = async ({
     throw new Error('Cannot use custom router with renderWithInstanceAndLayout');
   }
 
+  const routerRef: RouterRef = { current: undefined };
   return {
     formDataMethods,
+    routerRef,
     ...(await renderBase({
       ...renderOptions,
       initialRenderRef,
       renderer,
       Providers: ({ children, ...props }: ProvidersProps) => (
         <DefaultProviders {...props}>
-          <InstanceFormAndLayoutProviders
-            formDataProxies={formDataProxies}
-            waitForAllNodes={true}
-          >
-            {children}
-          </InstanceFormAndLayoutProviders>
+          <InstanceFormAndLayoutProviders formDataProxies={formDataProxies}>{children}</InstanceFormAndLayoutProviders>
         </DefaultProviders>
       ),
       router: ({ children }) => (
         <InstanceRouter
+          routerRef={routerRef}
           instanceId={instanceId}
           taskId={taskId}
           initialPage={initialPage}
@@ -667,88 +666,19 @@ export const renderWithInstanceAndLayout = async ({
   };
 };
 
-const WaitForNodes = ({
-  children,
-  waitForAllNodes,
-  nodeId,
-}: PropsWithChildren<{ waitForAllNodes: boolean; nodeId?: string }>) => {
-  const nodes = useNodes();
-  const node = useNode(nodeId);
-
-  if (!nodes && waitForAllNodes) {
-    return (
-      <>
-        <div>Loading...</div>
-        <div>Waiting for nodes</div>
-      </>
-    );
-  }
-
-  if (nodeId !== undefined && waitForAllNodes && !node) {
-    return <div>Unable to find target node: {nodeId}</div>;
-  }
-
-  return children;
-};
-
-export interface RenderWithNodeTestProps<T extends LayoutNode, InInstance extends boolean>
-  extends Omit<ExtendedRenderOptions, 'renderer'>,
-    InstanceRouterProps {
-  renderer: (props: { node: T; root: LayoutPages }) => React.ReactElement;
-  nodeId: string;
-  inInstance: InInstance;
-}
-
-type RenderWithNodeReturnType<InInstance extends boolean> = InInstance extends false
-  ? ReturnType<typeof renderWithoutInstanceAndLayout>
-  : ReturnType<typeof renderWithInstanceAndLayout>;
-
-export async function renderWithNode<InInstance extends boolean, T extends LayoutNode = LayoutNode>({
-  renderer,
-  inInstance,
-  ...props
-}: RenderWithNodeTestProps<T, InInstance>): Promise<RenderWithNodeReturnType<InInstance>> {
-  function Child() {
-    const root = useNodes();
-    const node = useNode(props.nodeId);
-
-    if (!root) {
-      return <div>Unable to find root context</div>;
-    }
-
-    if (!node) {
-      return <div>Unable to find node: {props.nodeId}</div>;
-    }
-    return renderer({ node: node as T, root });
-  }
-
-  const funcToCall = inInstance === false ? renderWithoutInstanceAndLayout : renderWithInstanceAndLayout;
-  const extraPropsNotInInstance: Partial<Parameters<typeof renderWithoutInstanceAndLayout>[0]> =
-    inInstance === false ? { withFormProvider: true } : {};
-
-  return (await funcToCall({
-    ...props,
-    ...extraPropsNotInInstance,
-    renderer: () => (
-      <WaitForNodes
-        waitForAllNodes={true}
-        nodeId={props.nodeId}
-      >
-        <Child />
-      </WaitForNodes>
-    ),
-  })) as unknown as RenderWithNodeReturnType<InInstance>;
-}
-
 export interface RenderGenericComponentTestProps<T extends CompTypes, InInstance extends boolean = true>
   extends Omit<ExtendedRenderOptions, 'renderer'>,
-    InstanceRouterProps {
+    Omit<InstanceRouterProps, 'routerRef'> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => React.ReactElement;
   component?: Partial<CompExternalExact<T>>;
   genericProps?: Partial<PropsFromGenericComponent<T>>;
   inInstance?: InInstance;
 }
+
+type RenderGenericComponentReturnType<InInstance extends boolean> = InInstance extends false
+  ? ReturnType<typeof renderWithoutInstanceAndLayout>
+  : ReturnType<typeof renderWithInstanceAndLayout>;
 
 export async function renderGenericComponentTest<T extends CompTypes, InInstance extends boolean = true>({
   type,
@@ -757,33 +687,32 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
   genericProps,
   initialPage = 'FormLayout',
   ...rest
-}: RenderGenericComponentTestProps<T, InInstance>) {
+}: RenderGenericComponentTestProps<T, InInstance>): Promise<RenderGenericComponentReturnType<InInstance>> {
   const realComponentDef = {
     id: 'my-test-component-id',
     type,
     ...component,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } as any;
+  } as CompExternal;
 
-  const Wrapper = ({ node }: { node: LayoutNode<T> }) => {
+  const Wrapper = () => {
     const props: PropsFromGenericComponent<T> = {
-      node,
+      baseComponentId: realComponentDef.id,
       ...(mockGenericComponentProps as unknown as IComponentProps),
       ...genericProps,
     };
 
     return (
-      <FormComponentContextProvider value={{ baseComponentId: node.baseId }}>
+      <FormComponentContextProvider value={{ baseComponentId: realComponentDef.id }}>
         {renderer(props)}
       </FormComponentContextProvider>
     );
   };
 
-  return renderWithNode<InInstance, LayoutNode<T>>({
+  const inInstance = (rest.inInstance ?? true) as InInstance;
+  const funcToCall = inInstance ? renderWithInstanceAndLayout : renderWithoutInstanceAndLayout;
+  return funcToCall({
     ...rest,
-    nodeId: realComponentDef.id,
     renderer: Wrapper,
-    inInstance: (rest.inInstance ?? true) as InInstance,
     initialPage,
     queries: {
       fetchLayouts: async () => ({
@@ -800,7 +729,7 @@ export async function renderGenericComponentTest<T extends CompTypes, InInstance
       }),
       ...rest.queries,
     },
-  });
+  }) as RenderGenericComponentReturnType<InInstance>;
 }
 
 const mockGenericComponentProps: IComponentProps = {

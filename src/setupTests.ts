@@ -1,12 +1,10 @@
-import React from 'react';
-
 import '@testing-library/jest-dom';
 import '@testing-library/jest-dom/jest-globals';
 import 'core-js/stable/structured-clone'; // https://github.com/jsdom/jsdom/issues/3363
 import 'jest';
 // Importing CSS for jest-preview to look nicer
-import '@digdir/designsystemet-theme';
 import '@digdir/designsystemet-css';
+import '@digdir/designsystemet-theme';
 
 import { jest } from '@jest/globals';
 import { configure as testingLibraryConfigure } from '@testing-library/dom';
@@ -15,15 +13,23 @@ import { jestPreviewConfigure } from 'jest-preview';
 import { TextDecoder, TextEncoder } from 'util';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
+// Importing CSS for jest-preview to look nicer
+import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
-import type { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
+import { getProfileMock } from 'src/__mocks__/getProfileMock';
+import type {
+  doProcessNext,
+  fetchApplicationMetadata,
+  fetchInstanceData,
+  fetchProcessState,
+  fetchUserProfile,
+} from 'src/queries/queries';
 import type { AppQueries } from 'src/queries/types';
 
-// Importing CSS for jest-preview to look nicer
 import 'src/index.css';
 import 'src/styles/shared.css';
 
-const env = dotenv.config();
+const env = dotenv.config({ quiet: true });
 
 // https://jestjs.io/docs/manual-mocks#mocking-methods-which-are-not-implemented-in-jsdom
 Object.defineProperty(window, 'matchMedia', {
@@ -79,7 +85,8 @@ jest.setTimeout(env.parsed?.JEST_TIMEOUT ? parseInt(env.parsed.JEST_TIMEOUT, 10)
 
 jest.mock('axios');
 
-global.TextEncoder = TextEncoder;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(global as any).TextEncoder = TextEncoder;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (global as any).TextDecoder = TextDecoder;
 
@@ -110,9 +117,7 @@ jest.mock('src/queries/queries', () => ({
     .fn<typeof fetchApplicationMetadata>()
     .mockImplementation(async () => getIncomingApplicationMetadataMock()),
   fetchProcessState: jest.fn<typeof fetchProcessState>(async () => getProcessDataMock()),
-}));
-
-jest.mock('react-helmet-async', () => ({
-  Helmet: () => null,
-  HelmetProvider: ({ children }) => React.createElement(React.Fragment, null, children),
+  doProcessNext: jest.fn<typeof doProcessNext>(async () => getProcessDataMock()),
+  fetchUserProfile: jest.fn<typeof fetchUserProfile>(async () => getProfileMock()),
+  fetchInstanceData: jest.fn<typeof fetchInstanceData>(async () => getInstanceDataMock()),
 }));

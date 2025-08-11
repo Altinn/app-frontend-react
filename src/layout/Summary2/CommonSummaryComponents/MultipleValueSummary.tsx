@@ -13,17 +13,16 @@ import { validationsOfSeverity } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary.module.css';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
-import { useNodeFormData } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useFormDataFor } from 'src/utils/layout/useNodeItem';
+import type { CompTypes } from 'src/layout/layout';
 
 type ValidTypes = 'MultipleSelect' | 'Checkboxes';
-type ValidNodes = LayoutNode<ValidTypes>;
 
 type Row = Record<string, string | number | boolean>;
 
 interface MultipleValueSummaryProps {
   title: React.ReactNode;
-  componentNode: ValidNodes;
+  baseComponentId: string;
   displayValues: ReturnType<typeof useMultipleValuesForSummary>;
   showAsList?: boolean;
   isCompact: boolean | undefined;
@@ -44,13 +43,14 @@ function getDisplayType(
   return 'list';
 }
 
-export function useMultipleValuesForSummary(componentNode: ValidNodes) {
-  const dataModelBindings = useDataModelBindingsFor<'MultipleSelect' | 'Checkboxes'>(
-    componentNode.baseId,
-    (t) => t === 'MultipleSelect' || t === 'Checkboxes',
-  );
-  const options = useOptionsFor(componentNode.baseId, 'multi').options;
-  const rawFormData = useNodeFormData(componentNode);
+function isValidType(type: CompTypes): boolean {
+  return type === 'MultipleSelect' || type === 'Checkboxes';
+}
+
+export function useMultipleValuesForSummary(baseComponentId: string) {
+  const dataModelBindings = useDataModelBindingsFor<ValidTypes>(baseComponentId, isValidType);
+  const options = useOptionsFor(baseComponentId, 'multi').options;
+  const rawFormData = useFormDataFor<ValidTypes>(baseComponentId, isValidType);
   const { langAsString } = useLanguage();
 
   const relativeCheckedPath =
@@ -74,13 +74,13 @@ export function useMultipleValuesForSummary(componentNode: ValidNodes) {
 
 export const MultipleValueSummary = ({
   title,
-  componentNode,
+  baseComponentId,
   displayValues,
   showAsList,
   isCompact,
   emptyFieldText,
 }: MultipleValueSummaryProps) => {
-  const validations = useUnifiedValidationsForNode(componentNode.baseId);
+  const validations = useUnifiedValidationsForNode(baseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
 
   const displayType = getDisplayType(displayValues, showAsList, isCompact);
@@ -140,8 +140,7 @@ export const MultipleValueSummary = ({
       </div>
       <EditButton
         className={classes.editButton}
-        componentNode={componentNode}
-        summaryComponentId=''
+        targetBaseComponentId={baseComponentId}
       />
     </div>
   );

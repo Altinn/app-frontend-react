@@ -2,6 +2,7 @@ const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const path = require('node:path');
+const { defineReactCompilerLoaderOption, reactCompilerLoader } = require('react-compiler-webpack');
 
 module.exports = {
   entry: './src/index.tsx',
@@ -10,7 +11,7 @@ module.exports = {
     filename: 'altinn-app-frontend.js',
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css', '.scss'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.css'],
     alias: {
       src: path.resolve(__dirname, './src'),
       axios: require.resolve('./node_modules/axios/dist/browser/axios.cjs'),
@@ -19,10 +20,20 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?/,
-        use: {
-          loader: 'babel-loader',
-        },
+        test: /\.[mc]?[jt]sx?$/i,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'esbuild-loader',
+            options: {
+              target: 'es2020',
+            },
+          },
+          {
+            loader: reactCompilerLoader,
+            options: defineReactCompilerLoaderOption({}),
+          },
+        ],
       },
       {
         test: /\.css$/,

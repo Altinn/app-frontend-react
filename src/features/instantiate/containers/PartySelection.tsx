@@ -1,6 +1,5 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useMatch } from 'react-router-dom';
+import { useMatch, useNavigate } from 'react-router-dom';
 
 import { Checkbox, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { PlusIcon } from '@navikt/aksel-icons';
@@ -22,7 +21,6 @@ import {
   useSetHasSelectedParty,
   useSetSelectedParty,
 } from 'src/features/party/PartiesProvider';
-import { useNavigate } from 'src/features/routing/AppRoutingContext';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { getPageTitle } from 'src/utils/getPageTitle';
@@ -118,9 +116,7 @@ export const PartySelection = () => {
 
   return (
     <InstantiationContainer>
-      <Helmet>
-        <title>{`${getPageTitle(appName, langAsString('party_selection.header'), appOwner)}`}</title>
-      </Helmet>
+      <title>{`${getPageTitle(appName, langAsString('party_selection.header'), appOwner)}`}</title>
       <Flex
         container
         direction='row'

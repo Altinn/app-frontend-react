@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { Helmet } from 'react-helmet-async';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
@@ -17,15 +16,13 @@ export function Feedback() {
 
   // Continually re-fetch process data while the user is on the feedback page
   useBackoff({
-    enabled: !!currentTask && !!reFetchProcessData,
-    callback: async () => void (await (reFetchProcessData && reFetchProcessData())),
+    enabled: !!currentTask,
+    callback: async () => void (await reFetchProcessData()),
   });
 
   return (
     <div id='FeedbackContainer'>
-      <Helmet>
-        <title>{`${getPageTitle(appName, langAsString('feedback.title'), appOwner)}`}</title>
-      </Helmet>
+      <title>{`${getPageTitle(appName, langAsString('feedback.title'), appOwner)}`}</title>
       <LangAsParagraph id='feedback.title' />
       <LangAsParagraph id='feedback.body' />
       <ReadyForPrint type='load' />

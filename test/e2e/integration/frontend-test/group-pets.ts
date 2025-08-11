@@ -4,15 +4,16 @@ const appFrontend = new AppFrontend();
 
 interface PetProps {
   species: string;
+  description?: string;
   name: string;
   age: number;
   visible?: boolean;
 }
 
-function addPet({ species, name, age }: PetProps) {
+function addPet({ species, description, name, age }: PetProps) {
   cy.get(appFrontend.pets.group().editContainer._).should('not.exist');
   cy.get(appFrontend.pets.group().addButton).click();
-  cy.dsSelect(appFrontend.pets.group().editContainer.species, species);
+  cy.dsSelect(appFrontend.pets.group().editContainer.species, `${species}${description ? description : ''}`);
   cy.get(appFrontend.pets.group().editContainer.name).type(name);
   cy.get(appFrontend.pets.group().editContainer.age).type(age.toString());
   cy.get(appFrontend.pets.group().editContainer.saveAndClose).clickAndGone();
@@ -24,7 +25,6 @@ function assertPetOrder(pets: PetProps[], callNum: number, editingIndex?: number
   cy.log(`Call number: ${callNum}`);
   editingIndex !== undefined && cy.log(`Editing index: ${editingIndex}`);
   cy.waitUntilSaved();
-  cy.waitUntilNodesReady();
 
   const visibleLength = pets.filter((pet) => pet.visible === true || pet.visible === undefined).length;
   cy.get(appFrontend.pets.group().tableRows).should(
@@ -54,19 +54,19 @@ function assertPetOrder(pets: PetProps[], callNum: number, editingIndex?: number
 }
 
 const manuallyAddedPets: PetProps[] = [
-  { species: 'Hund', name: 'Fido', age: 5 },
-  { species: 'Katt', name: 'Whiskers', age: 3 },
+  { species: 'Hund', description: ' Pelskledd og lojal mot mennesker', name: 'Fido', age: 5 },
+  { species: 'Katt', description: ' Ofte sett i morsomme videoer på nettet', name: 'Whiskers', age: 3 },
   { species: 'Fisk', name: 'Goldie', age: 1 },
-  { species: 'Fugl', name: 'Polly', age: 2 },
+  { species: 'Fugl', description: ' Kan fly', name: 'Polly', age: 2 },
 ];
 
 const petsFromCustomButton: PetProps[] = [
-  { species: 'Hund', name: 'Preben Potet', age: 15 },
-  { species: 'Katt', name: 'Reidar Reddik', age: 1 },
+  { species: 'Hund', description: ' Pelskledd og lojal mot mennesker', name: 'Preben Potet', age: 15 },
+  { species: 'Katt', description: ' Ofte sett i morsomme videoer på nettet', name: 'Reidar Reddik', age: 1 },
   { species: 'Fisk', name: 'Siri Spinat', age: 3 },
-  { species: 'Hamster', name: 'Kåre Kålrot', age: 7 },
-  { species: 'Kanin', name: 'Birte Blomkål', age: 2 },
-  { species: 'Kanin', name: 'Birte Blomkål', age: 3 },
+  { species: 'Hamster', description: ' Små og søte', name: 'Kåre Kålrot', age: 7 },
+  { species: 'Kanin', description: ' Søte og pelskledde', name: 'Birte Blomkål', age: 2 },
+  { species: 'Kanin', description: ' Søte og pelskledde', name: 'Birte Blomkål', age: 3 },
 ];
 
 describe('Group (Pets)', () => {
@@ -85,7 +85,7 @@ describe('Group (Pets)', () => {
   it('should snapshot the decision panel', () => {
     cy.goto('group');
     cy.gotoNavPage('Kjæledyr');
-    cy.snapshot('pets-decision-panel');
+    cy.visualTesting('pets-decision-panel');
   });
 
   it('should be possible to add predefined pets, sort them, validate them, hide them and delete them', () => {
@@ -145,7 +145,7 @@ describe('Group (Pets)', () => {
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
     cy.get(appFrontend.errorReport).should('contain.text', 'Du kan ikke ha flere dyr med samme navn og art.');
 
-    cy.snapshot('pets');
+    cy.visualTesting('pets');
 
     cy.get(appFrontend.pets.group().tableRow(1).deleteButton).click();
     const pets7 = structuredClone(pets6);
@@ -173,7 +173,7 @@ describe('Group (Pets)', () => {
       'Pelskledd og lojal mot mennesker', // Description
     );
     cy.get(appFrontend.pets.group(true).tableRow(0).editButton).click();
-    cy.dsSelect(appFrontend.pets.group().editContainer.species, 'Katt');
+    cy.dsSelect(appFrontend.pets.group().editContainer.species, 'Katt Ofte sett i morsomme videoer på nettet');
     cy.get(appFrontend.pets.group(true).tableRow(0).speciesOption).should('contain.text', 'Katt');
 
     // Prevents wcag test from running before this element is ready (needs to re-render after changing to cat)
@@ -222,6 +222,6 @@ describe('Group (Pets)', () => {
     cy.findAllByRole('combobox', { name: /art/i }).first().invoke('outerWidth').should('be.gt', 150);
     cy.findAllByRole('textbox', { name: /navn/i }).first().invoke('outerWidth').should('be.gt', 200);
 
-    cy.snapshot('pets:edit-in-table');
+    cy.visualTesting('pets:edit-in-table');
   });
 });

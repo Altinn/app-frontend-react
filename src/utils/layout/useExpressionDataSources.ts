@@ -1,3 +1,4 @@
+// eslint-disable-next-line react-compiler/react-compiler
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useMemo } from 'react';
 
@@ -9,7 +10,7 @@ import { ExprFunctionDefinitions } from 'src/features/expressions/expression-fun
 import { useExternalApis } from 'src/features/externalApi/useExternalApi';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxDataElementsSelectorProps, useLaxInstanceDataSources } from 'src/features/instance/InstanceContext';
+import { useDataElementsSelectorProps, useInstanceDataSources } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useInnerLanguageWithForcedPathSelector } from 'src/features/language/useLanguage';
@@ -19,49 +20,44 @@ import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
+import { useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { ExprFunctionName } from 'src/features/expressions/types';
 import type { ExternalApisResult } from 'src/features/externalApi/useExternalApi';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
-import type { DataElementSelector } from 'src/features/instance/InstanceContext';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CodeListSelector } from 'src/features/options/CodeListsProvider';
 import type { DSProps, DSPropsMatching } from 'src/hooks/delayedSelectors';
 import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IApplicationSettings, IInstanceDataSources, IProcess } from 'src/types/shared';
-import type { NodeDataSelector } from 'src/utils/layout/NodesContext';
 
 export interface ExpressionDataSources {
   process?: IProcess;
   instanceDataSources: IInstanceDataSources | null;
   applicationSettings: IApplicationSettings | null;
-  dataElementSelector: DataElementSelector;
+  dataElementSelector: ReturnType<typeof useDataElementsSelectorProps>;
   dataModelNames: string[];
   formDataSelector: FormDataSelector;
   attachmentsSelector: AttachmentsSelector;
   langToolsSelector: (dataModelPath: IDataModelReference | undefined) => IUseLanguage;
   currentLanguage: string;
   defaultDataType: string | null;
-  isHiddenSelector: ReturnType<typeof Hidden.useIsHiddenSelector>;
-  nodeDataSelector: NodeDataSelector;
   externalApis: ExternalApisResult;
   currentDataModelPath: IDataModelReference | undefined;
   codeListSelector: CodeListSelector;
   layoutLookups: LayoutLookups;
   displayValues: Record<string, string | undefined>;
+  hiddenComponents: Record<string, boolean | undefined>;
 }
 
 const multiSelectors = {
   formDataSelector: () => FD.useDebouncedSelectorProps(),
   attachmentsSelector: () => NodesInternal.useAttachmentsSelectorProps(),
-  nodeDataSelector: () => NodesInternal.useNodeDataSelectorProps(),
-  isHiddenSelector: () => Hidden.useIsHiddenSelectorProps(),
-  dataElementSelector: () => useLaxDataElementsSelectorProps(),
   codeListSelector: () => useCodeListSelectorProps(),
 } satisfies {
-  [K in keyof ExpressionDataSources]?: DSPropsMatching<ExpressionDataSources[K]>;
+  [K in keyof Omit<ExpressionDataSources, 'dataElementSelector'>]?: DSPropsMatching<ExpressionDataSources[K]>;
 };
 
 const directHooks = {
@@ -70,8 +66,9 @@ const directHooks = {
   currentLanguage: () => useCurrentLanguage(),
   currentDataModelPath: () => useCurrentDataModelLocation(),
   layoutLookups: () => useLayoutLookups(),
+  dataElementSelector: () => useDataElementsSelectorProps(),
   instanceDataSources: (isInGenerator) =>
-    isInGenerator ? GeneratorData.useLaxInstanceDataSources() : useLaxInstanceDataSources(),
+    isInGenerator ? GeneratorData.useLaxInstanceDataSources() : useInstanceDataSources(),
   defaultDataType: (isInGenerator) =>
     (isInGenerator ? GeneratorData.useDefaultDataType() : DataModels.useDefaultDataType()) ?? null,
   dataModelNames: (isInGenerator) =>
@@ -84,7 +81,11 @@ const directHooks = {
       isInGenerator ? GeneratorData.useReadableDataTypes() : DataModels.useReadableDataTypes(),
       FD.useDebouncedSelector(),
     ),
-} satisfies { [K in keyof ExpressionDataSources]?: (isInGenerator: boolean) => ExpressionDataSources[K] };
+} satisfies {
+  [K in keyof Omit<ExpressionDataSources, 'dataElementSelector'>]?: (
+    isInGenerator: boolean,
+  ) => ExpressionDataSources[K];
+} & { dataElementSelector: () => ReturnType<typeof useDataElementsSelectorProps> };
 
 export type DataSourceOverrides = {
   dataSources?: { [K in keyof ExpressionDataSources]?: () => ExpressionDataSources[K] };
@@ -100,10 +101,11 @@ export type DataSourceOverrides = {
 export function useExpressionDataSources(toEvaluate: unknown, overrides?: DataSourceOverrides): ExpressionDataSources {
   const { unsupportedDataSources, errorSuffix, dataSources: overriddenDataSources } = overrides ?? {};
 
-  const { neededDataSources, displayValueLookups } = useMemo(() => {
+  const { neededDataSources, displayValueLookups, componentLookups } = useMemo(() => {
     const functionCalls = new Set<ExprFunctionName>();
     const displayValueLookups = new Set<string>();
-    findUsedExpressionFunctions(toEvaluate, functionCalls, displayValueLookups);
+    const componentLookups = new Set<string>();
+    findUsedExpressionFunctions(toEvaluate, functionCalls, displayValueLookups, componentLookups);
 
     const neededDataSources = new Set<keyof ExpressionDataSources>();
     for (const functionName of functionCalls) {
@@ -119,7 +121,7 @@ export function useExpressionDataSources(toEvaluate: unknown, overrides?: DataSo
       }
     }
 
-    return { functionCalls, displayValueLookups, neededDataSources };
+    return { functionCalls, displayValueLookups, componentLookups, neededDataSources };
   }, [toEvaluate, unsupportedDataSources, errorSuffix]);
 
   // Build a multiple delayed selector for each needed data source
@@ -145,10 +147,14 @@ export function useExpressionDataSources(toEvaluate: unknown, overrides?: DataSo
       // have already checked the types in `multiSelectors`, so there's no point in doing it again here.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       output[key] = combined[combinedIndex++] as unknown as any;
+    } else if (key === 'dataElementSelector') {
+      output[key] = directHooks[key]();
     } else if (key in directHooks) {
       output[key] = directHooks[key](isInGenerator);
     } else if (key === 'displayValues') {
       output[key] = useDisplayDataFor([...displayValueLookups.values()]);
+    } else if (key === 'hiddenComponents') {
+      output[key] = useIsHiddenMulti([...componentLookups, ...displayValueLookups]);
     } else {
       throw new Error(`No hook found for data source ${key}`);
     }
@@ -161,6 +167,7 @@ function findUsedExpressionFunctions(
   subject: unknown,
   functionCalls: Set<ExprFunctionName>,
   displayValueLookups: Set<string>,
+  componentLookups: Set<string>,
 ) {
   if (!subject || typeof subject !== 'object') {
     return;
@@ -173,14 +180,18 @@ function findUsedExpressionFunctions(
       if (subject[0] === 'displayValue' && typeof subject[1] === 'string') {
         displayValueLookups.add(subject[1]);
       }
+
+      if (subject[0] === 'component' && typeof subject[1] === 'string') {
+        componentLookups.add(subject[1]);
+      }
     }
 
     for (const item of subject) {
-      findUsedExpressionFunctions(item, functionCalls, displayValueLookups);
+      findUsedExpressionFunctions(item, functionCalls, displayValueLookups, componentLookups);
     }
   } else {
     for (const key in subject) {
-      findUsedExpressionFunctions(subject[key], functionCalls, displayValueLookups);
+      findUsedExpressionFunctions(subject[key], functionCalls, displayValueLookups, componentLookups);
     }
   }
 }

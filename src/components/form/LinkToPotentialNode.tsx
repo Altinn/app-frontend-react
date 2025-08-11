@@ -2,8 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import type { LinkProps } from 'react-router-dom';
 
-import { SearchParams } from 'src/features/routing/AppRoutingContext';
-import { Hidden, useNode } from 'src/utils/layout/NodesContext';
+import { SearchParams } from 'src/hooks/navigation';
+import { useIsHidden } from 'src/utils/layout/hidden';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
 
 type Props = LinkProps & { children?: React.ReactNode };
 
@@ -19,21 +21,21 @@ export const LinkToPotentialNode = (props: Props) => {
   const searchParams = typeof to === 'string' ? to.split('?').at(1) : to.search;
 
   const componentId = new URLSearchParams(searchParams).get(SearchParams.FocusComponentId);
-  const resolvedNode = useNode(componentId ?? undefined);
+  const { baseComponentId } = splitDashedKey(componentId ?? '');
+  const component = useExternalItem(baseComponentId);
 
-  const nodeExists = resolvedNode != null;
-  const isNodeHidden = Hidden.useIsHidden(resolvedNode);
-  const shouldShowLink = nodeExists && !isNodeHidden;
+  const isHidden = useIsHidden(componentId ?? undefined);
+  const shouldShowLink = componentId && !isHidden;
 
   if (shouldShowLink) {
     return <Link {...props} />;
   }
 
-  if (!nodeExists) {
+  if (!component) {
     window.logWarnOnce(
-      `linkToComponent points to a component that does not exist. The link is therefore rendered as pure text. Component ID you tried to link to: ${componentId}`,
+      `linkToComponent points to a component that does not exist. The link is therefore rendered as pure text. Component ID you tried to link to: ${componentId} (base id was ${baseComponentId})`,
     );
-  } else if (isNodeHidden) {
+  } else if (isHidden) {
     window.logWarnOnce(
       `linkToComponent points to a component that is hidden. The link is therefore rendered as pure text. Component ID you tried to link to: ${componentId}`,
     );

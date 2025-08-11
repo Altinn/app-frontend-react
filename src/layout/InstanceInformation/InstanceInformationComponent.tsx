@@ -8,7 +8,7 @@ import { PrettyDateAndTime } from 'src/app-components/Datepicker/utils/dateHelpe
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
-import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
@@ -65,7 +65,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
 
   const langTools = useLanguage();
 
-  const lastChanged = useLaxInstanceData((data) => data.lastChanged);
+  const lastChanged = useInstanceDataQuery({ select: (data) => data.lastChanged }).data;
   const instanceId = useLaxInstanceId();
   const appReceiver = useAppReceiver();
 
@@ -99,12 +99,12 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
 }
 
 export function InstanceInformationComponent({
-  node,
+  baseComponentId,
   overrideDisplay,
 }: PropsFromGenericComponent<'InstanceInformation'>) {
-  const { grid, elements } = useExternalItem(node.baseId, 'InstanceInformation');
+  const { grid, elements } = useExternalItem(baseComponentId, 'InstanceInformation');
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
-    baseComponentId: node.baseId,
+    baseComponentId,
     overrideDisplay,
   });
 
@@ -115,7 +115,7 @@ export function InstanceInformationComponent({
       description={getDescriptionComponent()}
       help={getHelpTextComponent()}
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <InstanceInformation elements={elements} />
       </ComponentStructureWrapper>
     </Fieldset>

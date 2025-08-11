@@ -17,8 +17,14 @@ export const PageNavigationRouter =
         initialEntries: [
           `/ttd/test/instance/1337/dfe95272-6873-48a6-abae-57b3f7c18689/${currentTaskId}/${currentPageId}`,
         ],
+        future: { v7_relativeSplatPath: true },
       },
     );
 
-    return <RouterProvider router={router} />;
+    return (
+      <RouterProvider
+        router={router}
+        future={{ v7_startTransition: true }}
+      />
+    );
   };

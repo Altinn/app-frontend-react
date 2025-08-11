@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 import { getComponentConfigs } from 'src/layout/components.generated';
 import type { DisplayData } from 'src/features/displayData';
@@ -7,8 +7,6 @@ import type { BaseValidation, ComponentValidation } from 'src/features/validatio
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
 import type { CompIntermediate, CompInternal, CompTypes } from 'src/layout/layout';
-import type { AnyComponent } from 'src/layout/LayoutComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 import type { BaseRow } from 'src/utils/layout/types';
 
 type ComponentConfigs = ReturnType<typeof getComponentConfigs>;
@@ -24,18 +22,13 @@ export type CompClassMapCategories = {
 export type CompDef<T extends CompTypes = CompTypes> = ComponentConfigs[T]['def'];
 
 export interface IComponentProps {
-  containerDivRef: MutableRefObject<HTMLDivElement | null>;
+  containerDivRef: RefObject<HTMLDivElement | null>;
 }
 
 export interface PropsFromGenericComponent<T extends CompTypes = CompTypes> extends IComponentProps {
-  node: LayoutNode<T>;
+  baseComponentId: string;
   overrideItemProps?: Partial<Omit<CompInternal<T>, 'id'>>;
   overrideDisplay?: IGenericComponentProps<T>['overrideDisplay'];
-}
-
-export function getNodeDef<T extends CompTypes>(node: LayoutNode<T>): CompClassMap[T] & AnyComponent<T> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return node.def as any;
 }
 
 export function getComponentDef<T extends keyof CompClassMap>(type: T): CompClassMap[T] {
@@ -129,4 +122,12 @@ export function isDataModelBindingsRequired(baseComponentId: string, lookups: La
 
 export function implementsSubRouting<T extends CompTypes>(def: CompDef<T>): def is CompDef<T> & SubRouting {
   return 'subRouting' in def;
+}
+
+export function implementsIsChildHidden<T extends CompTypes>(
+  def: CompDef<T>,
+): def is CompDef<T> & {
+  isChildHidden: (parentBaseId: string, childBaseId: string, layoutLookups: LayoutLookups) => boolean;
+} {
+  return 'isChildHidden' in def;
 }

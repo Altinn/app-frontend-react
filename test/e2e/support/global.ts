@@ -177,11 +177,6 @@ declare global {
       waitUntilSaved(): Chainable<null>;
 
       /**
-       * Wait until the node generation/hierarchy is ready after processing changes
-       */
-      waitUntilNodesReady(): Chainable<null>;
-
-      /**
        * Check a checkbox/radio from the design system.
        * Our design system radios/checkboxes are a little special, as they hide the HTML input element and provide
        * their own stylized variant. Cypress can't check/uncheck a hidden input field, and although we can tell
@@ -198,6 +193,11 @@ declare global {
        * Waits until a design system element (Combobox, etc) is ready to be clicked.
        */
       dsReady(selector: string): Chainable<null>;
+
+      /**
+       * Clears a design system element (Combobox, etc) by invoking the input field's value to an empty string.
+       */
+      dsClear(selector: string): Chainable<null>;
 
       /**
        * Select from a dropdown in the design system
@@ -233,12 +233,19 @@ declare global {
        *  - The snapshot does not overlap with other snapshots. Multiple snapshots on the same page in the same state
        *    will cause confusion, and eat up our Percy.io quota.
        */
-      snapshot(name: string, options?: Partial<SnapshotOptions>): Chainable<null>;
+      visualTesting(name: string, options?: Partial<SnapshotOptions>): Chainable<null>;
 
       /**
        * Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
        */
       testWcag(): Chainable<null>;
+
+      /**
+       * Runs a snapshot test on something, to compare it with a known good value
+       * @see https://www.cypress.io/blog/end-to-end-snapshot-testing
+       */
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      snapshot(options?: any): Chainable<null>;
 
       /**
        * Useful when taking snapshots; clear all selections and wait for the app to finish loading and stabilizing.
