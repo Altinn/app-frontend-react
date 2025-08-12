@@ -293,7 +293,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const addNode = useCallback(
     (req: AddNodeRequest) => {
       registry.current.toCommit.addNodeRequests.push(req);
-      registry.current.triggerAutoCommit?.();
+      registry.current.triggerAutoCommit?.((prev) => prev + 1);
     },
     [registry],
   );
@@ -301,7 +301,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const removeNode = useCallback(
     (req: RemoveNodeRequest) => {
       registry.current.toCommit.removeNodeRequests.push(req);
-      registry.current.triggerAutoCommit?.();
+      registry.current.triggerAutoCommit?.((prev) => prev + 1);
     },
     [registry],
   );
@@ -309,7 +309,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const setNodeProp = useCallback(
     (req: SetNodePropRequest) => {
       registry.current.toCommit.nodePropsRequests.push(req);
-      registry.current.triggerAutoCommit?.();
+      registry.current.triggerAutoCommit?.((prev) => prev + 1);
     },
     [registry],
   );
@@ -340,12 +340,10 @@ function AutoCommit({ registry }: { registry: RefObject<Registry> }) {
   const [renderCount, forceRender] = useState(0);
 
   const reg = registry.current;
-  if (reg && !reg.triggerAutoCommit) {
+  if (reg && reg.triggerAutoCommit !== forceRender) {
     // Store the trigger function in the registry so the parent can call it
     // eslint-disable-next-line react-compiler/react-compiler
-    reg.triggerAutoCommit = () => {
-      forceRender((prev) => prev + 1);
-    };
+    reg.triggerAutoCommit = forceRender;
   }
 
   useLayoutEffect(() => {

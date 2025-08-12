@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, SetStateAction } from 'react';
 
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
@@ -12,7 +12,7 @@ import type { AddNodeRequest, RemoveNodeRequest, SetNodePropRequest } from 'src/
  * reactive.
  */
 export type Registry = {
-  triggerAutoCommit: (() => void) | undefined;
+  triggerAutoCommit: ((value: SetStateAction<number>) => void) | undefined;
   validationsProcessed: {
     [nodeId: string]: ValidationsProcessedLast;
   };
