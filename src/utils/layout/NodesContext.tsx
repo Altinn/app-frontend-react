@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PropsWithChildren, RefObject } from 'react';
 
 import deepEqual from 'fast-deep-equal';
@@ -284,38 +284,16 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const reset = Store.useSelector((s) => s.reset);
   const getProcessedLast = Validation.useGetProcessedLast();
 
-  const addNodes = Store.useStaticSelector((s) => s.addNodes);
-  const removeNodes = Store.useStaticSelector((s) => s.removeNodes);
-  const setNodeProps = Store.useStaticSelector((s) => s.setNodeProps);
-
-  const [renderCount, setRenderCount] = React.useState(0);
-
   useEffect(() => {
     if (layouts !== latestLayouts) {
       reset(latestLayouts, getProcessedLast());
     }
   }, [latestLayouts, layouts, reset, getProcessedLast]);
 
-  useLayoutEffect(() => {
-    if (registry.current.toCommit.addNodeRequests.length > 0) {
-      addNodes(registry.current.toCommit.addNodeRequests);
-      // eslint-disable-next-line react-compiler/react-compiler
-      registry.current.toCommit.addNodeRequests.length = 0;
-    }
-    if (registry.current.toCommit.removeNodeRequests.length > 0) {
-      removeNodes(registry.current.toCommit.removeNodeRequests);
-      registry.current.toCommit.removeNodeRequests.length = 0;
-    }
-    if (registry.current.toCommit.nodePropsRequests.length > 0) {
-      setNodeProps(registry.current.toCommit.nodePropsRequests);
-      registry.current.toCommit.nodePropsRequests.length = 0;
-    }
-  }, [addNodes, removeNodes, setNodeProps, renderCount, registry]);
-
   const addNode = useCallback(
     (req: AddNodeRequest) => {
       registry.current.toCommit.addNodeRequests.push(req);
-      setRenderCount((count) => count + 1);
+      registry.current.triggerAutoCommit?.();
     },
     [registry],
   );
@@ -323,7 +301,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const removeNode = useCallback(
     (req: RemoveNodeRequest) => {
       registry.current.toCommit.removeNodeRequests.push(req);
-      setRenderCount((count) => count + 1);
+      registry.current.triggerAutoCommit?.();
     },
     [registry],
   );
@@ -331,7 +309,7 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
   const setNodeProp = useCallback(
     (req: SetNodePropRequest) => {
       registry.current.toCommit.nodePropsRequests.push(req);
-      setRenderCount((count) => count + 1);
+      registry.current.triggerAutoCommit?.();
     },
     [registry],
   );
@@ -349,9 +327,43 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
       removeNode={removeNode}
       setNodeProp={setNodeProp}
     >
+      <AutoCommit registry={registry} />
       {children}
     </GeneratorGlobalProvider>
   );
+}
+
+function AutoCommit({ registry }: { registry: RefObject<Registry> }) {
+  const addNodes = Store.useStaticSelector((s) => s.addNodes);
+  const removeNodes = Store.useStaticSelector((s) => s.removeNodes);
+  const setNodeProps = Store.useStaticSelector((s) => s.setNodeProps);
+  const [renderCount, forceRender] = useState(0);
+
+  const reg = registry.current;
+  if (reg && !reg.triggerAutoCommit) {
+    // Store the trigger function in the registry so the parent can call it
+    // eslint-disable-next-line react-compiler/react-compiler
+    reg.triggerAutoCommit = () => {
+      forceRender((prev) => prev + 1);
+    };
+  }
+
+  useLayoutEffect(() => {
+    if (registry.current.toCommit.addNodeRequests.length > 0) {
+      addNodes(registry.current.toCommit.addNodeRequests);
+      registry.current.toCommit.addNodeRequests.length = 0;
+    }
+    if (registry.current.toCommit.removeNodeRequests.length > 0) {
+      removeNodes(registry.current.toCommit.removeNodeRequests);
+      registry.current.toCommit.removeNodeRequests.length = 0;
+    }
+    if (registry.current.toCommit.nodePropsRequests.length > 0) {
+      setNodeProps(registry.current.toCommit.nodePropsRequests);
+      registry.current.toCommit.nodePropsRequests.length = 0;
+    }
+  }, [addNodes, removeNodes, setNodeProps, registry, renderCount]);
+
+  return null;
 }
 
 function BlockUntilRulesRan({ children }: PropsWithChildren) {

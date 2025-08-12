@@ -12,6 +12,7 @@ import type { AddNodeRequest, RemoveNodeRequest, SetNodePropRequest } from 'src/
  * reactive.
  */
 export type Registry = {
+  triggerAutoCommit: (() => void) | undefined;
   validationsProcessed: {
     [nodeId: string]: ValidationsProcessedLast;
   };
@@ -29,6 +30,7 @@ export type Registry = {
  */
 export function useRegistry() {
   return useRef<Registry>({
+    triggerAutoCommit: undefined,
     validationsProcessed: {},
     toCommit: {
       addNodeRequests: [],
