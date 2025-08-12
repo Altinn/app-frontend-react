@@ -30,6 +30,7 @@ import { useExternalItem } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { GridCell, ITableColumnFormatting } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
+import type { IGroupColumnFormatting } from 'src/layout/RepeatingGroup/config.generated';
 import type { BaseRow } from 'src/utils/layout/types';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
@@ -277,7 +278,7 @@ function TitleCell({
   columnSettings,
 }: {
   baseComponentId: string;
-  columnSettings: ITableColumnFormatting;
+  columnSettings: IGroupColumnFormatting;
 }) {
   const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
 
