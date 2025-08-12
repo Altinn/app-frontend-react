@@ -145,19 +145,11 @@ function PaginationComponent({
             {!hideLabels && previousLabel}
           </Pagination.Button>
         </Pagination.Item>
-        {pages.map(({ page, buttonProps, itemKey }, idx) => {
+        {pages.map(({ page, buttonProps, itemKey }) => {
           const hasErrors = typeof page === 'number' && pagesWithErrors.includes(page - 1);
           const label = hasErrors
             ? `${langAsString('general.edit_alt_error')}: ${langAsString('general.page_number', [page])}`
             : langAsString('general.page_number', [page]);
-
-          if (
-            (typeof page === 'number' && page < 0) ||
-            (typeof page !== 'number' && idx === 1 && pages[0].page === -1)
-          ) {
-            // Work around https://github.com/digdir/designsystemet/issues/3877
-            return null;
-          }
 
           if (typeof page !== 'number') {
             return <Pagination.Item key={itemKey} />;
