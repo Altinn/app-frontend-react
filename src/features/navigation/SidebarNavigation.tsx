@@ -16,11 +16,11 @@ export function SideBarNavigation() {
   }
 
   return (
-    <aside className={classes.sidebarContainer}>
+    <div className={classes.sidebarContainer}>
       <AppNavigationHeading />
       <nav aria-labelledby={appNavigationHeadingId}>
         <AppNavigation />
       </nav>
-    </aside>
+    </div>
   );
 }
