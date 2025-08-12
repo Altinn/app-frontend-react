@@ -435,6 +435,7 @@ describe('Validation', () => {
 
     // Filling out the remaining field should let us save the group and hide leftover errors
     cy.get(appFrontend.group.row(2).newValue).type('456');
+    cy.waitUntilSaved();
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
