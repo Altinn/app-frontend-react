@@ -9,12 +9,12 @@ import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { type SigneeState } from 'src/layout/SigneeList/api';
-import type { AuthorizedOrganizationDetails } from 'src/layout/SigningActions/api';
+import type { AuthorizedOrganizationDetails, OnBehalfOf } from 'src/layout/SigningActions/api';
 
 interface OnBehalfOfChooserProps {
   currentUserSignee: SigneeState | undefined;
   authorizedOrganizationDetails: AuthorizedOrganizationDetails['organizations'];
-  onBehalfOfOrg: string | null;
+  onBehalfOf: OnBehalfOf | null;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   error: boolean;
 }
@@ -22,7 +22,7 @@ interface OnBehalfOfChooserProps {
 export const OnBehalfOfChooser = ({
   currentUserSignee,
   authorizedOrganizationDetails,
-  onBehalfOfOrg,
+  onBehalfOf,
   onChange,
   error = false,
 }: Readonly<OnBehalfOfChooserProps>) => {
@@ -42,18 +42,18 @@ export const OnBehalfOfChooser = ({
           name='onBehalfOf'
           key={currentUserSignee.partyId}
           onChange={onChange}
-          checked={onBehalfOfOrg === ''}
+          checked={onBehalfOf?.orgNoOrSsn === ''}
         />
       )}
 
       {authorizedOrganizationDetails.map((org) => (
         <RadioButton
-          value={org.orgNumber}
+          value={org.partyId}
           label={org.orgName}
           name='onBehalfOf'
           key={org.partyId}
           onChange={onChange}
-          checked={onBehalfOfOrg === org.orgNumber}
+          checked={onBehalfOf?.orgNoOrSsn === org.orgNumber}
         />
       ))}
       {error && (

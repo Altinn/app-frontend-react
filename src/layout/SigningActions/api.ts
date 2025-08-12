@@ -11,6 +11,7 @@ import { doPerformAction } from 'src/queries/queries';
 import { httpGet } from 'src/utils/network/sharedNetworking';
 import { capitalizeName } from 'src/utils/stringHelper';
 import { appPath } from 'src/utils/urls/appUrlHelper';
+import type { SigneeState } from 'src/layout/SigneeList/api';
 
 const authorizedOrganizationDetailsSchema = z.object({
   organizations: z.array(
@@ -81,24 +82,38 @@ export function useUserSigneeParties() {
   return signeeList.filter((signee) => authorizedPartyIds.includes(signee.partyId));
 }
 
+export type OnBehalfOf = { orgNoOrSsn: string; partyId: string };
+
 export function useSigningMutation() {
-  const { instanceOwnerPartyId, instanceGuid } = useParams();
+  const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const selectedLanguage = useCurrentLanguage();
   const queryClient = useQueryClient();
+  const currentUserPartyId = useProfile()?.partyId.toString();
 
   return useMutation({
-    mutationFn: async (onBehalfOf: string | null) => {
+    mutationFn: async (onBehalfOf: OnBehalfOf | null) => {
       if (instanceOwnerPartyId && instanceGuid) {
         return doPerformAction(
           instanceOwnerPartyId,
           instanceGuid,
-          { action: 'sign', ...(onBehalfOf ? { onBehalfOf } : {}) },
+          { action: 'sign', ...(onBehalfOf ? { onBehalfOf: onBehalfOf.orgNoOrSsn } : {}) },
           selectedLanguage,
           queryClient,
         );
       }
     },
-    onSuccess: () => {
+    onSuccess: (_data, onBehalfOf) => {
+      // optimistically update data in cache
+      const signeeListQueryKey = signingQueries.signeeList(instanceOwnerPartyId, instanceGuid, taskId).queryKey;
+      queryClient.setQueryData<SigneeState[]>(signeeListQueryKey, (signeeList) => {
+        const partyId = onBehalfOf?.partyId ?? currentUserPartyId;
+        if (!signeeList || !partyId) {
+          return undefined;
+        }
+
+        return signeeList.map((signee) => ({ ...signee, hasSigned: signee.partyId.toString() === partyId }));
+      });
+
       // Refetch all queries related to signing to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: signingQueries.all });
     },
