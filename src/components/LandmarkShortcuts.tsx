@@ -3,6 +3,7 @@ import React from 'react';
 import cn from 'classnames';
 
 import classes from 'src/components/LandmarkShortcuts.module.css';
+import { useLanguage } from 'src/features/language/useLanguage';
 
 export interface ILandmarkShortcutsProps {
   shortcuts: ILandmarkShortcut[];
@@ -14,6 +15,7 @@ interface ILandmarkShortcut {
 }
 
 export function LandmarkShortcuts({ shortcuts }: ILandmarkShortcutsProps) {
+  const { langAsString } = useLanguage();
   const handleClick = (id: string) => {
     // workaround because we still use a hash-router (sigh...)
     // can be replaced by the more elegant solution <a href="#main-content></a> once this is no longer the case.
@@ -27,7 +29,7 @@ export function LandmarkShortcuts({ shortcuts }: ILandmarkShortcutsProps) {
   };
 
   return (
-    <nav aria-label='Til hovedinnhold'>
+    <div aria-label={langAsString('navigation.to_main_content')}>
       {shortcuts.map((shortcut) => (
         <button
           key={shortcut.id}
@@ -38,6 +40,6 @@ export function LandmarkShortcuts({ shortcuts }: ILandmarkShortcutsProps) {
           {shortcut.text}
         </button>
       ))}
-    </nav>
+    </div>
   );
 }
