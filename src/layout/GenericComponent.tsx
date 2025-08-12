@@ -214,33 +214,40 @@ export function ComponentErrorList({ baseComponentId, errors }: { baseComponentI
 function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObject<HTMLDivElement | null>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const indexedId = searchParams.get(SearchParams.FocusComponentId);
-  const searchParamBindingError = searchParams.get(SearchParams.FocusErrorBinding);
+  const binding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
+  const element = indexedId === nodeId ? findElementToFocus(containerDivRef.current, binding) : null;
+  const hasFocus = document.activeElement === element;
 
   useEffect(() => {
-    if (!indexedId || indexedId !== nodeId || isNavigating) {
+    const div = containerDivRef.current;
+    if (!indexedId || indexedId !== nodeId || isNavigating || !div || hasFocus) {
       return;
     }
 
-    requestAnimationFrame(() => containerDivRef.current?.scrollIntoView({ behavior: 'instant' }));
-    const targetElements = containerDivRef.current?.querySelectorAll('input,textarea,select,p');
-    const targetHtmlElements = targetElements
-      ? Array.from(targetElements).filter((node) => node instanceof HTMLElement)
-      : [];
+    requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
+    findElementToFocus(div, binding)?.focus();
 
-    if (targetHtmlElements?.length > 0) {
-      const errorElement = searchParamBindingError
-        ? Array.from(targetHtmlElements).find(
-            (htmlElement) => htmlElement && htmlElement.dataset.bindingkey === searchParamBindingError,
-          )
-        : undefined;
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete(SearchParams.FocusComponentId);
+    newSearchParams.delete(SearchParams.FocusErrorBinding);
+    setSearchParams(newSearchParams, { replace: true });
+  }, [containerDivRef, binding, searchParams, setSearchParams, nodeId, indexedId, isNavigating, hasFocus]);
+}
 
-      // Focus error element or fallback to first element if no error or matching binding
-      (errorElement ?? targetHtmlElements[0]).focus();
-    }
+function findElementToFocus(div: HTMLDivElement | null, binding: string | null) {
+  const targetElements = div?.querySelectorAll('input,textarea,select,p');
+  const targetHtmlElements = targetElements
+    ? Array.from(targetElements).filter((node) => node instanceof HTMLElement)
+    : [];
 
-    searchParams.delete(SearchParams.FocusComponentId);
-    searchParams.delete(SearchParams.FocusErrorBinding);
-    setSearchParams(searchParams, { replace: true });
-  }, [nodeId, indexedId, searchParamBindingError, containerDivRef, searchParams, setSearchParams, isNavigating]);
+  if (targetHtmlElements?.length > 0) {
+    const elementWithBinding = binding
+      ? Array.from(targetHtmlElements).find((htmlElement) => htmlElement && htmlElement.dataset.bindingkey === binding)
+      : undefined;
+
+    return elementWithBinding ?? targetHtmlElements[0];
+  }
+
+  return undefined;
 }
