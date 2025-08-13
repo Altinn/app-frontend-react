@@ -14,8 +14,8 @@ export function useLayoutSetsQueryDef() {
   const { fetchLayoutSets } = useAppQueries();
   return {
     queryKey: ['fetchLayoutSets'],
-    queryFn: fetchLayoutSets,
-    select: (layoutSets: ILayoutSets) => {
+    queryFn: async () => {
+      const layoutSets = await fetchLayoutSets();
       if (layoutSets?.uiSettings?.taskNavigation) {
         return {
           ...layoutSets,
