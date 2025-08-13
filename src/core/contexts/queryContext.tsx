@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import type { UseQueryResult } from '@tanstack/react-query';
@@ -18,13 +18,9 @@ type Query<Req extends boolean, QueryData> = () => Req extends true
 
 type ContextProps<Ctx, Req extends boolean> = Req extends true ? StrictContextProps : LaxContextProps<Ctx>;
 
-export type QueryContextProps<QueryData, Req extends boolean, ContextData = QueryData> = ContextProps<
-  ContextData,
-  Req
-> & {
+export type QueryContextProps<QueryData, Req extends boolean> = ContextProps<QueryData, Req> & {
   query: Query<Req, QueryData>;
 
-  process?: (data: QueryData) => ContextData;
   shouldDisplayError?: (error: Err) => boolean;
 
   DisplayError?: React.ComponentType<{ error: Err }>;
@@ -38,26 +34,23 @@ export type QueryContextProps<QueryData, Req extends boolean, ContextData = Quer
  * Remember to call this through a delayedContext() call to prevent problems with cyclic imports.
  * @see delayedContext
  */
-export function createQueryContext<QD, Req extends boolean, CD = QD>(props: QueryContextProps<QD, Req, CD>) {
+export function createQueryContext<QD, Req extends boolean>(props: QueryContextProps<QD, Req>) {
   const {
     name,
     required,
     query,
-    process = (i: QD) => i as unknown as CD,
     shouldDisplayError = () => true,
     DisplayError = DefaultDisplayError,
     Loader = DefaultLoader,
     ...rest
   } = props;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { Provider, useCtx, useLaxCtx, useHasProvider } = createContext<CD>({ name, required, ...(rest as any) });
-  const defaultValue = ('default' in rest ? rest.default : undefined) as CD;
+  const { Provider, useCtx, useLaxCtx, useHasProvider } = createContext<QD>({ name, required, ...(rest as any) });
+  const defaultValue = ('default' in rest ? rest.default : undefined) as QD;
 
-  const WrappingProvider = ({ children }: PropsWithChildren) => {
+  function WrappingProvider({ children }: PropsWithChildren) {
     const { data, isPending, error, ...rest } = query();
     const enabled = 'enabled' in rest && !required ? rest.enabled : true;
-
-    const value = useMemo(() => (typeof data !== 'undefined' ? process(data) : undefined), [data]);
 
     if (enabled && isPending) {
       return <Loader reason={`query-${name}`} />;
@@ -67,8 +60,8 @@ export function createQueryContext<QD, Req extends boolean, CD = QD>(props: Quer
       return <DisplayError error={error as Error} />;
     }
 
-    return <Provider value={enabled ? (value ?? defaultValue) : defaultValue}>{children}</Provider>;
-  };
+    return <Provider value={enabled ? (data ?? defaultValue) : defaultValue}>{children}</Provider>;
+  }
 
   return {
     Provider: WrappingProvider,
