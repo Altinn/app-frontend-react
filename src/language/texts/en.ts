@@ -115,7 +115,7 @@ export function en() {
     'form_filler.organisation_lookup_orgnr': 'organisation number',
     'form_filler.organisation_lookup_name': 'organisation name',
     'navigation.main': 'Primary',
-    'navigation.form': 'Form',
+    'navigation.form': 'Form pages',
     'navigation.to_main_content': 'Go to main content',
     'navigation.go_to_task': 'Navigate to {0}',
     'navigation.form_pages': 'Form pages',
