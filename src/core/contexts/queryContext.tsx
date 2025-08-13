@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import type { UseQueryResult } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { createContext } from 'src/core/contexts/context';
-import { DisplayError as DefaultDisplayError } from 'src/core/errorHandling/DisplayError';
-import { Loader as DefaultLoader } from 'src/core/loading/Loader';
+import { DisplayError } from 'src/core/errorHandling/DisplayError';
+import { Loader } from 'src/core/loading/Loader';
 import type { LaxContextProps, StrictContextProps } from 'src/core/contexts/context';
 
 type Err = Error | AxiosError;
@@ -20,11 +20,7 @@ type ContextProps<Ctx, Req extends boolean> = Req extends true ? StrictContextPr
 
 export type QueryContextProps<QueryData, Req extends boolean> = ContextProps<QueryData, Req> & {
   query: Query<Req, QueryData>;
-
   shouldDisplayError?: (error: Err) => boolean;
-
-  DisplayError?: React.ComponentType<{ error: Err }>;
-  Loader?: React.ComponentType<{ reason: string }>;
 };
 
 /**
@@ -35,22 +31,15 @@ export type QueryContextProps<QueryData, Req extends boolean> = ContextProps<Que
  * @see delayedContext
  */
 export function createQueryContext<QD, Req extends boolean>(props: QueryContextProps<QD, Req>) {
-  const {
-    name,
-    required,
-    query,
-    shouldDisplayError = () => true,
-    DisplayError = DefaultDisplayError,
-    Loader = DefaultLoader,
-    ...rest
-  } = props;
+  const { name, required, query: useQuery, shouldDisplayError = () => true, ...rest } = props;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { Provider, useCtx, useLaxCtx, useHasProvider } = createContext<QD>({ name, required, ...(rest as any) });
   const defaultValue = ('default' in rest ? rest.default : undefined) as QD;
 
   function WrappingProvider({ children }: PropsWithChildren) {
-    const { data, isPending, error, ...rest } = query();
+    const { data, isPending, error, ...rest } = useQuery();
     const enabled = 'enabled' in rest && !required ? rest.enabled : true;
+    const value = useMemo(() => data, [data]);
 
     if (enabled && isPending) {
       return <Loader reason={`query-${name}`} />;
@@ -60,7 +49,7 @@ export function createQueryContext<QD, Req extends boolean>(props: QueryContextP
       return <DisplayError error={error as Error} />;
     }
 
-    return <Provider value={enabled ? (data ?? defaultValue) : defaultValue}>{children}</Provider>;
+    return <Provider value={enabled ? (value ?? defaultValue) : defaultValue}>{children}</Provider>;
   }
 
   return {
