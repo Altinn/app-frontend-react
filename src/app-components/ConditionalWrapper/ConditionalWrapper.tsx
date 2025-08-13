@@ -13,6 +13,7 @@ export const ConditionalWrapper = ({
   otherwise,
   children,
 }: PropsWithChildren<IConditionalWrapperProps>) => {
+  console.log('hei');
   if (condition) {
     return wrapper(children);
   } else if (otherwise) {
