@@ -82,7 +82,12 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
           readOnly={readOnly}
           isDialogOpen={isDialogOpen}
           setIsDialogOpen={setIsDialogOpen}
-          trigger={<CalendarIcon title={calendarIconTitle} />}
+          trigger={
+            <CalendarIcon
+              title={calendarIconTitle}
+              id={calendarIconTitle}
+            />
+          }
         >
           <DatePickerCalendar
             id={id}
