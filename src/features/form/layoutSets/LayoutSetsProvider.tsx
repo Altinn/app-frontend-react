@@ -15,6 +15,18 @@ export function useLayoutSetsQueryDef() {
   return {
     queryKey: ['fetchLayoutSets'],
     queryFn: fetchLayoutSets,
+    select: (layoutSets: ILayoutSets) => {
+      if (layoutSets?.uiSettings?.taskNavigation) {
+        return {
+          ...layoutSets,
+          uiSettings: {
+            ...layoutSets.uiSettings,
+            taskNavigation: layoutSets.uiSettings.taskNavigation.map((g) => ({ ...g, id: uuidv4() })),
+          },
+        };
+      }
+      return layoutSets;
+    },
   };
 }
 
@@ -33,18 +45,6 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
     name: 'LayoutSets',
     required: true,
     query: useLayoutSetsQuery,
-    process: (layoutSets) => {
-      if (layoutSets?.uiSettings?.taskNavigation) {
-        return {
-          ...layoutSets,
-          uiSettings: {
-            ...layoutSets.uiSettings,
-            taskNavigation: layoutSets.uiSettings.taskNavigation.map((g) => ({ ...g, id: uuidv4() })),
-          },
-        };
-      }
-      return layoutSets;
-    },
   }),
 );
 
