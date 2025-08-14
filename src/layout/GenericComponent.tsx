@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigation, useSearchParams } from 'react-router-dom';
 
 import classNames from 'classnames';
@@ -214,25 +214,27 @@ export function ComponentErrorList({ baseComponentId, errors }: { baseComponentI
 function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObject<HTMLDivElement | null>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const indexedId = searchParams.get(SearchParams.FocusComponentId);
-  const binding = searchParams.get(SearchParams.FocusErrorBinding);
+  const errorBinding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
-  const element = indexedId === nodeId ? findElementToFocus(containerDivRef.current, binding) : null;
-  const hasFocus = document.activeElement === element;
+  const [elementToFocus, setElementToFocus] = useState<HTMLElement | undefined>();
+  const hasFocus = document.activeElement === elementToFocus;
 
   useEffect(() => {
     const div = containerDivRef.current;
     if (!indexedId || indexedId !== nodeId || isNavigating || !div || hasFocus) {
       return;
     }
-
-    requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
-    findElementToFocus(div, binding)?.focus();
+    const newElementToFocus = findElementToFocus(div, errorBinding);
+    setElementToFocus(newElementToFocus);
 
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete(SearchParams.FocusComponentId);
     newSearchParams.delete(SearchParams.FocusErrorBinding);
-    setSearchParams(newSearchParams, { replace: true });
-  }, [containerDivRef, binding, searchParams, setSearchParams, nodeId, indexedId, isNavigating, hasFocus]);
+    setSearchParams(newSearchParams, { replace: true, preventScrollReset: true });
+
+    requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
+    newElementToFocus?.focus();
+  }, [containerDivRef, errorBinding, searchParams, setSearchParams, nodeId, indexedId, isNavigating, hasFocus]);
 }
 
 function findElementToFocus(div: HTMLDivElement | null, binding: string | null) {
