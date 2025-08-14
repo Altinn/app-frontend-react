@@ -28,10 +28,7 @@ import type { NodeRefValidation } from 'src/features/validation';
 export interface NavigateToPageOptions {
   replace?: boolean;
   skipAutoSave?: boolean;
-  shouldFocusComponent?: boolean;
   resetReturnToView?: boolean;
-  exitSubform?: boolean;
-  focusComponentId?: string;
   searchParams?: URLSearchParams;
 }
 
@@ -253,12 +250,13 @@ export function useNavigatePage() {
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {
+      const exitSubform = options?.searchParams?.has(SearchParams.ExitSubform, 'true') ?? false;
       const replace = options?.replace ?? false;
       if (!page) {
         window.logWarn('navigateToPage called without page');
         return;
       }
-      if (!orderRef.current.includes(page) && options?.exitSubform !== true) {
+      if (!orderRef.current.includes(page) && !exitSubform) {
         window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
@@ -266,7 +264,7 @@ export function useNavigatePage() {
       if (options?.skipAutoSave !== true) {
         await maybeSaveOnPageChange();
       }
-      if (options?.exitSubform) {
+      if (exitSubform) {
         await refetchInitialValidations();
       }
 
@@ -278,7 +276,7 @@ export function useNavigatePage() {
       const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
 
       // Subform
-      if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
+      if (mainPageKey && componentId && dataElementId && !exitSubform) {
         const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
@@ -289,17 +287,6 @@ export function useNavigatePage() {
         options.searchParams.forEach((value, key) => {
           searchParams.set(key, value);
         });
-      }
-
-      // Special cases for component focus and subform exit
-      if (options?.focusComponentId || options?.exitSubform) {
-        if (options?.focusComponentId) {
-          searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
-        }
-
-        if (options?.exitSubform) {
-          searchParams.set(SearchParams.ExitSubform, 'true');
-        }
       }
 
       url = `${url}?${searchParams.toString()}`;
@@ -373,11 +360,13 @@ export function useNavigatePage() {
       return;
     }
 
-    await navigateToPage(navParams.current.mainPageKey, {
-      exitSubform: true,
-      resetReturnToView: false,
-      focusComponentId: navParams.current.componentId,
-    });
+    const searchParams = new URLSearchParams();
+    searchParams.set(SearchParams.ExitSubform, 'true');
+    const navigateTo = navParams.current.componentId;
+    if (navigateTo) {
+      searchParams.set(SearchParams.FocusComponentId, navigateTo);
+    }
+    await navigateToPage(navParams.current.mainPageKey, { searchParams, resetReturnToView: false });
   };
 
   const enterSubform = async ({
@@ -416,7 +405,7 @@ export function useNavigatePage() {
 }
 
 export function focusMainContent(options?: NavigateToPageOptions) {
-  if (options?.shouldFocusComponent !== true) {
+  if (!options?.searchParams?.has(SearchParams.FocusComponentId)) {
     document.getElementById('main-content')?.focus({ preventScroll: true });
   }
 }
@@ -458,11 +447,11 @@ export function useNavigateToComponent() {
     }
 
     if (targetPage && targetPage !== currentPageId) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set(SearchParams.FocusComponentId, indexedId);
       await navigateToPage(targetPage, {
         ...options?.pageNavOptions,
-        shouldFocusComponent: true,
-        focusComponentId: indexedId,
-        searchParams,
+        searchParams: newSearchParams,
         replace: !!searchParams.get(SearchParams.FocusComponentId) || !!searchParams.get(SearchParams.ExitSubform),
       });
     } else {
