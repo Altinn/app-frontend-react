@@ -1,0 +1,133 @@
+.timePickerContainer {
+  display: inline-flex;
+  align-items: center;
+  background: var(--digdir-color-neutral-white);
+  border: 1px solid var(--digdir-color-neutral-grey-300);
+  border-radius: var(--digdir-border-radius-medium);
+  padding: 0;
+  position: relative;
+  width: fit-content;
+  min-height: 44px;
+}
+
+.timePickerContainer:focus-within {
+  outline: 2px solid var(--digdir-color-accent-blue-500);
+  outline-offset: 2px;
+}
+
+.timeSegments {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  gap: 2px;
+}
+
+.timeSegment {
+  width: 2ch;
+  padding: 8px 4px;
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  color: var(--digdir-color-neutral-grey-900);
+}
+
+.timeSegment::placeholder {
+  color: var(--digdir-color-neutral-grey-400);
+}
+
+.timeSegment:hover:not(:disabled) {
+  background-color: var(--digdir-color-neutral-grey-50);
+  border-radius: var(--digdir-border-radius-small);
+}
+
+.timeSegment.focused {
+  background-color: var(--digdir-color-accent-blue-50);
+  border-radius: var(--digdir-border-radius-small);
+}
+
+.timeSegment.disabled {
+  color: var(--digdir-color-neutral-grey-500);
+  cursor: not-allowed;
+}
+
+.separator {
+  color: var(--digdir-color-neutral-grey-600);
+  font-size: 16px;
+  line-height: 1;
+  user-select: none;
+}
+
+.periodToggle {
+  margin-left: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--digdir-color-neutral-grey-300);
+  border-radius: var(--digdir-border-radius-small);
+  background: var(--digdir-color-neutral-white);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--digdir-color-neutral-grey-900);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.periodToggle:hover:not(:disabled) {
+  background-color: var(--digdir-color-neutral-grey-50);
+  border-color: var(--digdir-color-neutral-grey-400);
+}
+
+.periodToggle:focus {
+  outline: 2px solid var(--digdir-color-accent-blue-500);
+  outline-offset: 2px;
+}
+
+.periodToggle:disabled {
+  color: var(--digdir-color-neutral-grey-500);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.nativeInput {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .periodToggle {
+    transition: all 0.2s ease;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .timePickerContainer {
+    background: var(--digdir-color-neutral-grey-900);
+    border-color: var(--digdir-color-neutral-grey-600);
+  }
+
+  .timeSegment {
+    color: var(--digdir-color-neutral-white);
+  }
+
+  .timeSegment:hover:not(:disabled) {
+    background-color: var(--digdir-color-neutral-grey-800);
+  }
+
+  .timeSegment.focused {
+    background-color: var(--digdir-color-accent-blue-900);
+  }
+
+  .separator {
+    color: var(--digdir-color-neutral-grey-400);
+  }
+
+  .periodToggle {
+    background: var(--digdir-color-neutral-grey-800);
+    border-color: var(--digdir-color-neutral-grey-600);
+    color: var(--digdir-color-neutral-white);
+  }
+
+  .periodToggle:hover:not(:disabled) {
+    background-color: var(--digdir-color-neutral-grey-700);
+  }
+}
