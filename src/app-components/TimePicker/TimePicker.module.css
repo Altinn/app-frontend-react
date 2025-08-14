@@ -38,18 +38,24 @@
 }
 
 .timePickerDropdown {
-  min-width: 280px;
+  /*min-width: 320px;*/
+  max-width: 400px;
   padding: 12px;
+  box-sizing: border-box;
 }
 
 .dropdownColumns {
   display: flex;
   gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .dropdownColumn {
   flex: 1;
-  min-width: 70px;
+  min-width: 60px;
+  max-width: 80px;
+  overflow: hidden;
 }
 
 .dropdownLabel {
@@ -72,6 +78,8 @@
   border: 1px solid var(--ds-color-neutral-border-subtle);
   border-radius: var(--ds-border-radius-md);
   padding: 2px 0;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .dropdownOption {

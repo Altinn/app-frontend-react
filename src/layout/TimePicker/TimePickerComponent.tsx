@@ -108,6 +108,7 @@ export function TimePickerComponent({ baseComponentId, overrideDisplay }: PropsF
             readOnly={readOnly}
             required={required}
             autoComplete={autocomplete}
+            aria-label='schmable'
           />
         </Flex>
       </ComponentStructureWrapper>

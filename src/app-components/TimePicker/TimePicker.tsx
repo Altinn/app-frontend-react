@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { PatternFormat } from 'react-number-format';
 
 import { Popover, Textfield } from '@digdir/designsystemet-react';
 import { ClockIcon } from '@navikt/aksel-icons';
@@ -19,9 +18,10 @@ export interface TimePickerProps {
   readOnly?: boolean;
   required?: boolean;
   autoComplete?: string;
-  'aria-label'?: string;
+  'aria-label': string;
   'aria-describedby'?: string;
   'aria-invalid'?: boolean;
+  'aria-labelledby'?: never;
 }
 
 interface TimeValue {
@@ -105,6 +105,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
   'aria-invalid': ariaInvalid,
+  'aria-labelledby': ariaLabelledby,
 }) => {
   const [isMobile, setIsMobile] = useState(() => isMobileDevice());
   const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
@@ -152,7 +153,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
   if (isMobile) {
     return (
-      <input
+      <Textfield
         id={id}
         type='time'
         value={value}
@@ -165,6 +166,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid}
         className={styles.nativeInput}
+        aria-labelledby={ariaLabelledby}
       />
     );
   }
@@ -219,19 +221,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     updateTime({ period, hours: newHours });
   };
 
-  // Create format pattern for PatternFormat
-  const getTimeFormatPattern = () => {
-    if (includesSeconds && is12Hour) {
-      return '##:##:##';
-    } else if (includesSeconds) {
-      return '##:##:##';
-    } else if (is12Hour) {
-      return '##:##';
-    } else {
-      return '##:##';
-    }
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
     const parsedTime = parseTimeString(inputValue, format);
@@ -241,12 +230,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
   return (
     <div className={styles.calendarInputWrapper}>
-      <PatternFormat
-        getInputRef={inputRef}
-        format={getTimeFormatPattern()}
-        customInput={Textfield}
+      <Textfield
+        ref={inputRef}
         data-size='sm'
-        mask='_'
         className={styles.calendarInput}
         type='text'
         id={id}
@@ -260,7 +246,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid}
         autoComplete={autoComplete}
-        inputMode='numeric'
       />
       <Popover.TriggerContext>
         <Popover.Trigger
