@@ -256,6 +256,17 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
     useSelector((state) => state);
   const actualCurrentTask = useCurrentLayoutSetId();
   const isPDF = useIsPdf();
+  const mutations = useQueryClient()
+    .getMutationCache()
+    .findAll({ mutationKey: ['saveFormData'] });
+
+  if (mutations.some((m) => m.state.status === 'pending')) {
+    // FormDataWrite automatically saves unsaved changes on unmount. If something happens above us in the render tree
+    // that causes FormDataWrite to be unmounted (forcing it to save) and re-mounts everything (including us), we
+    // should wait for that previously started save to complete. Otherwise, we'd end up saving outdated initial data
+    // and cause a 409 when patching later.
+    return <Loader reason='save-form-data' />;
+  }
 
   if (error) {
     // Error trying to fetch data, if missing rights we display relevant page
