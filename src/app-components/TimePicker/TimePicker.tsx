@@ -199,17 +199,14 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     } else {
       updateTime({ hours: hour });
     }
-    setShowDropdown(false);
   };
 
   const handleDropdownMinutesChange = (selectedMinute: string) => {
     updateTime({ minutes: parseInt(selectedMinute, 10) });
-    setShowDropdown(false);
   };
 
   const handleDropdownSecondsChange = (selectedSecond: string) => {
     updateTime({ seconds: parseInt(selectedSecond, 10) });
-    setShowDropdown(false);
   };
 
   const handleDropdownPeriodChange = (period: 'AM' | 'PM') => {
@@ -220,17 +217,16 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       newHours -= 12;
     }
     updateTime({ period, hours: newHours });
-    setShowDropdown(false);
   };
 
   // Create format pattern for PatternFormat
   const getTimeFormatPattern = () => {
     if (includesSeconds && is12Hour) {
-      return '##:##:## aa';
+      return '##:##:##';
     } else if (includesSeconds) {
       return '##:##:##';
     } else if (is12Hour) {
-      return '##:## aa';
+      return '##:##';
     } else {
       return '##:##';
     }
