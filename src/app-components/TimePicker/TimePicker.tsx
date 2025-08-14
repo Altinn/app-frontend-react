@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { PatternFormat } from 'react-number-format';
 
-import { Popover } from '@digdir/designsystemet-react';
+import { Popover, Textfield } from '@digdir/designsystemet-react';
 import { ClockIcon } from '@navikt/aksel-icons';
 
 import styles from 'src/app-components/TimePicker/TimePicker.module.css';
-import { TimeSegment } from 'src/app-components/TimePicker/TimeSegment';
 
 export type TimeFormat = 'HH:mm' | 'HH:mm:ss' | 'hh:mm a' | 'hh:mm:ss a';
 
@@ -109,10 +109,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const [isMobile, setIsMobile] = useState(() => isMobileDevice());
   const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
   const [showDropdown, setShowDropdown] = useState(false);
-  const hourRef = useRef<HTMLInputElement>(null);
-  const minuteRef = useRef<HTMLInputElement>(null);
-  const secondRef = useRef<HTMLInputElement>(null);
-  const periodRef = useRef<HTMLButtonElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const is12Hour = format.includes('a');
   const includesSeconds = format.includes('ss');
@@ -138,35 +135,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     },
     [timeValue, onChange, format],
   );
-
-  const handleHoursChange = (hours: number) => {
-    if (is12Hour) {
-      updateTime({ hours: hours || 12 });
-    } else {
-      updateTime({ hours });
-    }
-  };
-
-  const handleMinutesChange = (minutes: number) => {
-    updateTime({ minutes });
-  };
-
-  const handleSecondsChange = (seconds: number) => {
-    updateTime({ seconds });
-  };
-
-  const togglePeriod = () => {
-    const newPeriod = timeValue.period === 'AM' ? 'PM' : 'AM';
-    let newHours = timeValue.hours;
-
-    if (newPeriod === 'PM' && timeValue.hours < 12) {
-      newHours += 12;
-    } else if (newPeriod === 'AM' && timeValue.hours >= 12) {
-      newHours -= 12;
-    }
-
-    updateTime({ period: newPeriod, hours: newHours });
-  };
 
   const handleNativeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange(e.target.value);
@@ -255,183 +223,160 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     setShowDropdown(false);
   };
 
+  // Create format pattern for PatternFormat
+  const getTimeFormatPattern = () => {
+    if (includesSeconds && is12Hour) {
+      return '##:##:## aa';
+    } else if (includesSeconds) {
+      return '##:##:##';
+    } else if (is12Hour) {
+      return '##:## aa';
+    } else {
+      return '##:##';
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    const parsedTime = parseTimeString(inputValue, format);
+    setTimeValue(parsedTime);
+    onChange(formatTimeValue(parsedTime, format));
+  };
+
   return (
-    <div className={styles.timePickerWrapper}>
-      <div className={styles.timeSegments}>
-        <TimeSegment
-          ref={hourRef}
-          value={displayHours}
-          onChange={handleHoursChange}
-          min={is12Hour ? 1 : 0}
-          max={is12Hour ? 12 : 23}
-          label='Hours'
-          placeholder='HH'
-          disabled={disabled}
-          readOnly={readOnly}
-          onNext={() => minuteRef.current?.focus()}
-        />
-
-        <span className={styles.separator}>:</span>
-
-        <TimeSegment
-          ref={minuteRef}
-          value={timeValue.minutes}
-          onChange={handleMinutesChange}
-          min={0}
-          max={59}
-          label='Minutes'
-          placeholder='MM'
-          disabled={disabled}
-          readOnly={readOnly}
-          onPrevious={() => hourRef.current?.focus()}
-          onNext={() => (includesSeconds ? secondRef.current?.focus() : periodRef.current?.focus())}
-        />
-
-        {includesSeconds && (
-          <>
-            <span className={styles.separator}>:</span>
-            <TimeSegment
-              ref={secondRef}
-              value={timeValue.seconds}
-              onChange={handleSecondsChange}
-              min={0}
-              max={59}
-              label='Seconds'
-              placeholder='SS'
-              disabled={disabled}
-              readOnly={readOnly}
-              onPrevious={() => minuteRef.current?.focus()}
-              onNext={() => periodRef.current?.focus()}
-            />
-          </>
-        )}
-
-        {is12Hour && (
-          <button
-            ref={periodRef}
-            type='button'
-            className={styles.periodToggle}
-            onClick={togglePeriod}
-            disabled={disabled || readOnly}
-            aria-label='Toggle AM/PM'
-            tabIndex={0}
-          >
-            {timeValue.period}
-          </button>
-        )}
-        <Popover.TriggerContext>
-          <Popover.Trigger
-            variant='tertiary'
-            icon
-            onClick={toggleDropdown}
-            aria-label='Open time picker'
-            disabled={disabled || readOnly}
-            data-size='sm'
-            className={styles.pickerButton}
-          >
-            <ClockIcon />
-          </Popover.Trigger>
-          <Popover
-            className={styles.timePickerDropdown}
-            aria-modal
-            aria-hidden={!showDropdown}
-            role='dialog'
-            open={showDropdown}
-            data-size='lg'
-            placement='bottom'
-            autoFocus={true}
-            onClose={closeDropdown}
-          >
-            <div className={styles.dropdownColumns}>
-              {/* Hours Column */}
-              <div className={styles.dropdownColumn}>
-                <div className={styles.dropdownLabel}>Timer</div>
-                <div className={styles.dropdownList}>
-                  {hourOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type='button'
-                      className={`${styles.dropdownOption} ${
-                        option.value === displayHours ? styles.dropdownOptionSelected : ''
-                      }`}
-                      onClick={() => handleDropdownHoursChange(option.value.toString())}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
+    <div className={styles.calendarInputWrapper}>
+      <PatternFormat
+        getInputRef={inputRef}
+        format={getTimeFormatPattern()}
+        customInput={Textfield}
+        data-size='sm'
+        mask='_'
+        className={styles.calendarInput}
+        type='text'
+        id={id}
+        value={formatTimeValue(timeValue, format)}
+        placeholder={format.toUpperCase()}
+        onChange={handleInputChange}
+        readOnly={readOnly}
+        disabled={disabled}
+        required={required}
+        aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid}
+        autoComplete={autoComplete}
+        inputMode='numeric'
+      />
+      <Popover.TriggerContext>
+        <Popover.Trigger
+          variant='tertiary'
+          icon
+          onClick={toggleDropdown}
+          aria-label='Open time picker'
+          disabled={disabled || readOnly}
+          data-size='sm'
+        >
+          <ClockIcon />
+        </Popover.Trigger>
+        <Popover
+          className={styles.timePickerDropdown}
+          aria-modal
+          aria-hidden={!showDropdown}
+          role='dialog'
+          open={showDropdown}
+          data-size='lg'
+          placement='bottom'
+          autoFocus={true}
+          onClose={closeDropdown}
+        >
+          <div className={styles.dropdownColumns}>
+            {/* Hours Column */}
+            <div className={styles.dropdownColumn}>
+              <div className={styles.dropdownLabel}>Timer</div>
+              <div className={styles.dropdownList}>
+                {hourOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type='button'
+                    className={`${styles.dropdownOption} ${
+                      option.value === displayHours ? styles.dropdownOptionSelected : ''
+                    }`}
+                    onClick={() => handleDropdownHoursChange(option.value.toString())}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
-
-              {/* Minutes Column */}
-              <div className={styles.dropdownColumn}>
-                <div className={styles.dropdownLabel}>Minutter</div>
-                <div className={styles.dropdownList}>
-                  {minuteOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type='button'
-                      className={`${styles.dropdownOption} ${
-                        option.value === timeValue.minutes ? styles.dropdownOptionSelected : ''
-                      }`}
-                      onClick={() => handleDropdownMinutesChange(option.value.toString())}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Seconds Column (if included) */}
-              {includesSeconds && (
-                <div className={styles.dropdownColumn}>
-                  <div className={styles.dropdownLabel}>Sekunder</div>
-                  <div className={styles.dropdownList}>
-                    {secondOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type='button'
-                        className={`${styles.dropdownOption} ${
-                          option.value === timeValue.seconds ? styles.dropdownOptionSelected : ''
-                        }`}
-                        onClick={() => handleDropdownSecondsChange(option.value.toString())}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* AM/PM Column (if 12-hour format) */}
-              {is12Hour && (
-                <div className={styles.dropdownColumn}>
-                  <div className={styles.dropdownLabel}>AM/PM</div>
-                  <div className={styles.dropdownList}>
-                    <button
-                      type='button'
-                      className={`${styles.dropdownOption} ${
-                        timeValue.period === 'AM' ? styles.dropdownOptionSelected : ''
-                      }`}
-                      onClick={() => handleDropdownPeriodChange('AM')}
-                    >
-                      AM
-                    </button>
-                    <button
-                      type='button'
-                      className={`${styles.dropdownOption} ${
-                        timeValue.period === 'PM' ? styles.dropdownOptionSelected : ''
-                      }`}
-                      onClick={() => handleDropdownPeriodChange('PM')}
-                    >
-                      PM
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
-          </Popover>
-        </Popover.TriggerContext>
-      </div>
+
+            {/* Minutes Column */}
+            <div className={styles.dropdownColumn}>
+              <div className={styles.dropdownLabel}>Minutter</div>
+              <div className={styles.dropdownList}>
+                {minuteOptions.map((option) => (
+                  <button
+                    key={option.value}
+                    type='button'
+                    className={`${styles.dropdownOption} ${
+                      option.value === timeValue.minutes ? styles.dropdownOptionSelected : ''
+                    }`}
+                    onClick={() => handleDropdownMinutesChange(option.value.toString())}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Seconds Column (if included) */}
+            {includesSeconds && (
+              <div className={styles.dropdownColumn}>
+                <div className={styles.dropdownLabel}>Sekunder</div>
+                <div className={styles.dropdownList}>
+                  {secondOptions.map((option) => (
+                    <button
+                      key={option.value}
+                      type='button'
+                      className={`${styles.dropdownOption} ${
+                        option.value === timeValue.seconds ? styles.dropdownOptionSelected : ''
+                      }`}
+                      onClick={() => handleDropdownSecondsChange(option.value.toString())}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* AM/PM Column (if 12-hour format) */}
+            {is12Hour && (
+              <div className={styles.dropdownColumn}>
+                <div className={styles.dropdownLabel}>AM/PM</div>
+                <div className={styles.dropdownList}>
+                  <button
+                    type='button'
+                    className={`${styles.dropdownOption} ${
+                      timeValue.period === 'AM' ? styles.dropdownOptionSelected : ''
+                    }`}
+                    onClick={() => handleDropdownPeriodChange('AM')}
+                  >
+                    AM
+                  </button>
+                  <button
+                    type='button'
+                    className={`${styles.dropdownOption} ${
+                      timeValue.period === 'PM' ? styles.dropdownOptionSelected : ''
+                    }`}
+                    onClick={() => handleDropdownPeriodChange('PM')}
+                  >
+                    PM
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </Popover>
+      </Popover.TriggerContext>
     </div>
   );
 };

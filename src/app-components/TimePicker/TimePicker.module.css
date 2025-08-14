@@ -1,98 +1,35 @@
-.timePickerWrapper {
-  display: inline-block;
-  width: 100%;
-}
-
-.timeSegments {
+.calendarInputWrapper {
   display: flex;
-  align-items: center;
   border-radius: 4px;
   border: var(--ds-border-width-default, 1px) solid var(--ds-color-neutral-border-strong);
   gap: var(--ds-size-1);
   background: white;
 }
 
-.timeSegments:hover {
+.calendarInputWrapper button {
+  margin: 1px;
+}
+
+.calendarInputWrapper:hover {
   box-shadow: inset 0 0 0 1px var(--ds-color-accent-border-strong);
 }
 
-.timeSegment {
-  width: 2ch;
-  padding: 10px 4px;
+.calendarInput {
+  padding: 1px;
+}
+
+.calendarInput input:not(:focus-visible),
+.calendarInput button {
   border: none;
-  background: transparent;
-  font-size: 1rem;
-  font-family: inherit;
-  text-align: center;
-  outline: none;
-  color: var(--ds-color-neutral-text-default);
+  background: white;
 }
 
-.timeSegment::placeholder {
-  color: var(--ds-color-neutral-text-subtle);
-}
-
-.timeSegment:hover:not(:disabled) {
-  background-color: var(--ds-color-neutral-background-subtle);
-  border-radius: var(--ds-border-radius-sm);
-}
-
-.timeSegment.focused {
-  background-color: var(--ds-color-accent-surface-subtle);
-  border-radius: var(--ds-border-radius-sm);
-}
-
-.timeSegment.disabled {
-  color: var(--ds-color-neutral-text-subtle);
-  cursor: not-allowed;
-}
-
-.separator {
-  color: var(--ds-color-neutral-text-subtle);
-  font-size: 1rem;
-  line-height: 1;
-  user-select: none;
-  padding: 0 2px;
-}
-
-.periodToggle {
-  margin-left: 6px;
-  margin-right: 4px;
-  padding: 6px 8px;
-  border: 1px solid var(--ds-color-neutral-border-default);
-  border-radius: var(--ds-border-radius-md);
-  background: var(--ds-color-neutral-background-default);
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--ds-color-neutral-text-default);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.periodToggle:hover:not(:disabled) {
-  background-color: var(--ds-color-neutral-background-subtle);
-  border-color: var(--ds-color-neutral-border-strong);
-}
-
-.periodToggle:focus {
-  outline: 2px solid var(--ds-color-accent-border-strong);
-  outline-offset: 2px;
-}
-
-.periodToggle:disabled {
-  color: var(--ds-color-neutral-text-subtle);
-  cursor: not-allowed;
-  opacity: 0.6;
+.calendarInput input:not(:focus-visible):hover {
+  box-shadow: none;
 }
 
 .nativeInput {
   width: 100%;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .periodToggle {
-    transition: all 0.2s ease;
-  }
 }
 
 .timePickerWrapper {
@@ -119,9 +56,8 @@
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
-  color: var(--ds-color-neutral-text-subtle);
+  color: var(--ds-color-neutral-text-default);
   margin-bottom: 4px;
-  opacity: 0.75;
 }
 
 .dropdownTrigger {
@@ -132,6 +68,7 @@
 .dropdownList {
   max-height: 160px;
   overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid var(--ds-color-neutral-border-subtle);
   border-radius: var(--ds-border-radius-md);
   padding: 2px 0;
@@ -181,8 +118,4 @@
 
 .dropdownList::-webkit-scrollbar-thumb:hover {
   background: var(--ds-color-neutral-border-strong);
-}
-
-.pickerButton {
-  margin: 1px;
 }
