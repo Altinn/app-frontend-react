@@ -16,12 +16,7 @@ import { useIsReceiptPage } from 'src/features/routing/AppRoutingContext';
 import { ValidationMask } from 'src/features/validation';
 import { useVisitedPages } from 'src/hooks/useNavigatePage';
 import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import type {
-  NavigationPageGroup,
-  NavigationPageGroupSingle,
-  NavigationReceipt,
-  NavigationTask,
-} from 'src/layout/common.generated';
+import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
@@ -31,10 +26,6 @@ export function useHasGroupedNavigation() {
 }
 
 export const SIDEBAR_BREAKPOINT = 1341;
-
-export function isSingleGroup(group: NavigationPageGroup): group is NavigationPageGroupSingle {
-  return group.order.length === 1;
-}
 
 export function useVisiblePages(order: string[]) {
   const hiddenPages = Hidden.useHiddenPages();

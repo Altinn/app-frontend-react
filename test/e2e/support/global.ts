@@ -305,19 +305,11 @@ declare global {
       showNavGroups(): Chainable<null>;
       hideNavGroups(): Chainable<null>;
 
-      navGroup(
-        groupName: string | RegExp,
-        pageName?: string | RegExp,
-        subformName?: string | RegExp,
-      ): Chainable<JQuery<Element>>;
+      navGroup(groupName: RegExp, pageName?: RegExp, subformName?: RegExp): Chainable<JQuery<Element>>;
 
-      gotoNavGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<null>;
+      gotoNavGroup(groupName: RegExp, pageName?: RegExp): Chainable<null>;
 
-      openNavGroup(
-        groupName: string | RegExp,
-        pageName?: string | RegExp,
-        subformName?: string | RegExp,
-      ): Chainable<null>;
+      openNavGroup(groupName: RegExp, pageName?: RegExp, subformName?: RegExp): Chainable<null>;
 
       ignoreConsoleMessages(consoleMessages: ConsoleMessage[]): Chainable<null>;
     }

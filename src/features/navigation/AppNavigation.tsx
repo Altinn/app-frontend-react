@@ -99,8 +99,8 @@ export function AppNavigationHeading({
     >
       <Heading
         id='app-navigation-heading'
-        level={3}
-        size='xs'
+        level={2}
+        data-size='xs'
       >
         <Lang id='navigation.form_pages' />
       </Heading>
