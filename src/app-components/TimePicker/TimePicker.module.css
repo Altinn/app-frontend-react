@@ -99,6 +99,123 @@
   }
 }
 
+/* Time Picker Dropdown */
+.timePickerWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.timePickerDropdown {
+  min-width: 320px;
+  padding: 16px;
+}
+
+.dropdownColumns {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.dropdownColumn {
+  flex: 1;
+  min-width: 70px;
+}
+
+.dropdownLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--digdir-color-neutral-grey-700);
+  margin-bottom: 4px;
+}
+
+.dropdownTrigger {
+  width: 100%;
+  min-width: 60px;
+}
+
+.dropdownList {
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--digdir-color-neutral-grey-200);
+  border-radius: var(--digdir-border-radius-small);
+  padding: 4px 0;
+}
+
+.dropdownOption {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+  color: var(--digdir-color-neutral-grey-900);
+  transition: background-color 0.15s ease;
+}
+
+.dropdownOption:hover {
+  background-color: var(--digdir-color-neutral-grey-50);
+}
+
+.dropdownOptionSelected {
+  background-color: var(--digdir-color-accent-blue-500) !important;
+  color: var(--digdir-color-neutral-white);
+  font-weight: 500;
+}
+
+.dropdownOptionSelected:hover {
+  background-color: var(--digdir-color-accent-blue-600) !important;
+}
+
+/* Scrollbar styling for dropdown lists */
+.dropdownList::-webkit-scrollbar {
+  width: 4px;
+}
+
+.dropdownList::-webkit-scrollbar-track {
+  background: var(--digdir-color-neutral-grey-100);
+  border-radius: 2px;
+}
+
+.dropdownList::-webkit-scrollbar-thumb {
+  background: var(--digdir-color-neutral-grey-400);
+  border-radius: 2px;
+}
+
+.dropdownList::-webkit-scrollbar-thumb:hover {
+  background: var(--digdir-color-neutral-grey-500);
+}
+
+.pickerButton {
+  margin-left: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--digdir-color-neutral-grey-300);
+  border-radius: var(--digdir-border-radius-small);
+  background: var(--digdir-color-neutral-white);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.pickerButton:hover:not(:disabled) {
+  background-color: var(--digdir-color-neutral-grey-50);
+  border-color: var(--digdir-color-neutral-grey-400);
+}
+
+.pickerButton:focus {
+  outline: 2px solid var(--digdir-color-accent-blue-500);
+  outline-offset: 2px;
+}
+
+.pickerButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 @media (prefers-color-scheme: dark) {
   .timePickerContainer {
     background: var(--digdir-color-neutral-grey-900);
@@ -129,5 +246,42 @@
 
   .periodToggle:hover:not(:disabled) {
     background-color: var(--digdir-color-neutral-grey-700);
+  }
+
+  .pickerButton {
+    background: var(--digdir-color-neutral-grey-800);
+    border-color: var(--digdir-color-neutral-grey-600);
+  }
+
+  .pickerButton:hover:not(:disabled) {
+    background-color: var(--digdir-color-neutral-grey-700);
+  }
+
+  .dropdownLabel {
+    color: var(--digdir-color-neutral-grey-300);
+  }
+
+  .dropdownList {
+    border-color: var(--digdir-color-neutral-grey-600);
+  }
+
+  .dropdownOption {
+    color: var(--digdir-color-neutral-white);
+  }
+
+  .dropdownOption:hover {
+    background-color: var(--digdir-color-neutral-grey-700);
+  }
+
+  .dropdownList::-webkit-scrollbar-track {
+    background: var(--digdir-color-neutral-grey-700);
+  }
+
+  .dropdownList::-webkit-scrollbar-thumb {
+    background: var(--digdir-color-neutral-grey-500);
+  }
+
+  .dropdownList::-webkit-scrollbar-thumb:hover {
+    background: var(--digdir-color-neutral-grey-400);
   }
 }
