@@ -275,6 +275,17 @@ export function useNavigatePage() {
         });
       }
 
+      // If these are not explicitly set in the incoming search params, we want to remove them when navigating to the
+      // next page. Without this we'll potentially drag old params with us, which trigger focus when navigating back
+      // again. This can happen when a page navigation happens before we got a chance to clean up the search params, and
+      // will happen fairly regularly in Cypress tests (simply because it clicks around so quickly).
+      const paramsToRemove = [SearchParams.FocusComponentId, SearchParams.FocusErrorBinding];
+      for (const param of paramsToRemove) {
+        if (newSearchParams.has(param) && !options?.searchParams?.has(param)) {
+          newSearchParams.delete(param);
+        }
+      }
+
       if (isStatelessApp) {
         const url = `/${page}?${newSearchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
