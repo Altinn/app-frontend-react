@@ -209,10 +209,10 @@ export function useNavigatePage() {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
   const navigate = useOurNavigate();
   const navParams = useAllNavigationParamsAsRef();
-  const queryKeysRef = useAsRef(useLocation().search);
   const getTaskType = useGetTaskTypeById();
   const refetchInitialValidations = useRefetchInitialValidations();
-  const [searchParams] = useSearchParams();
+  const [_searchParams] = useSearchParams();
+  const searchParamsRef = useAsRef(_searchParams);
 
   const { autoSaveBehavior } = usePageSettings();
   const order = usePageOrder();
@@ -239,9 +239,9 @@ export function useNavigatePage() {
   useEffect(() => {
     const currentPageId = navParams.current.pageKey ?? '';
     if (isStatelessApp && orderRef.current[0] !== undefined && (!currentPageId || !isValidPageId(currentPageId))) {
-      navigate(`/${orderRef.current[0]}${queryKeysRef.current}`, { replace: true });
+      navigate(`/${orderRef.current[0]}?${searchParamsRef.current}`, { replace: true });
     }
-  }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, queryKeysRef]);
+  }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, searchParamsRef]);
 
   const waitForSave = FD.useWaitForSave();
   const maybeSaveOnPageChange = useCallback(async () => {
@@ -268,8 +268,15 @@ export function useNavigatePage() {
         await refetchInitialValidations();
       }
 
+      const newSearchParams = new URLSearchParams(searchParamsRef.current);
+      if (options?.searchParams) {
+        options.searchParams.forEach((value, key) => {
+          newSearchParams.set(key, value);
+        });
+      }
+
       if (isStatelessApp) {
-        const url = `/${page}${queryKeysRef.current}`;
+        const url = `/${page}?${newSearchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
@@ -277,31 +284,14 @@ export function useNavigatePage() {
 
       // Subform
       if (mainPageKey && componentId && dataElementId && !exitSubform) {
-        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
+        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}?${newSearchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
-      let url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}`;
-
-      if (options?.searchParams) {
-        options.searchParams.forEach((value, key) => {
-          searchParams.set(key, value);
-        });
-      }
-
-      url = `${url}?${searchParams.toString()}`;
+      const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}?${newSearchParams}`;
       navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
     },
-    [
-      isStatelessApp,
-      maybeSaveOnPageChange,
-      navParams,
-      navigate,
-      orderRef,
-      queryKeysRef,
-      refetchInitialValidations,
-      searchParams,
-    ],
+    [orderRef, searchParamsRef, isStatelessApp, navParams, navigate, maybeSaveOnPageChange, refetchInitialValidations],
   );
 
   const [_, setVisitedPages] = useVisitedPages();
