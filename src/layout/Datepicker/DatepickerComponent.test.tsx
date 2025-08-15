@@ -6,6 +6,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -120,11 +121,8 @@ describe('DatepickerComponent', () => {
   });
 
   it('should call setLeafValue if date is cleared', async () => {
-    const { formDataMethods } = await render({
-      queries: {
-        fetchFormData: async () => ({ myDate: '2022-12-31' }),
-      },
-    });
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ myDate: '2022-12-31' }));
+    const { formDataMethods } = await render();
     await userEvent.clear(screen.getByRole('textbox'));
     await userEvent.tab();
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({

@@ -8,13 +8,13 @@ import type { AxiosResponse } from 'axios';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useGetOptions } from 'src/features/options/useGetOptions';
+import { fetchFormData, type fetchOptions } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { useExternalItem } from 'src/utils/layout/hooks';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IRawOption, ISelectionComponentFull } from 'src/layout/common.generated';
 import type { ILayout } from 'src/layout/layout';
-import type { fetchOptions } from 'src/queries/queries';
 
 interface RenderProps {
   type: 'single' | 'multi';
@@ -66,6 +66,15 @@ async function render(props: RenderProps) {
     preselectedOptionIndex: props.preselectedOptionIndex,
   };
 
+  jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+    Group: structuredClone(props.options ?? []).map((option, index) => ({
+      [ALTINN_ROW_ID]: `row-${index}`,
+      ...option,
+    })),
+    result: props.selected ?? '',
+    someOther: 'value',
+  }));
+
   return renderWithInstanceAndLayout({
     renderer: <TestOptions baseComponentId='myComponent' />,
     queries: {
@@ -88,14 +97,6 @@ async function render(props: RenderProps) {
             ],
           },
         },
-      }),
-      fetchFormData: async () => ({
-        Group: structuredClone(props.options ?? []).map((option, index) => ({
-          [ALTINN_ROW_ID]: `row-${index}`,
-          ...option,
-        })),
-        result: props.selected ?? '',
-        someOther: 'value',
       }),
       fetchOptions:
         props.fetchOptions ??

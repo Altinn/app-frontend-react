@@ -6,7 +6,7 @@ import { screen } from '@testing-library/react';
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
 import { getSharedTests } from 'src/features/expressions/shared';
-import { fetchApplicationMetadata } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
@@ -93,6 +93,8 @@ describe('Expressions shared context tests', () => {
 
         const applicationMetadata = getApplicationMetadataMock(instance ? {} : { onEntry: { show: 'stateless' } });
         jest.mocked(fetchApplicationMetadata).mockImplementation(async () => applicationMetadata);
+        // TODO(Datamodels): add support for multiple data models
+        jest.mocked(fetchFormData).mockImplementation(async () => dataModel ?? {});
 
         if (instanceDataElements) {
           for (const element of instanceDataElements) {
@@ -111,8 +113,6 @@ describe('Expressions shared context tests', () => {
           renderer: () => <TestContexts />,
           queries: {
             fetchLayouts: async () => layouts!,
-            // TODO(Datamodels): add support for multiple data models
-            fetchFormData: async () => dataModel ?? {},
             ...(instance ? { fetchInstanceData: async () => instance } : {}),
             ...(frontendSettings ? { fetchApplicationSettings: async () => frontendSettings } : {}),
           },
