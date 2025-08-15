@@ -166,11 +166,10 @@ export class ComponentConfig {
         new CG.prop(
           'removeWhenHidden',
           new CG.expr(ExprVal.Boolean)
-            .setTitle('Remove form data when hidden')
+            .setTitle('Remove fields from component dataModelBindings when hidden expression is true')
             .setDescription(
-              'Setting this to false (or an expression returning false) will ensure the form data is not removed ' +
-                'from the data model when the component is hidden. This will happen after submission, on the backend. ' +
-                'Only effective when AppSettings.RemoveHiddenData is enabled.',
+              'Override the logic cleaning data for hidden components at task end, if you want to keep data ' +
+                'referenced in hidden components. Currently only has effect if AppSettings.RemoveHiddenData is enabled.',
             )
             .optional(),
         ),
