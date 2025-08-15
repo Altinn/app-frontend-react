@@ -5,6 +5,7 @@ import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSy
 import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
+import { ExprVal } from 'src/features/expressions/types';
 import { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
 import { CompCategory } from 'src/layout/common';
 import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
@@ -157,6 +158,25 @@ export class ComponentConfig {
 
     const name = 'dataModelBindings';
     const existing = this.inner.getProperty(name)?.type;
+
+    if (!existing || existing instanceof GenerateRaw) {
+      // For all components with dataModelBindings, the backend wants this property defined so that app-developers can
+      // escape from hidden-data-deletion per-component.
+      this.inner.addProperty(
+        new CG.prop(
+          'removeWhenHidden',
+          new CG.expr(ExprVal.Boolean)
+            .setTitle('Remove form data when hidden')
+            .setDescription(
+              'Setting this to false (or an expression returning false) will ensure the form data is not removed ' +
+                'from the data model when the component is hidden. This will happen after submission, on the backend. ' +
+                'Only effective when AppSettings.RemoveHiddenData is enabled.',
+            )
+            .optional(),
+        ),
+      );
+    }
+
     if (existing && existing instanceof GenerateUnion) {
       existing.addType(type);
     } else if (existing && !(existing instanceof GenerateRaw)) {
