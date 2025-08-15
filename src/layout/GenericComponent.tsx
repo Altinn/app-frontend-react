@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useNavigation, useSearchParams } from 'react-router-dom';
 
 import classNames from 'classnames';
@@ -216,24 +216,22 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
   const indexedId = searchParams.get(SearchParams.FocusComponentId);
   const errorBinding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
-  const [elementToFocus, setElementToFocus] = useState<HTMLElement | undefined>();
-  const hasFocus = document.activeElement === elementToFocus;
+  const element = indexedId === nodeId ? findElementToFocus(containerDivRef.current, errorBinding) : null;
+  const hasFocus = document.activeElement === element;
 
   useEffect(() => {
     const div = containerDivRef.current;
     if (!indexedId || indexedId !== nodeId || isNavigating || !div || hasFocus) {
       return;
     }
-    const newElementToFocus = findElementToFocus(div, errorBinding);
-    setElementToFocus(newElementToFocus);
+
+    requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
+    findElementToFocus(div, errorBinding)?.focus();
 
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete(SearchParams.FocusComponentId);
     newSearchParams.delete(SearchParams.FocusErrorBinding);
-    setSearchParams(newSearchParams, { replace: true, preventScrollReset: true });
-
-    requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
-    newElementToFocus?.focus();
+    setSearchParams(newSearchParams, { replace: true });
   }, [containerDivRef, errorBinding, searchParams, setSearchParams, nodeId, indexedId, isNavigating, hasFocus]);
 }
 
