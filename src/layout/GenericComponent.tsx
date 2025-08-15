@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useNavigation, useSearchParams } from 'react-router-dom';
+import type { RefObject } from 'react';
+import type { SetURLSearchParams } from 'react-router-dom';
 
 import classNames from 'classnames';
 
@@ -214,33 +216,71 @@ export function ComponentErrorList({ baseComponentId, errors }: { baseComponentI
 function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObject<HTMLDivElement | null>) {
   const [searchParams, setSearchParams] = useSearchParams();
   const indexedId = searchParams.get(SearchParams.FocusComponentId);
-  const searchParamBindingError = searchParams.get(SearchParams.FocusErrorBinding);
+  const errorBinding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
 
-  useEffect(() => {
-    if (!indexedId || indexedId !== nodeId || isNavigating) {
-      return;
-    }
+  const shouldFocus = indexedId && indexedId == nodeId && !isNavigating;
+  shouldFocus &&
+    setTimeout(async () => {
+      try {
+        const div = await waitForElement(containerDivRef);
+        const field = await waitForElement(() => findElementToFocus(div, errorBinding));
+        requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
+        field.focus();
+      } catch (error) {
+        console.error('Failed to focus component', nodeId, error);
+      } finally {
+        cleanupQuery(searchParams, setSearchParams);
+      }
+    }, 10);
+}
 
-    requestAnimationFrame(() => containerDivRef.current?.scrollIntoView({ behavior: 'instant' }));
-    const targetElements = containerDivRef.current?.querySelectorAll('input,textarea,select,p');
-    const targetHtmlElements = targetElements
-      ? Array.from(targetElements).filter((node) => node instanceof HTMLElement)
-      : [];
+function cleanupQuery(searchParams: URLSearchParams, setSearchParams: SetURLSearchParams) {
+  if (searchParams.has(SearchParams.FocusComponentId) || searchParams.has(SearchParams.FocusErrorBinding)) {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete(SearchParams.FocusComponentId);
+    newSearchParams.delete(SearchParams.FocusErrorBinding);
+    setSearchParams(newSearchParams, { replace: true });
+  }
+}
 
-    if (targetHtmlElements?.length > 0) {
-      const errorElement = searchParamBindingError
-        ? Array.from(targetHtmlElements).find(
-            (htmlElement) => htmlElement && htmlElement.dataset.bindingkey === searchParamBindingError,
-          )
-        : undefined;
+function findElementToFocus(div: HTMLDivElement | null, binding: string | null) {
+  const targetElements = div?.querySelectorAll('input,textarea,select,p');
+  const targetHtmlElements = targetElements
+    ? Array.from(targetElements).filter((node) => node instanceof HTMLElement)
+    : [];
 
-      // Focus error element or fallback to first element if no error or matching binding
-      (errorElement ?? targetHtmlElements[0]).focus();
-    }
+  if (targetHtmlElements?.length > 0) {
+    const elementWithBinding = binding
+      ? Array.from(targetHtmlElements).find((htmlElement) => htmlElement && htmlElement.dataset.bindingkey === binding)
+      : undefined;
 
-    searchParams.delete(SearchParams.FocusComponentId);
-    searchParams.delete(SearchParams.FocusErrorBinding);
-    setSearchParams(searchParams, { replace: true });
-  }, [nodeId, indexedId, searchParamBindingError, containerDivRef, searchParams, setSearchParams, isNavigating]);
+    return elementWithBinding ?? targetHtmlElements[0];
+  }
+
+  return undefined;
+}
+
+function waitForElement<T>(fetcher: RefObject<T | null> | (() => T | undefined), timeout = 2000): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      const element = typeof fetcher === 'function' ? fetcher() : fetcher.current;
+      if (element) {
+        clearInterval(interval);
+        resolve(element);
+      }
+    }, 50);
+
+    const timeoutId = setTimeout(() => {
+      clearInterval(interval);
+      reject(new Error(`Element not found within ${timeout}ms`));
+    }, timeout);
+
+    // Clear timeout if the interval resolves first
+    const originalResolve = resolve;
+    resolve = (value: T) => {
+      clearTimeout(timeoutId);
+      originalResolve(value);
+    };
+  });
 }

@@ -28,10 +28,7 @@ import type { NodeRefValidation } from 'src/features/validation';
 export interface NavigateToPageOptions {
   replace?: boolean;
   skipAutoSave?: boolean;
-  shouldFocusComponent?: boolean;
   resetReturnToView?: boolean;
-  exitSubform?: boolean;
-  focusComponentId?: string;
   searchParams?: URLSearchParams;
 }
 
@@ -212,10 +209,10 @@ export function useNavigatePage() {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
   const navigate = useOurNavigate();
   const navParams = useAllNavigationParamsAsRef();
-  const queryKeysRef = useAsRef(useLocation().search);
   const getTaskType = useGetTaskTypeById();
   const refetchInitialValidations = useRefetchInitialValidations();
-  const [searchParams] = useSearchParams();
+  const [_searchParams] = useSearchParams();
+  const searchParamsRef = useAsRef(_searchParams);
 
   const { autoSaveBehavior } = usePageSettings();
   const order = usePageOrder();
@@ -242,9 +239,9 @@ export function useNavigatePage() {
   useEffect(() => {
     const currentPageId = navParams.current.pageKey ?? '';
     if (isStatelessApp && orderRef.current[0] !== undefined && (!currentPageId || !isValidPageId(currentPageId))) {
-      navigate(`/${orderRef.current[0]}${queryKeysRef.current}`, { replace: true });
+      navigate(`/${orderRef.current[0]}?${searchParamsRef.current}`, { replace: true });
     }
-  }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, queryKeysRef]);
+  }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, searchParamsRef]);
 
   const waitForSave = FD.useWaitForSave();
   const maybeSaveOnPageChange = useCallback(async () => {
@@ -253,12 +250,13 @@ export function useNavigatePage() {
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {
+      const exitSubform = options?.searchParams?.has(SearchParams.ExitSubform, 'true') ?? false;
       const replace = options?.replace ?? false;
       if (!page) {
         window.logWarn('navigateToPage called without page');
         return;
       }
-      if (!orderRef.current.includes(page) && options?.exitSubform !== true) {
+      if (!orderRef.current.includes(page) && !exitSubform) {
         window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
@@ -266,55 +264,45 @@ export function useNavigatePage() {
       if (options?.skipAutoSave !== true) {
         await maybeSaveOnPageChange();
       }
-      if (options?.exitSubform) {
+      if (exitSubform) {
         await refetchInitialValidations();
       }
 
+      const newSearchParams = new URLSearchParams(searchParamsRef.current);
+      if (options?.searchParams) {
+        options.searchParams.forEach((value, key) => {
+          newSearchParams.set(key, value);
+        });
+      }
+
+      // If these are not explicitly set in the incoming search params, we want to remove them when navigating to the
+      // next page. Without this we'll potentially drag old params with us, which trigger focus when navigating back
+      // again. This can happen when a page navigation happens before we got a chance to clean up the search params, and
+      // will happen fairly regularly in Cypress tests (simply because it clicks around so quickly).
+      const paramsToRemove = [SearchParams.FocusComponentId, SearchParams.FocusErrorBinding];
+      for (const param of paramsToRemove) {
+        if (newSearchParams.has(param) && !options?.searchParams?.has(param)) {
+          newSearchParams.delete(param);
+        }
+      }
+
       if (isStatelessApp) {
-        const url = `/${page}${queryKeysRef.current}`;
+        const url = `/${page}?${newSearchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
       const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
 
       // Subform
-      if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
-        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
+      if (mainPageKey && componentId && dataElementId && !exitSubform) {
+        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}?${newSearchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
-      let url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}`;
-
-      if (options?.searchParams) {
-        options.searchParams.forEach((value, key) => {
-          searchParams.set(key, value);
-        });
-      }
-
-      // Special cases for component focus and subform exit
-      if (options?.focusComponentId || options?.exitSubform) {
-        if (options?.focusComponentId) {
-          searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
-        }
-
-        if (options?.exitSubform) {
-          searchParams.set(SearchParams.ExitSubform, 'true');
-        }
-      }
-
-      url = `${url}?${searchParams.toString()}`;
+      const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}?${newSearchParams}`;
       navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
     },
-    [
-      isStatelessApp,
-      maybeSaveOnPageChange,
-      navParams,
-      navigate,
-      orderRef,
-      queryKeysRef,
-      refetchInitialValidations,
-      searchParams,
-    ],
+    [orderRef, searchParamsRef, isStatelessApp, navParams, navigate, maybeSaveOnPageChange, refetchInitialValidations],
   );
 
   const [_, setVisitedPages] = useVisitedPages();
@@ -373,11 +361,13 @@ export function useNavigatePage() {
       return;
     }
 
-    await navigateToPage(navParams.current.mainPageKey, {
-      exitSubform: true,
-      resetReturnToView: false,
-      focusComponentId: navParams.current.componentId,
-    });
+    const searchParams = new URLSearchParams();
+    searchParams.set(SearchParams.ExitSubform, 'true');
+    const navigateTo = navParams.current.componentId;
+    if (navigateTo) {
+      searchParams.set(SearchParams.FocusComponentId, navigateTo);
+    }
+    await navigateToPage(navParams.current.mainPageKey, { searchParams, resetReturnToView: false });
   };
 
   const enterSubform = async ({
@@ -416,7 +406,7 @@ export function useNavigatePage() {
 }
 
 export function focusMainContent(options?: NavigateToPageOptions) {
-  if (options?.shouldFocusComponent !== true) {
+  if (!options?.searchParams?.has(SearchParams.FocusComponentId)) {
     document.getElementById('main-content')?.focus({ preventScroll: true });
   }
 }
@@ -447,27 +437,21 @@ export function useNavigateToComponent() {
     options: Omit<NavigateToComponentOptions, 'shouldFocus'> | undefined,
   ) => {
     const targetPage = layoutLookups.componentToPage[baseComponentId];
-
     const errorBindingKey = options?.error?.['bindingKey'];
 
-    if (errorBindingKey) {
-      setSearchParams((prev) => {
-        prev.set(SearchParams.FocusErrorBinding, errorBindingKey);
-        return prev;
-      });
-    }
-
     if (targetPage && targetPage !== currentPageId) {
+      const newSearchParams = new URLSearchParams(searchParams);
+      newSearchParams.set(SearchParams.FocusComponentId, indexedId);
+      errorBindingKey && newSearchParams.set(SearchParams.FocusErrorBinding, errorBindingKey);
       await navigateToPage(targetPage, {
         ...options?.pageNavOptions,
-        shouldFocusComponent: true,
-        focusComponentId: indexedId,
-        searchParams,
+        searchParams: newSearchParams,
         replace: !!searchParams.get(SearchParams.FocusComponentId) || !!searchParams.get(SearchParams.ExitSubform),
       });
     } else {
       setSearchParams((prev) => {
         prev.set(SearchParams.FocusComponentId, indexedId);
+        errorBindingKey && prev.set(SearchParams.FocusErrorBinding, errorBindingKey);
         return prev;
       });
     }

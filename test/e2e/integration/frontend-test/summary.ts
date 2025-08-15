@@ -102,11 +102,14 @@ describe('Summary', () => {
         cy.wrap(summaryDate).contains(texts.dateOfEffect).should('have.css', 'color', 'rgb(213, 32, 59)');
         cy.wrap(summaryDate).contains(common.altinnFlex, texts.requiredFieldDateFrom).should('be.visible');
         cy.wrap(summaryDate).contains('button', texts.goToRightPage).click();
-        cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
-        cy.get('button[aria-label*="Today"]').click();
-        cy.get(appFrontend.errorReport).should('not.exist');
-        cy.findByRole('button', { name: 'Tilbake til oppsummering' }).click();
       });
+
+    cy.navPage('form').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.changeOfName.dateOfEffect).should('be.focused').and('be.inViewport');
+    cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
+    cy.get('button[aria-label*="Today"]').click();
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.findByRole('button', { name: 'Tilbake til oppsummering' }).click();
 
     // Error in summary field is removed when the required field is filled
     cy.findByRole('group', { name: 'Endringer til navn' })
