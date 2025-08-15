@@ -219,24 +219,20 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
   const errorBinding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
 
-  setTimeout(async () => {
-    if (!indexedId || indexedId !== nodeId || isNavigating) {
-      cleanupQuery(searchParams, setSearchParams);
-      return;
-    }
-
-    try {
-      const div = await waitForElement(containerDivRef);
-      const field = await waitForElement(() => findElementToFocus(div, errorBinding));
-
-      requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
-      field.focus();
-    } catch (error) {
-      console.error('Failed to focus component', error);
-    } finally {
-      cleanupQuery(searchParams, setSearchParams);
-    }
-  }, 10);
+  const shouldFocus = indexedId && indexedId == nodeId && !isNavigating;
+  shouldFocus &&
+    setTimeout(async () => {
+      try {
+        const div = await waitForElement(containerDivRef);
+        const field = await waitForElement(() => findElementToFocus(div, errorBinding));
+        requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
+        field.focus();
+      } catch (error) {
+        console.error('Failed to focus component', nodeId, error);
+      } finally {
+        cleanupQuery(searchParams, setSearchParams);
+      }
+    }, 10);
 }
 
 function cleanupQuery(searchParams: URLSearchParams, setSearchParams: SetURLSearchParams) {
