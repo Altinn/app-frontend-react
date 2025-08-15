@@ -437,19 +437,12 @@ export function useNavigateToComponent() {
     options: Omit<NavigateToComponentOptions, 'shouldFocus'> | undefined,
   ) => {
     const targetPage = layoutLookups.componentToPage[baseComponentId];
-
     const errorBindingKey = options?.error?.['bindingKey'];
-
-    if (errorBindingKey) {
-      setSearchParams((prev) => {
-        prev.set(SearchParams.FocusErrorBinding, errorBindingKey);
-        return prev;
-      });
-    }
 
     if (targetPage && targetPage !== currentPageId) {
       const newSearchParams = new URLSearchParams(searchParams);
       newSearchParams.set(SearchParams.FocusComponentId, indexedId);
+      errorBindingKey && newSearchParams.set(SearchParams.FocusErrorBinding, errorBindingKey);
       await navigateToPage(targetPage, {
         ...options?.pageNavOptions,
         searchParams: newSearchParams,
@@ -458,6 +451,7 @@ export function useNavigateToComponent() {
     } else {
       setSearchParams((prev) => {
         prev.set(SearchParams.FocusComponentId, indexedId);
+        errorBindingKey && prev.set(SearchParams.FocusErrorBinding, errorBindingKey);
         return prev;
       });
     }
