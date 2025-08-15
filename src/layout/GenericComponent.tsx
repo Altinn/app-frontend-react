@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useNavigation, useSearchParams } from 'react-router-dom';
+import type { RefObject } from 'react';
+import type { SetURLSearchParams } from 'react-router-dom';
 
 import classNames from 'classnames';
 
@@ -216,23 +218,34 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
   const indexedId = searchParams.get(SearchParams.FocusComponentId);
   const errorBinding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
-  const element = indexedId === nodeId ? findElementToFocus(containerDivRef.current, errorBinding) : null;
-  const hasFocus = document.activeElement === element;
 
-  useEffect(() => {
-    const div = containerDivRef.current;
-    if (!indexedId || indexedId !== nodeId || isNavigating || !div || hasFocus) {
+  setTimeout(async () => {
+    if (!indexedId || indexedId !== nodeId || isNavigating) {
+      cleanupQuery(searchParams, setSearchParams);
       return;
     }
 
-    requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
-    findElementToFocus(div, errorBinding)?.focus();
+    try {
+      const div = await waitForElement(containerDivRef);
+      const field = await waitForElement(() => findElementToFocus(div, errorBinding));
 
+      requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
+      field.focus();
+    } catch (error) {
+      console.error('Failed to focus component', error);
+    } finally {
+      cleanupQuery(searchParams, setSearchParams);
+    }
+  }, 10);
+}
+
+function cleanupQuery(searchParams: URLSearchParams, setSearchParams: SetURLSearchParams) {
+  if (searchParams.has(SearchParams.FocusComponentId) || searchParams.has(SearchParams.FocusErrorBinding)) {
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.delete(SearchParams.FocusComponentId);
     newSearchParams.delete(SearchParams.FocusErrorBinding);
     setSearchParams(newSearchParams, { replace: true });
-  }, [containerDivRef, errorBinding, searchParams, setSearchParams, nodeId, indexedId, isNavigating, hasFocus]);
+  }
 }
 
 function findElementToFocus(div: HTMLDivElement | null, binding: string | null) {
@@ -250,4 +263,28 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
   }
 
   return undefined;
+}
+
+function waitForElement<T>(fetcher: RefObject<T | null> | (() => T | undefined), timeout = 2000): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const interval = setInterval(() => {
+      const element = typeof fetcher === 'function' ? fetcher() : fetcher.current;
+      if (element) {
+        clearInterval(interval);
+        resolve(element);
+      }
+    }, 50);
+
+    const timeoutId = setTimeout(() => {
+      clearInterval(interval);
+      reject(new Error(`Element not found within ${timeout}ms`));
+    }, timeout);
+
+    // Clear timeout if the interval resolves first
+    const originalResolve = resolve;
+    resolve = (value: T) => {
+      clearTimeout(timeoutId);
+      originalResolve(value);
+    };
+  });
 }
