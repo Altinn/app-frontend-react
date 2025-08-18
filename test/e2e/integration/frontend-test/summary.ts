@@ -590,6 +590,7 @@ describe('Summary', () => {
       cy.gotoNavPage('summary');
       cy.get('[data-componentid="summary3"] button').click();
       cy.navPage('form').should('have.attr', 'aria-current', 'page');
+      cy.get(`${appFrontend.changeOfName.reasons} input`).should('be.focused');
       cy.findByRole('button', { name: 'Tilbake til oppsummering' }).should('be.visible');
       cy.findByRole('button', { name: 'Neste' }).should('not.exist');
 
@@ -602,7 +603,7 @@ describe('Summary', () => {
       }
     }
 
-    // Navigation bare should clear backToSummary
+    // NavigationBar should clear backToSummary
     testNavigationMethod(() => {
       cy.gotoNavPage('summary');
       return true;
@@ -626,6 +627,7 @@ describe('Summary', () => {
     cy.gotoNavPage('summary');
     cy.get('[data-testid="summary-fordeling-bolig"] button').click();
     cy.navPage('grid').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.grid.bolig.percent).should('be.focused');
     cy.get(appFrontend.errorReport).find(`li:contains("${texts.requiredFieldFromBackend}")`).find('button').click();
     cy.navPage('form').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.changeOfName.newFirstName).should('be.focused');
