@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import { useNavigation, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigation, useSearchParams } from 'react-router-dom';
 import type { RefObject } from 'react';
 import type { SetURLSearchParams } from 'react-router-dom';
 
@@ -218,24 +218,26 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
   const indexedId = searchParams.get(SearchParams.FocusComponentId);
   const errorBinding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
+
+  const location = useLocation();
   const hashWas = window.location.hash;
+  const locationIsUpdated = hashWas.endsWith(location.search);
 
   const abortController = useRef(new AbortController());
-  const shouldFocus = indexedId && indexedId == nodeId && !isNavigating;
+  const shouldFocus = indexedId && indexedId == nodeId && !isNavigating && locationIsUpdated;
 
   shouldFocus &&
     setTimeout(async () => {
       try {
-        const div = await waitForElement(containerDivRef, 2000, abortController.current.signal);
-        const field = await waitForElement(
-          () => findElementToFocus(div, errorBinding),
-          2000,
-          abortController.current.signal,
-        );
+        const div = await waitForRef(containerDivRef, 2000, abortController.current.signal);
         requestAnimationFrame(() => {
           !abortController.current.signal.aborted && div.scrollIntoView({ behavior: 'instant' });
         });
-        !abortController.current.signal.aborted && field.focus();
+
+        const field = findElementToFocus(div, errorBinding);
+        if (field && !abortController.current.signal.aborted) {
+          field.focus();
+        }
       } catch (error) {
         if (!abortController.current.signal.aborted) {
           console.error('Failed to focus component', nodeId, error);
@@ -286,11 +288,7 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
   return undefined;
 }
 
-function waitForElement<T>(
-  fetcher: RefObject<T | null> | (() => T | undefined),
-  timeout = 2000,
-  signal?: AbortSignal,
-): Promise<T> {
+function waitForRef<T>(ref: RefObject<T | null>, timeout = 2000, signal?: AbortSignal): Promise<T> {
   return new Promise((resolve, reject) => {
     let rafId: number;
 
@@ -307,10 +305,9 @@ function waitForElement<T>(
         return;
       }
 
-      const element = typeof fetcher === 'function' ? fetcher() : fetcher.current;
-      if (element) {
+      if (ref.current) {
         clearTimeout(timeoutId);
-        resolve(element);
+        resolve(ref.current);
       } else {
         rafId = requestAnimationFrame(check);
       }
@@ -328,7 +325,6 @@ function waitForElement<T>(
     };
 
     signal?.addEventListener('abort', onAbort, { once: true });
-
     rafId = requestAnimationFrame(check);
   });
 }
