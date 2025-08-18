@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useNavigation, useSearchParams } from 'react-router-dom';
 import type { RefObject } from 'react';
 import type { SetURLSearchParams } from 'react-router-dom';
@@ -220,18 +220,28 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
   const isNavigating = useNavigation().state !== 'idle';
   const hashWas = window.location.hash;
 
+  const abortController = useRef(new AbortController());
   const shouldFocus = indexedId && indexedId == nodeId && !isNavigating;
+
   shouldFocus &&
     setTimeout(async () => {
       try {
-        const div = await waitForElement(containerDivRef);
-        const field = await waitForElement(() => findElementToFocus(div, errorBinding));
-        requestAnimationFrame(() => div.scrollIntoView({ behavior: 'instant' }));
-        field.focus();
+        const div = await waitForElement(containerDivRef, 2000, abortController.current.signal);
+        const field = await waitForElement(
+          () => findElementToFocus(div, errorBinding),
+          2000,
+          abortController.current.signal,
+        );
+        requestAnimationFrame(() => {
+          !abortController.current.signal.aborted && div.scrollIntoView({ behavior: 'instant' });
+        });
+        !abortController.current.signal.aborted && field.focus();
       } catch (error) {
-        console.error('Failed to focus component', nodeId, error);
+        if (!abortController.current.signal.aborted) {
+          console.error('Failed to focus component', nodeId, error);
+        }
       } finally {
-        if (hashWas === window.location.hash) {
+        if (!abortController.current.signal.aborted && hashWas === window.location.hash) {
           // Only cleanup when hash is the same as what it was during render. Navigation might have occurred, especially
           // in Cypress tests where state changes will happen rapidly. These search params are cleaned up in
           // useNavigatePage() automatically, so it shouldn't be a problem if the page has been changed. If something
@@ -240,6 +250,14 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
         }
       }
     }, 10);
+
+  useEffect(
+    () => () => {
+      // Abort on unmount so that we do not keep trying to focus this component
+      abortController.current.abort();
+    },
+    [abortController],
+  );
 }
 
 function cleanupQuery(searchParams: URLSearchParams, setSearchParams: SetURLSearchParams) {
@@ -268,11 +286,27 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
   return undefined;
 }
 
-function waitForElement<T>(fetcher: RefObject<T | null> | (() => T | undefined), timeout = 2000): Promise<T> {
+function waitForElement<T>(
+  fetcher: RefObject<T | null> | (() => T | undefined),
+  timeout = 2000,
+  signal?: AbortSignal,
+): Promise<T> {
   return new Promise((resolve, reject) => {
     let rafId: number;
 
+    if (signal?.aborted) {
+      reject(new DOMException('Operation was aborted', 'AbortError'));
+      return;
+    }
+
     const check = () => {
+      if (signal?.aborted) {
+        cancelAnimationFrame(rafId);
+        clearTimeout(timeoutId);
+        reject(new DOMException('Operation was aborted', 'AbortError'));
+        return;
+      }
+
       const element = typeof fetcher === 'function' ? fetcher() : fetcher.current;
       if (element) {
         clearTimeout(timeoutId);
@@ -286,6 +320,14 @@ function waitForElement<T>(fetcher: RefObject<T | null> | (() => T | undefined),
       cancelAnimationFrame(rafId);
       reject(new Error(`Element not found within ${timeout}ms`));
     }, timeout);
+
+    const onAbort = () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(timeoutId);
+      reject(new DOMException('Operation was aborted', 'AbortError'));
+    };
+
+    signal?.addEventListener('abort', onAbort, { once: true });
 
     rafId = requestAnimationFrame(check);
   });
