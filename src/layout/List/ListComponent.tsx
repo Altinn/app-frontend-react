@@ -26,6 +26,7 @@ import { useSaveObjectToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/List/ListComponent.module.css';
+import utilClasses from 'src/styles/utils.module.css';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { Filter } from 'src/features/dataLists/useDataListQuery';
@@ -240,7 +241,11 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
         )}
         <Table.Head>
           <Table.Row>
-            <Table.HeaderCell />
+            <Table.HeaderCell>
+              <span className={utilClasses.visuallyHidden}>
+                <Lang id='list_component.controlsHeader' />
+              </span>
+            </Table.HeaderCell>
             {Object.entries(tableHeaders).map(([key, value]) => {
               const isSortable = sortableColumns?.includes(key);
               let sort: AriaAttributes['aria-sort'] = undefined;
