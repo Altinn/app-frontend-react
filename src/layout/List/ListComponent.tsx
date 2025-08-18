@@ -260,54 +260,51 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
           </Table.Row>
         </Table.Head>
         <Table.Body>
-          {data?.listItems.map((row) => {
-            const accessibleLabel = getRowLabel(row);
-            return (
-              <Table.Row
-                key={JSON.stringify(row)}
-                onClick={() => handleRowClick(row)}
+          {data?.listItems.map((row) => (
+            <Table.Row
+              key={JSON.stringify(row)}
+              onClick={() => handleRowClick(row)}
+            >
+              <Table.Cell
+                className={cn({
+                  [classes.selectedRowCell]: isRowSelected(row),
+                })}
               >
+                {enabled ? (
+                  <Checkbox
+                    className={classes.toggleControl}
+                    aria-label={JSON.stringify(row)}
+                    onChange={() => {}}
+                    value={JSON.stringify(row)}
+                    checked={isChecked(row)}
+                    name={indexedId}
+                  />
+                ) : (
+                  <RadioButton
+                    className={classes.toggleControl}
+                    label={getRowLabel(row)}
+                    hideLabel
+                    onChange={() => {
+                      handleSelectedRadioRow({ selectedValue: row });
+                    }}
+                    value={JSON.stringify(row)}
+                    checked={isRowSelected(row)}
+                    name={indexedId}
+                  />
+                )}
+              </Table.Cell>
+              {Object.keys(tableHeaders).map((key) => (
                 <Table.Cell
+                  key={key}
                   className={cn({
                     [classes.selectedRowCell]: isRowSelected(row),
                   })}
                 >
-                  {enabled ? (
-                    <Checkbox
-                      className={classes.toggleControl}
-                      aria-label={JSON.stringify(row)}
-                      onChange={() => {}}
-                      value={JSON.stringify(row)}
-                      checked={isChecked(row)}
-                      name={indexedId}
-                    />
-                  ) : (
-                    <RadioButton
-                      className={classes.toggleControl}
-                      label={accessibleLabel}
-                      hideLabel
-                      onChange={() => {
-                        handleSelectedRadioRow({ selectedValue: row });
-                      }}
-                      value={JSON.stringify(row)}
-                      checked={isRowSelected(row)}
-                      name={indexedId}
-                    />
-                  )}
+                  {typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}
                 </Table.Cell>
-                {Object.keys(tableHeaders).map((key) => (
-                  <Table.Cell
-                    key={key}
-                    className={cn({
-                      [classes.selectedRowCell]: isRowSelected(row),
-                    })}
-                  >
-                    {typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}
-                  </Table.Cell>
-                ))}
-              </Table.Row>
-            );
-          })}
+              ))}
+            </Table.Row>
+          ))}
         </Table.Body>
       </Table>
       {pagination && (
