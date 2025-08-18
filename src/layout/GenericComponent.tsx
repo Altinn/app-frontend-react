@@ -218,6 +218,7 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
   const indexedId = searchParams.get(SearchParams.FocusComponentId);
   const errorBinding = searchParams.get(SearchParams.FocusErrorBinding);
   const isNavigating = useNavigation().state !== 'idle';
+  const hashWas = window.location.hash;
 
   const shouldFocus = indexedId && indexedId == nodeId && !isNavigating;
   shouldFocus &&
@@ -230,7 +231,13 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
       } catch (error) {
         console.error('Failed to focus component', nodeId, error);
       } finally {
-        cleanupQuery(searchParams, setSearchParams);
+        if (hashWas === window.location.hash) {
+          // Only cleanup when hash is the same as what it was during render. Navigation might have occurred, especially
+          // in Cypress tests where state changes will happen rapidly. These search params are cleaned up in
+          // useNavigatePage() automatically, so it shouldn't be a problem if the page has been changed. If something
+          // else happens, we'll re-render and get a new chance to clean up later.
+          cleanupQuery(searchParams, setSearchParams);
+        }
       }
     }, 10);
 }
@@ -263,24 +270,23 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
 
 function waitForElement<T>(fetcher: RefObject<T | null> | (() => T | undefined), timeout = 2000): Promise<T> {
   return new Promise((resolve, reject) => {
-    const interval = setInterval(() => {
+    let rafId: number;
+
+    const check = () => {
       const element = typeof fetcher === 'function' ? fetcher() : fetcher.current;
       if (element) {
-        clearInterval(interval);
+        clearTimeout(timeoutId);
         resolve(element);
+      } else {
+        rafId = requestAnimationFrame(check);
       }
-    }, 50);
+    };
 
     const timeoutId = setTimeout(() => {
-      clearInterval(interval);
+      cancelAnimationFrame(rafId);
       reject(new Error(`Element not found within ${timeout}ms`));
     }, timeout);
 
-    // Clear timeout if the interval resolves first
-    const originalResolve = resolve;
-    resolve = (value: T) => {
-      clearTimeout(timeoutId);
-      originalResolve(value);
-    };
+    rafId = requestAnimationFrame(check);
   });
 }
