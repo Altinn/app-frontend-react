@@ -279,7 +279,7 @@ export function useNavigatePage() {
       // next page. Without this we'll potentially drag old params with us, which trigger focus when navigating back
       // again. This can happen when a page navigation happens before we got a chance to clean up the search params, and
       // will happen fairly regularly in Cypress tests (simply because it clicks around so quickly).
-      const paramsToRemove = [SearchParams.FocusComponentId, SearchParams.FocusErrorBinding];
+      const paramsToRemove = [SearchParams.FocusComponentId, SearchParams.FocusErrorBinding, SearchParams.ExitSubform];
       for (const param of paramsToRemove) {
         if (newSearchParams.has(param) && !options?.searchParams?.has(param)) {
           newSearchParams.delete(param);
@@ -407,7 +407,8 @@ export function useNavigatePage() {
 
 export function focusMainContent(options?: NavigateToPageOptions) {
   if (!options?.searchParams?.has(SearchParams.FocusComponentId)) {
-    document.getElementById('main-content')?.focus({ preventScroll: true });
+    document.getElementById('main-content')?.focus();
+    window.scrollTo(0, 0);
   }
 }
 
