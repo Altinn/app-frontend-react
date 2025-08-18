@@ -208,6 +208,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
           </Fieldset>
         )}
         <Pagination
+          id={baseComponentId}
           pageSize={pageSize}
           setPageSize={setPageSize}
           currentPage={currentPage}
@@ -278,7 +279,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
                 {enabled ? (
                   <Checkbox
                     className={classes.toggleControl}
-                    aria-label={JSON.stringify(row)}
+                    label={<span className='sr-only'>{getRowLabel(row)}</span>}
                     onChange={() => {}}
                     value={JSON.stringify(row)}
                     checked={isChecked(row)}
@@ -314,6 +315,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
       </Table>
       {pagination && (
         <Pagination
+          id={baseComponentId}
           pageSize={pageSize}
           setPageSize={setPageSize}
           currentPage={currentPage}
@@ -327,6 +329,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
 };
 
 type PaginationProps = {
+  id: string;
   pageSize: number;
   setPageSize: (pageSize: number) => void;
   currentPage: number;
@@ -336,6 +339,7 @@ type PaginationProps = {
 };
 
 function Pagination({
+  id,
   pageSize,
   setPageSize,
   currentPage,
@@ -353,6 +357,7 @@ function Pagination({
   return (
     <div className={cn({ [classes.paginationMobile]: isMobile }, classes.pagination, 'ds-table__header__cell')}>
       <CustomPagination
+        id={id}
         nextLabel={langAsString('list_component.nextPage')}
         nextLabelAriaLabel={langAsString('list_component.nextPageAriaLabel')}
         previousLabel={langAsString('list_component.previousPage')}
