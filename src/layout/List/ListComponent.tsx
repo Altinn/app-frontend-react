@@ -123,6 +123,18 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
 
   const indexedId = useIndexedId(baseComponentId);
 
+  const getRowLabel = (row: Row): string =>
+    Object.entries(row)
+      .map(([key, value]) => {
+        const header = tableHeaders[key];
+        if (header) {
+          return `${header}: ${typeof value === 'string' ? value : String(value)}`;
+        }
+        return '';
+      })
+      .filter(Boolean)
+      .join(', ');
+
   const { getRadioProps } = useRadioGroup({
     name: indexedId,
     value: JSON.stringify(selectedRow),
@@ -248,50 +260,54 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
           </Table.Row>
         </Table.Head>
         <Table.Body>
-          {data?.listItems.map((row) => (
-            <Table.Row
-              key={JSON.stringify(row)}
-              onClick={() => handleRowClick(row)}
-            >
-              <Table.Cell
-                className={cn({
-                  [classes.selectedRowCell]: isRowSelected(row),
-                })}
+          {data?.listItems.map((row) => {
+            const accessibleLabel = getRowLabel(row);
+            return (
+              <Table.Row
+                key={JSON.stringify(row)}
+                onClick={() => handleRowClick(row)}
               >
-                {enabled ? (
-                  <Checkbox
-                    className={classes.toggleControl}
-                    aria-label={JSON.stringify(row)}
-                    onChange={() => {}}
-                    value={JSON.stringify(row)}
-                    checked={isChecked(row)}
-                    name={indexedId}
-                  />
-                ) : (
-                  <RadioButton
-                    className={classes.toggleControl}
-                    aria-label={JSON.stringify(row)}
-                    onChange={() => {
-                      handleSelectedRadioRow({ selectedValue: row });
-                    }}
-                    value={JSON.stringify(row)}
-                    checked={isRowSelected(row)}
-                    name={indexedId}
-                  />
-                )}
-              </Table.Cell>
-              {Object.keys(tableHeaders).map((key) => (
                 <Table.Cell
-                  key={key}
                   className={cn({
                     [classes.selectedRowCell]: isRowSelected(row),
                   })}
                 >
-                  {typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}
+                  {enabled ? (
+                    <Checkbox
+                      className={classes.toggleControl}
+                      aria-label={JSON.stringify(row)}
+                      onChange={() => {}}
+                      value={JSON.stringify(row)}
+                      checked={isChecked(row)}
+                      name={indexedId}
+                    />
+                  ) : (
+                    <RadioButton
+                      className={classes.toggleControl}
+                      label={accessibleLabel}
+                      hideLabel
+                      onChange={() => {
+                        handleSelectedRadioRow({ selectedValue: row });
+                      }}
+                      value={JSON.stringify(row)}
+                      checked={isRowSelected(row)}
+                      name={indexedId}
+                    />
+                  )}
                 </Table.Cell>
-              ))}
-            </Table.Row>
-          ))}
+                {Object.keys(tableHeaders).map((key) => (
+                  <Table.Cell
+                    key={key}
+                    className={cn({
+                      [classes.selectedRowCell]: isRowSelected(row),
+                    })}
+                  >
+                    {typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}
+                  </Table.Cell>
+                ))}
+              </Table.Row>
+            );
+          })}
         </Table.Body>
       </Table>
       {pagination && (
