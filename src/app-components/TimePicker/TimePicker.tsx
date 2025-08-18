@@ -1,9 +1,14 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import { Popover, Textfield } from '@digdir/designsystemet-react';
+import { Popover } from '@digdir/designsystemet-react';
 import { ClockIcon } from '@navikt/aksel-icons';
 
+import { getSegmentConstraints } from 'src/app-components/TimePicker/timeConstraintUtils';
+import { formatTimeValue } from 'src/app-components/TimePicker/timeFormatUtils';
 import styles from 'src/app-components/TimePicker/TimePicker.module.css';
+import { TimeSegment } from 'src/app-components/TimePicker/TimeSegment';
+import type { SegmentType } from 'src/app-components/TimePicker/keyboardNavigation';
+import type { TimeConstraints, TimeValue } from 'src/app-components/TimePicker/timeConstraintUtils';
 
 export type TimeFormat = 'HH:mm' | 'HH:mm:ss' | 'hh:mm a' | 'hh:mm:ss a';
 
@@ -24,13 +29,6 @@ export interface TimePickerProps {
   'aria-labelledby'?: never;
 }
 
-interface TimeValue {
-  hours: number;
-  minutes: number;
-  seconds: number;
-  period: 'AM' | 'PM';
-}
-
 const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue => {
   const defaultValue: TimeValue = { hours: 0, minutes: 0, seconds: 0, period: 'AM' };
 
@@ -49,34 +47,23 @@ const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue => {
   const seconds = includesSeconds ? parseInt(parts[2] || '0', 10) : 0;
   const period = periodMatch ? (periodMatch[1].toUpperCase() as 'AM' | 'PM') : 'AM';
 
+  let actualHours = isNaN(hours) ? 0 : hours;
+
+  if (is12Hour && !isNaN(hours)) {
+    // Parse 12-hour format properly
+    if (period === 'AM' && actualHours === 12) {
+      actualHours = 0;
+    } else if (period === 'PM' && actualHours !== 12) {
+      actualHours += 12;
+    }
+  }
+
   return {
-    hours: isNaN(hours) ? 0 : hours,
+    hours: actualHours,
     minutes: isNaN(minutes) ? 0 : minutes,
     seconds: isNaN(seconds) ? 0 : seconds,
     period: is12Hour ? period : 'AM',
   };
-};
-
-const formatTimeValue = (time: TimeValue, format: TimeFormat): string => {
-  const is12Hour = format.includes('a');
-  const includesSeconds = format.includes('ss');
-
-  let displayHours = time.hours;
-
-  if (is12Hour) {
-    if (displayHours === 0) {
-      displayHours = 12;
-    } else if (displayHours > 12) {
-      displayHours -= 12;
-    }
-  }
-
-  const hoursStr = displayHours.toString().padStart(2, '0');
-  const minutesStr = time.minutes.toString().padStart(2, '0');
-  const secondsStr = includesSeconds ? `:${time.seconds.toString().padStart(2, '0')}` : '';
-  const periodStr = is12Hour ? ` ${time.period}` : '';
-
-  return `${hoursStr}:${minutesStr}${secondsStr}${periodStr}`;
 };
 
 const isMobileDevice = (): boolean => {
@@ -96,8 +83,8 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   value,
   onChange,
   format = 'HH:mm',
-  minTime: _minTime,
-  maxTime: _maxTime,
+  minTime,
+  maxTime,
   disabled = false,
   readOnly = false,
   required = false,
@@ -105,15 +92,29 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
   'aria-invalid': ariaInvalid,
-  'aria-labelledby': ariaLabelledby,
 }) => {
   const [isMobile, setIsMobile] = useState(() => isMobileDevice());
   const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
   const [showDropdown, setShowDropdown] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [_focusedSegment, setFocusedSegment] = useState<number | null>(null);
+  const segmentRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const is12Hour = format.includes('a');
   const includesSeconds = format.includes('ss');
+
+  // Define segments based on format
+  const segments: SegmentType[] = ['hours', 'minutes'];
+  if (includesSeconds) {
+    segments.push('seconds');
+  }
+  if (is12Hour) {
+    segments.push('period');
+  }
+
+  const constraints: TimeConstraints = {
+    minTime,
+    maxTime,
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -137,8 +138,74 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     [timeValue, onChange, format],
   );
 
-  const handleNativeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
+  const handleSegmentValueChange = (segmentType: SegmentType, newValue: number | string) => {
+    if (segmentType === 'period') {
+      const period = newValue as 'AM' | 'PM';
+      let newHours = timeValue.hours;
+
+      // Adjust hours when period changes
+      if (period === 'PM' && timeValue.hours < 12) {
+        newHours += 12;
+      } else if (period === 'AM' && timeValue.hours >= 12) {
+        newHours -= 12;
+      }
+
+      updateTime({ period, hours: newHours });
+    } else {
+      // Apply constraints for numeric segments
+      const segmentConstraints = getSegmentConstraints(segmentType, timeValue, constraints, format);
+      let validValue = newValue as number;
+
+      // Handle increment/decrement with wrapping
+      if (segmentType === 'hours') {
+        if (is12Hour) {
+          if (validValue > 12) {
+            validValue = 1;
+          }
+          if (validValue < 1) {
+            validValue = 12;
+          }
+        } else {
+          if (validValue > 23) {
+            validValue = 0;
+          }
+          if (validValue < 0) {
+            validValue = 23;
+          }
+        }
+      } else if (segmentType === 'minutes' || segmentType === 'seconds') {
+        if (validValue > 59) {
+          validValue = 0;
+        }
+        if (validValue < 0) {
+          validValue = 59;
+        }
+      }
+
+      // Check if value is within constraints
+      if (segmentConstraints.validValues.includes(validValue)) {
+        updateTime({ [segmentType]: validValue });
+      } else {
+        // Find nearest valid value
+        const nearestValid = segmentConstraints.validValues.reduce((prev, curr) =>
+          Math.abs(curr - validValue) < Math.abs(prev - validValue) ? curr : prev,
+        );
+        updateTime({ [segmentType]: nearestValid });
+      }
+    }
+  };
+
+  const handleSegmentNavigate = (direction: 'left' | 'right', currentIndex: number) => {
+    let nextIndex = currentIndex;
+
+    if (direction === 'right') {
+      nextIndex = (currentIndex + 1) % segments.length;
+    } else {
+      nextIndex = (currentIndex - 1 + segments.length) % segments.length;
+    }
+
+    segmentRefs.current[nextIndex]?.focus();
+    setFocusedSegment(nextIndex);
   };
 
   const toggleDropdown = () => {
@@ -151,26 +218,31 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     setShowDropdown(false);
   };
 
+  // Mobile: Use native time input
   if (isMobile) {
+    const mobileValue = `${String(timeValue.hours).padStart(2, '0')}:${String(timeValue.minutes).padStart(2, '0')}`;
+
     return (
-      <Textfield
-        id={id}
-        type='time'
-        value={value}
-        onChange={handleNativeChange}
-        disabled={disabled}
-        readOnly={readOnly}
-        required={required}
-        autoComplete={autoComplete}
-        aria-label={ariaLabel}
-        aria-describedby={ariaDescribedBy}
-        aria-invalid={ariaInvalid}
-        className={styles.nativeInput}
-        aria-labelledby={ariaLabelledby}
-      />
+      <div className={styles.calendarInputWrapper}>
+        <input
+          type='time'
+          id={id}
+          value={mobileValue}
+          onChange={(e) => onChange(e.target.value)}
+          disabled={disabled}
+          readOnly={readOnly}
+          required={required}
+          autoComplete={autoComplete}
+          aria-label={ariaLabel}
+          aria-describedby={ariaDescribedBy}
+          aria-invalid={ariaInvalid}
+          className={styles.nativeInput}
+        />
+      </div>
     );
   }
 
+  // Get display values for segments
   const displayHours = is12Hour
     ? timeValue.hours === 0
       ? 12
@@ -179,22 +251,21 @@ export const TimePicker: React.FC<TimePickerProps> = ({
         : timeValue.hours
     : timeValue.hours;
 
-  // Generate hour options for dropdown
+  // Generate options for dropdown
   const hourOptions = is12Hour
     ? Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: (i + 1).toString().padStart(2, '0') }))
     : Array.from({ length: 24 }, (_, i) => ({ value: i, label: i.toString().padStart(2, '0') }));
 
-  // Generate minute options for dropdown
   const minuteOptions = Array.from({ length: 60 }, (_, i) => ({ value: i, label: i.toString().padStart(2, '0') }));
-
-  // Generate second options for dropdown
   const secondOptions = Array.from({ length: 60 }, (_, i) => ({ value: i, label: i.toString().padStart(2, '0') }));
 
   const handleDropdownHoursChange = (selectedHour: string) => {
     const hour = parseInt(selectedHour, 10);
     if (is12Hour) {
-      let newHour = hour === 12 ? 0 : hour;
-      if (timeValue.period === 'PM') {
+      let newHour = hour;
+      if (timeValue.period === 'AM' && hour === 12) {
+        newHour = 0;
+      } else if (timeValue.period === 'PM' && hour !== 12) {
         newHour += 12;
       }
       updateTime({ hours: newHour });
@@ -221,32 +292,52 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     updateTime({ period, hours: newHours });
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
-    const parsedTime = parseTimeString(inputValue, format);
-    setTimeValue(parsedTime);
-    onChange(formatTimeValue(parsedTime, format));
-  };
-
   return (
     <div className={styles.calendarInputWrapper}>
-      <Textfield
-        ref={inputRef}
-        data-size='sm'
-        className={styles.calendarInput}
-        type='text'
-        id={id}
-        value={formatTimeValue(timeValue, format)}
-        placeholder={format.toUpperCase()}
-        onChange={handleInputChange}
-        readOnly={readOnly}
-        disabled={disabled}
-        required={required}
-        aria-label={ariaLabel}
-        aria-describedby={ariaDescribedBy}
-        aria-invalid={ariaInvalid}
-        autoComplete={autoComplete}
-      />
+      <div className={styles.segmentContainer}>
+        {segments.map((segmentType, index) => {
+          const segmentValue = segmentType === 'period' ? timeValue.period : timeValue[segmentType];
+          const segmentConstraints =
+            segmentType !== 'period'
+              ? getSegmentConstraints(segmentType as 'hours' | 'minutes' | 'seconds', timeValue, constraints, format)
+              : { min: 0, max: 0, validValues: [] };
+
+          return (
+            <React.Fragment key={segmentType}>
+              {index > 0 && segmentType !== 'period' && <span className={styles.segmentSeparator}>:</span>}
+              {index > 0 && segmentType === 'period' && <span className={styles.segmentSeparator}>&nbsp;</span>}
+              <TimeSegment
+                ref={(el) => {
+                  segmentRefs.current[index] = el;
+                }}
+                value={segmentValue}
+                min={segmentConstraints.min}
+                max={segmentConstraints.max}
+                type={segmentType}
+                format={format}
+                onValueChange={(newValue) => handleSegmentValueChange(segmentType, newValue)}
+                onNavigate={(direction) => handleSegmentNavigate(direction, index)}
+                onFocus={() => setFocusedSegment(index)}
+                onBlur={() => setFocusedSegment(null)}
+                placeholder={
+                  segmentType === 'hours'
+                    ? 'HH'
+                    : segmentType === 'minutes'
+                      ? 'MM'
+                      : segmentType === 'seconds'
+                        ? 'SS'
+                        : 'AM'
+                }
+                disabled={disabled}
+                readOnly={readOnly}
+                aria-label={`${ariaLabel} ${segmentType}`}
+                autoFocus={index === 0}
+              />
+            </React.Fragment>
+          );
+        })}
+      </div>
+
       <Popover.TriggerContext>
         <Popover.Trigger
           variant='tertiary'
@@ -274,18 +365,36 @@ export const TimePicker: React.FC<TimePickerProps> = ({
             <div className={styles.dropdownColumn}>
               <div className={styles.dropdownLabel}>Timer</div>
               <div className={styles.dropdownList}>
-                {hourOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type='button'
-                    className={`${styles.dropdownOption} ${
-                      option.value === displayHours ? styles.dropdownOptionSelected : ''
-                    }`}
-                    onClick={() => handleDropdownHoursChange(option.value.toString())}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+                {hourOptions.map((option) => {
+                  const isDisabled =
+                    constraints.minTime || constraints.maxTime
+                      ? !getSegmentConstraints('hours', timeValue, constraints, format).validValues.includes(
+                          is12Hour
+                            ? option.value === 12
+                              ? timeValue.period === 'AM'
+                                ? 0
+                                : 12
+                              : timeValue.period === 'PM' && option.value !== 12
+                                ? option.value + 12
+                                : option.value
+                            : option.value,
+                        )
+                      : false;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type='button'
+                      className={`${styles.dropdownOption} ${
+                        option.value === displayHours ? styles.dropdownOptionSelected : ''
+                      } ${isDisabled ? styles.dropdownOptionDisabled : ''}`}
+                      onClick={() => !isDisabled && handleDropdownHoursChange(option.value.toString())}
+                      disabled={isDisabled}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -293,18 +402,28 @@ export const TimePicker: React.FC<TimePickerProps> = ({
             <div className={styles.dropdownColumn}>
               <div className={styles.dropdownLabel}>Minutter</div>
               <div className={styles.dropdownList}>
-                {minuteOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    type='button'
-                    className={`${styles.dropdownOption} ${
-                      option.value === timeValue.minutes ? styles.dropdownOptionSelected : ''
-                    }`}
-                    onClick={() => handleDropdownMinutesChange(option.value.toString())}
-                  >
-                    {option.label}
-                  </button>
-                ))}
+                {minuteOptions.map((option) => {
+                  const isDisabled =
+                    constraints.minTime || constraints.maxTime
+                      ? !getSegmentConstraints('minutes', timeValue, constraints, format).validValues.includes(
+                          option.value,
+                        )
+                      : false;
+
+                  return (
+                    <button
+                      key={option.value}
+                      type='button'
+                      className={`${styles.dropdownOption} ${
+                        option.value === timeValue.minutes ? styles.dropdownOptionSelected : ''
+                      } ${isDisabled ? styles.dropdownOptionDisabled : ''}`}
+                      onClick={() => !isDisabled && handleDropdownMinutesChange(option.value.toString())}
+                      disabled={isDisabled}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -313,18 +432,28 @@ export const TimePicker: React.FC<TimePickerProps> = ({
               <div className={styles.dropdownColumn}>
                 <div className={styles.dropdownLabel}>Sekunder</div>
                 <div className={styles.dropdownList}>
-                  {secondOptions.map((option) => (
-                    <button
-                      key={option.value}
-                      type='button'
-                      className={`${styles.dropdownOption} ${
-                        option.value === timeValue.seconds ? styles.dropdownOptionSelected : ''
-                      }`}
-                      onClick={() => handleDropdownSecondsChange(option.value.toString())}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+                  {secondOptions.map((option) => {
+                    const isDisabled =
+                      constraints.minTime || constraints.maxTime
+                        ? !getSegmentConstraints('seconds', timeValue, constraints, format).validValues.includes(
+                            option.value,
+                          )
+                        : false;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type='button'
+                        className={`${styles.dropdownOption} ${
+                          option.value === timeValue.seconds ? styles.dropdownOptionSelected : ''
+                        } ${isDisabled ? styles.dropdownOptionDisabled : ''}`}
+                        onClick={() => !isDisabled && handleDropdownSecondsChange(option.value.toString())}
+                        disabled={isDisabled}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

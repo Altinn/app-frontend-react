@@ -1,174 +1,164 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
-import cn from 'classnames';
+import { Textfield } from '@digdir/designsystemet-react';
 
-import styles from 'src/app-components/TimePicker/TimePicker.module.css';
+import { handleSegmentKeyDown } from 'src/app-components/TimePicker/keyboardNavigation';
+import {
+  formatSegmentValue,
+  isValidSegmentInput,
+  parseSegmentInput,
+} from 'src/app-components/TimePicker/timeFormatUtils';
+import type { SegmentType } from 'src/app-components/TimePicker/keyboardNavigation';
+import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
 
 export interface TimeSegmentProps {
-  value: number;
-  onChange: (value: number) => void;
+  value: number | string;
   min: number;
   max: number;
-  label: string;
-  placeholder: string;
-  disabled?: boolean;
-  readOnly?: boolean;
+  type: SegmentType;
+  format: TimeFormat;
+  onValueChange: (value: number | string) => void;
+  onNavigate: (direction: 'left' | 'right') => void;
   onFocus?: () => void;
   onBlur?: () => void;
-  onNext?: () => void;
-  onPrevious?: () => void;
-  padZero?: boolean;
+  placeholder?: string;
+  disabled?: boolean;
+  readOnly?: boolean;
+  'aria-label': string;
   className?: string;
+  autoFocus?: boolean;
 }
 
-export const TimeSegment = forwardRef<HTMLInputElement, TimeSegmentProps>(
+export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
   (
     {
       value,
-      onChange,
-      min,
-      max,
-      label,
-      placeholder,
-      disabled = false,
-      readOnly = false,
+      type,
+      format,
+      onValueChange,
+      onNavigate,
       onFocus,
       onBlur,
-      onNext,
-      onPrevious,
-      padZero = true,
+      placeholder,
+      disabled,
+      readOnly,
+      'aria-label': ariaLabel,
       className,
+      autoFocus,
     },
     ref,
   ) => {
-    const [isFocused, setIsFocused] = useState(false);
-    const [inputValue, setInputValue] = useState('');
+    const [localValue, setLocalValue] = useState(() => formatSegmentValue(value, type, format));
     const inputRef = useRef<HTMLInputElement>(null);
 
-    useImperativeHandle(ref, () => inputRef.current!);
-
-    const displayValue = padZero ? value.toString().padStart(2, '0') : value.toString();
+    // Sync external value changes
+    React.useEffect(() => {
+      setLocalValue(formatSegmentValue(value, type, format));
+    }, [value, type, format]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (disabled || readOnly) {
-        return;
-      }
+      const result = handleSegmentKeyDown(e);
 
-      switch (e.key) {
-        case 'ArrowUp':
-          e.preventDefault();
-          onChange(value >= max ? min : value + 1);
-          break;
-        case 'ArrowDown':
-          e.preventDefault();
-          onChange(value <= min ? max : value - 1);
-          break;
-        case 'ArrowRight':
-          e.preventDefault();
-          onNext?.();
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          onPrevious?.();
-          break;
-        case 'Tab':
-          if (!e.shiftKey) {
-            onNext?.();
-          } else {
-            onPrevious?.();
-          }
-          break;
-        case 'Backspace':
-          e.preventDefault();
-          setInputValue('');
-          break;
-        default:
-          break;
+      if (result.shouldNavigate && result.direction) {
+        onNavigate(result.direction);
+      } else if (result.shouldIncrement) {
+        // Increment logic will be handled by parent component
+        // This allows parent to apply constraints
+        const numValue = typeof value === 'number' ? value : 0;
+        onValueChange(type === 'period' ? (value === 'AM' ? 'PM' : 'AM') : numValue + 1);
+      } else if (result.shouldDecrement) {
+        const numValue = typeof value === 'number' ? value : 0;
+        onValueChange(type === 'period' ? (value === 'PM' ? 'AM' : 'PM') : numValue - 1);
       }
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (disabled || readOnly) {
+      const inputValue = e.target.value;
+
+      // For period, handle partial input (P, A, etc.)
+      if (type === 'period') {
+        setLocalValue(inputValue.toUpperCase());
+        const parsed = parseSegmentInput(inputValue, type, format);
+        if (parsed !== null) {
+          onValueChange(parsed);
+        }
         return;
       }
 
-      const newValue = e.target.value;
+      // Allow typing and validate for numeric segments
+      if (isValidSegmentInput(inputValue, type, format) || inputValue === '') {
+        setLocalValue(inputValue);
 
-      if (!/^\d*$/.test(newValue)) {
-        return;
-      }
-
-      setInputValue(newValue);
-
-      if (newValue.length === 2 || parseInt(newValue) * 10 > max) {
-        const num = parseInt(newValue);
-        if (!isNaN(num) && num >= min && num <= max) {
-          onChange(num);
-          setInputValue('');
-          setTimeout(() => onNext?.(), 0);
-        } else {
-          setInputValue('');
+        // Parse and update parent if valid
+        const parsed = parseSegmentInput(inputValue, type, format);
+        if (parsed !== null) {
+          onValueChange(parsed);
         }
       }
     };
 
-    const handleWheel = (e: React.WheelEvent<HTMLInputElement>) => {
-      if (disabled || readOnly || !isFocused) {
-        return;
-      }
-
-      e.preventDefault();
-      if (e.deltaY < 0) {
-        onChange(value >= max ? min : value + 1);
-      } else {
-        onChange(value <= min ? max : value - 1);
-      }
-    };
-
-    const handleFocus = () => {
-      setIsFocused(true);
-      inputRef.current?.select();
+    const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+      // Select all text on focus for easy replacement
+      e.target.select();
       onFocus?.();
     };
 
-    const handleBlur = () => {
-      setIsFocused(false);
-      if (inputValue) {
-        const num = parseInt(inputValue);
-        if (!isNaN(num) && num >= min && num <= max) {
-          onChange(num);
+    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+      // Auto-pad single digits on blur
+      const inputValue = e.target.value;
+      if (inputValue.length === 1 && type !== 'period') {
+        const paddedValue = inputValue.padStart(2, '0');
+        setLocalValue(paddedValue);
+        const parsed = parseSegmentInput(paddedValue, type, format);
+        if (parsed !== null) {
+          onValueChange(parsed);
         }
-        setInputValue('');
+      } else if (inputValue === '') {
+        // Reset to formatted value if empty
+        setLocalValue(formatSegmentValue(value, type, format));
       }
       onBlur?.();
     };
 
-    const handleClick = () => {
-      inputRef.current?.select();
-    };
+    const combinedRef = React.useCallback(
+      (node: HTMLInputElement | null) => {
+        // Handle both external ref and internal ref
+        if (ref) {
+          if (typeof ref === 'function') {
+            ref(node);
+          } else {
+            ref.current = node;
+          }
+        }
+        inputRef.current = node;
+      },
+      [ref],
+    );
 
     return (
-      <input
-        ref={inputRef}
+      <Textfield
+        ref={combinedRef}
         type='text'
-        inputMode='numeric'
-        className={cn(styles.timeSegment, className, {
-          [styles.focused]: isFocused,
-          [styles.disabled]: disabled,
-        })}
-        value={inputValue || displayValue}
+        value={localValue}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        onWheel={handleWheel}
         onFocus={handleFocus}
         onBlur={handleBlur}
-        onClick={handleClick}
+        placeholder={placeholder}
         disabled={disabled}
         readOnly={readOnly}
-        aria-label={label}
-        placeholder={placeholder}
-        maxLength={2}
-        size={2}
+        aria-label={ariaLabel}
+        className={className}
+        autoFocus={autoFocus}
+        data-size='sm'
+        style={{
+          width: type === 'period' ? '4rem' : '3rem',
+          textAlign: 'center',
+          padding: '0.25rem',
+        }}
+        autoComplete='off'
+        inputMode={type === 'period' ? 'text' : 'numeric'}
+        maxLength={type === 'period' ? 2 : 2}
       />
     );
   },
