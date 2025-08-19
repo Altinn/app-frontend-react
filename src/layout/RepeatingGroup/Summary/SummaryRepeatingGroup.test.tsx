@@ -5,6 +5,7 @@ import { jest } from '@jest/globals';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('SummaryRepeatingGroup', () => {
@@ -20,6 +21,15 @@ describe('SummaryRepeatingGroup', () => {
   });
 
   async function render() {
+    jest.mocked(fetchFormData).mockImplementation(async () => ({
+      mockGroup: [
+        {
+          [ALTINN_ROW_ID]: 'abc123',
+          mockDataBinding1: '1',
+          mockDataBinding2: '2',
+        },
+      ],
+    }));
     return await renderWithInstanceAndLayout({
       renderer: (
         <SummaryRepeatingGroup
@@ -29,15 +39,6 @@ describe('SummaryRepeatingGroup', () => {
         />
       ),
       queries: {
-        fetchFormData: async () => ({
-          mockGroup: [
-            {
-              [ALTINN_ROW_ID]: 'abc123',
-              mockDataBinding1: '1',
-              mockDataBinding2: '2',
-            },
-          ],
-        }),
         fetchLayouts: async () => ({
           FormLayout: {
             data: {
