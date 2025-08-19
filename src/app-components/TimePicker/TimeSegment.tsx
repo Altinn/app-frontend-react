@@ -1,13 +1,19 @@
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Textfield } from '@digdir/designsystemet-react';
 
-import { handleSegmentKeyDown } from 'src/app-components/TimePicker/keyboardNavigation';
 import {
-  formatSegmentValue,
-  isValidSegmentInput,
-  parseSegmentInput,
-} from 'src/app-components/TimePicker/timeFormatUtils';
+  handleSegmentKeyDown,
+  handleValueDecrement,
+  handleValueIncrement,
+} from 'src/app-components/TimePicker/keyboardNavigation';
+import {
+  clearSegment,
+  commitSegmentValue,
+  handleSegmentCharacterInput,
+  processSegmentBuffer,
+} from 'src/app-components/TimePicker/segmentTyping';
+import { formatSegmentValue } from 'src/app-components/TimePicker/timeFormatUtils';
 import type { SegmentType } from 'src/app-components/TimePicker/keyboardNavigation';
 import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
 
@@ -49,74 +55,137 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
     ref,
   ) => {
     const [localValue, setLocalValue] = useState(() => formatSegmentValue(value, type, format));
+    const [segmentBuffer, setSegmentBuffer] = useState('');
+    const [bufferTimeout, setBufferTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Sync external value changes
     React.useEffect(() => {
       setLocalValue(formatSegmentValue(value, type, format));
+      setSegmentBuffer(''); // Clear buffer when external value changes
     }, [value, type, format]);
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-      const result = handleSegmentKeyDown(e);
+    // Clear buffer timeout on unmount
+    useEffect(
+      () => () => {
+        if (bufferTimeout) {
+          clearTimeout(bufferTimeout);
+        }
+      },
+      [bufferTimeout],
+    );
 
-      if (result.shouldNavigate && result.direction) {
-        onNavigate(result.direction);
-      } else if (result.shouldIncrement) {
-        // Increment logic will be handled by parent component
-        // This allows parent to apply constraints
-        const numValue = typeof value === 'number' ? value : 0;
-        onValueChange(type === 'period' ? (value === 'AM' ? 'PM' : 'AM') : numValue + 1);
-      } else if (result.shouldDecrement) {
-        const numValue = typeof value === 'number' ? value : 0;
-        onValueChange(type === 'period' ? (value === 'PM' ? 'AM' : 'PM') : numValue - 1);
+    const commitBuffer = useCallback(() => {
+      if (segmentBuffer) {
+        const buffer = processSegmentBuffer(segmentBuffer, type, format.includes('a'));
+        if (buffer.actualValue !== null) {
+          const committedValue = commitSegmentValue(buffer.actualValue, type);
+          onValueChange(committedValue);
+        }
+        setSegmentBuffer('');
       }
-    };
+    }, [segmentBuffer, type, format, onValueChange]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const inputValue = e.target.value;
+    const resetBufferTimeout = useCallback(() => {
+      if (bufferTimeout) {
+        clearTimeout(bufferTimeout);
+      }
+      const timeout = setTimeout(() => {
+        commitBuffer();
+      }, 1000); // 1 second timeout
+      setBufferTimeout(timeout);
+    }, [bufferTimeout, commitBuffer]);
 
-      // For period, handle partial input (P, A, etc.)
-      if (type === 'period') {
-        setLocalValue(inputValue.toUpperCase());
-        const parsed = parseSegmentInput(inputValue, type, format);
-        if (parsed !== null) {
-          onValueChange(parsed);
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Handle special keys (arrows, delete, backspace, etc.)
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        e.preventDefault();
+        const cleared = clearSegment();
+        setLocalValue(cleared.displayValue);
+        setSegmentBuffer('');
+        if (bufferTimeout) {
+          clearTimeout(bufferTimeout);
+          setBufferTimeout(null);
         }
         return;
       }
 
-      // Allow typing and validate for numeric segments
-      if (isValidSegmentInput(inputValue, type, format) || inputValue === '') {
-        setLocalValue(inputValue);
+      const result = handleSegmentKeyDown(e);
 
-        // Parse and update parent if valid
-        const parsed = parseSegmentInput(inputValue, type, format);
-        if (parsed !== null) {
-          onValueChange(parsed);
+      if (result.shouldNavigate && result.direction) {
+        commitBuffer(); // Commit current buffer before navigating
+        onNavigate(result.direction);
+      } else if (result.shouldIncrement) {
+        commitBuffer();
+        const newValue = handleValueIncrement(value, type, format);
+        onValueChange(newValue);
+      } else if (result.shouldDecrement) {
+        commitBuffer();
+        const newValue = handleValueDecrement(value, type, format);
+        onValueChange(newValue);
+      }
+    };
+
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      // Handle character input with Chrome-like segment typing
+      const char = e.key;
+
+      if (char.length === 1) {
+        e.preventDefault();
+
+        const result = handleSegmentCharacterInput(char, type, segmentBuffer, format);
+
+        if (result.shouldNavigate) {
+          commitBuffer();
+          onNavigate('right');
+          return;
+        }
+
+        setSegmentBuffer(result.newBuffer);
+        const buffer = processSegmentBuffer(result.newBuffer, type, format.includes('a'));
+        setLocalValue(buffer.displayValue);
+
+        if (result.shouldAdvance) {
+          // Commit immediately and advance
+          if (buffer.actualValue !== null) {
+            const committedValue = commitSegmentValue(buffer.actualValue, type);
+            onValueChange(committedValue);
+          }
+          setSegmentBuffer('');
+          if (bufferTimeout) {
+            clearTimeout(bufferTimeout);
+            setBufferTimeout(null);
+          }
+          onNavigate('right');
+        } else {
+          // Start or reset timeout
+          resetBufferTimeout();
         }
       }
     };
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-      // Select all text on focus for easy replacement
+      // Clear buffer and select all text on focus
+      setSegmentBuffer('');
+      if (bufferTimeout) {
+        clearTimeout(bufferTimeout);
+        setBufferTimeout(null);
+      }
       e.target.select();
       onFocus?.();
     };
 
-    const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      // Auto-pad single digits on blur
-      const inputValue = e.target.value;
-      if (inputValue.length === 1 && type !== 'period') {
-        const paddedValue = inputValue.padStart(2, '0');
-        setLocalValue(paddedValue);
-        const parsed = parseSegmentInput(paddedValue, type, format);
-        if (parsed !== null) {
-          onValueChange(parsed);
-        }
-      } else if (inputValue === '') {
-        // Reset to formatted value if empty
-        setLocalValue(formatSegmentValue(value, type, format));
+    const handleBlur = () => {
+      // Commit any pending buffer and fill empty minutes with 00
+      commitBuffer();
+
+      if (
+        (value === null || value === '' || (typeof value === 'number' && isNaN(value))) &&
+        (type === 'minutes' || type === 'seconds')
+      ) {
+        onValueChange(0); // Fill empty minutes/seconds with 00
       }
+
       onBlur?.();
     };
 
@@ -140,7 +209,8 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
         ref={combinedRef}
         type='text'
         value={localValue}
-        onChange={handleChange}
+        onChange={() => {}} // Prevent React warnings - actual input handled by onKeyPress
+        onKeyPress={handleKeyPress}
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
         onBlur={handleBlur}
