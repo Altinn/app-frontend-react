@@ -81,12 +81,14 @@ describe('TimeSegment Component', () => {
   });
 
   describe('User Input', () => {
-    it('should accept valid numeric input', async () => {
+    it('should accept valid numeric input with smart formatting', async () => {
       const onValueChange = jest.fn();
+      const onAutoAdvance = jest.fn();
       render(
         <TimeSegment
           {...defaultProps}
           onValueChange={onValueChange}
+          onAutoAdvance={onAutoAdvance}
         />,
       );
       const input = screen.getByRole('textbox');
@@ -94,23 +96,38 @@ describe('TimeSegment Component', () => {
       await userEvent.clear(input);
       await userEvent.type(input, '8');
 
+      // Should format to "08" and auto-advance (no valid 8X in 1-12 range for 12-hour)
+      expect(input).toHaveValue('08');
       expect(onValueChange).toHaveBeenCalledWith(8);
+      expect(onAutoAdvance).toHaveBeenCalled(); // Should auto-advance since no valid 8X
     });
 
-    it('should accept two-digit input', async () => {
+    it('should build progressive two-digit input', async () => {
       const onValueChange = jest.fn();
+      const onAutoAdvance = jest.fn();
       render(
         <TimeSegment
           {...defaultProps}
           onValueChange={onValueChange}
+          onAutoAdvance={onAutoAdvance}
         />,
       );
       const input = screen.getByRole('textbox');
 
       await userEvent.clear(input);
-      await userEvent.type(input, '11');
+      await userEvent.type(input, '1'); // First digit
+      
+      // Should show formatted but not auto-advance (can build 10-12 in 12-hour)
+      expect(input).toHaveValue('01');
+      expect(onValueChange).toHaveBeenCalledWith(1);
+      expect(onAutoAdvance).not.toHaveBeenCalled();
 
+      await userEvent.type(input, '1'); // Second digit
+
+      // Should complete to "11" and auto-advance
+      expect(input).toHaveValue('11');
       expect(onValueChange).toHaveBeenCalledWith(11);
+      expect(onAutoAdvance).toHaveBeenCalled();
     });
 
     it('should reject invalid input', async () => {
@@ -337,6 +354,41 @@ describe('TimeSegment Component', () => {
         />,
       );
       expect(input).toHaveValue('12');
+    });
+
+    it('should build 23 progressively with smart input', async () => {
+      const onValueChange = jest.fn();
+      const onAutoAdvance = jest.fn();
+      render(
+        <TimeSegment
+          {...defaultProps}
+          format='HH:mm'
+          type='hours'
+          min={0}
+          max={23}
+          value={0}
+          onValueChange={onValueChange}
+          onAutoAdvance={onAutoAdvance}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // Clear and type "2"
+      await userEvent.clear(input);
+      await userEvent.type(input, '2');
+      
+      // Should show "02" and wait for next digit
+      expect(input).toHaveValue('02');
+      expect(onValueChange).toHaveBeenCalledWith(2);
+      expect(onAutoAdvance).not.toHaveBeenCalled();
+
+      // Type "3" to complete "23"
+      await userEvent.type(input, '3');
+
+      // Should show "23" and auto-advance
+      expect(input).toHaveValue('23');
+      expect(onValueChange).toHaveBeenCalledWith(23);
+      expect(onAutoAdvance).toHaveBeenCalled();
     });
 
     it('should format value based on segment type', () => {

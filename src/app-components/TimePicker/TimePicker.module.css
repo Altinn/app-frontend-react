@@ -60,6 +60,10 @@
   box-sizing: border-box;
 }
 
+.timePickerDropdown:focus {
+  outline: none;
+}
+
 .dropdownColumns {
   display: flex;
   gap: 8px;
@@ -123,6 +127,12 @@
 
 .dropdownOptionSelected:hover {
   background-color: var(--ds-color-accent-base-active) !important;
+}
+
+.dropdownOptionFocused {
+  background-color: var(--ds-color-accent-surface-hover);
+  outline: 2px solid var(--ds-color-accent-border-strong);
+  outline-offset: -2px;
 }
 
 .dropdownOptionDisabled {

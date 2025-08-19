@@ -8,17 +8,19 @@ import {
   isValidSegmentInput,
   parseSegmentInput,
 } from 'src/app-components/TimePicker/timeFormatUtils';
+import { getSmartInputResult } from 'src/app-components/TimePicker/smartInputUtils';
 import type { SegmentType } from 'src/app-components/TimePicker/keyboardNavigation';
 import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
 
 export interface TimeSegmentProps {
   value: number | string;
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
   type: SegmentType;
   format: TimeFormat;
   onValueChange: (value: number | string) => void;
   onNavigate: (direction: 'left' | 'right') => void;
+  onAutoAdvance?: () => void;
   onFocus?: () => void;
   onBlur?: () => void;
   placeholder?: string;
@@ -33,10 +35,13 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
   (
     {
       value,
+      min,
+      max,
       type,
       format,
       onValueChange,
       onNavigate,
+      onAutoAdvance,
       onFocus,
       onBlur,
       placeholder,
@@ -49,11 +54,15 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
     ref,
   ) => {
     const [localValue, setLocalValue] = useState(() => formatSegmentValue(value, type, format));
+    const [previousInput, setPreviousInput] = useState('');
     const inputRef = useRef<HTMLInputElement>(null);
 
     // Sync external value changes
     React.useEffect(() => {
-      setLocalValue(formatSegmentValue(value, type, format));
+      const formatted = formatSegmentValue(value, type, format);
+      setLocalValue(formatted);
+      // Reset previous input tracking when value changes externally
+      setPreviousInput('');
     }, [value, type, format]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -75,47 +84,68 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       const inputValue = e.target.value;
 
-      // For period, handle partial input (P, A, etc.)
-      if (type === 'period') {
-        setLocalValue(inputValue.toUpperCase());
-        const parsed = parseSegmentInput(inputValue, type, format);
-        if (parsed !== null) {
-          onValueChange(parsed);
-        }
-        return;
+      // Detect progressive typing patterns
+      let processedInput = inputValue;
+      let currentInput = previousInput;
+      
+      // Pattern 1: User typed single digit after a padded value was showing (e.g., "01" -> type "1" -> input becomes "1")
+      // This happens because focus selects all text and typing replaces it
+      // We want to build the two-digit number if the previous state was building
+      if (previousInput && inputValue.length === 1 && /^\d$/.test(inputValue) && /^\d$/.test(previousInput)) {
+        // We're continuing to build from the previous single digit
+        processedInput = inputValue;
+        currentInput = previousInput;
+      }
+      // Pattern 2: User typed digit after "0X" format when text wasn't selected (e.g., "01" -> "011")
+      else if (localValue.length === 2 && inputValue.length === 3 && 
+               localValue[0] === '0' && inputValue.startsWith(localValue)) {
+        // User typed a digit after "0X" format, treat as building
+        const firstDigit = localValue[1]; // The non-zero digit
+        const secondDigit = inputValue[2]; // The newly typed digit
+        processedInput = secondDigit;
+        currentInput = firstDigit;
       }
 
-      // Allow typing and validate for numeric segments
-      if (isValidSegmentInput(inputValue, type, format) || inputValue === '') {
-        setLocalValue(inputValue);
+      // Use smart input processing
+      const smartResult = getSmartInputResult(processedInput, currentInput, type, format, min, max);
 
-        // Parse and update parent if valid
-        const parsed = parseSegmentInput(inputValue, type, format);
-        if (parsed !== null) {
-          onValueChange(parsed);
-        }
+      // Update local display value
+      setLocalValue(smartResult.displayValue);
+
+      // Update parent component with actual value
+      if (smartResult.actualValue !== null && smartResult.actualValue !== undefined) {
+        onValueChange(smartResult.actualValue);
+      }
+
+      // Trigger auto-advance if needed
+      if (smartResult.shouldAutoAdvance && onAutoAdvance) {
+        onAutoAdvance();
+      }
+
+      // Store building state: only store the unpadded digit if we're building
+      if (smartResult.isBuilding && smartResult.displayValue.startsWith('0') && smartResult.displayValue.length === 2) {
+        // Store the actual digit (e.g., "01" -> store "1")
+        setPreviousInput(smartResult.displayValue[1]);
+      } else {
+        setPreviousInput('');
       }
     };
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
       // Select all text on focus for easy replacement
       e.target.select();
+      // Reset building state on focus
+      setPreviousInput('');
       onFocus?.();
     };
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      // Auto-pad single digits on blur
+      // Smart input handles formatting, just ensure we show valid value
       const inputValue = e.target.value;
-      if (inputValue.length === 1 && type !== 'period') {
-        const paddedValue = inputValue.padStart(2, '0');
-        setLocalValue(paddedValue);
-        const parsed = parseSegmentInput(paddedValue, type, format);
-        if (parsed !== null) {
-          onValueChange(parsed);
-        }
-      } else if (inputValue === '') {
+      if (inputValue === '') {
         // Reset to formatted value if empty
         setLocalValue(formatSegmentValue(value, type, format));
+        setPreviousInput('');
       }
       onBlur?.();
     };

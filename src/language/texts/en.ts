@@ -43,6 +43,10 @@ export function en() {
     'time_picker.invalid_time_message': 'Invalid time format. Use format {0}.',
     'time_picker.min_time_exceeded': 'The time you selected is before the earliest allowed time ({0}).',
     'time_picker.max_time_exceeded': 'The time you selected is after the latest allowed time ({0}).',
+    'time_picker.hours_label': 'Hours',
+    'time_picker.minutes_label': 'Minutes',
+    'time_picker.seconds_label': 'Seconds',
+    'time_picker.period_label': 'AM/PM',
     'feedback.title': '## You will soon be forwarded',
     'feedback.body':
       'Waiting for verification. When this is complete you will be forwarded to the next step or receipt automatically.',
