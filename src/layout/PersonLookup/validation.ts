@@ -31,6 +31,7 @@ const ssnSchema: JSONSchemaType<Pick<Person, 'ssn'>> = {
 };
 
 export function checkValidSsn(ssn: string): boolean {
+  console.log('hello');
   if (ssn.length !== 11) {
     return false;
   }
