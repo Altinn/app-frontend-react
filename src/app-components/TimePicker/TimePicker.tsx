@@ -97,7 +97,15 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
   const [showDropdown, setShowDropdown] = useState(false);
   const [_focusedSegment, setFocusedSegment] = useState<number | null>(null);
+  const [highlightedHour, setHighlightedHour] = useState<number | null>(null);
+  const [highlightedMinute, setHighlightedMinute] = useState<number | null>(null);
+  const [highlightedSecond, setHighlightedSecond] = useState<number | null>(null);
+  const [focusedColumn, setFocusedColumn] = useState<'hours' | 'minutes' | 'seconds' | 'period' | null>(null);
   const segmentRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const hoursListRef = useRef<HTMLDivElement | null>(null);
+  const minutesListRef = useRef<HTMLDivElement | null>(null);
+  const secondsListRef = useRef<HTMLDivElement | null>(null);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const is12Hour = format.includes('a');
   const includesSeconds = format.includes('ss');
@@ -128,6 +136,54 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   useEffect(() => {
     setTimeValue(parseTimeString(value, format));
   }, [value, format]);
+
+  // Scroll to selected options when dropdown opens
+  useEffect(() => {
+    if (showDropdown) {
+      // Small delay to ensure DOM is rendered
+      setTimeout(() => {
+        // Scroll hours into view
+        if (hoursListRef.current) {
+          const selectedHour = hoursListRef.current.querySelector(`.${styles.dropdownOptionSelected}`);
+          if (selectedHour) {
+            const container = hoursListRef.current;
+            const elementTop = (selectedHour as HTMLElement).offsetTop;
+            const elementHeight = (selectedHour as HTMLElement).offsetHeight;
+            const containerHeight = container.offsetHeight;
+
+            // Center the selected item in the container
+            container.scrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
+          }
+        }
+
+        // Scroll minutes into view
+        if (minutesListRef.current) {
+          const selectedMinute = minutesListRef.current.querySelector(`.${styles.dropdownOptionSelected}`);
+          if (selectedMinute) {
+            const container = minutesListRef.current;
+            const elementTop = (selectedMinute as HTMLElement).offsetTop;
+            const elementHeight = (selectedMinute as HTMLElement).offsetHeight;
+            const containerHeight = container.offsetHeight;
+
+            container.scrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
+          }
+        }
+
+        // Scroll seconds into view
+        if (secondsListRef.current) {
+          const selectedSecond = secondsListRef.current.querySelector(`.${styles.dropdownOptionSelected}`);
+          if (selectedSecond) {
+            const container = secondsListRef.current;
+            const elementTop = (selectedSecond as HTMLElement).offsetTop;
+            const elementHeight = (selectedSecond as HTMLElement).offsetHeight;
+            const containerHeight = container.offsetHeight;
+
+            container.scrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
+          }
+        }
+      }, 0);
+    }
+  }, [showDropdown]);
 
   const updateTime = useCallback(
     (updates: Partial<TimeValue>) => {
@@ -364,7 +420,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
             {/* Hours Column */}
             <div className={styles.dropdownColumn}>
               <div className={styles.dropdownLabel}>Timer</div>
-              <div className={styles.dropdownList}>
+              <div
+                className={styles.dropdownList}
+                ref={hoursListRef}
+              >
                 {hourOptions.map((option) => {
                   const isDisabled =
                     constraints.minTime || constraints.maxTime
@@ -401,7 +460,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
             {/* Minutes Column */}
             <div className={styles.dropdownColumn}>
               <div className={styles.dropdownLabel}>Minutter</div>
-              <div className={styles.dropdownList}>
+              <div
+                className={styles.dropdownList}
+                ref={minutesListRef}
+              >
                 {minuteOptions.map((option) => {
                   const isDisabled =
                     constraints.minTime || constraints.maxTime
@@ -431,7 +493,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
             {includesSeconds && (
               <div className={styles.dropdownColumn}>
                 <div className={styles.dropdownLabel}>Sekunder</div>
-                <div className={styles.dropdownList}>
+                <div
+                  className={styles.dropdownList}
+                  ref={secondsListRef}
+                >
                   {secondOptions.map((option) => {
                     const isDisabled =
                       constraints.minTime || constraints.maxTime
