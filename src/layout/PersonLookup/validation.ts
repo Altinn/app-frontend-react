@@ -31,17 +31,14 @@ const ssnSchema: JSONSchemaType<Pick<Person, 'ssn'>> = {
 };
 
 export function checkValidSsn(ssn: string): boolean {
-  if (ssn.length !== 11) {
-    return false;
-  }
-
-  // Check if all characters are digits
-  if (!/^\d{11}$/.test(ssn)) {
+  // Check that we have 11 characters and that they are all digits
+  if (ssn.length !== 11 || !/^\d{11}$/.test(ssn)) {
     return false;
   }
 
   const digits = ssn.split('').map(Number);
-  const [_d1, _d2, _m1, _m2, _y1, _y2, _i1, _i2, _i3, k1, k2] = digits;
+  const k1 = digits[9];
+  const k2 = digits[10];
 
   // Calculate first control digit (K1)
   const weights1 = [3, 7, 6, 1, 8, 9, 4, 5, 2];
@@ -71,6 +68,7 @@ export function checkValidSsn(ssn: string): boolean {
     calculated_k2 = 0;
   }
 
+  // Validate controls and return result
   return k1 === calculated_k1 && k2 === calculated_k2;
 }
 
