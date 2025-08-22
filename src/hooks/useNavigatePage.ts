@@ -268,26 +268,9 @@ export function useNavigatePage() {
         await refetchInitialValidations();
       }
 
-      const newSearchParams = new URLSearchParams(searchParamsRef.current);
-      if (options?.searchParams) {
-        options.searchParams.forEach((value, key) => {
-          newSearchParams.set(key, value);
-        });
-      }
-
-      // If these are not explicitly set in the incoming search params, we want to remove them when navigating to the
-      // next page. Without this we'll potentially drag old params with us, which trigger focus when navigating back
-      // again. This can happen when a page navigation happens before we got a chance to clean up the search params, and
-      // will happen fairly regularly in Cypress tests (simply because it clicks around so quickly).
-      const paramsToRemove = [SearchParams.FocusComponentId, SearchParams.FocusErrorBinding, SearchParams.ExitSubform];
-      for (const param of paramsToRemove) {
-        if (newSearchParams.has(param) && !options?.searchParams?.has(param)) {
-          newSearchParams.delete(param);
-        }
-      }
-
+      const searchParams = options?.searchParams ? `?${options.searchParams.toString()}` : '';
       if (isStatelessApp) {
-        const url = `/${page}?${newSearchParams}`;
+        const url = `/${page}${searchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
@@ -295,14 +278,14 @@ export function useNavigatePage() {
 
       // Subform
       if (mainPageKey && componentId && dataElementId && !exitSubform) {
-        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}?${newSearchParams}`;
+        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${searchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
-      const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}?${newSearchParams}`;
+      const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}${searchParams}`;
       navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
     },
-    [orderRef, searchParamsRef, isStatelessApp, navParams, navigate, maybeSaveOnPageChange, refetchInitialValidations],
+    [orderRef, isStatelessApp, navParams, navigate, maybeSaveOnPageChange, refetchInitialValidations],
   );
 
   const [_, setVisitedPages] = useVisitedPages();
