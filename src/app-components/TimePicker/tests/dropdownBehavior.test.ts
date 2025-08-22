@@ -8,7 +8,7 @@ import {
   getPageJumpIndex,
   roundToStep,
   shouldScrollToOption,
-} from 'src/app-components/TimePicker/dropdownBehavior';
+} from 'src/app-components/TimePicker/utils/dropdownBehavior';
 
 describe('dropdownBehavior', () => {
   describe('roundToStep', () => {

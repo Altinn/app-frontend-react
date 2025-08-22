@@ -8,7 +8,7 @@ import {
   processPeriodInput,
   processSegmentBuffer,
   shouldAdvanceSegment,
-} from 'src/app-components/TimePicker/segmentTyping';
+} from 'src/app-components/TimePicker/utils/segmentTyping';
 
 describe('segmentTyping', () => {
   describe('processHourInput - 24 hour mode', () => {

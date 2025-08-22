@@ -2,7 +2,7 @@ import React from 'react';
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 
-import { TimePicker } from 'src/app-components/TimePicker/TimePicker';
+import { TimePicker } from 'src/app-components/TimePicker/components/TimePicker';
 
 describe('TimePicker Dropdown Keyboard Navigation', () => {
   const defaultProps = {

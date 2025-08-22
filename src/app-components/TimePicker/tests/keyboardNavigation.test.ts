@@ -3,7 +3,7 @@ import {
   handleSegmentKeyDown,
   handleValueDecrement,
   handleValueIncrement,
-} from 'src/app-components/TimePicker/keyboardNavigation';
+} from 'src/app-components/TimePicker/utils/utils/keyboardNavigation';
 
 interface MockKeyboardEvent {
   key: string;

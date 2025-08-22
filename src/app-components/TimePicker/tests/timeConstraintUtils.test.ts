@@ -3,7 +3,7 @@ import {
   getSegmentConstraints,
   isTimeInRange,
   parseTimeString,
-} from 'src/app-components/TimePicker/timeConstraintUtils';
+} from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 
 interface TimeValue {
   hours: number;

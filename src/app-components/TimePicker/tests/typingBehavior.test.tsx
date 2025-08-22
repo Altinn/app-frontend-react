@@ -2,7 +2,7 @@ import React from 'react';
 
 import { fireEvent, render, waitFor } from '@testing-library/react';
 
-import { TimePicker } from 'src/app-components/TimePicker/TimePicker';
+import { TimePicker } from 'src/app-components/TimePicker/components/TimePicker';
 
 describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
   beforeEach(() => {

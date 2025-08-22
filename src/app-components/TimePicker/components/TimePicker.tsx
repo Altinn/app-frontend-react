@@ -3,12 +3,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Popover } from '@digdir/designsystemet-react';
 import { ClockIcon } from '@navikt/aksel-icons';
 
-import { getSegmentConstraints } from 'src/app-components/TimePicker/timeConstraintUtils';
-import { formatTimeValue } from 'src/app-components/TimePicker/timeFormatUtils';
-import styles from 'src/app-components/TimePicker/TimePicker.module.css';
-import { TimeSegment } from 'src/app-components/TimePicker/TimeSegment';
-import type { SegmentType } from 'src/app-components/TimePicker/keyboardNavigation';
-import type { TimeConstraints, TimeValue } from 'src/app-components/TimePicker/timeConstraintUtils';
+import styles from 'src/app-components/TimePicker/components/TimePicker.module.css';
+import { TimeSegment } from 'src/app-components/TimePicker/components/TimeSegment';
+import { getSegmentConstraints } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
+import { formatTimeValue } from 'src/app-components/TimePicker/utils/timeFormatUtils';
+import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
+import type { TimeConstraints, TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 
 export type TimeFormat = 'HH:mm' | 'HH:mm:ss' | 'hh:mm a' | 'hh:mm:ss a';
 

@@ -6,16 +6,16 @@ import {
   handleSegmentKeyDown,
   handleValueDecrement,
   handleValueIncrement,
-} from 'src/app-components/TimePicker/keyboardNavigation';
+} from 'src/app-components/TimePicker/utils/keyboardNavigation';
 import {
   clearSegment,
   commitSegmentValue,
   handleSegmentCharacterInput,
   processSegmentBuffer,
-} from 'src/app-components/TimePicker/segmentTyping';
-import { formatSegmentValue } from 'src/app-components/TimePicker/timeFormatUtils';
-import type { SegmentType } from 'src/app-components/TimePicker/keyboardNavigation';
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
+} from 'src/app-components/TimePicker/utils/segmentTyping';
+import { formatSegmentValue } from 'src/app-components/TimePicker/utils/timeFormatUtils';
+import type { TimeFormat } from 'src/app-components/TimePicker/components/TimePicker';
+import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
 
 export interface TimeSegmentProps {
   value: number | string;

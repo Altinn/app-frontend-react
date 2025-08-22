@@ -1,4 +1,4 @@
-import type { SegmentType } from 'src/app-components/TimePicker/keyboardNavigation';
+import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
 
 export interface DropdownOption {
   value: number | string;

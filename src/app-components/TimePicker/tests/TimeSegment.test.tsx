@@ -3,8 +3,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
-import { TimeSegment } from 'src/app-components/TimePicker/TimeSegment';
-import type { TimeSegmentProps } from 'src/app-components/TimePicker/TimeSegment';
+import { TimeSegment } from 'src/app-components/TimePicker/components/TimeSegment';
+import type { TimeSegmentProps } from 'src/app-components/TimePicker/components/TimeSegment';
 
 describe('TimeSegment Component', () => {
   const defaultProps: TimeSegmentProps = {

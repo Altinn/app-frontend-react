@@ -3,7 +3,7 @@ import {
   formatTimeValue,
   isValidSegmentInput,
   parseSegmentInput,
-} from 'src/app-components/TimePicker/timeFormatUtils';
+} from 'src/app-components/TimePicker/utils/timeFormatUtils';
 
 interface TimeValue {
   hours: number;

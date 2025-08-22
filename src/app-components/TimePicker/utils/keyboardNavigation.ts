@@ -1,5 +1,5 @@
-import type { SegmentConstraints } from 'src/app-components/TimePicker/timeConstraintUtils';
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
+import type { TimeFormat } from 'src/app-components/TimePicker/components/TimePicker';
+import type { SegmentConstraints } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 
 export type SegmentType = 'hours' | 'minutes' | 'seconds' | 'period';
 
