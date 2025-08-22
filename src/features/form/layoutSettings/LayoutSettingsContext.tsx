@@ -44,12 +44,14 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
   }
 
   if (!('order' in settings.pages) && !('groups' in settings.pages)) {
-    window.logError('Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json');
-    throw 'Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json';
+    const msg = 'Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json';
+    window.logError(msg);
+    throw new Error(msg);
   }
   if ('order' in settings.pages && 'groups' in settings.pages) {
-    window.logError('Both `pages.order` and `pages.groups` was set in Settings.json');
-    throw 'Both `pages.order` and `pages.groups` was set in Settings.json';
+    const msg = 'Specify one of `pages.order` or `pages.groups` in Settings.json';
+    window.logError(msg);
+    throw new Error(msg);
   }
 
   const order: string[] =
