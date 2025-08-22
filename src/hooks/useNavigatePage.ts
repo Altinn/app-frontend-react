@@ -421,23 +421,22 @@ export function useNavigateToComponent() {
     options: Omit<NavigateToComponentOptions, 'shouldFocus'> | undefined,
   ) => {
     const targetPage = layoutLookups.componentToPage[baseComponentId];
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set(SearchParams.FocusComponentId, indexedId);
     const errorBindingKey = options?.error?.['bindingKey'];
+    if (errorBindingKey) {
+      newSearchParams.set(SearchParams.FocusErrorBinding, errorBindingKey);
+    }
 
     if (targetPage && targetPage !== currentPageId) {
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set(SearchParams.FocusComponentId, indexedId);
-      errorBindingKey && newSearchParams.set(SearchParams.FocusErrorBinding, errorBindingKey);
       await navigateToPage(targetPage, {
         ...options?.pageNavOptions,
         searchParams: newSearchParams,
-        replace: !!searchParams.get(SearchParams.FocusComponentId) || !!searchParams.get(SearchParams.ExitSubform),
+        replace:
+          !!newSearchParams.get(SearchParams.FocusComponentId) || !!newSearchParams.get(SearchParams.ExitSubform),
       });
     } else {
-      setSearchParams((prev) => {
-        prev.set(SearchParams.FocusComponentId, indexedId);
-        errorBindingKey && prev.set(SearchParams.FocusErrorBinding, errorBindingKey);
-        return prev;
-      });
+      setSearchParams(newSearchParams);
     }
   };
 }
