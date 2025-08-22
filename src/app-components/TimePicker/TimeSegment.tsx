@@ -57,44 +57,81 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
     const [localValue, setLocalValue] = useState(() => formatSegmentValue(value, type, format));
     const [segmentBuffer, setSegmentBuffer] = useState('');
     const [bufferTimeout, setBufferTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
+    const [typingEndTimeout, setTypingEndTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const isTypingRef = useRef(false);
+    const bufferRef = useRef(''); // Keep current buffer in a ref for timeouts
 
     // Sync external value changes
     React.useEffect(() => {
-      setLocalValue(formatSegmentValue(value, type, format));
-      setSegmentBuffer(''); // Clear buffer when external value changes
+      const formattedValue = formatSegmentValue(value, type, format);
+      setLocalValue(formattedValue);
+
+      // Only clear buffer if we're not currently typing
+      // This prevents clearing the buffer when our own input triggers an external value change
+      if (!isTypingRef.current) {
+        setSegmentBuffer('');
+        bufferRef.current = '';
+      }
     }, [value, type, format]);
 
-    // Clear buffer timeout on unmount
+    // Clear timeouts on unmount
     useEffect(
       () => () => {
         if (bufferTimeout) {
           clearTimeout(bufferTimeout);
         }
+        if (typingEndTimeout) {
+          clearTimeout(typingEndTimeout);
+        }
       },
-      [bufferTimeout],
+      [bufferTimeout, typingEndTimeout],
     );
 
-    const commitBuffer = useCallback(() => {
-      if (segmentBuffer) {
-        const buffer = processSegmentBuffer(segmentBuffer, type, format.includes('a'));
-        if (buffer.actualValue !== null) {
-          const committedValue = commitSegmentValue(buffer.actualValue, type);
-          onValueChange(committedValue);
+    const commitBuffer = useCallback(
+      (shouldEndTyping = true) => {
+        // Use the current buffer from ref to avoid stale closures
+        const currentBuffer = bufferRef.current;
+        if (currentBuffer) {
+          const buffer = processSegmentBuffer(currentBuffer, type, format.includes('a'));
+          if (buffer.actualValue !== null) {
+            const committedValue = commitSegmentValue(buffer.actualValue, type);
+            onValueChange(committedValue);
+          }
+          setSegmentBuffer('');
+          bufferRef.current = '';
         }
-        setSegmentBuffer('');
-      }
-    }, [segmentBuffer, type, format, onValueChange]);
+        // Only end typing state if explicitly requested
+        // This allows us to keep typing state during timeout commits
+        if (shouldEndTyping) {
+          isTypingRef.current = false;
+        }
+      },
+      [type, format, onValueChange],
+    ); // Remove segmentBuffer dependency
 
     const resetBufferTimeout = useCallback(() => {
+      // Clear any existing timeouts
       if (bufferTimeout) {
         clearTimeout(bufferTimeout);
+        setBufferTimeout(null);
       }
+      if (typingEndTimeout) {
+        clearTimeout(typingEndTimeout);
+        setTypingEndTimeout(null);
+      }
+
       const timeout = setTimeout(() => {
-        commitBuffer();
+        commitBuffer(false); // Don't end typing on timeout - keep buffer alive
       }, 1000); // 1 second timeout
       setBufferTimeout(timeout);
-    }, [bufferTimeout, commitBuffer]);
+
+      // End typing after a longer delay to allow multi-digit input
+      const endTimeout = setTimeout(() => {
+        isTypingRef.current = false;
+      }, 2000); // 2 second timeout to end typing
+      setTypingEndTimeout(endTimeout);
+    }, [bufferTimeout, typingEndTimeout, commitBuffer]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
       // Handle special keys (arrows, delete, backspace, etc.)
@@ -103,9 +140,15 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
         const cleared = clearSegment();
         setLocalValue(cleared.displayValue);
         setSegmentBuffer('');
+        bufferRef.current = '';
+        isTypingRef.current = false; // End typing state
         if (bufferTimeout) {
           clearTimeout(bufferTimeout);
           setBufferTimeout(null);
+        }
+        if (typingEndTimeout) {
+          clearTimeout(typingEndTimeout);
+          setTypingEndTimeout(null);
         }
         return;
       }
@@ -113,14 +156,14 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
       const result = handleSegmentKeyDown(e);
 
       if (result.shouldNavigate && result.direction) {
-        commitBuffer(); // Commit current buffer before navigating
+        commitBuffer(true); // End typing when navigating away
         onNavigate(result.direction);
       } else if (result.shouldIncrement) {
-        commitBuffer();
+        commitBuffer(true); // End typing when using arrows
         const newValue = handleValueIncrement(value, type, format);
         onValueChange(newValue);
       } else if (result.shouldDecrement) {
-        commitBuffer();
+        commitBuffer(true); // End typing when using arrows
         const newValue = handleValueDecrement(value, type, format);
         onValueChange(newValue);
       }
@@ -133,15 +176,19 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
       if (char.length === 1) {
         e.preventDefault();
 
+        // Set typing state when we start typing
+        isTypingRef.current = true;
+
         const result = handleSegmentCharacterInput(char, type, segmentBuffer, format);
 
         if (result.shouldNavigate) {
-          commitBuffer();
+          commitBuffer(true); // End typing when navigating
           onNavigate('right');
           return;
         }
 
         setSegmentBuffer(result.newBuffer);
+        bufferRef.current = result.newBuffer; // Keep ref in sync
         const buffer = processSegmentBuffer(result.newBuffer, type, format.includes('a'));
         setLocalValue(buffer.displayValue);
 
@@ -152,9 +199,15 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
             onValueChange(committedValue);
           }
           setSegmentBuffer('');
+          bufferRef.current = '';
+          isTypingRef.current = false; // End typing state on immediate commit
           if (bufferTimeout) {
             clearTimeout(bufferTimeout);
             setBufferTimeout(null);
+          }
+          if (typingEndTimeout) {
+            clearTimeout(typingEndTimeout);
+            setTypingEndTimeout(null);
           }
           onNavigate('right');
         } else {
@@ -165,19 +218,31 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
     };
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-      // Clear buffer and select all text on focus
-      setSegmentBuffer('');
-      if (bufferTimeout) {
-        clearTimeout(bufferTimeout);
-        setBufferTimeout(null);
+      // Don't clear buffer if we're already focused and typing
+      const wasAlreadyFocused = inputRef.current === document.activeElement;
+
+      if (!wasAlreadyFocused) {
+        // Clear buffer and select all text only on fresh focus
+        setSegmentBuffer('');
+        bufferRef.current = '';
+        isTypingRef.current = false; // End typing state on fresh focus
+        if (bufferTimeout) {
+          clearTimeout(bufferTimeout);
+          setBufferTimeout(null);
+        }
+        if (typingEndTimeout) {
+          clearTimeout(typingEndTimeout);
+          setTypingEndTimeout(null);
+        }
+        e.target.select();
       }
-      e.target.select();
+
       onFocus?.();
     };
 
     const handleBlur = () => {
       // Commit any pending buffer and fill empty minutes with 00
-      commitBuffer();
+      commitBuffer(true); // End typing on blur
 
       if (
         (value === null || value === '' || (typeof value === 'number' && isNaN(value))) &&
