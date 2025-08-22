@@ -97,15 +97,20 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
   const [showDropdown, setShowDropdown] = useState(false);
   const [_focusedSegment, setFocusedSegment] = useState<number | null>(null);
-  const [highlightedHour, setHighlightedHour] = useState<number | null>(null);
-  const [highlightedMinute, setHighlightedMinute] = useState<number | null>(null);
-  const [highlightedSecond, setHighlightedSecond] = useState<number | null>(null);
-  const [focusedColumn, setFocusedColumn] = useState<'hours' | 'minutes' | 'seconds' | 'period' | null>(null);
+
+  // Dropdown keyboard navigation state
+  const [dropdownFocus, setDropdownFocus] = useState({
+    column: 0, // 0=hours, 1=minutes, 2=seconds, 3=period
+    option: -1, // index within current column, -1 means no focus
+    isActive: false, // is keyboard navigation active
+  });
+
   const segmentRefs = useRef<(HTMLInputElement | null)[]>([]);
   const hoursListRef = useRef<HTMLDivElement | null>(null);
   const minutesListRef = useRef<HTMLDivElement | null>(null);
   const secondsListRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const triggerButtonRef = useRef<HTMLButtonElement | null>(null);
 
   const is12Hour = format.includes('a');
   const includesSeconds = format.includes('ss');
@@ -266,12 +271,265 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
   const toggleDropdown = () => {
     if (!disabled && !readOnly) {
-      setShowDropdown(!showDropdown);
+      const newShowDropdown = !showDropdown;
+      setShowDropdown(newShowDropdown);
+
+      if (newShowDropdown) {
+        // Initialize dropdown focus on the currently selected hour
+        const currentHourIndex = hourOptions.findIndex((option) => option.value === displayHours);
+        setDropdownFocus({
+          column: 0, // Start with hours column
+          option: Math.max(0, currentHourIndex),
+          isActive: true,
+        });
+
+        // Focus the dropdown after a small delay to ensure it's rendered
+        setTimeout(() => {
+          dropdownRef.current?.focus();
+        }, 10);
+      }
     }
   };
 
   const closeDropdown = () => {
     setShowDropdown(false);
+    setDropdownFocus({ column: 0, option: -1, isActive: false });
+  };
+
+  const closeDropdownAndRestoreFocus = () => {
+    closeDropdown();
+    // Restore focus to the trigger button
+    setTimeout(() => {
+      triggerButtonRef.current?.focus();
+    }, 10);
+  };
+
+  // Scroll focused option into view
+  const scrollFocusedOptionIntoView = (columnIndex: number, optionIndex: number) => {
+    const getContainerRef = () => {
+      switch (columnIndex) {
+        case 0:
+          return hoursListRef.current;
+        case 1:
+          return minutesListRef.current;
+        case 2:
+          return includesSeconds ? secondsListRef.current : null; // AM/PM doesn't need scrolling
+        case 3:
+          return null; // AM/PM doesn't need scrolling
+        default:
+          return null;
+      }
+    };
+
+    const container = getContainerRef();
+    if (!container) {
+      return;
+    }
+
+    // Find the focused option element
+    const options = container.children;
+    const focusedOption = options[optionIndex] as HTMLElement;
+
+    if (focusedOption) {
+      focusedOption.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  };
+
+  // Helper function to get current column options
+  const getCurrentColumnOptions = (columnIndex: number) => {
+    switch (columnIndex) {
+      case 0:
+        return hourOptions;
+      case 1:
+        return minuteOptions;
+      case 2:
+        return includesSeconds ? secondOptions : is12Hour ? [{ value: 'AM' }, { value: 'PM' }] : [];
+      case 3:
+        return is12Hour && includesSeconds ? [{ value: 'AM' }, { value: 'PM' }] : [];
+      default:
+        return [];
+    }
+  };
+
+  // Helper function to handle value updates for different columns
+  const updateColumnValue = (columnIndex: number, optionIndex: number) => {
+    const options = getCurrentColumnOptions(columnIndex);
+    const option = options[optionIndex];
+    if (!option) {
+      return;
+    }
+
+    switch (columnIndex) {
+      case 0: // Hours
+        handleDropdownHoursChange(option.value.toString());
+        break;
+      case 1: // Minutes
+        handleDropdownMinutesChange(option.value.toString());
+        break;
+      case 2: // Seconds or AM/PM (if no seconds)
+        if (includesSeconds) {
+          handleDropdownSecondsChange(option.value.toString());
+        } else if (is12Hour) {
+          handleDropdownPeriodChange(option.value as 'AM' | 'PM');
+        }
+        break;
+      case 3: // AM/PM (if seconds included)
+        if (is12Hour && includesSeconds) {
+          handleDropdownPeriodChange(option.value as 'AM' | 'PM');
+        }
+        break;
+    }
+  };
+
+  // Check if option is disabled
+  const isOptionDisabled = (columnIndex: number, optionValue: number | string) => {
+    if (!constraints.minTime && !constraints.maxTime) {
+      return false;
+    }
+
+    switch (columnIndex) {
+      case 0: {
+        // Hours
+        const hourValue = typeof optionValue === 'number' ? optionValue : parseInt(optionValue.toString(), 10);
+        let actualHour = hourValue;
+        if (is12Hour) {
+          if (timeValue.period === 'AM' && hourValue === 12) {
+            actualHour = 0;
+          } else if (timeValue.period === 'PM' && hourValue !== 12) {
+            actualHour = hourValue + 12;
+          }
+        }
+        return !getSegmentConstraints('hours', timeValue, constraints, format).validValues.includes(actualHour);
+      }
+      case 1: // Minutes
+        return !getSegmentConstraints('minutes', timeValue, constraints, format).validValues.includes(
+          typeof optionValue === 'number' ? optionValue : parseInt(optionValue.toString(), 10),
+        );
+      case 2: // Seconds or AM/PM
+        if (includesSeconds) {
+          return !getSegmentConstraints('seconds', timeValue, constraints, format).validValues.includes(
+            typeof optionValue === 'number' ? optionValue : parseInt(optionValue.toString(), 10),
+          );
+        }
+        return false;
+      case 3: // AM/PM
+        return false;
+      default:
+        return false;
+    }
+  };
+
+  // Navigate up/down within current column
+  const navigateUpDown = (direction: 'up' | 'down') => {
+    const options = getCurrentColumnOptions(dropdownFocus.column);
+    if (options.length === 0) {
+      return;
+    }
+
+    let newOptionIndex = dropdownFocus.option;
+    let attempts = 0;
+    const maxAttempts = options.length;
+
+    do {
+      if (direction === 'down') {
+        newOptionIndex = (newOptionIndex + 1) % options.length;
+      } else {
+        newOptionIndex = (newOptionIndex - 1 + options.length) % options.length;
+      }
+      attempts++;
+    } while (attempts < maxAttempts && isOptionDisabled(dropdownFocus.column, options[newOptionIndex].value));
+
+    // If we found a valid option, update focus and value
+    if (!isOptionDisabled(dropdownFocus.column, options[newOptionIndex].value)) {
+      setDropdownFocus({
+        ...dropdownFocus,
+        option: newOptionIndex,
+      });
+      updateColumnValue(dropdownFocus.column, newOptionIndex);
+
+      // Scroll the focused option into view
+      scrollFocusedOptionIntoView(dropdownFocus.column, newOptionIndex);
+    }
+  };
+
+  // Navigate left/right between columns
+  const navigateLeftRight = (direction: 'left' | 'right') => {
+    const maxColumn = is12Hour && includesSeconds ? 3 : is12Hour || includesSeconds ? 2 : 1;
+    let newColumn = dropdownFocus.column;
+
+    if (direction === 'right') {
+      newColumn = (newColumn + 1) % (maxColumn + 1);
+    } else {
+      newColumn = (newColumn - 1 + maxColumn + 1) % (maxColumn + 1);
+    }
+
+    // Find the currently selected option in the new column
+    const options = getCurrentColumnOptions(newColumn);
+    let selectedOptionIndex = -1;
+
+    switch (newColumn) {
+      case 0: // Hours
+        selectedOptionIndex = options.findIndex((option) => option.value === displayHours);
+        break;
+      case 1: // Minutes
+        selectedOptionIndex = options.findIndex((option) => option.value === timeValue.minutes);
+        break;
+      case 2: // Seconds or AM/PM
+        if (includesSeconds) {
+          selectedOptionIndex = options.findIndex((option) => option.value === timeValue.seconds);
+        } else if (is12Hour) {
+          selectedOptionIndex = options.findIndex((option) => option.value === timeValue.period);
+        }
+        break;
+      case 3: // AM/PM (when seconds included)
+        if (is12Hour && includesSeconds) {
+          selectedOptionIndex = options.findIndex((option) => option.value === timeValue.period);
+        }
+        break;
+    }
+
+    setDropdownFocus({
+      column: newColumn,
+      option: Math.max(0, selectedOptionIndex),
+      isActive: true,
+    });
+  };
+
+  // Handle keyboard navigation in dropdown
+  const handleDropdownKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (!dropdownFocus.isActive) {
+      return;
+    }
+
+    switch (event.key) {
+      case 'ArrowUp':
+        event.preventDefault();
+        navigateUpDown('up');
+        break;
+      case 'ArrowDown':
+        event.preventDefault();
+        navigateUpDown('down');
+        break;
+      case 'ArrowLeft':
+        event.preventDefault();
+        navigateLeftRight('left');
+        break;
+      case 'ArrowRight':
+        event.preventDefault();
+        navigateLeftRight('right');
+        break;
+      case 'Enter':
+        event.preventDefault();
+        closeDropdownAndRestoreFocus();
+        break;
+      case 'Escape':
+        event.preventDefault();
+        closeDropdownAndRestoreFocus();
+        break;
+    }
   };
 
   // Mobile: Use native time input
@@ -396,6 +654,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
       <Popover.TriggerContext>
         <Popover.Trigger
+          ref={triggerButtonRef}
           variant='tertiary'
           icon
           onClick={toggleDropdown}
@@ -406,6 +665,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           <ClockIcon />
         </Popover.Trigger>
         <Popover
+          ref={dropdownRef}
           className={styles.timePickerDropdown}
           aria-modal
           aria-hidden={!showDropdown}
@@ -415,6 +675,8 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           placement='bottom'
           autoFocus={true}
           onClose={closeDropdown}
+          onKeyDown={handleDropdownKeyDown}
+          tabIndex={0}
         >
           <div className={styles.dropdownColumns}>
             {/* Hours Column */}
@@ -424,7 +686,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 className={styles.dropdownList}
                 ref={hoursListRef}
               >
-                {hourOptions.map((option) => {
+                {hourOptions.map((option, optionIndex) => {
                   const isDisabled =
                     constraints.minTime || constraints.maxTime
                       ? !getSegmentConstraints('hours', timeValue, constraints, format).validValues.includes(
@@ -440,13 +702,19 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                         )
                       : false;
 
+                  const isSelected = option.value === displayHours;
+                  const isFocused =
+                    dropdownFocus.isActive && dropdownFocus.column === 0 && dropdownFocus.option === optionIndex;
+
                   return (
                     <button
                       key={option.value}
                       type='button'
                       className={`${styles.dropdownOption} ${
-                        option.value === displayHours ? styles.dropdownOptionSelected : ''
-                      } ${isDisabled ? styles.dropdownOptionDisabled : ''}`}
+                        isSelected ? styles.dropdownOptionSelected : ''
+                      } ${isFocused ? styles.dropdownOptionFocused : ''} ${
+                        isDisabled ? styles.dropdownOptionDisabled : ''
+                      }`}
                       onClick={() => !isDisabled && handleDropdownHoursChange(option.value.toString())}
                       disabled={isDisabled}
                     >
@@ -464,7 +732,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 className={styles.dropdownList}
                 ref={minutesListRef}
               >
-                {minuteOptions.map((option) => {
+                {minuteOptions.map((option, optionIndex) => {
                   const isDisabled =
                     constraints.minTime || constraints.maxTime
                       ? !getSegmentConstraints('minutes', timeValue, constraints, format).validValues.includes(
@@ -472,13 +740,19 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                         )
                       : false;
 
+                  const isSelected = option.value === timeValue.minutes;
+                  const isFocused =
+                    dropdownFocus.isActive && dropdownFocus.column === 1 && dropdownFocus.option === optionIndex;
+
                   return (
                     <button
                       key={option.value}
                       type='button'
                       className={`${styles.dropdownOption} ${
-                        option.value === timeValue.minutes ? styles.dropdownOptionSelected : ''
-                      } ${isDisabled ? styles.dropdownOptionDisabled : ''}`}
+                        isSelected ? styles.dropdownOptionSelected : ''
+                      } ${isFocused ? styles.dropdownOptionFocused : ''} ${
+                        isDisabled ? styles.dropdownOptionDisabled : ''
+                      }`}
                       onClick={() => !isDisabled && handleDropdownMinutesChange(option.value.toString())}
                       disabled={isDisabled}
                     >
@@ -497,7 +771,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                   className={styles.dropdownList}
                   ref={secondsListRef}
                 >
-                  {secondOptions.map((option) => {
+                  {secondOptions.map((option, optionIndex) => {
                     const isDisabled =
                       constraints.minTime || constraints.maxTime
                         ? !getSegmentConstraints('seconds', timeValue, constraints, format).validValues.includes(
@@ -505,13 +779,19 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                           )
                         : false;
 
+                    const isSelected = option.value === timeValue.seconds;
+                    const isFocused =
+                      dropdownFocus.isActive && dropdownFocus.column === 2 && dropdownFocus.option === optionIndex;
+
                     return (
                       <button
                         key={option.value}
                         type='button'
                         className={`${styles.dropdownOption} ${
-                          option.value === timeValue.seconds ? styles.dropdownOptionSelected : ''
-                        } ${isDisabled ? styles.dropdownOptionDisabled : ''}`}
+                          isSelected ? styles.dropdownOptionSelected : ''
+                        } ${isFocused ? styles.dropdownOptionFocused : ''} ${
+                          isDisabled ? styles.dropdownOptionDisabled : ''
+                        }`}
                         onClick={() => !isDisabled && handleDropdownSecondsChange(option.value.toString())}
                         disabled={isDisabled}
                       >
@@ -528,24 +808,27 @@ export const TimePicker: React.FC<TimePickerProps> = ({
               <div className={styles.dropdownColumn}>
                 <div className={styles.dropdownLabel}>AM/PM</div>
                 <div className={styles.dropdownList}>
-                  <button
-                    type='button'
-                    className={`${styles.dropdownOption} ${
-                      timeValue.period === 'AM' ? styles.dropdownOptionSelected : ''
-                    }`}
-                    onClick={() => handleDropdownPeriodChange('AM')}
-                  >
-                    AM
-                  </button>
-                  <button
-                    type='button'
-                    className={`${styles.dropdownOption} ${
-                      timeValue.period === 'PM' ? styles.dropdownOptionSelected : ''
-                    }`}
-                    onClick={() => handleDropdownPeriodChange('PM')}
-                  >
-                    PM
-                  </button>
+                  {['AM', 'PM'].map((period, optionIndex) => {
+                    const isSelected = timeValue.period === period;
+                    const columnIndex = includesSeconds ? 3 : 2; // AM/PM is last column
+                    const isFocused =
+                      dropdownFocus.isActive &&
+                      dropdownFocus.column === columnIndex &&
+                      dropdownFocus.option === optionIndex;
+
+                    return (
+                      <button
+                        key={period}
+                        type='button'
+                        className={`${styles.dropdownOption} ${
+                          isSelected ? styles.dropdownOptionSelected : ''
+                        } ${isFocused ? styles.dropdownOptionFocused : ''}`}
+                        onClick={() => handleDropdownPeriodChange(period as 'AM' | 'PM')}
+                      >
+                        {period}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}

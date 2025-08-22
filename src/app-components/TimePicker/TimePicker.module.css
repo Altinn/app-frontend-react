@@ -125,6 +125,18 @@
   background-color: var(--ds-color-accent-base-active) !important;
 }
 
+.dropdownOptionFocused {
+  outline: 2px solid var(--ds-color-accent-border-strong);
+  outline-offset: -2px;
+  background-color: var(--ds-color-accent-surface-hover);
+}
+
+.dropdownOptionFocused.dropdownOptionSelected {
+  /* When option is both focused and selected, prioritize selection styling but add focus outline */
+  outline: 2px solid var(--ds-color-neutral-text-on-inverted);
+  outline-offset: -2px;
+}
+
 .dropdownOptionDisabled {
   opacity: 0.5;
   cursor: not-allowed;
