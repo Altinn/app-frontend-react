@@ -346,9 +346,9 @@ export function useNavigatePage() {
 
     const searchParams = new URLSearchParams();
     searchParams.set(SearchParams.ExitSubform, 'true');
-    const navigateTo = navParams.current.componentId;
-    if (navigateTo) {
-      searchParams.set(SearchParams.FocusComponentId, navigateTo);
+    const componentToNavigateTo = navParams.current.componentId;
+    if (componentToNavigateTo) {
+      searchParams.set(SearchParams.FocusComponentId, componentToNavigateTo);
     }
     await navigateToPage(navParams.current.mainPageKey, { searchParams, resetReturnToView: false });
   };
