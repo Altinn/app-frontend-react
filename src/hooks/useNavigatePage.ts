@@ -250,13 +250,13 @@ export function useNavigatePage() {
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {
-      const exitSubform = options?.searchParams?.has(SearchParams.ExitSubform, 'true') ?? false;
+      const shouldExitSubform = options?.searchParams?.has(SearchParams.ExitSubform, 'true') ?? false;
       const replace = options?.replace ?? false;
       if (!page) {
         window.logWarn('navigateToPage called without page');
         return;
       }
-      if (!orderRef.current.includes(page) && !exitSubform) {
+      if (!orderRef.current.includes(page) && !shouldExitSubform) {
         window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
@@ -264,7 +264,7 @@ export function useNavigatePage() {
       if (options?.skipAutoSave !== true) {
         await maybeSaveOnPageChange();
       }
-      if (exitSubform) {
+      if (shouldExitSubform) {
         await refetchInitialValidations();
       }
 
@@ -277,7 +277,7 @@ export function useNavigatePage() {
       const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
 
       // Subform
-      if (mainPageKey && componentId && dataElementId && !exitSubform) {
+      if (mainPageKey && componentId && dataElementId && !shouldExitSubform) {
         const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${searchParams}`;
         return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
