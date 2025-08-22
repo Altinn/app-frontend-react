@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigation, useSearchParams } from 'react-router-dom';
-import type { RefObject } from 'react';
 import type { SetURLSearchParams } from 'react-router-dom';
 
 import classNames from 'classnames';
@@ -220,16 +219,16 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
   const isNavigating = useNavigation().state !== 'idle';
 
   const location = useLocation();
+  const abortController = useRef(new AbortController());
+
   const hashWas = window.location.hash;
   const locationIsUpdated = hashWas.endsWith(location.search);
-
-  const abortController = useRef(new AbortController());
   const shouldFocus = indexedId && indexedId == nodeId && !isNavigating && locationIsUpdated;
 
-  shouldFocus &&
-    setTimeout(async () => {
+  useEffect(() => {
+    const div = containerDivRef.current;
+    if (shouldFocus && div) {
       try {
-        const div = await waitForRef(containerDivRef, 2000, abortController.current.signal);
         requestAnimationFrame(() => {
           !abortController.current.signal.aborted && div.scrollIntoView({ behavior: 'instant' });
         });
@@ -237,10 +236,6 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
         const field = findElementToFocus(div, errorBinding);
         if (field && !abortController.current.signal.aborted) {
           field.focus();
-        }
-      } catch (error) {
-        if (!abortController.current.signal.aborted) {
-          console.error('Failed to focus component', nodeId, error);
         }
       } finally {
         if (!abortController.current.signal.aborted && hashWas === window.location.hash) {
@@ -251,7 +246,8 @@ function useHandleFocusComponent(nodeId: string, containerDivRef: React.RefObjec
           cleanupQuery(searchParams, setSearchParams);
         }
       }
-    }, 10);
+    }
+  }, [containerDivRef, errorBinding, hashWas, nodeId, searchParams, setSearchParams, shouldFocus]);
 
   useEffect(
     () => () => {
@@ -286,45 +282,4 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
   }
 
   return undefined;
-}
-
-function waitForRef<T>(ref: RefObject<T | null>, timeout = 2000, signal?: AbortSignal): Promise<T> {
-  return new Promise((resolve, reject) => {
-    let rafId: number;
-
-    if (signal?.aborted) {
-      reject(new DOMException('Operation was aborted', 'AbortError'));
-      return;
-    }
-
-    const check = () => {
-      if (signal?.aborted) {
-        cancelAnimationFrame(rafId);
-        clearTimeout(timeoutId);
-        reject(new DOMException('Operation was aborted', 'AbortError'));
-        return;
-      }
-
-      if (ref.current) {
-        clearTimeout(timeoutId);
-        resolve(ref.current);
-      } else {
-        rafId = requestAnimationFrame(check);
-      }
-    };
-
-    const timeoutId = setTimeout(() => {
-      cancelAnimationFrame(rafId);
-      reject(new Error(`Element not found within ${timeout}ms`));
-    }, timeout);
-
-    const onAbort = () => {
-      cancelAnimationFrame(rafId);
-      clearTimeout(timeoutId);
-      reject(new DOMException('Operation was aborted', 'AbortError'));
-    };
-
-    signal?.addEventListener('abort', onAbort, { once: true });
-    rafId = requestAnimationFrame(check);
-  });
 }
