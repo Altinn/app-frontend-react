@@ -8,7 +8,12 @@ export interface DropdownOption {
 /**
  * Round a value to the nearest step
  */
-export const roundToStep = (value: number, step: number): number => Math.round(value / step) * step;
+export const roundToStep = (value: number, step: number): number => {
+  if (!Number.isFinite(step) || step <= 0) {
+    return value;
+  }
+  return Math.round(value / step) * step;
+};
 
 /**
  * Get initial highlight index based on current value or system time
