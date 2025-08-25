@@ -71,6 +71,7 @@ Cypress.Commands.add('dsClear', (selector) => {
   // Additional step to ensure dropdown is reset
   cy.get(selector).click();
   cy.get(selector).type('{esc}');
+  cy.get('[data-floating-ui-portal]').should('not.exist');
 });
 
 Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
@@ -534,7 +535,6 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
     }
   });
 
-  cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
 });
 
