@@ -37,6 +37,7 @@ type Row = Record<string, string | number | boolean>;
 
 export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'List'>) => {
   const isMobile = useIsMobile();
+  const { langAsString } = useLanguage();
   const item = useItemWhenType(baseComponentId, 'List');
   const {
     tableHeaders,
@@ -126,12 +127,15 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
 
   const getRowLabel = (row: Row): string =>
     Object.entries(row)
-      .map(([key, value]) => {
-        const header = tableHeaders[key];
-        if (header) {
-          return `${header}: ${typeof value === 'string' ? value : String(value)}`;
+      .map(([key]) => {
+        const headerId = tableHeaders[key];
+        if (!headerId) {
+          return '';
         }
-        return '';
+        const header = langAsString(headerId);
+        const raw = row[key];
+        const value = typeof raw === 'string' ? langAsString(raw) : String(raw);
+        return `${header}: ${value}`;
       })
       .filter(Boolean)
       .join(', ');
