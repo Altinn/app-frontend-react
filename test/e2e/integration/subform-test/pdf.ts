@@ -155,7 +155,6 @@ describe('Subform test', () => {
     cy.testPdf({
       snapshotName: 'subform',
       enableResponseFuzzing: true,
-      returnToForm: true,
       callback: () => {
         cy.getSummary('Navn').should('contain.text', 'Per');
         cy.getSummary('Alder').should('contain.text', '28 år');
