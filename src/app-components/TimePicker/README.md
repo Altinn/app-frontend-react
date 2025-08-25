@@ -25,9 +25,8 @@ The TimePicker component provides an intuitive time input interface with separat
 ### Format Support
 
 - **24-hour format**: "HH:mm" or "HH:mm:ss"
-- **12-hour format**: "HH:mm a" or "HH:mm:ss a" (with AM/PM)
+- **12-hour format**: "hh:mm a" or "hh:mm:ss a" (with AM/PM)
 - **Flexible display**: Configurable time format with optional seconds
-
 ## Usage
 
 ```tsx
