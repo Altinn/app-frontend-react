@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 
 import { TimePicker } from 'src/app-components/TimePicker/components/TimePicker';
 
@@ -53,7 +53,8 @@ describe('TimePicker Dropdown Keyboard Navigation', () => {
       await openDropdown();
 
       // Selected hour should be visually highlighted
-      const selectedHour = screen.getByRole('button', { name: '14' });
+      const hoursColumn = screen.getByText('Timer').parentElement;
+      const selectedHour = within(hoursColumn!).getByRole('button', { name: '14' });
       expect(selectedHour).toHaveClass('dropdownOptionSelected');
 
       // Selected minute should be visually highlighted

@@ -23,10 +23,16 @@ export interface TimePickerProps {
   readOnly?: boolean;
   required?: boolean;
   autoComplete?: string;
-  'aria-label': string;
+  'aria-label'?: string;
   'aria-describedby'?: string;
   'aria-invalid'?: boolean;
   'aria-labelledby'?: never;
+  labels?: {
+    hours?: string;
+    minutes?: string;
+    seconds?: string;
+    amPm?: string;
+  };
 }
 
 const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue => {
@@ -92,6 +98,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
   'aria-invalid': ariaInvalid,
+  labels = {},
 }) => {
   const [isMobile, setIsMobile] = useState(() => isMobileDevice());
   const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
@@ -127,6 +134,21 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const constraints: TimeConstraints = {
     minTime,
     maxTime,
+  };
+
+  // Segment labels and placeholders
+  const segmentLabels = {
+    hours: labels.hours || 'Hours',
+    minutes: labels.minutes || 'Minutes',
+    seconds: labels.seconds || 'Seconds',
+    period: labels.amPm || 'AM/PM',
+  };
+
+  const segmentPlaceholders = {
+    hours: 'HH',
+    minutes: 'MM',
+    seconds: 'SS',
+    period: 'AM',
   };
 
   useEffect(() => {
@@ -633,18 +655,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 onNavigate={(direction) => handleSegmentNavigate(direction, index)}
                 onFocus={() => setFocusedSegment(index)}
                 onBlur={() => setFocusedSegment(null)}
-                placeholder={
-                  segmentType === 'hours'
-                    ? 'HH'
-                    : segmentType === 'minutes'
-                      ? 'MM'
-                      : segmentType === 'seconds'
-                        ? 'SS'
-                        : 'AM'
-                }
+                placeholder={segmentPlaceholders[segmentType]}
                 disabled={disabled}
                 readOnly={readOnly}
-                aria-label={`${ariaLabel} ${segmentType}`}
+                aria-label={segmentLabels[segmentType]}
                 autoFocus={index === 0}
               />
             </React.Fragment>

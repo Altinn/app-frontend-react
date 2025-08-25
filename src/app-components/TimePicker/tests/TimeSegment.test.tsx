@@ -127,7 +127,7 @@ describe('TimeSegment Component', () => {
       await userEvent.clear(input);
       await userEvent.type(input, 'abc');
 
-      expect(input).toHaveValue(''); // Should clear on invalid input
+      expect(input).toHaveValue('--'); // Should show placeholder on invalid input
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
@@ -144,7 +144,10 @@ describe('TimeSegment Component', () => {
       const input = screen.getByRole('textbox');
 
       await userEvent.clear(input);
-      await userEvent.type(input, 'PM');
+      await userEvent.type(input, 'P');
+
+      // Trigger blur to commit the buffer
+      await userEvent.tab();
 
       expect(onValueChange).toHaveBeenCalledWith('PM');
     });

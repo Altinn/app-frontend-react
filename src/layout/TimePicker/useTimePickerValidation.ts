@@ -4,7 +4,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
+import type { TimeFormat } from 'src/app-components/TimePicker/components/TimePicker';
 
 const parseTimeString = (
   timeStr: string,
@@ -66,7 +66,10 @@ const parseTimeString = (
   return { hours: adjustedHours, minutes, seconds };
 };
 
-const timeToMinutes = (time: { hours: number; minutes: number }): number => time.hours * 60 + time.minutes;
+// const timeToMinutes = (time: { hours: number; minutes: number }): number => time.hours * 60 + time.minutes;
+
+const timeToSeconds = (time: { hours: number; minutes: number; seconds?: number }): number =>
+  time.hours * 3600 + time.minutes * 60 + (time.seconds ?? 0);
 
 const extractTimeFromValue = (value: string, format: TimeFormat, timeStamp: boolean): string => {
   if (!value) {
@@ -130,8 +133,8 @@ export function useTimePickerValidation(baseComponentId: string): ComponentValid
   }
 
   if (minTime) {
-    const minParsed = parseTimeString(minTime, 'HH:mm');
-    if (minParsed && timeToMinutes(parsedTime) < timeToMinutes(minParsed)) {
+    const minParsed = parseTimeString(minTime, format);
+    if (minParsed && timeToSeconds(parsedTime) < timeToSeconds(minParsed)) {
       validations.push({
         message: { key: 'time_picker.min_time_exceeded', params: [minTime] },
         severity: 'error',
@@ -142,8 +145,8 @@ export function useTimePickerValidation(baseComponentId: string): ComponentValid
   }
 
   if (maxTime) {
-    const maxParsed = parseTimeString(maxTime, 'HH:mm');
-    if (maxParsed && timeToMinutes(parsedTime) > timeToMinutes(maxParsed)) {
+    const maxParsed = parseTimeString(maxTime, format);
+    if (maxParsed && timeToSeconds(parsedTime) > timeToSeconds(maxParsed)) {
       validations.push({
         message: { key: 'time_picker.max_time_exceeded', params: [maxTime] },
         severity: 'error',

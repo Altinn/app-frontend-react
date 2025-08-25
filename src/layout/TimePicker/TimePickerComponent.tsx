@@ -2,8 +2,9 @@ import React from 'react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Label } from 'src/app-components/Label/Label';
-import { TimePicker as TimePickerControl } from 'src/app-components/TimePicker/TimePicker';
+import { TimePicker as TimePickerControl } from 'src/app-components/TimePicker/components/TimePicker';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -25,6 +26,15 @@ export function TimePickerComponent({ baseComponentId, overrideDisplay }: PropsF
 
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding || '';
+  const { langAsString } = useLanguage();
+
+  // Create translated labels for segments
+  const segmentLabels = {
+    hours: langAsString('timepicker.hours') || 'Hours',
+    minutes: langAsString('timepicker.minutes') || 'Minutes',
+    seconds: langAsString('timepicker.seconds') || 'Seconds',
+    amPm: langAsString('timepicker.am_pm') || 'AM/PM',
+  };
 
   const handleTimeChange = (timeString: string) => {
     if (timeStamp && timeString) {
@@ -108,7 +118,7 @@ export function TimePickerComponent({ baseComponentId, overrideDisplay }: PropsF
             readOnly={readOnly}
             required={required}
             autoComplete={autocomplete}
-            aria-label='schmable'
+            labels={segmentLabels}
           />
         </Flex>
       </ComponentStructureWrapper>

@@ -27,7 +27,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const hoursInput = container.querySelector('input[aria-label="Select time hours"]') as HTMLInputElement;
+      const hoursInput = container.querySelector('input[aria-label="Hours"]') as HTMLInputElement;
       expect(hoursInput).toBeInTheDocument();
 
       // Focus the hours input
@@ -64,7 +64,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const hoursInput = container.querySelector('input[aria-label="Select time hours"]') as HTMLInputElement;
+      const hoursInput = container.querySelector('input[aria-label="Hours"]') as HTMLInputElement;
 
       hoursInput.focus();
 
@@ -96,7 +96,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const minutesInput = container.querySelector('input[aria-label="Select time minutes"]') as HTMLInputElement;
+      const minutesInput = container.querySelector('input[aria-label="Minutes"]') as HTMLInputElement;
 
       minutesInput.focus();
 
@@ -127,7 +127,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const minutesInput = container.querySelector('input[aria-label="Select time minutes"]') as HTMLInputElement;
+      const minutesInput = container.querySelector('input[aria-label="Minutes"]') as HTMLInputElement;
 
       minutesInput.focus();
 
@@ -165,7 +165,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const hoursInput = container.querySelector('input[aria-label="Select time hours"]') as HTMLInputElement;
+      const hoursInput = container.querySelector('input[aria-label="Hours"]') as HTMLInputElement;
 
       hoursInput.focus();
 
@@ -203,7 +203,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const hoursInput = container.querySelector('input[aria-label="Select time hours"]') as HTMLInputElement;
+      const hoursInput = container.querySelector('input[aria-label="Hours"]') as HTMLInputElement;
       hoursInput.focus();
 
       // Rapidly type "1" then "8"
@@ -230,7 +230,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const hoursInput = container.querySelector('input[aria-label="Select time hours"]') as HTMLInputElement;
+      const hoursInput = container.querySelector('input[aria-label="Hours"]') as HTMLInputElement;
       hoursInput.focus();
 
       // Type "2"
@@ -264,8 +264,8 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const hoursInput = container.querySelector('input[aria-label="Select time hours"]') as HTMLInputElement;
-      const minutesInput = container.querySelector('input[aria-label="Select time minutes"]') as HTMLInputElement;
+      const hoursInput = container.querySelector('input[aria-label="Hours"]') as HTMLInputElement;
+      const minutesInput = container.querySelector('input[aria-label="Minutes"]') as HTMLInputElement;
 
       hoursInput.focus();
 
@@ -298,7 +298,7 @@ describe('TimePicker Typing Behavior - No Initial Value Bug', () => {
         />,
       );
 
-      const hoursInput = container.querySelector('input[aria-label="Select time hours"]') as HTMLInputElement;
+      const hoursInput = container.querySelector('input[aria-label="Hours"]') as HTMLInputElement;
 
       // First typing session
       hoursInput.focus();

@@ -3,7 +3,7 @@ import {
   handleSegmentKeyDown,
   handleValueDecrement,
   handleValueIncrement,
-} from 'src/app-components/TimePicker/utils/utils/keyboardNavigation';
+} from 'src/app-components/TimePicker/utils/keyboardNavigation';
 
 interface MockKeyboardEvent {
   key: string;
@@ -11,14 +11,6 @@ interface MockKeyboardEvent {
 }
 
 type SegmentType = 'hours' | 'minutes' | 'seconds' | 'period';
-
-interface SegmentNavigationResult {
-  shouldNavigate: boolean;
-  direction?: 'left' | 'right';
-  shouldIncrement?: boolean;
-  shouldDecrement?: boolean;
-  preventDefault: boolean;
-}
 
 describe('Keyboard Navigation Logic', () => {
   describe('handleSegmentKeyDown', () => {

@@ -133,15 +133,22 @@ export const processSegmentBuffer = (buffer: string, segmentType: SegmentType, _
       isComplete: buffer === 'AM' || buffer === 'PM',
     };
   }
-
   const numValue = parseInt(buffer, 10);
+  if (Number.isNaN(numValue)) {
+    return {
+      displayValue: '--',
+      actualValue: null,
+      isComplete: false,
+    };
+  }
   const displayValue = buffer.length === 1 ? `0${buffer}` : buffer;
-
   return {
     displayValue,
     actualValue: numValue,
     isComplete:
-      buffer.length === 2 || (buffer.length === 1 && (numValue > 2 || (segmentType === 'minutes' && numValue > 5))),
+      buffer.length === 2 ||
+      (buffer.length === 1 &&
+        (numValue > 2 || ((segmentType === 'minutes' || segmentType === 'seconds') && numValue > 5))),
   };
 };
 
