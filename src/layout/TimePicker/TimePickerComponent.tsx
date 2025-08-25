@@ -21,7 +21,6 @@ export function TimePickerComponent({ baseComponentId, overrideDisplay }: PropsF
     id,
     dataModelBindings,
     grid,
-    autocomplete,
   } = useItemWhenType(baseComponentId, 'TimePicker');
 
   const { setValue, formData } = useDataModelBindings(dataModelBindings);
@@ -116,8 +115,6 @@ export function TimePickerComponent({ baseComponentId, overrideDisplay }: PropsF
             maxTime={maxTime}
             disabled={readOnly}
             readOnly={readOnly}
-            required={required}
-            autoComplete={autocomplete}
             labels={segmentLabels}
           />
         </Flex>

@@ -21,12 +21,6 @@ export interface TimePickerProps {
   maxTime?: string;
   disabled?: boolean;
   readOnly?: boolean;
-  required?: boolean;
-  autoComplete?: string;
-  'aria-label'?: string;
-  'aria-describedby'?: string;
-  'aria-invalid'?: boolean;
-  'aria-labelledby'?: never;
   labels?: {
     hours?: string;
     minutes?: string;
@@ -72,18 +66,6 @@ const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue => {
   };
 };
 
-const isMobileDevice = (): boolean => {
-  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
-    return false;
-  }
-
-  const userAgent = navigator.userAgent || navigator.vendor || (window as Window & { opera?: string }).opera || '';
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-  const isSmallScreen = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
-
-  return isMobile || isSmallScreen;
-};
-
 export const TimePicker: React.FC<TimePickerProps> = ({
   id,
   value,
@@ -93,14 +75,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   maxTime,
   disabled = false,
   readOnly = false,
-  required = false,
-  autoComplete,
-  'aria-label': ariaLabel,
-  'aria-describedby': ariaDescribedBy,
-  'aria-invalid': ariaInvalid,
+
   labels = {},
 }) => {
-  const [isMobile, setIsMobile] = useState(() => isMobileDevice());
   const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
   const [showDropdown, setShowDropdown] = useState(false);
   const [_focusedSegment, setFocusedSegment] = useState<number | null>(null);
@@ -150,15 +127,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     seconds: 'SS',
     period: 'AM',
   };
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(isMobileDevice());
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   useEffect(() => {
     setTimeValue(parseTimeString(value, format));
@@ -554,30 +522,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     }
   };
 
-  // Mobile: Use native time input
-  if (isMobile) {
-    const mobileValue = `${String(timeValue.hours).padStart(2, '0')}:${String(timeValue.minutes).padStart(2, '0')}`;
-
-    return (
-      <div className={styles.calendarInputWrapper}>
-        <input
-          type='time'
-          id={id}
-          value={mobileValue}
-          onChange={(e) => onChange(e.target.value)}
-          disabled={disabled}
-          readOnly={readOnly}
-          required={required}
-          autoComplete={autoComplete}
-          aria-label={ariaLabel}
-          aria-describedby={ariaDescribedBy}
-          aria-invalid={ariaInvalid}
-          className={styles.nativeInput}
-        />
-      </div>
-    );
-  }
-
   // Get display values for segments
   const displayHours = is12Hour
     ? timeValue.hours === 0
@@ -629,7 +573,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   };
 
   return (
-    <div className={styles.calendarInputWrapper}>
+    <div
+      id={id}
+      className={styles.calendarInputWrapper}
+    >
       <div className={styles.segmentContainer}>
         {segments.map((segmentType, index) => {
           const segmentValue = segmentType === 'period' ? timeValue.period : timeValue[segmentType];

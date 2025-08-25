@@ -44,10 +44,6 @@
   padding: 0 2px;
 }
 
-.nativeInput {
-  width: 100%;
-}
-
 .timePickerWrapper {
   position: relative;
   display: inline-block;
