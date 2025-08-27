@@ -10,7 +10,7 @@ import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
-import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
+import { DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 
 export const App = () => (
@@ -61,42 +61,6 @@ export const App = () => (
         path={TaskKeys.ProcessEnd}
         element={<DefaultReceipt />}
       />
-
-      <Route
-        path={TaskKeys.CustomReceipt}
-        element={
-          <PresentationComponent showNavigation={false}>
-            <FormProvider>
-              <CustomReceipt />
-            </FormProvider>
-          </PresentationComponent>
-        }
-      >
-        <Route
-          index
-          element={<NavigateToStartUrl forceCurrentTask={false} />}
-        />
-        <Route path=':pageKey'>
-          <Route
-            index
-            element={
-              <PDFWrapper>
-                <Form />
-              </PDFWrapper>
-            }
-          />
-          <Route path=':componentId'>
-            <Route
-              index
-              element={<ComponentRouting />}
-            />
-            <Route
-              path='*'
-              element={<ComponentRouting />}
-            />
-          </Route>
-        </Route>
-      </Route>
 
       <Route
         path=':taskId'
