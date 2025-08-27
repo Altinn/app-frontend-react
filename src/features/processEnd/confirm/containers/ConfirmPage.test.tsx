@@ -3,6 +3,7 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { AxiosResponse } from 'axios';
 
 import { getApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
@@ -82,7 +83,7 @@ describe('ConfirmPage', () => {
 
   it('should show loading when clicking submit and process/next has not resolved', async () => {
     const user = userEvent.setup();
-    jest.mocked(doProcessNext).mockImplementation(() => new Promise(() => {}) as Promise<IProcess>);
+    jest.mocked(doProcessNext).mockImplementation(async () => ({}) as AxiosResponse<IProcess>);
 
     await renderWithInstanceAndLayout({
       renderer: () => <ConfirmPage {...props} />,
