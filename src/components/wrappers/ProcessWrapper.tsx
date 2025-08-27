@@ -114,10 +114,6 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
     return <Loader reason='process-wrapper' />;
   }
 
-  if (process?.ended) {
-    return <NavigateToStartUrl />;
-  }
-
   if (!isValidTaskId) {
     return (
       <PresentationComponent showNavigation={false}>

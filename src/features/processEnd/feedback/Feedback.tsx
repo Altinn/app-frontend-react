@@ -5,19 +5,29 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { LangAsParagraph } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { getPageTitle } from 'src/utils/getPageTitle';
 
 export function Feedback() {
-  const { refetch: reFetchProcessData } = useProcessQuery();
-  const currentTask = useProcessQuery().data?.currentTask?.elementId;
+  const { refetch: reFetchProcessData, data: previousData } = useProcessQuery();
+  const navigateToTask = useNavigateToTask();
   const appName = useAppName();
   const appOwner = useAppOwner();
   const { langAsString } = useLanguage();
 
   // Continually re-fetch process data while the user is on the feedback page
   useBackoff({
-    enabled: !!currentTask,
-    callback: async () => void (await reFetchProcessData()),
+    callback: async () => {
+      const result = await reFetchProcessData();
+      if (
+        result.data?.currentTask?.elementId &&
+        result?.data.currentTask.elementId !== previousData?.currentTask?.elementId
+      ) {
+        navigateToTask(result.data.currentTask.elementId);
+      } else if (result.data?.ended) {
+        navigateToTask(TaskKeys.ProcessEnd);
+      }
+    },
   });
 
   return (
@@ -30,7 +40,7 @@ export function Feedback() {
   );
 }
 
-function useBackoff({ enabled, callback }: { enabled: boolean; callback: () => Promise<void> }) {
+function useBackoff({ callback }: { callback: () => Promise<void> }) {
   // The backoff algorithm is used to check the process data, and slow down the requests after a while.
   // At first, it starts off once a second (every 1000ms) for 10 seconds.
   // After that, it slows down by one more second for every request.
@@ -38,10 +48,6 @@ function useBackoff({ enabled, callback }: { enabled: boolean; callback: () => P
   const attempts = useRef(0);
 
   useEffect(() => {
-    if (!enabled) {
-      return () => {};
-    }
-
     let shouldContinue = true;
     function continueCalling() {
       const backoff = attempts.current < 10 ? 1000 : Math.min(30000, 1000 + (attempts.current - 10) * 1000);
@@ -60,5 +66,5 @@ function useBackoff({ enabled, callback }: { enabled: boolean; callback: () => P
     return () => {
       shouldContinue = false;
     };
-  }, [callback, enabled]);
+  }, [callback]);
 }
