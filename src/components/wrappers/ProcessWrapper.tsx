@@ -118,10 +118,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
 
   if (!isValidTaskId) {
     return (
-      <PresentationComponent
-        type={ProcessTaskType.Unknown}
-        showNavigation={false}
-      >
+      <PresentationComponent showNavigation={false}>
         <NavigationError label='general.invalid_task_id' />
       </PresentationComponent>
     );
@@ -129,10 +126,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
 
   if (!isCurrentTask) {
     return (
-      <PresentationComponent
-        type={ProcessTaskType.Unknown}
-        showNavigation={false}
-      >
+      <PresentationComponent showNavigation={false}>
         <NavigationError label='general.part_of_form_completed' />
       </PresentationComponent>
     );
@@ -140,7 +134,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
 
   if (taskType === ProcessTaskType.Confirm) {
     return (
-      <PresentationComponent type={ProcessTaskType.Confirm}>
+      <PresentationComponent>
         <Confirm />
       </PresentationComponent>
     );
@@ -148,7 +142,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
 
   if (taskType === ProcessTaskType.Feedback) {
     return (
-      <PresentationComponent type={ProcessTaskType.Feedback}>
+      <PresentationComponent>
         <Feedback />
       </PresentationComponent>
     );

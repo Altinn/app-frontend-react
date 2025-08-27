@@ -5,6 +5,7 @@ import { screen } from '@testing-library/react';
 
 import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
+import { useIsReceiptPage } from 'src/core/routing/useIsReceiptPage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { ProcessTaskType } from 'src/types';
@@ -14,11 +15,18 @@ import type { AppQueries } from 'src/queries/types';
 
 jest.mock('axios');
 
+jest.mock('src/core/routing/useIsReceiptPage', () => ({
+  useIsReceiptPage: jest.fn(),
+}));
+
+const mockUseIsReceiptPage = useIsReceiptPage as jest.MockedFunction<typeof useIsReceiptPage>;
+
 describe('Presentation', () => {
   let realLocation: Location = window.location;
 
   beforeEach(() => {
     realLocation = window.location;
+    mockUseIsReceiptPage.mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -31,7 +39,7 @@ describe('Presentation', () => {
     const mockedLocation = { ...realLocation, search: `?returnUrl=${returnUrl}` };
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
 
-    await render({ type: ProcessTaskType.Data }, { fetchReturnUrl: async () => returnUrl });
+    await render({}, { fetchReturnUrl: async () => returnUrl });
 
     const closeButton = screen.getByRole('link', {
       name: 'Tilbake',
@@ -47,7 +55,7 @@ describe('Presentation', () => {
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
     const messageBoxUrl = getMessageBoxUrl(getPartyMock().partyId);
 
-    await render({ type: ProcessTaskType.Data });
+    await render();
 
     const closeButton = screen.getByRole('link', {
       name: 'Tilbake til innboks',
@@ -63,7 +71,7 @@ describe('Presentation', () => {
     jest.spyOn(window, 'location', 'get').mockReturnValue(mockedLocation);
     const messageBoxUrl = getMessageBoxUrl(partyId);
 
-    await render({ type: ProcessTaskType.Data });
+    await render();
 
     const closeButton = screen.getByRole('link', {
       name: 'Tilbake til innboks',
@@ -74,7 +82,6 @@ describe('Presentation', () => {
 
   it('should render children', async () => {
     await render({
-      type: ProcessTaskType.Data,
       children: <div data-testid='child-component' />,
     });
 
@@ -82,7 +89,7 @@ describe('Presentation', () => {
   });
 
   it('the background color should be greyLight if type is "ProcessTaskType.Data"', async () => {
-    await render({ type: ProcessTaskType.Data });
+    await render();
 
     const appHeader = screen.getByTestId('AppHeader');
 
@@ -90,7 +97,9 @@ describe('Presentation', () => {
   });
 
   it('the background color should be lightGreen if type is "ProcessTaskType.Archived"', async () => {
-    await render({ type: ProcessTaskType.Archived });
+    mockUseIsReceiptPage.mockReturnValue(true);
+
+    await render();
 
     const appHeader = screen.getByTestId('AppHeader');
 

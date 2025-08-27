@@ -5,10 +5,10 @@ import type { SetURLSearchParams } from 'react-router-dom';
 import classNames from 'classnames';
 
 import { Flex } from 'src/app-components/Flex/Flex';
+import { SearchParams } from 'src/core/routing/types';
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { ExprVal } from 'src/features/expressions/types';
 import { Lang } from 'src/features/language/Lang';
-import { SearchParams } from 'src/hooks/navigation';
 import { FormComponentContextProvider } from 'src/layout/FormComponentContext';
 import classes from 'src/layout/GenericComponent.module.css';
 import { getComponentDef } from 'src/layout/index';

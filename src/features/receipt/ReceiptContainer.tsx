@@ -22,7 +22,6 @@ import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { getInstanceSender } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
-import { ProcessTaskType } from 'src/types';
 import {
   filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
   getAttachmentsWithDataType,
@@ -81,10 +80,7 @@ export const getSummaryDataObject = ({
 
 export function DefaultReceipt() {
   return (
-    <PresentationComponent
-      type={ProcessTaskType.Archived}
-      showNavigation={false}
-    >
+    <PresentationComponent showNavigation={false}>
       <ReceiptContainer />
     </PresentationComponent>
   );
