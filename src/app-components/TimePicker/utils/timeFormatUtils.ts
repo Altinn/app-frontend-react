@@ -115,3 +115,40 @@ export const isValidSegmentInput = (input: string, segmentType: SegmentType, for
 
   return false;
 };
+
+const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue => {
+  const defaultValue: TimeValue = { hours: 0, minutes: 0, seconds: 0, period: 'AM' };
+
+  if (!timeStr) {
+    return defaultValue;
+  }
+
+  const is12Hour = format.includes('a');
+  const includesSeconds = format.includes('ss');
+
+  const parts = timeStr.replace(/\s*(AM|PM)/i, '').split(':');
+  const periodMatch = timeStr.match(/(AM|PM)/i);
+
+  const hours = parseInt(parts[0] || '0', 10);
+  const minutes = parseInt(parts[1] || '0', 10);
+  const seconds = includesSeconds ? parseInt(parts[2] || '0', 10) : 0;
+  const period = periodMatch ? (periodMatch[1].toUpperCase() as 'AM' | 'PM') : 'AM';
+
+  let actualHours = isNaN(hours) ? 0 : hours;
+
+  if (is12Hour && !isNaN(hours)) {
+    // Parse 12-hour format properly
+    if (period === 'AM' && actualHours === 12) {
+      actualHours = 0;
+    } else if (period === 'PM' && actualHours !== 12) {
+      actualHours += 12;
+    }
+  }
+
+  return {
+    hours: actualHours,
+    minutes: isNaN(minutes) ? 0 : minutes,
+    seconds: isNaN(seconds) ? 0 : seconds,
+    period: is12Hour ? period : 'AM',
+  };
+};

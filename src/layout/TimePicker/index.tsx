@@ -51,6 +51,7 @@ export class TimePicker extends TimePickerDef implements ValidateComponent, Vali
           return data;
         }
 
+        const year = date.getFullYear();
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const seconds = date.getSeconds();
@@ -62,13 +63,14 @@ export class TimePicker extends TimePickerDef implements ValidateComponent, Vali
           if (timeFormat.includes('ss')) {
             timeString += `:${seconds.toString().padStart(2, '0')}`;
           }
-          timeString += ` ${period}`;
+          timeString += ` ${period} ${year}`;
           return timeString;
         } else {
           let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
           if (timeFormat.includes('ss')) {
             timeString += `:${seconds.toString().padStart(2, '0')}`;
           }
+          timeString += ` ${year}`;
           return timeString;
         }
       } catch {
