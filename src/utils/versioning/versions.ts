@@ -1,5 +1,6 @@
 import { isAtLeastVersion } from 'src/utils/versioning/versionCompare';
 
+export const MINIMUM_APPLICATION_VERSION_NAME = 'v8.0.0';
 export const FEATURE_VERSION_MAP = {
   MINIMUM_APPLICATION_VERSION: '8.0.0.108',
   UNLOCKING_ON_PROCESS_NEXT_FAILURE: '8.1.0.115',
