@@ -40,6 +40,7 @@ import {
   getRedirectUrl,
   getRulehandlerUrl,
   getSetSelectedPartyUrl,
+  getUpdateFileTagsUrl,
   getValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
@@ -64,7 +65,11 @@ import type { Instantiation } from 'src/features/instantiate/useInstantiation';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { OrderDetails, PaymentResponsePayload } from 'src/features/payment/types';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { BackendValidationIssue, IExpressionValidationConfig } from 'src/features/validation';
+import type {
+  BackendValidationIssue,
+  BackendValidationIssuesWithSource,
+  IExpressionValidationConfig,
+} from 'src/features/validation';
 import type { ILayoutSets, ILayoutSettings, IRawOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
@@ -141,6 +146,38 @@ export const doAttachmentAddTag = async (instanceId: string, dataGuid: string, t
   );
   if (response.status !== 201) {
     throw new Error('Failed to add tag to attachment');
+  }
+
+  return response.data;
+};
+
+export type SetTagsRequest = {
+  tags: string[];
+};
+
+type UpdateTagsResponse = {
+  tags: string[];
+  validationIssues: BackendValidationIssuesWithSource[];
+};
+
+export const doUpdateAttachmentTags = async ({
+  instanceId,
+  dataGuid,
+  setTagsRequest,
+}: {
+  instanceId: string;
+  dataGuid: string;
+  setTagsRequest: SetTagsRequest;
+}) => {
+  const url = getUpdateFileTagsUrl(instanceId, dataGuid);
+  const response = await httpPut<UpdateTagsResponse, SetTagsRequest>(url, setTagsRequest, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error('Failed to update tags on attachment');
   }
 
   return response.data;
@@ -226,8 +263,6 @@ export const fetchInstanceData = async (partyId: string, instanceGuid: string): 
   );
 
 export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
-
-export const fetchProcessNextSteps = (instanceId: string): Promise<string[]> => httpGet(getProcessNextUrl(instanceId));
 
 export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadata>(applicationMetadataApiUrl);
 
