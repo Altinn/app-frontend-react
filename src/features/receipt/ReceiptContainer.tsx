@@ -20,6 +20,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { getInstanceSender } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
+import { FixWrongReceiptType } from 'src/features/receipt/FixWrongReceiptType';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import {
@@ -80,9 +81,11 @@ export const getSummaryDataObject = ({
 
 export function DefaultReceipt() {
   return (
-    <PresentationComponent showNavigation={false}>
-      <ReceiptContainer />
-    </PresentationComponent>
+    <FixWrongReceiptType>
+      <PresentationComponent showNavigation={false}>
+        <ReceiptContainer />
+      </PresentationComponent>
+    </FixWrongReceiptType>
   );
 }
 
@@ -100,9 +103,11 @@ export function CustomReceipt() {
   }
 
   return (
-    <FormProvider>
-      <Outlet />
-    </FormProvider>
+    <FixWrongReceiptType>
+      <FormProvider>
+        <Outlet />
+      </FormProvider>
+    </FixWrongReceiptType>
   );
 }
 
