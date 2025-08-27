@@ -16,7 +16,7 @@
         "layout": [
           {
             "id": "tid",
-            "type": "Timepicker",
+            "type": "TimePicker",
             "dataModelBindings": {
               "simpleBinding": "Skjema.Tid"
             },
