@@ -12,7 +12,6 @@ import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/Ins
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
-import { PresentationType, ProcessTaskType } from 'src/types';
 
 export const App = () => (
   <Routes>
@@ -34,7 +33,7 @@ export const App = () => (
       <Route
         path=':pageKey'
         element={
-          <PresentationComponent type={PresentationType.Stateless}>
+          <PresentationComponent>
             <Form />
           </PresentationComponent>
         }
@@ -66,10 +65,7 @@ export const App = () => (
       <Route
         path={TaskKeys.CustomReceipt}
         element={
-          <PresentationComponent
-            type={ProcessTaskType.Archived}
-            showNavigation={false}
-          >
+          <PresentationComponent showNavigation={false}>
             <FormProvider>
               <CustomReceipt />
             </FormProvider>
@@ -121,7 +117,7 @@ export const App = () => (
             index
             element={
               <PDFWrapper>
-                <PresentationComponent type={ProcessTaskType.Data}>
+                <PresentationComponent>
                   <Form />
                 </PresentationComponent>
               </PDFWrapper>
