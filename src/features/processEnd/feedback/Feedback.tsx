@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
@@ -18,27 +18,33 @@ export function Feedback() {
   const optimisticallyUpdateProcess = useOptimisticallyUpdateProcess();
   const reFetchInstanceData = useInstanceDataQuery({ enabled: false }).refetch;
 
-  // Continually re-fetch process data while the user is on the feedback page
-  useBackoff({
-    callback: async () => {
-      const result = await reFetchProcessData();
-      let navigateTo: undefined | string;
-      if (
-        result.data?.currentTask?.elementId &&
-        result?.data.currentTask.elementId !== previousData?.currentTask?.elementId
-      ) {
-        navigateTo = result.data.currentTask.elementId;
-      } else if (result.data?.ended) {
-        navigateTo = TaskKeys.ProcessEnd;
-      }
+  const callback = useCallback(async () => {
+    const result = await reFetchProcessData();
+    let navigateTo: undefined | string;
+    if (
+      result.data?.currentTask?.elementId &&
+      result?.data.currentTask.elementId !== previousData?.currentTask?.elementId
+    ) {
+      navigateTo = result.data.currentTask.elementId;
+    } else if (result.data?.ended) {
+      navigateTo = TaskKeys.ProcessEnd;
+    }
 
-      if (navigateTo && result.data) {
-        optimisticallyUpdateProcess(result.data);
-        await reFetchInstanceData();
-        navigateToTask(navigateTo);
-      }
-    },
-  });
+    if (navigateTo && result.data) {
+      optimisticallyUpdateProcess(result.data);
+      await reFetchInstanceData();
+      navigateToTask(navigateTo);
+    }
+  }, [
+    navigateToTask,
+    optimisticallyUpdateProcess,
+    previousData?.currentTask?.elementId,
+    reFetchInstanceData,
+    reFetchProcessData,
+  ]);
+
+  // Continually re-fetch process data while the user is on the feedback page
+  useBackoff(callback);
 
   return (
     <div id='FeedbackContainer'>
@@ -50,7 +56,7 @@ export function Feedback() {
   );
 }
 
-function useBackoff({ callback }: { callback: () => Promise<void> }) {
+function useBackoff(callback: () => Promise<void>) {
   // The backoff algorithm is used to check the process data, and slow down the requests after a while.
   // At first, it starts off once a second (every 1000ms) for 10 seconds.
   // After that, it slows down by one more second for every request.
