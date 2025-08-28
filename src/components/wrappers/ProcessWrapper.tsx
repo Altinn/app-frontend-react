@@ -3,12 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { useQueryClient } from '@tanstack/react-query';
+import type { QueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
+import { useIsNavigating } from 'src/core/routing/useIsNavigating';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
@@ -94,24 +96,19 @@ export function NavigateToStartUrl({ forceCurrentTask = true }: { forceCurrentTa
 }
 
 export function ProcessWrapper({ children }: PropsWithChildren) {
-  const { data: process } = useProcessQuery();
-  const currentTaskId = process?.currentTask?.elementId;
   const taskId = useNavigationParam('taskId');
-  const isCurrentTask =
-    currentTaskId === undefined && taskId === TaskKeys.CustomReceipt ? true : currentTaskId === taskId;
-
+  const isWrongTask = useIsWrongTask(taskId);
   const isValidTaskId = useIsValidTaskId()(taskId);
   const taskType = useGetTaskTypeById()(taskId);
-  const queryClient = useQueryClient();
+  const isRunningProcessNext = useIsRunningProcessNext();
 
-  const [isRunningProcessNext, setIsRunningProcessNext] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    setIsRunningProcessNext(queryClient.isMutating({ mutationKey: getProcessNextMutationKey() }) > 0);
-  }, [queryClient]);
-
-  if (isRunningProcessNext) {
+  if (isRunningProcessNext === null || isRunningProcessNext || isWrongTask === null) {
     return <Loader reason='process-wrapper' />;
+  }
+
+  if (taskType === ProcessTaskType.Archived && taskId !== TaskKeys.CustomReceipt) {
+    // Someone else will redirect us to the receipt shortly. If a CustomReceipt is set up, we'll end back here.
+    return <Loader reason='redirect-to-receipt' />;
   }
 
   if (!isValidTaskId) {
@@ -122,7 +119,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
     );
   }
 
-  if (!isCurrentTask) {
+  if (isWrongTask) {
     return (
       <PresentationComponent showNavigation={false}>
         <NavigationError label='general.part_of_form_completed' />
@@ -188,3 +185,44 @@ export const ComponentRouting = () => {
   // If node exists but does not implement sub routing
   throw new Error(`Component ${componentId} does not have subRouting`);
 };
+
+function isRunningProcessNext(queryClient: QueryClient) {
+  return queryClient.isMutating({ mutationKey: getProcessNextMutationKey() }) > 0;
+}
+
+function useIsRunningProcessNext() {
+  const queryClient = useQueryClient();
+  const [isMutating, setIsMutating] = useState<boolean | null>(null);
+
+  // Intentionally wrapped in a useEffect() and saved as a state. If this happens, we'll seemingly be locked out
+  // with a <Loader /> forever, but when this happens, we also know we'll be re-rendered soon. This is only meant to
+  // block rendering when we're calling process/next.
+  useEffect(() => {
+    setIsMutating(isRunningProcessNext(queryClient));
+  }, [queryClient]);
+
+  return isMutating;
+}
+
+function useIsWrongTask(taskId: string | undefined) {
+  const isNavigating = useIsNavigating();
+  const { data: process } = useProcessQuery();
+  const currentTaskId = process?.currentTask?.elementId;
+
+  const [isWrongTask, setIsWrongTask] = useState<boolean | null>(null);
+  const isCurrentTask =
+    currentTaskId === undefined && taskId === TaskKeys.CustomReceipt ? true : currentTaskId === taskId;
+
+  // We intentionally delay this state from being set until after a useEffect(), so the navigation error does not
+  // show up while we're navigating. Without this, the message will flash over the screen shortly in-between all the
+  // <Loader /> components.
+  useEffect(() => {
+    if (isCurrentTask) {
+      setIsWrongTask(false);
+    } else {
+      setTimeout(() => setIsWrongTask(true), 100);
+    }
+  }, [isCurrentTask]);
+
+  return isWrongTask && !isCurrentTask && !isNavigating;
+}
