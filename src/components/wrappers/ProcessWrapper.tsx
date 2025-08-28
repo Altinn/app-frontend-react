@@ -77,14 +77,15 @@ export function NavigateToStartUrl({ forceCurrentTask = true }: { forceCurrentTa
   const processNextKey = getProcessNextMutationKey();
   const queryClient = useQueryClient();
   const isRunningProcessNext = queryClient.isMutating({ mutationKey: processNextKey });
+  const isNavigating = useIsNavigating();
 
   const currentLocation = location.pathname + location.search;
 
   useEffect(() => {
-    if (currentLocation !== startUrl && !isRunningProcessNext) {
+    if (currentLocation !== startUrl && !isRunningProcessNext && !isNavigating) {
       navigate(startUrl, { replace: true });
     }
-  }, [currentLocation, isRunningProcessNext, navigate, startUrl]);
+  }, [currentLocation, isRunningProcessNext, navigate, startUrl, isNavigating]);
 
   if (isRunningProcessNext) {
     return <Loader reason='navigate-to-start-process-next' />;
