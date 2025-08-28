@@ -49,6 +49,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
     secure,
     dataListId,
     required,
+    readOnly,
   } = item;
 
   const [pageSize, setPageSize] = useState<number>(pagination?.default ?? 0);
@@ -96,6 +97,10 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
   const description = item.textResourceBindings?.description;
 
   const handleRowClick = (row: Row) => {
+    if (readOnly) {
+      return;
+    }
+
     if (enabled) {
       toggle(row);
     } else {
@@ -171,15 +176,22 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
               </Heading>
             </Fieldset.Legend>
             {data?.listItems.map((row) => (
-              <Checkbox
+              <div
                 key={JSON.stringify(row)}
                 className={cn(classes.mobile)}
-                {...getCheckboxProps({ value: JSON.stringify(row) })}
-                onClick={() => handleRowClick(row)}
-                value={JSON.stringify(row)}
-                checked={isChecked(row)}
-                label={renderListItems(row, tableHeaders)}
-              />
+              >
+                {!readOnly && (
+                  <Checkbox
+                    className={cn(classes.mobileControl)}
+                    {...getCheckboxProps({ value: JSON.stringify(row) })}
+                    onClick={() => handleRowClick(row)}
+                    value={JSON.stringify(row)}
+                    checked={isChecked(row)}
+                    label=''
+                  />
+                )}
+                <div className={classes.mobileContent}>{renderListItems(row, tableHeaders)}</div>
+              </div>
             ))}
           </Fieldset>
         ) : (
@@ -200,14 +212,21 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
             )}
 
             {data?.listItems.map((row) => (
-              <Radio
+              <div
                 key={JSON.stringify(row)}
-                {...getRadioProps({ value: JSON.stringify(row) })}
-                value={JSON.stringify(row)}
-                className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
-                onClick={() => handleSelectedRadioRow({ selectedValue: row })}
-                label={renderListItems(row, tableHeaders)}
-              />
+                className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) && !readOnly })}
+              >
+                {!readOnly && (
+                  <Radio
+                    {...getRadioProps({ value: JSON.stringify(row) })}
+                    value={JSON.stringify(row)}
+                    className={classes.mobileControl}
+                    onClick={() => handleSelectedRadioRow({ selectedValue: row })}
+                    label=''
+                  />
+                )}
+                <div className={classes.mobileContent}>{renderListItems(row, tableHeaders)}</div>
+              </div>
             ))}
           </Fieldset>
         )}
@@ -246,11 +265,13 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
         )}
         <Table.Head>
           <Table.Row>
-            <Table.HeaderCell>
-              <span className={utilClasses.visuallyHidden}>
-                <Lang id='list_component.controlsHeader' />
-              </span>
-            </Table.HeaderCell>
+            {!readOnly && (
+              <Table.HeaderCell>
+                <span className={utilClasses.visuallyHidden}>
+                  <Lang id='list_component.controlsHeader' />
+                </span>
+              </Table.HeaderCell>
+            )}
             {Object.entries(tableHeaders).map(([key, value]) => {
               const isSortable = sortableColumns?.includes(key);
               let sort: AriaAttributes['aria-sort'] = undefined;
@@ -273,41 +294,45 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
           {data?.listItems.map((row) => (
             <Table.Row
               key={JSON.stringify(row)}
-              onClick={() => handleRowClick(row)}
+              onClick={!readOnly ? () => handleRowClick(row) : undefined}
+              className={cn({ [classes.readOnlyRow]: readOnly })}
             >
-              <Table.Cell
-                className={cn({
-                  [classes.selectedRowCell]: isRowSelected(row),
-                })}
-              >
-                {enabled ? (
-                  <Checkbox
-                    className={classes.toggleControl}
-                    label={<span className='sr-only'>{getRowLabel(row)}</span>}
-                    onChange={() => {}}
-                    value={JSON.stringify(row)}
-                    checked={isChecked(row)}
-                    name={indexedId}
-                  />
-                ) : (
-                  <RadioButton
-                    className={classes.toggleControl}
-                    label={getRowLabel(row)}
-                    hideLabel
-                    onChange={() => {
-                      handleSelectedRadioRow({ selectedValue: row });
-                    }}
-                    value={JSON.stringify(row)}
-                    checked={isRowSelected(row)}
-                    name={indexedId}
-                  />
-                )}
-              </Table.Cell>
+              {!readOnly && (
+                <Table.Cell
+                  className={cn({
+                    [classes.selectedRowCell]: isRowSelected(row) && !readOnly,
+                    [classes.readOnlyCell]: readOnly,
+                  })}
+                >
+                  {enabled ? (
+                    <Checkbox
+                      className={classes.toggleControl}
+                      label={<span className='sr-only'>{getRowLabel(row)}</span>}
+                      onChange={() => {}}
+                      value={JSON.stringify(row)}
+                      checked={isChecked(row)}
+                      name={indexedId}
+                    />
+                  ) : (
+                    <RadioButton
+                      className={classes.toggleControl}
+                      label={getRowLabel(row)}
+                      hideLabel
+                      onChange={() => {
+                        handleSelectedRadioRow({ selectedValue: row });
+                      }}
+                      value={JSON.stringify(row)}
+                      checked={isRowSelected(row)}
+                      name={indexedId}
+                    />
+                  )}
+                </Table.Cell>
+              )}
               {Object.keys(tableHeaders).map((key) => (
                 <Table.Cell
                   key={key}
                   className={cn({
-                    [classes.selectedRowCell]: isRowSelected(row),
+                    [classes.selectedRowCell]: isRowSelected(row) && !readOnly,
                   })}
                 >
                   {typeof row[key] === 'string' ? <Lang id={row[key]} /> : row[key]}

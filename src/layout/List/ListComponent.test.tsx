@@ -211,8 +211,8 @@ describe('ListComponent', () => {
     await waitFor(() => expect(screen.getAllByRole('radio')).toHaveLength(6));
     expect(screen.queryByRole('radio', { checked: true })).not.toBeInTheDocument();
 
-    // Select the second row
-    const swedishRow = screen.getByRole('radio', { name: /sweden/i });
+    // Select the second row - find by value since label is empty
+    const swedishRow = screen.getAllByRole('radio')[1];
     await user.click(swedishRow);
 
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({
@@ -222,6 +222,105 @@ describe('ListComponent', () => {
         { reference: { field: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 10 },
         { reference: { field: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 1738 },
       ],
+    });
+  });
+
+  describe('readOnly mode', () => {
+    it('should not render radio buttons when readOnly is true', async () => {
+      await render({ component: { readOnly: true } });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // No radio buttons should be present
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    });
+
+    it('should not render checkboxes when readOnly is true with group bindings', async () => {
+      await render({
+        component: {
+          readOnly: true,
+          dataModelBindings: {
+            Name: { dataType: defaultDataTypeMock, field: 'CountryName' },
+            Population: { dataType: defaultDataTypeMock, field: 'CountryPopulation' },
+            HighestMountain: { dataType: defaultDataTypeMock, field: 'CountryHighestMountain' },
+            group: { dataType: defaultDataTypeMock, field: 'Countries' },
+          },
+        },
+      });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // No checkboxes should be present
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+
+    it('should not allow row selection when readOnly is true', async () => {
+      const user = userEvent.setup({ delay: null });
+      const { formDataMethods } = await render({ component: { readOnly: true } });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // Try to click a row
+      const norwegianRow = screen.getByRole('row', { name: /norway/i });
+      await user.click(norwegianRow);
+
+      // No data should be saved
+      expect(formDataMethods.setMultiLeafValues).not.toHaveBeenCalled();
+    });
+
+    it('should not render controls in mobile view when readOnly is true', async () => {
+      jest.spyOn(useDeviceWidths, 'useIsMobile').mockReturnValue(true);
+
+      await render({
+        component: {
+          readOnly: true,
+          tableHeadersMobile: ['Name', 'FlagLink'],
+        },
+      });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // No radio buttons should be present
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    });
+
+    it('should not render checkbox controls in mobile view when readOnly is true with group bindings', async () => {
+      jest.spyOn(useDeviceWidths, 'useIsMobile').mockReturnValue(true);
+
+      await render({
+        component: {
+          readOnly: true,
+          dataModelBindings: {
+            Name: { dataType: defaultDataTypeMock, field: 'CountryName' },
+            Population: { dataType: defaultDataTypeMock, field: 'CountryPopulation' },
+            HighestMountain: { dataType: defaultDataTypeMock, field: 'CountryHighestMountain' },
+            group: { dataType: defaultDataTypeMock, field: 'Countries' },
+          },
+          tableHeadersMobile: ['Name', 'FlagLink'],
+        },
+      });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // No checkboxes should be present
+      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+    });
+
+    it('should still display table data when readOnly is true', async () => {
+      await render({ component: { readOnly: true } });
+
+      // All data should still be visible
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+      expect(screen.getByText('Sweden')).toBeInTheDocument();
+      expect(screen.getByText('Denmark')).toBeInTheDocument();
+      expect(screen.getByText('Germany')).toBeInTheDocument();
+      expect(screen.getByText('Spain')).toBeInTheDocument();
+      expect(screen.getByText('France')).toBeInTheDocument();
     });
   });
 });
