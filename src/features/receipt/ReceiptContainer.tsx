@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Outlet } from 'react-router-dom';
 
 import { formatDate } from 'date-fns';
 
@@ -12,9 +11,6 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner, useAppReceiver } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useCurrentDataModelDataElementId } from 'src/features/datamodel/useBindingSchema';
-import { FormProvider } from 'src/features/form/FormContext';
-import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -22,14 +18,12 @@ import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { getInstanceSender } from 'src/features/processEnd/confirm/helpers/returnConfirmSummaryObject';
 import { FixWrongReceiptType } from 'src/features/receipt/FixWrongReceiptType';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { TaskKeys } from 'src/hooks/useNavigatePage';
 import {
   filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
   getAttachmentsWithDataType,
   getRefAsPdfAttachments,
   toDisplayAttachments,
 } from 'src/utils/attachmentsUtils';
-import { behavesLikeDataTask } from 'src/utils/formLayout';
 import { getPageTitle } from 'src/utils/getPageTitle';
 import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
@@ -85,28 +79,6 @@ export function DefaultReceipt() {
       <PresentationComponent showNavigation={false}>
         <ReceiptContainer />
       </PresentationComponent>
-    </FixWrongReceiptType>
-  );
-}
-
-export function CustomReceipt() {
-  const layoutSets = useLayoutSets();
-  const dataElementId = useCurrentDataModelDataElementId();
-  const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
-  const customReceiptDataModelNotFound = hasCustomReceipt && !dataElementId;
-
-  if (customReceiptDataModelNotFound) {
-    window.logWarnOnce(
-      'You specified a custom receipt, but the data model is missing. Falling back to default receipt.',
-    );
-    return <ReceiptContainer />;
-  }
-
-  return (
-    <FixWrongReceiptType>
-      <FormProvider>
-        <Outlet />
-      </FormProvider>
     </FixWrongReceiptType>
   );
 }

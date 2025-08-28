@@ -10,6 +10,7 @@ import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
 import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
+import { FixWrongReceiptType } from 'src/features/receipt/FixWrongReceiptType';
 import { DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 
@@ -65,11 +66,13 @@ export const App = () => (
       <Route
         path=':taskId'
         element={
-          <ProcessWrapper>
-            <FormProvider>
-              <Outlet />
-            </FormProvider>
-          </ProcessWrapper>
+          <FixWrongReceiptType>
+            <ProcessWrapper>
+              <FormProvider>
+                <Outlet />
+              </FormProvider>
+            </ProcessWrapper>
+          </FixWrongReceiptType>
         }
       >
         <Route
