@@ -12,7 +12,6 @@ import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useIsNavigating } from 'src/core/routing/useIsNavigating';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { getProcessNextMutationKey, getTargetTaskFromProcess } from 'src/features/instance/useProcessNext';
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
@@ -20,7 +19,6 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
-import { CustomReceipt } from 'src/features/receipt/ReceiptContainer';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
@@ -124,16 +122,6 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
       <PresentationComponent showNavigation={false}>
         <NavigationError label='general.part_of_form_completed' />
       </PresentationComponent>
-    );
-  }
-
-  if (taskId === TaskKeys.CustomReceipt) {
-    return (
-      <FormProvider>
-        <PresentationComponent>
-          <CustomReceipt />
-        </PresentationComponent>
-      </FormProvider>
     );
   }
 
