@@ -16,7 +16,7 @@ export function Feedback() {
   const appOwner = useAppOwner();
   const { langAsString } = useLanguage();
   const optimisticallyUpdateProcess = useOptimisticallyUpdateProcess();
-  const reFetchInstanceData = useInstanceDataQuery().refetch;
+  const reFetchInstanceData = useInstanceDataQuery({ enabled: false }).refetch;
 
   // Continually re-fetch process data while the user is on the feedback page
   useBackoff({
