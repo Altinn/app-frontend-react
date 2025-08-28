@@ -4,6 +4,7 @@ import { jest } from '@jest/globals';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('SummaryGroupComponent', () => {
@@ -19,6 +20,12 @@ describe('SummaryGroupComponent', () => {
   });
 
   async function render() {
+    jest.mocked(fetchFormData).mockImplementation(async () => ({
+      mockGroup: {
+        mockDataBinding1: '1',
+        mockDataBinding2: '2',
+      },
+    }));
     return await renderWithInstanceAndLayout({
       renderer: (
         <SummaryGroupComponent
@@ -28,12 +35,6 @@ describe('SummaryGroupComponent', () => {
         />
       ),
       queries: {
-        fetchFormData: async () => ({
-          mockGroup: {
-            mockDataBinding1: '1',
-            mockDataBinding2: '2',
-          },
-        }),
         fetchLayouts: async () => ({
           FormLayout: {
             data: {

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
@@ -78,26 +78,16 @@ export function useSetOptions(
   const { formData, setValue } = useDataModelBindings(dataModelBindings);
   const value = formData.simpleBinding ?? '';
 
-  const currentValues = useMemo(
-    () => (value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : []),
-    [value, valueType],
-  );
+  const currentValues = value && value.length > 0 ? (valueType === 'multi' ? value.split(',') : [value]) : [];
+  const selectedValues = currentValues.filter((value) => options.find((option) => option.value === value));
 
-  const selectedValues = useMemo(
-    () => currentValues.filter((value) => options.find((option) => option.value === value)),
-    [options, currentValues],
-  );
-
-  const setData = useCallback(
-    (values: string[]) => {
-      if (valueType === 'single') {
-        setValue('simpleBinding', values.at(0));
-      } else if (valueType === 'multi') {
-        setValue('simpleBinding', values.join(','));
-      }
-    },
-    [setValue, valueType],
-  );
+  function setData(values: string[]) {
+    if (valueType === 'single') {
+      setValue('simpleBinding', values.at(0));
+    } else if (valueType === 'multi') {
+      setValue('simpleBinding', values.join(','));
+    }
+  }
 
   return {
     rawData: value,
