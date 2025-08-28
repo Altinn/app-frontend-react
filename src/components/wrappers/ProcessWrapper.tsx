@@ -21,6 +21,7 @@ import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
+import { useWaitForQueries } from 'src/hooks/useWaitForQueries';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
@@ -197,33 +198,34 @@ function useIsWrongTask(taskId: string | undefined) {
   const isNavigating = useIsNavigating();
   const { data: process } = useProcessQuery();
   const currentTaskId = process?.currentTask?.elementId;
+  const waitForQueries = useWaitForQueries();
 
   const [isWrongTask, setIsWrongTask] = useState<boolean | null>(null);
   const isCurrentTask =
     currentTaskId === undefined && taskId === TaskKeys.CustomReceipt ? true : currentTaskId === taskId;
 
-  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // We intentionally delay this state from being set until after a useEffect(), so the navigation error does not
-  // show up while we're navigating. Without this, the message will flash over the screen shortly in-between all the
-  // <Loader /> components.
+  // We intentionally delay this state from being set until after queries/mutations finish, so the navigation error
+  // does not show up while we're navigating. Without this, the message will flash over the screen shortly
+  // in-between all the <Loader /> components.
   useEffect(() => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
-    }
     if (isCurrentTask) {
       setIsWrongTask(false);
     } else {
-      timeoutRef.current = setTimeout(() => {
-        setIsWrongTask(true);
-        timeoutRef.current = null;
-      }, 100);
-    }
+      let cancelled = false;
+      const delayedCheck = async () => {
+        await waitForQueries();
+        await new Promise((resolve) => setTimeout(resolve, 100)); // Wait a bit longer, for navigation to maybe occur
+        if (!cancelled) {
+          setIsWrongTask(true);
+        }
+      };
+      delayedCheck().then();
 
-    const timeout = timeoutRef.current;
-    return () => void (timeout && clearTimeout(timeout));
-  }, [isCurrentTask]);
+      return () => {
+        cancelled = true;
+      };
+    }
+  }, [isCurrentTask, waitForQueries]);
 
   return isWrongTask && !isCurrentTask && !isNavigating;
 }
