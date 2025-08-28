@@ -20,17 +20,21 @@ export function Feedback() {
 
   const callback = useCallback(async () => {
     const result = await reFetchProcessData();
+    if (!result.data) {
+      return;
+    }
+
     let navigateTo: undefined | string;
-    if (result.data?.ended) {
+    if (result.data.ended) {
       navigateTo = TaskKeys.ProcessEnd;
     } else if (
-      result.data?.currentTask?.elementId &&
+      result.data.currentTask?.elementId &&
       result.data.currentTask.elementId !== previousData?.currentTask?.elementId
     ) {
       navigateTo = result.data.currentTask.elementId;
     }
 
-    if (navigateTo && result.data) {
+    if (navigateTo) {
       optimisticallyUpdateProcess(result.data);
       await reFetchInstanceData();
       navigateToTask(navigateTo);
