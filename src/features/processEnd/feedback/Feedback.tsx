@@ -21,13 +21,13 @@ export function Feedback() {
   const callback = useCallback(async () => {
     const result = await reFetchProcessData();
     let navigateTo: undefined | string;
-    if (
+    if (result.data?.ended) {
+      navigateTo = TaskKeys.ProcessEnd;
+    } else if (
       result.data?.currentTask?.elementId &&
-      result?.data.currentTask.elementId !== previousData?.currentTask?.elementId
+      result.data.currentTask.elementId !== previousData?.currentTask?.elementId
     ) {
       navigateTo = result.data.currentTask.elementId;
-    } else if (result.data?.ended) {
-      navigateTo = TaskKeys.ProcessEnd;
     }
 
     if (navigateTo && result.data) {
