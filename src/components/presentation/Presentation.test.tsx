@@ -31,6 +31,7 @@ describe('Presentation', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('should link to query parameter returnUrl if valid URL', async () => {
