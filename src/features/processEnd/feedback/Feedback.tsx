@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from 'react';
 
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-import { useProcessQuery } from 'src/features/instance/useProcessQuery';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useOptimisticallyUpdateProcess, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { LangAsParagraph } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
@@ -14,18 +15,27 @@ export function Feedback() {
   const appName = useAppName();
   const appOwner = useAppOwner();
   const { langAsString } = useLanguage();
+  const optimisticallyUpdateProcess = useOptimisticallyUpdateProcess();
+  const reFetchInstanceData = useInstanceDataQuery().refetch;
 
   // Continually re-fetch process data while the user is on the feedback page
   useBackoff({
     callback: async () => {
       const result = await reFetchProcessData();
+      let navigateTo: undefined | string;
       if (
         result.data?.currentTask?.elementId &&
         result?.data.currentTask.elementId !== previousData?.currentTask?.elementId
       ) {
-        navigateToTask(result.data.currentTask.elementId);
+        navigateTo = result.data.currentTask.elementId;
       } else if (result.data?.ended) {
-        navigateToTask(TaskKeys.ProcessEnd);
+        navigateTo = TaskKeys.ProcessEnd;
+      }
+
+      if (navigateTo && result.data) {
+        optimisticallyUpdateProcess(result.data);
+        await reFetchInstanceData();
+        navigateToTask(navigateTo);
       }
     },
   });
