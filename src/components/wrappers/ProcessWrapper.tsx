@@ -201,15 +201,27 @@ function useIsWrongTask(taskId: string | undefined) {
   const isCurrentTask =
     currentTaskId === undefined && taskId === TaskKeys.CustomReceipt ? true : currentTaskId === taskId;
 
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // We intentionally delay this state from being set until after a useEffect(), so the navigation error does not
   // show up while we're navigating. Without this, the message will flash over the screen shortly in-between all the
   // <Loader /> components.
   useEffect(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     if (isCurrentTask) {
       setIsWrongTask(false);
     } else {
-      setTimeout(() => setIsWrongTask(true), 100);
+      timeoutRef.current = setTimeout(() => {
+        setIsWrongTask(true);
+        timeoutRef.current = null;
+      }, 100);
     }
+
+    const timeout = timeoutRef.current;
+    return () => void (timeout && clearTimeout(timeout));
   }, [isCurrentTask]);
 
   return isWrongTask && !isCurrentTask && !isNavigating;
