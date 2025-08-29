@@ -32,16 +32,29 @@ export function ComponentStructureWrapper({
   const indexedId = useIndexedId(baseComponentId);
 
   const componentWithValidations = (
-    <Flex
-      id={`form-content-${indexedId}`}
-      className={className}
-      size={{ xs: 12, ...grid?.innerGrid }}
-      style={style}
-      item
-    >
-      {children}
-      {showValidationMessages && <AllComponentValidations baseComponentId={baseComponentId} />}
-    </Flex>
+    <>
+      <Flex
+        id={`form-content-${indexedId}`}
+        className={className}
+        size={{ xs: 12, ...grid?.innerGrid }}
+        style={style}
+        item
+      >
+        {children}
+      </Flex>
+
+      {showValidationMessages && (
+        <Flex
+          id={`form-content-${indexedId}-validations`}
+          className={className}
+          size={{ xs: 12, ...grid?.labelGrid }}
+          style={style}
+          item
+        >
+          <AllComponentValidations baseComponentId={baseComponentId} />
+        </Flex>
+      )}
+    </>
   );
 
   return label ? <Label {...label}>{componentWithValidations}</Label> : componentWithValidations;
