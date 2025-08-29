@@ -13,7 +13,8 @@ type Props = LinkProps & { children?: React.ReactNode };
  */
 export const LinkToPotentialPage = (props: Props) => {
   const parts = props.to.toString().split('/') ?? [];
-  const page = parts[parts.length - 1];
+  const lastPart = parts[parts.length - 1];
+  const page = lastPart.split('?')[0];
 
   const isHiddenPage = useIsHiddenPage(page);
   const { isValidPageId } = useNavigatePage();

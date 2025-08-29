@@ -1,4 +1,5 @@
 import React from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
@@ -7,10 +8,12 @@ import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useReturnToView, useSummaryNodeIdOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigatePage, useNextPageKey, usePreviousPageKey } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationButtons/NavigationButtonsComponent.module.css';
+import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -70,10 +73,18 @@ function NavigationButtonsComponentInner({
   const hasNext = !!useNextPageKey();
   const hasPrevious = !!usePreviousPageKey();
   const returnToView = useReturnToView();
-  const { performProcess, isAnyProcessing, process } = useIsProcessing<'next' | 'previous' | 'backToSummary'>();
+  const { langAsString } = useLanguage();
+
+  const [searchParams] = useSearchParams();
+  const backToPage = searchParams.get('backToPage');
+  const { performProcess, isAnyProcessing, process } = useIsProcessing<
+    'next' | 'previous' | 'backToSummary' | 'backToComponent'
+  >();
 
   const nextTextKey = textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
+
+  const backToComponentKey = textResourceBindings?.backToPage || 'form_filler.back_to_component';
 
   const showBackToSummaryButton = returnToView !== undefined;
   const showNextButton = showBackToSummaryButton ? showNextButtonSummary : hasNext;
@@ -143,6 +154,14 @@ function NavigationButtonsComponentInner({
       await navigateToPage(returnToView, { skipAutoSave: true });
     });
 
+  const onClickBackToComponent = () =>
+    performProcess('backToComponent', async () => {
+      await maybeSaveOnPageChange(); // hva gjør denne??
+      await navigateToPage(backToPage ?? '', {
+        skipAutoSave: true,
+      });
+    });
+
   /**
    * The buttons are rendered in order BackToSummary -> Next -> Previous, but shown in the form as Previous -> Next -> BackToSummary.
    * This is done with css and flex-direction: row-reverse. The reason for this is so that screen readers
@@ -154,6 +173,18 @@ function NavigationButtonsComponentInner({
         data-testid='NavigationButtons'
         className={classes.container}
       >
+        {!!backToPage && (
+          <Button
+            disabled={isAnyProcessing}
+            isLoading={process === 'backToComponent'}
+            onClick={onClickBackToComponent}
+          >
+            <Lang
+              id={backToComponentKey}
+              params={[smartLowerCaseFirst(langAsString(backToPage ?? ''))]}
+            />
+          </Button>
+        )}
         {showBackToSummaryButton && (
           <Button
             disabled={isAnyProcessing}
