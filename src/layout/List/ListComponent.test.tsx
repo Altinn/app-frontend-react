@@ -225,9 +225,9 @@ describe('ListComponent', () => {
     });
   });
 
-  describe('readOnly mode', () => {
-    it('should not render radio buttons when readOnly is true', async () => {
-      await render({ component: { readOnly: true } });
+  describe('auto-readonly mode (no dataModelBindings)', () => {
+    it('should not render radio buttons when no dataModelBindings exist', async () => {
+      await render({ component: { dataModelBindings: undefined } });
 
       // Wait for the data to load
       await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
@@ -236,29 +236,19 @@ describe('ListComponent', () => {
       expect(screen.queryByRole('radio')).not.toBeInTheDocument();
     });
 
-    it('should not render checkboxes when readOnly is true with group bindings', async () => {
-      await render({
-        component: {
-          readOnly: true,
-          dataModelBindings: {
-            Name: { dataType: defaultDataTypeMock, field: 'CountryName' },
-            Population: { dataType: defaultDataTypeMock, field: 'CountryPopulation' },
-            HighestMountain: { dataType: defaultDataTypeMock, field: 'CountryHighestMountain' },
-            group: { dataType: defaultDataTypeMock, field: 'Countries' },
-          },
-        },
-      });
+    it('should not render radio buttons when dataModelBindings is empty object', async () => {
+      await render({ component: { dataModelBindings: {} } });
 
       // Wait for the data to load
       await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
 
-      // No checkboxes should be present
-      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
+      // No radio buttons should be present
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
     });
 
-    it('should not allow row selection when readOnly is true', async () => {
+    it('should not allow row selection when no dataModelBindings exist', async () => {
       const user = userEvent.setup({ delay: null });
-      const { formDataMethods } = await render({ component: { readOnly: true } });
+      const { formDataMethods } = await render({ component: { dataModelBindings: undefined } });
 
       // Wait for the data to load
       await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
@@ -271,12 +261,12 @@ describe('ListComponent', () => {
       expect(formDataMethods.setMultiLeafValues).not.toHaveBeenCalled();
     });
 
-    it('should not render controls in mobile view when readOnly is true', async () => {
+    it('should not render controls in mobile view when no dataModelBindings exist', async () => {
       jest.spyOn(useDeviceWidths, 'useIsMobile').mockReturnValue(true);
 
       await render({
         component: {
-          readOnly: true,
+          dataModelBindings: undefined,
           tableHeadersMobile: ['Name', 'FlagLink'],
         },
       });
@@ -288,31 +278,8 @@ describe('ListComponent', () => {
       expect(screen.queryByRole('radio')).not.toBeInTheDocument();
     });
 
-    it('should not render checkbox controls in mobile view when readOnly is true with group bindings', async () => {
-      jest.spyOn(useDeviceWidths, 'useIsMobile').mockReturnValue(true);
-
-      await render({
-        component: {
-          readOnly: true,
-          dataModelBindings: {
-            Name: { dataType: defaultDataTypeMock, field: 'CountryName' },
-            Population: { dataType: defaultDataTypeMock, field: 'CountryPopulation' },
-            HighestMountain: { dataType: defaultDataTypeMock, field: 'CountryHighestMountain' },
-            group: { dataType: defaultDataTypeMock, field: 'Countries' },
-          },
-          tableHeadersMobile: ['Name', 'FlagLink'],
-        },
-      });
-
-      // Wait for the data to load
-      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
-
-      // No checkboxes should be present
-      expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
-    });
-
-    it('should still display table data when readOnly is true', async () => {
-      await render({ component: { readOnly: true } });
+    it('should still display table data when no dataModelBindings exist', async () => {
+      await render({ component: { dataModelBindings: undefined } });
 
       // All data should still be visible
       await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());

@@ -34,6 +34,17 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindingsForList } from 'src/layout/List/config.generated';
 
 type Row = Record<string, string | number | boolean>;
+type SelectionMode = 'readonly' | 'single' | 'multiple';
+
+function getSelectionMode(bindings: IDataModelBindingsForList): SelectionMode {
+  const hasValidBindings = Object.keys(bindings).length > 0 && Object.values(bindings).some((b) => b !== undefined);
+
+  if (!hasValidBindings) {
+    return 'readonly';
+  }
+
+  return bindings.group ? 'multiple' : 'single';
+}
 
 export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'List'>) => {
   const isMobile = useIsMobile();
@@ -49,7 +60,6 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
     secure,
     dataListId,
     required,
-    readOnly,
   } = item;
 
   const [pageSize, setPageSize] = useState<number>(pagination?.default ?? 0);
@@ -67,14 +77,19 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
   const { data } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
 
+  // Determine selection mode based on bindings
+  const selectionMode = getSelectionMode(bindings);
+  const readOnly = selectionMode === 'readonly';
+  const isMultipleSelection = selectionMode === 'multiple';
+
   const { formData, setValues } = useDataModelBindings(bindings, DEFAULT_DEBOUNCE_TIMEOUT, 'raw');
-  const { toggle, isChecked, enabled } = useSaveObjectToGroup(bindings);
+  const { toggle, isChecked } = useSaveObjectToGroup(bindings);
 
   const tableHeadersToShowInMobile = Object.keys(tableHeaders).filter(
     (key) => !tableHeadersMobile || tableHeadersMobile.includes(key),
   );
 
-  const selectedRow = !enabled
+  const selectedRow = !isMultipleSelection
     ? (data?.listItems.find((row) => Object.keys(formData).every((key) => row[key] === formData[key])) ?? '')
     : '';
 
@@ -87,7 +102,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
   }
 
   function isRowSelected(row: Row): boolean {
-    if (enabled) {
+    if (isMultipleSelection) {
       return isChecked(row);
     }
     return JSON.stringify(selectedRow) === JSON.stringify(row);
@@ -101,7 +116,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
       return;
     }
 
-    if (enabled) {
+    if (isMultipleSelection) {
       toggle(row);
     } else {
       handleSelectedRadioRow({ selectedValue: row });
@@ -156,10 +171,10 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
     required,
   });
 
-  if (isMobile) {
+  if (isMobile && !readOnly) {
     return (
       <ComponentStructureWrapper baseComponentId={baseComponentId}>
-        {enabled ? (
+        {isMultipleSelection ? (
           <Fieldset>
             <Fieldset.Legend>
               {description && (
@@ -303,7 +318,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
                     [classes.selectedRowCell]: isRowSelected(row) && !readOnly,
                   })}
                 >
-                  {enabled ? (
+                  {isMultipleSelection ? (
                     <Checkbox
                       className={classes.toggleControl}
                       label={<span className='sr-only'>{getRowLabel(row)}</span>}
