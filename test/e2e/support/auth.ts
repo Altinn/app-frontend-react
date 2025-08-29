@@ -117,7 +117,7 @@ export function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) 
   const user = cyUserCredentials[cyUser];
 
   if (Cypress.env('type') === 'localtest') {
-    localLogin({ displayName: user.displayName, authenticationLevel });
+    localLogin({ partyId: user.localPartyId, authenticationLevel });
     return;
   }
 
@@ -129,21 +129,34 @@ export function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) 
   }
 }
 
-type LocalLoginParams = {
-  displayName: string;
-  authenticationLevel: string;
-};
+type LocalLoginParams =
+  | {
+      partyId: string;
+      authenticationLevel: string;
+    }
+  | {
+      displayName: string;
+      authenticationLevel: string;
+    };
 
-function localLogin({ displayName, authenticationLevel }: LocalLoginParams) {
-  cy.log(`Logging in as local user: ${displayName} with authentication level: ${authenticationLevel}`);
-  cy.visit(`${Cypress.config('baseUrl')}`);
-  cy.findByRole('combobox', { name: /select test users/i })
-    .should('exist')
-    .find('option')
-    .contains(new RegExp(displayName, 'i'))
-    .then(($option) => {
-      cy.get('select#UserSelect').select($option.val() as string);
-    });
+function localLogin({ authenticationLevel, ...rest }: LocalLoginParams) {
+  if ('partyId' in rest) {
+    const partyId = rest.partyId;
+    cy.log(`Logging in as local user: ${partyId} with authentication level: ${authenticationLevel}`);
+    cy.visit(`${Cypress.config('baseUrl')}`);
+    cy.get('select#UserSelect').select(partyId);
+    cy.get('select#UserSelect').should('have.value', partyId);
+  } else if ('displayName' in rest) {
+    const displayName = rest.displayName;
+    cy.log(`Logging in as local user: ${displayName} with authentication level: ${authenticationLevel}`);
+    cy.findByRole('combobox', { name: /select test users/i })
+      .find('option')
+      .contains(new RegExp(displayName, 'i'))
+      .then(($option) => {
+        cy.get('select#UserSelect').select($option.val() as string);
+        cy.get('select#UserSelect').should('have.value', $option.val() as string);
+      });
+  }
 
   cy.findByRole('combobox', { name: /authentication level/i })
     .should('exist')
@@ -151,6 +164,7 @@ function localLogin({ displayName, authenticationLevel }: LocalLoginParams) {
     .contains(new RegExp(authenticationLevel, 'i'))
     .then(($option) => {
       cy.get('select#AuthenticationLevel').select($option.val() as string);
+      cy.get('select#AuthenticationLevel').should('have.value', $option.val() as string);
     });
 
   cy.findByRole('button', {
