@@ -29,8 +29,11 @@ export class AppFrontend {
     /** @see https://dev.altinn.studio/repos/ttd/subform-test */
     subformTest: 'subform-test',
 
+    /** @see https://dev.altinn.studio/repos/ttd/navigation-test */
+    navigationTest: 'navigation-test',
+
     /** @see https://dev.altinn.studio/repos/ttd/navigation-test-subform */
-    navigationTest: 'navigation-test-subform',
+    navigationTestSubform: 'navigation-test-subform',
 
     /** @see https://dev.altinn.studio/repos/ttd/signering-brukerstyrt */
     signeringBrukerstyrt: 'signering-brukerstyrt',
