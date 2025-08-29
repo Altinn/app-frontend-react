@@ -27,6 +27,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const canvasContainerRef = useRef<HTMLDivElement>(null); // Ref for the container to attach wheel event
 
   // State management
   const [imageSrc, setImageSrc] = useState<string | null>(null);
@@ -204,11 +205,29 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
   };
 
   // Handle mouse wheel for zooming
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const newZoom = zoom - e.deltaY * 0.001;
-    setZoom(Math.max(minAllowedZoom, Math.min(newZoom, MAX_ZOOM)));
-  };
+  const handleWheel = useCallback(
+    (e: WheelEvent) => {
+      e.preventDefault();
+      setZoom((currentZoom) => {
+        const newZoom = currentZoom - e.deltaY * 0.001;
+        return Math.max(minAllowedZoom, Math.min(newZoom, MAX_ZOOM));
+      });
+    },
+    [minAllowedZoom, MAX_ZOOM],
+  );
+
+  // Effect to manually add wheel event listener with passive: false
+  useEffect(() => {
+    const container = canvasContainerRef.current;
+    if (container) {
+      container.addEventListener('wheel', handleWheel, { passive: false });
+    }
+    return () => {
+      if (container) {
+        container.removeEventListener('wheel', handleWheel);
+      }
+    };
+  }, [handleWheel]);
 
   // Handle keyboard arrow keys for panning
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -391,12 +410,12 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
       <div className={styles.canvasContainerWrapper}>
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions*/}
         <div
+          ref={canvasContainerRef}
           className={styles.canvasContainer}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
-          onWheel={handleWheel}
           onKeyDown={handleKeyDown}
           // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
           tabIndex={0}
