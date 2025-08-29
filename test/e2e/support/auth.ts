@@ -118,7 +118,7 @@ export function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) 
 
   if (Cypress.env('type') === 'localtest') {
     localLogin({ partyId: user.localPartyId, authenticationLevel });
-    return;
+    return false;
   }
 
   const { userName, userPassword } = user;
@@ -127,6 +127,8 @@ export function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) 
   } else {
     cyUserTt02Login(userName, userPassword);
   }
+
+  return true;
 }
 
 type LocalLoginParams =

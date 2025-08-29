@@ -103,8 +103,8 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   if (tenorUser) {
     tenorUserLogin({ appName, tenorUser, authenticationLevel });
   } else if (cyUser) {
-    cyUserLogin({ cyUser, authenticationLevel });
-    cy.visit(targetUrlRaw, visitOptions);
+    const visitAfter = cyUserLogin({ cyUser, authenticationLevel });
+    visitAfter && cy.visit(targetUrlRaw, visitOptions);
   } else {
     // No user provided
     cy.visit(targetUrlRaw, visitOptions);
