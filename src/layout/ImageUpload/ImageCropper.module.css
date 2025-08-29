@@ -2,13 +2,8 @@
 .cropperContainer {
   display: flex;
   flex-direction: column;
-  gap: var(--ds-size-12);
-}
-
-@media (min-width: 1024px) {
-  .cropperContainer {
-    flex-direction: row;
-  }
+  gap: var(--ds-size-4);
+  align-items: center;
 }
 
 /* Controls Column */
@@ -130,6 +125,7 @@
     0 4px 6px -1px rgb(0 0 0 / 0.1),
     0 2px 4px -2px rgb(0 0 0 / 0.1);
   transition: all 300ms;
+  margin: var(--ds-size-24) 0;
 }
 
 .uploadButton:hover {
@@ -144,6 +140,8 @@
 .shapeControls {
   display: flex;
   gap: 0.5rem;
+  flex-direction: row;
+  align-items: center;
 }
 
 .shapeButton {
@@ -231,4 +229,11 @@
   border-radius: 50%;
   cursor: pointer;
   border: none;
+}
+
+.controlsContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }

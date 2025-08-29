@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   ArrowCirclepathReverseIcon as RefreshCw,
-  CircleIcon as Circle,
   ScissorsFillIcon as Scissors,
-  SquareIcon as Square,
   UploadIcon as Upload,
   ZoomMinusIcon as ZoomOut,
   ZoomPlusIcon as ZoomIn,
@@ -36,7 +34,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startDrag, setStartDrag] = useState<Position>({ x: 0, y: 0 });
-  const [isCircle, setIsCircle] = useState<boolean>(false);
+  const isCircle = true; // Fixed to circle for simplicity
 
   // Constants for viewport size
   const VIEWPORT_WIDTH = 300;
@@ -324,88 +322,6 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
 
   return (
     <div className={styles.cropperContainer}>
-      {/* Left side: Controls */}
-      <div className={styles.controlsContainer}>
-        <label
-          htmlFor='image-upload'
-          className={styles.uploadLabel}
-        >
-          <div className={styles.uploadButton}>
-            <Upload className={styles.icon} />
-            {imageSrc ? 'Change Image' : 'Upload Image'}
-          </div>
-          <input
-            id='image-upload'
-            type='file'
-            accept='image/*'
-            onChange={handleFileChange}
-            className={styles.hiddenInput}
-          />
-        </label>
-
-        {imageSrc && (
-          <>
-            <div className={styles.controlSection}>
-              <label
-                htmlFor='zoom'
-                className={styles.label}
-              >
-                Zoom
-              </label>
-              <div className={styles.zoomControls}>
-                <ZoomOut className={styles.zoomIcon} />
-                <input
-                  id='zoom'
-                  type='range'
-                  min='0'
-                  max='100'
-                  step='0.1'
-                  value={zoomToSliderValue(zoom)}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setZoom(sliderValueToZoom(parseFloat(e.target.value)))
-                  }
-                  className={styles.zoomSlider}
-                />
-                <ZoomIn className={styles.zoomIcon} />
-              </div>
-            </div>
-
-            <div className={styles.controlSection}>
-              <span className={styles.label}>Viewport Shape</span>
-              <div className={styles.shapeControls}>
-                <button
-                  onClick={() => setIsCircle(false)}
-                  className={`${styles.shapeButton} ${!isCircle ? styles.active : ''}`}
-                >
-                  <Square className={styles.icon} /> Square
-                </button>
-                <button
-                  onClick={() => setIsCircle(true)}
-                  className={`${styles.shapeButton} ${isCircle ? styles.active : ''}`}
-                >
-                  <Circle className={styles.icon} /> Circle
-                </button>
-              </div>
-            </div>
-
-            <div className={styles.actionButtons}>
-              <button
-                onClick={handleReset}
-                className={`${styles.button} ${styles.resetButton}`}
-              >
-                <RefreshCw className={styles.icon} /> Reset
-              </button>
-              <button
-                onClick={handleCrop}
-                className={`${styles.button} ${styles.cropButton}`}
-              >
-                <Scissors className={styles.icon} /> Crop
-              </button>
-            </div>
-          </>
-        )}
-      </div>
-
       {/* Right side: Canvas */}
       <div className={styles.canvasContainerWrapper}>
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions*/}
@@ -436,6 +352,69 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
             </div>
           )}
         </div>
+      </div>
+      {/* Left side: Controls */}
+      <div className={styles.controlsContainer}>
+        <label
+          htmlFor='image-upload'
+          className={styles.uploadLabel}
+        >
+          <div className={styles.uploadButton}>
+            <Upload className={styles.icon} />
+            {imageSrc ? 'Change Image' : 'Upload Image'}
+          </div>
+          <input
+            id='image-upload'
+            type='file'
+            accept='image/*'
+            onChange={handleFileChange}
+            className={styles.hiddenInput}
+          />
+        </label>
+
+        {imageSrc && (
+          <div className={styles.controlsContainer}>
+            <div className={styles.controlSection}>
+              <label
+                htmlFor='zoom'
+                className={styles.label}
+              >
+                Zoom
+              </label>
+              <div className={styles.zoomControls}>
+                <ZoomOut className={styles.zoomIcon} />
+                <input
+                  id='zoom'
+                  type='range'
+                  min='0'
+                  max='100'
+                  step='0.1'
+                  value={zoomToSliderValue(zoom)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setZoom(sliderValueToZoom(parseFloat(e.target.value)))
+                  }
+                  className={styles.zoomSlider}
+                />
+                <ZoomIn className={styles.zoomIcon} />
+              </div>
+            </div>
+
+            <div className={styles.actionButtons}>
+              <button
+                onClick={handleReset}
+                className={`${styles.button} ${styles.resetButton}`}
+              >
+                <RefreshCw className={styles.icon} /> Reset
+              </button>
+              <button
+                onClick={handleCrop}
+                className={`${styles.button} ${styles.cropButton}`}
+              >
+                <Scissors className={styles.icon} /> Crop
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
