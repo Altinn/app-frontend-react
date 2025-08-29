@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useMutationState, useQueryClient } from '@tanstack/react-query';
 import type { MutateOptions } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
@@ -38,7 +38,7 @@ function useInstantiateMutation() {
       navigate(`/instance/${data.id}`);
       await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
-  });
+  }).mutateAsync;
 }
 
 function useInstantiateWithPrefillMutation() {
@@ -57,31 +57,31 @@ function useInstantiateWithPrefillMutation() {
       navigate(`/instance/${data.id}`);
       await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
-  });
+  }).mutateAsync;
 }
 
 type Options<Vars> = MutateOptions<IInstance, AxiosError, Vars, unknown> & { force?: boolean };
 
 export const useInstantiation = () => {
-  const queryClient = useQueryClient();
   const instantiate = useInstantiateMutation();
   const instantiateWithPrefill = useInstantiateWithPrefillMutation();
-
-  const hasAlreadyInstantiated = queryClient.getMutationCache().findAll({ mutationKey: ['instantiate'] }).length > 0;
+  const mutations = useMutationState({ filters: { mutationKey: ['instantiate'] } });
+  const hasAlreadyInstantiated = mutations.length > 0;
+  const lastMutation = mutations.at(-1);
 
   return {
     instantiate: async (instanceOwnerPartyId: number, { force = false, ...options }: Options<number> = {}) => {
       if (!hasAlreadyInstantiated || force) {
-        await instantiate.mutateAsync(instanceOwnerPartyId, options).catch(() => {});
+        await instantiate(instanceOwnerPartyId, options).catch(() => {});
       }
     },
     instantiateWithPrefill: async (value: Instantiation, { force = false, ...options }: Options<Instantiation>) => {
       if (!hasAlreadyInstantiated || force) {
-        await instantiateWithPrefill.mutateAsync(value, options).catch(() => {});
+        await instantiateWithPrefill(value, options).catch(() => {});
       }
     },
 
-    error: instantiate.error || instantiateWithPrefill.error,
-    lastResult: instantiate.data ?? instantiateWithPrefill.data,
+    error: lastMutation?.error,
+    lastResult: lastMutation?.data,
   };
 };
