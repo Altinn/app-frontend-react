@@ -30,29 +30,18 @@ export const InstanceProvider = ({ children }: PropsWithChildren) => {
   const { isLoading: isLoadingProcess, error: processError } = useProcessQuery();
 
   const hasPendingScans = useHasPendingScans();
-  const {
-    error: instanceDataError,
-    isError: isInstanceDataError,
-    status,
-    data,
-  } = useInstanceDataQuery({ refetchInterval: hasPendingScans ? 5000 : false });
-
-  const instantiationError = instantiation.error ?? instanceDataError;
+  const { error: instanceDataError, data } = useInstanceDataQuery({ refetchInterval: hasPendingScans ? 5000 : false });
 
   if (!instanceOwnerPartyId || !instanceGuid) {
     throw new Error('Missing instanceOwnerPartyId or instanceGuid when creating instance context');
   }
 
-  if (isInstanceDataError) {
-    return <DisplayError error={instanceDataError} />;
-  }
-
-  const error = instantiationError ?? processError;
+  const error = instantiation.error ?? instanceDataError ?? processError;
   if (error) {
     return <DisplayError error={error} />;
   }
 
-  if (status === 'pending') {
+  if (!data) {
     return <Loader reason='loading-instance' />;
   }
   if (isLoadingProcess) {
