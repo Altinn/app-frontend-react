@@ -32,7 +32,7 @@ export function ComponentStructureWrapper({
   const indexedId = useIndexedId(baseComponentId);
 
   const componentWithValidations = (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
       <Flex
         id={`form-content-${indexedId}`}
         className={className}
@@ -54,7 +54,7 @@ export function ComponentStructureWrapper({
           <AllComponentValidations baseComponentId={baseComponentId} />
         </Flex>
       )}
-    </>
+    </div>
   );
 
   return label ? <Label {...label}>{componentWithValidations}</Label> : componentWithValidations;
