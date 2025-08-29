@@ -18,4 +18,20 @@ export const Config = new CG.component({
 })
   .makeSummarizable()
   .extendTextResources(CG.common('TRBLabel'))
+  .addProperty(
+    new CG.prop(
+      'circleCrop',
+      new CG.bool().optional().setTitle('Circloe crop').setDescription('Uses a circle crop area instead of a square.'),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'aspectRatio',
+      new CG.str()
+        .optional()
+        .setTitle('Aspect ratio')
+        .setDescription('Fix the crop area to a specific aspect ratio. E.g. 16:9 or 4:3')
+        .setPattern(/^\\d+:\\d+$/),
+    ),
+  )
   .addSummaryOverrides();
