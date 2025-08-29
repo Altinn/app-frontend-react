@@ -137,7 +137,12 @@ function generateHtmlToEval(javascript: string) {
           const maybeReturnUrl = await toEvaluate();
           document.cookie = 'cy-evaluated-js=true';
           if (maybeReturnUrl && typeof maybeReturnUrl === 'string') {
+            const pathBefore = window.location.pathname;
             window.location.href = maybeReturnUrl;
+            if (window.location.pathname === pathBefore) {
+              // In some cases it's only the hash that changes, so we need to reload the page for it to take effect.
+              window.location.reload();
+            }
           } else {
             window.location.reload();
           }
