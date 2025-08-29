@@ -212,7 +212,7 @@ describe('ListComponent', () => {
     expect(screen.queryByRole('radio', { checked: true })).not.toBeInTheDocument();
 
     // Select the second row - find by value since label is empty
-    const swedishRow = screen.getAllByRole('radio')[1];
+    const swedishRow = screen.getByRole('radio', { name: /sweden/i });
     await user.click(swedishRow);
 
     expect(formDataMethods.setMultiLeafValues).toHaveBeenCalledWith({

@@ -101,31 +101,31 @@
   min-width: unset;
 }
 
-/*.readOnlyRow {*/
-/*  cursor: default;*/
-/*}*/
+.listTable tr.readOnlyRow {
+  cursor: default;
+}
 
 /*.readOnlyRow:hover {*/
 /*  background-color: initial;*/
 /*}*/
 
-/*.readOnlyCell {*/
-/*  background-color: initial;*/
-/*}*/
+.readOnlyCell {
+  background-color: initial;
+}
 
-/*.mobileContent {*/
-/*  flex: 1;*/
-/*  display: flex;*/
-/*  flex-direction: column;*/
-/*  gap: var(--ds-size-4);*/
-/*}*/
+.mobileContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-4);
+}
 
-/*.mobileContent div {*/
-/*  display: flex;*/
-/*  flex-direction: column;*/
-/*  gap: var(--ds-size-2);*/
-/*}*/
+.mobileContent div {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-2);
+}
 
-/*.mobileControl {*/
-/*  flex-shrink: 0;*/
-/*}*/
+.mobileControl {
+  flex-shrink: 0;
+}

@@ -184,10 +184,10 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
                   <Checkbox
                     className={cn(classes.mobileControl)}
                     {...getCheckboxProps({ value: JSON.stringify(row) })}
-                    onClick={() => handleRowClick(row)}
+                    onChange={() => handleRowClick(row)}
                     value={JSON.stringify(row)}
                     checked={isChecked(row)}
-                    label=''
+                    label={<span className={utilClasses.visuallyHidden}>{getRowLabel(row)}</span>}
                   />
                 )}
                 <div className={classes.mobileContent}>{renderListItems(row, tableHeaders)}</div>
@@ -221,8 +221,8 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
                     {...getRadioProps({ value: JSON.stringify(row) })}
                     value={JSON.stringify(row)}
                     className={classes.mobileControl}
-                    onClick={() => handleSelectedRadioRow({ selectedValue: row })}
-                    label=''
+                    onChange={() => handleSelectedRadioRow({ selectedValue: row })}
+                    label={<span className={utilClasses.visuallyHidden}>{getRowLabel(row)}</span>}
                   />
                 )}
                 <div className={classes.mobileContent}>{renderListItems(row, tableHeaders)}</div>
@@ -301,14 +301,14 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
                 <Table.Cell
                   className={cn({
                     [classes.selectedRowCell]: isRowSelected(row) && !readOnly,
-                    [classes.readOnlyCell]: readOnly,
                   })}
                 >
                   {enabled ? (
                     <Checkbox
                       className={classes.toggleControl}
                       label={<span className='sr-only'>{getRowLabel(row)}</span>}
-                      onChange={() => {}}
+                      onChange={() => toggle(row)}
+                      onClick={(e) => e.stopPropagation()}
                       value={JSON.stringify(row)}
                       checked={isChecked(row)}
                       name={indexedId}
@@ -318,9 +318,8 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
                       className={classes.toggleControl}
                       label={getRowLabel(row)}
                       hideLabel
-                      onChange={() => {
-                        handleSelectedRadioRow({ selectedValue: row });
-                      }}
+                      onChange={() => handleSelectedRadioRow({ selectedValue: row })}
+                      onClick={(e) => e.stopPropagation()}
                       value={JSON.stringify(row)}
                       checked={isRowSelected(row)}
                       name={indexedId}
