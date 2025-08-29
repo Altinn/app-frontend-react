@@ -1,7 +1,3 @@
-.listTable {
-  width: 100%;
-}
-
 .listTable caption {
   text-align: left;
   padding-bottom: var(--ds-size-4);
@@ -101,13 +97,13 @@
   min-width: unset;
 }
 
+.mobileControl {
+  flex-shrink: 0;
+}
+
 .listTable tr.readOnlyRow {
   cursor: default;
 }
-
-/*.readOnlyRow:hover {*/
-/*  background-color: initial;*/
-/*}*/
 
 .readOnlyCell {
   background-color: initial;
@@ -124,8 +120,4 @@
   display: flex;
   flex-direction: column;
   gap: var(--ds-size-2);
-}
-
-.mobileControl {
-  flex-shrink: 0;
 }
