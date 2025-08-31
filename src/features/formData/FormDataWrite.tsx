@@ -24,7 +24,6 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { type BackendValidationIssueGroups, IgnoredValidators } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
-import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
 import { getMultiPatchUrl } from 'src/utils/urls/appUrlHelper';
@@ -85,13 +84,15 @@ const {
     createFormDataWriteStore(initialDataModels, autoSaving, proxies, ruleConnections, schemaLookup, changeInstance),
 });
 
+const saveFormDataMutationKey = ['saveFormData'] as const;
+
 function useFormDataSaveMutation() {
   const { doPatchFormData, doPostStatelessFormData } = useAppMutations();
   const getDataModelUrl = useGetDataModelUrl();
   const instanceId = useLaxInstanceId();
   const multiPatchUrl = instanceId ? getMultiPatchUrl(instanceId) : undefined;
-  const currentLanguage = useAsRef(useCurrentLanguage());
-  const dataModelsRef = useAsRef(useSelector((state) => state.dataModels));
+  const currentLanguage = useCurrentLanguage();
+  const dataModels = useSelector((state) => state.dataModels);
   const saveFinished = useSelector((s) => s.saveFinished);
   const cancelSave = useSelector((s) => s.cancelSave);
   const isStateless = useApplicationMetadata().isStatelessApp;
@@ -101,7 +102,6 @@ function useFormDataSaveMutation() {
     { prev: { [dataType: string]: object }; next: { [dataType: string]: object } },
     FormDataContext
   >(useStore());
-  const isSavingNow = useIsSavingNow();
   const queryClient = useQueryClient();
 
   // This updates the query cache with the new data models every time a save has finished. This means we won't have to
@@ -121,7 +121,7 @@ function useFormDataSaveMutation() {
   function checkForRunawaySaving() {
     const lastRequests = queryClient
       .getMutationCache()
-      .findAll({ status: 'success', mutationKey: ['saveFormData'] })
+      .findAll({ status: 'success', mutationKey: saveFormDataMutationKey })
       .sort((a, b) => a.state.submittedAt - b.state.submittedAt)
       .map((request) => ({
         data: request.state.data,
@@ -174,34 +174,49 @@ function useFormDataSaveMutation() {
   }
 
   const mutation = useMutation({
-    mutationKey: ['saveFormData'],
+    mutationKey: saveFormDataMutationKey,
+    scope: { id: saveFormDataMutationKey[0] },
     mutationFn: async (): Promise<FDSaveFinished | undefined> => {
-      // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
-      // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
-      // navigating away from the form context.
-      debounce('beforeSave');
-      const { next, prev } = await waitFor((state, setReturnValue) => {
-        if (!hasUnDebouncedCurrentChanges(state)) {
-          setReturnValue({
-            next: Object.entries(state.dataModels).reduce((next, [dataType, { debouncedCurrentData }]) => {
-              next[dataType] = debouncedCurrentData;
-              return next;
-            }, {}),
-            prev: Object.entries(state.dataModels).reduce((prev, [dataType, { lastSavedData }]) => {
-              prev[dataType] = lastSavedData;
-              return prev;
-            }, {}),
-          });
-          return true;
-        }
-        return false;
-      });
+      const { prev, next } = await getDataModelChanges();
 
-      if (deepEqual(prev, next)) {
+      const equal = deepEqual(prev, next);
+
+      if (equal) {
         return;
       }
 
       if (isStateless) {
+        return saveStateless();
+      }
+
+      const dataTypes = Object.keys(dataModels);
+      const shouldUseMultiPatch = dataTypes.length > 1;
+      if (shouldUseMultiPatch) {
+        return performMultiPatch();
+      }
+
+      return preformOldPatch();
+
+      async function getDataModelChanges() {
+        // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
+        // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
+        // navigating away from the form context.
+        debounce('beforeSave');
+        await waitFor((state) => !hasUnDebouncedCurrentChanges(state));
+
+        const prev = Object.entries(dataModels).reduce((prev, [dataType, { lastSavedData }]) => {
+          prev[dataType] = lastSavedData;
+          return prev;
+        }, {});
+        const next = Object.entries(dataModels).reduce((next, [dataType, { debouncedCurrentData }]) => {
+          next[dataType] = debouncedCurrentData;
+          return next;
+        }, {});
+
+        return { prev, next };
+      }
+
+      async function saveStateless() {
         const options: AxiosRequestConfig = {};
         if (selectedPartyId !== undefined) {
           options.headers = {
@@ -212,7 +227,7 @@ function useFormDataSaveMutation() {
         // Stateless does not support multi patch, so we need to save each model independently
         const newDataModels: Promise<UpdatedDataModel>[] = [];
 
-        for (const dataType of Object.keys(dataModelsRef.current)) {
+        for (const dataType of Object.keys(dataModels)) {
           if (next[dataType] === prev[dataType]) {
             continue;
           }
@@ -238,115 +253,106 @@ function useFormDataSaveMutation() {
           savedData: next,
           validationIssues: undefined,
         };
-      } else {
-        // Stateful needs to use either old patch or multi patch
+      }
 
-        const dataTypes = Object.keys(dataModelsRef.current);
-        const shouldUseMultiPatch = dataTypes.length > 1;
-        if (shouldUseMultiPatch) {
-          if (!multiPatchUrl) {
-            throw new Error(`Cannot patch data, multipatch url could not be determined`);
-          }
+      async function performMultiPatch() {
+        if (!multiPatchUrl) {
+          throw new Error(`Cannot patch data, multipatch url could not be determined`);
+        }
 
-          const patches: IPatchListItem[] = [];
+        const patches: IPatchListItem[] = [];
 
-          for (const dataType of dataTypes) {
-            const { dataElementId } = dataModelsRef.current[dataType];
-            if (dataElementId && next[dataType] !== prev[dataType]) {
-              const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
-              if (patch.length > 0) {
-                patches.push({ dataElementId, patch });
-              }
+        for (const dataType of dataTypes) {
+          const { dataElementId } = dataModels[dataType];
+          if (dataElementId && next[dataType] !== prev[dataType]) {
+            const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
+            if (patch.length > 0) {
+              patches.push({ dataElementId, patch });
             }
           }
+        }
 
-          if (patches.length === 0) {
-            return;
-          }
+        if (patches.length === 0) {
+          return;
+        }
 
-          const { newDataModels, validationIssues, instance } = await doPatchMultipleFormData(
-            getUrlWithLanguage(multiPatchUrl, currentLanguage.current),
-            {
-              patches,
-              // Ignore validations that require layout parsing in the backend which will slow down requests significantly
-              ignoredValidators: IgnoredValidators,
-            },
-          );
-
-          const dataModelChanges: UpdatedDataModel[] = [];
-          for (const { dataElementId, data } of newDataModels) {
-            const dataType = Object.keys(dataModelsRef.current).find(
-              (dataType) => dataModelsRef.current[dataType].dataElementId === dataElementId,
-            );
-            if (dataType) {
-              dataModelChanges.push({ dataType, data, dataElementId });
-            }
-          }
-
-          const validationIssueGroups: BackendValidationIssueGroups = Object.fromEntries(
-            validationIssues.map(({ source, issues }) => [source, issues]),
-          );
-
-          return {
-            newDataModels: dataModelChanges,
-            validationIssues: validationIssueGroups,
-            instance,
-            savedData: next,
-          };
-        } else {
-          const dataType = dataTypes[0];
-          const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
-          if (patch.length === 0) {
-            return;
-          }
-
-          const dataElementId = dataModelsRef.current[dataType].dataElementId;
-          if (!dataElementId) {
-            throw new Error(`Cannot patch data, dataElementId for dataType '${dataType}' could not be determined`);
-          }
-          const url = getDataModelUrl({ dataElementId });
-          if (!url) {
-            throw new Error(`Cannot patch data, url for dataType '${dataType}' could not be determined`);
-          }
-          const { newDataModel, validationIssues, instance } = await doPatchFormData(url, {
-            patch,
+        const { newDataModels, validationIssues, instance } = await doPatchMultipleFormData(
+          getUrlWithLanguage(multiPatchUrl, currentLanguage),
+          {
+            patches,
             // Ignore validations that require layout parsing in the backend which will slow down requests significantly
             ignoredValidators: IgnoredValidators,
-          });
-          return {
-            newDataModels: [{ dataType, data: newDataModel, dataElementId }],
-            validationIssues,
-            instance,
-            savedData: next,
-          };
+          },
+        );
+
+        const dataModelChanges: UpdatedDataModel[] = [];
+        for (const { dataElementId, data } of newDataModels) {
+          const dataType = Object.keys(dataModels).find(
+            (dataType) => dataModels[dataType].dataElementId === dataElementId,
+          );
+          if (dataType) {
+            dataModelChanges.push({ dataType, data, dataElementId });
+          }
         }
+
+        const validationIssueGroups: BackendValidationIssueGroups = Object.fromEntries(
+          validationIssues.map(({ source, issues }) => [source, issues]),
+        );
+
+        return {
+          newDataModels: dataModelChanges,
+          validationIssues: validationIssueGroups,
+          instance,
+          savedData: next,
+        };
+      }
+
+      async function preformOldPatch() {
+        const dataType = dataTypes[0];
+        const patch = createPatch({ prev: prev[dataType], next: next[dataType] });
+        if (patch.length === 0) {
+          return;
+        }
+
+        const dataElementId = dataModels[dataType].dataElementId;
+        if (!dataElementId) {
+          throw new Error(`Cannot patch data, dataElementId for dataType '${dataType}' could not be determined`);
+        }
+        const url = getDataModelUrl({ dataElementId });
+        if (!url) {
+          throw new Error(`Cannot patch data, url for dataType '${dataType}' could not be determined`);
+        }
+        const { newDataModel, validationIssues, instance } = await doPatchFormData(url, {
+          patch,
+          // Ignore validations that require layout parsing in the backend which will slow down requests significantly
+          ignoredValidators: IgnoredValidators,
+        });
+        return {
+          newDataModels: [{ dataType, data: newDataModel, dataElementId }],
+          validationIssues,
+          instance,
+          savedData: next,
+        };
       }
     },
     onError: () => {
       cancelSave();
     },
     onSuccess: (result) => {
-      result && updateQueryCache(result);
-      result && saveFinished(result);
-      !result && cancelSave();
+      if (result) {
+        updateQueryCache(result);
+        saveFinished(result);
+      } else {
+        cancelSave();
+      }
       checkForRunawaySaving();
     },
   });
 
-  // Check if save has already started before calling mutate
-  const _mutate = mutation.mutate;
-  const mutate: typeof mutation.mutate = useCallback(
-    (...args) => !isSavingNow() && _mutate(...args),
-    [_mutate, isSavingNow],
-  );
-
-  return {
-    ...mutation,
-    mutate,
-  };
+  return mutation;
 }
 
-export function useIsSaving() {
+function useIsSavingFormData() {
   return (
     useIsMutating({
       mutationKey: ['saveFormData'],
@@ -413,7 +419,7 @@ function FormDataEffects() {
   const setUnsavedAttrTimeout = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const { mutate: performSave, error } = useFormDataSaveMutation();
-  const isSaving = useIsSaving();
+  const isSaving = useIsSavingFormData();
   const isUpdatingInitialValidations = useIsUpdatingInitialValidations();
   const debounce = useDebounceImmediately();
   const requestManualSave = useRequestManualSave();
@@ -573,7 +579,7 @@ function hasUnsavedChanges(state: FormDataContext) {
 }
 
 const useHasUnsavedChanges = () => {
-  const isSaving = useIsSaving();
+  const isSaving = useIsSavingFormData();
   const result = useLaxMemoSelector((state) => hasUnsavedChanges(state));
   if (result === ContextNotProvided) {
     return false;
@@ -583,28 +589,20 @@ const useHasUnsavedChanges = () => {
 
 const useHasUnsavedChangesNow = () => {
   const store = useStore();
-  const isSavingNow = useIsSavingNow();
+  const queryClient = useQueryClient();
 
   return useCallback(() => {
     if (hasUnsavedChanges(store.getState())) {
       return true;
     }
 
-    return isSavingNow();
-  }, [store, isSavingNow]);
-};
-
-const useIsSavingNow = () => {
-  const queryClient = useQueryClient();
-
-  return useCallback(() => {
     const numRequests = queryClient.getMutationCache().findAll({
       status: 'pending',
-      mutationKey: ['saveFormData'],
+      mutationKey: saveFormDataMutationKey,
     }).length;
 
     return numRequests > 0;
-  }, [queryClient]);
+  }, [store, queryClient]);
 };
 
 const useWaitForSave = () => {
