@@ -122,24 +122,6 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
     }
   }, [draw, imageSrc]);
 
-  // This effect clamps the position when zoom changes
-  useEffect(() => {
-    if (!imageRef.current || !canvasRef.current) {
-      return;
-    }
-
-    const { newX, newY } = constrainToArea({
-      image: imageRef.current,
-      zoom,
-      position,
-      viewport,
-    });
-
-    if (newX !== position.x || newY !== position.y) {
-      setPosition({ x: newX, y: newY });
-    }
-  }, [zoom, imageSrc, position, viewport]);
-
   // Handle file selection and default zoom values
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -181,14 +163,14 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
 
       const draggedPosition = { x: e.clientX - startDrag.x, y: e.clientY - startDrag.y };
 
-      const { newX, newY } = constrainToArea({
-        image: imageRef.current,
-        zoom,
-        position: draggedPosition,
-        viewport,
-      });
-
-      setPosition({ x: newX, y: newY });
+      setPosition(
+        constrainToArea({
+          image: imageRef.current,
+          zoom,
+          position: draggedPosition,
+          viewport,
+        }),
+      );
     }
   };
 
@@ -204,15 +186,15 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
         return;
       }
 
-      const { newX, newY } = constrainToArea({
-        image: imageRef.current!,
-        zoom: logarithmicZoomValue,
-        position,
-        viewport,
-      });
-
+      setPosition(
+        constrainToArea({
+          image: imageRef.current!,
+          zoom: logarithmicZoomValue,
+          position,
+          viewport,
+        }),
+      );
       setZoom(logarithmicZoomValue);
-      setPosition({ x: newX, y: newY });
     },
     [position, viewport],
   );
@@ -278,18 +260,16 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
       default:
         return; // Exit if it's not an arrow key
     }
+    const newPosition = { x: newX, y: newY };
 
-    const img = imageRef.current;
-    const scaledWidth = img.width * zoom;
-    const scaledHeight = img.height * zoom;
-
-    const clampX = scaledWidth > VIEWPORT_WIDTH ? (scaledWidth - VIEWPORT_WIDTH) / 2 : 0;
-    const clampY = scaledHeight > VIEWPORT_HEIGHT ? (scaledHeight - VIEWPORT_HEIGHT) / 2 : 0;
-
-    const clampedX = Math.max(-clampX, Math.min(newX, clampX));
-    const clampedY = Math.max(-clampY, Math.min(newY, clampY));
-
-    setPosition({ x: clampedX, y: clampedY });
+    setPosition(
+      constrainToArea({
+        image: imageRef.current!,
+        zoom,
+        position: newPosition,
+        viewport,
+      }),
+    );
   };
 
   // Reset image state

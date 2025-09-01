@@ -6,8 +6,8 @@ interface ConstrainToAreaParams {
 }
 
 export function constrainToArea({ image, zoom, position, viewport }: ConstrainToAreaParams): {
-  newX: number;
-  newY: number;
+  x: number;
+  y: number;
 } {
   const scaledWidth = image.width * zoom;
   const scaledHeight = image.height * zoom;
@@ -18,5 +18,5 @@ export function constrainToArea({ image, zoom, position, viewport }: ConstrainTo
   const newX = Math.max(-clampX, Math.min(position.x, clampX));
   const newY = Math.max(-clampY, Math.min(position.y, clampY));
 
-  return { newX, newY };
+  return { x: newX, y: newY };
 }
