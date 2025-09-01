@@ -90,10 +90,10 @@ export const doSetSelectedParty = (partyId: number | string) =>
   putWithoutConfig<LooseAutocomplete<'Party successfully updated'> | null>(getSetSelectedPartyUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation, language?: string): Promise<IInstance> =>
-  removeProcessFromInstance((await httpPost(getInstantiateUrl(language), undefined, data)).data);
+  removeProcessFromInstance((await httpPost<IInstance>(getInstantiateUrl(language), undefined, data)).data);
 
 export const doInstantiate = async (partyId: number, language?: string): Promise<IInstance> =>
-  removeProcessFromInstance((await httpPost(getCreateInstancesUrl(partyId, language))).data);
+  removeProcessFromInstance((await httpPost<IInstance>(getCreateInstancesUrl(partyId, language))).data);
 
 export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType) =>
   httpPut<IProcess>(getProcessNextUrl(instanceId, language), action ? { action } : null);
@@ -109,7 +109,7 @@ export const doAttachmentUploadOld = async (instanceId: string, dataTypeId: stri
     },
   };
 
-  return (await httpPost(url, config, file)).data;
+  return (await httpPost<IData>(url, config, file)).data;
 };
 
 export const doAttachmentUpload = async (
@@ -128,7 +128,7 @@ export const doAttachmentUpload = async (
     },
   };
 
-  return (await httpPost(url, config, file)).data;
+  return (await httpPost<DataPostResponse>(url, config, file)).data;
 };
 
 export const doAttachmentRemoveTag = async (
@@ -207,7 +207,11 @@ export const doPerformAction = async (
   language: string,
   queryClient: QueryClient,
 ): Promise<ActionResult> => {
-  const response = await httpPost(getActionsUrl(partyId, instanceGuid, language), undefined, actionRequest);
+  const response = await httpPost<ActionResult>(
+    getActionsUrl(partyId, instanceGuid, language),
+    undefined,
+    actionRequest,
+  );
   if (response.status < 200 || response.status >= 300) {
     throw new Error('Failed to perform action');
   }
@@ -230,7 +234,7 @@ export const doAttachmentRemove = async (
 };
 
 export const doSubformEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
-  const response = await httpPost(getDataModelTypeUrl(instanceId, dataType), undefined, data);
+  const response = await httpPost<IData>(getDataModelTypeUrl(instanceId, dataType), undefined, data);
   if (response.status >= 300) {
     throw new Error('Failed to add sub form');
   }
@@ -257,7 +261,7 @@ export const doPostStatelessFormData = async (
   url: string,
   data: object,
   options?: AxiosRequestConfig,
-): Promise<object> => (await httpPost(url, options, data)).data;
+): Promise<object> => (await httpPost<object>(url, options, data)).data;
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')

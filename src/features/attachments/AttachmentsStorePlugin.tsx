@@ -407,11 +407,11 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             const { tags, attachment } = action;
             const tagsToAdd = tags.filter((t) => !attachment.data.tags?.includes(t));
             const tagsToRemove = attachment.data.tags?.filter((t) => !tags.includes(t)) ?? [];
-            const areEqual = tagsToAdd.length && tagsToRemove.length && tagsToAdd[0] === tagsToRemove[0];
+            const areEqual = [...tagsToAdd].sort().join(',') === [...tagsToRemove].sort().join(',');
             const dataElementId = attachment.data.id;
 
-            // If there are no tags to add or remove, or if the tags are the same, do nothing.
-            if ((!tagsToAdd.length && !tagsToRemove.length) || areEqual) {
+            // If the tags are the same, do nothing.
+            if (areEqual) {
               return;
             }
 
