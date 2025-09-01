@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   ArrowCirclepathReverseIcon as RefreshCw,
@@ -9,6 +9,7 @@ import {
 } from '@navikt/aksel-icons';
 
 import styles from 'src/layout/ImageUpload/ImageUpload.module.css';
+import { constrainToArea } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Define types for state and props
 type Position = {
@@ -39,6 +40,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
   // Constants for viewport size
   const VIEWPORT_WIDTH = 300;
   const VIEWPORT_HEIGHT = 300;
+  const viewport = useMemo(() => ({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT }), []);
 
   // Constants and functions for logarithmic zoom slider
   const MAX_ZOOM = 5;
@@ -126,20 +128,17 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
       return;
     }
 
-    const img = imageRef.current;
-    const scaledWidth = img.width * zoom;
-    const scaledHeight = img.height * zoom;
-
-    const clampX = scaledWidth > VIEWPORT_WIDTH ? (scaledWidth - VIEWPORT_WIDTH) / 2 : 0;
-    const clampY = scaledHeight > VIEWPORT_HEIGHT ? (scaledHeight - VIEWPORT_HEIGHT) / 2 : 0;
-
-    const newX = Math.max(-clampX, Math.min(position.x, clampX));
-    const newY = Math.max(-clampY, Math.min(position.y, clampY));
+    const { newX, newY } = constrainToArea({
+      image: imageRef.current,
+      zoom,
+      position,
+      viewport,
+    });
 
     if (newX !== position.x || newY !== position.y) {
       setPosition({ x: newX, y: newY });
     }
-  }, [zoom, imageSrc, position.x, position.y]);
+  }, [zoom, imageSrc, position, viewport]);
 
   // Handle file selection and default zoom values
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -180,20 +179,16 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
         return;
       }
 
-      const img = imageRef.current;
-      const scaledWidth = img.width * zoom;
-      const scaledHeight = img.height * zoom;
+      const draggedPosition = { x: e.clientX - startDrag.x, y: e.clientY - startDrag.y };
 
-      const clampX = scaledWidth > VIEWPORT_WIDTH ? (scaledWidth - VIEWPORT_WIDTH) / 2 : 0;
-      const clampY = scaledHeight > VIEWPORT_HEIGHT ? (scaledHeight - VIEWPORT_HEIGHT) / 2 : 0;
+      const { newX, newY } = constrainToArea({
+        image: imageRef.current,
+        zoom,
+        position: draggedPosition,
+        viewport,
+      });
 
-      const newX = e.clientX - startDrag.x;
-      const newY = e.clientY - startDrag.y;
-
-      const clampedX = Math.max(-clampX, Math.min(newX, clampX));
-      const clampedY = Math.max(-clampY, Math.min(newY, clampY));
-
-      setPosition({ x: clampedX, y: clampedY });
+      setPosition({ x: newX, y: newY });
     }
   };
 
@@ -202,17 +197,43 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
     setIsDragging(false);
   };
 
+  // Update zoom while keeping the image constrained to the viewport
+  const updateZoom = useCallback(
+    (logarithmicZoomValue: number) => {
+      if (!imageRef.current || !canvasRef.current) {
+        return;
+      }
+
+      const { newX, newY } = constrainToArea({
+        image: imageRef.current!,
+        zoom: logarithmicZoomValue,
+        position,
+        viewport,
+      });
+
+      setZoom(logarithmicZoomValue);
+      setPosition({ x: newX, y: newY });
+    },
+    [position, viewport],
+  );
+
   // Handle mouse wheel for zooming
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       e.preventDefault();
-      setZoom((currentZoom) => {
-        const newZoom = currentZoom - e.deltaY * 0.001;
-        return Math.max(minAllowedZoom, Math.min(newZoom, MAX_ZOOM));
-      });
+      const newZoom = zoom - e.deltaY * 0.001;
+      const newZoomResult = Math.max(minAllowedZoom, Math.min(newZoom, MAX_ZOOM));
+
+      updateZoom(newZoomResult);
     },
-    [minAllowedZoom, MAX_ZOOM],
+    [zoom, minAllowedZoom, updateZoom],
   );
+
+  // Handle slider change for zooming
+  const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const logarithmicZoomValue = sliderValueToZoom(parseFloat(e.target.value));
+    updateZoom(logarithmicZoomValue);
+  };
 
   // Effect to manually add wheel event listener with passive: false
   useEffect(() => {
@@ -382,9 +403,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
                   max='100'
                   step='0.1'
                   value={zoomToSliderValue(zoom)}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setZoom(sliderValueToZoom(parseFloat(e.target.value)))
-                  }
+                  onChange={handleSliderZoom}
                   className={styles.zoomSlider}
                 />
                 <ZoomIn className={styles.zoomIcon} />
