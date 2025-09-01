@@ -83,7 +83,13 @@ describe('ConfirmPage', () => {
 
   it('should show loading when clicking submit and process/next has not resolved', async () => {
     const user = userEvent.setup();
-    jest.mocked(doProcessNext).mockImplementation(async () => ({}) as AxiosResponse<IProcess>);
+
+    // Create a promise that never resolves to keep the loading state
+    const processNextPromise = new Promise<AxiosResponse<IProcess>>(() => {
+      // Never resolves
+    });
+
+    jest.mocked(doProcessNext).mockImplementation(async () => processNextPromise);
 
     await renderWithInstanceAndLayout({
       renderer: () => <ConfirmPage {...props} />,
