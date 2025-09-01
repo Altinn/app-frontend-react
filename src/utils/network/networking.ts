@@ -32,11 +32,15 @@ export async function httpPost<T, D = unknown>(
   url: string,
   options?: AxiosRequestConfig,
   data?: D,
-): Promise<AxiosResponse> {
+): Promise<AxiosResponse<T>> {
   return axios.post<T, AxiosResponse<T>, D>(url, data, options);
 }
 
-export async function httpPatch<T, D = unknown>(url: string, data: D, options?: AxiosRequestConfig) {
+export async function httpPatch<T, D = unknown>(
+  url: string,
+  data: D,
+  options?: AxiosRequestConfig,
+): Promise<AxiosResponse<T>> {
   return axios.patch<T, AxiosResponse<T>, D>(url, data, options);
 }
 
