@@ -26,13 +26,13 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const canvasContainerRef = useRef<HTMLDivElement>(null); // Ref for the container to attach wheel event
 
   // State management
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [zoom, setZoom] = useState<number>(1);
-  const [minAllowedZoom, setMinAllowedZoom] = useState<number>(0.1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
+
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [minAllowedZoom, setMinAllowedZoom] = useState<number>(0.1);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startDrag, setStartDrag] = useState<Position>({ x: 0, y: 0 });
 
@@ -141,7 +141,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
     }
   }, [zoom, imageSrc, position.x, position.y]);
 
-  // Handle file selection
+  // Handle file selection and default zoom values
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -167,14 +167,14 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
   };
 
   // Handle mouse down for panning
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     setIsDragging(true);
     setStartDrag({ x: e.clientX - position.x, y: e.clientY - position.y });
   };
 
   // Handle mouse move for panning, with boundary checks
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (isDragging) {
       if (!imageRef.current || !canvasRef.current) {
         return;
@@ -216,19 +216,19 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
 
   // Effect to manually add wheel event listener with passive: false
   useEffect(() => {
-    const container = canvasContainerRef.current;
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false });
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheel, { passive: false });
     }
     return () => {
-      if (container) {
-        container.removeEventListener('wheel', handleWheel);
+      if (canvas) {
+        canvas.removeEventListener('wheel', handleWheel);
       }
     };
   }, [handleWheel]);
 
   // Handle keyboard arrow keys for panning
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     if (!imageRef.current) {
       return;
     }
@@ -324,34 +324,26 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
     <div className={styles.cropperContainer}>
       {/* Right side: Canvas */}
       <div className={styles.canvasContainerWrapper}>
-        {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions*/}
-        <div
-          ref={canvasContainerRef}
-          className={styles.canvasContainer}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
-          onKeyDown={handleKeyDown}
-          // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-          tabIndex={0}
-          role='application'
-          aria-label='Image cropping area'
-        >
-          {imageSrc ? (
-            <canvas
-              ref={canvasRef}
-              width={500}
-              height={500}
-              className={styles.canvas}
-            />
-          ) : (
-            <div className={styles.placeholder}>
-              <Upload className={styles.placeholderIcon} />
-              <p className={styles.placeholderText}>Upload an image to start cropping</p>
-            </div>
-          )}
-        </div>
+        {imageSrc ? (
+          <canvas
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
+            ref={canvasRef}
+            width={500}
+            height={500}
+            className={styles.canvas}
+            aria-label='Image cropping area'
+          />
+        ) : (
+          <div className={styles.placeholder}>
+            <Upload className={styles.placeholderIcon} />
+            <p className={styles.placeholderText}>Upload an image to start cropping</p>
+          </div>
+        )}
       </div>
       {/* Left side: Controls */}
       <div className={styles.controlsContainer}>
