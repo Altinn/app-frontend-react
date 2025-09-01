@@ -18,10 +18,11 @@ type Position = {
 
 interface ImageCropperProps {
   onCrop: (image: string) => void;
+  cropAsCircle?: boolean;
 }
 
 // ImageCropper Component
-export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
+export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps) {
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -34,7 +35,6 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [startDrag, setStartDrag] = useState<Position>({ x: 0, y: 0 });
-  const isCircle = true; // Fixed to circle for simplicity
 
   // Constants for viewport size
   const VIEWPORT_WIDTH = 300;
@@ -89,7 +89,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
     const viewportY = (canvas.height - VIEWPORT_HEIGHT) / 2;
 
     ctx.beginPath();
-    if (isCircle) {
+    if (cropAsCircle) {
       ctx.arc(canvas.width / 2, canvas.height / 2, VIEWPORT_WIDTH / 2, 0, Math.PI * 2, true);
     } else {
       ctx.rect(viewportX, viewportY, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
@@ -101,7 +101,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
 
     // 4. Draw the dashed border
     ctx.beginPath();
-    if (isCircle) {
+    if (cropAsCircle) {
       ctx.arc(canvas.width / 2, canvas.height / 2, VIEWPORT_WIDTH / 2, 0, Math.PI * 2, true);
     } else {
       ctx.rect(viewportX, viewportY, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
@@ -111,7 +111,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
     ctx.setLineDash([5, 5]);
     ctx.stroke();
     ctx.setLineDash([]);
-  }, [zoom, position, isCircle]);
+  }, [zoom, position, cropAsCircle]);
 
   // useEffect to draw when state changes
   useEffect(() => {
@@ -310,7 +310,7 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
 
     cropCtx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
 
-    if (isCircle) {
+    if (cropAsCircle) {
       cropCtx.globalCompositeOperation = 'destination-in';
       cropCtx.beginPath();
       cropCtx.arc(VIEWPORT_WIDTH / 2, VIEWPORT_HEIGHT / 2, VIEWPORT_WIDTH / 2, 0, Math.PI * 2);
@@ -418,4 +418,4 @@ export const ImageCropper: React.FC<ImageCropperProps> = ({ onCrop }) => {
       </div>
     </div>
   );
-};
+}
