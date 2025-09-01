@@ -48,7 +48,7 @@ import type {
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
 import type { AttachmentStateInfo } from 'src/features/attachments/types';
 import type { FDActionResult } from 'src/features/formData/FormDataWriteStateMachine';
-import type { BackendFieldValidatorGroups } from 'src/features/validation';
+import type { BackendFieldValidatorGroups, BackendValidationIssue } from 'src/features/validation';
 import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
 import type { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
@@ -811,9 +811,11 @@ function useAttachmentUpdateTagsMutation() {
       window.logError('Failed to add tag to attachment:\n', error);
     },
     onSuccess: (data) => {
-      const backendValidations = data.validationIssues.reduce((prev, curr) => [...prev, ...curr.issues], []);
+      const backendValidations: BackendValidationIssue[] = data.validationIssues.reduce(
+        (prev, curr) => [...prev, ...curr.issues],
+        [],
+      );
       const initialTaskValidations = mapBackendIssuesToTaskValidations(backendValidations);
-
       const initialValidatorGroups: BackendFieldValidatorGroups = mapBackendValidationsToValidatorGroups(
         backendValidations,
         defaultDataElementId,
