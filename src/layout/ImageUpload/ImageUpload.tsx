@@ -34,8 +34,6 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
 
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [minAllowedZoom, setMinAllowedZoom] = useState<number>(0.1);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [startDrag, setStartDrag] = useState<Position>({ x: 0, y: 0 });
 
   // Constants for viewport size
   const VIEWPORT_WIDTH = 300;
@@ -147,21 +145,26 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
     }
   };
 
-  // Handle mouse down for panning
-  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    setIsDragging(true);
-    setStartDrag({ x: e.clientX - position.x, y: e.clientY - position.y });
-  };
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      return;
+    }
 
-  // Handle mouse move for panning, with boundary checks
-  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isDragging) {
+    canvas.setPointerCapture(e.pointerId);
+
+    const startDrag = { x: e.clientX - position.x, y: e.clientY - position.y };
+
+    const handlePointerMove = (e: PointerEvent) => {
       if (!imageRef.current || !canvasRef.current) {
         return;
       }
 
-      const draggedPosition = { x: e.clientX - startDrag.x, y: e.clientY - startDrag.y };
+      const draggedPosition = {
+        x: e.clientX - startDrag.x,
+        y: e.clientY - startDrag.y,
+      };
 
       setPosition(
         constrainToArea({
@@ -171,12 +174,18 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
           viewport,
         }),
       );
-    }
-  };
+    };
 
-  // Handle mouse up to stop panning
-  const handleMouseUp = () => {
-    setIsDragging(false);
+    const handlePointerUp = () => {
+      if (canvas) {
+        canvas.releasePointerCapture(e.pointerId);
+      }
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+    };
+
+    document.addEventListener('pointermove', handlePointerMove);
+    document.addEventListener('pointerup', handlePointerUp);
   };
 
   // Update zoom while keeping the image constrained to the viewport
@@ -327,10 +336,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
       <div className={styles.canvasContainerWrapper}>
         {imageSrc ? (
           <canvas
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+            onPointerDown={handlePointerDown}
             onKeyDown={handleKeyDown}
             tabIndex={0}
             ref={canvasRef}
