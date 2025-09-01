@@ -5,7 +5,6 @@ import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-quer
 import dot from 'dot-object';
 import deepEqual from 'fast-deep-equal';
 import type { AxiosRequestConfig } from 'axios';
-import type { StoreApi } from 'zustand';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
@@ -100,7 +99,10 @@ function useFormDataSaveMutation() {
   const isStateless = useApplicationMetadata().isStatelessApp;
   const debounce = useSelector((s) => s.debounce);
   const selectedPartyId = useSelectedParty()?.partyId;
-  const store = useStore();
+  const waitFor = useWaitForState<
+    { prev: { [dataType: string]: object }; next: { [dataType: string]: object } },
+    FormDataContext
+  >(useStore());
   const queryClient = useQueryClient();
 
   // This updates the query cache with the new data models every time a save has finished. This means we won't have to
@@ -176,15 +178,10 @@ function useFormDataSaveMutation() {
     mutationKey: saveFormDataMutationKey,
     scope: { id: saveFormDataMutationKey[0] },
     mutationFn: async (): Promise<FDSaveFinished | undefined> => {
-      // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
-      // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
-      // navigating away from the form context.
-      debounce('beforeSave');
-      const { prev, next } = await waitForUnDebouncedCurrentChanges(store);
+      const { prev, next } = await waitForDataModelChanges();
 
-      const equal = deepEqual(prev, next);
-
-      if (equal) {
+      // Don't need to save if there are no changes
+      if (deepEqual(prev, next)) {
         return;
       }
 
@@ -200,32 +197,32 @@ function useFormDataSaveMutation() {
 
       return preformOldPatch();
 
-      async function waitForUnDebouncedCurrentChanges(store: StoreApi<FormDataContext>) {
-        let hasUnDebouncedChanges = true;
-        let prev = {};
-        let next = {};
-
-        do {
-          const dataModels = store.getState().dataModels;
-          hasUnDebouncedChanges = Object.values(dataModels).some(
+      async function waitForDataModelChanges() {
+        // While we could get the next model from a ref, we want to make sure we get the latest model after debounce
+        // at the moment we're saving. This is especially important when automatically saving (and debouncing) when
+        // navigating away from the form context.
+        debounce('beforeSave');
+        return await waitFor((state, setReturnValue) => {
+          const dataModels = state.dataModels;
+          const hasUnDebouncedChanges = Object.values(dataModels).some(
             ({ debouncedCurrentData, currentData }) => debouncedCurrentData !== currentData,
           );
+
           if (!hasUnDebouncedChanges) {
-            next = Object.entries(dataModels).reduce((next, [dataType, { debouncedCurrentData }]) => {
+            const next = Object.entries(dataModels).reduce((next, [dataType, { debouncedCurrentData }]) => {
               next[dataType] = debouncedCurrentData;
               return next;
             }, {});
-            prev = Object.entries(dataModels).reduce((prev, [dataType, { lastSavedData }]) => {
+            const prev = Object.entries(dataModels).reduce((prev, [dataType, { lastSavedData }]) => {
               prev[dataType] = lastSavedData;
               return prev;
             }, {});
-            break;
-          }
-          // Wait a bit before checking again
-          await new Promise((resolve) => setTimeout(resolve, 5));
-        } while (hasUnDebouncedChanges);
 
-        return { prev, next };
+            setReturnValue({ prev, next });
+            return true;
+          }
+          return false;
+        });
       }
 
       async function saveStateless() {
