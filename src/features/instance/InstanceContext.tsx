@@ -93,16 +93,17 @@ export const instanceQueries = {
   }) =>
     queryOptions({
       queryKey: [...instanceQueries.all(), { instanceOwnerPartyId, instanceGuid }] as const,
-      queryFn: !(!!instanceOwnerPartyId && !!instanceGuid && !hasResultFromInstantiation)
-        ? skipToken
-        : async () => {
-            try {
-              return await fetchInstanceData(instanceOwnerPartyId, instanceGuid);
-            } catch (error) {
-              window.logError('Fetching instance data failed:\n', error);
-              throw error;
-            }
-          },
+      queryFn:
+        !instanceOwnerPartyId || !instanceGuid || hasResultFromInstantiation
+          ? skipToken
+          : async () => {
+              try {
+                return await fetchInstanceData(instanceOwnerPartyId, instanceGuid);
+              } catch (error) {
+                window.logError('Fetching instance data failed:\n', error);
+                throw error;
+              }
+            },
       refetchIntervalInBackground: false,
       retry: 3,
       retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
