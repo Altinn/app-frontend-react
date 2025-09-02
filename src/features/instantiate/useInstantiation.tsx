@@ -5,6 +5,7 @@ import type { MutateOptions } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
+import { instanceQueries } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -35,6 +36,13 @@ function useInstantiateMutation() {
       window.logError('Instantiation failed:\n', error);
     },
     onSuccess: async (data) => {
+      const [instanceOwnerPartyId, instanceGuid] = data.id.split('/');
+      const queryKey = instanceQueries.instanceData({
+        instanceOwnerPartyId,
+        instanceGuid,
+      }).queryKey;
+      queryClient.setQueryData(queryKey, data);
+
       navigate(`/instance/${data.id}`);
       await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },
@@ -54,6 +62,13 @@ function useInstantiateWithPrefillMutation() {
       window.logError('Instantiation with prefill failed:\n', error);
     },
     onSuccess: async (data) => {
+      const [instanceOwnerPartyId, instanceGuid] = data.id.split('/');
+      const queryKey = instanceQueries.instanceData({
+        instanceOwnerPartyId,
+        instanceGuid,
+      }).queryKey;
+      queryClient.setQueryData(queryKey, data);
+
       navigate(`/instance/${data.id}`);
       await queryClient.invalidateQueries({ queryKey: ['fetchApplicationMetadata'] });
     },

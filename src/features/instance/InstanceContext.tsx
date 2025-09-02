@@ -73,28 +73,25 @@ export const useStrictInstanceId = () => {
 export type ChangeInstanceData = (callback: (instance: IInstance | undefined) => IInstance | undefined) => void;
 
 export function useInstanceDataQueryArgs() {
-  const hasResultFromInstantiation = !!useInstantiation().lastResult;
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
 
-  return { hasResultFromInstantiation, instanceOwnerPartyId, instanceGuid };
+  return { instanceOwnerPartyId, instanceGuid };
 }
 
 export const instanceQueries = {
   all: () => ['instanceData'] as const,
   instanceData: ({
-    hasResultFromInstantiation,
     instanceOwnerPartyId,
     instanceGuid,
   }: {
-    hasResultFromInstantiation: boolean;
     instanceOwnerPartyId: string | undefined;
     instanceGuid: string | undefined;
   }) =>
     queryOptions({
       queryKey: [...instanceQueries.all(), { instanceOwnerPartyId, instanceGuid }] as const,
       queryFn:
-        !instanceOwnerPartyId || !instanceGuid || hasResultFromInstantiation
+        !instanceOwnerPartyId || !instanceGuid
           ? skipToken
           : async () => {
               try {
@@ -168,13 +165,12 @@ export function useInvalidateInstanceDataCache() {
 
 const useOptimisticInstanceUpdate = () => {
   const queryClient = useQueryClient();
-  const { hasResultFromInstantiation, instanceOwnerPartyId, instanceGuid } = useInstanceDataQueryArgs();
+  const { instanceOwnerPartyId, instanceGuid } = useInstanceDataQueryArgs();
 
   const queryKey =
     !instanceOwnerPartyId || !instanceGuid
       ? undefined
       : instanceQueries.instanceData({
-          hasResultFromInstantiation,
           instanceOwnerPartyId,
           instanceGuid,
         }).queryKey;
