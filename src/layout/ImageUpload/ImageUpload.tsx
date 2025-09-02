@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   ArrowCirclepathReverseIcon as RefreshCw,
@@ -9,7 +9,12 @@ import {
 } from '@navikt/aksel-icons';
 
 import styles from 'src/layout/ImageUpload/ImageUpload.module.css';
-import { constrainToArea } from 'src/layout/ImageUpload/imageUploadUtils';
+import {
+  calculatePositions,
+  constrainToArea,
+  drawViewport,
+  getViewport,
+} from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Define types for state and props
 type Position = {
@@ -20,10 +25,11 @@ type Position = {
 interface ImageCropperProps {
   onCrop: (image: string) => void;
   cropAsCircle?: boolean;
+  viewport?: string;
 }
 
 // ImageCropper Component
-export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps) {
+export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCropperProps) {
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -38,9 +44,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
   const [startDrag, setStartDrag] = useState<Position>({ x: 0, y: 0 });
 
   // Constants for viewport size
-  const VIEWPORT_WIDTH = 300;
-  const VIEWPORT_HEIGHT = 300;
-  const viewport = useMemo(() => ({ width: VIEWPORT_WIDTH, height: VIEWPORT_HEIGHT }), []);
+  const selectedViewport = getViewport(viewport);
 
   // Constants and functions for logarithmic zoom slider
   const MAX_ZOOM = 5;
@@ -57,29 +61,20 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
   // This function handles drawing the image and the viewport on the canvas.
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return;
-    }
-
+    const ctx = canvas?.getContext('2d');
     const img = imageRef.current;
-    if (!img || !img.complete) {
+
+    if (!canvas || !img || !img.complete || !ctx) {
       return;
     }
 
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    const scaledWidth = img.width * zoom;
-    const scaledHeight = img.height * zoom;
-    const initialX = (canvas.width - scaledWidth) / 2 + position.x;
-    const initialY = (canvas.height - scaledHeight) / 2 + position.y;
+    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
 
     // 1. Draw the base image
-    ctx.drawImage(img, initialX, initialY, scaledWidth, scaledHeight);
+    ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
 
     // 2. Draw the semi-transparent overlay
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -87,33 +82,22 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
 
     // 3. "Cut out" the viewport
     ctx.save();
-    const viewportX = (canvas.width - VIEWPORT_WIDTH) / 2;
-    const viewportY = (canvas.height - VIEWPORT_HEIGHT) / 2;
+    const viewportX = (canvas.width - selectedViewport.width) / 2;
+    const viewportY = (canvas.height - selectedViewport.height) / 2;
 
-    ctx.beginPath();
-    if (cropAsCircle) {
-      ctx.arc(canvas.width / 2, canvas.height / 2, VIEWPORT_WIDTH / 2, 0, Math.PI * 2, true);
-    } else {
-      ctx.rect(viewportX, viewportY, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-    }
+    drawViewport({ ctx, cropAsCircle, x: viewportX, y: viewportY, selectedViewport });
     ctx.clip();
-
-    ctx.drawImage(img, initialX, initialY, scaledWidth, scaledHeight);
+    ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
     ctx.restore();
 
     // 4. Draw the dashed border
-    ctx.beginPath();
-    if (cropAsCircle) {
-      ctx.arc(canvas.width / 2, canvas.height / 2, VIEWPORT_WIDTH / 2, 0, Math.PI * 2, true);
-    } else {
-      ctx.rect(viewportX, viewportY, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-    }
+    drawViewport({ ctx, cropAsCircle, x: viewportX, y: viewportY, selectedViewport });
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.stroke();
     ctx.setLineDash([]);
-  }, [zoom, position, cropAsCircle]);
+  }, [zoom, position, cropAsCircle, selectedViewport]);
 
   // useEffect to draw when state changes
   useEffect(() => {
@@ -133,7 +117,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
           imageRef.current = img;
 
           // Calculate the minimum zoom to fit the viewport
-          const newMinZoom = Math.max(VIEWPORT_WIDTH / img.width, VIEWPORT_HEIGHT / img.height);
+          const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
           setMinAllowedZoom(newMinZoom);
 
           // Reset state for new image, ensuring zoom is at least the new minimum
@@ -168,7 +152,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
           image: imageRef.current,
           zoom,
           position: draggedPosition,
-          viewport,
+          viewport: selectedViewport,
         }),
       );
     }
@@ -191,12 +175,12 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
           image: imageRef.current!,
           zoom: logarithmicZoomValue,
           position,
-          viewport,
+          viewport: selectedViewport,
         }),
       );
       setZoom(logarithmicZoomValue);
     },
-    [position, viewport],
+    [position, selectedViewport],
   );
 
   // Handle mouse wheel for zooming
@@ -267,7 +251,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
         image: imageRef.current!,
         zoom,
         position: newPosition,
-        viewport,
+        viewport: selectedViewport,
       }),
     );
   };
@@ -280,43 +264,27 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
 
   // The main cropping logic
   const handleCrop = () => {
-    if (!imageRef.current || !canvasRef.current) {
-      return;
-    }
-
     const canvas = canvasRef.current;
     const img = imageRef.current;
-
     const cropCanvas = document.createElement('canvas');
-    cropCanvas.width = VIEWPORT_WIDTH;
-    cropCanvas.height = VIEWPORT_HEIGHT;
     const cropCtx = cropCanvas.getContext('2d');
-    if (!cropCtx) {
+
+    if (!canvas || !img || !cropCtx) {
       return;
     }
 
-    const scaledWidth = img.width * zoom;
-    const scaledHeight = img.height * zoom;
+    cropCanvas.width = selectedViewport.width;
+    cropCanvas.height = selectedViewport.height;
 
-    const imgX = (canvas.width - scaledWidth) / 2 + position.x;
-    const imgY = (canvas.height - scaledHeight) / 2 + position.y;
+    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
 
-    const viewportX = (canvas.width - VIEWPORT_WIDTH) / 2;
-    const viewportY = (canvas.height - VIEWPORT_HEIGHT) / 2;
+    const viewportX = (canvas.width - selectedViewport.width) / 2;
+    const viewportY = (canvas.height - selectedViewport.height) / 2;
 
-    const sourceX = (viewportX - imgX) / zoom;
-    const sourceY = (viewportY - imgY) / zoom;
-    const sourceWidth = VIEWPORT_WIDTH / zoom;
-    const sourceHeight = VIEWPORT_HEIGHT / zoom;
+    drawViewport({ ctx: cropCtx, cropAsCircle, selectedViewport });
+    cropCtx.clip();
 
-    cropCtx.drawImage(img, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, VIEWPORT_WIDTH, VIEWPORT_HEIGHT);
-
-    if (cropAsCircle) {
-      cropCtx.globalCompositeOperation = 'destination-in';
-      cropCtx.beginPath();
-      cropCtx.arc(VIEWPORT_WIDTH / 2, VIEWPORT_HEIGHT / 2, VIEWPORT_WIDTH / 2, 0, Math.PI * 2);
-      cropCtx.fill();
-    }
+    cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
 
     onCrop(cropCanvas.toDataURL('image/png'));
   };
