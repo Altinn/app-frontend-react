@@ -15,6 +15,7 @@ import {
   drawViewport,
   getViewport,
 } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Define types for state and props
 type Position = {
@@ -23,13 +24,12 @@ type Position = {
 };
 
 interface ImageCropperProps {
+  viewport?: ViewportType;
   onCrop: (image: string) => void;
-  cropAsCircle?: boolean;
-  viewport?: string;
 }
 
 // ImageCropper Component
-export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCropperProps) {
+export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -83,19 +83,19 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     const viewportX = (canvas.width - selectedViewport.width) / 2;
     const viewportY = (canvas.height - selectedViewport.height) / 2;
 
-    drawViewport({ ctx, cropAsCircle, x: viewportX, y: viewportY, selectedViewport });
+    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport });
     ctx.clip();
     ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
     ctx.restore();
 
     // 4. Draw the dashed border
-    drawViewport({ ctx, cropAsCircle, x: viewportX, y: viewportY, selectedViewport });
+    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport });
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.stroke();
     ctx.setLineDash([]);
-  }, [zoom, position, cropAsCircle, selectedViewport]);
+  }, [zoom, position, selectedViewport]);
 
   // useEffect to draw when state changes
   useEffect(() => {
@@ -290,7 +290,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     const viewportX = (canvas.width - selectedViewport.width) / 2;
     const viewportY = (canvas.height - selectedViewport.height) / 2;
 
-    drawViewport({ ctx: cropCtx, cropAsCircle, selectedViewport });
+    drawViewport({ ctx: cropCtx, selectedViewport });
     cropCtx.clip();
 
     cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);

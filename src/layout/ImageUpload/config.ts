@@ -20,13 +20,11 @@ export const Config = new CG.component({
   .extendTextResources(CG.common('TRBLabel'))
   .addProperty(
     new CG.prop(
-      'cropAsCircle',
-      new CG.bool()
-        .optional({ default: false })
-        .setTitle('Crop as a circle')
-        .setDescription(
-          'If enabled, the cropping area will be a circle. The resulting image will still be a square with transparent corners.',
-        ),
+      'viewport',
+      new CG.enum('1:1', '4:3', '16:9', 'circle')
+        .optional({ default: 'circle' })
+        .setTitle('Viewport')
+        .setDescription('The aspect ratio of the cropping area'),
     ),
   )
   .addSummaryOverrides();
