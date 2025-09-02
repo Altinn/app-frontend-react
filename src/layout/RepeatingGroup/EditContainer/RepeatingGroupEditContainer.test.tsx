@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
@@ -13,6 +14,7 @@ import {
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IRawOption } from 'src/layout/common.generated';
@@ -83,6 +85,22 @@ describe('RepeatingGroupsEditContainer', () => {
   });
 
   const render = async () => {
+    jest.mocked(fetchFormData).mockImplementation(async () => ({
+      multipageGroup: [
+        {
+          [ALTINN_ROW_ID]: 'abc123',
+          prop1: 'prop1',
+          prop2: 'prop2',
+          prop3: 'prop3',
+        },
+        {
+          [ALTINN_ROW_ID]: 'def456',
+          prop1: 'prop4',
+          prop2: 'prop5',
+          prop3: 'prop6',
+        },
+      ],
+    }));
     const multiPageGroup = getMultiPageGroupMock({ id: 'group' });
     multiPageGroup.edit!.saveAndNextButton = true;
 
@@ -106,22 +124,6 @@ describe('RepeatingGroupsEditContainer', () => {
             {
               id: 'option.label',
               value: 'Value to be shown',
-            },
-          ],
-        }),
-        fetchFormData: async () => ({
-          multipageGroup: [
-            {
-              [ALTINN_ROW_ID]: 'abc123',
-              prop1: 'prop1',
-              prop2: 'prop2',
-              prop3: 'prop3',
-            },
-            {
-              [ALTINN_ROW_ID]: 'def456',
-              prop1: 'prop4',
-              prop2: 'prop5',
-              prop3: 'prop6',
             },
           ],
         }),
