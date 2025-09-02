@@ -654,14 +654,12 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     } else {
       url = `/${pageId}`;
     }
-    console.log(url);
 
     if (enableBackButton) {
       const searchParams = new URLSearchParams();
       searchParams.set('backToPage', this.dataSources.currentPage ?? '');
       url = `${url}?${searchParams.toString()}`;
     }
-    console.log(url);
     return `<a href="${url}" data-link-type="LinkToPotentialPage">${linkText}</a>`;
   },
   language() {
