@@ -118,7 +118,7 @@ export function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) 
 
   if (Cypress.env('type') === 'localtest') {
     localLogin({ partyId: user.localPartyId, authenticationLevel });
-    return false;
+    return;
   }
 
   const { userName, userPassword } = user;
@@ -127,8 +127,6 @@ export function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) 
   } else {
     cyUserTt02Login(userName, userPassword);
   }
-
-  return true;
 }
 
 type LocalLoginParams =
@@ -170,9 +168,9 @@ function localLogin({ authenticationLevel, ...rest }: LocalLoginParams) {
       cy.get('select#AuthenticationLevel').should('have.value', $option.val() as string);
     });
 
-  cy.findByRole('button', {
-    name: /proceed to app/i,
-  }).click();
+  // By clicking 'Proceed to app' we would be opening the app. Let's do that later with a cy.visit() instead, so
+  // we can control it better. We also have cases where we want to load a specific/existing instance as another user.
+  refreshAuthWithoutPageLoad();
 }
 
 function loginSelfIdentifiedTt02Login(user: string, pwd: string) {
@@ -272,4 +270,33 @@ function tenorTt02Login(appName: string, user: TenorUser) {
 
   cy.findByText(new RegExp(reverseName(user.name), 'i')).click();
   cy.waitForLoad();
+}
+
+/**
+ * Once a top-level navigation begins (native form submit counts), Cypress flips into “—waiting for new page to load—”
+ * and there’s no built-in switch to skip that wait—even if the server returns 204.
+ * @see https://github.com/cypress-io/cypress/issues/8619
+ *
+ * A reliable workaround is to retarget the form to a hidden iframe just for this click. The POST still happens, but the
+ * top window doesn’t navigate—so Cypress never enters the page-load wait.
+ */
+function refreshAuthWithoutPageLoad() {
+  cy.document().then((doc) => {
+    if (!doc.querySelector('iframe[name="cypress-sink"]')) {
+      const iframe = doc.createElement('iframe');
+      iframe.name = 'cypress-sink';
+      iframe.style.display = 'none';
+      doc.body.appendChild(iframe);
+    }
+  });
+
+  cy.findByRole('button', { name: 'Refresh authentication' })
+    .closest('form')
+    .then(($form) => {
+      $form.attr('target', 'cypress-sink');
+    });
+
+  cy.intercept({ method: 'POST', url: '/Home/LogInTestUser', times: 1 }).as('login');
+  cy.findByRole('button', { name: 'Refresh authentication' }).click();
+  cy.wait('@login').its('response.statusCode').should('eq', 204);
 }
