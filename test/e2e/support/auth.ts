@@ -142,10 +142,11 @@ type LocalLoginParams =
     };
 
 function localLogin({ authenticationLevel, ...rest }: LocalLoginParams) {
+  cy.visit(`${Cypress.config('baseUrl')}`);
+
   if ('partyId' in rest) {
     const partyId = rest.partyId;
     cy.log(`Logging in as local user: ${partyId} with authentication level: ${authenticationLevel}`);
-    cy.visit(`${Cypress.config('baseUrl')}`);
     cy.get('select#UserSelect').select(partyId);
     cy.get('select#UserSelect').should('have.value', partyId);
   } else if ('displayName' in rest) {
@@ -249,9 +250,8 @@ export function tenorUserLogin({ appName, tenorUser, authenticationLevel }: Teno
     localLogin({ displayName: tenorUser.name, authenticationLevel });
   } else {
     tenorTt02Login(appName, tenorUser);
+    cy.reloadAndWait();
   }
-
-  cy.reloadAndWait();
 }
 
 function tenorTt02Login(appName: string, user: TenorUser) {
