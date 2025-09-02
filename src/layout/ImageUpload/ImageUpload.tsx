@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
+  ArrowCirclepathReverseIcon as RefreshCw,
   ScissorsFillIcon as Scissors,
   UploadIcon as Upload,
   ZoomMinusIcon as ZoomOut,
@@ -276,6 +277,11 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     onCrop(cropCanvas.toDataURL('image/png'));
   };
 
+  const handleReset = () => {
+    setZoom(Math.max(1, minAllowedZoom));
+    setPosition({ x: 0, y: 0 });
+  };
+
   return (
     <div className={styles.cropperContainer}>
       {/* Right side: Canvas */}
@@ -330,12 +336,20 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
               </div>
             </div>
 
-            <button
-              onClick={handleCrop}
-              className={`${styles.button} ${styles.cropButton}`}
-            >
-              <Scissors className={styles.icon} /> Crop
-            </button>
+            <div className={styles.actionButtons}>
+              <button
+                onClick={handleReset}
+                className={`${styles.button} ${styles.resetButton}`}
+              >
+                <RefreshCw className={styles.icon} /> Reset
+              </button>
+              <button
+                onClick={handleCrop}
+                className={`${styles.button} ${styles.cropButton}`}
+              >
+                <Scissors className={styles.icon} /> Crop
+              </button>
+            </div>
           </div>
         )}
       </div>
