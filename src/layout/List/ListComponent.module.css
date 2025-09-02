@@ -1,3 +1,7 @@
+.listTable {
+  width: 100%;
+}
+
 .listTable caption {
   text-align: left;
   padding-bottom: var(--ds-size-4);
@@ -95,29 +99,4 @@
 .editButton {
   margin-left: auto;
   min-width: unset;
-}
-
-.mobileControl {
-  flex-shrink: 0;
-}
-
-.listTable tr.readOnlyRow {
-  cursor: default;
-}
-
-.readOnlyCell {
-  background-color: initial;
-}
-
-.mobileContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-size-4);
-}
-
-.mobileContent div {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ds-size-2);
 }

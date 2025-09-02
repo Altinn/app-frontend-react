@@ -190,24 +190,19 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
                 <RequiredIndicator required={required} />
               </Heading>
             </Fieldset.Legend>
-            {data?.listItems.map((row) => (
-              <div
-                key={JSON.stringify(row)}
-                className={cn(classes.mobile)}
-              >
-                {!readOnly && (
-                  <Checkbox
-                    className={cn(classes.mobileControl)}
-                    {...getCheckboxProps({ value: JSON.stringify(row) })}
-                    onChange={() => handleRowClick(row)}
-                    value={JSON.stringify(row)}
-                    checked={isChecked(row)}
-                    label={<span className={utilClasses.visuallyHidden}>{getRowLabel(row)}</span>}
-                  />
-                )}
-                <div className={classes.mobileContent}>{renderListItems(row, tableHeaders)}</div>
-              </div>
-            ))}
+            <div>
+              {data?.listItems.map((row) => (
+                <Checkbox
+                  key={JSON.stringify(row)}
+                  className={cn(classes.mobile)}
+                  {...getCheckboxProps({ value: JSON.stringify(row) })}
+                  onClick={() => handleRowClick(row)}
+                  value={JSON.stringify(row)}
+                  checked={isChecked(row)}
+                  label={renderListItems(row, tableHeaders)}
+                />
+              ))}
+            </div>
           </Fieldset>
         ) : (
           <Fieldset className={classes.mobileGroup}>
@@ -227,21 +222,14 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
             )}
 
             {data?.listItems.map((row) => (
-              <div
+              <Radio
                 key={JSON.stringify(row)}
-                className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) && !readOnly })}
-              >
-                {!readOnly && (
-                  <Radio
-                    {...getRadioProps({ value: JSON.stringify(row) })}
-                    value={JSON.stringify(row)}
-                    className={classes.mobileControl}
-                    onChange={() => handleSelectedRadioRow({ selectedValue: row })}
-                    label={<span className={utilClasses.visuallyHidden}>{getRowLabel(row)}</span>}
-                  />
-                )}
-                <div className={classes.mobileContent}>{renderListItems(row, tableHeaders)}</div>
-              </div>
+                {...getRadioProps({ value: JSON.stringify(row) })}
+                value={JSON.stringify(row)}
+                className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
+                onClick={() => handleSelectedRadioRow({ selectedValue: row })}
+                label={renderListItems(row, tableHeaders)}
+              />
             ))}
           </Fieldset>
         )}
