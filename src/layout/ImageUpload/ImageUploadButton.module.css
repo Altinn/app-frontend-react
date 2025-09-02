@@ -1,0 +1,7 @@
+.dropZoneWrapper :global(#altinn-drop-zone-image-upload) {
+  border-radius: var(--ds-border-radius-lg);
+}
+
+.changeImageLabel {
+  width: fit-content;
+}

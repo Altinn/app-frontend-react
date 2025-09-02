@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
-  ArrowCirclepathReverseIcon as RefreshCw,
   ScissorsFillIcon as Scissors,
   UploadIcon as Upload,
   ZoomMinusIcon as ZoomOut,
@@ -9,6 +8,7 @@ import {
 } from '@navikt/aksel-icons';
 
 import styles from 'src/layout/ImageUpload/ImageUpload.module.css';
+import { ImageUploadButton } from 'src/layout/ImageUpload/ImageUploadButton';
 import { constrainToArea } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Define types for state and props
@@ -121,31 +121,6 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
       draw();
     }
   }, [draw, imageSrc]);
-
-  // Handle file selection and default zoom values
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          imageRef.current = img;
-
-          // Calculate the minimum zoom to fit the viewport
-          const newMinZoom = Math.max(VIEWPORT_WIDTH / img.width, VIEWPORT_HEIGHT / img.height);
-          setMinAllowedZoom(newMinZoom);
-
-          // Reset state for new image, ensuring zoom is at least the new minimum
-          setZoom(Math.max(1, newMinZoom));
-          setPosition({ x: 0, y: 0 });
-          setImageSrc(event.target?.result as string);
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   // Handle mouse down for panning
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -272,10 +247,13 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
     );
   };
 
-  // Reset image state
-  const handleReset = () => {
-    setZoom(Math.max(1, minAllowedZoom));
+  const onFileUploaded = (img: HTMLImageElement, src: string) => {
+    imageRef.current = img;
+    const newMinZoom = Math.max(VIEWPORT_WIDTH / img.width, VIEWPORT_HEIGHT / img.height);
+    setMinAllowedZoom(newMinZoom);
+    setZoom(Math.max(1, newMinZoom));
     setPosition({ x: 0, y: 0 });
+    setImageSrc(src);
   };
 
   // The main cropping logic
@@ -348,23 +326,11 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
       </div>
       {/* Left side: Controls */}
       <div className={styles.controlsContainer}>
-        <label
-          htmlFor='image-upload'
-          className={styles.uploadLabel}
-        >
-          <div className={styles.uploadButton}>
-            <Upload className={styles.icon} />
-            {imageSrc ? 'Change Image' : 'Upload Image'}
-          </div>
-          <input
-            id='image-upload'
-            type='file'
-            accept='image/*'
-            onChange={handleFileChange}
-            className={styles.hiddenInput}
-          />
-        </label>
-
+        <ImageUploadButton
+          imgSrc={imageSrc}
+          setImgSrc={setImageSrc}
+          onFileUploaded={onFileUploaded}
+        />
         {imageSrc && (
           <div className={styles.controlsContainer}>
             <div className={styles.controlSection}>
@@ -390,20 +356,12 @@ export function ImageCropper({ onCrop, cropAsCircle = false }: ImageCropperProps
               </div>
             </div>
 
-            <div className={styles.actionButtons}>
-              <button
-                onClick={handleReset}
-                className={`${styles.button} ${styles.resetButton}`}
-              >
-                <RefreshCw className={styles.icon} /> Reset
-              </button>
-              <button
-                onClick={handleCrop}
-                className={`${styles.button} ${styles.cropButton}`}
-              >
-                <Scissors className={styles.icon} /> Crop
-              </button>
-            </div>
+            <button
+              onClick={handleCrop}
+              className={`${styles.button} ${styles.cropButton}`}
+            >
+              <Scissors className={styles.icon} /> Crop
+            </button>
           </div>
         )}
       </div>
