@@ -39,6 +39,7 @@
   border-radius: 0.5rem;
   overflow: hidden;
   cursor: grab;
+  touch-action: none;
 }
 
 /* Placeholder for when no image is loaded */
