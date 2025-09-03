@@ -17,7 +17,7 @@ export const getViewport = (viewport?: ViewportType): Viewport => {
       return { width: 480, height: 270, circle: false };
     case ViewportType.Circle:
     default:
-      return { width: 300, height: 300, circle: true };
+      return { width: 280, height: 280, circle: true };
   }
 };
 

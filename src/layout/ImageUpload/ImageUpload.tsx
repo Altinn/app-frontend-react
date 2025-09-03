@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { UploadIcon as Upload } from '@navikt/aksel-icons';
 
+import { AppCard } from 'src/app-components/Card/Card';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
-import styles from 'src/layout/ImageUpload/ImageUpload.module.css';
+import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
 import {
   calculatePositions,
   constrainToArea,
@@ -25,25 +26,34 @@ interface ImageCropperProps {
   onCrop: (image: string) => void;
 }
 
+// Constants for canvas size
+const CANVAS_HEIGHT = 320;
+// Constants for zoom limits
+const MAX_ZOOM = 5;
+
 // ImageCropper Component
 export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null); // Ref to measure the container's size
 
   // State management
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [minAllowedZoom, setMinAllowedZoom] = useState<number>(0.1);
+  const [canvasWidth, setCanvasWidth] = useState(800);
 
   // Constants for viewport size
   const selectedViewport = getViewport(viewport);
 
-  // Constants and functions for logarithmic zoom slider
-  const MAX_ZOOM = 5;
+  const minAllowedZoom = useMemo(() => {
+    if (!imageRef.current) {
+      return 0.1;
+    }
+    return Math.max(selectedViewport.width / imageRef.current.width, selectedViewport.height / imageRef.current.height);
+  }, [selectedViewport]);
 
   // This function handles drawing the image and the viewport on the canvas.
   const draw = useCallback(() => {
@@ -86,12 +96,40 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
     ctx.setLineDash([]);
   }, [zoom, position, selectedViewport]);
 
-  // useEffect to draw when state changes
+  // Redraw whenever the image or canvas width changes.
   useEffect(() => {
     if (imageSrc) {
       draw();
     }
-  }, [draw, imageSrc]);
+  }, [draw, imageSrc, canvasWidth]);
+
+  // This effect observes the container size and resizes the canvas drawing buffer
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    let animationFrameId: number | null = null;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      animationFrameId = window.requestAnimationFrame(() => {
+        const entry = entries[0];
+        if (entry) {
+          setCanvasWidth(entry.contentRect.width);
+        }
+      });
+    });
+
+    resizeObserver.observe(container);
+
+    return () => {
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
@@ -233,7 +271,6 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
         img.onload = () => {
           imageRef.current = img;
           const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
-          setMinAllowedZoom(newMinZoom);
           setZoom(Math.max(1, newMinZoom));
           setPosition({ x: 0, y: 0 });
           setImageSrc(result);
@@ -277,27 +314,35 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
   };
 
   return (
-    <div className={styles.cropperContainer}>
-      {/* Right side: Canvas */}
-      <div className={styles.canvasContainerWrapper}>
-        {imageSrc ? (
-          <canvas
-            onPointerDown={handlePointerDown}
-            onKeyDown={handleKeyDown}
-            tabIndex={0}
-            ref={canvasRef}
-            width={500}
-            height={500}
-            className={styles.canvas}
-            aria-label='Image cropping area'
-          />
-        ) : (
-          <div className={styles.placeholder}>
-            <Upload className={styles.placeholderIcon} />
-            <p className={styles.placeholderText}>Upload an image to start cropping</p>
-          </div>
-        )}
-      </div>
+    <AppCard
+      variant='default'
+      mediaPosition='top'
+      className={classes.imageUploadCard}
+      media={
+        <div
+          ref={containerRef}
+          className={classes.canvasSizingWrapper}
+        >
+          {imageSrc ? (
+            <canvas
+              onPointerDown={handlePointerDown}
+              onKeyDown={handleKeyDown}
+              tabIndex={0}
+              ref={canvasRef}
+              width={canvasWidth}
+              height={CANVAS_HEIGHT}
+              className={classes.canvas}
+              aria-label='Image cropping area'
+            />
+          ) : (
+            <div className={classes.placeholder}>
+              <Upload className={classes.placeholderIcon} />
+              <p className={classes.placeholderText}>Upload an image to start cropping</p>
+            </div>
+          )}
+        </div>
+      }
+    >
       {imageSrc ? (
         <ImageControllers
           zoom={zoom}
@@ -308,7 +353,7 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
           onCrop={handleCrop}
         />
       ) : (
-        <div className={styles.dropZoneWrapper}>
+        <div className={classes.dropZoneWrapper}>
           <DropzoneComponent
             id='image-upload'
             isMobile={mobileView}
@@ -321,6 +366,6 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
           />
         </div>
       )}
-    </div>
+    </AppCard>
   );
 }
