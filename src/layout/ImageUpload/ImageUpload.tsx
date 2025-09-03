@@ -27,7 +27,7 @@ interface ImageCropperProps {
 }
 
 // Constants for canvas size
-const CANVAS_HEIGHT = 300;
+const CANVAS_HEIGHT = 320;
 // Constants for zoom limits
 const MAX_ZOOM = 5;
 
