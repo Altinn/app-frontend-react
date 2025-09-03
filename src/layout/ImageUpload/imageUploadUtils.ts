@@ -68,3 +68,31 @@ export function drawViewport({ ctx, cropAsCircle, x = 0, y = 0, selectedViewport
     ctx.rect(x, y, width, height);
   }
 }
+
+interface ZoomParams {
+  minZoom: number;
+  maxZoom: number;
+}
+
+interface CalculateZoomParams extends ZoomParams {
+  value: number;
+}
+
+function getLogValues({ minZoom, maxZoom }: ZoomParams): { logScale: number; logMin: number } {
+  const logMin = Math.log(minZoom);
+  const logMax = Math.log(maxZoom);
+  return { logScale: (logMax - logMin) / 100, logMin };
+}
+
+export function normalToLogZoom({ value, minZoom, maxZoom }: CalculateZoomParams): number {
+  const { logScale, logMin } = getLogValues({ minZoom, maxZoom });
+  return Math.exp(logMin + logScale * value);
+}
+
+export function logToNormalZoom({ value, minZoom, maxZoom }: CalculateZoomParams): number {
+  const { logScale, logMin } = getLogValues({ minZoom, maxZoom });
+  if (logScale === 0) {
+    return 0;
+  } // Avoid division by zero if minZoom equals maxZoom
+  return (Math.log(value) - logMin) / logScale;
+}
