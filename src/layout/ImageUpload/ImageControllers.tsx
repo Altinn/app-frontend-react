@@ -9,7 +9,7 @@ import {
   ZoomPlusIcon as ZoomIn,
 } from '@navikt/aksel-icons';
 
-import styles from 'src/layout/ImageUpload/ImageControllers.module.css';
+import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type ImageControllersProps = {
@@ -49,16 +49,16 @@ export function ImageControllers({
   };
 
   return (
-    <div className={styles.controlsContainer}>
-      <div className={styles.controlSection}>
+    <div className={classes.controlsContainer}>
+      <div className={classes.controlSection}>
         <label
           htmlFor='zoom'
-          className={styles.label}
+          className={classes.label}
         >
           Zoom
         </label>
-        <div className={styles.zoomControls}>
-          <ZoomOut className={styles.zoomIcon} />
+        <div className={classes.zoomControls}>
+          <ZoomOut className={classes.zoomIcon} />
           <input
             id='zoom'
             type='range'
@@ -68,23 +68,23 @@ export function ImageControllers({
             // value={zoomToSliderValue(zoom)}
             value={logToNormalZoom({ value: zoom, minZoom, maxZoom })}
             onChange={handleSliderZoom}
-            className={styles.zoomSlider}
+            className={classes.zoomSlider}
           />
-          <ZoomIn className={styles.zoomIcon} />
+          <ZoomIn className={classes.zoomIcon} />
         </div>
       </div>
-      <div className={styles.actionButtons}>
+      <div className={classes.actionButtons}>
         <button
           onClick={onReset}
-          className={`${styles.button} ${styles.resetButton}`}
+          className={`${classes.button} ${classes.resetButton}`}
         >
-          <RefreshCw className={styles.icon} /> Reset
+          <RefreshCw className={classes.icon} /> Reset
         </button>
         <button
           onClick={onCrop}
-          className={`${styles.button} ${styles.cropButton}`}
+          className={`${classes.button} ${classes.cropButton}`}
         >
-          <Scissors className={styles.icon} /> Crop
+          <Scissors className={classes.icon} /> Crop
         </button>
       </div>
 
@@ -104,7 +104,7 @@ export function ImageControllers({
       >
         <Label
           htmlFor='image-upload'
-          className={styles.changeImageLabel}
+          className={classes.changeImageLabel}
         >
           <ArrowsSquarepathIcon />
           Bytt bilde
