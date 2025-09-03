@@ -1,6 +1,7 @@
 import dot from 'dot-object';
 import escapeStringRegexp from 'escape-string-regexp';
 
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { SearchParams } from 'src/core/routing/types';
 import { exprCastValue } from 'src/features/expressions';
 import { ExprRuntimeError, NodeRelationNotFound } from 'src/features/expressions/errors';
@@ -859,6 +860,9 @@ function pickSimpleValue(
   }
 
   const value = params.dataSources.formDataSelector(path);
+  if (value === ContextNotProvided) {
+    return null;
+  }
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
     return value;
   }
