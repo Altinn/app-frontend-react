@@ -191,9 +191,9 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
               </Heading>
             </Fieldset.Legend>
             <div>
-              {data?.listItems.map((row) => (
+              {data?.listItems.map((row, idx) => (
                 <Checkbox
-                  key={JSON.stringify(row)}
+                  key={idx}
                   className={cn(classes.mobile)}
                   {...getCheckboxProps({ value: JSON.stringify(row) })}
                   onClick={() => handleRowClick(row)}
@@ -221,9 +221,9 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
               </Fieldset.Description>
             )}
 
-            {data?.listItems.map((row) => (
+            {data?.listItems.map((row, idx) => (
               <Radio
-                key={JSON.stringify(row)}
+                key={idx}
                 {...getRadioProps({ value: JSON.stringify(row) })}
                 value={JSON.stringify(row)}
                 className={cn(classes.mobile, { [classes.selectedRow]: isRowSelected(row) })}
