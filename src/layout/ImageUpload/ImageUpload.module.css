@@ -206,6 +206,7 @@
   appearance: none;
   cursor: pointer;
   outline: none;
+  touch-action: none;
 }
 
 .zoomSlider::-webkit-slider-thumb {
