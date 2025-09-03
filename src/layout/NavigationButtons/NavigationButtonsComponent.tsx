@@ -77,6 +77,8 @@ function NavigationButtonsComponentInner({
 
   const [searchParams] = useSearchParams();
   const backToPage = searchParams.get('backToPage');
+  const showBackToComponentButton = !!backToPage;
+
   const { performProcess, isAnyProcessing, process } = useIsProcessing<
     'next' | 'previous' | 'backToSummary' | 'backToComponent'
   >();
@@ -84,7 +86,7 @@ function NavigationButtonsComponentInner({
   const nextTextKey = textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
 
-  const backToComponentKey = textResourceBindings?.backToPage || 'form_filler.back_to_component';
+  const backToPageTextKey = textResourceBindings?.backToPage || 'form_filler.back_to_component';
 
   const showBackToSummaryButton = returnToView !== undefined;
   const showNextButton = showBackToSummaryButton ? showNextButtonSummary : hasNext;
@@ -156,10 +158,11 @@ function NavigationButtonsComponentInner({
 
   const onClickBackToComponent = () =>
     performProcess('backToComponent', async () => {
-      await maybeSaveOnPageChange(); // hva gjør denne??
-      await navigateToPage(backToPage ?? '', {
-        skipAutoSave: true,
-      });
+      if (!backToPage) {
+        return;
+      }
+      await maybeSaveOnPageChange();
+      await navigateToPage(backToPage, { skipAutoSave: true });
     });
 
   /**
@@ -173,14 +176,16 @@ function NavigationButtonsComponentInner({
         data-testid='NavigationButtons'
         className={classes.container}
       >
-        {!!backToPage && (
+        {showBackToComponentButton && (
           <Button
             disabled={isAnyProcessing}
             isLoading={process === 'backToComponent'}
             onClick={onClickBackToComponent}
+            // If we show any back button, "Next" should be secondary
+            variant={showBackToSummaryButton || showBackToComponentButton ? 'secondary' : 'primary'}
           >
             <Lang
-              id={backToComponentKey}
+              id={backToPageTextKey}
               params={[smartLowerCaseFirst(langAsString(backToPage ?? ''))]}
             />
           </Button>

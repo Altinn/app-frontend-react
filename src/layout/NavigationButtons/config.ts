@@ -34,7 +34,7 @@ export const Config = new CG.component({
     new CG.trb({
       name: 'backToPage',
       title: 'Back to Page',
-      description: 'Text on the back to Page button when linkToPage/linkToComponent expression is used.',
+      description: 'Text on the "Back to Page" button when linkToPage/linkToComponent expression is used.',
     }),
   )
   .addProperty(

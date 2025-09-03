@@ -83,7 +83,7 @@ const directHooks = {
       isInGenerator ? GeneratorData.useReadableDataTypes() : DataModels.useReadableDataTypes(),
       FD.useDebouncedSelector(),
     ),
-  currentPage: () => useNavigationParam('pageKey'),
+  currentPage: (_isInGenerator) => useNavigationParam('pageKey'),
 } satisfies {
   [K in keyof Omit<ExpressionDataSources, 'dataElementSelector'>]?: (
     isInGenerator: boolean,

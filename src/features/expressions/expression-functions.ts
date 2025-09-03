@@ -630,8 +630,9 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
 
     const searchParams = new URLSearchParams();
     searchParams.set(SearchParams.FocusComponentId, relativeId);
-    if (enableBackButton) {
-      searchParams.append('backToPage', this.dataSources.currentPage ?? '');
+    const backTo = this.dataSources.currentPage;
+    if (enableBackButton && backTo) {
+      searchParams.append('backToPage', backTo);
     }
     const newUrl = `${url}?${searchParams.toString()}`;
     return `<a href="${newUrl}" data-link-type="LinkToPotentialNode">${linkText}</a>`;
@@ -655,9 +656,10 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
       url = `/${pageId}`;
     }
 
-    if (enableBackButton) {
+    const backTo = this.dataSources.currentPage;
+    if (enableBackButton && backTo && backTo !== pageId) {
       const searchParams = new URLSearchParams();
-      searchParams.set('backToPage', this.dataSources.currentPage ?? '');
+      searchParams.set('backToPage', backTo);
       url = `${url}?${searchParams.toString()}`;
     }
     return `<a href="${url}" data-link-type="LinkToPotentialPage">${linkText}</a>`;
