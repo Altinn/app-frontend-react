@@ -1,21 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import {
-  ArrowCirclepathReverseIcon as RefreshCw,
-  ScissorsFillIcon as Scissors,
-  UploadIcon as Upload,
-  ZoomMinusIcon as ZoomOut,
-  ZoomPlusIcon as ZoomIn,
-} from '@navikt/aksel-icons';
+import { UploadIcon as Upload } from '@navikt/aksel-icons';
 
+import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
+import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
+import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import styles from 'src/layout/ImageUpload/ImageUpload.module.css';
 import {
   calculatePositions,
   constrainToArea,
   drawViewport,
   getViewport,
-  logToNormalZoom,
-  normalToLogZoom,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
@@ -32,6 +27,7 @@ interface ImageCropperProps {
 
 // ImageCropper Component
 export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
+  const mobileView = useIsMobileOrTablet();
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -96,31 +92,6 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
       draw();
     }
   }, [draw, imageSrc]);
-
-  // Handle file selection and default zoom values
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          imageRef.current = img;
-
-          // Calculate the minimum zoom to fit the viewport
-          const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
-          setMinAllowedZoom(newMinZoom);
-
-          // Reset state for new image, ensuring zoom is at least the new minimum
-          setZoom(Math.max(1, newMinZoom));
-          setPosition({ x: 0, y: 0 });
-          setImageSrc(event.target?.result as string);
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
@@ -197,16 +168,6 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
     [zoom, minAllowedZoom, updateZoom],
   );
 
-  // Handle slider change for zooming
-  const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const logarithmicZoomValue = normalToLogZoom({
-      value: parseFloat(e.target.value),
-      minZoom: minAllowedZoom,
-      maxZoom: MAX_ZOOM,
-    });
-    updateZoom(logarithmicZoomValue);
-  };
-
   // Effect to manually add wheel event listener with passive: false
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -262,10 +223,25 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
     );
   };
 
-  // Reset image state
-  const handleReset = () => {
-    setZoom(Math.max(1, minAllowedZoom));
-    setPosition({ x: 0, y: 0 });
+  const handleFileUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result;
+
+      if (typeof result === 'string') {
+        const img = new Image();
+        img.onload = () => {
+          imageRef.current = img;
+          const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
+          setMinAllowedZoom(newMinZoom);
+          setZoom(Math.max(1, newMinZoom));
+          setPosition({ x: 0, y: 0 });
+          setImageSrc(result);
+        };
+        img.src = result;
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   // The main cropping logic
@@ -295,6 +271,11 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
     onCrop(cropCanvas.toDataURL('image/png'));
   };
 
+  const handleReset = () => {
+    setZoom(Math.max(1, minAllowedZoom));
+    setPosition({ x: 0, y: 0 });
+  };
+
   return (
     <div className={styles.cropperContainer}>
       {/* Right side: Canvas */}
@@ -317,67 +298,29 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
           </div>
         )}
       </div>
-      {/* Left side: Controls */}
-      <div className={styles.controlsContainer}>
-        <label
-          htmlFor='image-upload'
-          className={styles.uploadLabel}
-        >
-          <div className={styles.uploadButton}>
-            <Upload className={styles.icon} />
-            {imageSrc ? 'Change Image' : 'Upload Image'}
-          </div>
-          <input
+      {imageSrc ? (
+        <ImageControllers
+          zoom={zoom}
+          zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
+          updateZoom={updateZoom}
+          onFileUploaded={handleFileUpload}
+          onReset={handleReset}
+          onCrop={handleCrop}
+        />
+      ) : (
+        <div className={styles.dropZoneWrapper}>
+          <DropzoneComponent
             id='image-upload'
-            type='file'
-            accept='image/*'
-            onChange={handleFileChange}
-            className={styles.hiddenInput}
+            isMobile={mobileView}
+            maxFileSizeInMB={10}
+            readOnly={false}
+            onClick={(e) => e.preventDefault()}
+            onDrop={(files) => handleFileUpload(files[0])}
+            hasValidationMessages={false}
+            validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
           />
-        </label>
-
-        {imageSrc && (
-          <div className={styles.controlsContainer}>
-            <div className={styles.controlSection}>
-              <label
-                htmlFor='zoom'
-                className={styles.label}
-              >
-                Zoom
-              </label>
-              <div className={styles.zoomControls}>
-                <ZoomOut className={styles.zoomIcon} />
-                <input
-                  id='zoom'
-                  type='range'
-                  min='0'
-                  max='100'
-                  step='0.1'
-                  value={logToNormalZoom({ value: zoom, minZoom: minAllowedZoom, maxZoom: MAX_ZOOM })}
-                  onChange={handleSliderZoom}
-                  className={styles.zoomSlider}
-                />
-                <ZoomIn className={styles.zoomIcon} />
-              </div>
-            </div>
-
-            <div className={styles.actionButtons}>
-              <button
-                onClick={handleReset}
-                className={`${styles.button} ${styles.resetButton}`}
-              >
-                <RefreshCw className={styles.icon} /> Reset
-              </button>
-              <button
-                onClick={handleCrop}
-                className={`${styles.button} ${styles.cropButton}`}
-              >
-                <Scissors className={styles.icon} /> Crop
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
