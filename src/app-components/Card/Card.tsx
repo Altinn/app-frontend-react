@@ -13,6 +13,7 @@ type AppCardProps = {
   color?: Parameters<typeof Card>[0]['color'];
   children?: React.ReactNode;
   variant?: 'tinted' | 'default';
+  className?: string;
 };
 
 export function AppCard({
@@ -24,11 +25,13 @@ export function AppCard({
   mediaPosition = 'top',
   children,
   variant = 'tinted',
+  className,
 }: AppCardProps) {
   return (
     <Card
       data-color={color}
       variant={variant}
+      className={className}
     >
       {media && mediaPosition === 'top' && <Card.Block className={classes.mediaCard}>{media}</Card.Block>}
       <Card.Block>

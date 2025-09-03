@@ -8,7 +8,8 @@ import {
   ZoomPlusIcon as ZoomIn,
 } from '@navikt/aksel-icons';
 
-import styles from 'src/layout/ImageUpload/ImageUpload.module.css';
+import { AppCard } from 'src/app-components/Card/Card';
+import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
 import {
   calculatePositions,
   constrainToArea,
@@ -296,35 +297,37 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
   };
 
   return (
-    <div className={styles.cropperContainer}>
-      {/* Right side: Canvas */}
-      <div className={styles.canvasContainerWrapper}>
-        {imageSrc ? (
+    <AppCard
+      variant='default'
+      mediaPosition='top'
+      className={classes.imageUploadCard}
+      media={
+        imageSrc ? (
           <canvas
             onPointerDown={handlePointerDown}
             onKeyDown={handleKeyDown}
             tabIndex={0}
             ref={canvasRef}
-            width={500}
-            height={500}
-            className={styles.canvas}
+            width={800}
+            height={300}
+            className={classes.canvas}
             aria-label='Image cropping area'
           />
         ) : (
-          <div className={styles.placeholder}>
-            <Upload className={styles.placeholderIcon} />
-            <p className={styles.placeholderText}>Upload an image to start cropping</p>
+          <div className={classes.placeholder}>
+            <Upload className={classes.placeholderIcon} />
+            <p className={classes.placeholderText}>Upload an image to start cropping</p>
           </div>
-        )}
-      </div>
-      {/* Left side: Controls */}
-      <div className={styles.controlsContainer}>
+        )
+      }
+    >
+      <div className={classes.controlsContainer}>
         <label
           htmlFor='image-upload'
-          className={styles.uploadLabel}
+          className={classes.uploadLabel}
         >
-          <div className={styles.uploadButton}>
-            <Upload className={styles.icon} />
+          <div className={classes.uploadButton}>
+            <Upload className={classes.icon} />
             {imageSrc ? 'Change Image' : 'Upload Image'}
           </div>
           <input
@@ -332,21 +335,21 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
             type='file'
             accept='image/*'
             onChange={handleFileChange}
-            className={styles.hiddenInput}
+            className={classes.hiddenInput}
           />
         </label>
 
         {imageSrc && (
-          <div className={styles.controlsContainer}>
-            <div className={styles.controlSection}>
+          <div className={classes.controlsContainer}>
+            <div className={classes.controlSection}>
               <label
                 htmlFor='zoom'
-                className={styles.label}
+                className={classes.label}
               >
                 Zoom
               </label>
-              <div className={styles.zoomControls}>
-                <ZoomOut className={styles.zoomIcon} />
+              <div className={classes.zoomControls}>
+                <ZoomOut className={classes.zoomIcon} />
                 <input
                   id='zoom'
                   type='range'
@@ -355,29 +358,29 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
                   step='0.1'
                   value={logToNormalZoom({ value: zoom, minZoom: minAllowedZoom, maxZoom: MAX_ZOOM })}
                   onChange={handleSliderZoom}
-                  className={styles.zoomSlider}
+                  className={classes.zoomSlider}
                 />
-                <ZoomIn className={styles.zoomIcon} />
+                <ZoomIn className={classes.zoomIcon} />
               </div>
             </div>
 
-            <div className={styles.actionButtons}>
+            <div className={classes.actionButtons}>
               <button
                 onClick={handleReset}
-                className={`${styles.button} ${styles.resetButton}`}
+                className={`${classes.button} ${classes.resetButton}`}
               >
-                <RefreshCw className={styles.icon} /> Reset
+                <RefreshCw className={classes.icon} /> Reset
               </button>
               <button
                 onClick={handleCrop}
-                className={`${styles.button} ${styles.cropButton}`}
+                className={`${classes.button} ${classes.cropButton}`}
               >
-                <Scissors className={styles.icon} /> Crop
+                <Scissors className={classes.icon} /> Crop
               </button>
             </div>
           </div>
         )}
       </div>
-    </div>
+    </AppCard>
   );
 }
