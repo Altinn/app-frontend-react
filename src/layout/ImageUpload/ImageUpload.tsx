@@ -14,6 +14,8 @@ import {
   constrainToArea,
   drawViewport,
   getViewport,
+  logToNormalZoom,
+  normalToLogZoom,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Define types for state and props
@@ -46,15 +48,6 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
 
   // Constants and functions for logarithmic zoom slider
   const MAX_ZOOM = 5;
-  const logMin = Math.log(minAllowedZoom);
-  const logMax = Math.log(MAX_ZOOM);
-  const logScale = (logMax - logMin) / 100; // Scale for a 0-100 slider
-
-  // Converts a linear slider value (0-100) to a logarithmic zoom value
-  const sliderValueToZoom = (value: number) => Math.exp(logMin + logScale * value);
-
-  // Converts a zoom value back to a linear slider value (0-100)
-  const zoomToSliderValue = (zoomValue: number) => (Math.log(zoomValue) - logMin) / logScale;
 
   // This function handles drawing the image and the viewport on the canvas.
   const draw = useCallback(() => {
@@ -206,7 +199,11 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
 
   // Handle slider change for zooming
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const logarithmicZoomValue = sliderValueToZoom(parseFloat(e.target.value));
+    const logarithmicZoomValue = normalToLogZoom({
+      value: parseFloat(e.target.value),
+      minZoom: minAllowedZoom,
+      maxZoom: MAX_ZOOM,
+    });
     updateZoom(logarithmicZoomValue);
   };
 
@@ -356,7 +353,7 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
                   min='0'
                   max='100'
                   step='0.1'
-                  value={zoomToSliderValue(zoom)}
+                  value={logToNormalZoom({ value: zoom, minZoom: minAllowedZoom, maxZoom: MAX_ZOOM })}
                   onChange={handleSliderZoom}
                   className={styles.zoomSlider}
                 />
