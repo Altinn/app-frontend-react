@@ -1,23 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  ArrowCirclepathReverseIcon as RefreshCw,
-  ScissorsFillIcon as Scissors,
-  UploadIcon as Upload,
-  ZoomMinusIcon as ZoomOut,
-  ZoomPlusIcon as ZoomIn,
-} from '@navikt/aksel-icons';
+import { UploadIcon as Upload } from '@navikt/aksel-icons';
 
 import { AppCard } from 'src/app-components/Card/Card';
+import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
+import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
+import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
 import {
   calculatePositions,
   constrainToArea,
   drawViewport,
   getViewport,
-  logToNormalZoom,
-  normalToLogZoom,
 } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Define types for state and props
 type Position = {
@@ -26,9 +22,8 @@ type Position = {
 };
 
 interface ImageCropperProps {
+  viewport?: ViewportType;
   onCrop: (image: string) => void;
-  cropAsCircle?: boolean;
-  viewport?: string;
 }
 
 // Constants for canvas size
@@ -37,7 +32,8 @@ const CANVAS_HEIGHT = 300;
 const MAX_ZOOM = 5;
 
 // ImageCropper Component
-export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCropperProps) {
+export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
+  const mobileView = useIsMobileOrTablet();
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -86,19 +82,19 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     const viewportX = (canvas.width - selectedViewport.width) / 2;
     const viewportY = (canvas.height - selectedViewport.height) / 2;
 
-    drawViewport({ ctx, cropAsCircle, x: viewportX, y: viewportY, selectedViewport });
+    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport });
     ctx.clip();
     ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
     ctx.restore();
 
     // 4. Draw the dashed border
-    drawViewport({ ctx, cropAsCircle, x: viewportX, y: viewportY, selectedViewport });
+    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport });
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
     ctx.stroke();
     ctx.setLineDash([]);
-  }, [zoom, position, cropAsCircle, selectedViewport]);
+  }, [zoom, position, selectedViewport]);
 
   // Redraw whenever the image or canvas width changes.
   useEffect(() => {
@@ -134,30 +130,6 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
       resizeObserver.disconnect();
     };
   }, []);
-
-  // Handle file selection and default zoom values
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          imageRef.current = img;
-
-          // Calculate the minimum zoom to fit the viewport
-          const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
-
-          // Reset state for new image, ensuring zoom is at least the new minimum
-          setZoom(Math.max(1, newMinZoom));
-          setPosition({ x: 0, y: 0 });
-          setImageSrc(event.target?.result as string);
-        };
-        img.src = event.target?.result as string;
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
@@ -234,16 +206,6 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     [zoom, minAllowedZoom, updateZoom],
   );
 
-  // Handle slider change for zooming
-  const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const logarithmicZoomValue = normalToLogZoom({
-      value: parseFloat(e.target.value),
-      minZoom: minAllowedZoom,
-      maxZoom: MAX_ZOOM,
-    });
-    updateZoom(logarithmicZoomValue);
-  };
-
   // Effect to manually add wheel event listener with passive: false
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -299,10 +261,24 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     );
   };
 
-  // Reset image state
-  const handleReset = () => {
-    setZoom(Math.max(1, minAllowedZoom));
-    setPosition({ x: 0, y: 0 });
+  const handleFileUpload = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result;
+
+      if (typeof result === 'string') {
+        const img = new Image();
+        img.onload = () => {
+          imageRef.current = img;
+          const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
+          setZoom(Math.max(1, newMinZoom));
+          setPosition({ x: 0, y: 0 });
+          setImageSrc(result);
+        };
+        img.src = result;
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   // The main cropping logic
@@ -324,12 +300,17 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     const viewportX = (canvas.width - selectedViewport.width) / 2;
     const viewportY = (canvas.height - selectedViewport.height) / 2;
 
-    drawViewport({ ctx: cropCtx, cropAsCircle, selectedViewport });
+    drawViewport({ ctx: cropCtx, selectedViewport });
     cropCtx.clip();
 
     cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
 
     onCrop(cropCanvas.toDataURL('image/png'));
+  };
+
+  const handleReset = () => {
+    setZoom(Math.max(1, minAllowedZoom));
+    setPosition({ x: 0, y: 0 });
   };
 
   return (
@@ -362,66 +343,29 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
         </div>
       }
     >
-      <div className={classes.controlsContainer}>
-        <label
-          htmlFor='image-upload'
-          className={classes.uploadLabel}
-        >
-          <div className={classes.uploadButton}>
-            <Upload className={classes.icon} />
-            {imageSrc ? 'Change Image' : 'Upload Image'}
-          </div>
-          <input
+      {imageSrc ? (
+        <ImageControllers
+          zoom={zoom}
+          zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
+          updateZoom={updateZoom}
+          onFileUploaded={handleFileUpload}
+          onReset={handleReset}
+          onCrop={handleCrop}
+        />
+      ) : (
+        <div className={classes.dropZoneWrapper}>
+          <DropzoneComponent
             id='image-upload'
-            type='file'
-            accept='image/*'
-            onChange={handleFileChange}
-            className={classes.hiddenInput}
+            isMobile={mobileView}
+            maxFileSizeInMB={10}
+            readOnly={false}
+            onClick={(e) => e.preventDefault()}
+            onDrop={(files) => handleFileUpload(files[0])}
+            hasValidationMessages={false}
+            validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
           />
-        </label>
-
-        {imageSrc && (
-          <div className={classes.controlsContainer}>
-            <div className={classes.controlSection}>
-              <label
-                htmlFor='zoom'
-                className={classes.label}
-              >
-                Zoom
-              </label>
-              <div className={classes.zoomControls}>
-                <ZoomOut className={classes.zoomIcon} />
-                <input
-                  id='zoom'
-                  type='range'
-                  min='0'
-                  max='100'
-                  step='0.1'
-                  value={logToNormalZoom({ value: zoom, minZoom: minAllowedZoom, maxZoom: MAX_ZOOM })}
-                  onChange={handleSliderZoom}
-                  className={classes.zoomSlider}
-                />
-                <ZoomIn className={classes.zoomIcon} />
-              </div>
-            </div>
-
-            <div className={classes.actionButtons}>
-              <button
-                onClick={handleReset}
-                className={`${classes.button} ${classes.resetButton}`}
-              >
-                <RefreshCw className={classes.icon} /> Reset
-              </button>
-              <button
-                onClick={handleCrop}
-                className={`${classes.button} ${classes.cropButton}`}
-              >
-                <Scissors className={classes.icon} /> Crop
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+        </div>
+      )}
     </AppCard>
   );
 }
