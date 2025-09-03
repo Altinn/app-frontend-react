@@ -169,7 +169,7 @@ function localLogin({ authenticationLevel, ...rest }: LocalLoginParams) {
 
   cy.intercept({ method: 'POST', url: '/Home/LogInTestUser', times: 1 }, (req) => {
     req.on('response', (res) => {
-      expect(res.statusCode).to.eq(204);
+      expect(res.statusCode).to.eq(302);
       res.send(200, '');
     });
   }).as('login');
