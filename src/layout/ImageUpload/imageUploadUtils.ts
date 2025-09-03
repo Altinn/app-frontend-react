@@ -1,13 +1,23 @@
-export const getViewport = (viewport?: string) => {
+export type Viewport = { width: number; height: number; circle?: boolean };
+
+export enum ViewportType {
+  Square = '1:1',
+  Rectangle4_3 = '4:3',
+  Rectangle16_9 = '16:9',
+  Circle = 'circle',
+}
+
+export const getViewport = (viewport?: ViewportType): Viewport => {
   switch (viewport) {
-    case '1:1':
-      return { width: 100, height: 100 };
-    case '4:3':
-      return { width: 400, height: 300 };
-    case '16:9':
-      return { width: 320, height: 180 };
+    case ViewportType.Square:
+      return { width: 300, height: 300, circle: false };
+    case ViewportType.Rectangle4_3:
+      return { width: 400, height: 300, circle: false };
+    case ViewportType.Rectangle16_9:
+      return { width: 480, height: 270, circle: false };
+    case ViewportType.Circle:
     default:
-      return { width: 300, height: 300 };
+      return { width: 300, height: 300, circle: true };
   }
 };
 
@@ -39,7 +49,6 @@ interface CalculatePositionsParams {
   img: HTMLImageElement;
   zoom: number;
   position: { x: number; y: number };
-  viewport?: { width: number; height: number };
 }
 
 export const calculatePositions = ({ canvas, img, zoom, position }: CalculatePositionsParams) => {
@@ -53,18 +62,45 @@ export const calculatePositions = ({ canvas, img, zoom, position }: CalculatePos
 
 interface DrawViewportParams {
   ctx: CanvasRenderingContext2D;
-  cropAsCircle: boolean;
+  selectedViewport: Viewport;
   x?: number;
   y?: number;
-  selectedViewport: { width: number; height: number };
 }
 
-export function drawViewport({ ctx, cropAsCircle, x = 0, y = 0, selectedViewport }: DrawViewportParams) {
-  const { width, height } = selectedViewport;
+export function drawViewport({ ctx, x = 0, y = 0, selectedViewport }: DrawViewportParams) {
+  const { width, height, circle } = selectedViewport;
   ctx.beginPath();
-  if (cropAsCircle) {
+  if (circle) {
     ctx.arc(x + width / 2, y + height / 2, width / 2, 0, Math.PI * 2);
   } else {
     ctx.rect(x, y, width, height);
   }
+}
+
+interface ZoomParams {
+  minZoom: number;
+  maxZoom: number;
+}
+
+interface CalculateZoomParams extends ZoomParams {
+  value: number;
+}
+
+function getLogValues({ minZoom, maxZoom }: ZoomParams): { logScale: number; logMin: number } {
+  const logMin = Math.log(minZoom);
+  const logMax = Math.log(maxZoom);
+  return { logScale: (logMax - logMin) / 100, logMin };
+}
+
+export function normalToLogZoom({ value, minZoom, maxZoom }: CalculateZoomParams): number {
+  const { logScale, logMin } = getLogValues({ minZoom, maxZoom });
+  return Math.exp(logMin + logScale * value);
+}
+
+export function logToNormalZoom({ value, minZoom, maxZoom }: CalculateZoomParams): number {
+  const { logScale, logMin } = getLogValues({ minZoom, maxZoom });
+  if (logScale === 0) {
+    return 0;
+  } // Avoid division by zero if minZoom equals maxZoom
+  return (Math.log(value) - logMin) / logScale;
 }

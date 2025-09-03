@@ -10,11 +10,11 @@ import {
 } from '@navikt/aksel-icons';
 
 import styles from 'src/layout/ImageUpload/ImageControllers.module.css';
+import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type ImageControllersProps = {
   zoom: number;
-  logMin: number;
-  logScale: number;
+  zoomLimits: { minZoom: number; maxZoom: number };
   updateZoom: (zoom: number) => void;
   onFileUploaded: (file: File) => void;
   onReset: () => void;
@@ -23,20 +23,21 @@ type ImageControllersProps = {
 
 export function ImageControllers({
   zoom,
-  logMin,
-  logScale,
+  zoomLimits,
   updateZoom,
   onFileUploaded,
   onReset,
   onCrop,
 }: ImageControllersProps) {
-  // Converts a linear slider value (0-100) to a logarithmic zoom value
-  const sliderValueToZoom = (value: number) => Math.exp(logMin + logScale * value);
-  // Converts a zoom value back to a linear slider value (0-100)
-  const zoomToSliderValue = (zoomValue: number) => (Math.log(zoomValue) - logMin) / logScale;
+  const { minZoom, maxZoom } = zoomLimits;
 
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const logarithmicZoomValue = sliderValueToZoom(parseFloat(e.target.value));
+    const logarithmicZoomValue = normalToLogZoom({
+      value: parseFloat(e.target.value),
+      minZoom,
+      maxZoom,
+    });
+
     updateZoom(logarithmicZoomValue);
   };
 
@@ -64,7 +65,8 @@ export function ImageControllers({
             min='0'
             max='100'
             step='0.1'
-            value={zoomToSliderValue(zoom)}
+            // value={zoomToSliderValue(zoom)}
+            value={logToNormalZoom({ value: zoom, minZoom, maxZoom })}
             onChange={handleSliderZoom}
             className={styles.zoomSlider}
           />
