@@ -20,6 +20,12 @@
   }
 }
 
+/* New wrapper for sizing the canvas */
+.canvasSizingWrapper {
+  width: 100%;
+  position: relative;
+}
+
 /* Canvas Column */
 .canvasContainerWrapper {
   width: 100%;
@@ -33,6 +39,8 @@
 
 .canvas {
   display: block;
+  width: 100%;
+  height: 100%;
   background-color: #e5e7eb;
   overflow: hidden;
   cursor: grab;
@@ -43,7 +51,8 @@
 .placeholder {
   background-color: #e5e7eb;
   width: 100%;
-  height: 300px;
+  /* Removed fixed height, using aspect-ratio to match canvas */
+  aspect-ratio: 8 / 3;
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -7,7 +7,7 @@ export const getViewport = (viewport?: string) => {
     case '16:9':
       return { width: 320, height: 180 };
     default:
-      return { width: 300, height: 300 };
+      return { width: 280, height: 280 };
   }
 };
 

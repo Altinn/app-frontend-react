@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   ArrowCirclepathReverseIcon as RefreshCw,
@@ -31,24 +31,33 @@ interface ImageCropperProps {
   viewport?: string;
 }
 
+// Constants for canvas size
+const CANVAS_HEIGHT = 300;
+// Constants for zoom limits
+const MAX_ZOOM = 5;
+
 // ImageCropper Component
 export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCropperProps) {
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null); // Ref to measure the container's size
 
   // State management
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [minAllowedZoom, setMinAllowedZoom] = useState<number>(0.1);
+  const [canvasWidth, setCanvasWidth] = useState(800);
 
   // Constants for viewport size
   const selectedViewport = getViewport(viewport);
 
-  // Constants and functions for logarithmic zoom slider
-  const MAX_ZOOM = 5;
+  const minAllowedZoom = useMemo(() => {
+    if (!imageRef.current) {
+      return 0.1;
+    }
+    return Math.max(selectedViewport.width / imageRef.current.width, selectedViewport.height / imageRef.current.height);
+  }, [selectedViewport]);
 
   // This function handles drawing the image and the viewport on the canvas.
   const draw = useCallback(() => {
@@ -91,12 +100,40 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
     ctx.setLineDash([]);
   }, [zoom, position, cropAsCircle, selectedViewport]);
 
-  // useEffect to draw when state changes
+  // Redraw whenever the image or canvas width changes.
   useEffect(() => {
     if (imageSrc) {
       draw();
     }
-  }, [draw, imageSrc]);
+  }, [draw, imageSrc, canvasWidth]);
+
+  // This effect observes the container size and resizes the canvas drawing buffer
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return;
+    }
+
+    let animationFrameId: number | null = null;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      animationFrameId = window.requestAnimationFrame(() => {
+        const entry = entries[0];
+        if (entry) {
+          setCanvasWidth(entry.contentRect.width);
+        }
+      });
+    });
+
+    resizeObserver.observe(container);
+
+    return () => {
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   // Handle file selection and default zoom values
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -110,7 +147,6 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
 
           // Calculate the minimum zoom to fit the viewport
           const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
-          setMinAllowedZoom(newMinZoom);
 
           // Reset state for new image, ensuring zoom is at least the new minimum
           setZoom(Math.max(1, newMinZoom));
@@ -302,23 +338,28 @@ export function ImageCropper({ onCrop, cropAsCircle = false, viewport }: ImageCr
       mediaPosition='top'
       className={classes.imageUploadCard}
       media={
-        imageSrc ? (
-          <canvas
-            onPointerDown={handlePointerDown}
-            onKeyDown={handleKeyDown}
-            tabIndex={0}
-            ref={canvasRef}
-            width={800}
-            height={300}
-            className={classes.canvas}
-            aria-label='Image cropping area'
-          />
-        ) : (
-          <div className={classes.placeholder}>
-            <Upload className={classes.placeholderIcon} />
-            <p className={classes.placeholderText}>Upload an image to start cropping</p>
-          </div>
-        )
+        <div
+          ref={containerRef}
+          className={classes.canvasSizingWrapper}
+        >
+          {imageSrc ? (
+            <canvas
+              onPointerDown={handlePointerDown}
+              onKeyDown={handleKeyDown}
+              tabIndex={0}
+              ref={canvasRef}
+              width={canvasWidth}
+              height={CANVAS_HEIGHT}
+              className={classes.canvas}
+              aria-label='Image cropping area'
+            />
+          ) : (
+            <div className={classes.placeholder}>
+              <Upload className={classes.placeholderIcon} />
+              <p className={classes.placeholderText}>Upload an image to start cropping</p>
+            </div>
+          )}
+        </div>
       }
     >
       <div className={classes.controlsContainer}>
