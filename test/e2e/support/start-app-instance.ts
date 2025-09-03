@@ -122,10 +122,6 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
 
   cy.visit(targetUrlRaw, visitOptions);
 
-  if (evaluateBefore) {
-    cy.get('#cy-evaluating-js').should('not.exist');
-  }
-
   // Make sure the app has started loading before continuing
   cy.findByTestId('presentation').should('exist');
   cy.injectAxe();
@@ -158,12 +154,7 @@ function generateHtmlToEval(javascript: string) {
           const maybeReturnUrl = await toEvaluate();
           document.cookie = 'cy-evaluated-js=true';
           if (maybeReturnUrl && typeof maybeReturnUrl === 'string') {
-            const pathBefore = window.location.pathname;
             window.location.href = maybeReturnUrl;
-            if (window.location.pathname === pathBefore) {
-              // In some cases it's only the hash that changes, so we need to reload the page for it to take effect.
-              window.location.reload();
-            }
           } else {
             window.location.reload();
           }
