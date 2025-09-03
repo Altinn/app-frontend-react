@@ -316,10 +316,10 @@ export class AppFrontend {
     prefilledJobTitle: '#prefilledJobTitle',
   };
 
-  public reporteeSelection = {
+  public partySelection = {
     appHeader: '[data-testid="InstantiateHeader"]',
-    searchReportee: 'input[placeholder="Søk etter aktør"]',
-    reportee: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
+    search: 'input[placeholder="Søk etter aktør"]',
+    party: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
     subUnits: '[data-testid="AltinnParty-SubUnitWrapper"]',
     error: '#party-selection-error',
   };
