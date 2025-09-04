@@ -83,8 +83,6 @@ export class Likert extends LikertDef {
   }
 
   claimChildren(props: ChildClaimerProps<'Likert'>): void {
-    claimLikertChildren(props, {
-      pluginKey: 'LikertRowsPlugin',
-    });
+    claimLikertChildren(props);
   }
 }

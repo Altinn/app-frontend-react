@@ -95,7 +95,7 @@ export class RepeatingChildrenPlugin<E extends ExternalConfig = typeof defaultCo
       from: 'src/utils/layout/generator/NodeRepeatingChildren',
     });
     return `
-      <${NodeRepeatingChildren} claims={props.childClaims} plugin={this.plugins['${this.getKey()}'] as any} />
+      <${NodeRepeatingChildren} claims={props.childClaims} />
     `.trim();
   }
 

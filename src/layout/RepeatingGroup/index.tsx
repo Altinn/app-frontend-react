@@ -165,18 +165,13 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
     // Claim repeating children
     claimRepeatingChildren(props, item.children, {
-      pluginKey: 'RepeatingChildrenPlugin',
       multiPageSupport: multiPage,
     });
 
     // Claim rowsBefore children
-    claimGridRowsChildren(props, item.rowsBefore, {
-      pluginKey: 'GridRowsPlugin/rowsBefore',
-    });
+    claimGridRowsChildren(props, item.rowsBefore);
 
     // Claim rowsAfter children
-    claimGridRowsChildren(props, item.rowsAfter, {
-      pluginKey: 'GridRowsPlugin/rowsAfter',
-    });
+    claimGridRowsChildren(props, item.rowsAfter);
   }
 }

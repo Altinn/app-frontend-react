@@ -67,6 +67,6 @@ export class TabsPlugin<Type extends CompTypes>
       import: 'GenerateNodeChildren',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
+    return `<${GenerateNodeChildren} claims={props.childClaims} />`;
   }
 }

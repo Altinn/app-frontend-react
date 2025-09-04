@@ -37,12 +37,11 @@ export class AccordionGroup extends AccordionGroupDef {
   }
 
   extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='NonRepeatingChildrenPlugin/children' />`;
+    return `<GenerateNodeChildren claims={props.childClaims} />`;
   }
 
   claimChildren(props: ChildClaimerProps<'AccordionGroup'>): void {
     claimNonRepeatingChildren(props, props.item.children, {
-      pluginKey: 'NonRepeatingChildrenPlugin/children',
       onlyWithCapability: 'renderInAccordionGroup',
       componentType: 'AccordionGroup',
     });

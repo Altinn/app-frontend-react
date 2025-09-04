@@ -24,12 +24,11 @@ export class ButtonGroup extends ButtonGroupDef {
   }
 
   extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='NonRepeatingChildrenPlugin/children' />`;
+    return `<GenerateNodeChildren claims={props.childClaims} />`;
   }
 
   claimChildren(props: ChildClaimerProps<'ButtonGroup'>): void {
     claimNonRepeatingChildren(props, props.item.children, {
-      pluginKey: 'NonRepeatingChildrenPlugin/children',
       onlyWithCapability: 'renderInButtonGroup',
       componentType: 'ButtonGroup',
     });

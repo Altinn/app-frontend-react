@@ -35,12 +35,10 @@ export class Tabs extends TabsDef {
   }
 
   extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='TabsPlugin' />`;
+    return `<GenerateNodeChildren claims={props.childClaims} />`;
   }
 
   claimChildren(props: ChildClaimerProps<'Tabs'>): void {
-    claimTabsChildren(props, props.item.tabs, {
-      pluginKey: 'TabsPlugin',
-    });
+    claimTabsChildren(props, props.item.tabs);
   }
 }

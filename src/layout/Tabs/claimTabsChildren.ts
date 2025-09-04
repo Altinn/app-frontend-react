@@ -2,14 +2,9 @@ import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 import type { TabConfig } from 'src/layout/Tabs/config.generated';
 
-export interface ClaimTabsChildrenOptions {
-  pluginKey: string;
-}
-
 export function claimTabsChildren<T extends CompTypes>(
   { claimChild, getType, getCapabilities }: ChildClaimerProps<T>,
   tabs: TabConfig[] | undefined,
-  options: ClaimTabsChildrenOptions,
 ): void {
   for (const tab of (tabs || []).values()) {
     for (const child of tab.children.values()) {
@@ -25,7 +20,7 @@ export function claimTabsChildren<T extends CompTypes>(
         );
         continue;
       }
-      claimChild(options.pluginKey, child);
+      claimChild('children', child);
     }
   }
 }

@@ -12,9 +12,8 @@ import type { AddNodeRequest, RemoveNodeRequest, SetNodePropRequest } from 'src/
 export type ChildIdMutator = (id: string) => string;
 export type ChildMutator<T extends CompTypes = CompTypes> = (item: CompIntermediate<T>) => void;
 
-export interface ChildClaim {
-  pluginKey?: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ChildClaim {}
 
 export interface ChildClaims {
   [childId: string]: ChildClaim;

@@ -2,7 +2,6 @@ import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 
 export interface ClaimRepeatingChildrenOptions {
-  pluginKey: string;
   multiPageSupport?: boolean;
 }
 
@@ -22,9 +21,9 @@ export function claimRepeatingChildren<T extends CompTypes>(
       }
 
       const [, childId] = id.split(':', 2);
-      claimChild(options.pluginKey, childId);
+      claimChild('children', childId);
     } else {
-      claimChild(options.pluginKey, id);
+      claimChild('children', id);
     }
   }
 }

@@ -133,9 +133,9 @@ export function makeLayoutLookups(layouts: ILayouts): LayoutLookups {
         const parentId = component.id;
         const props: ChildClaimerProps<CompTypes> = {
           item: component,
-          claimChild: (pluginKey, childId) => {
+          claimChild: (_pluginKey, childId) => {
             if (canClaimChild(childId, parentId, plainLookups, childClaims)) {
-              childClaims[parentId] = { ...childClaims[parentId], [childId]: { pluginKey } };
+              childClaims[parentId] = { ...childClaims[parentId], [childId]: {} };
               claimedIds.add(childId);
               componentToParent[childId] = { type: 'node', id: parentId };
               if (!componentToChildren[parentId]) {

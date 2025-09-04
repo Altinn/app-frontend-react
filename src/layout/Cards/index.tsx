@@ -34,12 +34,10 @@ export class Cards extends CardsDef {
   }
 
   extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='CardsPlugin' />`;
+    return `<GenerateNodeChildren claims={props.childClaims} />`;
   }
 
   claimChildren(props: ChildClaimerProps<'Cards'>): void {
-    claimCardsChildren(props, props.item.cards, {
-      pluginKey: 'CardsPlugin',
-    });
+    claimCardsChildren(props, props.item.cards);
   }
 }

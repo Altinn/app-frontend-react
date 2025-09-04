@@ -2,14 +2,9 @@ import type { GridRows } from 'src/layout/common.generated';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 
-export interface ClaimGridRowsChildrenOptions {
-  pluginKey: string;
-}
-
 export function claimGridRowsChildren<T extends CompTypes>(
   { claimChild, getType, getCapabilities }: ChildClaimerProps<T>,
   rows: GridRows | undefined,
-  options: ClaimGridRowsChildrenOptions,
 ): void {
   if (!rows) {
     return;
@@ -30,7 +25,7 @@ export function claimGridRowsChildren<T extends CompTypes>(
           );
           continue;
         }
-        claimChild(options.pluginKey, cell.component);
+        claimChild('children', cell.component);
       }
     }
   }

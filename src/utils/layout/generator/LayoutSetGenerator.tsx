@@ -72,10 +72,7 @@ function PageGenerator({ layout, name }: PageProps) {
         pageKey={name}
         isValid={isValid}
       >
-        <GenerateNodeChildren
-          claims={topLevelIdsAsClaims}
-          pluginKey={undefined}
-        />
+        <GenerateNodeChildren claims={topLevelIdsAsClaims} />
       </GeneratorPageProvider>
     </>
   );
@@ -95,30 +92,13 @@ function AddPage({ name }: CommonProps) {
   return null;
 }
 
-function useFilteredClaims(claims: ChildClaims | undefined, pluginKey: string | undefined) {
-  return useMemo(() => {
-    if (!pluginKey) {
-      return claims ?? {};
-    }
-
-    const out: ChildClaims = {};
-    for (const id in claims) {
-      if (claims[id].pluginKey === pluginKey) {
-        out[id] = claims[id];
-      }
-    }
-    return out;
-  }, [claims, pluginKey]);
-}
-
 interface NodeChildrenProps {
   claims: ChildClaims | undefined;
-  pluginKey: string | undefined;
 }
 
-export function GenerateNodeChildren({ claims, pluginKey }: NodeChildrenProps) {
+export function GenerateNodeChildren({ claims }: NodeChildrenProps) {
   const layoutMap = useLayoutLookups().allComponents;
-  const filteredClaims = useFilteredClaims(claims, pluginKey);
+  const filteredClaims = claims ?? {};
   const map = useLayoutLookups().childClaims;
 
   return (

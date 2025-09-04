@@ -3,7 +3,6 @@ import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 
 export interface ClaimNonRepeatingChildrenOptions {
-  pluginKey: string;
   onlyWithCapability?: keyof CompCapabilities;
   componentType?: CompTypes;
 }
@@ -28,6 +27,6 @@ export function claimNonRepeatingChildren<T extends CompTypes>(
         continue;
       }
     }
-    claimChild(options.pluginKey, id);
+    claimChild('children', id);
   }
 }

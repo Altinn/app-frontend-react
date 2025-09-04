@@ -46,12 +46,10 @@ export class Group extends GroupDef {
   }
 
   extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='NonRepeatingChildrenPlugin/children' />`;
+    return `<GenerateNodeChildren claims={props.childClaims} />`;
   }
 
   claimChildren(props: ChildClaimerProps<'Group'>): void {
-    claimNonRepeatingChildren(props, props.item.children, {
-      pluginKey: 'NonRepeatingChildrenPlugin/children',
-    });
+    claimNonRepeatingChildren(props, props.item.children, {});
   }
 }

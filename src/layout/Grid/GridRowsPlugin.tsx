@@ -112,6 +112,6 @@ export class GridRowsPlugin<E extends ExternalConfig>
       import: 'GenerateNodeChildren',
       from: 'src/utils/layout/generator/LayoutSetGenerator',
     });
-    return `<${GenerateNodeChildren} claims={props.childClaims} pluginKey='${this.getKey()}' />`;
+    return `<${GenerateNodeChildren} claims={props.childClaims} />`;
   }
 }

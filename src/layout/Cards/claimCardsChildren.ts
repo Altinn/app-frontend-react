@@ -2,14 +2,9 @@ import type { CardConfig } from 'src/layout/Cards/config.generated';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 
-export interface ClaimCardsChildrenOptions {
-  pluginKey: string;
-}
-
 export function claimCardsChildren<T extends CompTypes>(
   { claimChild, getType, getCapabilities }: ChildClaimerProps<T>,
   cards: CardConfig[] | undefined,
-  options: ClaimCardsChildrenOptions,
 ): void {
   for (const card of (cards || []).values()) {
     if (card.media) {
@@ -25,7 +20,7 @@ export function claimCardsChildren<T extends CompTypes>(
         );
         continue;
       }
-      claimChild(options.pluginKey, card.media);
+      claimChild('children', card.media);
     }
 
     for (const child of card.children?.values() ?? []) {
@@ -41,7 +36,7 @@ export function claimCardsChildren<T extends CompTypes>(
         );
         continue;
       }
-      claimChild(options.pluginKey, child);
+      claimChild('children', child);
     }
   }
 }
