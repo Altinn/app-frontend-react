@@ -7,7 +7,7 @@ export enum ViewportType {
   Circle = 'circle',
 }
 
-export const getViewport = (viewport?: ViewportType): Viewport => {
+export const getViewport = (viewport?: string): Viewport => {
   switch (viewport) {
     case ViewportType.Square:
       return { width: 300, height: 300, circle: false };

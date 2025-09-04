@@ -9,47 +9,36 @@ import {
 } from '@navikt/aksel-icons';
 
 import { useAttachmentsUploader } from 'src/features/attachments/hooks';
+import { useImageContext } from 'src/layout/ImageUpload/ImageContext';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import {
   calculatePositions,
   drawViewport,
-  getViewport,
   logToNormalZoom,
   normalToLogZoom,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type ImageControllersProps = {
-  zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
-  baseComponentId: string;
   refs: {
     canvasRef: React.RefObject<HTMLCanvasElement | null>;
     imageRef: React.RefObject<HTMLImageElement | null>;
   };
-  position: { x: number; y: number };
-  setImageSrc: (img: File | null) => void;
   updateZoom: (zoom: number) => void;
   onFileUploaded: (file: File) => void;
   onReset: () => void;
 };
 
 export function ImageControllers({
-  zoom,
   zoomLimits: { minZoom, maxZoom },
-  baseComponentId,
   refs: { canvasRef, imageRef },
-  position,
-  setImageSrc,
   updateZoom,
   onFileUploaded,
   onReset,
 }: ImageControllersProps) {
+  const { setImageSrc, zoom, position, baseComponentId, selectedViewport, dataModelBindings } = useImageContext();
   const indexedId = useIndexedId(baseComponentId);
-  const { dataModelBindings, viewport } = useItemWhenType(baseComponentId, 'ImageUpload');
-  const selectedViewport = getViewport(viewport as ViewportType);
   const uploadAttachment = useAttachmentsUploader();
 
   //bare midlertidig for å kunne laste resultatet som blir lagret i backend

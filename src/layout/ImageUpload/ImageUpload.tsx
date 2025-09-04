@@ -5,48 +5,24 @@ import { UploadIcon as Upload } from '@navikt/aksel-icons';
 import { AppCard } from 'src/app-components/Card/Card';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
+import { useImageContext } from 'src/layout/ImageUpload/ImageContext';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
-import {
-  calculatePositions,
-  constrainToArea,
-  drawViewport,
-  getViewport,
-} from 'src/layout/ImageUpload/imageUploadUtils';
-import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
+import { calculatePositions, constrainToArea, drawViewport } from 'src/layout/ImageUpload/imageUploadUtils';
 
-// Define types for state and props
-type Position = {
-  x: number;
-  y: number;
-};
-
-interface ImageCropperProps {
-  viewport?: ViewportType;
-  baseComponentId: string;
-}
-
-// Constants for canvas size
 const CANVAS_HEIGHT = 320;
-// Constants for zoom limits
 const MAX_ZOOM = 5;
 
 // ImageCropper Component
-export function ImageCropper({ viewport, baseComponentId }: ImageCropperProps) {
+export function ImageCropper() {
   const mobileView = useIsMobileOrTablet();
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null); // Ref to measure the container's size
 
-  // State management
-  const [zoom, setZoom] = useState<number>(1);
-  const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [imageSrc, setImageSrc] = useState<File | null>(null);
   const [canvasWidth, setCanvasWidth] = useState(800);
-
-  // Constants for viewport size
-  const selectedViewport = getViewport(viewport);
+  const { imageSrc, setImageSrc, zoom, setZoom, position, setPosition, selectedViewport } = useImageContext();
 
   const minAllowedZoom = useMemo(() => {
     if (!imageRef.current) {
@@ -181,17 +157,17 @@ export function ImageCropper({ viewport, baseComponentId }: ImageCropperProps) {
         return;
       }
 
-      setPosition(
+      setPosition((prevPosition) =>
         constrainToArea({
           image: imageRef.current!,
           zoom: logarithmicZoomValue,
-          position,
+          position: prevPosition,
           viewport: selectedViewport,
         }),
       );
       setZoom(logarithmicZoomValue);
     },
-    [position, selectedViewport],
+    [selectedViewport, setZoom, setPosition], // only selectedViewport needed
   );
 
   // Handle mouse wheel for zooming
@@ -318,12 +294,8 @@ export function ImageCropper({ viewport, baseComponentId }: ImageCropperProps) {
     >
       {imageSrc ? (
         <ImageControllers
-          zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
-          baseComponentId={baseComponentId}
           refs={{ canvasRef, imageRef }}
-          position={position}
-          setImageSrc={setImageSrc}
           updateZoom={updateZoom}
           onFileUploaded={handleFileUpload}
           onReset={handleReset}
