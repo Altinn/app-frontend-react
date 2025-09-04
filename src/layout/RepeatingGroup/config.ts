@@ -1,7 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
-import { GridRowsPlugin } from 'src/layout/Grid/GridRowsPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
@@ -20,18 +19,8 @@ export const Config = new CG.component({
     displayData: false,
   },
 })
-  .addPlugin(
-    new GridRowsPlugin({
-      externalProp: 'rowsBefore',
-      optional: true,
-    }),
-  )
-  .addPlugin(
-    new GridRowsPlugin({
-      externalProp: 'rowsAfter',
-      optional: true,
-    }),
-  )
+  .addProperty(new CG.prop('rowsBefore', CG.common('GridRows').optional()))
+  .addProperty(new CG.prop('rowsAfter', CG.common('GridRows').optional()))
   .addTextResource(
     new CG.trb({
       name: 'title',
