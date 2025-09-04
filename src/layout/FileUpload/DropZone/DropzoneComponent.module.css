@@ -19,6 +19,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 9.75rem;
+  border-width: 2px;
+  border-color: var(--colors-primary-blue);
+  border-style: dotted;
+  cursor: pointer;
+  background: transparent;
+  width: 100%;
 }
 
 .fileUploadInvalid:focus {
@@ -39,4 +46,13 @@
 
 .uploadIcon {
   font-size: 2.5rem;
+}
+
+.active {
+  border-style: solid;
+}
+
+.validationError {
+  border-style: dotted;
+  border-color: var(--colors-danger);
 }

@@ -353,18 +353,16 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
           onCrop={handleCrop}
         />
       ) : (
-        <div className={classes.dropZoneWrapper}>
-          <DropzoneComponent
-            id='image-upload'
-            isMobile={mobileView}
-            maxFileSizeInMB={10}
-            readOnly={false}
-            onClick={(e) => e.preventDefault()}
-            onDrop={(files) => handleFileUpload(files[0])}
-            hasValidationMessages={false}
-            validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
-          />
-        </div>
+        <DropzoneComponent
+          id='image-upload'
+          isMobile={mobileView}
+          readOnly={false}
+          onClick={(e) => e.preventDefault()}
+          onDrop={(files) => handleFileUpload(files[0])}
+          hasValidationMessages={false}
+          validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
+          className={classes.dropZone}
+        />
       )}
     </AppCard>
   );
