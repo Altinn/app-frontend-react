@@ -5,7 +5,7 @@ import { AccordionDef } from 'src/layout/Accordion/config.def.generated';
 import { SummaryAccordionComponent, SummaryAccordionComponent2 } from 'src/layout/Accordion/SummaryAccordion';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Accordion extends AccordionDef {
@@ -29,5 +29,27 @@ export class Accordion extends AccordionDef {
         <SummaryAccordionComponent2 {...props} />
       </EmptyChildrenBoundary>
     );
+  }
+
+  extraNodeGeneratorChildren(): string {
+    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='NonRepeatingChildrenPlugin/children' />`;
+  }
+
+  claimChildren({ item, claimChild, getType, getCapabilities }: ChildClaimerProps<'Accordion'>): void {
+    for (const id of item.children || []) {
+      const type = getType(id);
+      if (!type) {
+        continue;
+      }
+      const capabilities = getCapabilities(type);
+      if (!capabilities.renderInAccordion) {
+        window.logWarn(
+          `Accordion component included a component '${id}', which ` +
+            `is a '${type}' and cannot be rendered in an Accordion.`,
+        );
+        continue;
+      }
+      claimChild('NonRepeatingChildrenPlugin/children', id);
+    }
   }
 }

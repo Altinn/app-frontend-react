@@ -18,7 +18,7 @@ import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validat
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { IDataModelBindings } from 'src/layout/layout';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
@@ -149,5 +149,35 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     // }
 
     return hiddenImplicitly;
+  }
+
+  extraNodeGeneratorChildren(): string {
+    return `
+      <NodeRepeatingChildren claims={props.childClaims} />
+    `.trim();
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private usesMultiPage(item: any): boolean {
+    return item.edit?.multiPage === true;
+  }
+
+  claimChildren({ claimChild, item }: ChildClaimerProps<'RepeatingGroup'>): void {
+    const multiPage = this.usesMultiPage(item);
+
+    for (const id of item.children || []) {
+      if (multiPage) {
+        if (!/^\d+:[^:]+$/u.test(id)) {
+          throw new Error(
+            `Ved bruk av multiPage må ID være på formatet 'sideIndeks:komponentId' (f.eks. '0:komponentId'). Referansen '${id}' er ikke gyldig.`,
+          );
+        }
+
+        const [, childId] = id.split(':', 2);
+        claimChild('RepeatingChildrenPlugin', childId);
+      } else {
+        claimChild('RepeatingChildrenPlugin', id);
+      }
+    }
   }
 }

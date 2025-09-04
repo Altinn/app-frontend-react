@@ -8,7 +8,7 @@ import { GroupSummary } from 'src/layout/Group/GroupSummary';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Group extends GroupDef {
@@ -42,5 +42,15 @@ export class Group extends GroupDef {
 
   renderSummaryBoilerplate(): boolean {
     return false;
+  }
+
+  extraNodeGeneratorChildren(): string {
+    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='NonRepeatingChildrenPlugin/children' />`;
+  }
+
+  claimChildren({ item, claimChild }: ChildClaimerProps<'Group'>): void {
+    for (const id of item.children || []) {
+      claimChild('NonRepeatingChildrenPlugin/children', id);
+    }
   }
 }

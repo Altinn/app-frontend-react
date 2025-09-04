@@ -7,7 +7,7 @@ import { TabsDef } from 'src/layout/Tabs/config.def.generated';
 import { Tabs as TabsComponent } from 'src/layout/Tabs/Tabs';
 import { TabsSummary } from 'src/layout/Tabs/TabsSummary';
 import { TabsSummaryComponent } from 'src/layout/Tabs/TabsSummaryComponent';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Tabs extends TabsDef {
@@ -31,5 +31,29 @@ export class Tabs extends TabsDef {
 
   renderSummaryBoilerplate(): boolean {
     return false;
+  }
+
+  extraNodeGeneratorChildren(): string {
+    return `<GenerateNodeChildren claims={props.childClaims} pluginKey='TabsPlugin' />`;
+  }
+
+  claimChildren({ item, claimChild, getType, getCapabilities }: ChildClaimerProps<'Tabs'>): void {
+    for (const tab of (item.tabs || []).values()) {
+      for (const child of tab.children.values()) {
+        const type = getType(child);
+        if (!type) {
+          continue;
+        }
+        const capabilities = getCapabilities(type);
+        if (!capabilities.renderInTabs) {
+          window.logWarn(
+            `Tabs component included a component '${child}', which ` +
+              `is a '${type}' and cannot be rendered as a Tabs child.`,
+          );
+          continue;
+        }
+        claimChild('TabsPlugin', child);
+      }
+    }
   }
 }
