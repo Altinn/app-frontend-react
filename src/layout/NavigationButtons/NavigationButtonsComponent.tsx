@@ -77,10 +77,10 @@ function NavigationButtonsComponentInner({
 
   const [searchParams] = useSearchParams();
   const backToPage = searchParams.get('backToPage');
-  const showBackToComponentButton = !!backToPage;
+  const showBackToPageButton = !!backToPage;
 
   const { performProcess, isAnyProcessing, process } = useIsProcessing<
-    'next' | 'previous' | 'backToSummary' | 'backToComponent'
+    'next' | 'previous' | 'backToSummary' | 'backToPage'
   >();
 
   const nextTextKey = textResourceBindings?.next || 'next';
@@ -156,8 +156,8 @@ function NavigationButtonsComponentInner({
       await navigateToPage(returnToView, { skipAutoSave: true });
     });
 
-  const onClickBackToComponent = () =>
-    performProcess('backToComponent', async () => {
+  const onClickBackToPage = () =>
+    performProcess('backToPage', async () => {
       if (!backToPage) {
         return;
       }
@@ -176,13 +176,11 @@ function NavigationButtonsComponentInner({
         data-testid='NavigationButtons'
         className={classes.container}
       >
-        {showBackToComponentButton && (
+        {showBackToPageButton && (
           <Button
             disabled={isAnyProcessing}
-            isLoading={process === 'backToComponent'}
-            onClick={onClickBackToComponent}
-            // If we show any back button, "Next" should be secondary
-            variant={showBackToSummaryButton || showBackToComponentButton ? 'secondary' : 'primary'}
+            isLoading={process === 'backToPage'}
+            onClick={onClickBackToPage}
           >
             <Lang
               id={backToPageTextKey}
@@ -205,7 +203,7 @@ function NavigationButtonsComponentInner({
             isLoading={process === 'next'}
             onClick={onClickNext}
             // If we are showing a back to summary button, we want the "next" button to be secondary
-            variant={showBackToSummaryButton ? 'secondary' : 'primary'}
+            variant={showBackToSummaryButton || showBackToPageButton ? 'secondary' : 'primary'}
           >
             <Lang id={nextTextKey} />
           </Button>
