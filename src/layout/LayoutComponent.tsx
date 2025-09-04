@@ -9,6 +9,7 @@ import { useEmptyFieldValidationAllBindings } from 'src/features/validation/node
 import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
+import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { NodeGenerator } from 'src/utils/layout/generator/NodeGenerator';
 import type { CompCapabilities } from 'src/codegen/Config';
 import type { SimpleEval } from 'src/features/expressions';
@@ -158,6 +159,13 @@ export abstract class AnyComponent<Type extends CompTypes> {
     const schemaPointer = '#/definitions/AnyComponent';
     return validate(schemaPointer, component);
   }
+
+  /**
+   * Extra components to render out in the node generator children
+   */
+  extraNodeGeneratorChildren(_props: NodeGeneratorProps): JSX.Element | null {
+    return null;
+  }
 }
 
 export abstract class PresentationComponent<Type extends CompTypes> extends AnyComponent<Type> {
@@ -243,6 +251,10 @@ export abstract class ContainerComponent<Type extends CompTypes> extends _FormCo
 
   isDataModelBindingsRequired(_baseComponentId: string, _layoutLookups: LayoutLookups): boolean {
     return false;
+  }
+
+  extraNodeGeneratorChildren(props: NodeGeneratorProps): JSX.Element | null {
+    return <GenerateNodeChildren claims={props.childClaims} />;
   }
 
   abstract claimChildren(props: ChildClaimerProps<Type>): void;

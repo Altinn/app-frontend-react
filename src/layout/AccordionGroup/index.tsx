@@ -36,10 +36,6 @@ export class AccordionGroup extends AccordionGroupDef {
     return false;
   }
 
-  extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} />`;
-  }
-
   claimChildren(props: ChildClaimerProps<'AccordionGroup'>): void {
     claimNonRepeatingChildren(props, props.item.children, {
       onlyWithCapability: 'renderInAccordionGroup',

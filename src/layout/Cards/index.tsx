@@ -33,10 +33,6 @@ export class Cards extends CardsDef {
     return <CardsSummary {...props} />;
   }
 
-  extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} />`;
-  }
-
   claimChildren(props: ChildClaimerProps<'Cards'>): void {
     claimCardsChildren(props, props.item.cards);
   }

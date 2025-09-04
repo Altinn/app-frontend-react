@@ -15,12 +15,18 @@ import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/Summary
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { NodeRepeatingChildren } from 'src/utils/layout/generator/NodeRepeatingChildren';
 import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
 import { claimRepeatingChildren } from 'src/utils/layout/plugins/claimRepeatingChildren';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { IDataModelBindings } from 'src/layout/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type {
+  ChildClaimerProps,
+  ExprResolver,
+  NodeGeneratorProps,
+  SummaryRendererProps,
+} from 'src/layout/LayoutComponent';
 import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
@@ -153,25 +159,14 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return hiddenImplicitly;
   }
 
-  extraNodeGeneratorChildren(): string {
-    return `
-      <NodeRepeatingChildren claims={props.childClaims} />
-    `.trim();
+  extraNodeGeneratorChildren(props: NodeGeneratorProps): JSX.Element | null {
+    return <NodeRepeatingChildren claims={props.childClaims} />;
   }
 
   claimChildren(props: ChildClaimerProps<'RepeatingGroup'>): void {
-    const { item } = props;
-    const multiPage = item.edit?.multiPage === true;
-
-    // Claim repeating children
-    claimRepeatingChildren(props, item.children, {
-      multiPageSupport: multiPage,
-    });
-
-    // Claim rowsBefore children
-    claimGridRowsChildren(props, item.rowsBefore);
-
-    // Claim rowsAfter children
-    claimGridRowsChildren(props, item.rowsAfter);
+    const multiPage = props.item.edit?.multiPage === true;
+    claimRepeatingChildren(props, props.item.children, { multiPageSupport: multiPage });
+    claimGridRowsChildren(props, props.item.rowsBefore);
+    claimGridRowsChildren(props, props.item.rowsAfter);
   }
 }

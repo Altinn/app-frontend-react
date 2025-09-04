@@ -34,10 +34,6 @@ export class Tabs extends TabsDef {
     return false;
   }
 
-  extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} />`;
-  }
-
   claimChildren(props: ChildClaimerProps<'Tabs'>): void {
     claimTabsChildren(props, props.item.tabs);
   }

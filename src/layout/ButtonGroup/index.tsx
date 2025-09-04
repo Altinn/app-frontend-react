@@ -23,10 +23,6 @@ export class ButtonGroup extends ButtonGroupDef {
     return null;
   }
 
-  extraNodeGeneratorChildren(): string {
-    return `<GenerateNodeChildren claims={props.childClaims} />`;
-  }
-
   claimChildren(props: ChildClaimerProps<'ButtonGroup'>): void {
     claimNonRepeatingChildren(props, props.item.children, {
       onlyWithCapability: 'renderInButtonGroup',
