@@ -86,7 +86,7 @@ function NavigationButtonsComponentInner({
   const nextTextKey = textResourceBindings?.next || 'next';
   const backTextKey = textResourceBindings?.back || 'back';
 
-  const backToPageTextKey = textResourceBindings?.backToPage || 'form_filler.back_to_component';
+  const backToPageTextKey = textResourceBindings?.backToPage || 'form_filler.back_to_page';
 
   const showBackToSummaryButton = returnToView !== undefined;
   const showNextButton = showBackToSummaryButton ? showNextButtonSummary : hasNext;
