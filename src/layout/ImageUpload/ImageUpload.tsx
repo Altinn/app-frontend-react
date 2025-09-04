@@ -23,6 +23,7 @@ type Position = {
 
 interface ImageCropperProps {
   viewport?: ViewportType;
+  baseComponentId: string;
   onCrop: (image: string) => void;
 }
 
@@ -32,7 +33,7 @@ const CANVAS_HEIGHT = 320;
 const MAX_ZOOM = 5;
 
 // ImageCropper Component
-export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
+export function ImageCropper({ viewport, baseComponentId, onCrop }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,7 +43,7 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
   // State management
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [imageSrc, setImageSrc] = useState<File | null>(null);
   const [canvasWidth, setCanvasWidth] = useState(800);
 
   // Constants for viewport size
@@ -60,6 +61,7 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     const img = imageRef.current;
+    console.log('img', img, 'imgWidth', img?.width);
 
     if (!canvas || !img || !img.complete || !ctx) {
       return;
@@ -273,7 +275,7 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
           const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
           setZoom(Math.max(1, newMinZoom));
           setPosition({ x: 0, y: 0 });
-          setImageSrc(result);
+          setImageSrc(file);
         };
         img.src = result;
       }
@@ -347,6 +349,9 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
+          baseComponentId={baseComponentId}
+          imageSrc={imageSrc}
+          setImageSrc={setImageSrc}
           updateZoom={updateZoom}
           onFileUploaded={handleFileUpload}
           onReset={handleReset}

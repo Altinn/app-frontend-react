@@ -17,6 +17,7 @@ export function ImageUploadComponent({ baseComponentId }: PropsFromGenericCompon
       <ImageCropper
         onCrop={setCroppedImage}
         viewport={viewport as ViewportType}
+        baseComponentId={baseComponentId}
       />
       {croppedImage && (
         <div>

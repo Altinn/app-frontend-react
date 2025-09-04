@@ -152,7 +152,10 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       attachmentUpload: ({ files, nodeId }) => {
         set(
           nodesProduce((draft) => {
+            console.log('draft', draft);
             const data = draft.nodeData[nodeId] as ProperData;
+            console.log(files, nodeId);
+            console.log('dataattachments', data.attachments);
             for (const { file, temporaryId } of files) {
               data.attachments[temporaryId] = {
                 uploaded: false,
