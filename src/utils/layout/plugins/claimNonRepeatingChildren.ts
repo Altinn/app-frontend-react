@@ -27,6 +27,6 @@ export function claimNonRepeatingChildren<T extends CompTypes>(
         continue;
       }
     }
-    claimChild('children', id);
+    claimChild(id);
   }
 }

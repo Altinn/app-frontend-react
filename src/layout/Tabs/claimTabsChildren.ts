@@ -20,7 +20,7 @@ export function claimTabsChildren<T extends CompTypes>(
         );
         continue;
       }
-      claimChild('children', child);
+      claimChild(child);
     }
   }
 }

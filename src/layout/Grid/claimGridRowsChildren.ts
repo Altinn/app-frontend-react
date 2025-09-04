@@ -25,7 +25,7 @@ export function claimGridRowsChildren<T extends CompTypes>(
           );
           continue;
         }
-        claimChild('children', cell.component);
+        claimChild(cell.component);
       }
     }
   }

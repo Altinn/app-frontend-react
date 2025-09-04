@@ -233,7 +233,7 @@ export abstract class FormComponent<Type extends CompTypes> extends _FormCompone
 
 export interface ChildClaimerProps<Type extends CompTypes> {
   item: CompExternal<Type>;
-  claimChild: (pluginKey: string, id: string) => void;
+  claimChild: (id: string) => void;
   getType: (id: string) => CompTypes | undefined;
   getCapabilities: (type: CompTypes) => CompCapabilities;
 }

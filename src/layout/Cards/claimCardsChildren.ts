@@ -20,7 +20,7 @@ export function claimCardsChildren<T extends CompTypes>(
         );
         continue;
       }
-      claimChild('children', card.media);
+      claimChild(card.media);
     }
 
     for (const child of card.children?.values() ?? []) {
@@ -36,7 +36,7 @@ export function claimCardsChildren<T extends CompTypes>(
         );
         continue;
       }
-      claimChild('children', child);
+      claimChild(child);
     }
   }
 }

@@ -21,9 +21,9 @@ export function claimRepeatingChildren<T extends CompTypes>(
       }
 
       const [, childId] = id.split(':', 2);
-      claimChild('children', childId);
+      claimChild(childId);
     } else {
-      claimChild('children', id);
+      claimChild(id);
     }
   }
 }
