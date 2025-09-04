@@ -24,7 +24,6 @@ type Position = {
 interface ImageCropperProps {
   viewport?: ViewportType;
   baseComponentId: string;
-  onCrop: (image: string) => void;
 }
 
 // Constants for canvas size
@@ -33,7 +32,7 @@ const CANVAS_HEIGHT = 320;
 const MAX_ZOOM = 5;
 
 // ImageCropper Component
-export function ImageCropper({ viewport, baseComponentId, onCrop }: ImageCropperProps) {
+export function ImageCropper({ viewport, baseComponentId }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -61,7 +60,6 @@ export function ImageCropper({ viewport, baseComponentId, onCrop }: ImageCropper
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
     const img = imageRef.current;
-    console.log('img', img, 'imgWidth', img?.width);
 
     if (!canvas || !img || !img.complete || !ctx) {
       return;
@@ -283,33 +281,6 @@ export function ImageCropper({ viewport, baseComponentId, onCrop }: ImageCropper
     reader.readAsDataURL(file);
   };
 
-  // The main cropping logic
-  const handleCrop = () => {
-    const canvas = canvasRef.current;
-    const img = imageRef.current;
-    const cropCanvas = document.createElement('canvas');
-    const cropCtx = cropCanvas.getContext('2d');
-
-    if (!canvas || !img || !cropCtx) {
-      return;
-    }
-
-    cropCanvas.width = selectedViewport.width;
-    cropCanvas.height = selectedViewport.height;
-
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-
-    const viewportX = (canvas.width - selectedViewport.width) / 2;
-    const viewportY = (canvas.height - selectedViewport.height) / 2;
-
-    drawViewport({ ctx: cropCtx, selectedViewport });
-    cropCtx.clip();
-
-    cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
-
-    onCrop(cropCanvas.toDataURL('image/png'));
-  };
-
   const handleReset = () => {
     setZoom(Math.max(1, minAllowedZoom));
     setPosition({ x: 0, y: 0 });
@@ -350,12 +321,12 @@ export function ImageCropper({ viewport, baseComponentId, onCrop }: ImageCropper
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
           baseComponentId={baseComponentId}
-          imageSrc={imageSrc}
+          refs={{ canvasRef, imageRef }}
+          position={position}
           setImageSrc={setImageSrc}
           updateZoom={updateZoom}
           onFileUploaded={handleFileUpload}
           onReset={handleReset}
-          onCrop={handleCrop}
         />
       ) : (
         <div className={classes.dropZoneWrapper}>

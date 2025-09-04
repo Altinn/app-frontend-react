@@ -10,37 +10,50 @@ import {
 
 import { useAttachmentsUploader } from 'src/features/attachments/hooks';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
-import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
+import {
+  calculatePositions,
+  drawViewport,
+  getViewport,
+  logToNormalZoom,
+  normalToLogZoom,
+} from 'src/layout/ImageUpload/imageUploadUtils';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
   baseComponentId: string;
-  imageSrc: File | null;
+  refs: {
+    canvasRef: React.RefObject<HTMLCanvasElement | null>;
+    imageRef: React.RefObject<HTMLImageElement | null>;
+  };
+  position: { x: number; y: number };
   setImageSrc: (img: File | null) => void;
   updateZoom: (zoom: number) => void;
   onFileUploaded: (file: File) => void;
   onReset: () => void;
-  onCrop: () => void; // fjernes senere
 };
 
 export function ImageControllers({
   zoom,
-  zoomLimits,
+  zoomLimits: { minZoom, maxZoom },
   baseComponentId,
-  imageSrc,
+  refs: { canvasRef, imageRef },
+  position,
   setImageSrc,
   updateZoom,
   onFileUploaded,
   onReset,
-  // onCrop,
 }: ImageControllersProps) {
   const indexedId = useIndexedId(baseComponentId);
-  const { dataModelBindings } = useItemWhenType(baseComponentId, 'ImageUpload');
-  const { minZoom, maxZoom } = zoomLimits;
+  const { dataModelBindings, viewport } = useItemWhenType(baseComponentId, 'ImageUpload');
+  const selectedViewport = getViewport(viewport as ViewportType);
   const uploadAttachment = useAttachmentsUploader();
+
+  //bare midlertidig for å kunne laste resultatet som blir lagret i backend
+  const [previewImage, setPreviewImage] = React.useState<string | null>(null);
 
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
     const logarithmicZoomValue = normalToLogZoom({
@@ -61,13 +74,43 @@ export function ImageControllers({
   };
 
   const handleSave = () => {
-    if (imageSrc) {
+    const canvas = canvasRef.current;
+    const img = imageRef.current;
+    const cropCanvas = document.createElement('canvas');
+    const cropCtx = cropCanvas.getContext('2d');
+
+    if (!canvas || !img || !cropCtx) {
+      return;
+    }
+
+    cropCanvas.width = selectedViewport.width;
+    cropCanvas.height = selectedViewport.height;
+
+    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
+    const viewportX = (canvas.width - selectedViewport.width) / 2;
+    const viewportY = (canvas.height - selectedViewport.height) / 2;
+
+    drawViewport({ ctx: cropCtx, selectedViewport });
+    cropCtx.clip();
+    cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
+
+    cropCanvas.toBlob((blob) => {
+      if (!blob) {
+        return;
+      }
+
+      const fileName = img?.name || 'cropped-image.png'; // fallback if img.name is deprecated
+      const imageFile = new File([blob], fileName, { type: 'image/png' });
+
+      // Use the file now
       uploadAttachment({
-        files: [imageSrc],
+        files: [imageFile],
         nodeId: indexedId,
         dataModelBindings,
       });
-    }
+
+      setPreviewImage(cropCanvas.toDataURL('image/png'));
+    }, 'image/png');
   };
 
   const handleCancel = () => {
@@ -142,13 +185,15 @@ export function ImageControllers({
         >
           Avbryt
         </Button>
-        {/* <button
-          onClick={onCrop}
-          className={`${classes.button} ${classes.cropButton}`}
-        >
-          Crop
-        </button> */}
-        {/* <Scissors className={styles.icon} /> */}
+        {/*fjern dette under senere*/}
+        {previewImage && (
+          <a
+            href={previewImage}
+            download='cropped-image.png'
+          >
+            Download Image
+          </a>
+        )}
       </div>
     </div>
   );
