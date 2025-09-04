@@ -5,6 +5,7 @@ import type { PropsFromGenericComponent } from '..';
 
 import { ButtonGroupComponent } from 'src/layout/ButtonGroup/ButtonGroupComponent';
 import { ButtonGroupDef } from 'src/layout/ButtonGroup/config.def.generated';
+import { claimNonRepeatingChildren } from 'src/utils/layout/plugins/claimNonRepeatingChildren';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 
 export class ButtonGroup extends ButtonGroupDef {
@@ -26,21 +27,11 @@ export class ButtonGroup extends ButtonGroupDef {
     return `<GenerateNodeChildren claims={props.childClaims} pluginKey='NonRepeatingChildrenPlugin/children' />`;
   }
 
-  claimChildren({ item, claimChild, getType, getCapabilities }: ChildClaimerProps<'ButtonGroup'>): void {
-    for (const id of item.children || []) {
-      const type = getType(id);
-      if (!type) {
-        continue;
-      }
-      const capabilities = getCapabilities(type);
-      if (!capabilities.renderInButtonGroup) {
-        window.logWarn(
-          `ButtonGroup component included a component '${id}', which ` +
-            `is a '${type}' and cannot be rendered in an ButtonGroup.`,
-        );
-        continue;
-      }
-      claimChild('NonRepeatingChildrenPlugin/children', id);
-    }
+  claimChildren(props: ChildClaimerProps<'ButtonGroup'>): void {
+    claimNonRepeatingChildren(props, props.item.children, {
+      pluginKey: 'NonRepeatingChildrenPlugin/children',
+      onlyWithCapability: 'renderInButtonGroup',
+      componentType: 'ButtonGroup',
+    });
   }
 }

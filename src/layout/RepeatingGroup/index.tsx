@@ -6,6 +6,7 @@ import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, Va
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FrontendValidationSource } from 'src/features/validation';
+import { claimGridRowsChildren } from 'src/layout/Grid/claimGridRowsChildren';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
@@ -15,6 +16,7 @@ import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/Repeat
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { claimRepeatingChildren } from 'src/utils/layout/plugins/claimRepeatingChildren';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -157,27 +159,24 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     `.trim();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private usesMultiPage(item: any): boolean {
-    return item.edit?.multiPage === true;
-  }
+  claimChildren(props: ChildClaimerProps<'RepeatingGroup'>): void {
+    const { item } = props;
+    const multiPage = item.edit?.multiPage === true;
 
-  claimChildren({ claimChild, item }: ChildClaimerProps<'RepeatingGroup'>): void {
-    const multiPage = this.usesMultiPage(item);
+    // Claim repeating children
+    claimRepeatingChildren(props, item.children, {
+      pluginKey: 'RepeatingChildrenPlugin',
+      multiPageSupport: multiPage,
+    });
 
-    for (const id of item.children || []) {
-      if (multiPage) {
-        if (!/^\d+:[^:]+$/u.test(id)) {
-          throw new Error(
-            `Ved bruk av multiPage må ID være på formatet 'sideIndeks:komponentId' (f.eks. '0:komponentId'). Referansen '${id}' er ikke gyldig.`,
-          );
-        }
+    // Claim rowsBefore children
+    claimGridRowsChildren(props, item.rowsBefore, {
+      pluginKey: 'GridRowsPlugin/rowsBefore',
+    });
 
-        const [, childId] = id.split(':', 2);
-        claimChild('RepeatingChildrenPlugin', childId);
-      } else {
-        claimChild('RepeatingChildrenPlugin', id);
-      }
-    }
+    // Claim rowsAfter children
+    claimGridRowsChildren(props, item.rowsAfter, {
+      pluginKey: 'GridRowsPlugin/rowsAfter',
+    });
   }
 }

@@ -3,6 +3,7 @@ import React, { forwardRef, type JSX } from 'react';
 import type { PropsFromGenericComponent } from '..';
 
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { claimTabsChildren } from 'src/layout/Tabs/claimTabsChildren';
 import { TabsDef } from 'src/layout/Tabs/config.def.generated';
 import { Tabs as TabsComponent } from 'src/layout/Tabs/Tabs';
 import { TabsSummary } from 'src/layout/Tabs/TabsSummary';
@@ -37,23 +38,9 @@ export class Tabs extends TabsDef {
     return `<GenerateNodeChildren claims={props.childClaims} pluginKey='TabsPlugin' />`;
   }
 
-  claimChildren({ item, claimChild, getType, getCapabilities }: ChildClaimerProps<'Tabs'>): void {
-    for (const tab of (item.tabs || []).values()) {
-      for (const child of tab.children.values()) {
-        const type = getType(child);
-        if (!type) {
-          continue;
-        }
-        const capabilities = getCapabilities(type);
-        if (!capabilities.renderInTabs) {
-          window.logWarn(
-            `Tabs component included a component '${child}', which ` +
-              `is a '${type}' and cannot be rendered as a Tabs child.`,
-          );
-          continue;
-        }
-        claimChild('TabsPlugin', child);
-      }
-    }
+  claimChildren(props: ChildClaimerProps<'Tabs'>): void {
+    claimTabsChildren(props, props.item.tabs, {
+      pluginKey: 'TabsPlugin',
+    });
   }
 }
