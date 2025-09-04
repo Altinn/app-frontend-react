@@ -68,6 +68,5 @@ div:has(.canvas) {
 
 .dropZone {
   border-radius: var(--ds-border-radius-lg);
-  border-style: dashed;
   border: 2px dashed var(--ds-color-border-default);
 }
