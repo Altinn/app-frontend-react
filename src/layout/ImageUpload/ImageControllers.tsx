@@ -1,12 +1,7 @@
 import React from 'react';
 
 import { Button, Input, Label } from '@digdir/designsystemet-react';
-import {
-  ArrowCirclepathReverseIcon as RefreshCw,
-  ArrowsSquarepathIcon,
-  ZoomMinusIcon as ZoomOut,
-  ZoomPlusIcon as ZoomIn,
-} from '@navikt/aksel-icons';
+import { ArrowsSquarepathIcon, ArrowUndoIcon } from '@navikt/aksel-icons';
 
 import { useAttachmentsUploader } from 'src/features/attachments/hooks';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
@@ -119,32 +114,25 @@ export function ImageControllers({
 
   return (
     <div className={classes.controlsContainer}>
-      <div className={classes.controlSection}>
-        <label
-          htmlFor='zoom'
-          className={classes.label}
-        >
-          Zoom
-        </label>
+      <div>
+        <Label htmlFor='zoom'>Tilpass bildet</Label>
         <div className={classes.zoomControls}>
-          <ZoomOut className={classes.zoomIcon} />
           <input
             id='zoom'
             type='range'
             min='0'
             max='100'
-            step='0.1'
+            step='0.5'
             value={logToNormalZoom({ value: zoom, minZoom, maxZoom })}
             onChange={handleSliderZoom}
             className={classes.zoomSlider}
           />
-          <ZoomIn className={classes.zoomIcon} />
           <Button
-            data-size='sm'
             onClick={onReset}
-            className={`${classes.button} ${classes.resetButton}`}
+            variant='tertiary'
+            icon={true}
           >
-            <RefreshCw className={classes.icon} /> Reset
+            <ArrowUndoIcon className={classes.resetButton} />
           </Button>
         </div>
       </div>
@@ -152,6 +140,7 @@ export function ImageControllers({
         <Button
           onClick={handleSave}
           data-size='sm'
+          data-color='accent'
         >
           Lagre
         </Button>
@@ -169,17 +158,14 @@ export function ImageControllers({
           variant='secondary'
           data-color='accent'
         >
-          <Label
-            htmlFor='image-upload'
-            className={classes.changeImageLabel}
-          >
+          <Label htmlFor='image-upload'>
             <ArrowsSquarepathIcon />
             Bytt bilde
           </Label>
         </Button>
         <Button
           data-size='sm'
-          variant='secondary'
+          variant='tertiary'
           onClick={handleCancel}
           data-color='accent'
         >

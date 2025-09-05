@@ -1,96 +1,71 @@
-.changeImageLabel {
-  width: fit-content;
-}
-
 .controlsContainer {
-  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-}
-
-.controlSection {
-  padding: 1rem;
-  background-color: #f9fafb;
-  border-radius: 0.5rem;
-}
-.controlSection > *:not([hidden]) ~ *:not([hidden]) {
-  margin-top: 1rem;
-}
-
-.label {
-  display: block;
-  font-weight: 500;
-  color: #374151;
+  gap: var(--ds-size-3);
 }
 
 .zoomControls {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.zoomIcon {
-  color: #6b7280;
 }
 
 .zoomSlider {
   width: 100%;
-  height: 0.5rem;
-  background-color: #e5e7eb;
-  border-radius: 0.5rem;
+  height: var(--ds-size-3);
+  background-color: var(--ds-color-neutral-border-strong);
+  border-radius: var(--ds-border-radius-full);
   -webkit-appearance: none;
   appearance: none;
   cursor: pointer;
-  outline: none;
   touch-action: none;
 }
 
+/* ✅ Chrome / Safari / Edge */
 .zoomSlider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 1rem;
-  height: 1rem;
-  background: #2563eb;
-  border-radius: 50%;
+  width: var(--ds-size-8);
+  height: var(--ds-size-8);
+  border-radius: var(--ds-border-radius-full);
+  border: 1px solid var(--ds-color-border-strong);
+  background: var(--ds-color-base-contrast-default);
   cursor: pointer;
 }
 
+/* ✅ Firefox */
 .zoomSlider::-moz-range-thumb {
-  width: 1rem;
-  height: 1rem;
-  background: #2563eb;
-  border-radius: 50%;
+  width: var(--ds-size-8);
+  height: var(--ds-size-8);
+  border-radius: var(--ds-border-radius-full);
+  border: 1px solid var(--ds-color-border-strong);
+  background: var(--ds-color-base-contrast-default);
   cursor: pointer;
-  border: none;
 }
+
+/* ✅ Firefox track (to override default blue bar) */
+.zoomSlider::-moz-range-track {
+  background-color: var(--ds-color-neutral-border-strong);
+  height: var(--ds-size-3);
+  border-radius: var(--ds-border-radius-full);
+}
+
+/* Buttons */
 
 .actionButtons {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--ds-size-2);
   flex-direction: row;
   align-items: center;
 }
 
 .resetButton {
-  background-color: #e5e7eb;
-  color: #1f2937;
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  font-size: var(--ds-size-6);
+  color: var(--ds-color-text-default);
 }
 
-.resetButton:hover {
-  background-color: #d1d5db;
-}
-
-.button {
-  flex: 1 1 0%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1rem;
-  font-weight: 600;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-  transition: all 300ms;
+@media (max-width: 400px) {
+  .actionButtons {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
