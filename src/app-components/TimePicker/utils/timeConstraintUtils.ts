@@ -4,7 +4,7 @@ export interface TimeValue {
   hours: number;
   minutes: number;
   seconds: number;
-  period: 'AM' | 'PM';
+  period?: 'AM' | 'PM';
 }
 
 export interface TimeConstraints {
@@ -19,13 +19,18 @@ export interface SegmentConstraints {
 }
 
 export const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue => {
-  const defaultValue: TimeValue = { hours: 0, minutes: 0, seconds: 0, period: 'AM' };
+  const is12Hour = format.includes('a');
+  const defaultValue: TimeValue = {
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+    period: is12Hour ? 'AM' : undefined,
+  };
 
   if (!timeStr) {
     return defaultValue;
   }
 
-  const is12Hour = format.includes('a');
   const includesSeconds = format.includes('ss');
 
   const parts = timeStr.replace(/\s*(AM|PM)/i, '').split(':');
@@ -51,7 +56,7 @@ export const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue 
     hours: actualHours,
     minutes: isNaN(minutes) ? 0 : minutes,
     seconds: isNaN(seconds) ? 0 : seconds,
-    period: is12Hour ? period : 'AM',
+    period: is12Hour ? period : undefined,
   };
 };
 

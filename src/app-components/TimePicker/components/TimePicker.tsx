@@ -12,6 +12,7 @@ import {
   generateMinuteOptions,
   generateSecondOptions,
 } from 'src/app-components/TimePicker/functions/generateTimeOptions/generateTimeOptions';
+import { handleSegmentValueChange } from 'src/app-components/TimePicker/functions/handleSegmentValueChange/handleSegmentValueChange';
 import { getSegmentConstraints, parseTimeString } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 import { formatTimeValue } from 'src/app-components/TimePicker/utils/timeFormatUtils';
 import type {
@@ -163,61 +164,15 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     [timeValue, onChange, format],
   );
 
-  const handleSegmentValueChange = (segmentType: SegmentType, newValue: number | string) => {
-    if (segmentType === 'period') {
-      const period = newValue as 'AM' | 'PM';
-      let newHours = timeValue.hours;
+  const handleSegmentChange = (segmentType: SegmentType, newValue: number | string) => {
+    const segmentConstraints =
+      segmentType !== 'period'
+        ? getSegmentConstraints(segmentType, timeValue, constraints, format)
+        : { min: 0, max: 0, validValues: [] };
 
-      // Adjust hours when period changes
-      if (period === 'PM' && timeValue.hours < 12) {
-        newHours += 12;
-      } else if (period === 'AM' && timeValue.hours >= 12) {
-        newHours -= 12;
-      }
+    const result = handleSegmentValueChange(segmentType, newValue, timeValue, segmentConstraints, is12Hour);
 
-      updateTime({ period, hours: newHours });
-    } else {
-      // Apply constraints for numeric segments
-      const segmentConstraints = getSegmentConstraints(segmentType, timeValue, constraints, format);
-      let validValue = newValue as number;
-
-      // Handle increment/decrement with wrapping
-      if (segmentType === 'hours') {
-        if (is12Hour) {
-          if (validValue > 12) {
-            validValue = 1;
-          }
-          if (validValue < 1) {
-            validValue = 12;
-          }
-        } else {
-          if (validValue > 23) {
-            validValue = 0;
-          }
-          if (validValue < 0) {
-            validValue = 23;
-          }
-        }
-      } else if (segmentType === 'minutes' || segmentType === 'seconds') {
-        if (validValue > 59) {
-          validValue = 0;
-        }
-        if (validValue < 0) {
-          validValue = 59;
-        }
-      }
-
-      // Check if value is within constraints
-      if (segmentConstraints.validValues.includes(validValue)) {
-        updateTime({ [segmentType]: validValue });
-      } else {
-        // Find nearest valid value
-        const nearestValid = segmentConstraints.validValues.reduce((prev, curr) =>
-          Math.abs(curr - validValue) < Math.abs(prev - validValue) ? curr : prev,
-        );
-        updateTime({ [segmentType]: nearestValid });
-      }
-    }
+    updateTime(result.updatedTimeValue);
   };
 
   const handleSegmentNavigate = (direction: 'left' | 'right', currentIndex: number) => {
@@ -348,44 +303,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     }
   };
 
-  // Check if option is disabled
-  const isOptionDisabled = (columnIndex: number, optionValue: number | string) => {
-    if (!constraints.minTime && !constraints.maxTime) {
-      return false;
-    }
-
-    switch (columnIndex) {
-      case 0: {
-        // Hours
-        const hourValue = typeof optionValue === 'number' ? optionValue : parseInt(optionValue.toString(), 10);
-        let actualHour = hourValue;
-        if (is12Hour) {
-          if (timeValue.period === 'AM' && hourValue === 12) {
-            actualHour = 0;
-          } else if (timeValue.period === 'PM' && hourValue !== 12) {
-            actualHour = hourValue + 12;
-          }
-        }
-        return !getSegmentConstraints('hours', timeValue, constraints, format).validValues.includes(actualHour);
-      }
-      case 1: // Minutes
-        return !getSegmentConstraints('minutes', timeValue, constraints, format).validValues.includes(
-          typeof optionValue === 'number' ? optionValue : parseInt(optionValue.toString(), 10),
-        );
-      case 2: // Seconds or AM/PM
-        if (includesSeconds) {
-          return !getSegmentConstraints('seconds', timeValue, constraints, format).validValues.includes(
-            typeof optionValue === 'number' ? optionValue : parseInt(optionValue.toString(), 10),
-          );
-        }
-        return false;
-      case 3: // AM/PM
-        return false;
-      default:
-        return false;
-    }
-  };
-
   // Get column option counts for navigation
   const getOptionCounts = (): number[] => {
     const counts = [hourOptions.length, minuteOptions.length];
@@ -465,9 +382,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const displayHours = formatDisplayHour(timeValue.hours, is12Hour);
 
   // Generate options for dropdown using pure functions
-  const hourOptions = generateHourOptions(is12Hour, constraints);
-  const minuteOptions = generateMinuteOptions(1, constraints);
-  const secondOptions = generateSecondOptions(1, constraints);
+  const hourOptions = generateHourOptions(is12Hour);
+  const minuteOptions = generateMinuteOptions(1);
+  const secondOptions = generateSecondOptions(1);
 
   const handleDropdownHoursChange = (selectedHour: string) => {
     const hour = parseInt(selectedHour, 10);
@@ -511,7 +428,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     >
       <div className={styles.segmentContainer}>
         {segments.map((segmentType, index) => {
-          const segmentValue = segmentType === 'period' ? timeValue.period : timeValue[segmentType];
+          const segmentValue = segmentType === 'period' ? timeValue.period || 'AM' : timeValue[segmentType];
           const segmentConstraints =
             segmentType !== 'period'
               ? getSegmentConstraints(segmentType as 'hours' | 'minutes' | 'seconds', timeValue, constraints, format)
@@ -530,7 +447,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 max={segmentConstraints.max}
                 type={segmentType}
                 format={format}
-                onValueChange={(newValue) => handleSegmentValueChange(segmentType, newValue)}
+                onValueChange={(newValue) => handleSegmentChange(segmentType, newValue)}
                 onNavigate={(direction) => handleSegmentNavigate(direction, index)}
                 onFocus={() => setFocusedSegment(index)}
                 onBlur={() => setFocusedSegment(null)}

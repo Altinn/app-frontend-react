@@ -11,9 +11,9 @@ describe('generateTimeOptions', () => {
         const options = generateHourOptions(false);
 
         expect(options).toHaveLength(24);
-        expect(options[0]).toEqual({ value: 0, label: '00', disabled: false });
-        expect(options[12]).toEqual({ value: 12, label: '12', disabled: false });
-        expect(options[23]).toEqual({ value: 23, label: '23', disabled: false });
+        expect(options[0]).toEqual({ value: 0, label: '00' });
+        expect(options[12]).toEqual({ value: 12, label: '12' });
+        expect(options[23]).toEqual({ value: 23, label: '23' });
       });
 
       it('should pad single digits with zero', () => {
@@ -30,8 +30,8 @@ describe('generateTimeOptions', () => {
         const options = generateHourOptions(true);
 
         expect(options).toHaveLength(12);
-        expect(options[0]).toEqual({ value: 1, label: '01', disabled: false });
-        expect(options[11]).toEqual({ value: 12, label: '12', disabled: false });
+        expect(options[0]).toEqual({ value: 1, label: '01' });
+        expect(options[11]).toEqual({ value: 12, label: '12' });
       });
 
       it('should not include 00 or values above 12', () => {
@@ -51,28 +51,28 @@ describe('generateTimeOptions', () => {
       const options = generateMinuteOptions();
 
       expect(options).toHaveLength(60);
-      expect(options[0]).toEqual({ value: 0, label: '00', disabled: false });
-      expect(options[30]).toEqual({ value: 30, label: '30', disabled: false });
-      expect(options[59]).toEqual({ value: 59, label: '59', disabled: false });
+      expect(options[0]).toEqual({ value: 0, label: '00' });
+      expect(options[30]).toEqual({ value: 30, label: '30' });
+      expect(options[59]).toEqual({ value: 59, label: '59' });
     });
 
     it('should generate correct number of options for step=5', () => {
       const options = generateMinuteOptions(5);
 
       expect(options).toHaveLength(12); // 60 / 5 = 12
-      expect(options[0]).toEqual({ value: 0, label: '00', disabled: false });
-      expect(options[1]).toEqual({ value: 5, label: '05', disabled: false });
-      expect(options[11]).toEqual({ value: 55, label: '55', disabled: false });
+      expect(options[0]).toEqual({ value: 0, label: '00' });
+      expect(options[1]).toEqual({ value: 5, label: '05' });
+      expect(options[11]).toEqual({ value: 55, label: '55' });
     });
 
     it('should generate correct number of options for step=15', () => {
       const options = generateMinuteOptions(15);
 
       expect(options).toHaveLength(4); // 60 / 15 = 4
-      expect(options[0]).toEqual({ value: 0, label: '00', disabled: false });
-      expect(options[1]).toEqual({ value: 15, label: '15', disabled: false });
-      expect(options[2]).toEqual({ value: 30, label: '30', disabled: false });
-      expect(options[3]).toEqual({ value: 45, label: '45', disabled: false });
+      expect(options[0]).toEqual({ value: 0, label: '00' });
+      expect(options[1]).toEqual({ value: 15, label: '15' });
+      expect(options[2]).toEqual({ value: 30, label: '30' });
+      expect(options[3]).toEqual({ value: 45, label: '45' });
     });
 
     it('should pad single digits with zero', () => {
@@ -89,18 +89,18 @@ describe('generateTimeOptions', () => {
       const options = generateSecondOptions();
 
       expect(options).toHaveLength(60);
-      expect(options[0]).toEqual({ value: 0, label: '00', disabled: false });
-      expect(options[30]).toEqual({ value: 30, label: '30', disabled: false });
-      expect(options[59]).toEqual({ value: 59, label: '59', disabled: false });
+      expect(options[0]).toEqual({ value: 0, label: '00' });
+      expect(options[30]).toEqual({ value: 30, label: '30' });
+      expect(options[59]).toEqual({ value: 59, label: '59' });
     });
 
     it('should generate correct number of options for step=5', () => {
       const options = generateSecondOptions(5);
 
       expect(options).toHaveLength(12); // 60 / 5 = 12
-      expect(options[0]).toEqual({ value: 0, label: '00', disabled: false });
-      expect(options[1]).toEqual({ value: 5, label: '05', disabled: false });
-      expect(options[11]).toEqual({ value: 55, label: '55', disabled: false });
+      expect(options[0]).toEqual({ value: 0, label: '00' });
+      expect(options[1]).toEqual({ value: 5, label: '05' });
+      expect(options[11]).toEqual({ value: 55, label: '55' });
     });
 
     it('should behave identically to generateMinuteOptions', () => {
@@ -108,29 +108,6 @@ describe('generateTimeOptions', () => {
       const secondOptions = generateSecondOptions(10);
 
       expect(secondOptions).toEqual(minuteOptions);
-    });
-  });
-
-  describe('constraints handling', () => {
-    it('should accept constraints parameter for all functions', () => {
-      const constraints = { minTime: '09:00', maxTime: '17:00' };
-
-      expect(() => generateHourOptions(false, constraints)).not.toThrow();
-      expect(() => generateMinuteOptions(1, constraints)).not.toThrow();
-      expect(() => generateSecondOptions(1, constraints)).not.toThrow();
-    });
-
-    it('should return all options as enabled when constraints are provided (TODO)', () => {
-      const constraints = { minTime: '09:00', maxTime: '17:00' };
-
-      const hourOptions = generateHourOptions(false, constraints);
-      const minuteOptions = generateMinuteOptions(1, constraints);
-      const secondOptions = generateSecondOptions(1, constraints);
-
-      // Currently all options are enabled, but this will change when constraint validation is implemented
-      expect(hourOptions.every((o) => !o.disabled)).toBe(true);
-      expect(minuteOptions.every((o) => !o.disabled)).toBe(true);
-      expect(secondOptions.every((o) => !o.disabled)).toBe(true);
     });
   });
 });
