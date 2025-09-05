@@ -1,8 +1,9 @@
 import { CG } from 'src/codegen/CG';
+import { AttachmentsPlugin } from 'src/features/attachments/AttachmentsPlugin';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
-  category: CompCategory.Presentation,
+  category: CompCategory.Form,
   capabilities: {
     renderInTable: true,
     renderInButtonGroup: false,
@@ -16,7 +17,7 @@ export const Config = new CG.component({
     customExpressions: true,
   },
 })
-  .makeSummarizable()
+  .addPlugin(new AttachmentsPlugin())
   .extendTextResources(CG.common('TRBLabel'))
   .addProperty(
     new CG.prop(
