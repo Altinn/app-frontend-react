@@ -7,14 +7,13 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 export function ImageUploadComponent({ baseComponentId }: PropsFromGenericComponent<'ImageUpload'>) {
-  const { viewport, dataModelBindings } = useItemWhenType(baseComponentId, 'ImageUpload');
+  const { viewport } = useItemWhenType(baseComponentId, 'ImageUpload');
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <ImageCropper
         viewport={viewport as ViewportType}
         baseComponentId={baseComponentId}
-        dataModelBindings={dataModelBindings}
       />
     </ComponentStructureWrapper>
   );

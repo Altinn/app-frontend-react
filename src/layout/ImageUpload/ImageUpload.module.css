@@ -59,13 +59,6 @@ div:has(.canvas) {
   line-height: 1.75rem;
 }
 
-/* Icons */
-.icon {
-  margin-right: 0.5rem;
-  height: 1.25rem;
-  width: 1.25rem;
-}
-
 .dropZone {
   border-radius: var(--ds-border-radius-lg);
   border: 2px dashed var(--ds-color-border-default);

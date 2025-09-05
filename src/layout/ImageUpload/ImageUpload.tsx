@@ -3,7 +3,6 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { UploadIcon as Upload } from '@navikt/aksel-icons';
 
 import { AppCard } from 'src/app-components/Card/Card';
-import { useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
@@ -15,12 +14,10 @@ import {
   drawViewport,
   getViewport,
 } from 'src/layout/ImageUpload/imageUploadUtils';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import type { IDataModelBindingsSimple } from 'src/layout/common.generated';
+import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { Position, ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
-  dataModelBindings?: IDataModelBindingsSimple;
   viewport?: ViewportType;
   baseComponentId: string;
 }
@@ -28,10 +25,9 @@ interface ImageCropperProps {
 const MAX_ZOOM = 5;
 
 // ImageCropper Component
-export function ImageCropper({ baseComponentId, viewport, dataModelBindings }: ImageCropperProps) {
+export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
-  const indexedId = useIndexedId(baseComponentId);
-  const uploadAttachment = useAttachmentsUploader();
+  const { saveImage, deleteImage } = useImageFile(baseComponentId);
 
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -41,8 +37,6 @@ export function ImageCropper({ baseComponentId, viewport, dataModelBindings }: I
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [imageSrc, setImageSrc] = useState<File | null>(null);
-  //bare midlertidig for å kunne laste ned resultatet som blir lagret i backend
-  const [previewImage, setPreviewImage] = React.useState<string | null>(null);
 
   const selectedViewport = getViewport(viewport);
 
@@ -141,75 +135,67 @@ export function ImageCropper({ baseComponentId, viewport, dataModelBindings }: I
       const fileName = img?.name || 'cropped-image.png';
       const imageFile = new File([blob], fileName, { type: 'image/png' });
 
-      // Use the file now
-      uploadAttachment({
-        files: [imageFile],
-        nodeId: indexedId,
-        dataModelBindings,
-      });
-      setPreviewImage(cropCanvas.toDataURL('image/png'));
+      saveImage(imageFile);
     }, 'image/png');
   };
 
+  const handleDeleteImage = () => {
+    deleteImage();
+    imageRef.current = null;
+    setImageSrc(null);
+    handleReset();
+  };
+
   return (
-    <>
-      <AppCard
-        variant='default'
-        mediaPosition='top'
-        className={classes.imageUploadCard}
-        media={
-          imageSrc ? (
-            <ImageCanvas
-              canvasRef={canvasRef}
-              imageRef={imageRef}
-              zoom={zoom}
-              position={position}
-              viewport={selectedViewport}
-              onPositionChange={handlePositionChange}
-              onZoomChange={handleZoomChange}
-            />
-          ) : (
-            <div className={classes.canvasSizingWrapper}>
-              <div className={classes.placeholder}>
-                <Upload className={classes.placeholderIcon} />
-                <p className={classes.placeholderText}>Upload an image to start cropping</p>
-              </div>
-            </div>
-          )
-        }
-      >
-        {imageSrc ? (
-          <ImageControllers
+    <AppCard
+      variant='default'
+      mediaPosition='top'
+      className={classes.imageUploadCard}
+      media={
+        imageSrc ? (
+          <ImageCanvas
+            canvasRef={canvasRef}
+            imageRef={imageRef}
             zoom={zoom}
-            zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
-            updateZoom={handleZoomChange}
-            onSave={handleSave}
-            onCancel={() => setImageSrc(null)}
-            onFileUploaded={handleFileUpload}
-            onReset={handleReset}
+            position={position}
+            viewport={selectedViewport}
+            onPositionChange={handlePositionChange}
+            onZoomChange={handleZoomChange}
           />
         ) : (
-          <DropzoneComponent
-            id='image-upload'
-            isMobile={mobileView}
-            readOnly={false}
-            onClick={(e) => e.preventDefault()}
-            onDrop={(files) => handleFileUpload(files[0])}
-            hasValidationMessages={false}
-            validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
-            className={classes.dropZone}
-          />
-        )}
-      </AppCard>
-      {/*Fjern dette under senere*/}
-      {previewImage && (
-        <a
-          href={previewImage}
-          download='cropped-image.png'
-        >
-          Download Image
-        </a>
+          <div className={classes.canvasSizingWrapper}>
+            <div className={classes.placeholder}>
+              <Upload className={classes.placeholderIcon} />
+              <p className={classes.placeholderText}>Upload an image to start cropping</p>
+            </div>
+          </div>
+        )
+      }
+    >
+      {imageSrc ? (
+        <ImageControllers
+          zoom={zoom}
+          zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
+          baseComponentId={baseComponentId}
+          updateZoom={handleZoomChange}
+          onSave={handleSave}
+          onDelete={handleDeleteImage}
+          onCancel={() => setImageSrc(null)}
+          onFileUploaded={handleFileUpload}
+          onReset={handleReset}
+        />
+      ) : (
+        <DropzoneComponent
+          id='image-upload'
+          isMobile={mobileView}
+          readOnly={false}
+          onClick={(e) => e.preventDefault()}
+          onDrop={(files) => handleFileUpload(files[0])}
+          hasValidationMessages={false}
+          validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
+          className={classes.dropZone}
+        />
       )}
-    </>
+    </AppCard>
   );
 }
