@@ -482,10 +482,6 @@ export class ComponentConfig {
 
       ${this.config.directRendering ? 'directRender(): boolean { return true; }' : ''}
 
-      extraNodeGeneratorChildren(_props: ${NodeGeneratorProps}): ${ReactJSX}.Element | null {
-        return null;
-      }
-
       renderNodeGenerator(props: ${NodeGeneratorProps}): ${ReactJSX}.Element | null {
         const others = this.extraNodeGeneratorChildren(props);
         return (
