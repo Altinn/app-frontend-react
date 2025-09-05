@@ -66,10 +66,7 @@ div:has(.canvas) {
   width: 1.25rem;
 }
 
-.dropZoneWrapper {
-  width: 100%;
-}
-
-.dropZoneWrapper :global(#altinn-drop-zone-image-upload) {
+.dropZone {
   border-radius: var(--ds-border-radius-lg);
+  border: 2px dashed var(--ds-color-border-default);
 }
