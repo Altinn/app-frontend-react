@@ -6,7 +6,7 @@ import { AppCard } from 'src/app-components/Card/Card';
 import { useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
-import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas'; // Adjust path as needed
+import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
 import {
