@@ -14,7 +14,7 @@ import {
   drawViewport,
   getViewport,
 } from 'src/layout/ImageUpload/imageUploadUtils';
-import { useImageFile } from 'src/layout/ImageUpload/useSaveImage';
+import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { Position, ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {

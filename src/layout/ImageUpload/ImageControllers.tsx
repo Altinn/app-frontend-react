@@ -5,7 +5,7 @@ import { ArrowsSquarepathIcon, ArrowUndoIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
-import { useImageFile } from 'src/layout/ImageUpload/useSaveImage';
+import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 
 type ImageControllersProps = {
   zoom: number;
