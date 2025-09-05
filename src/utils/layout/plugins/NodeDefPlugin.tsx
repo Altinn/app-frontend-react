@@ -20,7 +20,6 @@ export type DefPluginExtraState<Config extends DefPluginConfig> = Config['extraS
   ? unknown
   : Config['extraState'];
 export type DefPluginStateFactoryProps = StateFactoryProps;
-export type DefPluginCompExternal<Config extends DefPluginConfig> = Config['expectedFromExternal'];
 
 /**
  * A node state plugin work when generating code for a component. Adding such a plugin to your component
@@ -70,27 +69,6 @@ export abstract class NodeDefPlugin<Config extends DefPluginConfig> {
       return this.serializeSettings(this.settings, asGenericArgs);
     }
     return '';
-  }
-
-  /**
-   * Useful tool when you have the concept of 'default' settings in your plugin. This will make the constructor
-   * arguments, but omits any settings that are the same as the default settings.
-   */
-  protected makeConstructorArgsWithoutDefaultSettings(defaults: unknown, asGenericArgs: boolean): string {
-    const settings = this.settings;
-    if (settings && typeof settings === 'object' && defaults && typeof defaults === 'object') {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const nonDefaultSettings: any = Object.keys(settings)
-        .filter((key) => settings[key] !== defaults[key])
-        .reduce((acc, key) => {
-          acc[key] = settings[key];
-          return acc;
-        }, {});
-
-      return this.serializeSettings(nonDefaultSettings, asGenericArgs);
-    }
-
-    throw new Error('Settings must be an object');
   }
 
   protected serializeSettings(settings: unknown, asGenericArgs: boolean) {
