@@ -8,29 +8,14 @@ import {
   ZoomPlusIcon as ZoomIn,
 } from '@navikt/aksel-icons';
 
-import { useAttachmentsUploader } from 'src/features/attachments/hooks';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
-import {
-  calculatePositions,
-  drawViewport,
-  getViewport,
-  logToNormalZoom,
-  normalToLogZoom,
-} from 'src/layout/ImageUpload/imageUploadUtils';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
-import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
+import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
-  baseComponentId: string;
-  refs: {
-    canvasRef: React.RefObject<HTMLCanvasElement | null>;
-    imageRef: React.RefObject<HTMLImageElement | null>;
-  };
-  position: { x: number; y: number };
-  setImageSrc: (img: File | null) => void;
+  onSave: () => void;
+  onCancel: () => void;
   updateZoom: (zoom: number) => void;
   onFileUploaded: (file: File) => void;
   onReset: () => void;
@@ -39,22 +24,12 @@ type ImageControllersProps = {
 export function ImageControllers({
   zoom,
   zoomLimits: { minZoom, maxZoom },
-  baseComponentId,
-  refs: { canvasRef, imageRef },
-  position,
-  setImageSrc,
+  onSave,
+  onCancel,
   updateZoom,
   onFileUploaded,
   onReset,
 }: ImageControllersProps) {
-  const indexedId = useIndexedId(baseComponentId);
-  const { dataModelBindings, viewport } = useItemWhenType(baseComponentId, 'ImageUpload');
-  const selectedViewport = getViewport(viewport as ViewportType);
-  const uploadAttachment = useAttachmentsUploader();
-
-  //bare midlertidig for å kunne laste resultatet som blir lagret i backend
-  const [previewImage, setPreviewImage] = React.useState<string | null>(null);
-
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
     const logarithmicZoomValue = normalToLogZoom({
       value: parseFloat(e.target.value),
@@ -71,50 +46,6 @@ export function ImageControllers({
       onFileUploaded(file);
     }
     e.target.value = '';
-  };
-
-  const handleSave = () => {
-    const canvas = canvasRef.current;
-    const img = imageRef.current;
-    const cropCanvas = document.createElement('canvas');
-    const cropCtx = cropCanvas.getContext('2d');
-
-    if (!canvas || !img || !cropCtx) {
-      return;
-    }
-
-    cropCanvas.width = selectedViewport.width;
-    cropCanvas.height = selectedViewport.height;
-
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-    const viewportX = (canvas.width - selectedViewport.width) / 2;
-    const viewportY = (canvas.height - selectedViewport.height) / 2;
-
-    drawViewport({ ctx: cropCtx, selectedViewport });
-    cropCtx.clip();
-    cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
-
-    cropCanvas.toBlob((blob) => {
-      if (!blob) {
-        return;
-      }
-
-      const fileName = img?.name || 'cropped-image.png'; // fallback if img.name is deprecated
-      const imageFile = new File([blob], fileName, { type: 'image/png' });
-
-      // Use the file now
-      uploadAttachment({
-        files: [imageFile],
-        nodeId: indexedId,
-        dataModelBindings,
-      });
-
-      setPreviewImage(cropCanvas.toDataURL('image/png'));
-    }, 'image/png');
-  };
-
-  const handleCancel = () => {
-    setImageSrc(null);
   };
 
   return (
@@ -150,7 +81,7 @@ export function ImageControllers({
       </div>
       <div className={classes.actionButtons}>
         <Button
-          onClick={handleSave}
+          onClick={onSave}
           data-size='sm'
         >
           Lagre
@@ -180,20 +111,11 @@ export function ImageControllers({
         <Button
           data-size='sm'
           variant='secondary'
-          onClick={handleCancel}
+          onClick={onCancel}
           data-color='accent'
         >
           Avbryt
         </Button>
-        {/*fjern dette under senere*/}
-        {previewImage && (
-          <a
-            href={previewImage}
-            download='cropped-image.png'
-          >
-            Download Image
-          </a>
-        )}
       </div>
     </div>
   );
