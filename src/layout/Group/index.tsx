@@ -46,6 +46,6 @@ export class Group extends GroupDef {
   }
 
   claimChildren(props: ChildClaimerProps<'Group'>): void {
-    claimNonRepeatingChildren(props, props.item.children, {});
+    claimNonRepeatingChildren(props, props.item.children, { componentType: 'Group' });
   }
 }

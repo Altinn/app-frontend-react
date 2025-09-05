@@ -70,12 +70,11 @@ const GenerateLikertRowInner = React.memo(function ({ rowIndex, questionsBinding
 
   const childId = makeLikertChildId(parentItem.id);
 
-  const childClaims = useMemo(
-    (): ChildClaims => ({
-      [childId]: {},
-    }),
-    [childId],
-  );
+  const childClaims = useMemo((): ChildClaims => {
+    const out: ChildClaims = new Set();
+    out.add(childId);
+    return out;
+  }, [childId]);
 
   const recursiveMutators = useMemo(
     () => [

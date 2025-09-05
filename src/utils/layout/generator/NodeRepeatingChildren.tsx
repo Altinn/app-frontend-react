@@ -22,7 +22,7 @@ export function NodeRepeatingChildren(props: Props) {
   );
 }
 
-const emptyObject = {};
+const emptySet: ChildClaims = new Set();
 function NodeRepeatingChildrenWorker({ claims }: Props) {
   const binding = 'group'; // Hardcoded for RepeatingGroup
   const multiPageSupport = 'edit.multiPage'; // Hardcoded for RepeatingGroup
@@ -48,7 +48,7 @@ function NodeRepeatingChildrenWorker({ claims }: Props) {
           <GenerateRow
             rowIndex={index}
             groupBinding={groupBinding}
-            claims={claims ?? emptyObject}
+            claims={claims ?? emptySet}
             multiPageMapping={multiPageMapping}
           />
         </Fragment>

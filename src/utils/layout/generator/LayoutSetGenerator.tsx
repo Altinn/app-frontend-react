@@ -12,7 +12,7 @@ import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompExternalExact, CompTypes, ILayout } from 'src/layout/layout';
 import type { NodeGeneratorProps } from 'src/layout/LayoutComponent';
-import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
+import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 
 export function LayoutSetGenerator() {
   const layouts = GeneratorInternal.useLayouts();
@@ -54,9 +54,9 @@ function PageGenerator({ layout, name }: PageProps) {
   const isValid = pageOrder.includes(name) || name === pdfPage;
 
   const topLevelIdsAsClaims = useMemo(() => {
-    const claims: ChildClaims = {};
+    const claims: ChildClaims = new Set();
     for (const id of topLevel || []) {
-      claims[id] = {};
+      claims.add(id);
     }
     return claims;
   }, [topLevel]);
@@ -98,12 +98,11 @@ interface NodeChildrenProps {
 
 export function GenerateNodeChildren({ claims }: NodeChildrenProps) {
   const layoutMap = useLayoutLookups().allComponents;
-  const filteredClaims = claims ?? {};
   const map = useLayoutLookups().childClaims;
 
   return (
     <WhenParentAdded>
-      {Object.keys(filteredClaims).map((id) => {
+      {[...(claims?.values() ?? [])].map((id) => {
         const layout = layoutMap[id];
         if (!layout) {
           return null;
@@ -113,7 +112,6 @@ export function GenerateNodeChildren({ claims }: NodeChildrenProps) {
           <GeneratorErrorBoundary key={id}>
             <GenerateComponent
               layout={layout}
-              claim={filteredClaims[id]}
               childClaims={map[id]}
             />
           </GeneratorErrorBoundary>
@@ -125,20 +123,18 @@ export function GenerateNodeChildren({ claims }: NodeChildrenProps) {
 
 interface ComponentProps {
   layout: CompExternalExact<CompTypes>;
-  claim: ChildClaim;
   childClaims: ChildClaims | undefined;
 }
 
-const emptyObject = {};
-function GenerateComponent({ layout, claim, childClaims }: ComponentProps) {
+const emptySet = new Set<string>();
+function GenerateComponent({ layout, childClaims }: ComponentProps) {
   const def = getComponentDef(layout.type);
   const props: NodeGeneratorProps = useMemo(
     () => ({
-      claim,
       externalItem: layout,
-      childClaims: childClaims ?? emptyObject,
+      childClaims: childClaims ?? emptySet,
     }),
-    [claim, layout, childClaims],
+    [layout, childClaims],
   );
 
   if (!layout.id && layout.type) {

@@ -2,15 +2,15 @@ import type { CompCapabilities } from 'src/codegen/Config';
 import type { CompTypes } from 'src/layout/layout';
 import type { ChildClaimerProps } from 'src/layout/LayoutComponent';
 
-export interface ClaimNonRepeatingChildrenOptions {
+export interface ClaimNonRepeatingChildrenOptions<T extends CompTypes> {
   onlyWithCapability?: keyof CompCapabilities;
-  componentType?: CompTypes;
+  componentType: T;
 }
 
 export function claimNonRepeatingChildren<T extends CompTypes>(
   { claimChild, getType, getCapabilities }: ChildClaimerProps<T>,
   children: string[] | undefined,
-  options: ClaimNonRepeatingChildrenOptions,
+  options: ClaimNonRepeatingChildrenOptions<T>,
 ): void {
   for (const id of children || []) {
     if (options.onlyWithCapability) {
@@ -21,8 +21,8 @@ export function claimNonRepeatingChildren<T extends CompTypes>(
       const capabilities = getCapabilities(type);
       if (!capabilities[options.onlyWithCapability]) {
         window.logWarn(
-          `${options.componentType || 'Component'} included a component '${id}', which ` +
-            `is a '${type}' and cannot be rendered in a ${options.componentType || 'component'}.`,
+          `${options.componentType} included a component '${id}', which ` +
+            `is a '${type}' and cannot be rendered in a ${options.componentType}.`,
         );
         continue;
       }

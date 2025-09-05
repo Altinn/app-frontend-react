@@ -163,14 +163,14 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
   extraNodeGeneratorChildren(props: NodeGeneratorProps): JSX.Element | null {
     const item = props.externalItem as CompExternal<'RepeatingGroup'>;
-    const repeatingClaims: ChildClaims = structuredClone(props.childClaims || {});
-    const gridRowClaims: ChildClaims = {};
+    const repeatingClaims: ChildClaims = new Set(props.childClaims?.values() ?? []);
+    const gridRowClaims: ChildClaims = new Set();
 
     for (const row of [...(item.rowsBefore || []), ...(item.rowsAfter || [])]) {
       for (const cell of row.cells.values()) {
         if (cell && 'component' in cell && cell.component && repeatingClaims[cell.component]) {
-          gridRowClaims[cell.component] = repeatingClaims[cell.component];
-          delete repeatingClaims[cell.component];
+          gridRowClaims.add(repeatingClaims[cell.component]);
+          repeatingClaims.delete(cell.component);
         }
       }
     }
@@ -185,7 +185,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
   claimChildren(props: ChildClaimerProps<'RepeatingGroup'>): void {
     const multiPage = props.item.edit?.multiPage === true;
-    claimRepeatingChildren(props, props.item.children, { multiPageSupport: multiPage });
+    claimRepeatingChildren(props, props.item.children, { multiPage });
     claimGridRowsChildren(props, props.item.rowsBefore);
     claimGridRowsChildren(props, props.item.rowsAfter);
   }

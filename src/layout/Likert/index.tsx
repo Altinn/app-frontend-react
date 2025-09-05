@@ -5,9 +5,9 @@ import type { PropsFromGenericComponent } from '..';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { claimLikertChildren } from 'src/layout/Likert/claimLikertChildren';
 import { LikertDef } from 'src/layout/Likert/config.def.generated';
 import { LikertGeneratorChildren } from 'src/layout/Likert/Generator/LikertGeneratorChildren';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
 import { LikertSummaryComponent } from 'src/layout/Likert/Summary/LikertSummaryComponent';
 import { LikertSummary } from 'src/layout/Likert/Summary2/LikertSummary';
@@ -89,6 +89,6 @@ export class Likert extends LikertDef {
   }
 
   claimChildren(props: ChildClaimerProps<'Likert'>): void {
-    claimLikertChildren(props);
+    props.claimChild(makeLikertChildId(props.item.id));
   }
 }

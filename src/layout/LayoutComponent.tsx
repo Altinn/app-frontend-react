@@ -29,13 +29,12 @@ import type {
 } from 'src/layout/layout';
 import type { LegacySummaryOverrides } from 'src/layout/Summary/SummaryComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
+import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
 import type { StateFactoryProps } from 'src/utils/layout/types';
 
 export interface NodeGeneratorProps {
   externalItem: CompExternalExact<CompTypes>;
-  claim: ChildClaim;
   childClaims: ChildClaims | undefined;
 }
 
