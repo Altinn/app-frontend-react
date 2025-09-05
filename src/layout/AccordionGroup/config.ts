@@ -28,6 +28,8 @@ export const Config = new CG.component({
       'children',
       new CG.arr(new CG.str())
         .setTitle('Children')
-        .setDescription('List of child component IDs to show inside the Accordion (limited to a few component types)'),
+        .setDescription(
+          'List of child component IDs to show inside the accordion group (limited to other Accordion components)',
+        ),
     ),
   );

@@ -168,7 +168,7 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
 
     for (const row of [...(item.rowsBefore || []), ...(item.rowsAfter || [])]) {
       for (const cell of row.cells.values()) {
-        if (cell && 'component' in cell && cell.component && repeatingClaims[cell.component]) {
+        if (cell && 'component' in cell && cell.component && repeatingClaims.has(cell.component)) {
           gridRowClaims.add(repeatingClaims[cell.component]);
           repeatingClaims.delete(cell.component);
         }
