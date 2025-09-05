@@ -162,29 +162,16 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   }
 
   extraNodeGeneratorChildren(props: NodeGeneratorProps): JSX.Element | null {
-    const repeatingClaims: ChildClaims = {};
-    const gridRowClaims: ChildClaims = {};
     const item = props.externalItem as CompExternal<'RepeatingGroup'>;
+    const repeatingClaims: ChildClaims = structuredClone(props.childClaims || {});
+    const gridRowClaims: ChildClaims = {};
 
-    const processGridRows = (gridRows: typeof item.rowsBefore) => {
-      if (!gridRows) {
-        return;
-      }
-      for (const row of gridRows.values()) {
-        for (const cell of row.cells.values()) {
-          if (cell && 'component' in cell && cell.component && props.childClaims?.[cell.component]) {
-            gridRowClaims[cell.component] = props.childClaims[cell.component];
-          }
+    for (const row of [...(item.rowsBefore || []), ...(item.rowsAfter || [])]) {
+      for (const cell of row.cells.values()) {
+        if (cell && 'component' in cell && cell.component && repeatingClaims[cell.component]) {
+          gridRowClaims[cell.component] = repeatingClaims[cell.component];
+          delete repeatingClaims[cell.component];
         }
-      }
-    };
-
-    processGridRows(item.rowsBefore);
-    processGridRows(item.rowsAfter);
-
-    for (const [childId, claim] of Object.entries(props.childClaims || {})) {
-      if (!gridRowClaims[childId]) {
-        repeatingClaims[childId] = claim;
       }
     }
 
