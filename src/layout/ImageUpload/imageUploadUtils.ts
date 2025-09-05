@@ -1,5 +1,7 @@
 export type Viewport = { width: number; height: number; circle?: boolean };
 
+export type Position = { x: number; y: number };
+
 export enum ViewportType {
   Square = '1:1',
   Rectangle4_3 = '4:3',
@@ -28,10 +30,7 @@ interface ConstrainToAreaParams {
   viewport: { width: number; height: number };
 }
 
-export function constrainToArea({ image, zoom, position, viewport }: ConstrainToAreaParams): {
-  x: number;
-  y: number;
-} {
+export function constrainToArea({ image, zoom, position, viewport }: ConstrainToAreaParams): Position {
   const scaledWidth = image.width * zoom;
   const scaledHeight = image.height * zoom;
 
@@ -48,7 +47,7 @@ interface CalculatePositionsParams {
   canvas: HTMLCanvasElement;
   img: HTMLImageElement;
   zoom: number;
-  position: { x: number; y: number };
+  position: Position;
 }
 
 export const calculatePositions = ({ canvas, img, zoom, position }: CalculatePositionsParams) => {

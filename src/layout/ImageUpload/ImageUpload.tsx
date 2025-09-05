@@ -1,51 +1,34 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import { UploadIcon as Upload } from '@navikt/aksel-icons';
 
 import { AppCard } from 'src/app-components/Card/Card';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
+import { ImageCanvas, type ImageCanvasHandle } from 'src/layout/ImageUpload/ImageCanvas'; // Adjust path as needed
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
-import {
-  calculatePositions,
-  constrainToArea,
-  drawViewport,
-  getViewport,
-} from 'src/layout/ImageUpload/imageUploadUtils';
-import type { ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
-
-// Define types for state and props
-type Position = {
-  x: number;
-  y: number;
-};
+import { constrainToArea, getViewport } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { Position, ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
   viewport?: ViewportType;
   onCrop: (image: string) => void;
 }
 
-// Constants for canvas size
-const CANVAS_HEIGHT = 320;
-// Constants for zoom limits
 const MAX_ZOOM = 5;
 
-// ImageCropper Component
 export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
-  // Refs for canvas and image
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  // Refs
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null); // Ref to measure the container's size
+  const imageCanvasRef = useRef<ImageCanvasHandle>(null);
 
-  // State management
+  // State
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [canvasWidth, setCanvasWidth] = useState(800);
 
-  // Constants for viewport size
   const selectedViewport = getViewport(viewport);
 
   const minAllowedZoom = useMemo(() => {
@@ -55,211 +38,43 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
     return Math.max(selectedViewport.width / imageRef.current.width, selectedViewport.height / imageRef.current.height);
   }, [selectedViewport]);
 
-  // This function handles drawing the image and the viewport on the canvas.
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    const ctx = canvas?.getContext('2d');
-    const img = imageRef.current;
-
-    if (!canvas || !img || !img.complete || !ctx) {
-      return;
-    }
-
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-
-    // 1. Draw the base image
-    ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
-
-    // 2. Draw the semi-transparent overlay
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // 3. "Cut out" the viewport
-    ctx.save();
-    const viewportX = (canvas.width - selectedViewport.width) / 2;
-    const viewportY = (canvas.height - selectedViewport.height) / 2;
-
-    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport });
-    ctx.clip();
-    ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
-    ctx.restore();
-
-    // 4. Draw the dashed border
-    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport });
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }, [zoom, position, selectedViewport]);
-
-  // Redraw whenever the image or canvas width changes.
-  useEffect(() => {
-    if (imageSrc) {
-      draw();
-    }
-  }, [draw, imageSrc, canvasWidth]);
-
-  // This effect observes the container size and resizes the canvas drawing buffer
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) {
-      return;
-    }
-
-    let animationFrameId: number | null = null;
-
-    const resizeObserver = new ResizeObserver((entries) => {
-      animationFrameId = window.requestAnimationFrame(() => {
-        const entry = entries[0];
-        if (entry) {
-          setCanvasWidth(entry.contentRect.width);
-        }
-      });
-    });
-
-    resizeObserver.observe(container);
-
-    return () => {
-      if (animationFrameId) {
-        window.cancelAnimationFrame(animationFrameId);
-      }
-      resizeObserver.disconnect();
-    };
-  }, []);
-
-  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
-    e.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) {
-      return;
-    }
-
-    canvas.setPointerCapture(e.pointerId);
-
-    const startDrag = { x: e.clientX - position.x, y: e.clientY - position.y };
-
-    const handlePointerMove = (e: PointerEvent) => {
-      if (!imageRef.current || !canvasRef.current) {
+  // Constrains position changes from the canvas component
+  const handlePositionChange = useCallback(
+    (newPosition: Position) => {
+      if (!imageRef.current) {
         return;
       }
-
-      const draggedPosition = {
-        x: e.clientX - startDrag.x,
-        y: e.clientY - startDrag.y,
-      };
-
       setPosition(
         constrainToArea({
           image: imageRef.current,
           zoom,
-          position: draggedPosition,
+          position: newPosition,
           viewport: selectedViewport,
         }),
       );
-    };
+    },
+    [zoom, selectedViewport],
+  );
 
-    const handlePointerUp = () => {
-      if (canvas) {
-        canvas.releasePointerCapture(e.pointerId);
-      }
-      document.removeEventListener('pointermove', handlePointerMove);
-      document.removeEventListener('pointerup', handlePointerUp);
-    };
-
-    document.addEventListener('pointermove', handlePointerMove);
-    document.addEventListener('pointerup', handlePointerUp);
-  };
-
-  // Update zoom while keeping the image constrained to the viewport
-  const updateZoom = useCallback(
-    (logarithmicZoomValue: number) => {
-      if (!imageRef.current || !canvasRef.current) {
+  // Constrains zoom changes from the canvas or controllers
+  const handleZoomChange = useCallback(
+    (newZoomValue: number) => {
+      if (!imageRef.current) {
         return;
       }
-
-      setPosition(
+      const newZoom = Math.max(minAllowedZoom, Math.min(newZoomValue, MAX_ZOOM));
+      setZoom(newZoom);
+      setPosition((currentPosition) =>
         constrainToArea({
           image: imageRef.current!,
-          zoom: logarithmicZoomValue,
-          position,
+          zoom: newZoom,
+          position: currentPosition,
           viewport: selectedViewport,
         }),
       );
-      setZoom(logarithmicZoomValue);
     },
-    [position, selectedViewport],
+    [minAllowedZoom, selectedViewport],
   );
-
-  // Handle mouse wheel for zooming
-  const handleWheel = useCallback(
-    (e: WheelEvent) => {
-      e.preventDefault();
-      const newZoom = zoom - e.deltaY * 0.001;
-      const newZoomResult = Math.max(minAllowedZoom, Math.min(newZoom, MAX_ZOOM));
-
-      updateZoom(newZoomResult);
-    },
-    [zoom, minAllowedZoom, updateZoom],
-  );
-
-  // Effect to manually add wheel event listener with passive: false
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      canvas.addEventListener('wheel', handleWheel, { passive: false });
-    }
-    return () => {
-      if (canvas) {
-        canvas.removeEventListener('wheel', handleWheel);
-      }
-    };
-  }, [handleWheel]);
-
-  // Handle keyboard arrow keys for panning
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
-    if (!imageRef.current) {
-      return;
-    }
-
-    const moveAmount = 10; // Pixels to move per key press
-    let newX = position.x;
-    let newY = position.y;
-
-    switch (e.key) {
-      case 'ArrowUp':
-        e.preventDefault();
-        newY -= moveAmount;
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        newY += moveAmount;
-        break;
-      case 'ArrowLeft':
-        e.preventDefault();
-        newX -= moveAmount;
-        break;
-      case 'ArrowRight':
-        e.preventDefault();
-        newX += moveAmount;
-        break;
-      default:
-        return; // Exit if it's not an arrow key
-    }
-    const newPosition = { x: newX, y: newY };
-
-    setPosition(
-      constrainToArea({
-        image: imageRef.current!,
-        zoom,
-        position: newPosition,
-        viewport: selectedViewport,
-      }),
-    );
-  };
 
   const handleFileUpload = (file: File) => {
     const reader = new FileReader();
@@ -281,31 +96,12 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
     reader.readAsDataURL(file);
   };
 
-  // The main cropping logic
+  // Calls the crop method on the child component
   const handleCrop = () => {
-    const canvas = canvasRef.current;
-    const img = imageRef.current;
-    const cropCanvas = document.createElement('canvas');
-    const cropCtx = cropCanvas.getContext('2d');
-
-    if (!canvas || !img || !cropCtx) {
-      return;
+    const croppedImage = imageCanvasRef.current?.crop();
+    if (croppedImage) {
+      onCrop(croppedImage);
     }
-
-    cropCanvas.width = selectedViewport.width;
-    cropCanvas.height = selectedViewport.height;
-
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-
-    const viewportX = (canvas.width - selectedViewport.width) / 2;
-    const viewportY = (canvas.height - selectedViewport.height) / 2;
-
-    drawViewport({ ctx: cropCtx, selectedViewport });
-    cropCtx.clip();
-
-    cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
-
-    onCrop(cropCanvas.toDataURL('image/png'));
   };
 
   const handleReset = () => {
@@ -319,35 +115,31 @@ export function ImageCropper({ onCrop, viewport }: ImageCropperProps) {
       mediaPosition='top'
       className={classes.imageUploadCard}
       media={
-        <div
-          ref={containerRef}
-          className={classes.canvasSizingWrapper}
-        >
-          {imageSrc ? (
-            <canvas
-              onPointerDown={handlePointerDown}
-              onKeyDown={handleKeyDown}
-              tabIndex={0}
-              ref={canvasRef}
-              width={canvasWidth}
-              height={CANVAS_HEIGHT}
-              className={classes.canvas}
-              aria-label='Image cropping area'
-            />
-          ) : (
+        imageSrc ? (
+          <ImageCanvas
+            ref={imageCanvasRef}
+            imageRef={imageRef}
+            zoom={zoom}
+            position={position}
+            viewport={selectedViewport}
+            onPositionChange={handlePositionChange}
+            onZoomChange={handleZoomChange}
+          />
+        ) : (
+          <div className={classes.canvasSizingWrapper}>
             <div className={classes.placeholder}>
               <Upload className={classes.placeholderIcon} />
               <p className={classes.placeholderText}>Upload an image to start cropping</p>
             </div>
-          )}
-        </div>
+          </div>
+        )
       }
     >
       {imageSrc ? (
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
-          updateZoom={updateZoom}
+          updateZoom={handleZoomChange}
           onFileUploaded={handleFileUpload}
           onReset={handleReset}
           onCrop={handleCrop}
