@@ -320,8 +320,8 @@ export function ImageCropper({ baseComponentId, viewport, dataModelBindings }: I
       if (!blob) {
         return;
       }
-
-      const imageFile = new File([blob], img?.name, { type: 'image/png' });
+      const fileName = img?.name || 'cropped-image.png';
+      const imageFile = new File([blob], fileName, { type: 'image/png' });
 
       // Use the file now
       uploadAttachment({
