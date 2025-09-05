@@ -162,43 +162,28 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
   }
 
   extraNodeGeneratorChildren(props: NodeGeneratorProps): JSX.Element | null {
-    // Separate child claims based on their source:
-    // - Grid row claims come from rowsBefore/rowsAfter components
-    // - Repeating claims come from the children array
     const repeatingClaims: ChildClaims = {};
     const gridRowClaims: ChildClaims = {};
-
-    // Collect IDs from grid rows (rowsBefore and rowsAfter)
-    const gridRowIds = new Set<string>();
     const item = props.externalItem as CompExternal<'RepeatingGroup'>;
 
-    // Process rowsBefore
-    if (item.rowsBefore) {
-      for (const row of item.rowsBefore.values()) {
+    const processGridRows = (gridRows: typeof item.rowsBefore) => {
+      if (!gridRows) {
+        return;
+      }
+      for (const row of gridRows.values()) {
         for (const cell of row.cells.values()) {
-          if (cell && 'component' in cell && cell.component) {
-            gridRowIds.add(cell.component);
+          if (cell && 'component' in cell && cell.component && props.childClaims?.[cell.component]) {
+            gridRowClaims[cell.component] = props.childClaims[cell.component];
           }
         }
       }
-    }
+    };
 
-    // Process rowsAfter
-    if (item.rowsAfter) {
-      for (const row of item.rowsAfter.values()) {
-        for (const cell of row.cells.values()) {
-          if (cell && 'component' in cell && cell.component) {
-            gridRowIds.add(cell.component);
-          }
-        }
-      }
-    }
+    processGridRows(item.rowsBefore);
+    processGridRows(item.rowsAfter);
 
-    // Separate the claims based on whether they're grid components or repeating components
     for (const [childId, claim] of Object.entries(props.childClaims || {})) {
-      if (gridRowIds.has(childId)) {
-        gridRowClaims[childId] = claim;
-      } else {
+      if (!gridRowClaims[childId]) {
         repeatingClaims[childId] = claim;
       }
     }
