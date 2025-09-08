@@ -631,7 +631,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     const searchParams = new URLSearchParams();
     searchParams.set(SearchParams.FocusComponentId, relativeId);
     const backTo = this.dataSources.currentPage;
-    if (enableBackButton && backTo) {
+    if (enableBackButton && backTo && backTo !== pageKey) {
       searchParams.append(SearchParams.BackToPage, backTo);
     }
     const newUrl = `${url}?${searchParams.toString()}`;
