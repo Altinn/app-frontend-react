@@ -1,7 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
-import { UploadIcon as Upload } from '@navikt/aksel-icons';
-
 import { AppCard } from 'src/app-components/Card/Card';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
@@ -163,12 +161,7 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
             onZoomChange={handleZoomChange}
           />
         ) : (
-          <div className={classes.canvasSizingWrapper}>
-            <div className={classes.placeholder}>
-              <Upload className={classes.placeholderIcon} />
-              <p className={classes.placeholderText}>Upload an image to start cropping</p>
-            </div>
-          </div>
+          <div className={classes.placeholder} />
         )
       }
     >

@@ -7,28 +7,16 @@
 
 /* Placeholder for when no image is loaded */
 .placeholder {
-  background-color: #e5e7eb;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc 100%),
+    linear-gradient(45deg, #ccc 25%, white 25%, white 75%, #ccc 75%, #ccc 100%);
+  background-size: 20px 20px; /* Adjust size of each square */
+  background-position:
+    0 0,
+    10px 10px; /* Offset the second gradient */
   width: 100%;
-  /* Removed fixed height, using aspect-ratio to match canvas */
-  aspect-ratio: 8 / 3;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: #6b7280;
+  height: 300px;
 }
-
-.placeholderIcon {
-  width: 4rem;
-  height: 4rem;
-  margin-bottom: 1rem;
-}
-
-.placeholderText {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
-}
-
 .dropZone {
   border-radius: var(--ds-border-radius-lg);
   border: 2px dashed var(--ds-color-border-default);
