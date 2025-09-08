@@ -68,6 +68,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const hoursListRef = useRef<HTMLDivElement | null>(null);
   const minutesListRef = useRef<HTMLDivElement | null>(null);
   const secondsListRef = useRef<HTMLDivElement | null>(null);
+  const periodListRef = useRef<HTMLDivElement | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const triggerButtonRef = useRef<HTMLButtonElement | null>(null);
 
@@ -196,15 +197,19 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       if (newShowDropdown) {
         // Initialize dropdown focus on the currently selected hour
         const currentHourIndex = hourOptions.findIndex((option) => option.value === displayHours);
-        setDropdownFocus({
+        const initialFocus = {
           column: 0, // Start with hours column
           option: Math.max(0, currentHourIndex),
           isActive: true,
-        });
+        };
+        setDropdownFocus(initialFocus);
 
-        // Focus the dropdown after a small delay to ensure it's rendered
+        // Focus the initial button after a small delay to ensure it's rendered
         setTimeout(() => {
-          dropdownRef.current?.focus();
+          const button = getOptionButton(initialFocus.column, initialFocus.option);
+          if (button) {
+            button.focus();
+          }
         }, 10);
       }
     }
@@ -221,6 +226,33 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     setTimeout(() => {
       triggerButtonRef.current?.focus();
     }, 10);
+  };
+
+  // Helper function to get option button DOM element
+  const getOptionButton = (columnIndex: number, optionIndex: number): HTMLButtonElement | null => {
+    const getContainerRef = () => {
+      switch (columnIndex) {
+        case 0:
+          return hoursListRef.current;
+        case 1:
+          return minutesListRef.current;
+        case 2:
+          return includesSeconds ? secondsListRef.current : periodListRef.current;
+        case 3:
+          return periodListRef.current;
+        default:
+          return null;
+      }
+    };
+
+    const container = getContainerRef();
+    if (!container) {
+      return null;
+    }
+
+    // Find the button at the specified index
+    const buttons = container.querySelectorAll('button');
+    return (buttons[optionIndex] as HTMLButtonElement) || null;
   };
 
   // Scroll focused option into view
@@ -333,6 +365,13 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     const newFocus = calculateNextFocusState(dropdownFocus, action, getMaxColumns(), getOptionCounts());
 
     setDropdownFocus(newFocus);
+
+    // Focus the actual button element with preventScroll to handle scrolling ourselves
+    const button = getOptionButton(newFocus.column, newFocus.option);
+    if (button) {
+      button.focus({ preventScroll: true });
+    }
+
     updateColumnValue(newFocus.column, newFocus.option);
     scrollFocusedOptionIntoView(newFocus.column, newFocus.option);
   };
@@ -343,6 +382,12 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     const newFocus = calculateNextFocusState(dropdownFocus, action, getMaxColumns(), getOptionCounts());
 
     setDropdownFocus(newFocus);
+
+    // Focus the actual button element
+    const button = getOptionButton(newFocus.column, newFocus.option);
+    if (button) {
+      button.focus();
+    }
   };
 
   // Handle keyboard navigation in dropdown
@@ -652,6 +697,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                       ? styles.dropdownListFocused
                       : ''
                   }`}
+                  ref={periodListRef}
                 >
                   {['AM', 'PM'].map((period, optionIndex) => {
                     const isSelected = timeValue.period === period;
