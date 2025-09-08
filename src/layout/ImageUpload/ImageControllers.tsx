@@ -1,15 +1,18 @@
 import React from 'react';
 
-import { Button, Input, Label } from '@digdir/designsystemet-react';
+import { Button, Input, Label, Link } from '@digdir/designsystemet-react';
 import { ArrowsSquarepathIcon, ArrowUndoIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
+import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
+  baseComponentId: string;
   onSave: () => void;
+  onDelete: () => void;
   onCancel: () => void;
   updateZoom: (zoom: number) => void;
   onFileUploaded: (file: File) => void;
@@ -19,12 +22,16 @@ type ImageControllersProps = {
 export function ImageControllers({
   zoom,
   zoomLimits: { minZoom, maxZoom },
+  baseComponentId,
   onSave,
+  onDelete,
   onCancel,
   updateZoom,
   onFileUploaded,
   onReset,
 }: ImageControllersProps) {
+  const { storedImageLink } = useImageFile(baseComponentId);
+
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
     const logarithmicZoomValue = normalToLogZoom({
       value: parseFloat(e.target.value),
@@ -42,6 +49,29 @@ export function ImageControllers({
     }
     e.target.value = '';
   };
+
+  if (storedImageLink) {
+    return (
+      <div className={classes.actionButtons}>
+        <Button
+          data-size='sm'
+          variant='secondary'
+          data-color='accent'
+          asChild
+        >
+          <Link href={storedImageLink}>Last ned bildet</Link>
+        </Button>
+        <Button
+          data-size='sm'
+          variant='secondary'
+          data-color='danger'
+          onClick={onDelete}
+        >
+          Slett bildet
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className={classes.controlsContainer}>
