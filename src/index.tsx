@@ -1,3 +1,5 @@
+// Testing
+
 // Needed for "useBuiltIns": "entry" in babel.config.json to resolve
 // all the polyfills we need and inject them here
 import 'core-js';
