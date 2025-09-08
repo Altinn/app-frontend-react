@@ -194,6 +194,7 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
           hasValidationMessages={false}
           validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
           className={classes.dropZone}
+          showUploadIcon={false}
         />
       )}
     </AppCard>
