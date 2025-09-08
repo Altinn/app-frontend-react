@@ -330,6 +330,7 @@ describe('Expressions shared function tests', () => {
 
       const renderFunc = stateless ? renderWithoutInstanceAndLayout : renderWithInstanceAndLayout;
       const { rerender } = await renderFunc({
+        initialPage: context?.currentLayout,
         renderer: () => (
           <ExpressionRunner
             context={context}

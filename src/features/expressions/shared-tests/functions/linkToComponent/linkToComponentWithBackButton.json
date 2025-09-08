@@ -1,7 +1,7 @@
 {
   "name": "Should create a link with reference to a page when instance is provided",
   "expression": ["linkToComponent", "Klikk på meg", "newFirstName", true],
-  "expects": "<a href=\"/instance/510001/d00ce51c-800b-416a-a906-ccab55f597e9/Task_1/Page1?focusComponentId=newFirstName&backToPage=FormLayout\" data-link-type=\"LinkToPotentialNode\">Klikk på meg</a>",
+  "expects": "<a href=\"/instance/510001/d00ce51c-800b-416a-a906-ccab55f597e9/Task_1/Page1?focusComponentId=newFirstName&backToPage=Page2\" data-link-type=\"LinkToPotentialNode\">Klikk på meg</a>",
   "context": {
     "component": "alder",
     "currentLayout": "Page2"
