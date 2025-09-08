@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 
 import { TimePicker } from 'src/app-components/TimePicker/components/TimePicker';
 
@@ -10,6 +11,21 @@ describe('TimePicker - Responsive & Accessibility', () => {
     value: '14:30',
     onChange: jest.fn(),
   };
+
+  beforeAll(() => {
+    // Mock getComputedStyle to avoid JSDOM errors with Popover
+    Object.defineProperty(window, 'getComputedStyle', {
+      value: () => ({
+        getPropertyValue: () => '',
+        position: 'absolute',
+        top: '0px',
+        left: '0px',
+        width: '300px',
+        height: '200px',
+      }),
+      writable: true,
+    });
+  });
 
   describe('Responsive Behavior', () => {
     const originalInnerWidth = window.innerWidth;
@@ -151,7 +167,7 @@ describe('TimePicker - Responsive & Accessibility', () => {
     });
 
     it('should announce dropdown state to screen readers', async () => {
-      const user = (await import('@testing-library/user-event')).default.setup();
+      const user = userEvent.setup();
       render(<TimePicker {...defaultProps} />);
 
       const clockButton = screen.getByRole('button', { name: /open time picker/i });
@@ -181,7 +197,7 @@ describe('TimePicker - Responsive & Accessibility', () => {
       });
 
       // Clock button should be accessible
-      const clockButton = screen.getByRole('button');
+      const clockButton = screen.getByRole('button', { name: /open time picker/i });
       expect(clockButton).toHaveAttribute('aria-label');
     });
   });

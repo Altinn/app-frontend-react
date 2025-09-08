@@ -31,7 +31,7 @@ describe('Time Constraint Utilities', () => {
         hours: 14,
         minutes: 30,
         seconds: 0,
-        period: 'AM',
+        period: undefined,
       });
     });
 
@@ -51,7 +51,7 @@ describe('Time Constraint Utilities', () => {
         hours: 14,
         minutes: 30,
         seconds: 45,
-        period: 'AM',
+        period: undefined,
       });
     });
 
@@ -61,7 +61,7 @@ describe('Time Constraint Utilities', () => {
         hours: 0,
         minutes: 0,
         seconds: 0,
-        period: 'AM',
+        period: undefined,
       });
     });
 

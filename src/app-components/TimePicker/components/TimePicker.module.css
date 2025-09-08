@@ -32,12 +32,12 @@
   font-size: inherit;
 }
 
-/*.segmentContainer input:focus-visible {*/
-/*  outline: 2px solid var(--ds-color-neutral-text-default);*/
-/*  outline-offset: 0;*/
-/*  border-radius: var(--ds-border-radius-sm);*/
-/*  box-shadow: 0 0 0 2px var(--ds-color-neutral-background-default);*/
-/*}*/
+.segmentContainer input:focus-visible {
+  outline: 2px solid var(--ds-color-neutral-text-default);
+  outline-offset: 0;
+  border-radius: var(--ds-border-radius-sm);
+  box-shadow: 0 0 0 2px var(--ds-color-neutral-background-default);
+}
 
 .segmentSeparator {
   color: var(--ds-color-neutral-text-subtle);
@@ -55,7 +55,6 @@
   max-width: 400px;
   padding: 8px;
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .dropdownColumns {
@@ -144,8 +143,8 @@
 
 .dropdownOptionFocused.dropdownOptionSelected {
   /* When option is both focused and selected, prioritize selection styling but add focus outline */
-  outline: 2px solid var(--ds-color-neutral-text-on-inverted);
-  outline-offset: -2px;
+  /*outline: 2px solid var(--ds-color-neutral-text-on-inverted);*/
+  /*outline-offset: -2px;*/
 }
 
 .dropdownOptionDisabled {
