@@ -13,6 +13,7 @@ import {
   constrainToArea,
   drawViewport,
   getViewport,
+  mapViewportForPreview,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { Position, ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
@@ -69,17 +70,37 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
   const handleZoomChange = useCallback(
     (newZoomValue: number) => {
       const newZoom = Math.max(minAllowedZoom, Math.min(newZoomValue, MAX_ZOOM));
+      const canvas = canvasRef.current;
+      const img = imageRef.current;
+
+      if (!canvas || !img) {
+        return;
+      }
+
+      const viewportCenterX = canvas.width / 2;
+      const viewportCenterY = canvas.height / 2;
+
+      // Image coordinates currently under viewport center
+      const imageCenterX = (viewportCenterX - position.x - (canvas.width - img.width * zoom) / 2) / zoom;
+      const imageCenterY = (viewportCenterY - position.y - (canvas.height - img.height * zoom) / 2) / zoom;
+
+      // Compute new position to keep the same image point under viewport center
+      const newPosition = {
+        x: viewportCenterX - imageCenterX * newZoom - (canvas.width - img.width * newZoom) / 2,
+        y: viewportCenterY - imageCenterY * newZoom - (canvas.height - img.height * newZoom) / 2,
+      };
+
       setZoom(newZoom);
-      setPosition((currentPosition) =>
+      setPosition(
         constrainToArea({
-          image: imageRef.current!,
+          image: img,
           zoom: newZoom,
-          position: currentPosition,
+          position: newPosition,
           viewport: selectedViewport,
         }),
       );
     },
-    [minAllowedZoom, selectedViewport],
+    [minAllowedZoom, selectedViewport, position, zoom],
   );
 
   const handleFileUpload = (file: File) => {
@@ -110,23 +131,47 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
   const handleSave = () => {
     const canvas = canvasRef.current;
     const img = imageRef.current;
-    const cropCanvas = document.createElement('canvas');
-    const cropCtx = cropCanvas.getContext('2d');
-
-    if (!canvas || !img || !cropCtx) {
+    if (!canvas || !img) {
       return;
     }
 
+    const adjustedViewport = mapViewportForPreview(selectedViewport, canvas);
+
+    // Output should match selected viewport size
+    const cropCanvas = document.createElement('canvas');
     cropCanvas.width = selectedViewport.width;
     cropCanvas.height = selectedViewport.height;
 
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-    const viewportX = (canvas.width - selectedViewport.width) / 2;
-    const viewportY = (canvas.height - selectedViewport.height) / 2;
+    const ctx = cropCanvas.getContext('2d');
+    if (!ctx) {
+      return;
+    }
 
-    drawViewport({ ctx: cropCtx, selectedViewport });
-    cropCtx.clip();
-    cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
+    ctx.save();
+
+    // Scale so that adjusted viewport maps to selected viewport
+    const scale = selectedViewport.width / adjustedViewport.width;
+    ctx.scale(scale, scale);
+
+    // Clip to the adjusted viewport (circle/square, depending on shape)
+    ctx.beginPath();
+    drawViewport({ ctx, selectedViewport: adjustedViewport });
+    ctx.clip();
+
+    // Get same image positioning/scaling as preview
+    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({
+      canvas,
+      img,
+      zoom,
+      position,
+    });
+
+    const viewportX = (canvas.width - adjustedViewport.width) / 2;
+    const viewportY = (canvas.height - adjustedViewport.height) / 2;
+
+    ctx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
+
+    ctx.restore();
 
     cropCanvas.toBlob((blob) => {
       if (!blob) {
@@ -134,7 +179,6 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
       }
       const fileName = img?.name || 'cropped-image.png';
       const imageFile = new File([blob], fileName, { type: 'image/png' });
-
       saveImage(imageFile);
     }, 'image/png');
   };

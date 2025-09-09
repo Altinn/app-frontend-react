@@ -9,6 +9,18 @@ export enum ViewportType {
   Circle = 'circle',
 }
 
+// export type ViewportPropsTmp = { width?: number; height?: number; type: 'square' | 'circle' };
+// export type ViewportOutputTmp = { width: number; height: number; type: 'square' | 'circle' };
+
+// export const getViewportTmp = (viewport?: ViewportPropsTmp): ViewportOutputTmp => {
+//   const defaultSize = 300;
+//   const width = viewport?.width ?? viewport?.height ?? defaultSize;
+//   const height = viewport?.height ?? viewport?.width ?? defaultSize;
+//   const type = viewport?.type ?? 'circle';
+
+//   return { width, height, type };
+// };
+
 export const getViewport = (viewport?: ViewportType): Viewport => {
   switch (viewport) {
     case ViewportType.Square:
@@ -58,7 +70,6 @@ export const calculatePositions = ({ canvas, img, zoom, position }: CalculatePos
 
   return { imgX, imgY, scaledWidth, scaledHeight };
 };
-
 interface DrawViewportParams {
   ctx: CanvasRenderingContext2D;
   selectedViewport: Viewport;
@@ -102,4 +113,11 @@ export function logToNormalZoom({ value, minZoom, maxZoom }: CalculateZoomParams
     return 0;
   } // Avoid division by zero if minZoom equals maxZoom
   return (Math.log(value) - logMin) / logScale;
+}
+
+export function mapViewportForPreview(viewport: Viewport, canvas: HTMLCanvasElement): Viewport {
+  const vpWidth = viewport.width >= canvas.width ? Math.max(1, canvas.width - 5) : viewport.width;
+  const vpHeight = viewport.height >= canvas.height ? Math.max(1, canvas.height - 5) : viewport.height;
+
+  return { ...viewport, width: vpWidth, height: vpHeight };
 }

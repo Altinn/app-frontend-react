@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
-import { calculatePositions, drawViewport } from 'src/layout/ImageUpload/imageUploadUtils';
+import { calculatePositions, drawViewport, mapViewportForPreview } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { Position, Viewport } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Props for the ImageCanvas component
@@ -40,6 +40,7 @@ export function ImageCanvas({
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({
       canvas,
       img,
@@ -52,15 +53,17 @@ export function ImageCanvas({
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
 
-    const viewportX = (canvas.width - viewport.width) / 2;
-    const viewportY = (canvas.height - viewport.height) / 2;
+    const adjustedViewport = mapViewportForPreview(viewport, canvas);
 
-    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport: viewport });
+    const viewportX = (canvas.width - adjustedViewport.width) / 2;
+    const viewportY = (canvas.height - adjustedViewport.height) / 2;
+
+    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport: adjustedViewport });
     ctx.clip();
     ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
     ctx.restore();
 
-    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport: viewport });
+    drawViewport({ ctx, x: viewportX, y: viewportY, selectedViewport: adjustedViewport });
     ctx.strokeStyle = 'white';
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
