@@ -9,9 +9,16 @@ export type CropArea = { width: number; height: number; type: CropForm.Square | 
 
 export const getCropArea = (cropArea?: CropAreaParams): CropArea => {
   const defaultSize = 300;
-  const width = cropArea?.width ?? cropArea?.height ?? defaultSize;
-  const height = cropArea?.height ?? cropArea?.width ?? defaultSize;
-  const type = cropArea?.type ?? CropForm.Circle;
+
+  const width = cropArea?.width ?? defaultSize;
+  const height = cropArea?.height ?? defaultSize;
+
+  let type = cropArea?.type ?? CropForm.Circle;
+
+  // Force square if circle dimensions are mismatched
+  if (type === CropForm.Circle && width !== height) {
+    type = CropForm.Square;
+  }
 
   return { width, height, type };
 };
