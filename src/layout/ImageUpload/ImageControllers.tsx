@@ -5,12 +5,11 @@ import { ArrowsSquarepathIcon, ArrowUndoIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
-import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
-  baseComponentId: string;
+  storedImageLink?: string;
   onSave: () => void;
   onDelete: () => void;
   onCancel: () => void;
@@ -22,7 +21,7 @@ type ImageControllersProps = {
 export function ImageControllers({
   zoom,
   zoomLimits: { minZoom, maxZoom },
-  baseComponentId,
+  storedImageLink,
   onSave,
   onDelete,
   onCancel,
@@ -30,8 +29,6 @@ export function ImageControllers({
   onFileUploaded,
   onReset,
 }: ImageControllersProps) {
-  const { storedImageLink } = useImageFile(baseComponentId);
-
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
     const logarithmicZoomValue = normalToLogZoom({
       value: parseFloat(e.target.value),
