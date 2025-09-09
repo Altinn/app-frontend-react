@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
-import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
+import classes from 'src/layout/ImageUpload/ImageCanvas.module.css';
 import { calculatePositions, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
@@ -156,10 +156,7 @@ export function ImageCanvas({
   };
 
   return (
-    <div
-      ref={containerRef}
-      className={classes.canvasSizingWrapper}
-    >
+    <div ref={containerRef}>
       <canvas
         onPointerDown={handlePointerDown}
         onKeyDown={handleKeyDown}
