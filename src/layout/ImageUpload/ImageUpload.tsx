@@ -8,24 +8,19 @@ import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneCompon
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
-import {
-  calculatePositions,
-  constrainToArea,
-  drawViewport,
-  getViewport,
-} from 'src/layout/ImageUpload/imageUploadUtils';
+import { calculatePositions, constrainToArea, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
-import type { Position, ViewportType } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
-  viewport?: ViewportType;
+  cropArea: CropArea;
   baseComponentId: string;
 }
 
 const MAX_ZOOM = 5;
 
 // ImageCropper Component
-export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
+export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
   const { saveImage, deleteImage, storedImageLink } = useImageFile(baseComponentId);
 
@@ -38,14 +33,12 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [imageSrc, setImageSrc] = useState<File | null>(null);
 
-  const selectedViewport = getViewport(viewport);
-
   const minAllowedZoom = useMemo(() => {
     if (!imageRef.current) {
       return 0.1;
     }
-    return Math.max(selectedViewport.width / imageRef.current.width, selectedViewport.height / imageRef.current.height);
-  }, [selectedViewport]);
+    return Math.max(cropArea.width / imageRef.current.width, cropArea.height / imageRef.current.height);
+  }, [cropArea]);
 
   // Constrains position changes from the canvas component
   const handlePositionChange = useCallback(
@@ -58,11 +51,11 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
           image: imageRef.current,
           zoom,
           position: newPosition,
-          viewport: selectedViewport,
+          cropArea,
         }),
       );
     },
-    [zoom, selectedViewport],
+    [zoom, cropArea],
   );
 
   // Constrains zoom changes from the canvas or controllers
@@ -95,11 +88,11 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
           image: img,
           zoom: newZoom,
           position: newPosition,
-          viewport: selectedViewport,
+          cropArea,
         }),
       );
     },
-    [minAllowedZoom, selectedViewport, position, zoom],
+    [minAllowedZoom, cropArea, position, zoom],
   );
 
   const handleFileUpload = (file: File) => {
@@ -111,7 +104,7 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
         const img = new Image();
         img.onload = () => {
           imageRef.current = img;
-          const newMinZoom = Math.max(selectedViewport.width / img.width, selectedViewport.height / img.height);
+          const newMinZoom = Math.max(cropArea.width / img.width, cropArea.height / img.height);
           setZoom(Math.max(1, newMinZoom));
           setPosition({ x: 0, y: 0 });
           setImageSrc(file);
@@ -137,16 +130,16 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
       return;
     }
 
-    cropCanvas.width = selectedViewport.width;
-    cropCanvas.height = selectedViewport.height;
+    cropCanvas.width = cropArea.width;
+    cropCanvas.height = cropArea.height;
 
     const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-    const viewportX = (canvas.width - selectedViewport.width) / 2;
-    const viewportY = (canvas.height - selectedViewport.height) / 2;
+    const cropAreaX = (canvas.width - cropArea.width) / 2;
+    const cropAreaY = (canvas.height - cropArea.height) / 2;
 
-    drawViewport({ ctx: cropCtx, selectedViewport });
+    drawCropArea({ ctx: cropCtx, cropArea });
     cropCtx.clip();
-    cropCtx.drawImage(img, imgX - viewportX, imgY - viewportY, scaledWidth, scaledHeight);
+    cropCtx.drawImage(img, imgX - cropAreaX, imgY - cropAreaY, scaledWidth, scaledHeight);
 
     cropCanvas.toBlob((blob) => {
       if (!blob) {
@@ -178,7 +171,7 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
             imageRef={imageRef}
             zoom={zoom}
             position={position}
-            viewport={selectedViewport}
+            cropArea={cropArea}
             onPositionChange={handlePositionChange}
             onZoomChange={handleZoomChange}
           />

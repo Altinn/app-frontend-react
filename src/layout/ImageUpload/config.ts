@@ -21,11 +21,33 @@ export const Config = new CG.component({
   .extendTextResources(CG.common('TRBLabel'))
   .addProperty(
     new CG.prop(
-      'viewport',
-      new CG.enum('1:1', '4:3', '16:9', 'circle')
-        .optional({ default: 'circle' })
-        .setTitle('Viewport')
-        .setDescription('The aspect ratio of the cropping area'),
+      'cropArea',
+      new CG.obj(
+        new CG.prop(
+          'type',
+          new CG.enum('square', 'circle')
+            .optional({ default: 'circle' })
+            .setTitle('Shape')
+            .setDescription('The shape of the cropping area'),
+        ),
+        new CG.prop(
+          'width',
+          new CG.num()
+            .optional({ default: 300 })
+            .setTitle('Width')
+            .setDescription('Optional width of the cropping area'),
+        ),
+        new CG.prop(
+          'height',
+          new CG.num()
+            .optional({ default: 300 })
+            .setTitle('Height')
+            .setDescription('Optional height of the cropping area'),
+        ),
+      )
+        .optional({ default: { type: 'circle', width: 300, height: 300 } })
+        .setTitle('Crop Area')
+        .setDescription('Configuration of the cropping area'),
     ),
   )
   .addSummaryOverrides();
