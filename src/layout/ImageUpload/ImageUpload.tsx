@@ -27,7 +27,7 @@ const MAX_ZOOM = 5;
 // ImageCropper Component
 export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
-  const { saveImage, deleteImage } = useImageFile(baseComponentId);
+  const { saveImage, deleteImage, storedImageLink } = useImageFile(baseComponentId);
 
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -172,11 +172,11 @@ export function ImageCropper({ baseComponentId, viewport }: ImageCropperProps) {
         )
       }
     >
-      {imageSrc ? (
+      {imageSrc || storedImageLink ? (
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
-          baseComponentId={baseComponentId}
+          storedImageLink={storedImageLink}
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}
