@@ -27,6 +27,10 @@
   touch-action: none;
 }
 
+.canvas:active {
+  cursor: grabbing;
+}
+
 /* Placeholder for when no image is loaded */
 .placeholder {
   background-color: #e5e7eb;
