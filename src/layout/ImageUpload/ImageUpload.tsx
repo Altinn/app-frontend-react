@@ -62,17 +62,37 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const handleZoomChange = useCallback(
     (newZoomValue: number) => {
       const newZoom = Math.max(minAllowedZoom, Math.min(newZoomValue, MAX_ZOOM));
+      const canvas = canvasRef.current;
+      const img = imageRef.current;
+
+      if (!canvas || !img) {
+        return;
+      }
+
+      const viewportCenterX = canvas.width / 2;
+      const viewportCenterY = canvas.height / 2;
+
+      // Image coordinates currently under viewport center
+      const imageCenterX = (viewportCenterX - position.x - (canvas.width - img.width * zoom) / 2) / zoom;
+      const imageCenterY = (viewportCenterY - position.y - (canvas.height - img.height * zoom) / 2) / zoom;
+
+      // Compute new position to keep the same image point under viewport center
+      const newPosition = {
+        x: viewportCenterX - imageCenterX * newZoom - (canvas.width - img.width * newZoom) / 2,
+        y: viewportCenterY - imageCenterY * newZoom - (canvas.height - img.height * newZoom) / 2,
+      };
+
       setZoom(newZoom);
-      setPosition((currentPosition) =>
+      setPosition(
         constrainToArea({
-          image: imageRef.current!,
+          image: img,
           zoom: newZoom,
-          position: currentPosition,
+          position: newPosition,
           cropArea,
         }),
       );
     },
-    [minAllowedZoom, cropArea],
+    [minAllowedZoom, cropArea, position, zoom],
   );
 
   const handleFileUpload = (file: File) => {
