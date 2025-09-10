@@ -24,6 +24,7 @@ export interface IDropzoneComponentProps {
   labelId?: string;
   descriptionId?: string;
   className?: string;
+  showUploadIcon?: boolean;
 }
 
 const bytesInOneMB = 1048576;
@@ -41,6 +42,7 @@ export function DropzoneComponent({
   labelId,
   descriptionId,
   className,
+  showUploadIcon = true,
 }: IDropzoneComponentProps): React.JSX.Element {
   const maxSizeLabelId = `file-upload-max-size-${id}`;
   const { langAsString } = useLanguage();
@@ -95,10 +97,12 @@ export function DropzoneComponent({
                 id={id}
               />
               <div className={classes.fileUploadWrapper}>
-                <CloudUpIcon
-                  className={classes.uploadIcon}
-                  aria-hidden
-                />
+                {showUploadIcon && (
+                  <CloudUpIcon
+                    className={classes.uploadIcon}
+                    aria-hidden
+                  />
+                )}
                 <b id={dragLabelId}>
                   {isMobile ? (
                     <Lang id='form_filler.file_uploader_upload' />

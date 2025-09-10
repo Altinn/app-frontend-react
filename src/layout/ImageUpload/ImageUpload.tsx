@@ -1,6 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-
-import { UploadIcon as Upload } from '@navikt/aksel-icons';
+import React, { useCallback, useRef, useState } from 'react';
 
 import { AppCard } from 'src/app-components/Card/Card';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
@@ -33,12 +31,9 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [imageSrc, setImageSrc] = useState<File | null>(null);
 
-  const minAllowedZoom = useMemo(() => {
-    if (!imageRef.current) {
-      return 0.1;
-    }
-    return Math.max(cropArea.width / imageRef.current.width, cropArea.height / imageRef.current.height);
-  }, [cropArea]);
+  const minAllowedZoom = imageRef.current
+    ? Math.max(cropArea.width / imageRef.current.width, cropArea.height / imageRef.current.height)
+    : 0.1;
 
   // Constrains position changes from the canvas component
   const handlePositionChange = useCallback(
@@ -176,12 +171,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
             onZoomChange={handleZoomChange}
           />
         ) : (
-          <div className={classes.canvasSizingWrapper}>
-            <div className={classes.placeholder}>
-              <Upload className={classes.placeholderIcon} />
-              <p className={classes.placeholderText}>Upload an image to start cropping</p>
-            </div>
-          </div>
+          <div className={classes.placeholder} />
         )
       }
     >
@@ -207,6 +197,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           hasValidationMessages={false}
           validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
           className={classes.dropZone}
+          showUploadIcon={false}
         />
       )}
     </AppCard>

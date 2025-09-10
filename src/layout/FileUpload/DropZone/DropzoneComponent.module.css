@@ -19,13 +19,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 9.75rem;
+  padding: var(--ds-size-7);
   border-width: 2px;
   border-color: var(--colors-primary-blue);
   border-style: dotted;
   cursor: pointer;
   background: transparent;
-  width: 100%;
 }
 
 .fileUploadInvalid:focus {
