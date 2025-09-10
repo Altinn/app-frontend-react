@@ -115,6 +115,13 @@ export function ImageControllers({
           data-size='sm'
           variant='secondary'
           data-color='accent'
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              document.getElementById('image-upload')?.click();
+            }
+          }}
         >
           <Label htmlFor='image-upload'>
             <ArrowsSquarepathIcon />

@@ -8,3 +8,7 @@
   touch-action: none;
   overflow: visible;
 }
+
+.canvas:active {
+  cursor: grabbing;
+}
