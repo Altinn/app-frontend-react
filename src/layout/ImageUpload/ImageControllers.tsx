@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Button, Input, Label, Link } from '@digdir/designsystemet-react';
-import { ArrowsSquarepathIcon, ArrowUndoIcon } from '@navikt/aksel-icons';
+import { ArrowUndoIcon, DownloadIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
@@ -56,7 +56,10 @@ export function ImageControllers({
           data-color='accent'
           asChild
         >
-          <Link href={storedImageLink}>Last ned bildet</Link>
+          <Link href={storedImageLink}>
+            <DownloadIcon />
+            Last ned bildet
+          </Link>
         </Button>
         <Button
           data-size='sm'
@@ -64,6 +67,7 @@ export function ImageControllers({
           data-color='danger'
           onClick={onDelete}
         >
+          <TrashIcon />
           Slett bildet
         </Button>
       </div>
@@ -124,7 +128,7 @@ export function ImageControllers({
           }}
         >
           <Label htmlFor='image-upload'>
-            <ArrowsSquarepathIcon />
+            <UploadIcon />
             Bytt bilde
           </Label>
         </Button>
