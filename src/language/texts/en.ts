@@ -202,7 +202,6 @@ export function en() {
       'Your browser does not support iframes that use srcdoc. This may result in not being able to see all the content intended to be displayed here. We recommend trying a different browser.',
     'image_upload_component.button_change': 'Change image',
     'image_upload_component.button_delete': 'Delete image',
-    'image_upload_component.button_upload': 'Upload image',
     'image_upload_component.button_save': 'Save image',
     'image_upload_component.button_download': 'Download image',
     'image_upload_component.slider_zoom': 'Zoom',

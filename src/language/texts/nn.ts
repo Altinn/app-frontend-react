@@ -201,10 +201,9 @@ export function nn() {
     'iframe_component.unsupported_browser_title': 'Nettlesaren din støttas ikkje',
     'iframe_component.unsupported_browser':
       'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
-    'image_upload_component.button_change': 'Bytt bildet',
+    'image_upload_component.button_change': 'Bytt bilde',
     'image_upload_component.button_delete': 'Slett bildet',
-    'image_upload_component.button_upload': 'Last opp bildet',
-    'image_upload_component.button_save': 'Lagre bildet',
+    'image_upload_component.button_save': 'Lagre bilde',
     'image_upload_component.button_download': 'Last ner bildet',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
     'image_upload_component.error_invalid_file_type':
