@@ -1,16 +1,16 @@
 import React from 'react';
 
-import { Button, Input, Label, Link } from '@digdir/designsystemet-react';
-import { ArrowUndoIcon, DownloadIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
+import { Button, Input, Label } from '@digdir/designsystemet-react';
+import { ArrowUndoIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
 
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
-import type { ImageLinkState } from 'src/layout/ImageUpload/useImageFile';
+import type { UploadedAttachment } from 'src/features/attachments';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
-  imageLink: ImageLinkState;
+  storedImage?: UploadedAttachment;
   onSave: () => void;
   onDelete: () => void;
   onCancel: () => void;
@@ -22,7 +22,7 @@ type ImageControllersProps = {
 export function ImageControllers({
   zoom,
   zoomLimits: { minZoom, maxZoom },
-  imageLink,
+  storedImage,
   onSave,
   onDelete,
   onCancel,
@@ -48,39 +48,18 @@ export function ImageControllers({
     e.target.value = '';
   };
 
-  if (imageLink.status !== 'none') {
+  if (storedImage) {
     return (
-      <div className={classes.actionButtons}>
-        <Button
-          data-size='sm'
-          variant='secondary'
-          data-color='accent'
-          asChild={imageLink.status === 'ready'}
-          disabled={imageLink.status === 'uploading'}
-        >
-          {imageLink.status === 'ready' ? (
-            <Link href={imageLink.storedImageLink}>
-              <DownloadIcon />
-              Last ned bildet
-            </Link>
-          ) : (
-            <>
-              <DownloadIcon />
-              Last ned bildet
-            </>
-          )}
-        </Button>
-        <Button
-          data-size='sm'
-          variant='secondary'
-          data-color='danger'
-          onClick={onDelete}
-          disabled={imageLink.status === 'uploading'}
-        >
-          <TrashIcon />
-          Slett bildet
-        </Button>
-      </div>
+      <Button
+        data-size='sm'
+        variant='secondary'
+        data-color='danger'
+        onClick={onDelete}
+        disabled={!storedImage.uploaded || storedImage?.deleting}
+      >
+        <TrashIcon />
+        Slett bildet
+      </Button>
     );
   }
 

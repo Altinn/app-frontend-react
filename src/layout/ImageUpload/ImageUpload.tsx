@@ -22,7 +22,7 @@ const VALID_FILE_ENDINGS = ['.jpg', '.jpeg', '.png', '.gif'];
 // ImageCropper Component
 export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
-  const { saveImage, deleteImage, imageLink } = useImageFile(baseComponentId);
+  const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
 
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -189,11 +189,11 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
         />
       }
     >
-      {imageSrc || imageLink.status !== 'none' ? (
+      {imageSrc || storedImage ? (
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
-          imageLink={imageLink}
+          storedImage={storedImage}
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}
