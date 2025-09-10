@@ -3,6 +3,7 @@ import React from 'react';
 import { Button, Input, Label, Link } from '@digdir/designsystemet-react';
 import { ArrowUndoIcon, DownloadIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
 
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 
@@ -58,7 +59,7 @@ export function ImageControllers({
         >
           <Link href={storedImageLink}>
             <DownloadIcon />
-            Last ned bildet
+            <Lang id='image_upload_component.button_download' />
           </Link>
         </Button>
         <Button
@@ -68,7 +69,7 @@ export function ImageControllers({
           onClick={onDelete}
         >
           <TrashIcon />
-          Slett bildet
+          <Lang id='image_upload_component.button_delete' />
         </Button>
       </div>
     );
@@ -77,7 +78,9 @@ export function ImageControllers({
   return (
     <div className={classes.controlsContainer}>
       <div>
-        <Label htmlFor='zoom'>Tilpass bildet</Label>
+        <Label htmlFor='zoom'>
+          <Lang id='image_upload_component.slider_zoom' />
+        </Label>
         <div className={classes.zoomControls}>
           <input
             id='zoom'
@@ -104,7 +107,7 @@ export function ImageControllers({
           data-size='sm'
           data-color='accent'
         >
-          Lagre
+          <Lang id='image_upload_component.button_save' />
         </Button>
         <Input
           id='image-upload'
@@ -129,7 +132,7 @@ export function ImageControllers({
         >
           <Label htmlFor='image-upload'>
             <UploadIcon />
-            Bytt bilde
+            <Lang id='image_upload_component.button_change' />
           </Label>
         </Button>
         <Button
@@ -138,7 +141,7 @@ export function ImageControllers({
           onClick={onCancel}
           data-color='accent'
         >
-          Avbryt
+          <Lang id='general.cancel' />
         </Button>
       </div>
     </div>
