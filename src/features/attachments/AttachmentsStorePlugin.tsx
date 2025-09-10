@@ -709,7 +709,7 @@ function useAttachmentsAddTagMutation() {
   const { doAttachmentAddTag } = useAppMutations();
   const instanceId = useLaxInstanceId();
 
-  return useMutation({
+  return useMutation<void, AxiosError, { dataElementId: string; tagToAdd: string }>({
     mutationFn: ({ dataElementId, tagToAdd }: { dataElementId: string; tagToAdd: string }) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot add attachment');
@@ -727,7 +727,7 @@ function useAttachmentsRemoveTagMutation() {
   const { doAttachmentRemoveTag } = useAppMutations();
   const instanceId = useLaxInstanceId();
 
-  return useMutation({
+  return useMutation<void, AxiosError, { dataElementId: string; tagToRemove: string }>({
     mutationFn: ({ dataElementId, tagToRemove }: { dataElementId: string; tagToRemove: string }) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot remove attachment');
@@ -746,7 +746,7 @@ function useAttachmentsRemoveMutation() {
   const instanceId = useLaxInstanceId();
   const language = useCurrentLanguage();
 
-  return useMutation({
+  return useMutation<void, AxiosError, string>({
     mutationFn: (dataElementId: string) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot remove attachment');

@@ -130,7 +130,9 @@ export const doAttachmentRemoveTag = async (
   instanceId: string,
   dataElementId: string,
   tagToRemove: string,
-): Promise<void> => (await httpDelete(getFileTagUrl(instanceId, dataElementId, tagToRemove))).data;
+): Promise<void> => {
+  await httpDelete(getFileTagUrl(instanceId, dataElementId, tagToRemove));
+};
 
 export const doAttachmentAddTag = async (
   instanceId: string,
@@ -150,7 +152,7 @@ export const doAttachmentAddTag = async (
     throw new Error('Failed to add tag to attachment');
   }
 
-  return response.data;
+  return;
 };
 
 type UserActionRequest = {
@@ -188,7 +190,7 @@ export const doAttachmentRemove = async (
   if (response.status !== 200) {
     throw new Error('Failed to remove attachment');
   }
-  return response.data;
+  return;
 };
 
 export const doSubformEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
