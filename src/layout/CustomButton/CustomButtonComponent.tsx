@@ -110,13 +110,13 @@ function useHandleClientActions(): UseHandleClientActions {
     // Undo data element mapping from backend by combining sources into a single BackendValidationIssueGroups object
     const updatedValidationIssues = _updatedValidationIssues
       ? Object.values(_updatedValidationIssues).reduce((issueGroups, currentGroups) => {
-          for (const [source, group] of Object.entries(currentGroups)) {
-            if (!issueGroups[source]) {
-              issueGroups[source] = [];
+          for (const [validator, backendValidationIssues] of Object.entries(currentGroups)) {
+            if (!issueGroups[validator]) {
+              issueGroups[validator] = [];
             }
-            issueGroups[source].push(...group);
-            return issueGroups;
+            issueGroups[validator].push(...backendValidationIssues);
           }
+          return issueGroups;
         }, {})
       : undefined;
 
