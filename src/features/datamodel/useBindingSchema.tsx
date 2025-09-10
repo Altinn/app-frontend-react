@@ -34,7 +34,7 @@ export function useCurrentDataElementId() {
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();
 
-  const overriddenDataElementId = useTaskStore((s) => s.overriddenDataModelUuid);
+  const overriddenDataElementId = useTaskStore((s) => s.overriddenDataElementId);
 
   // Instance data elements will update often (after each save), so we have to use a selector to make
   // sure components don't re-render too often.
