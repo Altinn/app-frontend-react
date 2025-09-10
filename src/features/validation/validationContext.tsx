@@ -166,7 +166,7 @@ export function ValidationProvider({ children }: PropsWithChildren) {
           <InvalidDataValidation dataType={dataType} />
         </Fragment>
       ))}
-      <BackendValidation dataTypes={writableDataTypes} />
+      <BackendValidation />
       <ManageShowAllErrors />
       {children}
     </Provider>
