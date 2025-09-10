@@ -5,11 +5,12 @@ import { ArrowUndoIcon, DownloadIcon, TrashIcon, UploadIcon } from '@navikt/akse
 
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { ImageLinkState } from 'src/layout/ImageUpload/useImageFile';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
-  storedImageLink?: string;
+  imageLink: ImageLinkState;
   onSave: () => void;
   onDelete: () => void;
   onCancel: () => void;
@@ -21,7 +22,7 @@ type ImageControllersProps = {
 export function ImageControllers({
   zoom,
   zoomLimits: { minZoom, maxZoom },
-  storedImageLink,
+  imageLink,
   onSave,
   onDelete,
   onCancel,
@@ -47,25 +48,34 @@ export function ImageControllers({
     e.target.value = '';
   };
 
-  if (storedImageLink) {
+  if (imageLink.status !== 'none') {
     return (
       <div className={classes.actionButtons}>
         <Button
           data-size='sm'
           variant='secondary'
           data-color='accent'
-          asChild
+          asChild={imageLink.status === 'ready'}
+          disabled={imageLink.status === 'uploading'}
         >
-          <Link href={storedImageLink}>
-            <DownloadIcon />
-            Last ned bildet
-          </Link>
+          {imageLink.status === 'ready' ? (
+            <Link href={imageLink.storedImageLink}>
+              <DownloadIcon />
+              Last ned bildet
+            </Link>
+          ) : (
+            <>
+              <DownloadIcon />
+              Last ned bildet
+            </>
+          )}
         </Button>
         <Button
           data-size='sm'
           variant='secondary'
           data-color='danger'
           onClick={onDelete}
+          disabled={imageLink.status === 'uploading'}
         >
           <TrashIcon />
           Slett bildet
