@@ -204,7 +204,6 @@ export function nn() {
     'image_upload_component.button_change': 'Bytt bilde',
     'image_upload_component.button_delete': 'Slett bildet',
     'image_upload_component.button_save': 'Lagre bilde',
-    'image_upload_component.button_download': 'Last ner bildet',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
     'image_upload_component.error_invalid_file_type':
       'Feil filformat. Last opp en fil med bildeformat (jpg, jpeg, png, gif).',

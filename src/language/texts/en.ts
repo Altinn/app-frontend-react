@@ -203,7 +203,6 @@ export function en() {
     'image_upload_component.button_change': 'Change image',
     'image_upload_component.button_delete': 'Delete image',
     'image_upload_component.button_save': 'Save image',
-    'image_upload_component.button_download': 'Download image',
     'image_upload_component.slider_zoom': 'Zoom',
     'image_upload_component.error_invalid_file_type':
       'Invalid file type. Please upload an image file (jpg, jpeg, png, gif).',

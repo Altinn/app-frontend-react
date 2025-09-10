@@ -1,15 +1,21 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
+import { Spinner } from '@digdir/designsystemet-react';
+
+import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/ImageUpload/ImageCanvas.module.css';
 import { calculatePositions, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
+import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Props for the ImageCanvas component
 interface ImageCanvasProps {
   imageRef: React.RefObject<HTMLImageElement | null>;
+  imageSrc: File | null;
   zoom: number;
   position: Position;
   cropArea: CropArea;
+  baseComponentId: string;
   onPositionChange: (newPosition: Position) => void;
   onZoomChange: (newZoom: number) => void;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
@@ -19,15 +25,19 @@ const CANVAS_HEIGHT = 320;
 
 export function ImageCanvas({
   imageRef,
+  imageSrc,
   zoom,
   position,
   cropArea,
+  baseComponentId,
   onPositionChange,
   onZoomChange,
   canvasRef,
 }: ImageCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasWidth, setCanvasWidth] = useState(800);
+  const { storedImage, imageUrl } = useImageFile(baseComponentId);
+  const { langAsString } = useLanguage();
 
   // Handles all drawing operations on the canvas
   const draw = useCallback(() => {
@@ -154,6 +164,29 @@ export function ImageCanvas({
       keyMap[e.key]();
     }
   };
+
+  if (storedImage) {
+    return (
+      <div className={classes.placeholder}>
+        {storedImage.uploaded ? (
+          <img
+            src={imageUrl}
+            alt={storedImage.data?.filename}
+            className={classes.uploadedImage}
+          />
+        ) : (
+          <Spinner
+            aria-hidden='true'
+            data-size='lg'
+            aria-label={langAsString('general.loading')}
+          />
+        )}
+      </div>
+    );
+  }
+  if (!imageSrc) {
+    return <div className={classes.placeholder} />;
+  }
 
   return (
     <div ref={containerRef}>

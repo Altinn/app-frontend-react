@@ -24,7 +24,7 @@ const VALID_FILE_ENDINGS = ['.jpg', '.jpeg', '.png', '.gif'];
 // ImageCropper Component
 export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const mobileView = useIsMobileOrTablet();
-  const { saveImage, deleteImage, storedImageLink } = useImageFile(baseComponentId);
+  const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
 
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -161,7 +161,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       }
       const fileName = img?.name || 'cropped-image.png';
       const imageFile = new File([blob], fileName, { type: 'image/png' });
-
       saveImage(imageFile);
     }, 'image/png');
   };
@@ -179,26 +178,24 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       mediaPosition='top'
       className={classes.imageUploadCard}
       media={
-        imageSrc ? (
-          <ImageCanvas
-            canvasRef={canvasRef}
-            imageRef={imageRef}
-            zoom={zoom}
-            position={position}
-            cropArea={cropArea}
-            onPositionChange={handlePositionChange}
-            onZoomChange={handleZoomChange}
-          />
-        ) : (
-          <div className={classes.placeholder} />
-        )
+        <ImageCanvas
+          canvasRef={canvasRef}
+          imageRef={imageRef}
+          imageSrc={imageSrc}
+          zoom={zoom}
+          position={position}
+          cropArea={cropArea}
+          baseComponentId={baseComponentId}
+          onPositionChange={handlePositionChange}
+          onZoomChange={handleZoomChange}
+        />
       }
     >
-      {imageSrc || storedImageLink ? (
+      {imageSrc || storedImage ? (
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
-          storedImageLink={storedImageLink}
+          storedImage={storedImage}
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}

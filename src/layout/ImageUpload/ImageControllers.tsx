@@ -1,16 +1,17 @@
 import React from 'react';
 
-import { Button, Input, Label, Link } from '@digdir/designsystemet-react';
-import { ArrowUndoIcon, DownloadIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
+import { Button, Input, Label } from '@digdir/designsystemet-react';
+import { ArrowUndoIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
 
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { UploadedAttachment } from 'src/features/attachments';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
-  storedImageLink?: string;
+  storedImage?: UploadedAttachment;
   onSave: () => void;
   onDelete: () => void;
   onCancel: () => void;
@@ -22,7 +23,7 @@ type ImageControllersProps = {
 export function ImageControllers({
   zoom,
   zoomLimits: { minZoom, maxZoom },
-  storedImageLink,
+  storedImage,
   onSave,
   onDelete,
   onCancel,
@@ -48,30 +49,18 @@ export function ImageControllers({
     e.target.value = '';
   };
 
-  if (storedImageLink) {
+  if (storedImage) {
     return (
-      <div className={classes.actionButtons}>
-        <Button
-          data-size='sm'
-          variant='secondary'
-          data-color='accent'
-          asChild
-        >
-          <Link href={storedImageLink}>
-            <DownloadIcon />
-            <Lang id='image_upload_component.button_download' />
-          </Link>
-        </Button>
-        <Button
-          data-size='sm'
-          variant='secondary'
-          data-color='danger'
-          onClick={onDelete}
-        >
-          <TrashIcon />
-          <Lang id='image_upload_component.button_delete' />
-        </Button>
-      </div>
+      <Button
+        data-size='sm'
+        variant='secondary'
+        data-color='danger'
+        onClick={onDelete}
+        disabled={!storedImage.uploaded || storedImage.deleting}
+      >
+        <TrashIcon />
+        <Lang id='image_upload_component.button_delete' />
+      </Button>
     );
   }
 
