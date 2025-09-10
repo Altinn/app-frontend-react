@@ -28,7 +28,7 @@ import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IInstance } from 'src/types/shared';
 
 type UpdatedDataModels = {
-  [dataModelGuid: string]: object;
+  [dataElementId: string]: object;
 };
 
 /**
@@ -38,7 +38,7 @@ type UpdatedDataModels = {
  * major/breaking release which would require a specific backend version, this could be changed to simply return a single BackendValidationIssueGroups object.
  */
 type UpdatedValidationIssues = {
-  [dataModelGuid: string]: BackendValidationIssueGroups;
+  [dataElementId: string]: BackendValidationIssueGroups;
 };
 
 type FormDataLocking = ReturnType<typeof FD.useLocking>;

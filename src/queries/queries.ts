@@ -18,8 +18,8 @@ import {
   getActiveInstancesUrl,
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
+  getDataElementIdUrl,
   getDataElementUrl,
-  getDataModelGuidUrl,
   getDataModelTypeUrl,
   getDataValidationUrl,
   getFetchFormDynamicsUrl,
@@ -126,12 +126,19 @@ export const doAttachmentUpload = async (
   return (await httpPost(url, config, file)).data;
 };
 
-export const doAttachmentRemoveTag = async (instanceId: string, dataGuid: string, tagToRemove: string): Promise<void> =>
-  (await httpDelete(getFileTagUrl(instanceId, dataGuid, tagToRemove))).data;
+export const doAttachmentRemoveTag = async (
+  instanceId: string,
+  dataElementId: string,
+  tagToRemove: string,
+): Promise<void> => (await httpDelete(getFileTagUrl(instanceId, dataElementId, tagToRemove))).data;
 
-export const doAttachmentAddTag = async (instanceId: string, dataGuid: string, tagToAdd: string): Promise<void> => {
+export const doAttachmentAddTag = async (
+  instanceId: string,
+  dataElementId: string,
+  tagToAdd: string,
+): Promise<void> => {
   const response = await httpPost(
-    getFileTagUrl(instanceId, dataGuid, undefined),
+    getFileTagUrl(instanceId, dataElementId, undefined),
     {
       headers: {
         'Content-Type': 'application/json',
@@ -172,8 +179,12 @@ export const doPerformAction = async (
   return response.data;
 };
 
-export const doAttachmentRemove = async (instanceId: string, dataGuid: string, language: string): Promise<void> => {
-  const response = await httpDelete(getDataElementUrl(instanceId, dataGuid, language));
+export const doAttachmentRemove = async (
+  instanceId: string,
+  dataElementId: string,
+  language: string,
+): Promise<void> => {
+  const response = await httpDelete(getDataElementUrl(instanceId, dataElementId, language));
   if (response.status !== 200) {
     throw new Error('Failed to remove attachment');
   }
@@ -188,8 +199,8 @@ export const doSubformEntryAdd = async (instanceId: string, dataType: string, da
   return response.data;
 };
 
-export const doSubformEntryDelete = async (instanceId: string, dataGuid: string): Promise<void> => {
-  const response = await httpDelete(getDataModelGuidUrl(instanceId, dataGuid));
+export const doSubformEntryDelete = async (instanceId: string, dataElementId: string): Promise<void> => {
+  const response = await httpDelete(getDataElementIdUrl(instanceId, dataElementId));
   if (response.status !== 200) {
     throw new Error('Failed to delete sub form');
   }
@@ -273,8 +284,8 @@ export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);
 
-export const fetchPdfFormat = (instanceId: string, dataGuid: string): Promise<IPdfFormat> =>
-  httpGet(getPdfFormatUrl(instanceId, dataGuid));
+export const fetchPdfFormat = (instanceId: string, dataElementId: string): Promise<IPdfFormat> =>
+  httpGet(getPdfFormatUrl(instanceId, dataElementId));
 
 export const fetchDynamics = (layoutSetId: string): Promise<{ data: IFormDynamics } | null> =>
   httpGet(getFetchFormDynamicsUrl(layoutSetId));

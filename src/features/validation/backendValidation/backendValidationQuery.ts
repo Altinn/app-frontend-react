@@ -7,7 +7,7 @@ import { type BackendValidationIssue, BackendValidationSeverity } from '..';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -135,7 +135,7 @@ export function useBackendValidationQuery<TResult = BackendValidationIssue[]>(
   const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(
     useApplicationMetadata().altinnNugetVersion,
   );
-  const currentDataElementID = useCurrentDataModelGuid();
+  const currentDataElementID = useCurrentDataElementId();
   const instanceId = useLaxInstanceId();
   const currentLanguage = useAsRef(useCurrentLanguage()).current;
 
