@@ -3,6 +3,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { ValidationMessage } from '@digdir/designsystemet-react';
 
 import { AppCard } from 'src/app-components/Card/Card';
+import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
@@ -98,10 +99,10 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     const validationErrors: string[] = [];
 
     if (file.size > 10 * 1024 * 1024) {
-      validationErrors.push('File size exceeds 10MB limit.');
+      validationErrors.push('image_upload_component.error_file_size_exceeded');
     }
     if (!VALID_FILE_ENDINGS.some((ending) => file.name.toLowerCase().endsWith(ending))) {
-      validationErrors.push('Invalid file type. Please upload an image file.');
+      validationErrors.push('image_upload_component.error_invalid_file_type');
     }
 
     setValidationErrors(validationErrors);
@@ -212,7 +213,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           readOnly={false}
           onClick={(e) => e.preventDefault()}
           onDrop={(files) => handleFileUpload(files[0])}
-          hasValidationMessages={false}
+          hasValidationMessages={!!validationErrors && validationErrors?.length > 0}
           validFileEndings={VALID_FILE_ENDINGS}
           className={classes.dropZone}
           showUploadIcon={false}
@@ -225,7 +226,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
               data-size='sm'
               key={index}
             >
-              {error}
+              <Lang id={error} />
             </ValidationMessage>
           ))}
         </div>
