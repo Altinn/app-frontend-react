@@ -171,7 +171,7 @@ export const doPerformAction = async (
   queryClient: QueryClient,
 ): Promise<ActionResult> => {
   const response = await httpPost(getActionsUrl(partyId, instanceGuid, language), undefined, actionRequest);
-  if (response.status !== 200) {
+  if (response.status < 200 || response.status >= 300) {
     throw new Error('Failed to perform action');
   }
 
@@ -187,10 +187,9 @@ export const doAttachmentRemove = async (
   language: string,
 ): Promise<void> => {
   const response = await httpDelete(getDataElementUrl(instanceId, dataElementId, language));
-  if (response.status !== 200) {
+  if (response.status < 200 || response.status >= 300) {
     throw new Error('Failed to remove attachment');
   }
-  return;
 };
 
 export const doSubformEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
@@ -203,7 +202,7 @@ export const doSubformEntryAdd = async (instanceId: string, dataType: string, da
 
 export const doSubformEntryDelete = async (instanceId: string, dataElementId: string): Promise<void> => {
   const response = await httpDelete(getDataElementIdUrl(instanceId, dataElementId));
-  if (response.status !== 200) {
+  if (response.status < 200 || response.status >= 300) {
     throw new Error('Failed to delete sub form');
   }
 };
