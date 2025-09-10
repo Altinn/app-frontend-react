@@ -201,7 +201,10 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}
-          onCancel={() => setImageSrc(null)}
+          onCancel={() => {
+            setImageSrc(null);
+            setValidationErrors(null);
+          }}
           onFileUploaded={handleFileUpload}
           onReset={handleReset}
         />
