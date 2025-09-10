@@ -405,11 +405,11 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             update(action);
             try {
               if (tagToAdd.length) {
-                await Promise.all(tagToAdd.map((tag) => addTag({ dataGuid: attachment.data.id, tagToAdd: tag })));
+                await Promise.all(tagToAdd.map((tag) => addTag({ dataElementId: attachment.data.id, tagToAdd: tag })));
               }
               if (tagToRemove.length) {
                 await Promise.all(
-                  tagToRemove.map((tag) => removeTag({ dataGuid: attachment.data.id, tagToRemove: tag })),
+                  tagToRemove.map((tag) => removeTag({ dataElementId: attachment.data.id, tagToRemove: tag })),
                 );
               }
               fulfill(action);
@@ -710,12 +710,12 @@ function useAttachmentsAddTagMutation() {
   const instanceId = useLaxInstanceId();
 
   return useMutation({
-    mutationFn: ({ dataGuid, tagToAdd }: { dataGuid: string; tagToAdd: string }) => {
+    mutationFn: ({ dataElementId, tagToAdd }: { dataElementId: string; tagToAdd: string }) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot add attachment');
       }
 
-      return doAttachmentAddTag(instanceId, dataGuid, tagToAdd);
+      return doAttachmentAddTag(instanceId, dataElementId, tagToAdd);
     },
     onError: (error: AxiosError) => {
       window.logError('Failed to add tag to attachment:\n', error);
@@ -728,12 +728,12 @@ function useAttachmentsRemoveTagMutation() {
   const instanceId = useLaxInstanceId();
 
   return useMutation({
-    mutationFn: ({ dataGuid, tagToRemove }: { dataGuid: string; tagToRemove: string }) => {
+    mutationFn: ({ dataElementId, tagToRemove }: { dataElementId: string; tagToRemove: string }) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot remove attachment');
       }
 
-      return doAttachmentRemoveTag(instanceId, dataGuid, tagToRemove);
+      return doAttachmentRemoveTag(instanceId, dataElementId, tagToRemove);
     },
     onError: (error: AxiosError) => {
       window.logError('Failed to remove tag from attachment:\n', error);
@@ -747,12 +747,12 @@ function useAttachmentsRemoveMutation() {
   const language = useCurrentLanguage();
 
   return useMutation({
-    mutationFn: (dataGuid: string) => {
+    mutationFn: (dataElementId: string) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot remove attachment');
       }
 
-      return doAttachmentRemove(instanceId, dataGuid, language);
+      return doAttachmentRemove(instanceId, dataElementId, language);
     },
     onError: (error: AxiosError) => {
       window.logError('Failed to delete attachment:\n', error);
