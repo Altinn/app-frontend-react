@@ -207,7 +207,7 @@ export function nb() {
     'image_upload_component.button_download': 'Last ned bildet',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
     'image_upload_component.error_invalid_file_type':
-      'Feil filformat. Last opp en fil med bildeformat (jpg, png, gif, webp)',
+      'Feil filformat. Last opp en fil med bildeformat (jpg, jpeg, png, gif).',
     'image_upload_component.error_file_size_exceeded': 'Filen er for stor. Største tillatte filstørrelse er 10MB.',
     'input_components.remaining_characters': 'Du har %d tegn igjen',
     'input_components.exceeded_max_limit': 'Du har overskredet maks antall tegn med %d',
