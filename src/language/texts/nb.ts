@@ -201,6 +201,15 @@ export function nb() {
     'iframe_component.unsupported_browser_title': 'Nettleseren din støttes ikke',
     'iframe_component.unsupported_browser':
       'Nettleseren du bruker støtter ikke iframes som benytter seg av srcdoc. Dette kan føre til at du ikke ser all innholdet som er ment å vises her. Vi anbefaler deg å prøve en annen nettleser.',
+    'image_upload_component.button_change': 'Bytt bildet',
+    'image_upload_component.button_delete': 'Slett bildet',
+    'image_upload_component.button_upload': 'Last opp bildet',
+    'image_upload_component.button_save': 'Lagre bildet',
+    'image_upload_component.button_download': 'Last ned bildet',
+    'image_upload_component.slider_zoom': 'Tilpass bildet',
+    'image_upload_component.error_invalid_file_type':
+      'Feil filformat. Last opp en fil med bildeformat (jpg, png, gif, webp)',
+    'image_upload_component.error_file_size_exceeded': 'Filen er for stor. Største tillatte filstørrelse er 10MB.',
     'input_components.remaining_characters': 'Du har %d tegn igjen',
     'input_components.exceeded_max_limit': 'Du har overskredet maks antall tegn med %d',
     'instance_selection.changed_by': 'Endret av',
