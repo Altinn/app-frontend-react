@@ -14,7 +14,7 @@ interface TaskSummaryProps {
 export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren<TaskSummaryProps>) {
   const setTaskId = useTaskStore((state) => state.setTaskId);
   const setOverriddenDataModelType = useTaskStore((state) => state.setOverriddenDataModelType);
-  const setOverriddenDataModelUuid = useTaskStore((state) => state.setOverriddenDataModelUuid);
+  const setOverriddenDataElementId = useTaskStore((state) => state.setOverriddenDataElementId);
   const setOverriddenLayoutSetId = useTaskStore((state) => state.setOverriddenLayoutSetId);
 
   const currentTaskId = useNavigationParam('taskId');
@@ -32,7 +32,7 @@ export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren
         setOverriddenLayoutSetId && setOverriddenLayoutSetId(layoutSetForTask.id);
       }
     }
-  }, [layoutSets, setOverriddenDataModelType, setOverriddenDataModelUuid, setOverriddenLayoutSetId, setTaskId, taskId]);
+  }, [layoutSets, setOverriddenDataModelType, setOverriddenDataElementId, setOverriddenLayoutSetId, setTaskId, taskId]);
 
   if (taskId && overriddenTaskId !== taskId) {
     // Wait for the task to be set correctly
