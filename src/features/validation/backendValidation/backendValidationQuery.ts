@@ -110,19 +110,19 @@ function backendValidationQueryFunc({
 
 type BackendValidationsForDataElementQueryProps = {
   instanceId: string | undefined;
-  currentDataElementID: string | undefined;
+  currentDataElementId: string | undefined;
   currentLanguage: string;
   fetchBackendValidationsForDataElement: typeof fetchBackendValidationsForDataElement;
 };
 
 function backendValidationsForDataElementQueryFunc({
   instanceId,
-  currentDataElementID,
+  currentDataElementId,
   currentLanguage,
 }: BackendValidationsForDataElementQueryProps): typeof skipToken | (() => Promise<BackendValidationIssue[]>) {
-  return !instanceId || !currentDataElementID
+  return !instanceId || !currentDataElementId
     ? skipToken
-    : () => fetchBackendValidationsForDataElement(instanceId, currentDataElementID, currentLanguage);
+    : () => fetchBackendValidationsForDataElement(instanceId, currentDataElementId, currentLanguage);
 }
 
 // By default we only fetch with incremental validations
@@ -135,7 +135,7 @@ export function useBackendValidationQuery<TResult = BackendValidationIssue[]>(
   const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(
     useApplicationMetadata().altinnNugetVersion,
   );
-  const currentDataElementID = useCurrentDataElementId();
+  const currentDataElementId = useCurrentDataElementId();
   const instanceId = useLaxInstanceId();
   const currentLanguage = useAsRef(useCurrentLanguage()).current;
 
@@ -152,7 +152,7 @@ export function useBackendValidationQuery<TResult = BackendValidationIssue[]>(
       })
     : backendValidationsForDataElementQueryFunc({
         instanceId,
-        currentDataElementID,
+        currentDataElementId,
         currentLanguage,
         fetchBackendValidationsForDataElement,
       });

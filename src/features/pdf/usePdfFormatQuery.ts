@@ -17,7 +17,7 @@ export function usePdfFormatQueryDef(
 ): QueryDefinition<IPdfFormat> {
   const { fetchPdfFormat } = useAppQueries();
   return {
-    queryKey: ['fetchPdfFormat', instanceId, dataElementId, enabled],
+    queryKey: ['fetchPdfFormat', { instanceId, dataElementId }],
     queryFn: instanceId && dataElementId ? () => fetchPdfFormat(instanceId, dataElementId) : skipToken,
     enabled: enabled && !!instanceId && !!dataElementId,
     gcTime: 0,
