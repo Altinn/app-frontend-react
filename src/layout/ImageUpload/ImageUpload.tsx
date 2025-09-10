@@ -11,6 +11,7 @@ import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
 import { calculatePositions, constrainToArea, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
+
 interface ImageCropperProps {
   cropArea: CropArea;
   baseComponentId: string;

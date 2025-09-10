@@ -2,14 +2,10 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
-import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/ImageUpload/ImageCanvas.module.css';
 import { calculatePositions, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
-import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
-import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 // Props for the ImageCanvas component
@@ -40,14 +36,8 @@ export function ImageCanvas({
 }: ImageCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [canvasWidth, setCanvasWidth] = useState(800);
-  const { storedImage } = useImageFile(baseComponentId);
+  const { storedImage, imageUrl } = useImageFile(baseComponentId);
   const { langAsString } = useLanguage();
-  const language = useCurrentLanguage();
-  const instanceId = useLaxInstanceId();
-  const imgUrl =
-    storedImage &&
-    instanceId &&
-    makeUrlRelativeIfSameDomain(getDataElementUrl(instanceId, storedImage.data.id, language));
 
   // Handles all drawing operations on the canvas
   const draw = useCallback(() => {
@@ -180,7 +170,7 @@ export function ImageCanvas({
       <div className={classes.placeholder}>
         {storedImage.uploaded ? (
           <img
-            src={imgUrl}
+            src={imageUrl}
             alt={storedImage.data?.filename}
             className={classes.uploadedImage}
           />

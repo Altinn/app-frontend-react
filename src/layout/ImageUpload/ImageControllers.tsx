@@ -55,7 +55,7 @@ export function ImageControllers({
         variant='secondary'
         data-color='danger'
         onClick={onDelete}
-        disabled={!storedImage.uploaded || storedImage?.deleting}
+        disabled={!storedImage.uploaded || storedImage.deleting}
       >
         <TrashIcon />
         Slett bildet
