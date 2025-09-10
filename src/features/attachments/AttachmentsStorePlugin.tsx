@@ -811,6 +811,10 @@ function useAttachmentUpdateTagsMutation() {
       window.logError('Failed to add tag to attachment:\n', error);
     },
     onSuccess: (data) => {
+      if (!data.validationIssues) {
+        return;
+      }
+
       const backendValidations: BackendValidationIssue[] = data.validationIssues.reduce(
         (prev, curr) => [...prev, ...curr.issues],
         [],

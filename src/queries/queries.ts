@@ -166,7 +166,7 @@ export type SetTagsRequest = {
 
 type UpdateTagsResponse = {
   tags: string[];
-  validationIssues: BackendValidationIssuesWithSource[];
+  validationIssues?: BackendValidationIssuesWithSource[];
 };
 
 export const doUpdateAttachmentTags = async ({
