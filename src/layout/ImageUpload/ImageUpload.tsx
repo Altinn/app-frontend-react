@@ -1,5 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 
+import { ValidationMessage } from '@digdir/designsystemet-react';
+
 import { AppCard } from 'src/app-components/Card/Card';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
@@ -16,6 +18,7 @@ interface ImageCropperProps {
 }
 
 const MAX_ZOOM = 5;
+const VALID_FILE_ENDINGS = ['.jpg', '.jpeg', '.png', '.gif'];
 
 // ImageCropper Component
 export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
@@ -30,6 +33,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [imageSrc, setImageSrc] = useState<File | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
   const minAllowedZoom = imageRef.current
     ? Math.max(cropArea.width / imageRef.current.width, cropArea.height / imageRef.current.height)
@@ -91,6 +95,20 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   );
 
   const handleFileUpload = (file: File) => {
+    const validationErrors: string[] = [];
+
+    if (file.size > 10 * 1024 * 1024) {
+      validationErrors.push('File size exceeds 10MB limit.');
+    }
+    if (!VALID_FILE_ENDINGS.some((ending) => file.name.toLowerCase().endsWith(ending))) {
+      validationErrors.push('Invalid file type. Please upload an image file.');
+    }
+
+    setValidationErrors(validationErrors);
+    if (validationErrors.length > 0) {
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = (event) => {
       const result = event.target?.result;
@@ -183,7 +201,10 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}
-          onCancel={() => setImageSrc(null)}
+          onCancel={() => {
+            setImageSrc(null);
+            setValidationErrors(null);
+          }}
           onFileUploaded={handleFileUpload}
           onReset={handleReset}
         />
@@ -195,10 +216,22 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           onClick={(e) => e.preventDefault()}
           onDrop={(files) => handleFileUpload(files[0])}
           hasValidationMessages={false}
-          validFileEndings={['.jpg', '.jpeg', '.png', '.gif']}
+          validFileEndings={VALID_FILE_ENDINGS}
           className={classes.dropZone}
           showUploadIcon={false}
         />
+      )}
+      {validationErrors && (
+        <div className={classes.validationErrors}>
+          {validationErrors.map((error, index) => (
+            <ValidationMessage
+              data-size='sm'
+              key={index}
+            >
+              {error}
+            </ValidationMessage>
+          ))}
+        </div>
       )}
     </AppCard>
   );
