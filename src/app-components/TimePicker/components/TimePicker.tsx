@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { Popover } from '@digdir/designsystemet-react';
 import { ClockIcon } from '@navikt/aksel-icons';
@@ -50,10 +50,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   maxTime,
   disabled = false,
   readOnly = false,
-
   labels = {},
 }) => {
-  const [timeValue, setTimeValue] = useState<TimeValue>(() => parseTimeString(value, format));
+  const timeValue = parseTimeString(value, format);
+
   const [showDropdown, setShowDropdown] = useState(false);
   const [_focusedSegment, setFocusedSegment] = useState<number | null>(null);
 
@@ -104,10 +104,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     period: 'AM',
   };
 
-  useEffect(() => {
-    setTimeValue(parseTimeString(value, format));
-  }, [value, format]);
-
   // Scroll to selected options when dropdown opens
   useEffect(() => {
     if (showDropdown) {
@@ -156,14 +152,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     }
   }, [showDropdown]);
 
-  const updateTime = useCallback(
-    (updates: Partial<TimeValue>) => {
-      const newTime = { ...timeValue, ...updates };
-      setTimeValue(newTime);
-      onChange(formatTimeValue(newTime, format));
-    },
-    [timeValue, onChange, format],
-  );
+  const updateTime = (updates: Partial<TimeValue>) => {
+    const newTime = { ...timeValue, ...updates };
+    onChange(formatTimeValue(newTime, format));
+  };
 
   const handleSegmentChange = (segmentType: SegmentType, newValue: number | string) => {
     const segmentConstraints =
