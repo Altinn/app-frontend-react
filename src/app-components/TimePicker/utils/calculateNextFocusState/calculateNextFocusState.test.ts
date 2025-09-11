@@ -2,7 +2,7 @@ import {
   calculateNextFocusState,
   DropdownFocusState,
   NavigationAction,
-} from 'src/app-components/TimePicker/functions/calculateNextFocusState/calculateNextFocusState';
+} from 'src/app-components/TimePicker/utils/calculateNextFocusState/calculateNextFocusState';
 
 describe('calculateNextFocusState', () => {
   const initialState: DropdownFocusState = {

@@ -1,4 +1,4 @@
-import type { TimeFormat } from 'src/app-components/TimePicker/components/TimePicker';
+import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
 
 export interface TimeValue {
   hours: number;

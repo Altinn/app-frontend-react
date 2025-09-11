@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { TimePicker } from 'src/app-components/TimePicker/components/TimePicker';
+import { TimePicker } from 'src/app-components/TimePicker/TimePicker';
 
 describe('TimePicker - Responsive & Accessibility', () => {
   const defaultProps = {

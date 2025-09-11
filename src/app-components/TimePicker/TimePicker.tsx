@@ -3,22 +3,22 @@ import React, { useRef, useState } from 'react';
 import { Popover } from '@digdir/designsystemet-react';
 import { ClockIcon } from '@navikt/aksel-icons';
 
-import styles from 'src/app-components/TimePicker/components/TimePicker.module.css';
-import { TimeSegment } from 'src/app-components/TimePicker/components/TimeSegment';
-import { calculateNextFocusState } from 'src/app-components/TimePicker/functions/calculateNextFocusState/calculateNextFocusState';
-import { formatDisplayHour } from 'src/app-components/TimePicker/functions/formatDisplayHour/formatDisplayHour';
+import styles from 'src/app-components/TimePicker/TimePicker.module.css';
+import { TimeSegment } from 'src/app-components/TimePicker/TimeSegment/TimeSegment';
+import { calculateNextFocusState } from 'src/app-components/TimePicker/utils/calculateNextFocusState/calculateNextFocusState';
+import { formatDisplayHour } from 'src/app-components/TimePicker/utils/formatDisplayHour/formatDisplayHour';
 import {
   generateHourOptions,
   generateMinuteOptions,
   generateSecondOptions,
-} from 'src/app-components/TimePicker/functions/generateTimeOptions/generateTimeOptions';
-import { handleSegmentValueChange } from 'src/app-components/TimePicker/functions/handleSegmentValueChange/handleSegmentValueChange';
+} from 'src/app-components/TimePicker/utils/generateTimeOptions/generateTimeOptions';
+import { handleSegmentValueChange } from 'src/app-components/TimePicker/utils/handleSegmentValueChange/handleSegmentValueChange';
 import { getSegmentConstraints, parseTimeString } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 import { formatTimeValue } from 'src/app-components/TimePicker/utils/timeFormatUtils';
 import type {
   DropdownFocusState,
   NavigationAction,
-} from 'src/app-components/TimePicker/functions/calculateNextFocusState/calculateNextFocusState';
+} from 'src/app-components/TimePicker/utils/calculateNextFocusState/calculateNextFocusState';
 import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
 import type { TimeConstraints, TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 

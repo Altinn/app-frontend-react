@@ -3,7 +3,7 @@ import React from 'react';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { TimePicker } from 'src/app-components/TimePicker/components/TimePicker';
+import { TimePicker } from 'src/app-components/TimePicker/TimePicker';
 
 describe('TimePicker - Focus State & Navigation', () => {
   const defaultProps = {

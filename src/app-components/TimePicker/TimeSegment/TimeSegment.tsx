@@ -2,10 +2,10 @@ import React from 'react';
 
 import { Textfield } from '@digdir/designsystemet-react';
 
-import { useSegmentDisplay } from 'src/app-components/TimePicker/hooks/useSegmentDisplay';
-import { useSegmentInputHandlers } from 'src/app-components/TimePicker/hooks/useSegmentInputHandlers';
-import { useTypingBuffer } from 'src/app-components/TimePicker/hooks/useTypingBuffer';
-import type { TimeFormat } from 'src/app-components/TimePicker/components/TimePicker';
+import { useSegmentDisplay } from 'src/app-components/TimePicker/TimeSegment/hooks/useSegmentDisplay';
+import { useSegmentInputHandlers } from 'src/app-components/TimePicker/TimeSegment/hooks/useSegmentInputHandlers';
+import { useTypingBuffer } from 'src/app-components/TimePicker/TimeSegment/hooks/useTypingBuffer';
+import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
 import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
 
 export interface TimeSegmentProps {

@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 
-import { useTimeout } from 'src/app-components/TimePicker/hooks/useTimeout';
+import { useTimeout } from 'src/app-components/TimePicker/TimeSegment/hooks/useTimeout';
 
 interface TypingBufferConfig {
   onCommit: (buffer: string) => void;

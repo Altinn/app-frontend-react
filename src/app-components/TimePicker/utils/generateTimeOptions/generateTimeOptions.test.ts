@@ -2,7 +2,7 @@ import {
   generateHourOptions,
   generateMinuteOptions,
   generateSecondOptions,
-} from 'src/app-components/TimePicker/functions/generateTimeOptions/generateTimeOptions';
+} from 'src/app-components/TimePicker/utils/generateTimeOptions/generateTimeOptions';
 
 describe('generateTimeOptions', () => {
   describe('generateHourOptions', () => {

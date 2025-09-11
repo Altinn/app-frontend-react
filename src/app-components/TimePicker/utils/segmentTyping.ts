@@ -1,4 +1,4 @@
-import type { TimeFormat } from 'src/app-components/TimePicker/components/TimePicker';
+import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
 import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
 
 export interface SegmentTypingResult {
@@ -171,58 +171,6 @@ export const commitSegmentValue = (value: number | string | null, segmentType: S
     return 0; // Default for hours too
   }
   return value;
-};
-
-/**
- * Coerce value to valid range
- */
-export const coerceToValidRange = (value: number, segmentType: SegmentType, is12Hour: boolean): number => {
-  if (segmentType === 'hours') {
-    if (is12Hour) {
-      if (value < 1) {
-        return 1;
-      }
-      if (value > 12) {
-        return 12;
-      }
-    } else {
-      if (value < 0) {
-        return 0;
-      }
-      if (value > 23) {
-        return 23;
-      }
-    }
-  } else if (segmentType === 'minutes' || segmentType === 'seconds') {
-    if (value < 0) {
-      return 0;
-    }
-    if (value > 59) {
-      return 59;
-    }
-  }
-  return value;
-};
-
-/**
- * Determine if segment should auto-advance
- */
-export const shouldAdvanceSegment = (segmentType: SegmentType, buffer: string, is12Hour: boolean): boolean => {
-  if (segmentType === 'hours') {
-    if (buffer.length === 2) {
-      return true;
-    }
-    if (buffer.length === 1) {
-      const digit = parseInt(buffer, 10);
-      if (is12Hour) {
-        return digit >= 2; // 2-9 get coerced and advance
-      } else {
-        return digit >= 3; // 3-9 get coerced and advance
-      }
-    }
-  }
-  // Minutes and seconds don't auto-advance (Chrome behavior)
-  return false;
 };
 
 /**

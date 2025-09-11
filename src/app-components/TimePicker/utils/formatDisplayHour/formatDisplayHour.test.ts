@@ -1,4 +1,4 @@
-import { formatDisplayHour } from 'src/app-components/TimePicker/functions/formatDisplayHour/formatDisplayHour';
+import { formatDisplayHour } from 'src/app-components/TimePicker/utils/formatDisplayHour/formatDisplayHour';
 
 describe('formatDisplayHour', () => {
   describe('24-hour format', () => {

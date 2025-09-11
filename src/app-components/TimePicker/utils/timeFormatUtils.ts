@@ -1,4 +1,4 @@
-import type { TimeFormat } from 'src/app-components/TimePicker/components/TimePicker';
+import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
 import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
 import type { TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 

@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Label } from 'src/app-components/Label/Label';
-import { TimePicker as TimePickerControl } from 'src/app-components/TimePicker/components/TimePicker';
+import { TimePicker as TimePickerControl } from 'src/app-components/TimePicker/TimePicker';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';

@@ -1,7 +1,7 @@
 import {
   handleSegmentValueChange,
   SegmentConstraints,
-} from 'src/app-components/TimePicker/functions/handleSegmentValueChange/handleSegmentValueChange';
+} from 'src/app-components/TimePicker/utils/handleSegmentValueChange/handleSegmentValueChange';
 import type { TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 
 describe('handleSegmentValueChange', () => {
