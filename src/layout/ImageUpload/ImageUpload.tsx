@@ -127,11 +127,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     reader.readAsDataURL(file);
   };
 
-  const handleReset = () => {
-    setZoom(Math.max(1, minAllowedZoom));
-    setPosition({ x: 0, y: 0 });
-  };
-
   const handleSave = () => {
     const canvas = canvasRef.current;
     const img = imageRef.current;
@@ -163,10 +158,20 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     }, 'image/png');
   };
 
+  const handleReset = () => {
+    setZoom(Math.max(1, minAllowedZoom));
+    setPosition({ x: 0, y: 0 });
+  };
+
   const handleDeleteImage = () => {
     deleteImage();
     imageRef.current = null;
     handleReset();
+  };
+
+  const handleCancel = () => {
+    imageRef.current = null;
+    setValidationErrors(null);
   };
 
   return (
@@ -195,10 +200,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}
-          onCancel={() => {
-            imageRef.current = null;
-            setValidationErrors(null);
-          }}
+          onCancel={handleCancel}
           onFileUploaded={handleFileUpload}
           onReset={handleReset}
         />
