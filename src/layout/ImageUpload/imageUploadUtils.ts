@@ -116,3 +116,15 @@ export function logToNormalZoom({ value, minZoom, maxZoom }: CalculateZoomParams
 type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
 export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
   Math.max(cropArea.width / img.width, cropArea.height / img.height);
+
+type ValidateFileParams = { file: File; validFileEndings: string[] };
+export const validateFile = ({ file, validFileEndings }: ValidateFileParams) => {
+  const errors: string[] = [];
+  if (file.size > 10 * 1024 * 1024) {
+    errors.push('image_upload_component.error_file_size_exceeded');
+  }
+  if (!validFileEndings.some((ending) => file.name.toLowerCase().endsWith(ending))) {
+    errors.push('image_upload_component.error_invalid_file_type');
+  }
+  return errors;
+};

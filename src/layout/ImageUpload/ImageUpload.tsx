@@ -15,6 +15,7 @@ import {
   cropAreaPlacement,
   drawCropArea,
   imagePlacement,
+  validateFile,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
@@ -99,15 +100,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   );
 
   const handleFileUpload = (file: File) => {
-    const validationErrors: string[] = [];
-
-    if (file.size > 10 * 1024 * 1024) {
-      validationErrors.push('image_upload_component.error_file_size_exceeded');
-    }
-    if (!VALID_FILE_ENDINGS.some((ending) => file.name.toLowerCase().endsWith(ending))) {
-      validationErrors.push('image_upload_component.error_invalid_file_type');
-    }
-
+    const validationErrors = validateFile({ file, validFileEndings: VALID_FILE_ENDINGS });
     setValidationErrors(validationErrors);
     if (validationErrors.length > 0) {
       return;
@@ -120,10 +113,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       if (typeof result === 'string') {
         const img = new Image();
         img.onload = () => {
-          imageRef.current = img;
-          const newMinZoom = calculateMinZoom({ img, cropArea });
-          setZoom(Math.max(1, newMinZoom));
-          setPosition({ x: 0, y: 0 });
+          updateImageState({ minZoom: calculateMinZoom({ img, cropArea }), img });
         };
         img.src = result;
       }
@@ -161,20 +151,21 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     }, 'image/png');
   };
 
-  const handleReset = () => {
-    setZoom(Math.max(1, minAllowedZoom));
-    setPosition({ x: 0, y: 0 });
-  };
-
   const handleDeleteImage = () => {
     deleteImage();
-    imageRef.current = null;
-    handleReset();
+    updateImageState({ img: null });
   };
 
   const handleCancel = () => {
-    imageRef.current = null;
     setValidationErrors(null);
+    updateImageState({ img: null });
+  };
+
+  type UpdateImageState = { minZoom?: number; img?: HTMLImageElement | null };
+  const updateImageState = ({ minZoom = minAllowedZoom, img = imageRef.current }: UpdateImageState) => {
+    setZoom(Math.max(1, minZoom));
+    setPosition({ x: 0, y: 0 });
+    imageRef.current = img;
   };
 
   return (
@@ -205,7 +196,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           onDelete={handleDeleteImage}
           onCancel={handleCancel}
           onFileUploaded={handleFileUpload}
-          onReset={handleReset}
+          onReset={() => updateImageState({})}
         />
       ) : (
         <DropzoneComponent
