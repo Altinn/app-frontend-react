@@ -33,7 +33,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   // State management
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [imageSrc, setImageSrc] = useState<File | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
   const minAllowedZoom = imageRef.current
@@ -121,7 +120,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           const newMinZoom = Math.max(cropArea.width / img.width, cropArea.height / img.height);
           setZoom(Math.max(1, newMinZoom));
           setPosition({ x: 0, y: 0 });
-          setImageSrc(file);
         };
         img.src = result;
       }
@@ -168,7 +166,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const handleDeleteImage = () => {
     deleteImage();
     imageRef.current = null;
-    setImageSrc(null);
     handleReset();
   };
 
@@ -181,7 +178,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
         <ImageCanvas
           canvasRef={canvasRef}
           imageRef={imageRef}
-          imageSrc={imageSrc}
           zoom={zoom}
           position={position}
           cropArea={cropArea}
@@ -191,7 +187,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
         />
       }
     >
-      {imageSrc || storedImage ? (
+      {imageRef.current || storedImage ? (
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
@@ -200,7 +196,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           onSave={handleSave}
           onDelete={handleDeleteImage}
           onCancel={() => {
-            setImageSrc(null);
+            imageRef.current = null;
             setValidationErrors(null);
           }}
           onFileUploaded={handleFileUpload}

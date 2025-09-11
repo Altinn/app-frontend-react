@@ -11,7 +11,6 @@ import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils
 // Props for the ImageCanvas component
 interface ImageCanvasProps {
   imageRef: React.RefObject<HTMLImageElement | null>;
-  imageSrc: File | null;
   zoom: number;
   position: Position;
   cropArea: CropArea;
@@ -25,7 +24,6 @@ const CANVAS_HEIGHT = 320;
 
 export function ImageCanvas({
   imageRef,
-  imageSrc,
   zoom,
   position,
   cropArea,
@@ -184,7 +182,7 @@ export function ImageCanvas({
       </div>
     );
   }
-  if (!imageSrc) {
+  if (!imageRef.current) {
     return <div className={classes.placeholder} />;
   }
 
