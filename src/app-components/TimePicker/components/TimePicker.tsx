@@ -159,16 +159,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     setFocusedSegment(nextIndex);
   };
 
-  // Removed toggleDropdown - logic moved to onOpen callback
-
   const closeDropdown = () => {
     setShowDropdown(false);
     setDropdownFocus({ column: 0, option: -1, isActive: false });
-  };
-
-  const closeDropdownAndRestoreFocus = () => {
-    closeDropdown();
-    // Focus will be restored via onClose callback
   };
 
   // Helper function to get option button DOM element
@@ -362,7 +355,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     } else if (action.type === 'ENTER' || action.type === 'ESCAPE') {
       const newFocus = calculateNextFocusState(dropdownFocus, action, getMaxColumns(), getOptionCounts());
       setDropdownFocus(newFocus);
-      closeDropdownAndRestoreFocus();
+      closeDropdown();
     }
   };
 
