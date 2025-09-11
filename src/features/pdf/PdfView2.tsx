@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
@@ -29,6 +29,8 @@ import { useExternalItem } from 'src/utils/layout/hooks';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useItemIfType } from 'src/utils/layout/useNodeItem';
 import type { IPdfFormat } from 'src/features/pdf/types';
+import type { CompTypes } from 'src/layout/layout';
+import type { NodeData } from 'src/utils/layout/types';
 
 export const PDFView2 = () => {
   const order = usePageOrder();
@@ -141,18 +143,20 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
   const lookups = useLayoutLookups();
-  const children = useMemo(() => {
-    const topLevel = lookups.topLevelComponents[pageKey] ?? [];
-    return topLevel.filter((baseId) => {
-      const component = lookups.getComponent(baseId);
-      const def = getComponentDef(component.type);
-      return (
-        component.type !== 'Subform' &&
-        !pdfSettings?.excludedComponents.includes(baseId) &&
-        def.shouldRenderInAutomaticPDF(component as never)
-      );
-    });
-  }, [lookups, pageKey, pdfSettings?.excludedComponents]);
+  const children = NodesInternal.useShallowSelector((state) =>
+    Object.values(state.nodeData)
+      .filter(
+        (data) =>
+          data.pageKey === pageKey &&
+          data.parentId === undefined &&
+          data.nodeType !== 'Subform' &&
+          !pdfSettings?.excludedComponents.includes(data.id),
+      )
+      .filter(<T extends CompTypes>(data: NodeData<T>) =>
+        getComponentDef(data.nodeType).shouldRenderInAutomaticPDF(lookups.getComponent(data.baseId) as never),
+      )
+      .map((data) => data.id),
+  );
   const hidden = useIsHiddenMulti(children);
 
   return (
