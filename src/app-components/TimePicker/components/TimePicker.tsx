@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
 import { Popover } from '@digdir/designsystemet-react';
 import { ClockIcon } from '@navikt/aksel-icons';
@@ -104,53 +104,31 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     period: 'AM',
   };
 
-  // Scroll to selected options when dropdown opens
-  useEffect(() => {
-    if (showDropdown) {
-      // Small delay to ensure DOM is rendered
-      setTimeout(() => {
-        // Scroll hours into view
-        if (hoursListRef.current) {
-          const selectedHour = hoursListRef.current.querySelector(`.${styles.dropdownOptionSelected}`);
-          if (selectedHour) {
-            const container = hoursListRef.current;
-            const elementTop = (selectedHour as HTMLElement).offsetTop;
-            const elementHeight = (selectedHour as HTMLElement).offsetHeight;
-            const containerHeight = container.offsetHeight;
-
-            // Center the selected item in the container
-            container.scrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
-          }
+  const scrollToSelectedOptions = () => {
+    // Use requestAnimationFrame to ensure DOM is ready
+    requestAnimationFrame(() => {
+      const scrollToSelected = (container: HTMLDivElement | null) => {
+        if (!container) {
+          return;
         }
 
-        // Scroll minutes into view
-        if (minutesListRef.current) {
-          const selectedMinute = minutesListRef.current.querySelector(`.${styles.dropdownOptionSelected}`);
-          if (selectedMinute) {
-            const container = minutesListRef.current;
-            const elementTop = (selectedMinute as HTMLElement).offsetTop;
-            const elementHeight = (selectedMinute as HTMLElement).offsetHeight;
-            const containerHeight = container.offsetHeight;
-
-            container.scrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
-          }
+        const selectedOption = container.querySelector(`.${styles.dropdownOptionSelected}`) as HTMLElement;
+        if (!selectedOption) {
+          return;
         }
 
-        // Scroll seconds into view
-        if (secondsListRef.current) {
-          const selectedSecond = secondsListRef.current.querySelector(`.${styles.dropdownOptionSelected}`);
-          if (selectedSecond) {
-            const container = secondsListRef.current;
-            const elementTop = (selectedSecond as HTMLElement).offsetTop;
-            const elementHeight = (selectedSecond as HTMLElement).offsetHeight;
-            const containerHeight = container.offsetHeight;
+        const containerHeight = container.offsetHeight;
+        const elementTop = selectedOption.offsetTop;
+        const elementHeight = selectedOption.offsetHeight;
 
-            container.scrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
-          }
-        }
-      }, 0);
-    }
-  }, [showDropdown]);
+        container.scrollTop = elementTop - containerHeight / 2 + elementHeight / 2;
+      };
+
+      scrollToSelected(hoursListRef.current);
+      scrollToSelected(minutesListRef.current);
+      scrollToSelected(secondsListRef.current);
+    });
+  };
 
   const updateTime = (updates: Partial<TimeValue>) => {
     const newTime = { ...timeValue, ...updates };
@@ -169,7 +147,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   };
 
   const handleSegmentNavigate = (direction: 'left' | 'right', currentIndex: number) => {
-    let nextIndex = currentIndex;
+    let nextIndex: number;
 
     if (direction === 'right') {
       nextIndex = (currentIndex + 1) % segments.length;
@@ -181,31 +159,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     setFocusedSegment(nextIndex);
   };
 
-  const toggleDropdown = () => {
-    if (!disabled && !readOnly) {
-      const newShowDropdown = !showDropdown;
-      setShowDropdown(newShowDropdown);
-
-      if (newShowDropdown) {
-        // Initialize dropdown focus on the currently selected hour
-        const currentHourIndex = hourOptions.findIndex((option) => option.value === displayHours);
-        const initialFocus = {
-          column: 0, // Start with hours column
-          option: Math.max(0, currentHourIndex),
-          isActive: true,
-        };
-        setDropdownFocus(initialFocus);
-
-        // Focus the initial button after a small delay to ensure it's rendered
-        setTimeout(() => {
-          const button = getOptionButton(initialFocus.column, initialFocus.option);
-          if (button) {
-            button.focus();
-          }
-        }, 10);
-      }
-    }
-  };
+  // Removed toggleDropdown - logic moved to onOpen callback
 
   const closeDropdown = () => {
     setShowDropdown(false);
@@ -214,10 +168,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
   const closeDropdownAndRestoreFocus = () => {
     closeDropdown();
-    // Restore focus to the trigger button
-    setTimeout(() => {
-      triggerButtonRef.current?.focus();
-    }, 10);
+    // Focus will be restored via onClose callback
   };
 
   // Helper function to get option button DOM element
@@ -505,7 +456,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           ref={triggerButtonRef}
           variant='tertiary'
           icon
-          onClick={toggleDropdown}
           aria-label='Open time picker'
           aria-expanded={showDropdown}
           aria-controls={`${id}-dropdown`}
@@ -525,7 +475,31 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           data-size='lg'
           placement='bottom'
           autoFocus={true}
-          onClose={closeDropdown}
+          onOpen={() => {
+            // Initialize dropdown focus on the currently selected hour
+            const currentHourIndex = hourOptions.findIndex((option) => option.value === displayHours);
+            const initialFocus = {
+              column: 0, // Start with hours column
+              option: Math.max(0, currentHourIndex),
+              isActive: true,
+            };
+            setDropdownFocus(initialFocus);
+            setShowDropdown(true);
+
+            // Scroll to selected options
+            scrollToSelectedOptions();
+
+            // Focus the initial selected option after DOM is ready
+            requestAnimationFrame(() => {
+              const button = getOptionButton(initialFocus.column, initialFocus.option);
+              button?.focus();
+            });
+          }}
+          onClose={() => {
+            closeDropdown();
+            // Restore focus to the trigger button
+            triggerButtonRef.current?.focus();
+          }}
           onKeyDown={handleDropdownKeyDown}
           tabIndex={0}
         >
