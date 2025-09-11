@@ -4,7 +4,7 @@ import { Spinner } from '@digdir/designsystemet-react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/ImageUpload/ImageCanvas.module.css';
-import { calculatePositions, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
+import { cropAreaPlacement, drawCropArea, imagePlacement } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
@@ -48,7 +48,7 @@ export function ImageCanvas({
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({
+    const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({
       canvas,
       img,
       zoom,
@@ -60,9 +60,7 @@ export function ImageCanvas({
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.save();
 
-    const cropAreaX = (canvas.width - cropArea.width) / 2;
-    const cropAreaY = (canvas.height - cropArea.height) / 2;
-
+    const { cropAreaX, cropAreaY } = cropAreaPlacement({ canvas, cropArea });
     drawCropArea({ ctx, x: cropAreaX, y: cropAreaY, cropArea });
     ctx.clip();
     ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);

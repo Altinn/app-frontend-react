@@ -9,7 +9,13 @@ import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneCompon
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
-import { calculatePositions, constrainToArea, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
+import {
+  calculateMinZoom,
+  constrainToArea,
+  cropAreaPlacement,
+  drawCropArea,
+  imagePlacement,
+} from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
@@ -35,9 +41,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
-  const minAllowedZoom = imageRef.current
-    ? Math.max(cropArea.width / imageRef.current.width, cropArea.height / imageRef.current.height)
-    : 0.1;
+  const minAllowedZoom = imageRef.current ? calculateMinZoom({ img: imageRef.current, cropArea }) : 0.1;
 
   // Constrains position changes from the canvas component
   const handlePositionChange = useCallback(
@@ -71,9 +75,9 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       const viewportCenterX = canvas.width / 2;
       const viewportCenterY = canvas.height / 2;
 
-      // Image coordinates currently under viewport center
-      const imageCenterX = (viewportCenterX - position.x - (canvas.width - img.width * zoom) / 2) / zoom;
-      const imageCenterY = (viewportCenterY - position.y - (canvas.height - img.height * zoom) / 2) / zoom;
+      const { imgX, imgY } = imagePlacement({ canvas, img, zoom, position });
+      const imageCenterX = (viewportCenterX - imgX) / zoom;
+      const imageCenterY = (viewportCenterY - imgY) / zoom;
 
       // Compute new position to keep the same image point under viewport center
       const newPosition = {
@@ -117,7 +121,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
         const img = new Image();
         img.onload = () => {
           imageRef.current = img;
-          const newMinZoom = Math.max(cropArea.width / img.width, cropArea.height / img.height);
+          const newMinZoom = calculateMinZoom({ img, cropArea });
           setZoom(Math.max(1, newMinZoom));
           setPosition({ x: 0, y: 0 });
         };
@@ -140,9 +144,8 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     cropCanvas.width = cropArea.width;
     cropCanvas.height = cropArea.height;
 
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-    const cropAreaX = (canvas.width - cropArea.width) / 2;
-    const cropAreaY = (canvas.height - cropArea.height) / 2;
+    const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({ canvas, img, zoom, position });
+    const { cropAreaX, cropAreaY } = cropAreaPlacement({ canvas, cropArea });
 
     drawCropArea({ ctx: cropCtx, cropArea });
     cropCtx.clip();
