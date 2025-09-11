@@ -43,20 +43,29 @@ export function constrainToArea({ image, zoom, position, cropArea }: ConstrainTo
   return { x: newX, y: newY };
 }
 
-interface CalculatePositionsParams {
+interface ImagePlacementParams {
   canvas: HTMLCanvasElement;
   img: HTMLImageElement;
   zoom: number;
   position: Position;
 }
 
-export const calculatePositions = ({ canvas, img, zoom, position }: CalculatePositionsParams) => {
+export const imagePlacement = ({ canvas, img, zoom, position }: ImagePlacementParams) => {
   const scaledWidth = img.width * zoom;
   const scaledHeight = img.height * zoom;
   const imgX = (canvas.width - scaledWidth) / 2 + position.x;
   const imgY = (canvas.height - scaledHeight) / 2 + position.y;
 
   return { imgX, imgY, scaledWidth, scaledHeight };
+};
+
+type CropAreaPlacementParams = { canvas: HTMLCanvasElement; cropArea: CropArea };
+type CropAreaPlacement = { cropAreaX: number; cropAreaY: number };
+
+export const cropAreaPlacement = ({ canvas, cropArea }: CropAreaPlacementParams): CropAreaPlacement => {
+  const cropAreaX = (canvas.width - cropArea.width) / 2;
+  const cropAreaY = (canvas.height - cropArea.height) / 2;
+  return { cropAreaX, cropAreaY };
 };
 
 interface DrawCropAreaParams {
@@ -103,3 +112,19 @@ export function logToNormalZoom({ value, minZoom, maxZoom }: CalculateZoomParams
   } // Avoid division by zero if minZoom equals maxZoom
   return (Math.log(value) - logMin) / logScale;
 }
+
+type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
+export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
+  Math.max(cropArea.width / img.width, cropArea.height / img.height);
+
+type ValidateFileParams = { file: File; validFileEndings: string[] };
+export const validateFile = ({ file, validFileEndings }: ValidateFileParams) => {
+  const errors: string[] = [];
+  if (file.size > 10 * 1024 * 1024) {
+    errors.push('image_upload_component.error_file_size_exceeded');
+  }
+  if (!validFileEndings.some((ending) => file.name.toLowerCase().endsWith(ending))) {
+    errors.push('image_upload_component.error_invalid_file_type');
+  }
+  return errors;
+};

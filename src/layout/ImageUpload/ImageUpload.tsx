@@ -9,7 +9,14 @@ import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneCompon
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
-import { calculatePositions, constrainToArea, drawCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
+import {
+  calculateMinZoom,
+  constrainToArea,
+  cropAreaPlacement,
+  drawCropArea,
+  imagePlacement,
+  validateFile,
+} from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
@@ -33,12 +40,9 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   // State management
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [imageSrc, setImageSrc] = useState<File | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
-  const minAllowedZoom = imageRef.current
-    ? Math.max(cropArea.width / imageRef.current.width, cropArea.height / imageRef.current.height)
-    : 0.1;
+  const minAllowedZoom = imageRef.current ? calculateMinZoom({ img: imageRef.current, cropArea }) : 0.1;
 
   // Constrains position changes from the canvas component
   const handlePositionChange = useCallback(
@@ -72,9 +76,9 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       const viewportCenterX = canvas.width / 2;
       const viewportCenterY = canvas.height / 2;
 
-      // Image coordinates currently under viewport center
-      const imageCenterX = (viewportCenterX - position.x - (canvas.width - img.width * zoom) / 2) / zoom;
-      const imageCenterY = (viewportCenterY - position.y - (canvas.height - img.height * zoom) / 2) / zoom;
+      const { imgX, imgY } = imagePlacement({ canvas, img, zoom, position });
+      const imageCenterX = (viewportCenterX - imgX) / zoom;
+      const imageCenterY = (viewportCenterY - imgY) / zoom;
 
       // Compute new position to keep the same image point under viewport center
       const newPosition = {
@@ -96,15 +100,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   );
 
   const handleFileUpload = (file: File) => {
-    const validationErrors: string[] = [];
-
-    if (file.size > 10 * 1024 * 1024) {
-      validationErrors.push('image_upload_component.error_file_size_exceeded');
-    }
-    if (!VALID_FILE_ENDINGS.some((ending) => file.name.toLowerCase().endsWith(ending))) {
-      validationErrors.push('image_upload_component.error_invalid_file_type');
-    }
-
+    const validationErrors = validateFile({ file, validFileEndings: VALID_FILE_ENDINGS });
     setValidationErrors(validationErrors);
     if (validationErrors.length > 0) {
       return;
@@ -117,21 +113,12 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       if (typeof result === 'string') {
         const img = new Image();
         img.onload = () => {
-          imageRef.current = img;
-          const newMinZoom = Math.max(cropArea.width / img.width, cropArea.height / img.height);
-          setZoom(Math.max(1, newMinZoom));
-          setPosition({ x: 0, y: 0 });
-          setImageSrc(file);
+          updateImageState({ minZoom: calculateMinZoom({ img, cropArea }), img });
         };
         img.src = result;
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleReset = () => {
-    setZoom(Math.max(1, minAllowedZoom));
-    setPosition({ x: 0, y: 0 });
   };
 
   const handleSave = () => {
@@ -147,9 +134,8 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     cropCanvas.width = cropArea.width;
     cropCanvas.height = cropArea.height;
 
-    const { imgX, imgY, scaledWidth, scaledHeight } = calculatePositions({ canvas, img, zoom, position });
-    const cropAreaX = (canvas.width - cropArea.width) / 2;
-    const cropAreaY = (canvas.height - cropArea.height) / 2;
+    const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({ canvas, img, zoom, position });
+    const { cropAreaX, cropAreaY } = cropAreaPlacement({ canvas, cropArea });
 
     drawCropArea({ ctx: cropCtx, cropArea });
     cropCtx.clip();
@@ -167,9 +153,19 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
 
   const handleDeleteImage = () => {
     deleteImage();
-    imageRef.current = null;
-    setImageSrc(null);
-    handleReset();
+    updateImageState({ img: null });
+  };
+
+  const handleCancel = () => {
+    setValidationErrors(null);
+    updateImageState({ img: null });
+  };
+
+  type UpdateImageState = { minZoom?: number; img?: HTMLImageElement | null };
+  const updateImageState = ({ minZoom = minAllowedZoom, img = imageRef.current }: UpdateImageState) => {
+    setZoom(Math.max(1, minZoom));
+    setPosition({ x: 0, y: 0 });
+    imageRef.current = img;
   };
 
   return (
@@ -181,7 +177,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
         <ImageCanvas
           canvasRef={canvasRef}
           imageRef={imageRef}
-          imageSrc={imageSrc}
           zoom={zoom}
           position={position}
           cropArea={cropArea}
@@ -191,7 +186,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
         />
       }
     >
-      {imageSrc || storedImage ? (
+      {imageRef.current || storedImage ? (
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
@@ -199,12 +194,9 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}
-          onCancel={() => {
-            setImageSrc(null);
-            setValidationErrors(null);
-          }}
+          onCancel={handleCancel}
           onFileUploaded={handleFileUpload}
-          onReset={handleReset}
+          onReset={() => updateImageState({})}
         />
       ) : (
         <DropzoneComponent
