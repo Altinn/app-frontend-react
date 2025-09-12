@@ -20,7 +20,7 @@ import {
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
-interface ImageCropperProps {
+interface ImageUploadProps {
   cropArea: CropArea;
   baseComponentId: string;
 }
@@ -29,7 +29,7 @@ const MAX_ZOOM = 5;
 const VALID_FILE_ENDINGS = ['.jpg', '.jpeg', '.png', '.gif'];
 
 // ImageCropper Component
-export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
+export function ImageUpload({ baseComponentId, cropArea }: ImageUploadProps) {
   const mobileView = useIsMobileOrTablet();
   const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
 

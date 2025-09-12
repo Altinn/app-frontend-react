@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { ImageCropper } from 'src/layout/ImageUpload/ImageUpload';
+import { ImageUpload } from 'src/layout/ImageUpload/ImageUpload';
 import { getCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -12,7 +12,7 @@ export function ImageUploadComponent({ baseComponentId }: PropsFromGenericCompon
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
-      <ImageCropper
+      <ImageUpload
         cropArea={getCropArea(cropArea as CropArea)}
         baseComponentId={baseComponentId}
       />
