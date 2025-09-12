@@ -4,33 +4,30 @@ import { ValidationMessage } from '@digdir/designsystemet-react';
 
 import { AppCard } from 'src/app-components/Card/Card';
 import { Lang } from 'src/features/language/Lang';
-import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
-import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
-import classes from 'src/layout/ImageUpload/ImageUpload.module.css';
+import { ImageDropzone } from 'src/layout/ImageUpload/ImageDropzone';
 import {
   calculateMinZoom,
   constrainToArea,
   cropAreaPlacement,
   drawCropArea,
   imagePlacement,
+  VALID_FILE_ENDINGS,
   validateFile,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
-interface ImageUploadProps {
+interface ImageCropperProps {
   cropArea: CropArea;
   baseComponentId: string;
 }
 
 const MAX_ZOOM = 5;
-const VALID_FILE_ENDINGS = ['.jpg', '.jpeg', '.png', '.gif'];
 
 // ImageCropper Component
-export function ImageUpload({ baseComponentId, cropArea }: ImageUploadProps) {
-  const mobileView = useIsMobileOrTablet();
+export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
 
   // Refs for canvas and image
@@ -168,11 +165,20 @@ export function ImageUpload({ baseComponentId, cropArea }: ImageUploadProps) {
     imageRef.current = img;
   };
 
+  if (!imageRef.current && !storedImage) {
+    return (
+      <ImageDropzone
+        onDrop={(files) => handleFileUpload(files[0])}
+        readOnly={false}
+        hasErrors={!!validationErrors && validationErrors?.length > 0}
+      />
+    );
+  }
+
   return (
     <AppCard
       variant='default'
       mediaPosition='top'
-      className={classes.imageUploadCard}
       media={
         <ImageCanvas
           canvasRef={canvasRef}
@@ -186,7 +192,7 @@ export function ImageUpload({ baseComponentId, cropArea }: ImageUploadProps) {
         />
       }
     >
-      {imageRef.current || storedImage ? (
+      {(imageRef.current || storedImage) && (
         <ImageControllers
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
@@ -198,21 +204,9 @@ export function ImageUpload({ baseComponentId, cropArea }: ImageUploadProps) {
           onFileUploaded={handleFileUpload}
           onReset={() => updateImageState({})}
         />
-      ) : (
-        <DropzoneComponent
-          id='image-upload'
-          isMobile={mobileView}
-          readOnly={false}
-          onClick={(e) => e.preventDefault()}
-          onDrop={(files) => handleFileUpload(files[0])}
-          hasValidationMessages={!!validationErrors && validationErrors?.length > 0}
-          validFileEndings={VALID_FILE_ENDINGS}
-          className={classes.dropZone}
-          showUploadIcon={false}
-        />
       )}
       {validationErrors && (
-        <div className={classes.validationErrors}>
+        <div>
           {validationErrors.map((error, index) => (
             <ValidationMessage
               data-size='sm'
