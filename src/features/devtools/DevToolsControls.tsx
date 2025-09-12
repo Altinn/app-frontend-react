@@ -30,7 +30,7 @@ export const DevToolsControls = () => {
   return (
     <Tabs
       className={classes.tabs}
-      size='small'
+      data-size='sm'
       value={activeTab}
       onChange={setActiveTab}
     >
@@ -52,7 +52,10 @@ export const DevToolsControls = () => {
         {isInForm && <Tabs.Tab value={DevToolsTab.Expressions}>{DevToolsTab.Expressions}</Tabs.Tab>}
         {/* <Tabs.Tab value={DevToolsTab.FeatureToggles}>{DevToolsTab.FeatureToggles}</Tabs.Tab> */}
       </Tabs.List>
-      <Tabs.Content value={DevToolsTab.General}>
+      <Tabs.Panel
+        className={classes.tabPanel}
+        value={DevToolsTab.General}
+      >
         <div className={classes.page}>
           <PDFPreviewButton />
           <DevNavigationButtons />
@@ -63,24 +66,36 @@ export const DevToolsControls = () => {
           <DownloadXMLButton />
           <ReactQueryDevtools initialIsOpen={false} />
         </div>
-      </Tabs.Content>
-      <Tabs.Content value={DevToolsTab.Logs}>
+      </Tabs.Panel>
+      <Tabs.Panel
+        className={classes.tabPanel}
+        value={DevToolsTab.Logs}
+      >
         <DevToolsLogs />
-      </Tabs.Content>
+      </Tabs.Panel>
       {isInForm && (
-        <Tabs.Content value={DevToolsTab.Layout}>
+        <Tabs.Panel
+          className={classes.tabPanel}
+          value={DevToolsTab.Layout}
+        >
           <LayoutInspector />
-        </Tabs.Content>
+        </Tabs.Panel>
       )}
       {isInForm && (
-        <Tabs.Content value={DevToolsTab.Components}>
+        <Tabs.Panel
+          className={classes.tabPanel}
+          value={DevToolsTab.Components}
+        >
           <NodeInspector />
-        </Tabs.Content>
+        </Tabs.Panel>
       )}
       {isInForm && (
-        <Tabs.Content value={DevToolsTab.Expressions}>
+        <Tabs.Panel
+          className={classes.tabPanel}
+          value={DevToolsTab.Expressions}
+        >
           <ExpressionPlayground />
-        </Tabs.Content>
+        </Tabs.Panel>
       )}
       {
         // <Tabs.Content value={DevToolsTab.FeatureToggles}>

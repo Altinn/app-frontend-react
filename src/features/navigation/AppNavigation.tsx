@@ -12,7 +12,8 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/AppNavigation.module.css';
 import { PageGroup } from 'src/features/navigation/components/PageGroup';
 import { TaskGroup } from 'src/features/navigation/components/TaskGroup';
-import { useIsReceiptPage, useIsSubformPage } from 'src/features/routing/AppRoutingContext';
+import { useIsReceiptPage, useIsSubformPage } from 'src/hooks/navigation';
+import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 
 export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
   const pageGroups = usePageGroups();
@@ -41,7 +42,10 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
           ))}
 
         {taskGroups.map((taskGroup) => {
-          if (!isStateless && pageGroups && 'taskId' in taskGroup && taskGroup.taskId === currentTaskId) {
+          const isPageGroup =
+            !isStateless && pageGroups?.length && 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
+
+          if (isPageGroup) {
             // taskGroup represents the current task, show the current page groups instead
             return pageGroups.map((group) => (
               <PageGroup
@@ -52,8 +56,9 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
             ));
           }
 
-          const receiptActive = 'type' in taskGroup && taskGroup.type === 'receipt' && isReceipt;
-          const taskActive = 'taskId' in taskGroup && taskGroup.taskId === currentTaskId;
+          const receiptActive = isNavigationReceipt(taskGroup) && isReceipt;
+          const taskActive = isNavigationTask(taskGroup) && taskGroup.taskId === currentTaskId;
+
           return (
             <TaskGroup
               key={taskGroup.id}
@@ -86,17 +91,21 @@ export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
   return null;
 }
 
+export const appNavigationHeadingId = 'app-navigation-heading';
 export function AppNavigationHeading({
   showClose,
   onClose,
-}: { showClose?: undefined; onClose?: undefined } | { showClose: true; onClose: () => void }) {
+}: { showClose?: undefined; onClose?: undefined } | { showClose: boolean; onClose: () => void }) {
   const { langAsString } = useLanguage();
   return (
-    <div className={classes.navigationHeading}>
+    <div
+      id={appNavigationHeadingId}
+      className={classes.navigationHeading}
+    >
       <Heading
         id='app-navigation-heading'
-        level={3}
-        size='xs'
+        level={2}
+        data-size='xs'
       >
         <Lang id='navigation.form_pages' />
       </Heading>
@@ -105,13 +114,22 @@ export function AppNavigationHeading({
           variant='tertiary'
           color='second'
           size='sm'
-          icon={true}
+          icon
           onClick={onClose}
           aria-label={langAsString('general.close')}
+          className={classes.closeButton}
         >
           <XMarkIcon aria-hidden />
         </Button>
       )}
     </div>
   );
+}
+
+function isNavigationTask(taskGroup: NavigationTask | NavigationReceipt): taskGroup is NavigationTask {
+  return 'taskId' in taskGroup;
+}
+
+function isNavigationReceipt(taskGroup: NavigationTask | NavigationReceipt): taskGroup is NavigationReceipt {
+  return 'type' in taskGroup && taskGroup.type === 'receipt';
 }

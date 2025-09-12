@@ -7,14 +7,12 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { getSandboxProperties } from 'src/layout/IFrame/utils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IFrameComponentProps = PropsFromGenericComponent<'IFrame'>;
-
-export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => {
+export const IFrameComponent = ({ baseComponentId }: PropsFromGenericComponent<'IFrame'>): JSX.Element => {
   const { langAsNonProcessedString } = useLanguage();
-  const { textResourceBindings, sandbox } = useNodeItem(node);
+  const { textResourceBindings, sandbox } = useItemWhenType(baseComponentId, 'IFrame');
 
   const sandboxProperties = getSandboxProperties(sandbox);
   const iFrameTitle = textResourceBindings?.title;
@@ -27,6 +25,7 @@ export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => 
         variant={PANEL_VARIANT.Error}
         showIcon={true}
         title={<Lang id='iframe_component.unsupported_browser_title' />}
+        fullWidth={false}
       >
         <p>
           <Lang id='iframe_component.unsupported_browser' />
@@ -41,7 +40,7 @@ export const IFrameComponent = ({ node }: IFrameComponentProps): JSX.Element => 
   };
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <iframe
         scrolling='no'
         frameBorder={0}

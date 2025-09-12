@@ -4,21 +4,20 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { AlertBaseComponent } from 'src/layout/Alert/AlertBaseComponent';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type AlertProps = PropsFromGenericComponent<'Alert'>;
-
-export const Alert = ({ node }: AlertProps) => {
-  const { severity, textResourceBindings } = useNodeItem(node);
+export const Alert = ({ baseComponentId }: PropsFromGenericComponent<'Alert'>) => {
+  const { severity, textResourceBindings } = useItemWhenType(baseComponentId, 'Alert');
   const { langAsString } = useLanguage();
 
   // If the 'hidden' property is an expression, we should alert screen readers whenever this becomes visible
-  const shouldAlertScreenReaders = NodesInternal.useNodeData(node, (d) => Array.isArray(d.layout.hidden));
+  const component = useExternalItem(baseComponentId);
+  const shouldAlertScreenReaders = Array.isArray(component?.hidden);
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <AlertBaseComponent
         severity={severity}
         useAsAlert={shouldAlertScreenReaders}

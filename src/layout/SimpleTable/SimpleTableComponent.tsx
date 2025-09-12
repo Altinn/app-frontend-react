@@ -17,7 +17,7 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { AddToListModal } from 'src/layout/AddToList/AddToList';
 import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
 import { isFormDataObjectArray, isValidItemsSchema } from 'src/layout/SimpleTable/typeguards';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
 import type { TableActionButton } from 'src/app-components/Table/Table';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -27,11 +27,14 @@ interface TableComponentProps extends PropsFromGenericComponent<'SimpleTable'> {
   dataModelBindings: IDataModelBindingsForTable;
 }
 
-export function SimpleTableComponent({ node, dataModelBindings }: TableComponentProps) {
-  const item = useNodeItem(node);
+export function SimpleTableComponent({ baseComponentId, dataModelBindings }: TableComponentProps) {
+  const { textResourceBindings, enableDelete, enableEdit, zebra, size, columns } = useItemWhenType(
+    baseComponentId,
+    'SimpleTable',
+  );
   const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
   const removeFromList = FD.useRemoveFromListCallback();
-  const { title, description, help } = item.textResourceBindings ?? {};
+  const { title, description, help } = textResourceBindings ?? {};
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
@@ -49,7 +52,7 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
 
   const actionButtons: TableActionButton[] = [];
 
-  if (item.enableDelete) {
+  if (enableDelete) {
     actionButtons.push({
       onClick: (idx) => {
         removeFromList({
@@ -67,7 +70,7 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
     });
   }
 
-  if (item.enableEdit) {
+  if (enableEdit) {
     actionButtons.push({
       onClick: (idx, _) => {
         setEditItemIndex(idx);
@@ -130,20 +133,19 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
             setEditItemIndex(-1);
             setShowEdit(false);
           }}
-          onInteractOutside={() => {
-            setShowEdit(false);
-          }}
+          backdropClose={true}
           DropdownCaption={DropdownCaption}
         />
       )}
 
       <AppTable
-        zebra={item.zebra}
-        size={item.size}
+        zebra={zebra}
+        size={size}
         schema={schema}
         mobile={isMobile}
         actionButtons={actionButtons}
         actionButtonHeader={<Lang id='general.action' />}
+        emptyText={<Lang id='general.empty_table' />}
         caption={
           title && (
             <Caption
@@ -155,7 +157,7 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
         }
         data={data}
         stickyHeader={true}
-        columns={item.columns.map((config) => {
+        columns={columns.map((config) => {
           const { component } = config;
           const header = <Lang id={config.header} />;
           let renderCell;
@@ -165,7 +167,14 @@ export function SimpleTableComponent({ node, dataModelBindings }: TableComponent
               if (component.type === 'link') {
                 const href = pick(component.hrefPath, rowData);
                 const text = pick(component.textPath, rowData);
-                return <Link href={href}>{text}</Link>;
+                return (
+                  <Link
+                    href={href}
+                    target={component.openInNewTab ? '_blank' : undefined}
+                  >
+                    {text}
+                  </Link>
+                );
               }
 
               return (

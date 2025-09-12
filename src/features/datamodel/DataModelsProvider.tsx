@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { useMutationState, useQueryClient } from '@tanstack/react-query';
 import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
@@ -26,7 +27,11 @@ import {
 import { useLayouts } from 'src/features/form/layout/LayoutsContext';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
-import { useLaxInstanceAllDataElementsNow, useLaxInstanceDataElements } from 'src/features/instance/InstanceContext';
+import {
+  instanceQueries,
+  useInstanceDataElements,
+  useInstanceDataQueryArgs,
+} from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { isAxiosError } from 'src/utils/isAxiosError';
@@ -155,7 +160,13 @@ function DataModelsLoader() {
   const layouts = useLayouts();
   const defaultDataType = useCurrentDataModelName();
   const isStateless = useApplicationMetadata().isStatelessApp;
-  const dataElements = useLaxInstanceAllDataElementsNow();
+  const queryClient = useQueryClient();
+  const { instanceOwnerPartyId, instanceGuid } = useInstanceDataQueryArgs();
+
+  const dataElements =
+    queryClient.getQueryData(instanceQueries.instanceData({ instanceOwnerPartyId, instanceGuid }).queryKey)?.data ??
+    emptyArray;
+
   const layoutSetId = useCurrentLayoutSetId();
 
   // Subform
@@ -245,6 +256,18 @@ function BlockUntilLoaded({ children }: PropsWithChildren) {
   const actualCurrentTask = useCurrentLayoutSetId();
   const isPDF = useIsPdf();
 
+  const currentMutations = useMutationState({ filters: { status: 'pending', mutationKey: ['saveFormData'] } });
+  const hasPassedMutationCheck = useRef(false);
+  if (currentMutations.length > 0 && !hasPassedMutationCheck.current) {
+    // FormDataWrite automatically saves unsaved changes on unmount. If something happens above us in the render tree
+    // that causes FormDataWrite to be unmounted (forcing it to save) and re-mounts everything (including us), we
+    // should wait for that previously started save to complete. Otherwise, we'd end up saving outdated initial data
+    // and cause a 409 when patching later.
+    return <Loader reason='save-form-data' />;
+  }
+
+  hasPassedMutationCheck.current = true;
+
   if (error) {
     // Error trying to fetch data, if missing rights we display relevant page
     if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {
@@ -294,14 +317,13 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const setInitialData = useSelector((state) => state.setInitialData);
   const setDataElementId = useSelector((state) => state.setDataElementId);
   const setError = useSelector((state) => state.setError);
-  const dataElements = useLaxInstanceDataElements(dataType);
+  const dataElements = useInstanceDataElements(dataType);
   const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
   const metaData = useApplicationMetadata();
 
   const url = useDataModelUrl({
     dataType,
     dataElementId,
-    includeRowIds: true,
     prefillFromQueryParams: getValidPrefillDataFromQueryParams(metaData, dataType),
   });
 
@@ -373,6 +395,7 @@ export const DataModels = {
 
   useDefaultDataType: () => useSelector((state) => state.defaultDataType),
   useLaxDefaultDataType: () => useLaxSelector((state) => state.defaultDataType),
+  useInitialData: () => useSelector((state) => state.initialData),
 
   // The following hooks use emptyArray if the value is null, so cannot be used to determine whether or not the datamodels are finished loading
   useReadableDataTypes: () => useSelector((state) => state.allDataTypes ?? emptyArray),
@@ -380,6 +403,7 @@ export const DataModels = {
   useWritableDataTypes: () => useSelector((state) => state.writableDataTypes ?? emptyArray),
 
   useDataModelSchema: (dataType: string) => useSelector((state) => state.schemas[dataType]),
+  useSchemaLookup: () => useSelector((state) => state.schemaLookup),
 
   useLookupBinding: () => {
     // Using a static selector to avoid re-rendering. While the state can update later, we don't need

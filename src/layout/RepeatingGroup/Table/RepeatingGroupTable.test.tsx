@@ -15,12 +15,11 @@ import {
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTable';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
-import { renderWithNode } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 global.ResizeObserver = ResizeObserverModule;
 
@@ -130,8 +129,8 @@ describe('RepeatingGroupTable', () => {
       await screen.findByText('test row 1');
       await userEvent.click(screen.getAllByRole('button', { name: /slett/i })[0]);
 
-      expect(formDataMethods.removeFromListCallback).toBeCalledTimes(1);
-      expect(formDataMethods.removeFromListCallback).toBeCalledWith({
+      expect(formDataMethods.removeFromListCallback).toHaveBeenCalledTimes(1);
+      expect(formDataMethods.removeFromListCallback).toHaveBeenCalledWith({
         reference: { field: 'some-group', dataType: defaultDataTypeMock },
         startAtIndex: 0,
         callback: expect.any(Function),
@@ -174,11 +173,9 @@ describe('RepeatingGroupTable', () => {
   });
 
   const render = async (layout = getLayout(group, components)) =>
-    await renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
-      nodeId: group.id,
-      inInstance: true,
-      renderer: ({ node }) => (
-        <RepeatingGroupProvider node={node}>
+    await renderWithInstanceAndLayout({
+      renderer: (
+        <RepeatingGroupProvider baseComponentId={group.id}>
           <LeakEditIndex />
           <RepeatingGroupTable />
         </RepeatingGroupProvider>

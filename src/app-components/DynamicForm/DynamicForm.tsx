@@ -6,7 +6,7 @@ import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
 import { DatePickerControl } from 'src/app-components/Datepicker/Datepicker';
 import { getDateFormat } from 'src/app-components/Datepicker/utils/dateHelpers';
-import { getDatepickerFormat } from 'src/utils/formatDateLocale';
+import { getDatepickerFormat } from 'src/utils/dateUtils';
 
 export type FormDataValue = string | number | boolean | null | FormDataValue[] | { [key: string]: FormDataValue };
 
@@ -150,7 +150,7 @@ export function FieldRenderer({
           >
             <Textfield
               label={label}
-              size='sm'
+              data-size='sm'
               required={required}
               value={(formData[fieldKey] as string) || ''}
               onChange={(e) => handleChange(fieldKey, e.target.value)}
@@ -166,7 +166,7 @@ export function FieldRenderer({
           >
             <Textfield
               label={label}
-              size='sm'
+              data-size='sm'
               type='number'
               required={required}
               value={formData[fieldKey] !== undefined ? String(formData[fieldKey]) : ''}
@@ -205,7 +205,7 @@ export function FieldRenderer({
           <div key={fieldKey}>
             {component?.options?.map(({ label, value }) => (
               <Radio
-                size='sm'
+                data-size='sm'
                 key={value}
                 value={value}
                 checked={formData[fieldKey] === value}
@@ -213,9 +213,8 @@ export function FieldRenderer({
                   handleChange(fieldKey, e.target.value);
                 }}
                 name={`${fieldKey}-${rowIndex}`}
-              >
-                {label}
-              </Radio>
+                label={label}
+              />
             ))}
           </div>
         );
@@ -231,7 +230,6 @@ export function FieldRenderer({
             readOnly={false}
             required={required}
             locale={locale!}
-            isMobile={false}
             DropdownCaption={DropdownCaption}
             buttonAriaLabel={buttonAriaLabel}
             calendarIconTitle={calendarIconTitle}

@@ -102,11 +102,14 @@ describe('Summary', () => {
         cy.wrap(summaryDate).contains(texts.dateOfEffect).should('have.css', 'color', 'rgb(213, 32, 59)');
         cy.wrap(summaryDate).contains(common.altinnFlex, texts.requiredFieldDateFrom).should('be.visible');
         cy.wrap(summaryDate).contains('button', texts.goToRightPage).click();
-        cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
-        cy.get('button[aria-label*="Today"]').click();
-        cy.get(appFrontend.errorReport).should('not.exist');
-        cy.findByRole('button', { name: 'Tilbake til oppsummering' }).click();
       });
+
+    cy.navPage('form').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.changeOfName.dateOfEffect).should('be.focused').and('be.inViewport');
+    cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
+    cy.get('button[aria-label*="Today"]').click();
+    cy.get(appFrontend.errorReport).should('not.exist');
+    cy.findByRole('button', { name: 'Tilbake til oppsummering' }).click();
 
     // Error in summary field is removed when the required field is filled
     cy.findByRole('group', { name: 'Endringer til navn' })
@@ -160,10 +163,16 @@ describe('Summary', () => {
     cy.get(referencesSelector).eq(1).should('contain.text', 'Referanse : Test');
     cy.get(referencesSelector).eq(2).should('contain.text', 'Referanse 2 : Doffen');
 
-    cy.snapshot('summary:change-name');
+    cy.visualTesting('summary:change-name');
   });
 
   it('is possible to view summary of repeating group', () => {
+    Cypress.on('uncaught:exception', (err) => {
+      if (err.message.includes('ResizeObserver loop completed with undelivered notifications')) {
+        return false;
+      }
+    });
+
     cy.goto('group');
 
     // Verify empty group summary
@@ -191,7 +200,12 @@ describe('Summary', () => {
     groupElements().eq(5).should('contain.text', 'automation');
     groupElements().eq(5).should('contain.text', texts.nestedOptionsToggle);
     groupElements().eq(5).should('not.contain.text', texts.nestedOptions);
-    groupElements().eq(5).should('contain.text', 'hvor fikk du vite om skjemaet? : Annet');
+    groupElements()
+      .eq(5)
+      .should(
+        'contain.text',
+        'Hvor fikk du vite om skjemaet? Over her valgte du alternativ 2, Digitaliseringsdirektoratet : Annet',
+      );
     groupElements().eq(5).should('contain.text', 'Referanse : Test');
     groupElements().eq(5).find('button').first().should('contain.text', texts.change);
 
@@ -212,9 +226,9 @@ describe('Summary', () => {
     groupElements().eq(5).should('contain.text', `${texts.nestedOption2}, ${texts.nestedOption3}`);
 
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.svaer).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.svaer }).check();
     cy.gotoNavPage('summary');
 
     function assertSummaryItem(groupRow: number, items: { [key: string]: boolean }) {
@@ -301,7 +315,10 @@ describe('Summary', () => {
       .children()
       .eq(5)
       .first()
-      .should('contain.text', `hvor fikk du vite om skjemaet? : Altinn`);
+      .should(
+        'contain.text',
+        `Hvor fikk du vite om skjemaet? Over her valgte du alternativ 1, Altinn : AltinnReferanse`,
+      );
     cy.get('#summary-mainGroup-5 [data-testid=summary-source-5] > div')
       .children()
       .last()
@@ -311,7 +328,7 @@ describe('Summary', () => {
       .last()
       .should('contain.text', texts.emptySummary);
 
-    cy.snapshot('summary:repeating-groups');
+    cy.visualTesting('summary:repeating-groups');
 
     // Hiding the group should hide the group summary as well
     cy.get('[data-testid=summary-summary1]').should('be.visible');
@@ -329,7 +346,7 @@ describe('Summary', () => {
     });
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill['liten']).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).find('input').check();
     // Add data
@@ -408,14 +425,15 @@ describe('Summary', () => {
       if (config === undefined) {
         cy.navPage('summary').should('have.attr', 'aria-current', 'page');
       } else {
-        cy.navPage('form').should('have.attr', 'aria-current', 'page');
         cy.get(appFrontend.errorReport).should('contain.text', texts.requiredFieldLastName);
+        cy.navPage('form').should('have.attr', 'aria-current', 'page');
 
         /*
          * Test that ValidateAllPages and ValidatePreviousPages prevents the user from proceeding
          * when there are errors on a previous page.
          */
         cy.gotoNavPage('summary');
+        cy.findByText('Er fordelingen av studielånsgjeld verifisert?').should('be.visible');
         cy.findByRole('button', { name: /Neste/ }).click();
         if (config.page === 'current') {
           cy.navPage('grid').should('have.attr', 'aria-current', 'page');
@@ -522,38 +540,25 @@ describe('Summary', () => {
       undefined,
     ];
 
-    const components = [
-      {
-        id: 'dateOfEffect',
-        type: 'Datepicker' as const,
-        summaryComponent: '[data-testid=summary-summary4]',
-        defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
-      },
-      {
-        id: 'reference-group',
-        type: 'Group' as const,
-        summaryComponent: '[data-testid=summary-group-component]',
-        defaultTitle: 'Dette vises når det ikke er satt summaryTitle',
-      },
-    ];
-
     cy.goto('changename');
     cy.gotoNavPage('summary');
 
+    const defaultTitle = 'Dette vises når det ikke er satt summaryTitle';
     for (const title of testTitleData) {
       cy.changeLayout((component) => {
-        for (const c of components) {
-          if (c.id === component.id && c.type === component.type) {
-            component.textResourceBindings = {
-              title: c.defaultTitle,
-              summaryTitle: title?.summaryTitle,
-              summaryAccessibleTitle: title?.summaryAccessibleTitle,
-            };
-          }
+        if (component.id === 'dateOfEffect' || component.id === 'reference-group') {
+          component.textResourceBindings = {
+            title: defaultTitle,
+            summaryTitle: title?.summaryTitle,
+            summaryAccessibleTitle: title?.summaryAccessibleTitle,
+          };
         }
       });
 
-      components.forEach(({ summaryComponent, defaultTitle }) => {
+      cy.log(`Testing with title: ${title?.summaryTitle ?? defaultTitle}`);
+      cy.log(`Testing with accessible title: ${title?.summaryAccessibleTitle ?? defaultTitle}`);
+
+      for (const summaryComponent of ['[data-testid=summary-summary4]', '[data-testid=summary-group-component]']) {
         cy.get(summaryComponent).should('contain.text', title?.summaryTitle ?? defaultTitle);
         cy.get(summaryComponent)
           .find('button')
@@ -562,7 +567,7 @@ describe('Summary', () => {
             'aria-label',
             `Endre: ${title?.summaryAccessibleTitle ?? title?.summaryTitle ?? defaultTitle}`,
           );
-      });
+      }
     }
   });
 
@@ -585,6 +590,7 @@ describe('Summary', () => {
       cy.gotoNavPage('summary');
       cy.get('[data-componentid="summary3"] button').click();
       cy.navPage('form').should('have.attr', 'aria-current', 'page');
+      cy.get(`${appFrontend.changeOfName.reasons} input`).should('be.focused');
       cy.findByRole('button', { name: 'Tilbake til oppsummering' }).should('be.visible');
       cy.findByRole('button', { name: 'Neste' }).should('not.exist');
 
@@ -597,7 +603,7 @@ describe('Summary', () => {
       }
     }
 
-    // Navigation bare should clear backToSummary
+    // NavigationBar should clear backToSummary
     testNavigationMethod(() => {
       cy.gotoNavPage('summary');
       return true;
@@ -621,6 +627,7 @@ describe('Summary', () => {
     cy.gotoNavPage('summary');
     cy.get('[data-testid="summary-fordeling-bolig"] button').click();
     cy.navPage('grid').should('have.attr', 'aria-current', 'page');
+    cy.get(appFrontend.grid.bolig.percent).should('be.focused');
     cy.get(appFrontend.errorReport).find(`li:contains("${texts.requiredFieldFromBackend}")`).find('button').click();
     cy.navPage('form').should('have.attr', 'aria-current', 'page');
     cy.get(appFrontend.changeOfName.newFirstName).should('be.focused');

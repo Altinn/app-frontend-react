@@ -1,18 +1,13 @@
 import type React from 'react';
 
 import { isAttachmentUploaded } from 'src/features/attachments';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import printStyles from 'src/styles/print.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { IAttachment } from 'src/features/attachments';
 import type { ExprResolved } from 'src/features/expressions/types';
-import type {
-  IDataModelBindingsList,
-  IPageBreak,
-  ITableColumnFormatting,
-  ITableColumnProperties,
-} from 'src/layout/common.generated';
+import type { IDataModelBindingsList, IPageBreak, ITableColumnProperties } from 'src/layout/common.generated';
 import type { CompTypes, IDataModelBindings, ITextResourceBindings } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { IGroupColumnFormatting } from 'src/layout/RepeatingGroup/config.generated';
 
 export type BindingToValues<B extends IDataModelBindings | undefined> = B extends undefined
   ? { [key: string]: undefined }
@@ -127,8 +122,9 @@ export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined)
   };
 };
 
-export function useTextAlignment(node: LayoutNode | undefined): 'left' | 'center' | 'right' {
-  const formatting = useNodeItem(node, (i) => (i.type === 'Input' ? i.formatting : undefined));
+function useTextAlignment(baseComponentId: string): 'left' | 'center' | 'right' {
+  const component = useLayoutLookups().getComponent(baseComponentId);
+  const formatting = component.type === 'Input' ? component.formatting : undefined;
   if (!formatting) {
     return 'left';
   }
@@ -139,11 +135,11 @@ export function useTextAlignment(node: LayoutNode | undefined): 'left' | 'center
 }
 
 export function useColumnStylesRepeatingGroups(
-  node: LayoutNode | undefined,
-  columnSettings: ITableColumnFormatting | undefined,
+  baseComponentId: string,
+  columnSettings: IGroupColumnFormatting | undefined,
 ) {
-  const textAlignment = useTextAlignment(node);
-  const column = columnSettings && node && columnSettings[node.baseId];
+  const textAlignment = useTextAlignment(baseComponentId);
+  const column = columnSettings && columnSettings[baseComponentId];
   if (!column) {
     return;
   }

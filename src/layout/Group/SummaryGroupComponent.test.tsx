@@ -3,11 +3,8 @@ import React from 'react';
 import { jest } from '@jest/globals';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
-import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { SummaryGroupComponent } from 'src/layout/Group/SummaryGroupComponent';
-import { renderWithNode } from 'src/test/renderWithProviders';
-import { useNode } from 'src/utils/layout/NodesContext';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('SummaryGroupComponent', () => {
   let mockHandleDataChange: () => void;
@@ -21,56 +18,33 @@ describe('SummaryGroupComponent', () => {
     expect(asFragment()).toMatchSnapshot();
   });
 
-  function TestComponent({ node, groupId }: { node: LayoutNode<'Summary'>; groupId: string }) {
-    const groupNode = useNode(groupId) as LayoutNode<'Group'>;
-    return (
-      <SummaryGroupComponent
-        changeText='Change'
-        onChangeClick={mockHandleDataChange}
-        summaryNode={node}
-        targetNode={groupNode}
-      />
-    );
-  }
-
   async function render() {
-    return await renderWithNode<true, LayoutNode<'Summary'>>({
-      nodeId: 'mySummary',
-      inInstance: true,
-      renderer: ({ node }) => (
-        <TestComponent
-          node={node}
-          groupId='groupComponent'
+    return await renderWithInstanceAndLayout({
+      renderer: (
+        <SummaryGroupComponent
+          changeText='Change'
+          onChangeClick={mockHandleDataChange}
+          targetBaseComponentId='groupComponent'
         />
       ),
       queries: {
         fetchFormData: async () => ({
-          mockGroup: [
-            {
-              [ALTINN_ROW_ID]: 'abc123',
-              mockDataBinding1: '1',
-              mockDataBinding2: '2',
-            },
-          ],
+          mockGroup: {
+            mockDataBinding1: '1',
+            mockDataBinding2: '2',
+          },
         }),
         fetchLayouts: async () => ({
           FormLayout: {
             data: {
               layout: [
                 {
-                  type: 'RepeatingGroup',
+                  type: 'Group',
                   id: 'groupComponent',
-                  dataModelBindings: {
-                    group: { dataType: defaultDataTypeMock, field: 'mockGroup' },
-                  },
                   textResourceBindings: {
                     title: 'mockGroupTitle',
                   },
-                  children: ['0:mockId1', '1:mockId2'],
-                  edit: {
-                    multiPage: true,
-                  },
-                  maxCount: 3,
+                  children: ['mockId1', 'mockId2'],
                 },
                 {
                   type: 'Input',

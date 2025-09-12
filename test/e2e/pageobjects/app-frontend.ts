@@ -30,7 +30,10 @@ export class AppFrontend {
     subformTest: 'subform-test',
 
     /** @see https://dev.altinn.studio/repos/ttd/navigation-test-subform */
-    navigationTest: 'navigation-test-subform',
+    navigationTestSubform: 'navigation-test-subform',
+
+    /** @see https://dev.altinn.studio/repos/ttd/signering-brukerstyrt */
+    signeringBrukerstyrt: 'signering-brukerstyrt',
   };
 
   //Start app instance page
@@ -54,9 +57,11 @@ export class AppFrontend {
   public notExpandedWidth = '[data-expanded="false"]';
 
   public helpText = {
-    button: 'button[class^="fds-helptext"]',
-    alert: 'div[role="dialog"]',
+    button: 'button[class^="ds-helptext"]',
+    alert: 'div[data-testid="helptext"]',
   };
+
+  public deleteWarningPopover = 'div[data-testid="delete-warning-popover"]';
 
   public navMenu = '#navigation-menu';
   public navMenuButtons = '#navigation-menu li > button';
@@ -159,6 +164,7 @@ export class AppFrontend {
     reference: '#reference',
     reference2: '#reference2',
     dateOfEffect: '#dateOfEffect',
+    datePickerButton: /åpne datovelger/i,
     municipalityMetadata: '#kommuner-metadata',
     municipality: '#kommune',
     upload: '#fileUpload-changename',
@@ -188,11 +194,11 @@ export class AppFrontend {
   //group - task 3
   public group = {
     prefill: {
-      liten: 'input[name=liten]',
-      middels: 'input[name=middels]',
-      stor: 'input[name=stor]',
-      svaer: 'input[name=svaer]',
-      enorm: 'input[name=enorm]',
+      liten: /En liten endring/i,
+      middels: /En middels endring/i,
+      stor: /En stor endring/i,
+      svaer: /En svær endring/i,
+      enorm: /En enorm endring/i,
     },
     showGroupToContinue: '#showGroupToContinue',
     mainGroup: '#group-mainGroup',
@@ -214,8 +220,8 @@ export class AppFrontend {
     addNewItemSubGroup: '[id*="add-button-subGroup"]',
     comments: 'input[id^="comments"]',
     saveSubGroup: 'button[id*="save-button-subGroup"]',
-    saveMainGroup: '#save-button-mainGroup',
-    saveAndNextMainGroup: '#next-button-grp-mainGroup',
+    saveMainGroup: '[id^="save-button-mainGroup"]',
+    saveAndNextMainGroup: '[id^="next-button-grp-mainGroup"]',
     editContainer: '[data-testid=group-edit-container]',
     sendersName: '#sendersName',
     summaryText: '#send-in-text',
@@ -253,7 +259,7 @@ export class AppFrontend {
           deleteBtn: `#group-subGroup-${idx}-table-body > tr:nth-child(${subIdx + 1}) > td:last-of-type button`,
         }),
         groupContainer: `#group-subGroup-${idx}`,
-        saveBtn: `#save-button-subGroup-${idx}`,
+        saveBtn: `[id^="save-button-subGroup-${idx}"]`,
       },
     }),
   };
@@ -284,7 +290,7 @@ export class AppFrontend {
           age: '[data-testid=group-edit-container] [id^="pet-age"]',
           sortOrder: '[data-testid=group-edit-container] [id^="futureSortOrder-inside"]',
           sortButton: '[data-testid=group-edit-container] [id^="custom-button-sortOrderButton-inside"]',
-          saveAndClose: '[data-testid=group-edit-container] #save-button-pets',
+          saveAndClose: '[data-testid=group-edit-container] [id^="save-button-pets"]',
         },
       };
     },
@@ -310,10 +316,10 @@ export class AppFrontend {
     prefilledJobTitle: '#prefilledJobTitle',
   };
 
-  public reporteeSelection = {
+  public partySelection = {
     appHeader: '[data-testid="InstantiateHeader"]',
-    searchReportee: 'input[placeholder="Søk etter aktør"]',
-    reportee: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
+    search: 'input[placeholder="Søk etter aktør"]',
+    party: '[data-testid="AltinnParty-PartyWrapper"][id^=party-]',
     subUnits: '[data-testid="AltinnParty-SubUnitWrapper"]',
     error: '#party-selection-error',
   };

@@ -2,41 +2,48 @@ import React from 'react';
 
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { Lang } from 'src/features/language/Lang';
-import { MultipleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import {
+  MultipleValueSummary,
+  useMultipleValuesForSummary,
+} from 'src/layout/Summary2/CommonSummaryComponents/MultipleValueSummary';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export function CheckboxesSummary({
-  componentNode,
-  summaryOverride,
-  isCompact,
-  emptyFieldText,
-}: {
-  componentNode: LayoutNode<'Checkboxes'>;
-  summaryOverride?: CheckboxSummaryOverrideProps;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-}) {
-  const displayData = useDisplayData(componentNode);
+export function CheckboxesSummary({ targetBaseComponentId }: Summary2Props) {
+  const summaryOverride = useSummaryOverrides<'Checkboxes'>(targetBaseComponentId);
+  const emptyFieldText = summaryOverride?.emptyFieldText;
+  const isCompact = useSummaryProp('isCompact');
+  const displayData = useDisplayData(targetBaseComponentId);
   const maxStringLength = 75;
   const showAsList =
     summaryOverride?.displayType === 'list' ||
     (!summaryOverride?.displayType && displayData?.length >= maxStringLength);
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const item = useItemWhenType(targetBaseComponentId, 'Checkboxes');
+  const title = item.textResourceBindings?.title;
+  const required = item.required;
+  const displayValues = useMultipleValuesForSummary(targetBaseComponentId);
 
   return (
-    <MultipleValueSummary
-      title={
-        <Lang
-          id={title}
-          node={componentNode}
-        />
+    <SummaryFlex
+      targetBaseId={targetBaseComponentId}
+      content={
+        displayValues.length === 0
+          ? required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+          : SummaryContains.SomeUserContent
       }
-      componentNode={componentNode}
-      isCompact={isCompact}
-      showAsList={showAsList}
-      emptyFieldText={emptyFieldText}
-    />
+    >
+      <MultipleValueSummary
+        title={<Lang id={title} />}
+        baseComponentId={targetBaseComponentId}
+        displayValues={displayValues}
+        isCompact={isCompact}
+        showAsList={showAsList}
+        emptyFieldText={emptyFieldText}
+      />
+    </SummaryFlex>
   );
 }

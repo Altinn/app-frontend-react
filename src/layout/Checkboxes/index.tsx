@@ -1,26 +1,27 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { Checkbox } from '@digdir/designsystemet-react';
+import dot from 'dot-object';
 
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getCommaSeparatedOptionsToText } from 'src/features/options/getCommaSeparatedOptionsToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
-import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
+import { useValidateSimpleBindingWithOptionalGroup } from 'src/features/saveToGroup/layoutValidation';
+import { ObjectToGroupLayoutValidator } from 'src/features/saveToGroup/ObjectToGroupLayoutValidator';
+import { useValidateGroupIsEmpty } from 'src/features/saveToGroup/useValidateGroupIsEmpty';
 import { CheckboxContainerComponent } from 'src/layout/Checkboxes/CheckboxesContainerComponent';
 import { CheckboxesSummary } from 'src/layout/Checkboxes/CheckboxesSummary';
 import { CheckboxesDef } from 'src/layout/Checkboxes/config.def.generated';
 import { MultipleChoiceSummary } from 'src/layout/Checkboxes/MultipleChoiceSummary';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompIntermediateExact } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { CheckboxSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { IDataModelBindings, NodeValidationProps } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+
+type Row = Record<string, string | number | boolean>;
 
 export class Checkboxes extends CheckboxesDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Checkboxes'>>(
@@ -29,72 +30,58 @@ export class Checkboxes extends CheckboxesDef {
     },
   );
 
-  renderNext(component: CompIntermediateExact<'Checkboxes'>, commonProps: CommonProps): React.JSX.Element | null {
-    const options = component.options || commonProps.options;
-
-    const [localOptions, setLocalOptions] = useState<string[]>(
-      commonProps.currentValue ? commonProps.currentValue.split(',') : [],
-    );
-
-    return (
-      <div>
-        <Checkbox.Group
-          legend=''
-          role='radiogroup'
-        >
-          {options?.map((option, idx) => (
-            <Checkbox
-              value={`${option.value}`}
-              description={option.description}
-              key={idx}
-              onChange={(e) => {
-                let nextOptions: string[] = [];
-                if (localOptions?.includes(e.target.value)) {
-                  nextOptions = localOptions.filter((val) => val !== e.target.value);
-                } else {
-                  localOptions.forEach((val) => nextOptions.push(val));
-                  nextOptions.push(e.target.value);
-                }
-                commonProps.onChange(nextOptions.join(','));
-                setLocalOptions(nextOptions);
-              }}
-            >
-              {option.label}
-            </Checkbox>
-          ))}
-        </Checkbox.Group>
-      </div>
-    );
-  }
-
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'Checkboxes');
-    const options = useNodeOptions(nodeId).options;
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'Checkboxes');
+    const options = useOptionsFor(baseComponentId, 'multi').options;
     const langAsString = useLanguage().langAsString;
-    const data = getCommaSeparatedOptionsToText(formData?.simpleBinding, options, langAsString);
+
+    const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'Checkboxes');
+
+    const relativeCheckedPath =
+      dataModelBindings?.checked && dataModelBindings?.group
+        ? dataModelBindings.checked.field.replace(`${dataModelBindings.group.field}.`, '')
+        : undefined;
+
+    const relativeSimpleBindingPath =
+      dataModelBindings?.simpleBinding && dataModelBindings?.group
+        ? dataModelBindings.simpleBinding.field.replace(`${dataModelBindings.group.field}.`, '')
+        : undefined;
+
+    const displayRows = (formData?.group as unknown as Row[])
+      ?.filter((row) => (!relativeCheckedPath ? true : dot.pick(relativeCheckedPath, row) === true))
+      .map((row) => (!relativeSimpleBindingPath ? true : dot.pick(relativeSimpleBindingPath, row)));
+
+    const data = dataModelBindings?.group
+      ? getCommaSeparatedOptionsToText(displayRows?.join(','), options, langAsString)
+      : getCommaSeparatedOptionsToText(formData?.simpleBinding, options, langAsString);
+
     return Object.values(data).join(', ');
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'Checkboxes'>): JSX.Element | null {
-    return <MultipleChoiceSummary targetNode={targetNode} />;
+  evalExpressions(props: ExprResolver<'Checkboxes'>) {
+    return {
+      ...this.evalDefaultExpressions(props),
+      alertOnChange: props.evalBool(props.item.alertOnChange, false),
+    };
   }
 
-  renderSummary2(props: Summary2Props<'Checkboxes'>): JSX.Element | null {
-    return (
-      <CheckboxesSummary
-        componentNode={props.target}
-        summaryOverride={props.override as CheckboxSummaryOverrideProps}
-        isCompact={props.isCompact}
-        emptyFieldText={props.override?.emptyFieldText}
-      />
-    );
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
+    return <MultipleChoiceSummary {...props} />;
   }
 
-  useEmptyFieldValidation(node: LayoutNode<'Checkboxes'>): ComponentValidation[] {
-    return useEmptyFieldValidationOnlySimpleBinding(node);
+  renderSummary2(props: Summary2Props): JSX.Element | null {
+    return <CheckboxesSummary {...props} />;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'Checkboxes'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx);
+  useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateGroupIsEmpty(baseComponentId, 'Checkboxes');
+  }
+
+  renderLayoutValidators(props: NodeValidationProps<'Checkboxes'>): JSX.Element | null {
+    return <ObjectToGroupLayoutValidator {...props} />;
+  }
+
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'Checkboxes'>): string[] {
+    return useValidateSimpleBindingWithOptionalGroup(baseComponentId, bindings);
   }
 }

@@ -1,14 +1,19 @@
 import React from 'react';
 
 import { PaymentReceiptDetails } from 'src/layout/Payment/PaymentReceiptDetails/PaymentReceiptDetails';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export type PaymentSummaryProps = {
-  componentNode: LayoutNode<'Payment'>;
-};
+export function PaymentSummary({ targetBaseComponentId }: Summary2Props) {
+  const title = useItemWhenType(targetBaseComponentId, 'Payment').textResourceBindings?.title;
 
-export function PaymentSummary({ componentNode }: PaymentSummaryProps) {
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  return <PaymentReceiptDetails title={title} />;
+  return (
+    <SummaryFlex
+      targetBaseId={targetBaseComponentId}
+      content={SummaryContains.Presentational}
+    >
+      <PaymentReceiptDetails title={title} />
+    </SummaryFlex>
+  );
 }

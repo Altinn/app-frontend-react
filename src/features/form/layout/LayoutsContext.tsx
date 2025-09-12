@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import { skipToken, useQuery } from '@tanstack/react-query';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
+import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
 import { useTaskStore } from 'src/core/contexts/taskStoreContext';
@@ -12,11 +13,12 @@ import { makeLayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import { applyLayoutQuirks } from 'src/features/form/layout/quirks';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLayoutSet';
-import { useHasInstance } from 'src/features/instance/InstanceContext';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
+import { useNavigationParam } from 'src/hooks/navigation';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { ILayoutCollection, ILayouts } from 'src/layout/layout';
+import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
 
 export interface LayoutContextValue {
@@ -42,10 +44,10 @@ export function useLayoutQueryDef(
 }
 
 function useLayoutQuery() {
-  const hasInstance = useHasInstance();
-  const process = useLaxProcessData();
+  const { data: process } = useProcessQuery();
   const currentLayoutSetId = useLayoutSetId();
   const defaultDataModel = useCurrentDataModelName() ?? 'unknown';
+  const hasInstance = !!useInstanceDataQuery().data;
 
   // Waiting to fetch layouts until we have an instance, if we're supposed to have one
   // We don't want to fetch form layouts for a process step which we are currently not on
@@ -55,17 +57,20 @@ function useLayoutQuery() {
     utils.error && window.logError('Fetching form layout failed:\n', utils.error);
   }, [utils.error]);
 
-  return utils.data
-    ? {
-        ...utils,
-        data: {
-          ...utils.data,
-          lookups: makeLayoutLookups(utils.data.layouts),
-        },
-      }
-    : utils;
+  const data = useMemo(() => {
+    if (utils.data) {
+      return {
+        ...utils.data,
+        lookups: makeLayoutLookups(utils.data.layouts),
+      };
+    }
+
+    return utils.data;
+  }, [utils.data]);
+
+  return { ...utils, data };
 }
-const { Provider, useCtx } = delayedContext(() =>
+const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
   createQueryContext({
     name: 'LayoutsContext',
     required: true,
@@ -97,17 +102,28 @@ export function useLayoutSetId() {
   return layoutSetId ?? currentProcessLayoutSetId;
 }
 
-export function useDataTypeFromLayoutSet(layoutSetName: string) {
+export function useDataTypeFromLayoutSet(layoutSetName: string | undefined) {
   const layoutSets = useLayoutSets();
   return layoutSets.find((set) => set.id === layoutSetName)?.dataType;
 }
 
 const emptyLayouts: ILayouts = {};
 export const LayoutsProvider = Provider;
-export const useLayouts = (): ILayouts => useCtx()?.layouts ?? emptyLayouts;
+export const useLayouts = (): ILayouts => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? emptyLayouts : (ctx.layouts ?? emptyLayouts);
+};
 export const useLayoutLookups = () => useCtx().lookups;
+export const useLayoutLookupsLax = () => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? undefined : ctx.lookups;
+};
 
-export const useHiddenLayoutsExpressions = () => useCtx().hiddenLayoutsExpressions;
+const noExpressions: IHiddenLayoutsExternal = {};
+export const useHiddenLayoutsExpressions = () => {
+  const ctx = useLaxCtx();
+  return ctx === ContextNotProvided ? noExpressions : ctx.hiddenLayoutsExpressions;
+};
 
 export const useExpandedWidthLayouts = () => useCtx().expandedWidthLayouts;
 
@@ -124,6 +140,7 @@ function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModel
 
   const withQuirksFixed = applyLayoutQuirks(layouts, layoutSetId);
   removeDuplicateComponentIds(withQuirksFixed, layoutSetId);
+  addLikertItemToLayout(withQuirksFixed);
 
   return {
     layouts: withQuirksFixed,
@@ -185,5 +202,41 @@ function removeDuplicateComponentIds(layouts: ILayouts, layoutSetId: string) {
     const _fullCode = `'${fullKey}': ${code.join('\n')},`;
     // Uncomment the next line to get the generated quirks code
     // debugger;
+  }
+}
+
+function addLikertItemToLayout(layouts: ILayouts) {
+  for (const pageKey of Object.keys(layouts)) {
+    const page = layouts[pageKey] || [];
+    for (const comp of page.values()) {
+      if (comp.type === 'Likert') {
+        const likertItem: CompExternal<'LikertItem'> = {
+          id: makeLikertChildId(comp.id),
+          type: 'LikertItem',
+          textResourceBindings: {
+            title: comp.textResourceBindings?.questions,
+          },
+          dataModelBindings: {
+            simpleBinding: comp.dataModelBindings?.answer,
+          },
+          options: comp.options,
+          optionsId: comp.optionsId,
+          mapping: comp.mapping,
+          required: comp.required,
+          secure: comp.secure,
+          queryParameters: comp.queryParameters,
+          readOnly: comp.readOnly,
+          sortOrder: comp.sortOrder,
+          showValidations: comp.showValidations,
+          grid: comp.grid,
+          source: comp.source,
+          hidden: comp.hidden,
+          pageBreak: comp.pageBreak,
+          renderAsSummary: comp.renderAsSummary,
+          columns: comp.columns,
+        };
+        page.push(likertItem);
+      }
+    }
   }
 }

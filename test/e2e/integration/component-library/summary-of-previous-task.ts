@@ -1,5 +1,6 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { fillInAddressAndVerify } from 'test/e2e/support/apps/component-library/fillAddressAndVerify';
+import { groupCheckboxMultiSelectListAndVerify } from 'test/e2e/support/apps/component-library/groupCheckboxMultiSelectListAndVerify';
 import { fillInInputAndVerify } from 'test/e2e/support/apps/component-library/inputAndVerify';
 import {
   uploadFileAndVerify,
@@ -18,16 +19,23 @@ const houseNumber = 'U0101';
 const fileName = 'uploadThis.pdf';
 const fileType = 'Bil';
 
+const checkboxOptionText = 'Kari';
+const multiSelectOptionText = 'Kåre';
+const listOptionText = 'Johanne';
+
 describe('Render summary of previous task', () => {
   it('Renders the summary2 component with correct text', () => {
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     fillInInputAndVerify(inputText);
+    groupCheckboxMultiSelectListAndVerify(checkboxOptionText, multiSelectOptionText, listOptionText);
     fillInAddressAndVerify(address, co, zip, houseNumber);
     uploadFileAndVerify(fileName);
     uploadFileWithTagAndVerify(fileName, fileType);
 
     cy.findByRole('button', { name: /Datepicker/i }).click();
-    cy.findByRole('textbox', { name: /datofeltet/i }).type('01.01.2022');
+    cy.findAllByRole('textbox', { name: /datofeltet/i })
+      .first()
+      .type('01.01.2022');
 
     cy.gotoNavPage('Oppsummering 2.0');
 

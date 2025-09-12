@@ -13,12 +13,12 @@ import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
-import { useCharacterLimit } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type {
+  HTMLAutoCompleteValues,
   NumberFormatProps as NumberFormatPropsCG,
   PatternFormatProps as PatternFormatPropsCG,
 } from 'src/layout/common.generated';
@@ -56,9 +56,54 @@ function getVariantWithFormat(
   return { type: 'text' };
 }
 
-export type IInputProps = PropsFromGenericComponent<'Input'>;
+function getMobileKeyboardProps(
+  variant: Variant,
+  autocomplete: HTMLAutoCompleteValues | undefined,
+): Pick<InputProps, 'inputMode' | 'pattern'> {
+  if (variant.type === 'search') {
+    return { inputMode: 'search', pattern: undefined };
+  }
 
-export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node' | 'overrideDisplay'>) => {
+  if (autocomplete === 'email') {
+    return { inputMode: 'email', pattern: undefined };
+  }
+
+  if (autocomplete === 'url' || autocomplete === 'photo') {
+    return { inputMode: 'url', pattern: undefined };
+  }
+
+  if (autocomplete === 'tel') {
+    return { inputMode: 'tel', pattern: '[-+()0-9]*' };
+  }
+
+  if (variant.type === 'pattern') {
+    // Pattern inputs are simple. They fill out spaces or separators for you automatically, so the user can focus on
+    // typing the numbers.
+    return { inputMode: 'numeric', pattern: undefined };
+  }
+
+  if (variant.type === 'number') {
+    if (variant.format.allowNegative === false) {
+      return { inputMode: 'decimal', pattern: `[0-9,.]*` };
+    }
+
+    if (navigator?.platform && /iPhone|iPad/.test(navigator.platform)) {
+      // Decimal on iOS does not allow negative numbers, so we have to fall back to text
+      // when negatives are allowed. For more details, see the issue:
+      // https://github.com/s-yadav/react-number-format/issues/189#issuecomment-623267349
+      return { inputMode: 'text', pattern: `-?[0-9,.]*` };
+    }
+
+    return { inputMode: 'decimal', pattern: `-?[0-9,.]*` };
+  }
+
+  return { inputMode: 'text', pattern: undefined };
+}
+
+export const InputVariant = ({
+  baseComponentId,
+  overrideDisplay,
+}: Pick<PropsFromGenericComponent<'Input'>, 'baseComponentId' | 'overrideDisplay'>) => {
   const {
     id,
     readOnly,
@@ -70,37 +115,41 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
     saveWhileTyping,
     autocomplete,
     maxLength,
-  } = useNodeItem(node);
+  } = useItemWhenType(baseComponentId, 'Input');
   const {
     formData: { simpleBinding: realFormValue },
     setValue,
   } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const { langAsString } = useLanguage();
-  const characterLimit = useCharacterLimit(maxLength);
 
   const [localValue, setLocalValue] = React.useState<string | undefined>(undefined);
   const formValue = localValue ?? realFormValue;
+  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
+  const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
+  const { inputMode, pattern } = getMobileKeyboardProps(variant, autocomplete);
+  const debounce = FD.useDebounceImmediately();
 
   const inputProps: InputProps = {
     id,
-    'aria-label': overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined,
+    'aria-label': langAsString(textResourceBindings?.title),
     'aria-describedby':
-      textResourceBindings?.title && textResourceBindings?.description ? getDescriptionId(id) : undefined,
+      overrideDisplay?.renderedInTable !== true && textResourceBindings?.title && textResourceBindings?.description
+        ? getDescriptionId(id)
+        : undefined,
     autoComplete: autocomplete,
     className: formatting?.align ? classes[`text-align-${formatting.align}`] : '',
     readOnly,
     textonly: overrideDisplay?.rowReadOnly && readOnly,
     required,
-    onBlur: FD.useDebounceImmediately(),
-    error: !useIsValid(node),
+    onBlur: () => debounce('blur'),
+    error: !useIsValid(baseComponentId),
     prefix: textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined,
     suffix: textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined,
-    characterLimit: !readOnly ? characterLimit : undefined,
     style: { width: '100%' },
+    inputMode,
+    pattern,
   };
 
-  const reactNumberFormatConfig = useMapToReactNumberConfig(formatting, formValue);
-  const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
   switch (variant.type) {
     case 'search':
     case 'text':
@@ -112,6 +161,7 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
           onChange={(event) => {
             setValue('simpleBinding', event.target.value);
           }}
+          maxLength={maxLength}
         />
       );
     case 'pattern':
@@ -127,6 +177,7 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
             }
             setValue('simpleBinding', values.value);
           }}
+          maxLength={maxLength}
         />
       );
     case 'number':
@@ -181,16 +232,20 @@ export const InputVariant = ({ node, overrideDisplay }: Pick<IInputProps, 'node'
               setValue('simpleBinding', pastedText);
             }
           }}
+          maxLength={maxLength}
         />
       );
   }
 };
 
-export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, overrideDisplay }) => {
-  const { grid, id, required } = useNodeItem(node);
+export const InputComponent: React.FunctionComponent<PropsFromGenericComponent<'Input'>> = ({
+  baseComponentId,
+  overrideDisplay,
+}) => {
+  const { grid, id, required } = useItemWhenType(baseComponentId, 'Input');
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
-    useLabel({ node, overrideDisplay });
+    useLabel({ baseComponentId, overrideDisplay });
 
   return (
     <Label
@@ -203,9 +258,9 @@ export const InputComponent: React.FunctionComponent<IInputProps> = ({ node, ove
       help={getHelpTextComponent()}
       description={getDescriptionComponent()}
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <InputVariant
-          node={node}
+          baseComponentId={baseComponentId}
           overrideDisplay={overrideDisplay}
         />
       </ComponentStructureWrapper>

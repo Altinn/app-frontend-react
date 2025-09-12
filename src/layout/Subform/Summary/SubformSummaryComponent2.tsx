@@ -3,11 +3,12 @@ import React, { type PropsWithChildren } from 'react';
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { Label } from 'src/components/label/Label';
+import { Label, LabelInner } from 'src/components/label/Label';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
-import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useStrictDataElements } from 'src/features/instance/InstanceContext';
+import { useDataTypeFromLayoutSet, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useDoOverrideSummary } from 'src/layout/Subform/SubformWrapper';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent2.module.css';
@@ -18,18 +19,21 @@ import {
   useSubformFormData,
 } from 'src/layout/Subform/utils';
 import classes_singlevaluesummary from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { LayoutSetSummary } from 'src/layout/Summary2/SummaryComponent2/LayoutSetSummary';
-import { NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useSummaryOverrides } from 'src/layout/Summary2/summaryStoreContext';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import { typedBoolean } from 'src/utils/typing';
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: string }>) => {
-  const node = useNode(nodeId) as LayoutNode<'Subform'>;
-  const { layoutSet, id, textResourceBindings, entryDisplayName } = useNodeItem(node);
+const SummarySubformWrapperInner = ({
+  targetBaseComponentId,
+}: PropsWithChildren<{ targetBaseComponentId: string }>) => {
+  const { layoutSet, id, textResourceBindings, entryDisplayName } = useItemWhenType(targetBaseComponentId, 'Subform');
   const dataType = useDataTypeFromLayoutSet(layoutSet);
-  const dataElements = useStrictDataElements(dataType);
+  const dataElements = useInstanceDataElements(dataType);
 
   return (
     <>
@@ -37,7 +41,7 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
         <>
           <div className={classes.pageBreak} />
           <Label
-            node={node}
+            baseComponentId={targetBaseComponentId}
             id={`subform-summary2-${id}`}
             renderLabelAs='span'
             weight='regular'
@@ -57,7 +61,7 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
           <DoSummaryWrapper
             dataElement={element}
             layoutSet={layoutSet}
-            node={node}
+            baseComponentId={targetBaseComponentId}
             entryDisplayName={entryDisplayName}
             title={textResourceBindings?.title}
           />
@@ -67,19 +71,23 @@ export const SummarySubformWrapper = ({ nodeId }: PropsWithChildren<{ nodeId: st
   );
 };
 
+export const SummarySubformWrapper = React.memo(SummarySubformWrapperInner);
+SummarySubformWrapper.displayName = 'SummarySubformWrapper';
+
 const DoSummaryWrapper = ({
   dataElement,
   layoutSet,
   entryDisplayName,
   title,
-  node,
+  baseComponentId,
 }: React.PropsWithChildren<{
   dataElement: IData;
   layoutSet: string;
   entryDisplayName?: ExprValToActualOrExpr<ExprVal.String>;
   title: string | undefined;
-  node: LayoutNode<'Subform'>;
+  baseComponentId: string;
 }>) => {
+  const item = useItemWhenType(baseComponentId, 'Subform');
   const isDone = useDoOverrideSummary(dataElement.id, layoutSet, dataElement.dataType);
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
@@ -91,12 +99,12 @@ const DoSummaryWrapper = ({
 
   const subformEntryName =
     entryDisplayName && !subformDataError
-      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, { type: 'node', id: node.id })
+      ? getSubformEntryDisplayName(entryDisplayName, subformDataSources, baseComponentId)
       : null;
 
   return (
     <div className={classes.summaryWrapperMargin}>
-      <FormProvider>
+      <FormProvider readOnly={true}>
         <Flex
           container
           spacing={6}
@@ -104,8 +112,9 @@ const DoSummaryWrapper = ({
         >
           <Flex item>
             <div className={classes_singlevaluesummary.labelValueWrapper}>
-              <Label
-                node={node}
+              <LabelInner
+                item={item}
+                baseComponentId={baseComponentId}
                 id={`subform-summary2-${dataElement.id}`}
                 renderLabelAs='span'
                 weight='regular'
@@ -114,8 +123,7 @@ const DoSummaryWrapper = ({
               {subformEntryName && (
                 <Heading
                   className='no-visual-testing'
-                  spacing={false}
-                  size='sm'
+                  data-size='sm'
                   level={2}
                 >
                   {subformEntryName}
@@ -130,39 +138,54 @@ const DoSummaryWrapper = ({
   );
 };
 
-export function SubformSummaryComponent2({
-  displayType,
-  subformId,
-  componentNode,
-}: {
-  displayType?: string;
-  subformId?: string;
-  componentNode?: LayoutNode<'Subform'>;
-}) {
-  const allOrOneSubformId = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((data) => data.layout.type === 'Subform')
-      .filter((data) => {
-        if (!subformId) {
-          return data;
-        }
-        return data.layout.id === subformId;
-      })
-      .map((data) => data.layout.id),
-  );
-
-  if (displayType === 'table' && componentNode) {
-    return <SubformSummaryTable targetNode={componentNode} />;
-  }
+export function AllSubformSummaryComponent2() {
+  const lookups = useLayoutLookups();
+  const allIds = Object.values(lookups.topLevelComponents)
+    .flat()
+    .filter((id) => (id ? lookups.allComponents[id]?.type === 'Subform' : false))
+    .filter(typedBoolean);
 
   return (
     <>
-      {allOrOneSubformId.map((childId, idx) => (
+      {allIds.map((childId, idx) => (
         <SummarySubformWrapper
           key={idx}
-          nodeId={childId}
+          targetBaseComponentId={childId}
         />
       ))}
     </>
+  );
+}
+
+export function SubformSummaryComponent2({ targetBaseComponentId }: Summary2Props) {
+  const displayType = useSummaryOverrides<'Subform'>(targetBaseComponentId)?.display;
+  const { layoutSet } = useItemWhenType(targetBaseComponentId, 'Subform');
+  const dataType = useDataTypeFromLayoutSet(layoutSet);
+  const dataElements = useInstanceDataElements(dataType);
+  const minCount = useApplicationMetadata().dataTypes.find((dt) => dt.id === dataType)?.minCount;
+  const hasElements = !!(dataType && dataElements.length > 0);
+  const required =
+    useItemWhenType(targetBaseComponentId, 'Subform').required || (minCount !== undefined && minCount > 0);
+
+  const inner =
+    displayType === 'table' ? (
+      <SubformSummaryTable targetBaseComponentId={targetBaseComponentId} />
+    ) : (
+      <SummarySubformWrapper targetBaseComponentId={targetBaseComponentId} />
+    );
+
+  return (
+    <SummaryFlex
+      targetBaseId={targetBaseComponentId}
+      content={
+        hasElements
+          ? SummaryContains.SomeUserContent
+          : required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+      }
+    >
+      {inner}
+    </SummaryFlex>
   );
 }

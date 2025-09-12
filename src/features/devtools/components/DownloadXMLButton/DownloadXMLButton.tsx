@@ -34,7 +34,7 @@ const InnerDownloadXMLButton = () => {
 
   const downloadXML = async () => {
     const dataElementId = selectedDataType ? getDataElementIdForDataType(selectedDataType) : undefined;
-    const dataUrl = dataElementId && instanceId ? getStatefulDataModelUrl(instanceId, dataElementId, true) : undefined;
+    const dataUrl = dataElementId && instanceId ? getStatefulDataModelUrl(instanceId, dataElementId) : undefined;
     if (dataUrl) {
       const response = await axios.get(dataUrl, { headers: { Accept: 'application/xml' } });
 
@@ -49,7 +49,7 @@ const InnerDownloadXMLButton = () => {
 
   const uploadXML = async (acceptedFiles: File[]) => {
     const dataElementId = selectedDataType ? getDataElementIdForDataType(selectedDataType) : undefined;
-    const dataUrl = dataElementId && instanceId ? getStatefulDataModelUrl(instanceId, dataElementId, true) : undefined;
+    const dataUrl = dataElementId && instanceId ? getStatefulDataModelUrl(instanceId, dataElementId) : undefined;
     if (dataUrl && acceptedFiles.length) {
       const currentLock = await lock();
       try {
@@ -70,7 +70,8 @@ const InnerDownloadXMLButton = () => {
     }
   };
   return (
-    <Fieldset legend='Skjemadata'>
+    <Fieldset>
+      <Fieldset.Legend>Skejmadata</Fieldset.Legend>
       {writableDataTypes?.length > 1 && (
         <Combobox
           size='sm'

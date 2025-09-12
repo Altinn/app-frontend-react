@@ -4,11 +4,10 @@ import { usePrefetchQuery } from 'src/core/queries/usePrefetchQuery';
 import { getApplicationMetadataQueryDef } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useApplicationSettingsQueryDef } from 'src/features/applicationSettings/ApplicationSettingsProvider';
 import { useLayoutSetsQueryDef } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useInstanceDataQueryDef } from 'src/features/instance/InstanceContext';
-import { getProcessQueryDef } from 'src/features/instance/ProcessContext';
+import { instanceQueries } from 'src/features/instance/InstanceContext';
+import { processQueries } from 'src/features/instance/useProcessQuery';
 import { useOrgsQueryDef } from 'src/features/orgs/OrgsProvider';
-import { useCurrentPartyQueryDef, usePartiesQueryDef } from 'src/features/party/PartiesProvider';
-import { useProfileQueryDef } from 'src/features/profile/ProfileProvider';
+import { usePartiesQueryDef, useSelectedPartyQueryDef } from 'src/features/party/PartiesProvider';
 
 /**
  * Prefetches requests that require no processed data to determine the url
@@ -22,14 +21,13 @@ export function AppPrefetcher() {
 
   usePrefetchQuery(getApplicationMetadataQueryDef(instanceGuid));
   usePrefetchQuery(useLayoutSetsQueryDef());
-  usePrefetchQuery(useProfileQueryDef(true), Boolean(instanceOwnerPartyId));
   usePrefetchQuery(useOrgsQueryDef());
   usePrefetchQuery(useApplicationSettingsQueryDef());
   usePrefetchQuery(usePartiesQueryDef(true), Boolean(instanceOwnerPartyId));
-  usePrefetchQuery(useCurrentPartyQueryDef(true), Boolean(instanceOwnerPartyId));
+  usePrefetchQuery(useSelectedPartyQueryDef(true), Boolean(instanceOwnerPartyId));
 
-  usePrefetchQuery(useInstanceDataQueryDef(false, instanceOwnerPartyId, instanceGuid));
-  usePrefetchQuery(getProcessQueryDef(instanceId));
+  usePrefetchQuery(instanceQueries.instanceData({ instanceOwnerPartyId, instanceGuid }));
+  usePrefetchQuery(processQueries.processState(instanceId));
 
   return null;
 }

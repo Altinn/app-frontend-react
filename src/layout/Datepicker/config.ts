@@ -1,12 +1,6 @@
 import { CG } from 'src/codegen/CG';
+import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
-
-export const DATEPICKER_SUMMARY_OVERRIDE_PROPS = new CG.obj()
-  .extends(CG.common('ISummaryOverridesCommon'))
-  .optional()
-  .setTitle('Summary properties')
-  .setDescription('Properties for how to display the summary of the component')
-  .exportAs('DatepickerSummaryOverrideProps');
 
 export const Config = new CG.component({
   category: CompCategory.Form,
@@ -20,14 +14,22 @@ export const Config = new CG.component({
     renderInTabs: true,
   },
   functionality: {
-    customExpressions: false,
+    customExpressions: true,
   },
 })
   .addDataModelBinding(CG.common('IDataModelBindingsSimple'))
+  .addProperty(new CG.prop('autocomplete', new CG.const('bday').optional()))
   .addProperty(
     new CG.prop(
       'minDate',
-      new CG.union(new CG.str(), new CG.const('today'))
+      new CG.union(
+        new CG.expr(ExprVal.String),
+        new CG.const('today'),
+        new CG.const('yesterday'),
+        new CG.const('tomorrow'),
+        new CG.const('oneYearAgo'),
+        new CG.const('oneYearFromNow'),
+      )
         .optional({ default: '1900-01-01T12:00:00.000Z' })
         .setTitle('Earliest date')
         .setDescription(
@@ -39,7 +41,14 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'maxDate',
-      new CG.union(new CG.str(), new CG.const('today'))
+      new CG.union(
+        new CG.expr(ExprVal.String),
+        new CG.const('today'),
+        new CG.const('yesterday'),
+        new CG.const('tomorrow'),
+        new CG.const('oneYearAgo'),
+        new CG.const('oneYearFromNow'),
+      )
         .optional({ default: '2100-01-01T12:00:00.000Z' })
         .setTitle('Latest date')
         .setDescription(
@@ -74,4 +83,5 @@ export const Config = new CG.component({
     ),
   )
   .extends(CG.common('LabeledComponentProps'))
-  .extendTextResources(CG.common('TRBLabel'));
+  .extendTextResources(CG.common('TRBLabel'))
+  .addSummaryOverrides();

@@ -1,9 +1,7 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useCallback, useEffect, useMemo } from 'react';
 
 import dot from 'dot-object';
 
-import { ContextNotProvided } from 'src/core/contexts/context';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
@@ -11,19 +9,19 @@ import { ExprValidation } from 'src/features/expressions/validation';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useStrictInstanceId } from 'src/features/instance/InstanceContext';
-import { useInnerLanguageWithForcedNodeSelector } from 'src/features/language/useLanguage';
+import { useInnerLanguageWithForcedPathSelector } from 'src/features/language/useLanguage';
 import {
   type DataSourceOverrides,
   type ExpressionDataSources,
   useExpressionDataSources,
 } from 'src/utils/layout/useExpressionDataSources';
 import { getStatefulDataModelUrl } from 'src/utils/urls/appUrlHelper';
-import type { ExprConfig, ExprValToActualOrExpr, NodeReference } from 'src/features/expressions/types';
+import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IDataModelReference } from 'src/layout/common.generated';
 
 export function useSubformFormData(dataElementId: string) {
   const instanceId = useStrictInstanceId();
-  const url = getStatefulDataModelUrl(instanceId, dataElementId, true);
+  const url = getStatefulDataModelUrl(instanceId, dataElementId);
   const { isFetching: isSubformDataFetching, data: subformData, error: subformDataError } = useFormDataQuery(url);
 
   useEffect(() => {
@@ -50,23 +48,19 @@ function useFormDataSelectorForSubform(dataType: string, subformData: unknown) {
       if (reference.dataType !== dataType) {
         return formDataSelector(reference);
       }
-      return dot.pick(reference.field, subformData);
+      const result = dot.pick(reference.field, subformData);
+      return result;
     },
     [formDataSelector, dataType, subformData],
   );
 }
 
 function useLangToolsSelectorForSubform(dataType: string, subformData: unknown) {
-  return useInnerLanguageWithForcedNodeSelector(
+  return useInnerLanguageWithForcedPathSelector(
     dataType,
     useDataModelNamesForSubform(dataType),
     useFormDataSelectorForSubform(dataType, subformData),
-    selectorContextNotProvided,
   );
-}
-
-function selectorContextNotProvided(..._args: unknown[]): typeof ContextNotProvided {
-  return ContextNotProvided;
 }
 
 function useOverriddenDataSourcesForSubform(
@@ -76,18 +70,18 @@ function useOverriddenDataSourcesForSubform(
   return {
     defaultDataType: () => dataType,
     currentDataModelPath: () => undefined,
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     dataModelNames: () => useDataModelNamesForSubform(dataType),
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     formDataSelector: () => useFormDataSelectorForSubform(dataType, subformData),
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     langToolsSelector: () => useLangToolsSelectorForSubform(dataType, subformData),
   };
 }
 
 const dataSourcesNotSupportedInSubform = new Set([
   'attachmentsSelector',
-  'optionsSelector',
-  'isHiddenSelector',
-  'nodeDataSelector',
-  'transposeSelector',
+  'hiddenComponents',
   'layoutLookups',
   'displayValues',
 ] satisfies (keyof ExpressionDataSources)[]);
@@ -111,18 +105,39 @@ export function useExpressionDataSourcesForSubform(
 export function getSubformEntryDisplayName(
   entryDisplayName: ExprValToActualOrExpr<ExprVal.String>,
   dataSources: ExpressionDataSources,
-  reference: NodeReference,
+  baseComponentId: string,
 ): string | null {
-  const errorIntroText = `Invalid expression for component '${reference.id}'`;
+  const errorIntroText = `Invalid expression for component '${baseComponentId}'`;
   if (!ExprValidation.isValidOrScalar(entryDisplayName, ExprVal.String, errorIntroText)) {
     return null;
   }
 
-  const config: ExprConfig = {
+  const resolvedValue = evalExpr(entryDisplayName, dataSources, {
     returnType: ExprVal.String,
     defaultValue: '',
-  };
-
-  const resolvedValue = evalExpr(entryDisplayName, reference, dataSources, { config, errorIntroText });
+    errorIntroText,
+  });
   return resolvedValue ? String(resolvedValue) : null;
+}
+
+export function evalSubformString(
+  expr: ExprValToActualOrExpr<ExprVal.String> | undefined,
+  dataSources: ExpressionDataSources,
+  defaultValue = '',
+): string {
+  if (!ExprValidation.isValidOrScalar(expr, ExprVal.String)) {
+    return defaultValue;
+  }
+
+  try {
+    const resolvedValue = evalExpr(expr, dataSources, {
+      returnType: ExprVal.String,
+      defaultValue,
+    });
+
+    return resolvedValue ? String(resolvedValue) : defaultValue;
+  } catch (error) {
+    console.error('Error evaluating subform expression:', error);
+    return defaultValue;
+  }
 }

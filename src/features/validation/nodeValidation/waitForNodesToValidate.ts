@@ -1,13 +1,17 @@
 import { useCallback } from 'react';
 
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { shouldValidateNode } from 'src/features/validation/StoreValidationsInNode';
 import { GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
 import { NodesStore } from 'src/utils/layout/NodesContext';
 import type { ValidationsProcessedLast } from 'src/features/validation';
+import type { CompExternal, CompTypes } from 'src/layout/layout';
+import type { NodeData } from 'src/utils/layout/types';
 
 export function useWaitForNodesToValidate() {
   const registry = GeneratorInternal.useRegistry();
   const nodesStore = NodesStore.useStore();
+  const lookups = useLayoutLookups();
 
   return useCallback(
     async (processedLast: ValidationsProcessedLast): Promise<void> => {
@@ -20,8 +24,8 @@ export function useWaitForNodesToValidate() {
         const nodeIds = Object.keys(allNodeData);
         for (const nodeId of nodeIds) {
           const nodeData = allNodeData[nodeId];
-          if (!nodeData || !('validations' in nodeData) || !shouldValidateNode(nodeData.layout)) {
-            // Node does not support validation
+          const layout = lookups.getComponent(nodeData.baseId);
+          if (!doesNodeSupportValidation(nodeData, layout)) {
             continue;
           }
 
@@ -49,6 +53,10 @@ export function useWaitForNodesToValidate() {
         checkAndResolve();
       });
     },
-    [nodesStore, registry],
+    [lookups, nodesStore, registry],
   );
+}
+
+function doesNodeSupportValidation<T extends CompTypes>(nodeData: NodeData, layout: CompExternal<T>): boolean {
+  return nodeData && 'validations' in nodeData && shouldValidateNode(layout);
 }

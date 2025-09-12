@@ -1,46 +1,41 @@
 import React from 'react';
 
 import { ErrorPaper } from 'src/components/message/ErrorPaper';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
+import { getComponentDef } from 'src/layout';
 import { CompCategory } from 'src/layout/common';
-import { LargeGroupSummaryContainer } from 'src/layout/RepeatingGroup/Summary/LargeGroupSummaryContainer';
+import { LargeRowSummaryContainer } from 'src/layout/RepeatingGroup/Summary/LargeRowSummaryContainer';
 import classes from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup.module.css';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
-import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
-import { Hidden } from 'src/utils/layout/NodesContext';
-import { useNodeDirectChildren, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
+import { DataModelLocationProvider, useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden, useIsHiddenMulti } from 'src/utils/layout/hidden';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { RepGroupRow, RepGroupRows } from 'src/layout/RepeatingGroup/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { BaseRow } from 'src/utils/layout/types';
 
-interface FullProps extends SummaryRendererProps<'RepeatingGroup'> {
-  rows: RepGroupRows;
-  inExcludedChildren: (n: LayoutNode) => boolean;
+interface FullProps extends SummaryRendererProps {
+  rows: BaseRow[];
+  inExcludedChildren: (indexedId: string, baseId: string) => boolean;
 }
 
 interface FullRowProps extends Omit<FullProps, 'rows'> {
-  row: RepGroupRow;
+  row: BaseRow;
 }
 
-export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGroup'>) {
-  const { excludedChildren, largeGroup } = useNodeItem(props.summaryNode) ?? {};
-  const { rows: _rows } = useNodeItem(props.targetNode);
+export function SummaryRepeatingGroup(props: SummaryRendererProps) {
+  const { excludedChildren, largeGroup } = props.overrides ?? {};
+  const rows = RepGroupHooks.useVisibleRows(props.targetBaseComponentId);
 
-  const inExcludedChildren = (n: LayoutNode) =>
-    excludedChildren ? excludedChildren.includes(n.id) || excludedChildren.includes(n.baseId) : false;
-
-  const rows: RepGroupRow[] = [];
-  for (const row of _rows) {
-    if (!row || row.groupExpressions?.hiddenRow || row.index === undefined) {
-      continue;
-    }
-    rows.push(row);
-  }
+  const inExcludedChildren = (indexedId: string, baseId: string) =>
+    excludedChildren ? excludedChildren.includes(indexedId) || excludedChildren.includes(baseId) : false;
 
   if (largeGroup && props.overrides?.largeGroup !== false && rows.length) {
     return (
@@ -62,16 +57,14 @@ export function SummaryRepeatingGroup(props: SummaryRendererProps<'RepeatingGrou
 }
 
 function RegularRepeatingGroup(props: FullProps) {
-  const { onChangeClick, changeText, summaryNode, targetNode, overrides, rows: _rows } = props;
+  const { onChangeClick, changeText, targetBaseComponentId, overrides, rows: _rows } = props;
   const rows = _rows.filter(typedBoolean);
+  const { textResourceBindings: trb } = useItemWhenType(targetBaseComponentId, 'RepeatingGroup');
+  const display = overrides?.display;
+  const { langAsString } = useLanguage();
 
-  const { display: summaryDisplay } = useNodeItem(summaryNode) ?? {};
-  const { textResourceBindings: trb } = useNodeItem(targetNode);
-
-  const display = overrides?.display || summaryDisplay;
-  const { langAsString } = useLanguage(targetNode);
-
-  const groupValidations = useDeepValidationsForNode(targetNode);
+  const dataModelBindings = useDataModelBindingsFor(targetBaseComponentId, 'RepeatingGroup');
+  const groupValidations = useDeepValidationsForNode(targetBaseComponentId);
   const groupHasErrors = hasValidationErrors(groupValidations);
 
   const summaryAccessibleTitleTrb = trb && 'summaryAccessibleTitle' in trb ? trb.summaryAccessibleTitle : undefined;
@@ -87,10 +80,7 @@ function RegularRepeatingGroup(props: FullProps) {
       >
         <div className={classes.container}>
           <span className={classes.label}>
-            <Lang
-              id={summaryTitleTrb ?? titleTrb}
-              node={targetNode}
-            />
+            <Lang id={summaryTitleTrb ?? titleTrb} />
           </span>
           {!display?.hideChangeButton ? (
             <EditButton
@@ -107,11 +97,16 @@ function RegularRepeatingGroup(props: FullProps) {
             </span>
           ) : (
             rows.map((row) => (
-              <RegularRepeatingGroupRow
+              <DataModelLocationProvider
                 key={`row-${row.uuid}`}
-                {...props}
-                row={row}
-              />
+                groupBinding={dataModelBindings.group}
+                rowIndex={row.index}
+              >
+                <RegularRepeatingGroupRow
+                  {...props}
+                  row={row}
+                />
+              </DataModelLocationProvider>
             ))
           )}
         </div>
@@ -138,81 +133,80 @@ function RegularRepeatingGroup(props: FullProps) {
 }
 
 function RegularRepeatingGroupRow({
-  targetNode,
+  targetBaseComponentId,
   inExcludedChildren,
   row,
   onChangeClick,
   changeText,
-  summaryNode,
 }: FullRowProps) {
-  const isHidden = Hidden.useIsHiddenSelector();
-  const children = useNodeDirectChildren(targetNode, row.index);
-  const dataModelBindings = useNodeItem(targetNode, (i) => i.dataModelBindings);
+  const children = RepGroupHooks.useChildIds(targetBaseComponentId);
+  const isHidden = useIsHiddenMulti(children);
+  const idMutator = useComponentIdMutator();
+  const layoutLookups = useLayoutLookups();
 
   const childSummaryComponents = children
-    .filter((n) => !inExcludedChildren(n))
-    .map((child) => {
-      if (!isHidden(child) && child.isCategory(CompCategory.Form)) {
-        return { component: child.def.renderCompactSummary.bind(child.def), child };
+    .filter((baseId) => !inExcludedChildren(idMutator(baseId), baseId))
+    .map((baseId) => {
+      const component = layoutLookups.getComponent(baseId);
+      const def = getComponentDef(component.type);
+      if (!isHidden[baseId] && def.category === CompCategory.Form) {
+        return { component: def.renderCompactSummary.bind(def), id: baseId };
       }
     })
     .filter(typedBoolean);
 
   return (
-    <DataModelLocationProvider
-      groupBinding={dataModelBindings.group}
-      rowIndex={row.index}
+    <div
       key={`row-${row.uuid}`}
+      data-testid='summary-repeating-row'
+      className={classes.border}
     >
-      <div
-        data-testid='summary-repeating-row'
-        className={classes.border}
-      >
-        {childSummaryComponents.map(({ component: RenderCompactSummary, child }) => (
-          <RenderCompactSummary
-            onChangeClick={onChangeClick}
-            changeText={changeText}
-            key={child.id}
-            targetNode={child as never} // FIXME: Never type
-            summaryNode={summaryNode}
-            overrides={{}}
-          />
-        ))}
-      </div>
-    </DataModelLocationProvider>
+      {childSummaryComponents.map(({ component: RenderCompactSummary, id }) => (
+        <RenderCompactSummary
+          onChangeClick={onChangeClick}
+          changeText={changeText}
+          key={id}
+          targetBaseComponentId={id}
+          overrides={{}}
+        />
+      ))}
+    </div>
   );
 }
 
-function LargeRepeatingGroup({ targetNode, summaryNode, overrides, inExcludedChildren, rows }: FullProps) {
-  const isHidden = Hidden.useIsHiddenSelector();
+function LargeRepeatingGroup({ targetBaseComponentId, overrides, inExcludedChildren, rows }: FullProps) {
+  const groupBinding = useDataModelBindingsFor(targetBaseComponentId, 'RepeatingGroup').group;
+  const isHidden = useIsHidden(targetBaseComponentId);
+
+  if (isHidden) {
+    return null;
+  }
 
   return (
     <>
       {rows.filter(typedBoolean).map((row) => (
-        <LargeGroupSummaryContainer
-          key={`summary-${targetNode.id}-${row.uuid}`}
-          id={`summary-${targetNode.id}-${row.index}`}
-          groupNode={targetNode}
-          restriction={row.index}
-          renderLayoutNode={(n) => {
-            if (inExcludedChildren(n) || isHidden(n)) {
-              return null;
-            }
-
-            return (
-              <SummaryComponent
-                key={n.id}
-                summaryNode={summaryNode}
+        <DataModelLocationProvider
+          key={`summary-${targetBaseComponentId}-${row.uuid}`}
+          groupBinding={groupBinding}
+          rowIndex={row.index}
+        >
+          <LargeRowSummaryContainer
+            id={`summary-${targetBaseComponentId}-${row.index}`}
+            baseComponentId={targetBaseComponentId}
+            inExcludedChildren={inExcludedChildren}
+            renderLayoutComponent={(baseId) => (
+              <SummaryComponentFor
+                key={baseId}
+                targetBaseComponentId={baseId}
                 overrides={{
                   ...overrides,
-                  targetNode: n,
                   grid: {},
                   largeGroup: false,
                 }}
               />
-            );
-          }}
-        />
+            )}
+          />
+        </DataModelLocationProvider>
       ))}
     </>
   );

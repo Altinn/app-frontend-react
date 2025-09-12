@@ -9,10 +9,12 @@ import { convertData } from 'src/features/formData/convertData';
 import { createPatch } from 'src/features/formData/jsonPatch/createPatch';
 import { runLegacyRules } from 'src/features/formData/LegacyRules';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
+import { getFeature } from 'src/features/toggles';
 import type { SchemaLookupTool } from 'src/features/datamodel/useDataModelSchemaQuery';
 import type { IRuleConnections } from 'src/features/form/dynamics';
 import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { FormDataWriteProxies, Proxy } from 'src/features/formData/FormDataWriteProxies';
+import type { DebounceReason } from 'src/features/formData/types';
 import type { ChangeInstanceData } from 'src/features/instance/InstanceContext';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { IDataModelReference } from 'src/layout/common.generated';
@@ -199,7 +201,7 @@ export interface FormDataMethods {
   removeFromListCallback: (change: FDRemoveFromListCallback) => void;
 
   // Internal utility methods
-  debounce: () => void;
+  debounce: (reason: DebounceReason) => void;
   cancelSave: () => void;
   saveFinished: (props: FDSaveFinished) => void;
   requestManualSave: (setTo?: boolean) => void;
@@ -212,10 +214,12 @@ export type FormDataContext = FormDataState & FormDataMethods;
 
 function makeActions(
   set: (fn: (state: FormDataContext) => void) => void,
-  changeInstance: ChangeInstanceData | undefined,
+  changeInstance: ChangeInstanceData,
   ruleConnections: IRuleConnections | null,
   schemaLookup: { [dataType: string]: SchemaLookupTool },
 ): FormDataMethods {
+  const debounceOnBlur = getFeature('saveOnBlur').value;
+
   function setDebounceTimeout(state: FormDataContext, change: FDChange) {
     state.debounceTimeout = change.debounceTimeout ?? DEFAULT_DEBOUNCE_TIMEOUT;
   }
@@ -260,7 +264,7 @@ function makeActions(
     state.manualSaveRequested = false;
     state.validationIssues = validationIssues;
 
-    if (instance && changeInstance) {
+    if (instance) {
       changeInstance(() => instance);
     }
 
@@ -290,6 +294,15 @@ function makeActions(
             dot.str(reference.field, newValue, state.dataModels[dataType].currentData);
           }
         }
+
+        // When we've copied over changes into the current model from the backend, we should also debounce this
+        // immediately. Some selectors run on the debounced model (such as 'mapping', which should never run on the
+        // current model as it will re-fetch on every keystroke), but will save effects to the current model (such
+        // as which stale options to remove). So if the backend only saves this to the current model but not the
+        // debounced model, we'd run into unwanted states.
+        if (backendChangesPatch.length > 0) {
+          debounce(state, `backendChanges`);
+        }
       } else {
         state.dataModels[dataType].lastSavedData = savedData[dataType];
       }
@@ -297,7 +310,11 @@ function makeActions(
     deduplicateModels(state);
   }
 
-  function debounce(state: FormDataContext) {
+  function debounce(state: FormDataContext, reason: DebounceReason) {
+    if (reason === 'blur' && !debounceOnBlur) {
+      return;
+    }
+
     for (const [dataType, { isDefault }] of Object.entries(state.dataModels)) {
       state.dataModels[dataType].invalidDebouncedCurrentData = state.dataModels[dataType].invalidCurrentData;
       if (deepEqual(state.dataModels[dataType].debouncedCurrentData, state.dataModels[dataType].currentData)) {
@@ -356,9 +373,9 @@ function makeActions(
   }
 
   return {
-    debounce: () =>
+    debounce: (reason: DebounceReason) =>
       set((state) => {
-        debounce(state);
+        debounce(state, reason);
       }),
     cancelSave: () =>
       set((state) => {
@@ -412,13 +429,27 @@ function makeActions(
           window.logError(`Tried to write to readOnly dataType "${reference.dataType}"`);
           return;
         }
+        if (typeof newValue === 'object') {
+          const model = state.dataModels[reference.dataType].currentData;
+          const existingValue = dot.pick(reference.field, model);
+          const nextIndex = Array.isArray(existingValue) ? existingValue.length : 0;
+          const flatObject = dot.dot(newValue);
+          for (const path of Object.keys(flatObject)) {
+            const fullPath = `${reference.field}[${nextIndex}].${path}`;
+            const value = flatObject[path];
+            setValue({ reference: { ...reference, field: fullPath }, newValue: value, state });
+          }
+          debounce(state, 'listChanges');
+          return;
+        }
+
         const models = [
           state.dataModels[reference.dataType].currentData,
           state.dataModels[reference.dataType].debouncedCurrentData,
         ];
+
         for (const model of models) {
           const existingValue = dot.pick(reference.field, model);
-
           if (Array.isArray(existingValue)) {
             existingValue.push(newValue);
           } else {
@@ -583,7 +614,7 @@ export const createFormDataWriteStore = (
   proxies: FormDataWriteProxies,
   ruleConnections: IRuleConnections | null,
   schemaLookup: { [dataType: string]: SchemaLookupTool },
-  changeInstance: ChangeInstanceData | undefined,
+  changeInstance: ChangeInstanceData,
 ) =>
   createStore<FormDataContext>()(
     immer((set) => {

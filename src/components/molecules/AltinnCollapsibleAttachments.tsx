@@ -1,70 +1,86 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Paragraph } from '@digdir/designsystemet-react';
 import { CaretDownFillIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
-import { AltinnCollapsable } from 'src/components/AltinnCollapsable';
+import { AltinnCollapsible } from 'src/components/AltinnCollapsible';
 import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
 import classes from 'src/components/molecules/AltinnCollapsibleAttachments.module.css';
 import type { IDisplayAttachment } from 'src/types/shared';
 
 interface IAltinnCollapsibleAttachmentsProps {
-  attachments?: IDisplayAttachment[];
-  collapsible?: boolean;
-  title?: React.ReactNode;
-  hideCount?: boolean;
+  attachments: IDisplayAttachment[] | undefined;
+  title: React.ReactNode | undefined;
+  showLinks: boolean | undefined;
+  showDescription: boolean;
 }
-
-const fontStyle = {
-  fontSize: 18,
-  fontWeight: 600,
-};
 
 export function AltinnCollapsibleAttachments({
   attachments,
-  collapsible,
   title,
-  hideCount,
+  showLinks = true,
+  showDescription,
 }: IAltinnCollapsibleAttachmentsProps) {
+  const isCollapsible = useIsPrint() ? false : Boolean(attachments && attachments.length > 4);
   const [open, setOpen] = React.useState(true);
 
   function handleOpenClose() {
     setOpen(!open);
   }
 
-  const attachmentCount = hideCount ? '' : `(${attachments && attachments.length})`;
-
-  return collapsible ? (
-    <div id='attachment-collapsible-list'>
-      <div
-        tabIndex={0}
-        role='button'
-        onClick={handleOpenClose}
-        onKeyPress={handleOpenClose}
-        className={classes.container}
-      >
-        <div className={cn({ [classes.transformArrowRight]: !open }, classes.transition)}>
+  if (isCollapsible) {
+    return (
+      <div id='attachment-collapsible-list'>
+        <div
+          tabIndex={0}
+          role='button'
+          onClick={handleOpenClose}
+          onKeyPress={handleOpenClose}
+          className={classes.container}
+        >
           <CaretDownFillIcon
             aria-hidden='true'
             fontSize='1.5rem'
+            className={cn({ [classes.transformArrowRight]: !open }, classes.transition)}
           />
+          {title}
         </div>
-        {title} {attachmentCount}
+        <AltinnCollapsible open={open}>
+          <AltinnAttachments
+            attachments={attachments}
+            showLinks={showLinks}
+            showDescription={showDescription}
+          />
+        </AltinnCollapsible>
       </div>
-      <AltinnCollapsable open={open}>
-        <AltinnAttachments attachments={attachments} />
-      </AltinnCollapsable>
-    </div>
-  ) : (
-    <>
-      <Paragraph style={fontStyle}>
-        {title} {attachmentCount}
-      </Paragraph>
-      <AltinnAttachments
-        attachments={attachments}
-        id='attachment-list'
-      />
-    </>
+    );
+  }
+
+  return (
+    <AltinnAttachments
+      id='attachment-list'
+      title={title}
+      attachments={attachments}
+      showLinks={showLinks}
+      showDescription={showDescription}
+    />
   );
+}
+
+/**
+ * Watches the print media query and returns true if the page is being printed
+ */
+function useIsPrint() {
+  const [isPrint, setIsPrint] = useState(() => window.matchMedia('print').matches);
+
+  useEffect(() => {
+    const mediaQueryList = window.matchMedia('print');
+    const handleChange = (event: MediaQueryListEvent) => setIsPrint(event.matches);
+    mediaQueryList.addEventListener('change', handleChange);
+    return () => {
+      mediaQueryList.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  return isPrint;
 }

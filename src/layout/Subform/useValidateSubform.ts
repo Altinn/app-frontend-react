@@ -1,24 +1,24 @@
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useStrictDataElements } from 'src/features/instance/InstanceContext';
+import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { Validation } from 'src/features/validation/validationContext';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import type { ComponentValidation, SubformValidation } from 'src/features/validation';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export function useValidateSubform(node: LayoutNode<'Subform'>): ComponentValidation[] {
+export function useValidateSubform(baseComponentId: string): ComponentValidation[] {
   const applicationMetadata = useApplicationMetadata();
   const layoutSets = useLayoutSets();
-  const layoutSetName = NodesInternal.useNodeData(node, (data) => data.layout.layoutSet);
+  const component = useExternalItem(baseComponentId, 'Subform');
+  const layoutSetName = component?.layoutSet;
   if (!layoutSetName) {
-    throw new Error(`Layoutset not found for node with id ${node.id}.`);
+    throw new Error(`Layoutset not found for node with id ${baseComponentId}.`);
   }
   const targetType = layoutSets.find((set) => set.id === layoutSetName)?.dataType;
   if (!targetType) {
     throw new Error(`Data type not found for layout with name ${layoutSetName}`);
   }
-  const elements = useStrictDataElements(targetType);
+  const elements = useInstanceDataElements(targetType);
   const subformIdsWithError = Validation.useDataElementsWithErrors(elements.map((dE) => dE.id));
   const dataTypeDefinition = applicationMetadata.dataTypes.find((x) => x.id === targetType);
   if (dataTypeDefinition === undefined) {

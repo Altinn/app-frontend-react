@@ -1,6 +1,5 @@
 import { CG } from 'src/codegen/CG';
 import { CompCategory } from 'src/layout/common';
-import { GridRowsPlugin } from 'src/layout/Grid/GridRowsPlugin';
 
 export const Config = new CG.component({
   category: CompCategory.Container,
@@ -17,6 +16,19 @@ export const Config = new CG.component({
     customExpressions: false,
   },
 })
-  .addPlugin(new GridRowsPlugin())
+  .addSummaryOverrides((obj) => {
+    obj.addProperty(
+      new CG.prop(
+        'hideEmptyRows',
+        new CG.bool()
+          .optional()
+          .setTitle('Hide empty rows')
+          .setDescription(
+            'Whether to hide empty rows in the Grid. Rows are considered empty only when they contain components, and all those components are hidden or empty.',
+          ),
+      ),
+    );
+  })
+  .addProperty(new CG.prop('rows', CG.common('GridRows')))
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'));

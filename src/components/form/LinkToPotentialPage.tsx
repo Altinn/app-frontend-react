@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import type { LinkProps } from 'react-router-dom';
 
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { Hidden } from 'src/utils/layout/NodesContext';
+import { useIsHiddenPage } from 'src/utils/layout/hidden';
 
 type Props = LinkProps & { children?: React.ReactNode };
 
@@ -12,10 +12,12 @@ type Props = LinkProps & { children?: React.ReactNode };
  * to navigate to does not exist or the page is hidden, the link will turn into pure text.
  */
 export const LinkToPotentialPage = (props: Props) => {
-  const parts = props.to.toString().split('/') ?? [];
-  const page = parts[parts.length - 1];
+  const toStr = typeof props.to === 'string' ? props.to : (props.to?.pathname ?? '');
+  const parts = toStr.replace(/\/+$/, '').split('/');
+  const lastPart = parts[parts.length - 1] ?? '';
+  const page = lastPart.split(/[?#]/)[0];
 
-  const isHiddenPage = Hidden.useIsHiddenPage(page);
+  const isHiddenPage = useIsHiddenPage(page);
   const { isValidPageId } = useNavigatePage();
 
   const shouldShowLink = isValidPageId(page) && !isHiddenPage;

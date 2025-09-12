@@ -7,16 +7,14 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useOrderDetails, useRefetchOrderDetails } from 'src/features/payment/OrderDetailsProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IPaymentDetailsProps = PropsFromGenericComponent<'PaymentDetails'>;
-
-export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
+export function PaymentDetailsComponent({ baseComponentId }: PropsFromGenericComponent<'PaymentDetails'>) {
   const orderDetails = useOrderDetails();
   const refetchOrderDetails = useRefetchOrderDetails();
-  const { title, description } = useNodeItem(node, (i) => i.textResourceBindings || {});
-  const mapping = useNodeItem(node, (i) => i.mapping);
+  const { mapping, textResourceBindings } = useItemWhenType(baseComponentId, 'PaymentDetails');
+  const { title, description } = textResourceBindings || {};
   const hasUnsavedChanges = FD.useHasUnsavedChanges();
 
   const mappedValues = FD.useMapping(mapping, DataModels.useDefaultDataType());
@@ -31,7 +29,7 @@ export function PaymentDetailsComponent({ node }: IPaymentDetailsProps) {
   }, [hasUnsavedChanges, mappedValues, mapping, refetchOrderDetails]);
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <PaymentDetailsTable
         orderDetails={orderDetails}
         tableTitle={title}

@@ -1,12 +1,12 @@
-import { useCallback } from 'react';
-
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { getVisibilityMask } from 'src/features/validation/utils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getRecursiveValidations } from 'src/features/validation/ValidationStorePlugin';
+import { getRecursiveValidations, makeComponentIdIndex } from 'src/features/validation/ValidationStorePlugin';
 import { useEffectEvent } from 'src/hooks/useEffectEvent';
+import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { NodeRefValidation } from 'src/features/validation';
 import type { AllowedValidationMasks } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 /**
  * Checks if a repeating group row has validation errors when the group is closed.
@@ -16,21 +16,30 @@ export function useOnGroupCloseValidation() {
   const setNodeVisibility = NodesInternal.useSetNodeVisibility();
   const validating = Validation.useValidating();
   const nodeStore = NodesInternal.useStore();
+  const lookups = useLayoutLookups();
+  const idMutator = useComponentIdMutator(true);
 
   /* Ensures the callback will have the latest state */
   const callback = useEffectEvent(
-    (node: LayoutNode, restriction: number | undefined, masks: AllowedValidationMasks): boolean => {
+    (baseComponentId: string, restriction: number | undefined, masks: AllowedValidationMasks): boolean => {
       const mask = getVisibilityMask(masks);
       const state = nodeStore.getState();
-      const nodesWithErrors = getRecursiveValidations({
-        id: node.id,
+      const errors: NodeRefValidation[] = [];
+      getRecursiveValidations({
+        id: idMutator(baseComponentId),
+        baseId: baseComponentId,
         includeHidden: false,
         includeSelf: false,
         severity: 'error',
         restriction,
         mask,
         state,
-      }).map((v) => v.nodeId);
+        lookups,
+        baseToIndexedMap: makeComponentIdIndex(state),
+        output: errors,
+      });
+
+      const nodesWithErrors = errors.map((v) => v.nodeId);
 
       if (nodesWithErrors.length > 0) {
         setNodeVisibility(nodesWithErrors, mask);
@@ -41,11 +50,8 @@ export function useOnGroupCloseValidation() {
     },
   );
 
-  return useCallback(
-    async (node: LayoutNode, restriction: number | undefined, masks: AllowedValidationMasks) => {
-      await validating();
-      return callback(node, restriction, masks);
-    },
-    [callback, validating],
-  );
+  return async (baseComponentId: string, restriction: number | undefined, masks: AllowedValidationMasks) => {
+    await validating();
+    return callback(baseComponentId, restriction, masks);
+  };
 }

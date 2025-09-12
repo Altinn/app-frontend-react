@@ -8,9 +8,11 @@ import { useNodeInspectorContext } from 'src/features/devtools/components/NodeIn
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
 import { DevToolsTab } from 'src/features/devtools/data/types';
 import { canBeExpression } from 'src/features/expressions/validation';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
+import { useIntermediateItem } from 'src/utils/layout/hooks';
+import { splitDashedKey } from 'src/utils/splitDashedKey';
+import type { GroupExpressions } from 'src/layout/RepeatingGroup/types';
 
 interface NodeInspectorDataFieldParams {
   path: string[];
@@ -36,7 +38,7 @@ export function Value({ children, className, property, collapsible, wasExpressio
 
   const editExpression = () => {
     setExpression(JSON.stringify(wasExpression, null, 2));
-    setExprContext(context.node?.page.pageKey, context.node?.id);
+    setExprContext(context.selectedNodeId, context.selectedBaseId);
     setActiveTab(DevToolsTab.Expressions);
   };
 
@@ -99,26 +101,6 @@ function ExpandObject(props: { path: string[]; property: string; object: object 
   );
 }
 
-function OtherNode(props: { property: string; node: LayoutNode }) {
-  const context = useNodeInspectorContext();
-
-  return (
-    <Value property={props.property}>
-      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-      <a
-        href='#'
-        role='button'
-        onClick={(e) => {
-          e.preventDefault();
-          context.selectNode(props.node.id);
-        }}
-      >
-        {props.node.id}
-      </a>
-    </Value>
-  );
-}
-
 function ExpandArray(props: { path: string[]; property: string; elements: unknown[] }) {
   return (
     <Value
@@ -139,14 +121,53 @@ function ExpandArray(props: { path: string[]; property: string; elements: unknow
   );
 }
 
-export function NodeInspectorDataField({ path, property, value: inputValue }: NodeInspectorDataFieldParams) {
-  const { node } = useNodeInspectorContext();
-  const firstRowExpr = useNodeItem(
-    node,
-    (i) => i && i.type === 'RepeatingGroup' && i.rows && i.rows?.find((r) => !!r)?.groupExpressions,
-  );
-  const itemWithExpressions = NodesInternal.useNodeData(node, (s) => s.layout);
+export function NodeInspectorDataField(props: NodeInspectorDataFieldParams) {
+  const { selectedNodeId } = useNodeInspectorContext();
+  const { baseComponentId } = splitDashedKey(selectedNodeId ?? '');
+  const layoutLookups = useLayoutLookups();
+  if (baseComponentId && layoutLookups.getComponent(baseComponentId).type === 'RepeatingGroup') {
+    return (
+      <NodeInspectorDataFieldForFirstRow
+        baseComponentId={baseComponentId}
+        {...props}
+      />
+    );
+  }
+  if (baseComponentId) {
+    return (
+      <NodeInspectorDataFieldInner
+        baseComponentId={baseComponentId}
+        {...props}
+      />
+    );
+  }
 
+  return null;
+}
+
+function NodeInspectorDataFieldForFirstRow({
+  baseComponentId,
+  ...rest
+}: NodeInspectorDataFieldParams & { baseComponentId: string }) {
+  const firstRowExpr = RepGroupHooks.useRowWithExpressions(baseComponentId, 'first');
+
+  return (
+    <NodeInspectorDataFieldInner
+      baseComponentId={baseComponentId}
+      firstRowExpr={firstRowExpr}
+      {...rest}
+    />
+  );
+}
+
+function NodeInspectorDataFieldInner({
+  baseComponentId,
+  firstRowExpr,
+  path,
+  property,
+  value: inputValue,
+}: NodeInspectorDataFieldParams & { baseComponentId: string; firstRowExpr?: GroupExpressions }) {
+  const itemWithExpressions = useIntermediateItem(baseComponentId);
   let value = inputValue;
   const preEvaluatedValue = dot.pick(path.join('.'), itemWithExpressions);
   const isExpression =
@@ -154,7 +175,7 @@ export function NodeInspectorDataField({ path, property, value: inputValue }: No
     canBeExpression(value, true);
 
   let exprText = 'Ble evaluert til:';
-  if (isExpression && node?.isType('RepeatingGroup') && firstRowExpr) {
+  if (isExpression && firstRowExpr) {
     const realValue = dot.pick(path.join('.'), firstRowExpr);
     if (realValue !== undefined) {
       value = realValue;
@@ -204,15 +225,6 @@ export function NodeInspectorDataField({ path, property, value: inputValue }: No
       >
         [uttrykk med ukjent verdi]
       </Value>
-    );
-  }
-
-  if (typeof value === 'object' && value instanceof LayoutNode) {
-    return (
-      <OtherNode
-        property={property}
-        node={value}
-      />
     );
   }
 

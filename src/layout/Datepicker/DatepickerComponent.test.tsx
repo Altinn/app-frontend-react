@@ -13,7 +13,6 @@ import type { RenderGenericComponentTestProps } from 'src/test/renderWithProvide
 // Mock dateformat
 jest.mock('src/app-components/Datepicker/utils/dateHelpers', () => ({
   __esModules: true,
-  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   ...jest.requireActual<typeof import('src/app-components/Datepicker/utils/dateHelpers')>(
     'src/app-components/Datepicker/utils/dateHelpers',
   ),
@@ -86,13 +85,11 @@ describe('DatepickerComponent', () => {
     await render();
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    screen.debug();
     await userEvent.click(
       screen.getByRole('button', {
         name: /Åpne datovelger/i,
       }),
     );
-    screen.debug();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('gridcell', { name: new Date().getDate().toString() })).toHaveAttribute(
       'data-today',

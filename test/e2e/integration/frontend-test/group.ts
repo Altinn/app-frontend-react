@@ -45,11 +45,10 @@ describe('Group', () => {
         cy.get(appFrontend.group.mainGroup).should('exist');
         cy.get(appFrontend.group.addNewItem).click();
         cy.get(appFrontend.group.mainGroup).should('exist');
-
-        // At this point the button would disappear in v3, as the new rows were empty and simply hallucinated in
-        // app-frontend until they had data. In v4, we keep the button visible, as it is not possible to add more rows
-        // even if they are empty, as empty objects are a thing now.
-        cy.get(appFrontend.group.addNewItem).should('exist');
+        cy.get(appFrontend.group.addNewItem).should('not.exist'); // Max rows reached
+        cy.get(appFrontend.group.saveMainGroup).click();
+        cy.get(appFrontend.group.mainGroup).find('tbody > tr').should('have.length', 2);
+        cy.get(appFrontend.group.addNewItem).should('not.exist');
       } else {
         cy.get(appFrontend.group.addNewItem).click();
         cy.get(appFrontend.group.mainGroup).should('exist');
@@ -75,7 +74,7 @@ describe('Group', () => {
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
       cy.get(appFrontend.group.subGroup).find('td').first().invoke('text').should('equal', 'automation');
       cy.findByRole('button', { name: 'Rediger automation' }).click();
-      cy.findByRole('button', { name: 'Slett-automation' }).click();
+      cy.findByRole('button', { name: 'Slett automation' }).click();
 
       // This test used to make sure deleted rows were re-added automatically, but that is no longer the case.
       cy.get(appFrontend.group.subGroup).find(mui.tableElement).should('have.length', 0);
@@ -83,7 +82,7 @@ describe('Group', () => {
       cy.get(appFrontend.group.comments).should('not.exist');
 
       cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
-      cy.findByRole('button', { name: 'Slett-NOK 1' }).click();
+      cy.findByRole('button', { name: 'Slett NOK 1' }).click();
 
       cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
       cy.get(appFrontend.group.saveMainGroup).should('not.exist');
@@ -137,7 +136,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.currentValue).type('1');
     cy.get(appFrontend.group.newValue).type('0');
     cy.get(appFrontend.fieldValidation('newValue-0')).should('have.text', texts.zeroIsNotValid);
-    cy.snapshot('group:validation');
+    cy.visualTesting('group:validation');
     cy.get(appFrontend.group.newValue).clear();
     cy.get(appFrontend.group.newValue).type('1');
     cy.get(appFrontend.fieldValidation('newValue-0')).should('not.exist');
@@ -185,7 +184,7 @@ describe('Group', () => {
       }
     }
 
-    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett-NOK 1' }).first().click();
+    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett NOK 1' }).first().click();
     cy.findByRole('button', { name: /Neste/ }).click();
     cy.get(appFrontend.fieldValidation('mainGroup')).should('have.text', texts.minCountError);
   });
@@ -260,9 +259,9 @@ describe('Group', () => {
       cy.findByRole('button', { name: 'Forrige' }).click();
       for (const item of Object.keys(items)) {
         if (items[item] === true) {
-          cy.get(appFrontend.group.prefill[item]).check();
+          cy.findByRole('checkbox', { name: appFrontend.group.prefill[item] }).check();
         } else {
-          cy.get(appFrontend.group.prefill[item]).uncheck();
+          cy.findByRole('checkbox', { name: appFrontend.group.prefill[item] }).uncheck();
         }
       }
       cy.findByRole('button', { name: /Neste/ }).click();
@@ -273,7 +272,7 @@ describe('Group', () => {
 
     checkPrefills({ middels: true, svaer: true });
     expectRows(['NOK 1', 'NOK 5'], ['NOK 120', 'NOK 350'], ['NOK 80 323', 'NOK 123 455']);
-    cy.snapshot('group:prefill');
+    cy.visualTesting('group:prefill');
 
     checkPrefills({ middels: false, svaer: false });
     expectRows(['NOK 1', 'NOK 5']);
@@ -311,7 +310,7 @@ describe('Group', () => {
 
     cy.get(appFrontend.fieldValidation('currentValue-0')).should('have.text', texts.requiredFieldFromValue);
 
-    cy.findByRole('textbox', { name: '1. Endre fra*' }).type('123');
+    cy.findByRole('textbox', { name: '1. Endre fra' }).type('123');
     cy.get(appFrontend.group.saveMainGroup).click();
 
     cy.get(appFrontend.fieldValidation('newValue-0')).should('have.text', texts.requiredFieldToValue);
@@ -319,7 +318,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup)
       .find(mui.tableBody)
       .then((table) => {
-        cy.wrap(table).findByRole('button', { name: 'Slett-NOK 123' }).click();
+        cy.wrap(table).findByRole('button', { name: 'Slett NOK 123' }).click();
       });
 
     cy.gotoNavPage('hide');
@@ -364,7 +363,7 @@ describe('Group', () => {
     });
 
     // Delete the stray row, wait until we've saved it
-    cy.findByRole('button', { name: 'Slett-undefined' }).click();
+    cy.findByRole('button', { name: 'Slett' }).click();
     cy.get(appFrontend.group.mainGroupTableBody).children().should('have.length', 0);
 
     cy.interceptLayout('group', (c) => {
@@ -418,7 +417,7 @@ describe('Group', () => {
     cy.gotoNavPage('repeating');
 
     // Test that deleting an item does not cause another group to open if there are more elements in the group
-    cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).findByRole('button', { name: 'Slett-NOK 1' }).click();
+    cy.get(appFrontend.group.mainGroupTableBody).children().eq(0).findByRole('button', { name: 'Slett NOK 1' }).click();
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
@@ -441,20 +440,19 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').first().should('have.text', 'automation');
-    cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett-automation' }).click();
-    cy.snapshot('group: delete-warning-popup');
+    cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett automation' }).click();
 
     cy.findByRole('button', { name: 'Avbryt' }).click({ force: true });
-    cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett-automation' }).click();
+    cy.get(appFrontend.group.subGroup).findByRole('button', { name: 'Slett automation' }).click();
     cy.findByRole('button', { name: /Ja, slett raden/ }).click({ force: true });
 
     cy.get(appFrontend.group.subGroup).find('tbody > tr > td').should('have.length', 0);
 
     // Navigate to main group and test delete warning popup cancel and confirm
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.back).click();
-    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett-NOK 1' }).click();
+    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett NOK 1' }).click();
     cy.findByRole('button', { name: 'Avbryt' }).click();
-    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett-NOK 1' }).click();
+    cy.get(appFrontend.group.mainGroup).findByRole('button', { name: 'Slett NOK 1' }).click();
     cy.findByRole('button', { name: /Ja, slett raden/ }).click();
 
     cy.get(appFrontend.group.mainGroup).find(mui.tableElement).should('have.length', 0);
@@ -472,14 +470,13 @@ describe('Group', () => {
     });
 
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.enorm).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
-    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).blur();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
-    cy.snapshot('group:edit-in-table');
+    cy.visualTesting('group:edit-in-table');
 
     for (const row of [0, 1, 2]) {
       cy.get(appFrontend.group.mainGroupTableBody)
@@ -522,7 +519,7 @@ describe('Group', () => {
 
     cy.findAllByRole('button', { name: /Slett/ }).should('have.length', 1);
     cy.waitUntilSaved();
-    cy.findByRole('button', { name: 'Slett-NOK 123' }).click();
+    cy.findByRole('button', { name: 'Slett NOK 123' }).click();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 3);
 
     cy.changeLayout((c) => {
@@ -563,7 +560,7 @@ describe('Group', () => {
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 5);
-    cy.snapshot('group:only-table');
+    cy.visualTesting('group:only-table');
 
     for (const extraRows of [6, 7]) {
       cy.get(appFrontend.group.addNewItem).click();
@@ -612,9 +609,9 @@ describe('Group', () => {
     });
 
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.enorm).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
@@ -655,16 +652,14 @@ describe('Group', () => {
   it('adding group rows should trigger backend calculations + selecting options from source', () => {
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
 
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
-    // The title and description is set to the same text resource binding, and duplicates the text we need to
-    // put in `name` for this to work
     const selectedOption = 'Endre fra: 120, Endre til: 350';
-    const longSelectedText = `${selectedOption} Fungerer kalkulatoren din? ${selectedOption} Fungerer kalkulatoren din?`;
+    const longSelectedText = `${selectedOption} Fungerer kalkulatoren din?`;
 
     // First make sure to check the second item in the bottom-most radio group. This should also change the items
     // in the two dropdowns above.
@@ -693,7 +688,7 @@ describe('Group', () => {
       .should('contain.text', 'Endre fra: 120, Endre til: 350');
 
     cy.waitUntilSaved(); // Wait until saved so that we're sure the previous changes are synced before we try to delete
-    cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Slett-1' }).click();
+    cy.get(appFrontend.group.secondGroup).findByRole('button', { name: 'Slett 1' }).click();
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 1);
 
     cy.get(appFrontend.group.secondGroup_add).click();
@@ -711,7 +706,7 @@ describe('Group', () => {
 
     // Adding a new row to the main group adds a new option
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.stor).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
     cy.gotoNavPage('repeating');
 
     cy.get(appFrontend.group.secondGroup).find('tbody > tr').should('have.length', 2);
@@ -738,7 +733,7 @@ describe('Group', () => {
     // The add new row button should no longer exist now
     cy.get(appFrontend.group.secondGroup_add).should('not.exist');
 
-    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).findByRole('button', { name: 'Slett-3' }).click();
+    cy.get(appFrontend.group.secondGroup).find('tbody > tr').eq(1).findByRole('button', { name: 'Slett 3' }).click();
 
     // But now the button should exist again, and be clickable. The new row should have id 4.
     cy.get(appFrontend.group.secondGroup_add).click();
@@ -761,7 +756,7 @@ describe('Group', () => {
     ]) {
       // It is very important that these gets checked in this order, as the rest of the test relies on that.
       // Order is not guaranteed here, so we'll wait for each one to be saved before continuing.
-      cy.get(prefill).check();
+      cy.findByRole('checkbox', { name: prefill }).check();
       cy.waitUntilSaved();
     }
 
@@ -777,7 +772,7 @@ describe('Group', () => {
     // Navigating between pages should clear the state for which group row is editing, so now the
     // first one (that is not hidden) should be open
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).should('be.visible');
     cy.gotoNavPage('repeating');
 
     cy.get(appFrontend.group.editContainer).find('input').first().should('have.value', 'NOK 120');
@@ -790,7 +785,7 @@ describe('Group', () => {
     // value using C# default values in the strict model.
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).should('be.checked');
 
-    cy.get(appFrontend.group.prefill.liten).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 1);
@@ -798,7 +793,7 @@ describe('Group', () => {
 
     cy.gotoNavPage('prefill');
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Nei' }).click();
-    cy.get(appFrontend.group.prefill.middels).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
     cy.waitUntilSaved();
 
     cy.gotoNavPage('repeating');
@@ -807,7 +802,7 @@ describe('Group', () => {
 
     cy.gotoNavPage('prefill');
     cy.get('#prefill-enabled').findByRole('radio', { name: 'Ja' }).click();
-    cy.get(appFrontend.group.prefill.stor).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
 
     // When we temporarily disabled the prefilling functionality, ruleHandler tricked the backend by
     // setting PrefillValuesShadow to the same value as PrefillValues, making the backend think the 'middels' row we
@@ -830,11 +825,11 @@ describe('Group', () => {
       }
     });
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.middels).check();
-    cy.get(appFrontend.group.prefill.stor).check();
-    cy.get(appFrontend.group.prefill.svaer).check();
-    cy.get(appFrontend.group.prefill.enorm).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.svaer }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
 
@@ -905,7 +900,7 @@ describe('Group', () => {
     // page in one of the rows in order to also snapshot the Cards component inside a repeating group edit container.
     cy.get(editContainers).eq(1).findByRole('button', { name: 'Neste' }).click();
     cy.get(editContainers).eq(1).should('contain.text', 'Hvem tipset deg om dette skjemaet?');
-    cy.snapshot('group:showAll');
+    cy.visualTesting('group:showAll');
 
     // Verify that the label and add button still shows up when there are no rows in this mode
     hideAllRows();
@@ -965,11 +960,63 @@ describe('Group', () => {
     // starts as soon as the data is saved, and when you at that point immediately click a new checkbox, that triggers
     // a new node generation process - before the first one has finished.
     cy.goto('group');
-    cy.get(appFrontend.group.prefill.liten).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
     cy.waitUntilSaved();
-    cy.get(appFrontend.group.prefill.middels).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
+  });
+
+  it('Navigation on multiPage Group should skip pages with hidden components only', () => {
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
+        component.children = [
+          '0:currentValue',
+          '1:newValue',
+          '2:cards',
+          '3:mainUploaderSingle',
+          '3:mainUploaderMulti',
+          '4:subGroup',
+        ];
+        if (component.textResourceBindings) {
+          component.textResourceBindings.multipage_back_button = 'Forrige side';
+          component.textResourceBindings.multipage_next_button = 'Neste side';
+        }
+      }
+      if (
+        (component.id === 'newValue' && component.type === 'Input') ||
+        (component.id === 'mainUploaderSingle' && component.type === 'FileUpload')
+      ) {
+        component.hidden = true;
+      }
+    });
+    init();
+
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.mainGroup).should('exist');
+    cy.findByRole('textbox', { name: '1. Endre fra' }).should('exist');
+    cy.findByRole('textbox', { name: '2. Endre verdi til' }).should('not.exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Neste side/ })
+      .click();
+
+    //Make sure this page is skipped when component is hidden.
+    cy.findByRole('textbox', { name: '2. Endre verdi til' }).should('not.exist');
+    cy.findByRole('heading', { level: 2, name: 'Kilde' }).should('exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Neste side/ })
+      .click();
+    cy.findByRole('presentation', { name: 'Last opp alle vedlegg med kilde Altinn her' }).should('not.exist');
+    cy.findByRole('presentation', { name: 'Multi uploader in repeating group' }).should('exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Neste side/ })
+      .click();
+    cy.findByRole('table', { name: 'Nested group' }).should('exist');
+    cy.get(appFrontend.group.mainGroup)
+      .findByRole('button', { name: /Forrige side/ })
+      .click();
+    cy.findByRole('presentation', { name: 'Multi uploader in repeating group' }).should('exist');
   });
 });

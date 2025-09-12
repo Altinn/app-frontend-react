@@ -1,23 +1,6 @@
 import { CG } from 'src/codegen/CG';
 import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
-import { GridRowsPlugin } from 'src/layout/Grid/GridRowsPlugin';
-import { RepeatingChildrenPlugin } from 'src/utils/layout/plugins/RepeatingChildrenPlugin';
-
-export const REPEATING_GROUP_SUMMARY_OVERRIDE_PROPS = new CG.obj(
-  new CG.prop(
-    'display',
-    new CG.enum('table', 'full')
-      .optional({ default: 'full' })
-      .setTitle('Display type')
-      .setDescription('Show the summary as a table or as full summary components'),
-  ),
-)
-  .extends(CG.common('ISummaryOverridesCommon'))
-  .optional()
-  .setTitle('Summary properties')
-  .setDescription('Properties for how to display the summary of the component')
-  .exportAs('RepeatingGroupSummaryOverrideProps');
 
 export const Config = new CG.component({
   category: CompCategory.Container,
@@ -36,29 +19,8 @@ export const Config = new CG.component({
     displayData: false,
   },
 })
-  .addPlugin(
-    new RepeatingChildrenPlugin({
-      multiPageSupport: 'edit.multiPage',
-      extraRowState: new CG.import({
-        import: 'RepGroupRowExtras',
-        from: 'src/layout/RepeatingGroup/types',
-      }),
-    }),
-  )
-  .addPlugin(
-    new GridRowsPlugin({
-      externalProp: 'rowsBefore',
-      internalProp: 'rowsBeforeInternal',
-      optional: true,
-    }),
-  )
-  .addPlugin(
-    new GridRowsPlugin({
-      externalProp: 'rowsAfter',
-      internalProp: 'rowsAfterInternal',
-      optional: true,
-    }),
-  )
+  .addProperty(new CG.prop('rowsBefore', CG.common('GridRows').optional()))
+  .addProperty(new CG.prop('rowsAfter', CG.common('GridRows').optional()))
   .addTextResource(
     new CG.trb({
       name: 'title',
@@ -132,6 +94,20 @@ export const Config = new CG.component({
       name: 'pagination_back_button',
       title: 'Back button in pagination',
       description: 'The text for the "Back" button in pagination',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'multipage_back_button',
+      title: 'Back button in multipage navigation',
+      description: 'The text for the "Back" button in multipage navigation',
+    }),
+  )
+  .addTextResource(
+    new CG.trb({
+      name: 'multipage_next_button',
+      title: 'Next button in multipage navigation',
+      description: 'The text for the "Next" button in multipage navigation',
     }),
   )
   .addDataModelBinding(
@@ -343,4 +319,26 @@ export const Config = new CG.component({
         .setDescription('If set to true, the header of the repeating group will be sticky'),
     ),
   )
-  .addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()));
+  .addProperty(new CG.prop('labelSettings', CG.common('ILabelSettings').optional()))
+  .addProperty(new CG.prop('addButton', new CG.obj().extends(CG.common('IButtonProps')).optional()))
+  .addProperty(
+    new CG.prop(
+      'children',
+      new CG.arr(new CG.str())
+        .setTitle('Children')
+        .setDescription(
+          'List of child component IDs to show inside (will be repeated according to the number of rows in the data model binding)',
+        ),
+    ),
+  )
+  .addSummaryOverrides((obj) => {
+    obj.addProperty(
+      new CG.prop(
+        'display',
+        new CG.enum('table', 'full')
+          .optional({ default: 'full' })
+          .setTitle('Display type')
+          .setDescription('Show the summary as a table or as full summary components'),
+      ),
+    );
+  });

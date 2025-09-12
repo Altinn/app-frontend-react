@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 
 import { useIsFetching } from '@tanstack/react-query';
 
@@ -19,11 +19,12 @@ const readyId: Record<ReadyType, string> = {
  * loading indicators to the user while waiting for content to get ready.
  */
 export function ReadyForPrint({ type }: { type: ReadyType }) {
+  const [isPending] = useTransition();
   const [assetsLoaded, setAssetsLoaded] = React.useState(false);
 
   const isFetching = useIsFetching() > 0;
 
-  const numLoaders = useClassCount(loadingClassName);
+  const hasLoaders = useHasElementsByClass(loadingClassName);
 
   React.useLayoutEffect(() => {
     if (assetsLoaded) {
@@ -38,7 +39,7 @@ export function ReadyForPrint({ type }: { type: ReadyType }) {
     });
   }, [assetsLoaded]);
 
-  if (!assetsLoaded || numLoaders > 0 || isFetching) {
+  if (!assetsLoaded || hasLoaders || isFetching || isPending) {
     return null;
   }
 
@@ -73,13 +74,13 @@ async function waitForImages() {
   } while (nodes.some((node) => !node.complete));
 }
 
-export function useClassCount(className: string): number {
-  const [count, setCount] = useState(() => document.getElementsByClassName(className).length);
+export function useHasElementsByClass(className: string) {
+  const [hasElements, setHasElements] = useState(() => document.getElementsByClassName(className).length > 0);
 
   useEffect(() => {
     const updateCount = () => {
       const newCount = document.getElementsByClassName(className).length;
-      setCount(newCount);
+      setHasElements(newCount > 0);
     };
 
     const observer = new MutationObserver(updateCount);
@@ -96,5 +97,5 @@ export function useClassCount(className: string): number {
     };
   }, [className]);
 
-  return count;
+  return hasElements;
 }

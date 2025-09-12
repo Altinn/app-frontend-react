@@ -2,14 +2,16 @@ import type { JSONSchema7 } from 'json-schema';
 
 import { CG } from 'src/codegen/CG';
 import { GenerateImportedSymbol } from 'src/codegen/dataTypes/GenerateImportedSymbol';
+import { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import { GenerateRaw } from 'src/codegen/dataTypes/GenerateRaw';
 import { GenerateUnion } from 'src/codegen/dataTypes/GenerateUnion';
+import { ExprVal } from 'src/features/expressions/types';
 import { ValidationPlugin } from 'src/features/validation/ValidationPlugin';
 import { CompCategory } from 'src/layout/common';
-import { isNodeDefChildrenPlugin, NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
+import { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
+import type { MaybeOptionalCodeGenerator } from 'src/codegen/CodeGenerator';
 import type { CompBehaviors, RequiredComponentConfig } from 'src/codegen/Config';
 import type { GenerateCommonImport } from 'src/codegen/dataTypes/GenerateCommonImport';
-import type { GenerateObject } from 'src/codegen/dataTypes/GenerateObject';
 import type { GenerateProperty } from 'src/codegen/dataTypes/GenerateProperty';
 import type { GenerateTextResourceBinding } from 'src/codegen/dataTypes/GenerateTextResourceBinding';
 import type { CompTypes } from 'src/layout/layout';
@@ -41,7 +43,7 @@ const CategoryImports: { [Category in CompCategory]: GenerateImportedSymbol<any>
 };
 
 export class ComponentConfig {
-  public type: string;
+  public type: string | undefined;
   public typeSymbol: string;
   readonly inner = new CG.obj();
   public behaviors: CompBehaviors = {
@@ -52,6 +54,9 @@ export class ComponentConfig {
   };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   protected plugins: NodeDefPlugin<any>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  protected createSummaryOverrides: (() => MaybeOptionalCodeGenerator<any>) | undefined;
+  protected hasSummaryOverridesExtender = false;
 
   constructor(public readonly config: RequiredComponentConfig) {
     this.inner.extends(CG.common('ComponentBase'));
@@ -153,6 +158,24 @@ export class ComponentConfig {
 
     const name = 'dataModelBindings';
     const existing = this.inner.getProperty(name)?.type;
+
+    if (!existing || existing instanceof GenerateRaw) {
+      // For all components with dataModelBindings, the backend wants this property defined so that app-developers can
+      // escape from hidden-data-deletion per-component.
+      this.inner.addProperty(
+        new CG.prop(
+          'removeWhenHidden',
+          new CG.expr(ExprVal.Boolean)
+            .setTitle('Remove fields from component dataModelBindings when hidden expression is true')
+            .setDescription(
+              'Override the logic cleaning data for hidden components at task end, if you want to keep data ' +
+                'referenced in hidden components. Currently only has effect if AppSettings.RemoveHiddenData is enabled.',
+            )
+            .optional(),
+        ),
+      );
+    }
+
     if (existing && existing instanceof GenerateUnion) {
       existing.addType(type);
     } else if (existing && !(existing instanceof GenerateRaw)) {
@@ -174,6 +197,104 @@ export class ComponentConfig {
 
     this.inner.extends(type);
     return this;
+  }
+
+  makeSummarizable(): this {
+    if (this.isFormLike()) {
+      throw new Error(`Component is a form or container component, it is always summarizable`);
+    }
+
+    this.extendTextResources(CG.common('TRBSummarizable'));
+    this.extends(CG.common('SummarizableComponentProps'));
+    this.behaviors.isSummarizable = true;
+    return this;
+  }
+
+  /**
+   * @see generateSummaryOverrides
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public addSummaryOverrides(extender?: (arg: GenerateObject<any>) => void): this {
+    if (this.createSummaryOverrides) {
+      throw new Error(`Component already has Summary2 overrides! Do not call this twice.`);
+    }
+
+    this.hasSummaryOverridesExtender = !!extender;
+    this.createSummaryOverrides = () => {
+      if (!this.type) {
+        throw new Error('Type not specified yet');
+      }
+      if (!this.behaviors.isSummarizable) {
+        throw new Error(
+          `Component '${this.type}' is not summarizable, so it cannot have Summary2 overrides. ` +
+            `If you want to add Summary2 overrides, make sure the component is summarizable ` +
+            `(call makeSummarizable() on the component config).`,
+        );
+      }
+
+      const overrides = extender
+        ? new CG.obj().extends(CG.common('ISummaryOverridesCommon')).exportAs(`${this.type}SummaryOverrides`)
+        : CG.common('ISummaryOverridesCommon');
+
+      if (extender && overrides instanceof GenerateObject) {
+        extender(overrides);
+      }
+
+      return this.makeSummaryOverridesUnion(overrides).exportAs(`${this.type}SummaryOverridesWithRef`);
+    };
+
+    return this;
+  }
+
+  protected makeSummaryOverridesUnion(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    overrides: GenerateObject<any> | GenerateCommonImport<'ISummaryOverridesCommon'>,
+  ) {
+    if (!this.type) {
+      throw new Error('Type not specified yet');
+    }
+
+    const oneComponent = new CG.obj(new CG.prop('componentId', new CG.str()))
+      .extends(overrides)
+      .setTitle(`Summary overrides for ${this.type}`)
+      .setDescription(`Properties for how to display the summary of this ${this.type} component`);
+
+    const allComponents = new CG.obj(new CG.prop('componentType', new CG.const(this.type)))
+      .extends(overrides)
+      .setTitle(`Summary overrides for all ${this.type}`)
+      .setDescription(`Properties for how to display the summary of all ${this.type} components`);
+
+    return new CG.union(oneComponent, allComponents);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public getSummaryOverridesImport(variant: 'plain' | 'withRef'): MaybeOptionalCodeGenerator<any> | undefined {
+    if (!this.createSummaryOverrides) {
+      return undefined;
+    }
+
+    if (variant === 'plain' && !this.hasSummaryOverridesExtender) {
+      return CG.common('ISummaryOverridesCommon');
+    }
+    if (variant === 'plain') {
+      return new CG.raw({
+        typeScript: `${this.type}SummaryOverrides`,
+      });
+    }
+
+    if (!this.hasSummaryOverridesExtender) {
+      return this.makeSummaryOverridesUnion(CG.common('ISummaryOverridesCommon'));
+    }
+
+    return new CG.import({
+      import: `${this.type}SummaryOverridesWithRef`,
+      from: `src/layout/${this.type}/config.generated.ts`,
+    });
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public getSummaryOverrides(): MaybeOptionalCodeGenerator<any> | undefined {
+    return this.createSummaryOverrides?.();
   }
 
   private beforeFinalizing(): void {
@@ -202,11 +323,6 @@ export class ComponentConfig {
       from: `./index`,
     });
 
-    const LayoutNode = new GenerateImportedSymbol({
-      import: 'LayoutNode',
-      from: 'src/utils/layout/LayoutNode',
-    });
-
     const CompCategory = new CG.import({
       import: 'CompCategory',
       from: `src/layout/common`,
@@ -227,7 +343,6 @@ export class ComponentConfig {
       `export function getConfig() {
          return {
            def: new ${impl.toTypeScript()}(),
-           nodeConstructor: ${LayoutNode},
            capabilities: ${JSON.stringify(this.config.capabilities, null, 2)} as const,
            behaviors: ${JSON.stringify(this.behaviors, null, 2)} as const,
          };
@@ -235,8 +350,9 @@ export class ComponentConfig {
       `export type TypeConfig = {
          category: ${CompCategory}.${this.config.category},
          layout: ${this.inner};
-         nodeObj: ${LayoutNode}<'${this.type}'>;
          plugins: ${pluginUnion};
+         summaryOverrides: ${this.getSummaryOverridesImport('plain')?.toTypeScript() ?? 'undefined'};
+         summaryOverridesWithRef: ${this.getSummaryOverrides()?.toTypeScript() ?? 'undefined'};
        }`,
     ];
 
@@ -278,24 +394,14 @@ export class ComponentConfig {
       from: 'src/utils/layout/generator/NodeGenerator',
     });
 
-    const CompInternal = new CG.import({
-      import: 'CompInternal',
-      from: 'src/layout/layout',
-    });
-
-    const NodeData = new CG.import({
-      import: 'NodeData',
-      from: 'src/utils/layout/types',
-    });
-
-    const NodesContext = new CG.import({
-      import: 'NodesContext',
-      from: 'src/utils/layout/NodesContext',
-    });
-
     const DisplayData = new CG.import({
       import: 'DisplayData',
       from: 'src/features/displayData/index',
+    });
+
+    const IDataModelBindings = new CG.import({
+      import: 'IDataModelBindings',
+      from: 'src/layout/layout',
     });
 
     const isFormComponent = this.config.category === CompCategory.Form;
@@ -334,15 +440,6 @@ export class ComponentConfig {
       .map((plugin) => `...${pluginRef(plugin)}.stateFactory(props as any),`)
       .join('\n');
 
-    const pluginItemFactories = this.plugins
-      .filter((plugin) => plugin.itemFactory !== NodeDefPlugin.prototype.itemFactory)
-      .map((plugin) => `...${pluginRef(plugin)}.itemFactory(props as any)`)
-      .join(',\n');
-
-    const itemDef = pluginItemFactories
-      ? `const item = { ${pluginItemFactories} } as ${CompInternal}<'${this.type}'>;`
-      : '';
-
     const pluginGeneratorChildren = this.plugins
       .filter((plugin) => plugin.extraNodeGeneratorChildren !== NodeDefPlugin.prototype.extraNodeGeneratorChildren)
       .map((plugin) => plugin.extraNodeGeneratorChildren())
@@ -360,13 +457,9 @@ export class ComponentConfig {
     }
 
     if (this.hasDataModelBindings()) {
-      const LayoutValidationCtx = new CG.import({
-        import: 'LayoutValidationCtx',
-        from: 'src/features/devtools/layoutValidation/types',
-      });
       additionalMethods.push(
         `// You must implement this because the component has data model bindings defined
-        abstract validateDataModelBindings(ctx: ${LayoutValidationCtx}<'${this.type}'>): string[];`,
+        abstract useDataModelBindingValidation(baseComponentId: string, bindings: ${IDataModelBindings}<'${this.type}'>): string[];`,
       );
     }
 
@@ -377,68 +470,9 @@ export class ComponentConfig {
     ) {
       additionalMethods.push(
         `// This component has data model bindings, so it should be able to produce a display string
-        abstract useDisplayData(nodeId: string): string;`,
+        abstract useDisplayData(baseComponentId: string): string;`,
       );
       implementsInterfaces.push(`${DisplayData}`);
-    }
-
-    const readyCheckers: string[] = [];
-    for (const plugin of this.plugins) {
-      const extraMethodsFromPlugin = plugin.extraMethodsInDef();
-      additionalMethods.push(...extraMethodsFromPlugin);
-
-      const extraInEval = plugin.extraInEvalExpressions();
-      extraInEval && evalLines.push(extraInEval);
-
-      readyCheckers.push(`${pluginRef(plugin)}.stateIsReady(state as any, fullState)`);
-    }
-
-    if (readyCheckers.length === 0) {
-      additionalMethods.push(
-        `// No plugins in this component
-        pluginStateIsReady(_state: ${NodeData}<'${this.type}'>): boolean {
-          return true;
-        }`,
-      );
-    } else {
-      additionalMethods.push(
-        `pluginStateIsReady(state: ${NodeData}<'${this.type}'>, fullState: ${NodesContext}): boolean {
-          return ${readyCheckers.join(' && ')};
-        }`,
-      );
-    }
-
-    const childrenPlugins = this.plugins.filter((plugin) => isNodeDefChildrenPlugin(plugin));
-    if (childrenPlugins.length > 0) {
-      const ChildClaimerProps = new CG.import({ import: 'ChildClaimerProps', from: 'src/layout/LayoutComponent' });
-      const NodeData = new CG.import({ import: 'NodeData', from: 'src/utils/layout/types' });
-
-      const claimChildrenBody = childrenPlugins.map((plugin) =>
-        `${pluginRef(plugin)}.claimChildren({
-            ...props,
-            claimChild: (id: string) => props.claimChild('${plugin.getKey()}', id),
-         });`.trim(),
-      );
-
-      const pickDirectChildrenBody = childrenPlugins.map(
-        (plugin) => `...${pluginRef(plugin)}.pickDirectChildren(state as any, restriction)`,
-      );
-
-      const isChildHiddenBody = childrenPlugins.map(
-        (plugin) => `${pluginRef(plugin)}.isChildHidden(state as any, childId)`,
-      );
-
-      additionalMethods.push(
-        `claimChildren(props: ${ChildClaimerProps}<'${this.type}'>) {
-          ${claimChildrenBody.join('\n')}
-        }`,
-        `pickDirectChildren(state: ${NodeData}<'${this.type}'>, restriction?: number) {
-          return [${pickDirectChildrenBody.join(', ')}];
-        }`,
-        `isChildHidden(state: ${NodeData}<'${this.type}'>, childId: string) {
-          return [${isChildHiddenBody.join(', ')}].some((h) => h);
-        }`,
-      );
     }
 
     const implementing = implementsInterfaces.length ? ` implements ${implementsInterfaces.join(', ')}` : '';
@@ -449,9 +483,11 @@ export class ComponentConfig {
       ${this.config.directRendering ? 'directRender(): boolean { return true; }' : ''}
 
       renderNodeGenerator(props: ${NodeGeneratorProps}): ${ReactJSX}.Element | null {
+        const others = this.extraNodeGeneratorChildren(props);
         return (
           <${NodeGenerator} {...props}>
             ${pluginGeneratorChildren}
+            {others}
           </${NodeGenerator}>
         );
       }
@@ -459,19 +495,19 @@ export class ComponentConfig {
       stateFactory(props: ${StateFactoryProps}<'${this.type}'>) {
         const baseState: ${BaseNodeData}<'${this.type}'> = {
           type: 'node',
+          id: props.id,
+          baseId: props.baseId,
+          nodeType: '${this.type}',
           pageKey: props.pageKey,
           parentId: props.parentId,
           depth: props.depth,
           isValid: props.isValid,
-          item: undefined,
-          layout: props.item,
-          hidden: undefined,
           rowIndex: props.rowIndex,
           errors: undefined,
+          dataModelBindings: props.dataModelBindings,
         };
-        ${itemDef}
 
-        return { ...baseState, ${pluginStateFactories} ${itemDef ? 'item' : ''} };
+        return { ...baseState, ${pluginStateFactories} };
       }
 
       // Do not override this one, set functionality.customExpressions to true instead

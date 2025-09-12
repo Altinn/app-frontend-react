@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { JSX, PropsWithChildren } from 'react';
 
-import { ErrorMessage, Heading, Table } from '@digdir/designsystemet-react';
+import { Heading, Table, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { LabelContent } from 'src/components/label/LabelContent';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
@@ -16,55 +17,73 @@ import { getComponentDef, implementsDisplayData } from 'src/layout';
 import { CompCategory } from 'src/layout/common';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Grid/GridSummary.module.css';
-import { isGridRowHidden } from 'src/layout/Grid/tools';
+import { useIsGridRowHidden } from 'src/layout/Grid/tools';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import {
+  EmptyChildrenBoundary,
+  useHasOnlyEmptyChildren,
+  useReportSummaryRender,
+  useReportSummaryRenderToParent,
+} from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import {
+  ComponentSummary,
+  HideWhenAllChildrenEmpty,
+  SummaryContains,
+  SummaryFlexForContainer,
+} from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import utilClasses from 'src/styles/utils.module.css';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
-import { Hidden, NodesInternal, useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useIsHidden } from 'src/utils/layout/hidden';
+import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { typedBoolean } from 'src/utils/typing';
 import type {
+  GridCell,
   GridCellLabelFrom,
   GridCellText,
+  GridComponentRef,
+  GridRow,
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
-import type { GridCellInternal, GridCellNode, GridRowInternal } from 'src/layout/Grid/types';
-import type { ITextResourceBindings } from 'src/layout/layout';
-import type { EditButtonProps } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { CompTypes, ITextResourceBindings } from 'src/layout/layout';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-type GridSummaryProps = Readonly<{
-  componentNode: LayoutNode<'Grid'>;
-}>;
-
-export const GridSummary = ({ componentNode }: GridSummaryProps) => {
-  const { rowsInternal, textResourceBindings } = useNodeItem(componentNode);
+export const GridSummary = ({ targetBaseComponentId }: Summary2Props) => {
+  const indexedId = useIndexedId(targetBaseComponentId);
+  const { rows, textResourceBindings } = useItemWhenType(targetBaseComponentId, 'Grid');
   const { title } = textResourceBindings ?? {};
 
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
   const pdfModeActive = usePdfModeActive();
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
 
   const isSmall = isMobile && !pdfModeActive;
 
   const tableSections: JSX.Element[] = [];
-  let currentHeaderRow: GridRowInternal | undefined = undefined;
-  let currentBodyRows: GridRowInternal[] = [];
+  let currentHeaderRow: GridRow | undefined = undefined;
+  let currentBodyRows: GridRow[] = [];
 
-  rowsInternal.forEach((row, index) => {
+  rows.forEach((row, index) => {
     if (row.header) {
       // If there are accumulated body rows, push them into a tbody
       if (currentBodyRows.length > 0) {
         tableSections.push(
           <Table.Body key={`tbody-${index}`}>
             {currentBodyRows.map((bodyRow, bodyIndex) => (
-              <SummaryGridRowRenderer
+              <EmptyChildrenBoundary
                 key={bodyIndex}
-                row={bodyRow}
-                mutableColumnSettings={columnSettings}
-                node={componentNode}
-              />
+                reportSelf={false}
+              >
+                <SummaryGridRowRenderer
+                  row={bodyRow}
+                  mutableColumnSettings={columnSettings}
+                  baseComponentId={targetBaseComponentId}
+                />
+              </EmptyChildrenBoundary>
             ))}
           </Table.Body>,
         );
@@ -73,13 +92,17 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
       // Add the header row
       tableSections.push(
         <Table.Head key={`thead-${index}`}>
-          <SummaryGridRowRenderer
+          <EmptyChildrenBoundary
             key={index}
-            row={row}
-            mutableColumnSettings={columnSettings}
-            node={componentNode}
-            headerRow={currentHeaderRow}
-          />
+            reportSelf={false}
+          >
+            <SummaryGridRowRenderer
+              row={row}
+              mutableColumnSettings={columnSettings}
+              baseComponentId={targetBaseComponentId}
+              headerRow={currentHeaderRow}
+            />
+          </EmptyChildrenBoundary>
         </Table.Head>,
       );
       currentHeaderRow = row;
@@ -92,173 +115,187 @@ export const GridSummary = ({ componentNode }: GridSummaryProps) => {
   // Push remaining body rows if any
   if (currentBodyRows.length > 0) {
     tableSections.push(
-      <tbody key={`tbody-${rowsInternal.length}`}>
+      <tbody key={`tbody-${rows.length}`}>
         {currentBodyRows.map((bodyRow, bodyIndex) => (
-          <SummaryGridRowRenderer
+          <EmptyChildrenBoundary
             key={bodyIndex}
-            row={bodyRow}
-            mutableColumnSettings={columnSettings}
-            node={componentNode}
-            headerRow={currentHeaderRow}
-          />
+            reportSelf={false}
+          >
+            <SummaryGridRowRenderer
+              row={bodyRow}
+              mutableColumnSettings={columnSettings}
+              baseComponentId={targetBaseComponentId}
+              headerRow={currentHeaderRow}
+            />
+          </EmptyChildrenBoundary>
         ))}
       </tbody>,
     );
   }
 
   return (
-    <Table
-      id={componentNode.id}
-      className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
-      data-testid={`summary-${componentNode.id}`}
+    <SummaryFlexForContainer
+      hideWhen={hideEmptyFields}
+      targetBaseId={targetBaseComponentId}
     >
-      {title && (
-        <caption className={classes.tableCaption}>
-          <Heading
-            size='xs'
-            level={4}
-          >
-            <Lang
-              id={title}
-              node={componentNode}
-            />
-          </Heading>
-        </caption>
-      )}
-      {tableSections}
-    </Table>
+      <Table
+        id={indexedId}
+        className={cn(classes.table, { [classes.responsiveTable]: isSmall })}
+        data-testid={`summary-${indexedId}`}
+      >
+        {title && (
+          <caption className={classes.tableCaption}>
+            <Heading
+              data-size='xs'
+              level={4}
+            >
+              <Lang id={title} />
+            </Heading>
+          </caption>
+        )}
+        {tableSections}
+      </Table>
+    </SummaryFlexForContainer>
   );
 };
 
 interface GridRowProps {
-  row: GridRowInternal;
+  row: GridRow;
   mutableColumnSettings: ITableColumnFormatting;
-  node: LayoutNode;
-  headerRow?: GridRowInternal;
+  baseComponentId: string;
+  headerRow?: GridRow;
 }
 
 function SummaryGridRowRenderer(props: GridRowProps) {
   const { row } = props;
   const isMobile = useIsMobile();
-  const isHiddenSelector = Hidden.useIsHiddenSelector();
-
   const pdfModeActive = usePdfModeActive();
-
   const isSmall = isMobile && !pdfModeActive;
+  const firstComponentId = useFirstFormComponentId(row);
 
-  const firstNodeId = useFirstFormNodeId(row);
+  const onlyEmptyChildren = useHasOnlyEmptyChildren();
+  const isHeaderWithoutComponents = row.header === true && !row.cells.some((cell) => cell && 'component' in cell);
+  const hideEmptyRows = useSummaryOverrides<'Grid'>(props.baseComponentId)?.hideEmptyRows;
 
-  if (isGridRowHidden(row, isHiddenSelector)) {
-    return null;
-  }
-
-  return (
-    <SummaryInternalRow readOnly={row.readOnly}>
-      {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
-        <SummaryCell
-          key={cellIdx}
-          cell={cell}
-          idx={cellIdx}
-          isSmall={isSmall}
-          {...props}
-        />
-      ))}
-      {!pdfModeActive && row.header && !isSmall && (
-        <Table.HeaderCell>
-          <span className={classes.visuallyHidden}>
-            <Lang id='general.edit' />
-          </span>
-        </Table.HeaderCell>
-      )}
-      {!pdfModeActive && !row.header && !isSmall && (
-        <Table.Cell align='right'>
-          {firstNodeId && !row.readOnly && (
-            <WrappedEditButton
-              componentNodeId={firstNodeId}
-              summaryComponentId=''
-            />
-          )}
-        </Table.Cell>
-      )}
-    </SummaryInternalRow>
+  useReportSummaryRenderToParent(
+    isHeaderWithoutComponents
+      ? SummaryContains.Presentational
+      : onlyEmptyChildren
+        ? SummaryContains.EmptyValueNotRequired
+        : SummaryContains.SomeUserContent,
   );
-}
 
-function useFirstFormNodeId(row: GridRowInternal): string | undefined {
-  return NodesInternal.useSelector((state) => {
-    for (const cell of row.cells) {
-      if (cell && 'nodeId' in cell && cell.nodeId) {
-        const nodeData = state.nodeData?.[cell.nodeId];
-        const def = nodeData && getComponentDef(nodeData.layout.type);
-        if (def && def.category === CompCategory.Form) {
-          return nodeData.layout.id;
-        }
-      }
-    }
-    return undefined;
-  });
-}
-
-function WrappedEditButton({
-  componentNodeId,
-  ...rest
-}: { componentNodeId: string } & Omit<EditButtonProps, 'componentNode'>) {
-  const node = useNode(componentNodeId);
-  if (!node) {
+  const rowHidden = useIsGridRowHidden(row);
+  if (rowHidden) {
     return null;
   }
 
+  const extraClassName = row.readOnly ? classes.rowReadOnly : undefined;
+
   return (
-    <EditButton
-      componentNode={node}
-      {...rest}
+    <HideWhenAllChildrenEmpty
+      hideWhen={hideEmptyRows}
+      render={(className) => (
+        <Table.Row className={cn(className, extraClassName)}>
+          {row.cells.filter(typedBoolean).map((cell, cellIdx) => (
+            <SummaryCell
+              key={cellIdx}
+              cell={cell}
+              idx={cellIdx}
+              isSmall={isSmall}
+              {...props}
+            />
+          ))}
+          {!pdfModeActive && row.header && !isSmall && (
+            <Table.HeaderCell>
+              <span className={utilClasses.visuallyHidden}>
+                <Lang id='general.edit' />
+              </span>
+            </Table.HeaderCell>
+          )}
+          {!pdfModeActive && !row.header && !isSmall && (
+            <Table.Cell align='right'>
+              {firstComponentId && !row.readOnly && <EditButton targetBaseComponentId={firstComponentId} />}
+            </Table.Cell>
+          )}
+        </Table.Row>
+      )}
     />
   );
 }
 
-type InternalRowProps = PropsWithChildren<Pick<GridRowInternal, 'header' | 'readOnly'>>;
-
-function SummaryInternalRow({ header, readOnly, children }: InternalRowProps) {
-  const className = readOnly ? classes.rowReadOnly : undefined;
-
-  if (header) {
-    return <Table.Row className={className}>{children}</Table.Row>;
-  }
-
-  return <Table.Row className={className}>{children}</Table.Row>;
-}
-
-function useHeaderText(headerRow: GridRowInternal | undefined, cellIdx: number) {
-  const { langAsString, langAsNonProcessedString } = useLanguage();
-  const cell = headerRow?.cells[cellIdx] ?? undefined;
-  const referencedNode = useNode(cell && 'labelFrom' in cell ? cell.labelFrom : undefined);
-  const referencedNodeIsRequired = useNodeItem(referencedNode, (i) => ('required' in i ? i.required : false));
-  const referencedNodeTitle = useNodeItem(referencedNode, (i) =>
-    i.textResourceBindings && 'title' in i.textResourceBindings ? i.textResourceBindings.title : undefined,
-  );
-  const requiredIndicator = referencedNodeIsRequired
-    ? ` ${langAsNonProcessedString('form_filler.required_label')}`
-    : '';
-
-  let headerText = '';
-  if (cell && 'text' in cell) {
-    headerText = cell.text;
-  } else if (cell && 'labelFrom' in cell) {
-    headerText = referencedNodeTitle ? referencedNodeTitle : '';
-  }
-
-  return `${langAsString(headerText)}${requiredIndicator}`;
+function useFirstFormComponentId(row: GridRow): string | undefined {
+  const layoutLookups = useLayoutLookups();
+  const canRender = useHasCapability('renderInTable');
+  return useMemo(() => {
+    for (const cell of row.cells) {
+      if (cell && 'component' in cell && cell.component && canRender(cell.component)) {
+        const type = layoutLookups.getComponent(cell.component)?.type;
+        const def = getComponentDef(type);
+        if (def && def.category === CompCategory.Form) {
+          return cell.component;
+        }
+      }
+    }
+    return undefined;
+  }, [canRender, layoutLookups, row.cells]);
 }
 
 interface CellProps extends GridRowProps {
-  cell: GridCellInternal;
+  cell: GridCell;
   idx: number;
   isSmall: boolean;
 }
 
-function SummaryCell({ cell, idx: idx, headerRow, mutableColumnSettings, row, node, isSmall }: CellProps) {
-  const headerTitle = useHeaderText(headerRow, idx);
+function SummaryCell(props: CellProps) {
+  const cell = props.headerRow?.cells[props.idx];
+  const referencedId = cell && 'labelFrom' in cell ? cell.labelFrom : undefined;
+  const { langAsString } = useLanguage();
+
+  if (referencedId) {
+    return (
+      <SummaryCellInnerWithLabel
+        {...props}
+        labelFrom={referencedId}
+      />
+    );
+  }
+
+  return (
+    <SummaryCellInner
+      {...props}
+      headerTitle={cell && 'text' in cell ? langAsString(cell.text) : ''}
+    />
+  );
+}
+
+function SummaryCellInnerWithLabel(props: CellProps & { labelFrom: string }) {
+  const { langAsString, langAsNonProcessedString } = useLanguage();
+  const item = useItemFor(props.labelFrom);
+  const required = 'required' in item ? item.required : false;
+  const title =
+    item.textResourceBindings && 'title' in item.textResourceBindings ? item.textResourceBindings.title : undefined;
+  const requiredIndicator = required ? ` ${langAsNonProcessedString('form_filler.required_label')}` : '';
+  const headerTitle = `${langAsString(title || '')}${requiredIndicator}`;
+
+  return (
+    <SummaryCellInner
+      {...props}
+      headerTitle={headerTitle}
+    />
+  );
+}
+
+function SummaryCellInner({
+  cell,
+  idx,
+  headerTitle,
+  mutableColumnSettings,
+  row,
+  isSmall,
+}: CellProps & { headerTitle: string }) {
   if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
+    // eslint-disable-next-line react-compiler/react-compiler
     mutableColumnSettings[idx] = cell.columnOptions;
   }
 
@@ -283,10 +320,7 @@ function SummaryCell({ cell, idx: idx, headerRow, mutableColumnSettings, row, no
           headerTitle={headerTitle}
           {...baseProps}
         >
-          <Lang
-            id={cell.text}
-            node={node}
-          />
+          <Lang id={cell.text} />
         </SummaryCellWithText>
       );
     }
@@ -304,10 +338,10 @@ function SummaryCell({ cell, idx: idx, headerRow, mutableColumnSettings, row, no
     }
   }
 
-  if (cell && 'nodeId' in cell) {
+  if (cell && 'component' in cell) {
     return (
       <SummaryCellWithComponentNodeCheck
-        key={`${cell.nodeId}/${idx}`}
+        key={`${cell.component}/${idx}`}
         cell={cell}
         columnStyleOptions={mutableColumnSettings[idx]}
         headerTitle={headerTitle}
@@ -329,7 +363,7 @@ interface BaseCellProps {
 }
 
 interface CellWithComponentProps extends BaseCellProps {
-  cell: GridCellNode;
+  cell: GridComponentRef;
 }
 
 interface CellWithTextProps extends PropsWithChildren, BaseCellProps {
@@ -341,34 +375,47 @@ interface CellWithLabelProps extends BaseCellProps {
 }
 
 function SummaryCellWithComponentNodeCheck(props: CellWithComponentProps) {
-  const node = useNode(props.cell.nodeId);
-  if (!node) {
+  const canRender = useHasCapability('renderInTable');
+  if (!props.cell.component || !canRender(props.cell.component)) {
     return <Table.Cell />;
   }
 
   return (
     <SummaryCellWithComponent
       {...props}
-      node={node}
+      baseComponentId={props.cell.component}
     />
   );
 }
 
 function SummaryCellWithComponent({
-  node,
+  baseComponentId,
   columnStyleOptions,
   isHeader = false,
   rowReadOnly,
   headerTitle,
   isSmall,
-}: CellWithComponentProps & { node: LayoutNode }) {
+}: CellWithComponentProps & { baseComponentId: string }) {
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-  const displayData = useDisplayData(node);
-  const validations = useUnifiedValidationsForNode(node);
+  const displayData = useDisplayData(baseComponentId);
+  const validations = useUnifiedValidationsForNode(baseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const isHidden = Hidden.useIsHidden(node);
+  const isHidden = useIsHidden(baseComponentId);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
-  const { textResourceBindings } = useNodeItem(node) ?? {};
+  const item = useItemFor(baseComponentId);
+  const textResourceBindings = item.textResourceBindings;
+  const required = 'required' in item ? item.required : false;
+  const indexedId = useIndexedId(baseComponentId);
+  const content = getComponentCellData(baseComponentId, item.type, displayData, textResourceBindings);
+
+  const isEmpty = typeof content === 'string' && content.trim() === '';
+  useReportSummaryRender(
+    isEmpty
+      ? required
+        ? SummaryContains.EmptyValueRequired
+        : SummaryContains.EmptyValueNotRequired
+      : SummaryContains.SomeUserContent,
+  );
 
   if (isHidden) {
     return <CellComponent />;
@@ -379,27 +426,30 @@ function SummaryCellWithComponent({
       className={classes.tableCellFormatting}
       style={columnStyles}
       data-header-title={isSmall ? headerTitle : ''}
+      data-is-empty={isEmpty ? 'yes' : 'no'}
+      data-cell-node={indexedId}
     >
       <div className={cn(classes.contentWrapper, { [classes.validationError]: errors.length > 0 })}>
-        {getComponentCellData(node, displayData, textResourceBindings)}
+        {content}
         {isSmall && !rowReadOnly && (
           <EditButton
             className={classes.mobileEditButton}
-            componentNode={node}
-            summaryComponentId=''
+            targetBaseComponentId={baseComponentId}
           />
         )}
       </div>
       <div className={cn({ [classes.errorMessage]: errors.length > 0 })} />
       {errors.length > 0 &&
         errors.map(({ message }) => (
-          <ErrorMessage key={message.key}>
+          <ValidationMessage
+            key={message.key}
+            data-size='sm'
+          >
             <Lang
               id={message.key}
               params={message.params}
-              node={node}
             />
-          </ErrorMessage>
+          </ValidationMessage>
         ))}
     </CellComponent>
   );
@@ -438,20 +488,15 @@ function SummaryCellWithLabel({
   headerTitle,
   isSmall,
 }: CellWithLabelProps) {
-  const referenceNode = useNode(cell.labelFrom);
-  const refItem = useNodeItem(referenceNode);
+  const refItem = useItemFor(cell.labelFrom);
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const trb = (refItem && 'textResourceBindings' in refItem ? refItem.textResourceBindings : {}) as
     | ITextResourceBindings
     | undefined;
   const title = trb && 'title' in trb ? trb.title : undefined;
-  const required = (referenceNode && refItem && 'required' in refItem && refItem.required) ?? false;
+  const required = (refItem && 'required' in refItem && refItem.required) ?? false;
 
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-
-  if (!referenceNode) {
-    return <CellComponent />;
-  }
 
   return (
     <CellComponent
@@ -459,28 +504,31 @@ function SummaryCellWithLabel({
       style={columnStyles}
       data-header-title={isSmall ? headerTitle : ''}
     >
-      {referenceNode && (
-        <LabelContent
-          componentId={referenceNode.id}
-          label={title}
-          required={required}
-        />
-      )}
+      <LabelContent
+        id={useIndexedId(cell.labelFrom)}
+        label={title}
+        required={required}
+      />
     </CellComponent>
   );
 }
 
-function getComponentCellData(node: LayoutNode, displayData: string, textResourceBindings?: ITextResourceBindings) {
-  if (node?.type === 'Custom') {
-    return <ComponentSummary componentNode={node} />;
-  } else if (implementsDisplayData(node.def)) {
-    return displayData || '-';
+function getComponentCellData<T extends CompTypes>(
+  baseComponentId: string,
+  type: T,
+  displayData: string,
+  textResourceBindings?: ITextResourceBindings,
+) {
+  if (type === 'Custom') {
+    return <ComponentSummary targetBaseComponentId={baseComponentId} />;
+  } else if (implementsDisplayData(getComponentDef(type))) {
+    return displayData || '';
   } else if (textResourceBindings && 'title' in textResourceBindings) {
     return <Lang id={textResourceBindings.title} />;
   } else {
     return (
       <GenericComponent
-        node={node}
+        baseComponentId={baseComponentId}
         overrideDisplay={{
           renderLabel: false,
           renderLegend: false,

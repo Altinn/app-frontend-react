@@ -185,9 +185,19 @@ describe('Repeating group attachments', () => {
       },
     ];
 
+    // Making sure that optionLabel fetches the option list when in a repeating group:
+    // https://github.com/Altinn/app-frontend-react/issues/2117
     cy.get(appFrontend.group.row(0).uploadSingle.fileUploader).should(
       'contain.text',
       'Last opp alle vedlegg med kilde Altinn her:',
+    );
+
+    // Making sure that optionLabel fetches the option list even when the component that uses the expression is
+    // a statically fetchable option component:
+    // https://github.com/Altinn/app-frontend-react/issues/3386
+    cy.get('[data-componentid="nested-source-0-0"]').should(
+      'contain.text',
+      'Hvor fikk du vite om skjemaet? Over her valgte du alternativ 1, Altinn',
     );
 
     uploadFile({
@@ -216,7 +226,9 @@ describe('Repeating group attachments', () => {
       }
     });
 
-    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.findAllByRole('button', { name: /lagre og lukk/i })
+      .last()
+      .click({ force: true });
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     addNewRow();
     gotoSecondPage();
@@ -242,7 +254,7 @@ describe('Repeating group attachments', () => {
         cy.get(appFrontend.group.row(1).uploadMulti.addMoreBtn).click();
       }
     });
-    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).click({ force: true });
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
 
     [0, 1].forEach((row) => {
@@ -270,6 +282,9 @@ describe('Repeating group attachments', () => {
             .parent()
             .find(appFrontend.group.addNewItemSubGroup)
             .click();
+          // Wait for new subgroup DOM elements to stabilize before continuing. This prevents ResizeObserver loop.
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
+          cy.wait(200);
         }
       });
       cy.get(appFrontend.group.saveMainGroup).click();
@@ -316,11 +331,11 @@ describe('Repeating group attachments', () => {
     // deduplicated so two rows becomes one option.
     cy.get('#reduxOptions-expressions-radiobuttons').findAllByRole('radio').should('have.length', 1);
 
-    cy.snapshot('attachments-in-group');
+    cy.visualTesting('attachments-in-group');
 
     // Now that all attachments described above have been uploaded and verified, start deleting the middle attachment
     // of the first-row multi-uploader to verify that the next attachment is shifted upwards.
-    cy.findByRole('row', { name: 'multiInFirstRow2 .pdf 0.00 MB. Ferdig lastet Slett vedlegg' }).within(() => {
+    cy.findByRole('row', { name: 'multiInFirstRow2 .pdf 11 B Ferdig lastet Slett vedlegg' }).within(() => {
       cy.findByRole('button', { name: /slett/i }).click();
     });
 
@@ -483,7 +498,6 @@ describe('Repeating group attachments', () => {
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.saveMainGroup).should('not.exist');
     cy.get(appFrontend.group.row(0).deleteBtn).click();
-    cy.waitUntilNodesReady();
 
     verifyPreview(true);
     waitForFormDataSave();

@@ -29,6 +29,7 @@ export enum ProcessTaskType {
   Confirm = 'confirmation',
   Feedback = 'feedback',
   Payment = 'payment',
+  Signing = 'signing',
 }
 
 export enum PresentationType {
@@ -37,8 +38,14 @@ export enum PresentationType {
 
 export enum DateFlags {
   Today = 'today',
+  Yesterday = 'yesterday',
+  Tomorrow = 'tomorrow',
+  OneYearAgo = 'oneYearAgo',
+  OneYearFromNow = 'oneYearFromNow',
 }
 
 export function isProcessTaskType(taskType: string): taskType is ProcessTaskType {
   return Object.values(ProcessTaskType).includes(taskType as ProcessTaskType);
 }
+
+export type LooseAutocomplete<T extends string> = T | (string & {}); // NOSONAR

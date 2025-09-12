@@ -1,18 +1,19 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 
+import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import {
-  useCurrentParty,
-  useCurrentPartyIsValid,
   useHasSelectedParty,
+  useSelectedParty,
+  useSelectedPartyIsValid,
   useValidParties,
 } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
-import { useAllowAnonymousIs } from 'src/features/stateless/getAllowAnonymous';
+import { useIsAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
 import type { ShowTypes } from 'src/features/applicationMetadata/types';
 
 const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
@@ -45,10 +46,10 @@ export const Entrypoint = () => {
   } = useApplicationMetadata();
   const profile = useProfile();
   const validParties = useValidParties();
-  const partyIsValid = useCurrentPartyIsValid();
+  const partyIsValid = useSelectedPartyIsValid();
   const userHasSelectedParty = useHasSelectedParty();
-  const allowAnonymous = useAllowAnonymousIs(true);
-  const party = useCurrentParty();
+  const allowAnonymous = useIsAllowAnonymous(true);
+  const party = useSelectedParty();
 
   if (isStateless && allowAnonymous && !party) {
     // Anonymous stateless app. No need to log in and select party, but cannot create a new instance.
@@ -59,6 +60,10 @@ export const Entrypoint = () => {
         <Outlet />
       </FormProvider>
     );
+  }
+
+  if (!profile) {
+    return <Loader reason='loading-profile' />;
   }
 
   if (!partyIsValid) {

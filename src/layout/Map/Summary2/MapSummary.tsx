@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { ErrorMessage, Paragraph } from '@digdir/designsystemet-react';
+import { Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Label } from 'src/components/label/Label';
@@ -12,84 +12,91 @@ import classes from 'src/layout/Map/Summary2/MapSummary.module.css';
 import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { useNodeFormData, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useFormDataFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { RawGeometry } from 'src/layout/Map/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export type MapSummaryProps = {
-  componentNode: LayoutNode<'Map'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-};
-
-export function MapSummary({ componentNode, emptyFieldText, isCompact }: MapSummaryProps) {
-  const markerBinding = useNodeItem(componentNode, (item) => item.dataModelBindings.simpleBinding);
-  const readOnly = useNodeItem(componentNode, (item) => item.readOnly);
-  const formData = useNodeFormData(componentNode);
+export function MapSummary({ targetBaseComponentId }: Summary2Props) {
+  const emptyFieldText = useSummaryOverrides(targetBaseComponentId)?.emptyFieldText;
+  const isCompact = useSummaryProp('isCompact');
+  const { dataModelBindings, readOnly, textResourceBindings, required } = useItemWhenType(targetBaseComponentId, 'Map');
+  const markerBinding = dataModelBindings.simpleBinding;
+  const formData = useFormDataFor<'Map'>(targetBaseComponentId);
   const markerLocation = parseLocation(formData.simpleBinding);
   const markerLocationIsValid = isLocationValid(markerLocation);
   const geometries = formData.geometries as RawGeometry[] | undefined;
-  const validations = useUnifiedValidationsForNode(componentNode);
+  const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
+  const title = textResourceBindings?.title;
 
   if (markerBinding && !markerLocationIsValid) {
     return (
-      <SingleValueSummary
-        title={
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        }
-        componentNode={componentNode}
-        errors={errors}
-        hideEditButton={readOnly}
-        isCompact={isCompact}
-        emptyFieldText={emptyFieldText}
-      />
+      <SummaryFlex
+        targetBaseId={targetBaseComponentId}
+        content={required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired}
+      >
+        <SingleValueSummary
+          title={<Lang id={title} />}
+          targetBaseComponentId={targetBaseComponentId}
+          errors={errors}
+          hideEditButton={readOnly}
+          isCompact={isCompact}
+          emptyFieldText={emptyFieldText}
+        />
+      </SummaryFlex>
     );
   }
 
   return (
-    <div className={classes.summaryItemWrapper}>
-      <div className={classes.summaryItem}>
-        <Label
-          node={componentNode}
-          renderLabelAs='span'
-          textResourceBindings={{ title }}
+    <SummaryFlex
+      targetBaseId={targetBaseComponentId}
+      content={
+        markerLocation
+          ? SummaryContains.SomeUserContent
+          : required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+      }
+    >
+      <div className={classes.summaryItemWrapper}>
+        <div className={classes.summaryItem}>
+          <Label
+            baseComponentId={targetBaseComponentId}
+            renderLabelAs='span'
+            textResourceBindings={{ title }}
+          />
+          {!readOnly && (
+            <EditButton
+              className={classes.editButton}
+              targetBaseComponentId={targetBaseComponentId}
+            />
+          )}
+        </div>
+        <Map
+          baseComponentId={targetBaseComponentId}
+          markerLocation={markerLocation}
+          geometries={geometries}
+          isSummary={true}
         />
-        {!readOnly && (
-          <EditButton
-            className={classes.editButton}
-            componentNode={componentNode}
-            summaryComponentId={componentNode.id}
-          />
+        {markerLocation && (
+          <Paragraph className={cn(classes.footer, classes.summaryValue, { [classes.error]: errors.length > 0 })}>
+            <Lang
+              id='map_component.selectedLocation'
+              params={[markerLocation.latitude, markerLocation.longitude]}
+            />
+          </Paragraph>
         )}
+        {errors?.map(({ message }) => (
+          <ValidationMessage key={message.key}>
+            <Lang
+              id={message.key}
+              params={message.params}
+            />
+          </ValidationMessage>
+        ))}
       </div>
-      <Map
-        mapNode={componentNode}
-        markerLocation={markerLocation}
-        geometries={geometries}
-        isSummary={true}
-      />
-      {markerLocation && (
-        <Paragraph className={cn(classes.footer, classes.summaryValue, { [classes.error]: errors.length > 0 })}>
-          <Lang
-            id='map_component.selectedLocation'
-            params={[markerLocation.latitude, markerLocation.longitude]}
-          />
-        </Paragraph>
-      )}
-      {errors?.map(({ message }) => (
-        <ErrorMessage key={message.key}>
-          <Lang
-            id={message.key}
-            params={message.params}
-            node={componentNode}
-          />
-        </ErrorMessage>
-      ))}
-    </div>
+    </SummaryFlex>
   );
 }

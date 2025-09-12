@@ -2,18 +2,22 @@ import type JQuery from 'cypress/types/jquery';
 import type { RouteMatcher } from 'cypress/types/net-stubbing';
 import type { ConsoleMessage } from 'cypress-fail-on-console-error';
 
-import type { CyUser } from 'test/e2e/support/auth';
+import type { CyUser, TenorUser } from 'test/e2e/support/auth';
 
 import type { BackendValidationIssue, BackendValidationIssueGroupListItem } from 'src/features/validation';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
+import type { LooseAutocomplete } from 'src/types';
 
 export type FrontendTestTask = 'message' | 'changename' | 'group' | 'likert' | 'datalist' | 'confirm';
 export type FillableFrontendTasks = Exclude<FrontendTestTask, 'message' | 'confirm'>;
 
 export type StartAppInstanceOptions = {
   // User to log in as
-  user?: CyUser | null;
+  cyUser?: CyUser | null;
+
+  // Tenor user to log in as (alternative to user)
+  tenorUser?: TenorUser | null;
 
   authenticationLevel?: string;
 
@@ -32,6 +36,12 @@ export interface TestPdfOptions {
   callback: () => void;
   returnToForm?: boolean;
   enableResponseFuzzing?: boolean;
+}
+
+export type SnapshotViewport = 'desktop' | 'tablet' | 'mobile';
+
+export interface SnapshotOptions {
+  wcag: boolean;
 }
 
 declare global {
@@ -136,7 +146,7 @@ declare global {
        * Must be called in the beginning of your test.
        */
       interceptLayout(
-        taskName: FrontendTestTask | string,
+        taskName: LooseAutocomplete<FrontendTestTask>,
         mutator?: (component: CompExternal) => void,
         wholeLayoutMutator?: (layoutSet: ILayoutCollection) => void,
         options?: { times?: number },
@@ -167,11 +177,6 @@ declare global {
       waitUntilSaved(): Chainable<null>;
 
       /**
-       * Wait until the node generation/hierarchy is ready after processing changes
-       */
-      waitUntilNodesReady(): Chainable<null>;
-
-      /**
        * Check a checkbox/radio from the design system.
        * Our design system radios/checkboxes are a little special, as they hide the HTML input element and provide
        * their own stylized variant. Cypress can't check/uncheck a hidden input field, and although we can tell
@@ -188,6 +193,11 @@ declare global {
        * Waits until a design system element (Combobox, etc) is ready to be clicked.
        */
       dsReady(selector: string): Chainable<null>;
+
+      /**
+       * Clears a design system element (Combobox, etc) by invoking the input field's value to an empty string.
+       */
+      dsClear(selector: string): Chainable<null>;
 
       /**
        * Select from a dropdown in the design system
@@ -222,10 +232,8 @@ declare global {
        *    currently loading or animating.
        *  - The snapshot does not overlap with other snapshots. Multiple snapshots on the same page in the same state
        *    will cause confusion, and eat up our Percy.io quota.
-       *
-       * @param name A unique name for the snapshot.
        */
-      snapshot(name: string): Chainable<null>;
+      visualTesting(name: string, options?: Partial<SnapshotOptions>): Chainable<null>;
 
       /**
        * Runs the wcag tests on the app and notifies us of any violations (using axe/ally)
@@ -233,9 +241,16 @@ declare global {
       testWcag(): Chainable<null>;
 
       /**
+       * Runs a snapshot test on something, to compare it with a known good value
+       * @see https://www.cypress.io/blog/end-to-end-snapshot-testing
+       */
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      snapshot(options?: any): Chainable<null>;
+
+      /**
        * Useful when taking snapshots; clear all selections and wait for the app to finish loading and stabilizing.
        */
-      clearSelectionAndWait(viewport?: 'desktop' | 'tablet' | 'mobile'): Chainable<null>;
+      clearSelectionAndWait(viewport?: SnapshotViewport): Chainable<null>;
 
       getSummary(label: string): Chainable<Element>;
       directSnapshot(
@@ -298,22 +313,16 @@ declare global {
 
       getCurrentViewportSize(): Chainable<Size>;
 
-      showNavGroups(): Chainable<null>;
-      hideNavGroups(): Chainable<null>;
+      showNavGroupsTablet(): Chainable<null>;
+      hideNavGroupsTablet(): Chainable<null>;
+      showNavGroupsMobile(): Chainable<null>;
+      hideNavGroupsMobile(): Chainable<null>;
 
-      navGroup(
-        groupName: string | RegExp,
-        pageName?: string | RegExp,
-        subformName?: string | RegExp,
-      ): Chainable<JQuery<Element>>;
+      navGroup(groupName: RegExp, pageName?: RegExp, subformName?: RegExp): Chainable<JQuery<Element>>;
 
-      gotoNavGroup(groupName: string | RegExp, pageName?: string | RegExp): Chainable<null>;
+      gotoNavGroup(groupName: RegExp, device: 'mobile' | 'tablet' | 'desktop', pageName?: RegExp): Chainable<null>;
 
-      openNavGroup(
-        groupName: string | RegExp,
-        pageName?: string | RegExp,
-        subformName?: string | RegExp,
-      ): Chainable<null>;
+      openNavGroup(groupName: RegExp, pageName?: RegExp, subformName?: RegExp): Chainable<null>;
 
       ignoreConsoleMessages(consoleMessages: ConsoleMessage[]): Chainable<null>;
     }

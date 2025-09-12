@@ -1,42 +1,57 @@
 import React from 'react';
+import type { CSSProperties } from 'react';
 
-import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
-import { Hidden, NodesInternal, useGetPage, useNode } from 'src/utils/layout/NodesContext';
+import { Flex } from 'src/app-components/Flex/Flex';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { ComponentSummary, HideWhenAllChildrenEmpty } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverridesForPage, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useIsHiddenPage } from 'src/utils/layout/hidden';
 
 interface PageSummaryProps {
   pageId: string;
 }
 
-export function PageSummary({ pageId }: PageSummaryProps) {
-  const page = useGetPage(pageId);
-  const children = NodesInternal.useShallowSelector((state) =>
-    Object.values(state.nodeData)
-      .filter((nodeData) => nodeData.pageKey === pageId && nodeData.parentId === undefined) // Find top-level nodes
-      .map((nodeData) => nodeData.layout.id),
-  );
-  const isHiddenPage = Hidden.useIsHiddenPage(page);
+const fullWidth: CSSProperties = { width: '100%' };
 
-  if (!page || !children) {
+export function PageSummary({ pageId }: PageSummaryProps) {
+  const children = useLayoutLookups().topLevelComponents[pageId];
+  const isHiddenPage = useIsHiddenPage(pageId);
+  const hideEmptyFields = useSummaryProp('hideEmptyFields');
+  const overrides = useSummaryOverridesForPage(pageId);
+
+  if (!children) {
     throw new Error('PageId invalid in PageSummary.');
   }
 
-  if (isHiddenPage) {
+  if (isHiddenPage || overrides?.hidden) {
     return null;
   }
 
-  return children?.map((nodeId) => (
-    <NodeSummary
-      nodeId={nodeId}
-      key={nodeId}
+  return (
+    <HideWhenAllChildrenEmpty
+      hideWhen={hideEmptyFields}
+      render={(className) => (
+        <Flex
+          item
+          style={fullWidth}
+          className={className}
+          data-summary-pagekey={pageId}
+        >
+          <Flex
+            container
+            spacing={6}
+            alignItems='flex-start'
+            data-summary-pagekey={pageId}
+          >
+            {children?.map((baseId) => (
+              <ComponentSummary
+                key={baseId}
+                targetBaseComponentId={baseId}
+              />
+            ))}
+          </Flex>
+        </Flex>
+      )}
     />
-  ));
-}
-
-function NodeSummary({ nodeId }: { nodeId: string }) {
-  const node = useNode(nodeId);
-  if (!node) {
-    return null;
-  }
-
-  return <ComponentSummary componentNode={node} />;
+  );
 }

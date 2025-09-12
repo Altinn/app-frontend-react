@@ -1,26 +1,24 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { Radio } from '@digdir/designsystemet-react';
-
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getSelectedValueToText } from 'src/features/options/getSelectedValueToText';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
-import { useEmptyFieldValidationOnlySimpleBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
+import { useEmptyFieldValidationOnlyOneBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { RadioButtonsDef } from 'src/layout/RadioButtons/config.def.generated';
 import { ControlledRadioGroup } from 'src/layout/RadioButtons/ControlledRadioGroup';
 import { RadioButtonsSummary } from 'src/layout/RadioButtons/RadioButtonsSummary';
 import { SummaryItemSimple } from 'src/layout/Summary/SummaryItemSimple';
+import { validateDataModelBindingsSimple } from 'src/utils/layout/generator/validation/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { ComponentValidation } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompIntermediateExact } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { IDataModelBindings } from 'src/layout/layout';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export class RadioButtons extends RadioButtonsDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'RadioButtons'>>(
@@ -29,60 +27,37 @@ export class RadioButtons extends RadioButtonsDef {
     },
   );
 
-  renderNext(component: CompIntermediateExact<'RadioButtons'>, commonProps: CommonProps): React.JSX.Element | null {
-    const options = component.options || commonProps.options;
-
-    return (
-      <div>
-        <Radio.Group
-          legend=''
-          role='radiogroup'
-        >
-          {options?.map((option, idx) => (
-            <Radio
-              value={`${option.value}`}
-              description={option.description}
-              key={idx}
-              onChange={(e) => {
-                commonProps.onChange(e.target.value);
-              }}
-            >
-              {option.label}
-            </Radio>
-          ))}
-        </Radio.Group>
-      </div>
-    );
-  }
-
-  useDisplayData(nodeId: string): string {
-    const formData = useNodeFormDataWhenType(nodeId, 'RadioButtons');
+  useDisplayData(baseComponentId: string): string {
+    const formData = useNodeFormDataWhenType(baseComponentId, 'RadioButtons');
     const value = String(formData?.simpleBinding ?? '');
-    const options = useNodeOptions(nodeId).options;
+    const options = useOptionsFor(baseComponentId, 'single').options;
     const langTools = useLanguage();
     return getSelectedValueToText(value, langTools, options) || '';
   }
 
-  renderSummary({ targetNode }: SummaryRendererProps<'RadioButtons'>): JSX.Element | null {
-    const displayData = useDisplayData(targetNode);
+  evalExpressions(props: ExprResolver<'RadioButtons'>) {
+    return {
+      ...this.evalDefaultExpressions(props),
+      alertOnChange: props.evalBool(props.item.alertOnChange, false),
+    };
+  }
+
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
+    const displayData = useDisplayData(props.targetBaseComponentId);
     return <SummaryItemSimple formDataAsString={displayData} />;
   }
 
-  renderSummary2(props: Summary2Props<'RadioButtons'>): JSX.Element | null {
-    return (
-      <RadioButtonsSummary
-        componentNode={props.target}
-        emptyFieldText={props.override?.emptyFieldText}
-        isCompact={props.isCompact}
-      />
-    );
+  renderSummary2(props: Summary2Props): JSX.Element | null {
+    return <RadioButtonsSummary {...props} />;
   }
 
-  useEmptyFieldValidation(node: LayoutNode<'RadioButtons'>): ComponentValidation[] {
-    return useEmptyFieldValidationOnlySimpleBinding(node);
+  useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
+    return useEmptyFieldValidationOnlyOneBinding(baseComponentId, 'simpleBinding');
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'RadioButtons'>): string[] {
-    return this.validateDataModelBindingsSimple(ctx);
+  useDataModelBindingValidation(baseComponentId: string, dmb: IDataModelBindings<'RadioButtons'>): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    const layoutLookups = useLayoutLookups();
+    return validateDataModelBindingsSimple(baseComponentId, dmb, lookupBinding, layoutLookups);
   }
 }

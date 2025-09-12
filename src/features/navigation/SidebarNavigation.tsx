@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
-import { AppNavigation, AppNavigationHeading } from 'src/features/navigation/AppNavigation';
+import { AppNavigation, AppNavigationHeading, appNavigationHeadingId } from 'src/features/navigation/AppNavigation';
 import classes from 'src/features/navigation/SidebarNavigation.module.css';
 import { SIDEBAR_BREAKPOINT, useHasGroupedNavigation } from 'src/features/navigation/utils';
 import { useBrowserWidth } from 'src/hooks/useDeviceWidths';
@@ -16,9 +16,12 @@ export function SideBarNavigation() {
   }
 
   return (
-    <aside className={classes.sidebarContainer}>
+    <nav
+      className={classes.sidebarContainer}
+      aria-labelledby={appNavigationHeadingId}
+    >
       <AppNavigationHeading />
       <AppNavigation />
-    </aside>
+    </nav>
   );
 }

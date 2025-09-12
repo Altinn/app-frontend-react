@@ -7,88 +7,77 @@ import { DataModelReaders } from 'src/features/formData/FormDataReaders';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { Lang } from 'src/features/language/Lang';
 import { useLangToolsDataSources } from 'src/features/language/LangToolsStore';
-import { getLanguageFromCode } from 'src/language/languages';
+import { type FixedLanguageList, getLanguageFromCode } from 'src/language/languages';
 import { parseAndCleanText } from 'src/language/sharedLanguage';
-import { useFormComponentCtx } from 'src/layout/FormComponentContext';
 import { getKeyWithoutIndexIndicators } from 'src/utils/databindings';
 import { transposeDataBinding } from 'src/utils/databindings/DataBinding';
 import { smartLowerCaseFirst } from 'src/utils/formComponentUtils';
-import {
-  useDataModelBindingTranspose,
-  useInnerDataModelBindingTranspose,
-} from 'src/utils/layout/useDataModelBindingTranspose';
+import { useCurrentDataModelLocation } from 'src/utils/layout/DataModelLocation';
 import type { DataModelReader, useDataModelReaders } from 'src/features/formData/FormDataReaders';
 import type {
   LangDataSources,
   LimitedTextResourceVariablesDataSources,
 } from 'src/features/language/LangDataSourcesProvider';
 import type { TextResourceMap } from 'src/features/language/textResources';
-import type { FixedLanguageList, NestedTexts } from 'src/language/languages';
 import type { FormDataSelector } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
-import type { IApplicationSettings, IInstanceDataSources, ILanguage, IVariable } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { LaxNodeDataSelector } from 'src/utils/layout/NodesContext';
-import type { DataModelTransposeSelector } from 'src/utils/layout/useDataModelBindingTranspose';
+import type { LooseAutocomplete } from 'src/types';
+import type { IApplicationSettings, IInstanceDataSources, IVariable } from 'src/types/shared';
 
 type SimpleLangParam = string | number | undefined;
 export type ValidLangParam = SimpleLangParam | ReactNode | TextReference;
 export type TextReference = {
-  key: ValidLanguageKey | string | undefined;
+  key: LooseAutocomplete<ValidLanguageKey> | undefined;
   params?: ValidLangParam[];
+  customTextParameters?: Record<string, string>;
   makeLowerCase?: boolean;
 };
 
 export interface IUseLanguage {
-  language: ILanguage;
+  language: FixedLanguageList;
   lang(
-    key: ValidLanguageKey | string | undefined,
+    key: LooseAutocomplete<ValidLanguageKey> | undefined,
     params?: ValidLangParam[],
+    customTextParameters?: Record<string, string>,
   ): string | JSX.Element | JSX.Element[] | null;
-  langAsString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[], makeLowerCase?: boolean): string;
+  langAsString(
+    key: LooseAutocomplete<ValidLanguageKey> | undefined,
+    params?: ValidLangParam[],
+    makeLowerCase?: boolean,
+    customTextParameters?: Record<string, string>,
+  ): string;
   langAsStringUsingPathInDataModel(
     key: ValidLanguageKey | string | undefined,
     dataModelPath: IDataModelReference,
     params?: ValidLangParam[],
+    customTextParameters?: Record<string, string>,
   ): string;
-  langAsNonProcessedString(key: ValidLanguageKey | string | undefined, params?: ValidLangParam[]): string;
+  langAsNonProcessedString(
+    key: LooseAutocomplete<ValidLanguageKey> | undefined,
+    params?: ValidLangParam[],
+    customTextParameters?: Record<string, string>,
+  ): string;
   langAsNonProcessedStringUsingPathInDataModel(
-    key: ValidLanguageKey | string | undefined,
+    key: LooseAutocomplete<ValidLanguageKey> | undefined,
     dataModelPath: IDataModelReference,
     params?: ValidLangParam[],
+    customTextParameters?: Record<string, string>,
   ): string;
   elementAsString(element: ReactNode): string;
 }
 
 export interface TextResourceVariablesDataSources {
-  node: LayoutNode | string | undefined;
   applicationSettings: IApplicationSettings | null;
   instanceDataSources: IInstanceDataSources | null;
+  customTextParameters: Record<string, string> | null;
   dataModelPath?: IDataModelReference;
   dataModels: ReturnType<typeof useDataModelReaders>;
   defaultDataType: string | undefined | typeof ContextNotProvided;
   formDataTypes: string[] | typeof ContextNotProvided;
   formDataSelector: FormDataSelector | typeof ContextNotProvided;
-  transposeSelector: DataModelTransposeSelector;
 }
 
-/**
- * This type converts the language object into a dot notation union of valid language keys.
- * Using this type helps us get suggestions for valid language keys in useLanguage() functions.
- * Thanks to ChatGPT for refinements to make this work!
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ObjectToDotNotation<T extends Record<string, any>, Prefix extends string = ''> = {
-  [K in keyof T]: K extends string
-    ? T[K] extends string | number | boolean | null | undefined
-      ? `${Prefix}${K}`
-      : K extends string
-        ? ObjectToDotNotation<T[K], `${Prefix}${K}.`>
-        : never
-    : never;
-}[keyof T];
-
-export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
+export type ValidLanguageKey = keyof FixedLanguageList;
 
 /**
  * Hook to resolve a key to a language string or React element (if the key is found and contains markdown or HTML).
@@ -98,19 +87,16 @@ export type ValidLanguageKey = ObjectToDotNotation<FixedLanguageList>;
  * You get two functions from this hook, and you can choose which one to use based on your needs:
  * - lang(key, params) usually returns a React element
  */
-export function useLanguage(node?: LayoutNode) {
-  const componentCtx = useFormComponentCtx();
-  const nearestNode = node ?? componentCtx?.node;
-
-  return useLanguageWithForcedNode(nearestNode);
+export function useLanguage() {
+  const path = useCurrentDataModelLocation();
+  return useLanguageWithForcedPath(path);
 }
 
-export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
+export function useLanguageWithForcedPath(dataModelPath: IDataModelReference | undefined) {
   const sources = useLangToolsDataSources();
   const defaultDataType = DataModels.useLaxDefaultDataType();
   const formDataTypes = DataModels.useLaxReadableDataTypes();
   const formDataSelector = FD.useLaxDebouncedSelector();
-  const transposeSelector = useDataModelBindingTranspose();
 
   return useMemo(() => {
     const { textResources, language, selectedLanguage, ...dataSources } = sources || {};
@@ -120,26 +106,23 @@ export function useLanguageWithForcedNode(node: LayoutNode | undefined) {
 
     return staticUseLanguage(textResources, language, selectedLanguage, {
       ...(dataSources as LimitedTextResourceVariablesDataSources),
-      node,
+      dataModelPath,
       defaultDataType,
       formDataTypes,
       formDataSelector,
-      transposeSelector,
     });
-  }, [sources, node, defaultDataType, formDataTypes, formDataSelector, transposeSelector]);
+  }, [sources, defaultDataType, formDataTypes, formDataSelector, dataModelPath]);
 }
 
-export function useInnerLanguageWithForcedNodeSelector(
+export function useInnerLanguageWithForcedPathSelector(
   defaultDataType: string | typeof ContextNotProvided | undefined,
   formDataTypes: string[] | typeof ContextNotProvided,
   formDataSelector: FormDataSelector | typeof ContextNotProvided,
-  nodeDataSelector: LaxNodeDataSelector,
 ) {
   const sources = useLangToolsDataSources();
-  const transposeSelector = useInnerDataModelBindingTranspose(nodeDataSelector);
 
   return useCallback(
-    (node: LayoutNode | string | undefined) => {
+    (dataModelPath?: IDataModelReference) => {
       const { textResources, language, selectedLanguage, ...dataSources } = sources || ({} as LangDataSources);
       if (!textResources || !language || !selectedLanguage) {
         throw new Error('useLanguage must be used inside a LangToolsStoreProvider');
@@ -147,41 +130,40 @@ export function useInnerLanguageWithForcedNodeSelector(
 
       return staticUseLanguage(textResources, language, selectedLanguage, {
         ...dataSources,
-        node,
+        dataModelPath,
         defaultDataType,
         formDataTypes,
         formDataSelector,
-        transposeSelector,
       });
     },
-    [defaultDataType, formDataSelector, formDataTypes, sources, transposeSelector],
+    [defaultDataType, formDataSelector, formDataTypes, sources],
   );
 }
 
 interface ILanguageState {
   textResources: TextResourceMap;
-  language: ILanguage | null;
+  language: FixedLanguageList | null;
   selectedLanguage: string;
   dataSources: TextResourceVariablesDataSources;
 }
 
 export function staticUseLanguage(
   textResources: TextResourceMap,
-  _language: ILanguage | null,
+  _language: FixedLanguageList | null,
   selectedLanguage: string,
   dataSources: TextResourceVariablesDataSources,
 ): IUseLanguage {
   const language = _language || getLanguageFromCode(selectedLanguage);
-  const lang: IUseLanguage['lang'] = (key, params) => {
-    const result = getUnprocessedTextValueByLanguage(key, params);
+  const lang: IUseLanguage['lang'] = (key, params, customTextParameters) => {
+    const result = getUnprocessedTextValueByLanguage(key, params, { customTextParameters });
 
     return parseAndCleanText(result);
   };
 
-  const langAsString: IUseLanguage['langAsString'] = (key, params, makeLowerCase) => {
+  const langAsString: IUseLanguage['langAsString'] = (key, params, makeLowerCase, customTextParameters) => {
     const postProcess = makeLowerCase ? smartLowerCaseFirst : (str: string | undefined) => str;
 
-    const result = lang(key, params);
+    const result = lang(key, params, customTextParameters);
     if (result === undefined || result === null) {
       return postProcess(key) || '';
     }
@@ -193,8 +175,11 @@ export function staticUseLanguage(
     key,
     dataModelPath,
     params,
+    customTextParameters,
   ) => {
-    const result = parseAndCleanText(getUnprocessedTextValueByLanguage(key, params, { dataModelPath }));
+    const result = parseAndCleanText(
+      getUnprocessedTextValueByLanguage(key, params, { dataModelPath, customTextParameters }),
+    );
     if (result === undefined || result === null) {
       return key || '';
     }
@@ -202,14 +187,15 @@ export function staticUseLanguage(
     return getPlainTextFromNode(result, langAsString);
   };
 
-  const langAsNonProcessedString: IUseLanguage['langAsNonProcessedString'] = (key, params) =>
-    getUnprocessedTextValueByLanguage(key, params, undefined);
+  const langAsNonProcessedString: IUseLanguage['langAsNonProcessedString'] = (key, params, customTextParameters) =>
+    getUnprocessedTextValueByLanguage(key, params, { customTextParameters });
 
   const langAsNonProcessedStringUsingPathInDataModel: IUseLanguage['langAsNonProcessedStringUsingPathInDataModel'] = (
     key,
     dataModelPath,
     params,
-  ) => getUnprocessedTextValueByLanguage(key, params, { dataModelPath });
+    customTextParameters,
+  ) => getUnprocessedTextValueByLanguage(key, params, { dataModelPath, customTextParameters });
 
   function getUnprocessedTextValueByLanguage(
     key: string | undefined,
@@ -265,10 +251,12 @@ const getPlainTextFromNode = (node: ReactNode, langAsString: IUseLanguage['langA
   for (const innerNode of Children.toArray(node)) {
     if (isValidElement(innerNode)) {
       if (innerNode.type === Lang) {
-        return langAsString(innerNode.props.id, innerNode.props.params);
+        const props = innerNode.props as { id: string; params?: ValidLangParam[] };
+        return langAsString(props.id, props.params);
       }
 
-      Children.forEach(innerNode.props.children, (child) => {
+      const props = innerNode.props as { children?: ReactNode };
+      Children.forEach(props.children, (child) => {
         text += getPlainTextFromNode(child, langAsString);
       });
     }
@@ -276,20 +264,12 @@ const getPlainTextFromNode = (node: ReactNode, langAsString: IUseLanguage['langA
   return text;
 };
 
-function getLanguageSpecificText(key: string, language: ILanguage) {
-  const path = key.split('.');
-  const value = getNestedObject(language, path);
+function getLanguageSpecificText(key: string, language: FixedLanguageList) {
+  const value = language[key];
   if (typeof value === 'string') {
     return value;
   }
   return key;
-}
-
-function getNestedObject(nestedObj: ILanguage | Record<string, string | ILanguage> | NestedTexts, pathArr: string[]) {
-  return pathArr.reduce<ILanguage | string | NestedTexts | undefined>(
-    (obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined),
-    nestedObj,
-  );
 }
 
 function getTextResourceByKey(
@@ -333,7 +313,6 @@ function splitNTimes(text: string, sep: string, n: number) {
 
 function replaceVariables(text: string, variables: IVariable[], dataSources: TextResourceVariablesDataSources) {
   const {
-    node,
     dataModels,
     instanceDataSources,
     applicationSettings,
@@ -341,7 +320,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
     defaultDataType,
     formDataTypes,
     formDataSelector,
-    transposeSelector,
+    customTextParameters,
   } = dataSources;
   let out = text;
   for (const idx in variables) {
@@ -367,9 +346,7 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
 
         const transposed = dataModelPath
           ? transposeDataBinding({ subject: rawReference, currentLocation: dataModelPath })
-          : node
-            ? transposeSelector(node, rawReference)
-            : { dataType: dataTypeToRead, field: value };
+          : { dataType: dataTypeToRead, field: value };
         if (transposed) {
           let readValue: unknown = undefined;
           let modelReader: DataModelReader | undefined = undefined;
@@ -413,6 +390,8 @@ function replaceVariables(text: string, variables: IVariable[], dataSources: Tex
         applicationSettings && variable.key in applicationSettings && applicationSettings[variable.key] !== undefined
           ? applicationSettings[variable.key]!
           : value;
+    } else if (variable.dataSource === 'customTextParameters') {
+      value = customTextParameters?.[variable.key] ?? value;
     }
 
     if (value === variable.key) {
@@ -492,6 +471,7 @@ export function staticUseLanguageForTests({
   language = null,
   selectedLanguage = 'nb',
   dataSources = {
+    customTextParameters: { number: '14' },
     instanceDataSources: {
       instanceId: 'instanceId',
       appId: 'org/app',
@@ -503,9 +483,7 @@ export function staticUseLanguageForTests({
     formDataTypes: [],
     formDataSelector: () => null,
     applicationSettings: {},
-    node: undefined,
-    transposeSelector: (_node, path) => path,
   },
-}: Partial<ILanguageState> = {}) {
-  return staticUseLanguage(textResources, language, selectedLanguage, dataSources);
+}: Partial<Omit<ILanguageState, 'language'>> & { language?: Partial<FixedLanguageList> | null } = {}) {
+  return staticUseLanguage(textResources, language as FixedLanguageList, selectedLanguage, dataSources);
 }

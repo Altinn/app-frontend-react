@@ -11,15 +11,15 @@ import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
 
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { quirks } from 'src/features/form/layout/quirks';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import { SubformWrapper } from 'src/layout/Subform/SubformWrapper';
-import { fetchApplicationMetadata, fetchProcessState } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchInstanceData, fetchProcessState } from 'src/queries/queries';
 import { ensureAppsDirIsSet, getAllApps } from 'src/test/allApps';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import { NodesInternal, useNode, useNodes } from 'src/utils/layout/NodesContext';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { ExternalAppLayoutSet } from 'src/test/allApps';
 
-const env = dotenv.config();
+const env = dotenv.config({ quiet: true });
 const ENV: 'prod' | 'all' = env.parsed?.ALTINN_ALL_APPS_ENV === 'prod' ? 'prod' : 'all';
 const MODE: 'critical' | 'all' = env.parsed?.ALTINN_ALL_APPS_MODE === 'critical' ? 'critical' : 'all';
 
@@ -59,19 +59,15 @@ function TestApp() {
 
 function RenderAllComponents() {
   const state = NodesInternal.useStore().getState();
-  const nodes = useNodes();
-  if (!nodes) {
-    throw new Error('No nodes found');
-  }
   const all = Object.values(state.nodeData)
-    .filter((nodeData) => nodeData.isValid)
-    .map((nodeData) => nodeData.layout.id);
+    .filter((nodeData) => nodeData.isValid && nodeData.parentId === undefined)
+    .map((nodeData) => nodeData.id);
 
   return (
     <>
       {all.map((id) => (
-        <GenericComponentById
-          id={id}
+        <GenericComponent
+          baseComponentId={id}
           key={id}
         />
       ))}
@@ -83,15 +79,10 @@ function RenderAllComponents() {
 /**
  * Makes sure we go one level deeper into the subform context when testing subforms
  */
-function SubformTestWrapper({ id, children }: PropsWithChildren<{ id: string }>) {
-  const node = useNode(id);
-  if (!node || !node.isType('Subform')) {
-    throw new Error(`Subform node with id ${id} not found`);
-  }
-
+function SubformTestWrapper({ baseId, children }: PropsWithChildren<{ baseId: string }>) {
   return (
     <TaskStoreProvider>
-      <SubformWrapper node={node}>{children}</SubformWrapper>
+      <SubformWrapper baseComponentId={baseId}>{children}</SubformWrapper>
     </TaskStoreProvider>
   );
 }
@@ -155,19 +146,19 @@ describe('All known layout sets should evaluate as a hierarchy', () => {
 
     jest.mocked(fetchApplicationMetadata).mockImplementation(async () => set.app.getAppMetadata());
     jest.mocked(fetchProcessState).mockImplementation(async () => mainSet.simulateProcessData());
+    jest.mocked(fetchInstanceData).mockImplementation(async () => set.simulateInstance());
 
     const children = env.parsed?.ALTINN_ALL_APPS_RENDER_COMPONENTS === 'true' ? <RenderAllComponents /> : <TestApp />;
     await renderWithInstanceAndLayout({
       taskId: mainSet.getTaskId(),
       renderer: () =>
-        subformComponent ? <SubformTestWrapper id={subformComponent.id}>{children}</SubformTestWrapper> : children,
+        subformComponent ? <SubformTestWrapper baseId={subformComponent.id}>{children}</SubformTestWrapper> : children,
       queries: {
         fetchLayoutSets: async () => set.app.getRawLayoutSets(),
         fetchLayouts: async (setId) => set.app.getLayoutSet(setId).getLayouts(),
         fetchLayoutSettings: async (setId) => set.app.getLayoutSet(setId).getSettings(),
         fetchFormData: async (url) => set.getModel({ url }).simulateDataModel(),
         fetchDataModelSchema: async (name) => set.getModel({ name }).getSchema(),
-        fetchInstanceData: async () => set.simulateInstance(),
         fetchLayoutSchema: async () => layoutSchema as unknown as JSONSchema7,
         fetchRuleHandler: async (setId) => set.app.getLayoutSet(setId).getRuleHandler(),
         fetchDynamics: async (setId) => set.app.getLayoutSet(setId).getRuleConfiguration(),

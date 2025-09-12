@@ -5,6 +5,7 @@ import pluginCypress from 'eslint-plugin-cypress/flat';
 import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths';
 import preferredImportPath from 'eslint-plugin-preferred-import-path';
 import reactPlugin from 'eslint-plugin-react';
+import reactCompiler from 'eslint-plugin-react-compiler';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
 import sonarjs from 'eslint-plugin-sonarjs';
 import testingLibrary from 'eslint-plugin-testing-library';
@@ -13,6 +14,9 @@ import globals from 'globals';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import tseslint from 'typescript-eslint';
+
+// eslint-disable-next-line no-relative-import-paths/no-relative-import-paths
+import langKey from './src/language/eslint.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +51,7 @@ export default tseslint.config(
       'schemas/**/*.json',
       'webpack*.js', // FIXME: should this be included?
       '.yarn/*',
+      'snapshots.js',
     ],
   },
 
@@ -58,6 +63,12 @@ export default tseslint.config(
       'simple-import-sort': simpleImportSort,
       'unused-imports': unusedImports,
       react: fixupPluginRules(reactPlugin),
+      'react-compiler': reactCompiler,
+      local: {
+        rules: {
+          'language-key': langKey,
+        },
+      },
     },
     languageOptions: {
       globals: {
@@ -86,6 +97,7 @@ export default tseslint.config(
       },
     },
     rules: {
+      'local/language-key': ['error'],
       curly: ['error', 'all'],
       'object-shorthand': ['error', 'always'],
       'arrow-body-style': ['error', 'as-needed'],
@@ -140,6 +152,8 @@ export default tseslint.config(
 
       'preferred-import-path/preferred-import-path': ['warn', { '^/src': 'src', '^/test/': 'test/' }],
 
+      'react-compiler/react-compiler': 'error',
+
       'simple-import-sort/imports': [
         'error',
         {
@@ -174,6 +188,7 @@ export default tseslint.config(
     rules: {
       'testing-library/await-async-queries': ['warn'],
       'jsx-a11y/label-has-associated-control': ['off'],
+      '@typescript-eslint/consistent-type-imports': ['off'],
     },
   },
   {

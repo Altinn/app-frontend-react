@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { DropdownMenu } from '@digdir/designsystemet-react';
+import { Button, Dropdown } from '@digdir/designsystemet-react';
 import { Buildings3Icon, PersonIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
 
@@ -8,7 +8,7 @@ import { CircleIcon } from 'src/components/CircleIcon';
 import classes from 'src/components/presentation/AppHeader/AppHeaderMenu.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty, useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
+import { useInstanceOwnerParty, useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { logoutUrlAltinn } from 'src/utils/urls/urlHelper';
@@ -33,13 +33,8 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
   return (
     <>
       <span className={classes.partyName}>{displayName}</span>
-      <DropdownMenu
-        size='sm'
-        open={isOpen}
-        onClose={() => setIsOpen(false)}
-      >
-        <DropdownMenu.Trigger
-          size='sm'
+      <Dropdown.TriggerContext>
+        <Dropdown.Trigger
           variant='tertiary'
           style={{ padding: 0, borderRadius: '50%' }}
           aria-label={langAsString('general.header_profile_icon_label')}
@@ -62,17 +57,28 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
               />
             )}
           </CircleIcon>
-        </DropdownMenu.Trigger>
-        <DropdownMenu.Content>
-          <DropdownMenu.Group heading={isMobile ? displayName : undefined}>
-            <DropdownMenu.Item asChild>
-              <a href={logoutUrlAltinn(window.location.host)}>
-                <Lang id='general.log_out' />
-              </a>
-            </DropdownMenu.Item>
-          </DropdownMenu.Group>
-        </DropdownMenu.Content>
-      </DropdownMenu>
+        </Dropdown.Trigger>
+        <Dropdown
+          data-testid='app-header-menu'
+          data-size='sm'
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+        >
+          {isMobile && <Dropdown.Heading>{displayName}</Dropdown.Heading>}
+          <Dropdown.List>
+            <Dropdown.Item>
+              <Button
+                variant='tertiary'
+                asChild
+              >
+                <a href={logoutUrlAltinn(window.location.host)}>
+                  <Lang id='general.log_out' />
+                </a>
+              </Button>
+            </Dropdown.Item>
+          </Dropdown.List>
+        </Dropdown>
+      </Dropdown.TriggerContext>
     </>
   );
 }
@@ -85,7 +91,7 @@ export function AppHeaderMenu({ logoColor }: AppHeaderMenuProps) {
  */
 function useGetOnBehalfOf() {
   const instanceOwnerParty = useInstanceOwnerParty();
-  const selectedParty = useCurrentParty();
+  const selectedParty = useSelectedParty();
   const userParty = useProfile()?.party;
 
   const onBehalfOfParty = instanceOwnerParty ?? selectedParty;

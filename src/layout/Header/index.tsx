@@ -1,16 +1,11 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { Heading } from '@digdir/designsystemet-react';
-
 import { HeaderDef } from 'src/layout/Header/config.def.generated';
-import { getHeaderProps, HeaderComponent } from 'src/layout/Header/HeaderComponent';
+import { HeaderComponent } from 'src/layout/Header/HeaderComponent';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompIntermediateExact } from 'src/layout/layout';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
-
-export type IHeaderProps = PropsFromGenericComponent<'Header'>;
 
 export class Header extends HeaderDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Header'>>(
@@ -19,28 +14,17 @@ export class Header extends HeaderDef {
     },
   );
 
-  renderSummary2(props: Summary2Props<'Header'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return (
-      <HeaderComponent
-        node={props.target}
-        containerDivRef={React.createRef()}
-      />
-    );
-  }
-
-  renderNext(props: CompIntermediateExact<'Header'>, commonProps: CommonProps): React.JSX.Element | null {
-    // debugger;
-    // if (!commonProps.label) {
-    //   debugger;
-    // }
-
-    return (
-      <Heading
-        id={props.id}
-        {...getHeaderProps(props.size)}
+      <SummaryFlex
+        targetBaseId={props.targetBaseComponentId}
+        content={SummaryContains.Presentational}
       >
-        {commonProps.label}
-      </Heading>
+        <HeaderComponent
+          baseComponentId={props.targetBaseComponentId}
+          containerDivRef={React.createRef()}
+        />
+      </SummaryFlex>
     );
   }
 }

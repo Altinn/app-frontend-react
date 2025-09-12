@@ -2,8 +2,9 @@ import React from 'react';
 
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { LayoutSetSummaryAccordion } from 'src/layout/Summary2/CommonSummaryComponents/LayoutSetSummaryAccordion';
+import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
-import { useSummary2Store } from 'src/layout/Summary2/summaryStoreContext';
+import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 
 type LayoutSetSummaryProps = {
   pageKey?: string;
@@ -11,8 +12,7 @@ type LayoutSetSummaryProps = {
 
 export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
   const pageOrder = usePageOrder();
-
-  const summaryItem = useSummary2Store((state) => state.summaryItem);
+  const showPageInAccordion = useSummaryProp('showPageInAccordion');
 
   const filteredPages = pageOrder.filter((layoutId) => {
     if (!pageKey) {
@@ -21,14 +21,13 @@ export function LayoutSetSummary({ pageKey }: LayoutSetSummaryProps) {
     return layoutId === pageKey;
   });
 
-  if (summaryItem?.showPageInAccordion) {
+  if (showPageInAccordion) {
     return <LayoutSetSummaryAccordion filteredPages={filteredPages} />;
   }
 
   return filteredPages.map((layoutId) => (
-    <PageSummary
-      pageId={layoutId}
-      key={layoutId}
-    />
+    <EmptyChildrenBoundary key={layoutId}>
+      <PageSummary pageId={layoutId} />
+    </EmptyChildrenBoundary>
   ));
 }

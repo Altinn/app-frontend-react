@@ -1,5 +1,6 @@
 import { PartyType } from 'src/types/shared';
-import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
+import type { IncomingApplicationMetadata, ShowTypes } from 'src/features/applicationMetadata/types';
+import type { ISimpleInstance } from 'src/types';
 import type { IParty } from 'src/types/shared';
 
 const ExampleOrgWithSubUnit: IParty = {
@@ -95,12 +96,13 @@ export const CyPartyMocks = {
 
 interface Mockable {
   preSelectedParty?: number;
-  currentParty?: IParty;
+  selectedParty?: IParty;
   allowedToInstantiate?: IParty[] | ((parties: IParty[]) => IParty[]);
   doNotPromptForParty?: boolean;
   appPromptForPartyOverride?: IncomingApplicationMetadata['promptForParty'];
   partyTypesAllowed?: IncomingApplicationMetadata['partyTypesAllowed'];
-  noActiveInstances?: boolean; // Defaults to true
+  activeInstances?: false | ISimpleInstance[]; // Defaults to false
+  onEntryShow?: ShowTypes;
 }
 
 export function cyMockResponses(whatToMock: Mockable) {
@@ -109,10 +111,10 @@ export function cyMockResponses(whatToMock: Mockable) {
     cy.setCookie('AltinnPartyId', whatToMock.preSelectedParty.toString());
   }
 
-  if (whatToMock.currentParty) {
+  if (whatToMock.selectedParty) {
     cy.intercept('GET', `**/api/authorization/parties/current?returnPartyObject=true`, (req) => {
       req.on('response', (res) => {
-        res.body = whatToMock.currentParty;
+        res.body = whatToMock.selectedParty;
       });
     });
   }
@@ -138,22 +140,28 @@ export function cyMockResponses(whatToMock: Mockable) {
       },
     });
   }
-  if (whatToMock.appPromptForPartyOverride !== undefined || whatToMock.partyTypesAllowed !== undefined) {
+  if (
+    whatToMock.appPromptForPartyOverride !== undefined ||
+    whatToMock.partyTypesAllowed !== undefined ||
+    whatToMock.onEntryShow !== undefined
+  ) {
     cy.intercept('GET', '**/api/v1/applicationmetadata', (req) => {
       req.on('response', (res) => {
+        const body = res.body as IncomingApplicationMetadata;
         if (whatToMock.appPromptForPartyOverride !== undefined) {
-          res.body.promptForParty = whatToMock.appPromptForPartyOverride;
+          body.promptForParty = whatToMock.appPromptForPartyOverride;
         }
         if (whatToMock.partyTypesAllowed !== undefined) {
-          res.body.partyTypesAllowed = whatToMock.partyTypesAllowed;
+          body.partyTypesAllowed = whatToMock.partyTypesAllowed;
+        }
+        if (whatToMock.onEntryShow !== undefined) {
+          body.onEntry = { show: whatToMock.onEntryShow };
         }
       });
     });
   }
 
-  if (whatToMock.noActiveInstances !== false) {
-    cy.intercept('**/active', []).as('noActiveInstances');
-  }
+  cy.intercept('**/active', whatToMock.activeInstances || []).as('activeInstances');
 }
 
 export function removeAllButOneOrg(parties: IParty[]): IParty[] {

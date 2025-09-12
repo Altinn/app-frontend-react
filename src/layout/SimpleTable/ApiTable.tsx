@@ -10,7 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { isFormDataObject, isFormDataObjectArray } from 'src/layout/SimpleTable/typeguards';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { DataConfig } from 'src/layout/SimpleTable/config.generated';
@@ -19,9 +19,9 @@ interface ApiTableProps extends PropsFromGenericComponent<'SimpleTable'> {
   externalApi: DataConfig;
 }
 
-export function ApiTable({ node, externalApi }: ApiTableProps) {
-  const item = useNodeItem(node);
-  const { title, description, help } = item.textResourceBindings ?? {};
+export function ApiTable({ baseComponentId, externalApi }: ApiTableProps) {
+  const { textResourceBindings, zebra, size, columns } = useItemWhenType(baseComponentId, 'SimpleTable');
+  const { title, description, help } = textResourceBindings ?? {};
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
@@ -51,8 +51,8 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
 
   return (
     <AppTable
-      zebra={item.zebra}
-      size={item.size}
+      zebra={zebra}
+      size={size}
       schema={{}}
       caption={
         title && (
@@ -65,7 +65,8 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
       }
       data={dataToDisplay}
       stickyHeader={true}
-      columns={item.columns.map((config) => {
+      emptyText={<Lang id='general.empty_table' />}
+      columns={columns.map((config) => {
         const { component } = config;
         const header = <Lang id={config.header} />;
         let renderCell;
@@ -75,7 +76,14 @@ export function ApiTable({ node, externalApi }: ApiTableProps) {
             if (component.type === 'link') {
               const href = pick(component.hrefPath, rowData);
               const text = pick(component.textPath, rowData);
-              return <Link href={href}>{text}</Link>;
+              return (
+                <Link
+                  href={href}
+                  target={component.openInNewTab ? '_blank' : undefined}
+                >
+                  {text}
+                </Link>
+              );
             }
           };
         }

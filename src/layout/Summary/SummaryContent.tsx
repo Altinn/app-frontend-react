@@ -2,38 +2,37 @@ import React from 'react';
 
 import cn from 'classnames';
 
+import { getComponentDef } from '..';
+
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { EditButton } from 'src/layout/Summary/EditButton';
 import classes from 'src/layout/Summary/SummaryContent.module.css';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { CompTypes } from 'src/layout/layout';
+import { useItemFor } from 'src/utils/layout/useNodeItem';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
-interface SummaryContentProps extends SummaryRendererProps<CompTypes> {
-  RenderSummary: React.ElementType<SummaryRendererProps<CompTypes>>;
+interface SummaryContentProps extends SummaryRendererProps {
+  RenderSummary: React.ElementType<SummaryRendererProps>;
 }
 
 export function SummaryContent({
   onChangeClick,
   changeText,
-  summaryNode,
-  targetNode,
+  targetBaseComponentId,
   overrides,
   RenderSummary,
 }: SummaryContentProps) {
-  const { langAsString } = useLanguage(targetNode);
-  const summaryItem = useNodeItem(summaryNode);
-  const targetItem = useNodeItem(targetNode);
-  const display = overrides?.display || summaryItem?.display;
+  const { langAsString } = useLanguage();
+  const targetItem = useItemFor(targetBaseComponentId);
+  const display = overrides?.display;
   const readOnlyComponent = 'readOnly' in targetItem && targetItem.readOnly === true;
-  const validations = useUnifiedValidationsForNode(targetNode);
+  const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const hasErrors = hasValidationErrors(validations);
   const shouldShowChangeButton = !readOnlyComponent && !display?.hideChangeButton;
-  const displaySummaryBoilerPlate =
-    'renderSummaryBoilerplate' in targetNode.def && targetNode.def.renderSummaryBoilerplate();
+  const def = getComponentDef(targetItem.type);
+  const displaySummaryBoilerPlate = 'renderSummaryBoilerplate' in def && def.renderSummaryBoilerplate();
 
   const textBindings = 'textResourceBindings' in targetItem ? targetItem.textResourceBindings : undefined;
   const summaryAccessibleTitleTrb =
@@ -53,18 +52,14 @@ export function SummaryContent({
             'data-testid': 'has-validation-message',
           })}
         >
-          <Lang
-            id={summaryTitleTrb ?? titleTrb}
-            node={targetNode}
-          />
+          <Lang id={summaryTitleTrb ?? titleTrb} />
         </span>
       )}
       <span className={classes.summary}>
         <RenderSummary
           onChangeClick={onChangeClick}
           changeText={changeText}
-          summaryNode={summaryNode}
-          targetNode={targetNode}
+          targetBaseComponentId={targetBaseComponentId}
           overrides={overrides}
         />
       </span>

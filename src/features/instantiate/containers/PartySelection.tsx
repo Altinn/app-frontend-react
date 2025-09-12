@@ -1,6 +1,5 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useMatch } from 'react-router-dom';
+import { useMatch, useNavigate } from 'react-router-dom';
 
 import { Checkbox, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { PlusIcon } from '@navikt/aksel-icons';
@@ -17,12 +16,11 @@ import classes from 'src/features/instantiate/containers/PartySelection.module.c
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import {
-  useCurrentParty,
   usePartiesAllowedToInstantiate,
-  useSetCurrentParty,
+  useSelectedParty,
   useSetHasSelectedParty,
+  useSetSelectedParty,
 } from 'src/features/party/PartiesProvider';
-import { useNavigate } from 'src/features/routing/AppRoutingContext';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { getPageTitle } from 'src/utils/getPageTitle';
@@ -36,8 +34,8 @@ export const PartySelection = () => {
   const match = useMatch(`/party-selection/:errorCode`);
   const errorCode = match?.params.errorCode;
 
-  const selectParty = useSetCurrentParty();
-  const selectedParty = useCurrentParty();
+  const selectParty = useSetSelectedParty();
+  const selectedParty = useSelectedParty();
   const setUserHasSelectedParty = useSetHasSelectedParty();
 
   const partiesAllowedToInstantiate = usePartiesAllowedToInstantiate() ?? [];
@@ -118,9 +116,7 @@ export const PartySelection = () => {
 
   return (
     <InstantiationContainer>
-      <Helmet>
-        <title>{`${getPageTitle(appName, langAsString('party_selection.header'), appOwner)}`}</title>
-      </Helmet>
+      <title>{`${getPageTitle(appName, langAsString('party_selection.header'), appOwner)}`}</title>
       <Flex
         container
         direction='row'
@@ -175,23 +171,21 @@ export const PartySelection = () => {
             >
               <Flex item>
                 <Checkbox
-                  size='sm'
+                  data-size='sm'
                   value='showDeleted'
                   checked={showDeleted}
                   onChange={toggleShowDeleted}
-                >
-                  <Lang id='party_selection.show_deleted' />
-                </Checkbox>
+                  label={<Lang id='party_selection.show_deleted' />}
+                />
               </Flex>
               <Flex item>
                 <Checkbox
-                  size='sm'
+                  data-size='sm'
                   value='showSubUnits'
                   checked={showSubUnits}
                   onChange={toggleShowSubUnits}
-                >
-                  <Lang id='party_selection.show_sub_unit' />
-                </Checkbox>
+                  label={<Lang id='party_selection.show_sub_unit' />}
+                />
               </Flex>
             </Flex>
           </Flex>
@@ -201,7 +195,7 @@ export const PartySelection = () => {
           <Flex style={{ padding: 12 }}>
             <Heading
               level={2}
-              size='medium'
+              data-size='md'
               style={{ fontSize: '1.5rem', fontWeight: '500', marginBottom: 12 }}
             >
               <Lang id='party_selection.why_seeing_this' />

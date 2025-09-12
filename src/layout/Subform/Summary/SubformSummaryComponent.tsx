@@ -4,24 +4,20 @@ import type { ReactNode } from 'react';
 import { Spinner } from '@digdir/designsystemet-react';
 
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useStrictDataElements } from 'src/features/instance/InstanceContext';
+import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { SubformCellContent } from 'src/layout/Subform/SubformCellContent';
 import classes from 'src/layout/Subform/Summary/SubformSummaryComponent.module.css';
 import { useExpressionDataSourcesForSubform, useSubformFormData } from 'src/layout/Subform/utils';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { IData } from 'src/types/shared';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface ISubformSummaryComponent {
-  targetNode: LayoutNode<'Subform'>;
-}
-
-export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent): React.JSX.Element | null {
-  const { layoutSet, id } = useNodeItem(targetNode);
+export function SubformSummaryComponent({ targetBaseComponentId }: SummaryRendererProps): React.JSX.Element | null {
+  const { layoutSet, id } = useItemWhenType(targetBaseComponentId, 'Subform');
   const dataType = useDataTypeFromLayoutSet(layoutSet);
-  const dataElements = useStrictDataElements(dataType);
+  const dataElements = useInstanceDataElements(dataType);
 
   return (
     <div
@@ -37,7 +33,7 @@ export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent
           <SubformSummaryRow
             key={dataElement.id}
             dataElement={dataElement}
-            node={targetNode}
+            baseComponentId={targetBaseComponentId}
           />
         ))
       )}
@@ -45,9 +41,9 @@ export function SubformSummaryComponent({ targetNode }: ISubformSummaryComponent
   );
 }
 
-function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: LayoutNode<'Subform'> }) {
+function SubformSummaryRow({ dataElement, baseComponentId }: { dataElement: IData; baseComponentId: string }) {
   const id = dataElement.id;
-  const { tableColumns, summaryDelimiter = ' — ' } = useNodeItem(node);
+  const { tableColumns, summaryDelimiter = ' — ' } = useItemWhenType(baseComponentId, 'Subform');
 
   const { isSubformDataFetching, subformData, subformDataError } = useSubformFormData(dataElement.id);
   const subformDataSources = useExpressionDataSourcesForSubform(dataElement.dataType, subformData, tableColumns);
@@ -57,8 +53,8 @@ function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: La
   if (isSubformDataFetching) {
     return (
       <Spinner
-        title={langAsString('general.loading')}
-        size='xs'
+        aria-label={langAsString('general.loading')}
+        data-size='xs'
       />
     );
   } else if (subformDataError) {
@@ -69,7 +65,7 @@ function SubformSummaryRow({ dataElement, node }: { dataElement: IData; node: La
     <SubformCellContent
       key={i}
       cellContent={entry.cellContent}
-      reference={{ type: 'node', id: node.id }}
+      baseComponentId={baseComponentId}
       data={subformData}
       dataSources={subformDataSources}
     />

@@ -3,7 +3,10 @@ import type { JSX } from 'react';
 
 import type { PropsFromGenericComponent, ValidateComponent, ValidationFilter, ValidationFilterFunction } from '..';
 
+import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FrontendValidationSource } from 'src/features/validation';
+import { claimGridRowsChildren } from 'src/layout/Grid/claimGridRowsChildren';
 import { RepeatingGroupDef } from 'src/layout/RepeatingGroup/config.def.generated';
 import { RepeatingGroupContainer } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
@@ -11,22 +14,29 @@ import { RepeatingGroupsFocusProvider } from 'src/layout/RepeatingGroup/Provider
 import { SummaryRepeatingGroup } from 'src/layout/RepeatingGroup/Summary/SummaryRepeatingGroup';
 import { RepeatingGroupSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupSummary';
 import { useValidateRepGroupMinCount } from 'src/layout/RepeatingGroup/useValidateRepGroupMinCount';
-import { splitDashedKey } from 'src/utils/splitDashedKey';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
+import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
+import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
+import { NodeRepeatingChildren } from 'src/utils/layout/generator/NodeRepeatingChildren';
+import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { claimRepeatingChildren } from 'src/utils/layout/plugins/claimRepeatingChildren';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
-import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
-import type { GroupExpressions, RepGroupInternal, RepGroupRowExtras } from 'src/layout/RepeatingGroup/types';
-import type { RepeatingGroupSummaryOverrideProps } from 'src/layout/Summary2/config.generated';
+import type { CompExternal, IDataModelBindings } from 'src/layout/layout';
+import type {
+  ChildClaimerProps,
+  ExprResolver,
+  NodeGeneratorProps,
+  SummaryRendererProps,
+} from 'src/layout/LayoutComponent';
+import type { RepGroupInternal } from 'src/layout/RepeatingGroup/types';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodeData } from 'src/utils/layout/types';
+import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 
-export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent<'RepeatingGroup'>, ValidationFilter {
+export class RepeatingGroup extends RepeatingGroupDef implements ValidateComponent, ValidationFilter {
   render = forwardRef<HTMLDivElement, PropsFromGenericComponent<'RepeatingGroup'>>(
     function LayoutComponentRepeatingGroupRender(props, ref): JSX.Element | null {
       return (
-        <RepeatingGroupProvider node={props.node}>
+        <RepeatingGroupProvider baseComponentId={props.baseComponentId}>
           <RepeatingGroupsFocusProvider>
             <RepeatingGroupContainer ref={ref} />
           </RepeatingGroupsFocusProvider>
@@ -49,46 +59,16 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     } as RepGroupInternal;
   }
 
-  evalExpressionsForRow(props: ExprResolver<'RepeatingGroup'>) {
-    const { evalBool, item, evalTrb } = props;
-
-    const evaluatedTrb = evalTrb();
-    const textResourceBindings: GroupExpressions['textResourceBindings'] = {
-      edit_button_close: evaluatedTrb?.textResourceBindings?.edit_button_close,
-      edit_button_open: evaluatedTrb?.textResourceBindings?.edit_button_open,
-      save_and_next_button: evaluatedTrb?.textResourceBindings?.save_and_next_button,
-      save_button: evaluatedTrb?.textResourceBindings?.save_button,
-    };
-    const edit: GroupExpressions['edit'] = {
-      alertOnDelete: evalBool(item.edit?.alertOnDelete, false),
-      editButton: evalBool(item.edit?.editButton, true),
-      deleteButton: evalBool(item.edit?.deleteButton, true),
-      saveAndNextButton: evalBool(item.edit?.saveAndNextButton, false),
-      saveButton: evalBool(item.edit?.saveButton, true),
-    };
-
-    const groupExpressions: GroupExpressions = {
-      hiddenRow: evalBool(item.hiddenRow, false),
-      textResourceBindings: item.textResourceBindings ? textResourceBindings : undefined,
-      edit: item.edit ? edit : undefined,
-    };
-
-    return { groupExpressions } as RepGroupRowExtras;
-  }
-
-  renderSummary(props: SummaryRendererProps<'RepeatingGroup'>): JSX.Element | null {
+  renderSummary(props: SummaryRendererProps): JSX.Element | null {
     return <SummaryRepeatingGroup {...props} />;
   }
 
-  renderSummary2(props: Summary2Props<'RepeatingGroup'>): JSX.Element | null {
+  renderSummary2(props: Summary2Props): JSX.Element | null {
     return (
-      <RepeatingGroupProvider node={props.target}>
-        <RepeatingGroupSummary
-          componentNode={props.target}
-          isCompact={props.isCompact}
-          emptyFieldText={props.override?.emptyFieldText}
-          display={(props.override as RepeatingGroupSummaryOverrideProps)?.display}
-        />
+      <RepeatingGroupProvider baseComponentId={props.targetBaseComponentId}>
+        <EmptyChildrenBoundary>
+          <RepeatingGroupSummary {...props} />
+        </EmptyChildrenBoundary>
       </RepeatingGroupProvider>
     );
   }
@@ -97,8 +77,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return false;
   }
 
-  useComponentValidation(node: LayoutNode<'RepeatingGroup'>): ComponentValidation[] {
-    return useValidateRepGroupMinCount(node);
+  useComponentValidation(baseComponentId: string): ComponentValidation[] {
+    return useValidateRepGroupMinCount(baseComponentId);
   }
 
   /**
@@ -110,8 +90,8 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     );
   }
 
-  getValidationFilters(node: LayoutNode<'RepeatingGroup'>, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
-    const component = layoutLookups.getComponent(node.baseId, 'RepeatingGroup');
+  getValidationFilters(baseComponentId: string, layoutLookups: LayoutLookups): ValidationFilterFunction[] {
+    const component = layoutLookups.getComponent(baseComponentId, 'RepeatingGroup');
     if (component.minCount && component.minCount > 0) {
       return [this.schemaMinItemsFilter];
     }
@@ -122,8 +102,17 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return true;
   }
 
-  validateDataModelBindings(ctx: LayoutValidationCtx<'RepeatingGroup'>): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'group', ['array']);
+  useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'RepeatingGroup'>): string[] {
+    const lookupBinding = DataModels.useLookupBinding();
+    const layoutLookups = useLayoutLookups();
+    const [errors, result] = validateDataModelBindingsAny(
+      baseComponentId,
+      bindings,
+      lookupBinding,
+      layoutLookups,
+      'group',
+      ['array'],
+    );
     if (errors) {
       return errors;
     }
@@ -138,22 +127,10 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return [];
   }
 
-  isChildHidden(state: NodeData<'RepeatingGroup'>, childId: string): boolean {
-    const hiddenByPlugins = super.isChildHidden(state, childId);
-    if (hiddenByPlugins) {
-      return true;
-    }
-
-    const { baseComponentId, depth } = splitDashedKey(childId);
-    const rowIndex = depth.at(-1);
-    const row = rowIndex !== undefined ? state.item?.rows[rowIndex] : undefined;
-    const rowHidden = row?.groupExpressions?.hiddenRow;
-    if (rowHidden) {
-      return true;
-    }
-
-    const tableColSetup = state.item?.tableColumns?.[baseComponentId];
-    const mode = state.item?.edit?.mode;
+  isChildHidden(parentBaseId: string, childBaseId: string, lookups: LayoutLookups): boolean {
+    const layout = lookups.getComponent(parentBaseId, 'RepeatingGroup');
+    const tableColSetup = layout.tableColumns?.[childBaseId];
+    const mode = layout.edit?.mode;
 
     // This specific configuration hides the component fully, without having set hidden=true on the component itself.
     // It's most likely done by mistake, but we still need to respect it when checking if the component is hidden,
@@ -184,11 +161,32 @@ export class RepeatingGroup extends RepeatingGroupDef implements ValidateCompone
     return hiddenImplicitly;
   }
 
-  stateIsReady(state: NodeData<'RepeatingGroup'>): boolean {
-    if (!super.stateIsReady(state)) {
-      return false;
+  extraNodeGeneratorChildren(props: NodeGeneratorProps): JSX.Element | null {
+    const item = props.externalItem as CompExternal<'RepeatingGroup'>;
+    const repeatingClaims: ChildClaims = new Set(props.childClaims?.values() ?? []);
+    const gridRowClaims: ChildClaims = new Set();
+
+    for (const row of [...(item.rowsBefore || []), ...(item.rowsAfter || [])]) {
+      for (const cell of row.cells.values()) {
+        if (cell && 'component' in cell && cell.component && repeatingClaims.has(cell.component)) {
+          gridRowClaims.add(repeatingClaims[cell.component]);
+          repeatingClaims.delete(cell.component);
+        }
+      }
     }
 
-    return state.item?.rows?.every((row) => row && row.groupExpressions !== undefined) ?? false;
+    return (
+      <>
+        <NodeRepeatingChildren claims={repeatingClaims} />
+        <GenerateNodeChildren claims={gridRowClaims} />
+      </>
+    );
+  }
+
+  claimChildren(props: ChildClaimerProps<'RepeatingGroup'>): void {
+    const multiPage = props.item.edit?.multiPage === true;
+    claimRepeatingChildren(props, props.item.children, { multiPage });
+    claimGridRowsChildren(props, props.item.rowsBefore);
+    claimGridRowsChildren(props, props.item.rowsAfter);
   }
 }

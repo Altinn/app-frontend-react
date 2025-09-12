@@ -9,11 +9,10 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import * as useDeviceWidths from 'src/hooks/useDeviceWidths';
 import { ListComponent } from 'src/layout/List/ListComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { doPatchFormData } from 'src/queries/queries';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 const paginationData = { alternatives: [2, 5], default: 2 };
 const countries = [
@@ -55,9 +54,9 @@ const countries = [
   },
 ];
 
-function RenderCounter({ node }: { node: LayoutNode<'List'> }) {
+function RenderCounter({ baseComponentId }: { baseComponentId: string }) {
   const renderCount = React.useRef(0);
-  const dataModelBindings = useNodeItem(node).dataModelBindings;
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'List');
 
   // This simulates the List component data model fetching. It will trigger a re-render of the component once every
   // time any of the data model bindings change.
@@ -74,7 +73,7 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
     renderer: (props) => (
       <>
         <ListComponent {...props} />
-        <RenderCounter node={props.node} />
+        <RenderCounter baseComponentId={props.baseComponentId} />
       </>
     ),
     component: {
@@ -198,7 +197,7 @@ describe('ListComponent', () => {
     ]);
   });
 
-  it('should save all field values in when in mobile', async () => {
+  it('should save all field values when in mobile', async () => {
     jest.useFakeTimers();
     jest.spyOn(useDeviceWidths, 'useIsMobile').mockReturnValue(true);
 
@@ -212,7 +211,7 @@ describe('ListComponent', () => {
     await waitFor(() => expect(screen.getAllByRole('radio')).toHaveLength(6));
     expect(screen.queryByRole('radio', { checked: true })).not.toBeInTheDocument();
 
-    // Select the second row
+    // Select the second row - find by value since label is empty
     const swedishRow = screen.getByRole('radio', { name: /sweden/i });
     await user.click(swedishRow);
 
@@ -223,6 +222,72 @@ describe('ListComponent', () => {
         { reference: { field: 'CountryPopulation', dataType: defaultDataTypeMock }, newValue: 10 },
         { reference: { field: 'CountryHighestMountain', dataType: defaultDataTypeMock }, newValue: 1738 },
       ],
+    });
+  });
+
+  describe('auto-readonly mode (no dataModelBindings)', () => {
+    it('should not render radio buttons when no dataModelBindings exist', async () => {
+      await render({ component: { dataModelBindings: undefined } });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // No radio buttons should be present
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    });
+
+    it('should not render radio buttons when dataModelBindings is empty object', async () => {
+      await render({ component: { dataModelBindings: {} } });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // No radio buttons should be present
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    });
+
+    it('should not allow row selection when no dataModelBindings exist', async () => {
+      const user = userEvent.setup({ delay: null });
+      const { formDataMethods } = await render({ component: { dataModelBindings: undefined } });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // Try to click a row
+      const norwegianRow = screen.getByRole('row', { name: /norway/i });
+      await user.click(norwegianRow);
+
+      // No data should be saved
+      expect(formDataMethods.setMultiLeafValues).not.toHaveBeenCalled();
+    });
+
+    it('should not render controls in mobile view when no dataModelBindings exist', async () => {
+      jest.spyOn(useDeviceWidths, 'useIsMobile').mockReturnValue(true);
+
+      await render({
+        component: {
+          dataModelBindings: undefined,
+          tableHeadersMobile: ['Name', 'FlagLink'],
+        },
+      });
+
+      // Wait for the data to load
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+
+      // No radio buttons should be present
+      expect(screen.queryByRole('radio')).not.toBeInTheDocument();
+    });
+
+    it('should still display table data when no dataModelBindings exist', async () => {
+      await render({ component: { dataModelBindings: undefined } });
+
+      // All data should still be visible
+      await waitFor(() => expect(screen.getByText('Norway')).toBeInTheDocument());
+      expect(screen.getByText('Sweden')).toBeInTheDocument();
+      expect(screen.getByText('Denmark')).toBeInTheDocument();
+      expect(screen.getByText('Germany')).toBeInTheDocument();
+      expect(screen.getByText('Spain')).toBeInTheDocument();
+      expect(screen.getByText('France')).toBeInTheDocument();
     });
   });
 });

@@ -1,37 +1,35 @@
 import { useCallback, useEffect, useMemo } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import type { NavigateOptions } from 'react-router-dom';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { usePageSettings, useRawPageOrder } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
+import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
+import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import {
   SearchParams,
+  useAllNavigationParams,
   useAllNavigationParamsAsRef,
-  useNavigate as useCtxNavigate,
   useNavigationParam,
-  useNavigationParams,
-  useQueryKeysAsString,
-  useQueryKeysAsStringAsRef,
-  useSetNavigationEffect,
-} from 'src/features/routing/AppRoutingContext';
-import { useRefetchInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
+} from 'src/hooks/navigation';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useLocalStorageState } from 'src/hooks/useLocalStorageState';
 import { ProcessTaskType } from 'src/types';
 import { behavesLikeDataTask } from 'src/utils/formLayout';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import type { NavigationEffectCb } from 'src/features/routing/AppRoutingContext';
+import { useHiddenPages } from 'src/utils/layout/hidden';
+import type { NavigationEffect } from 'src/features/navigation/NavigationEffectContext';
+import type { NodeRefValidation } from 'src/features/validation';
 
 export interface NavigateToPageOptions {
   replace?: boolean;
   skipAutoSave?: boolean;
-  shouldFocusComponent?: boolean;
   resetReturnToView?: boolean;
-  exitSubform?: boolean;
-  focusComponentId?: string;
+  searchParams?: URLSearchParams;
 }
 
 export enum TaskKeys {
@@ -44,44 +42,34 @@ export enum TaskKeys {
  * Makes sure to clear returnToView and summaryNodeOfOrigin on navigation
  * Takes an optional callback
  */
-const useNavigate = () => {
+
+const useOurNavigate = () => {
   const storeCallback = useSetNavigationEffect();
   const setReturnToView = useSetReturnToView();
   const setSummaryNodeOfOrigin = useSetSummaryNodeOfOrigin();
-  const navigate = useCtxNavigate();
+  const navigate = useNavigate();
 
   return useCallback(
-    (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, cb?: NavigationEffectCb) => {
+    (path: string, ourOptions?: NavigateToPageOptions, theirOptions?: NavigateOptions, effect?: NavigationEffect) => {
       const resetReturnToView = ourOptions?.resetReturnToView ?? true;
       if (resetReturnToView) {
         setReturnToView?.(undefined);
         setSummaryNodeOfOrigin?.(undefined);
       }
-      if (cb) {
-        storeCallback(cb);
+      if (effect) {
+        storeCallback(effect);
       }
       navigate(path, theirOptions);
     },
-    [setReturnToView, storeCallback, setSummaryNodeOfOrigin, navigate],
+    [navigate, setReturnToView, setSummaryNodeOfOrigin, storeCallback],
   );
 };
 
 export const useCurrentView = () => useNavigationParam('pageKey');
 export const usePageOrder = () => {
   const rawOrder = useRawPageOrder();
-  const hiddenPages = Hidden.useHiddenPages();
+  const hiddenPages = useHiddenPages();
   return useMemo(() => rawOrder.filter((page) => !hiddenPages.has(page)), [rawOrder, hiddenPages]);
-};
-
-export const useIsCurrentTask = () => {
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const taskId = useNavigationParam('taskId');
-  return useMemo(() => {
-    if (currentTaskId === undefined && taskId === TaskKeys.CustomReceipt) {
-      return true;
-    }
-    return currentTaskId === taskId;
-  }, [currentTaskId, taskId]);
 };
 
 function getPreviousPageKey(order: string[], currentPageId: string | undefined) {
@@ -114,12 +102,13 @@ export const usePreviousPageKey = () => getPreviousPageKey(usePageOrder(), useNa
 export const useNextPageKey = () => getNextPageKey(usePageOrder(), useNavigationParam('pageKey'));
 
 export const useStartUrl = (forcedTaskId?: string) => {
-  const queryKeys = useQueryKeysAsString();
+  const queryKeys = useLocation().search;
   const order = usePageOrder();
   // This needs up to date params, so using the native hook that re-renders often
   // However, this hook is only used in cases where we immediately navigate to a different path
   // so it does not make a difference here.
-  const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = useNavigationParams();
+  const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } =
+    useAllNavigationParams();
   const isSubformPage = !!mainPageKey;
   const taskType = useGetTaskTypeById()(taskId);
   const isStateless = useApplicationMetadata().isStatelessApp;
@@ -165,9 +154,9 @@ export const useStartUrl = (forcedTaskId?: string) => {
 };
 
 export function useNavigateToTask() {
-  const navigate = useNavigate();
+  const navigate = useOurNavigate();
   const navParams = useAllNavigationParamsAsRef();
-  const queryKeysRef = useQueryKeysAsStringAsRef();
+  const queryKeysRef = useAsRef(useLocation().search);
   const layoutSets = useLayoutSets();
 
   return useCallback(
@@ -185,14 +174,19 @@ export function useNavigateToTask() {
           : TaskKeys.ProcessEnd;
       }
       const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${realTaskId}${queryKeysRef.current}`;
-      navigate(url, undefined, options, runEffect ? () => focusMainContent(options) : undefined);
+      navigate(
+        url,
+        undefined,
+        options,
+        runEffect ? { callback: () => focusMainContent(options), targetLocation: url, matchStart: true } : undefined,
+      );
     },
     [navParams, navigate, queryKeysRef, layoutSets],
   );
 }
 
 export function useIsValidTaskId() {
-  const processTasks = useLaxProcessData()?.processTasks;
+  const processTasks = useProcessQuery().data?.processTasks;
 
   return useCallback(
     (taskId?: string) => {
@@ -213,11 +207,12 @@ export function useIsValidTaskId() {
 
 export function useNavigatePage() {
   const isStatelessApp = useApplicationMetadata().isStatelessApp;
-  const navigate = useNavigate();
+  const navigate = useOurNavigate();
   const navParams = useAllNavigationParamsAsRef();
-  const queryKeysRef = useQueryKeysAsStringAsRef();
   const getTaskType = useGetTaskTypeById();
   const refetchInitialValidations = useRefetchInitialValidations();
+  const [_searchParams] = useSearchParams();
+  const searchParamsRef = useAsRef(_searchParams);
 
   const { autoSaveBehavior } = usePageSettings();
   const order = usePageOrder();
@@ -244,25 +239,24 @@ export function useNavigatePage() {
   useEffect(() => {
     const currentPageId = navParams.current.pageKey ?? '';
     if (isStatelessApp && orderRef.current[0] !== undefined && (!currentPageId || !isValidPageId(currentPageId))) {
-      navigate(`/${orderRef.current[0]}${queryKeysRef.current}`, { replace: true });
+      navigate(`/${orderRef.current[0]}?${searchParamsRef.current}`, { replace: true });
     }
-  }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, queryKeysRef]);
+  }, [isStatelessApp, orderRef, navigate, isValidPageId, navParams, searchParamsRef]);
 
   const waitForSave = FD.useWaitForSave();
-  const waitForNodesReady = NodesInternal.useWaitUntilReady();
   const maybeSaveOnPageChange = useCallback(async () => {
     await waitForSave(autoSaveBehavior === 'onChangePage');
-    await waitForNodesReady();
-  }, [autoSaveBehavior, waitForSave, waitForNodesReady]);
+  }, [autoSaveBehavior, waitForSave]);
 
   const navigateToPage = useCallback(
     async (page?: string, options?: NavigateToPageOptions) => {
+      const shouldExitSubform = options?.searchParams?.has(SearchParams.ExitSubform, 'true') ?? false;
       const replace = options?.replace ?? false;
       if (!page) {
         window.logWarn('navigateToPage called without page');
         return;
       }
-      if (!orderRef.current.includes(page) && options?.exitSubform !== true) {
+      if (!orderRef.current.includes(page) && !shouldExitSubform) {
         window.logWarn('navigateToPage called with invalid page:', `"${page}"`);
         return;
       }
@@ -270,41 +264,28 @@ export function useNavigatePage() {
       if (options?.skipAutoSave !== true) {
         await maybeSaveOnPageChange();
       }
-      if (options?.exitSubform) {
+      if (shouldExitSubform) {
         await refetchInitialValidations();
       }
 
+      const searchParams = options?.searchParams ? `?${options.searchParams.toString()}` : '';
       if (isStatelessApp) {
-        return navigate(`/${page}${queryKeysRef.current}`, options, { replace }, () => focusMainContent(options));
+        const url = `/${page}${searchParams}`;
+        return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
       const { instanceOwnerPartyId, instanceGuid, taskId, mainPageKey, componentId, dataElementId } = navParams.current;
 
       // Subform
-      if (mainPageKey && componentId && dataElementId && options?.exitSubform !== true) {
-        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${queryKeysRef.current}`;
-        return navigate(url, options, { replace }, () => focusMainContent(options));
+      if (mainPageKey && componentId && dataElementId && !shouldExitSubform) {
+        const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${mainPageKey}/${componentId}/${dataElementId}/${page}${searchParams}`;
+        return navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
       }
 
-      let url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}`;
-
-      const searchParams = new URLSearchParams(queryKeysRef.current);
-
-      // Special cases for component focus and subform exit
-      if (options?.focusComponentId || options?.exitSubform) {
-        if (options?.focusComponentId) {
-          searchParams.set(SearchParams.FocusComponentId, options.focusComponentId);
-        }
-
-        if (options?.exitSubform) {
-          searchParams.set(SearchParams.ExitSubform, 'true');
-        }
-      }
-
-      url = `${url}?${searchParams.toString()}`;
-      navigate(url, options, { replace }, () => focusMainContent(options));
+      const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page}${searchParams}`;
+      navigate(url, options, { replace }, { targetLocation: url, callback: () => focusMainContent(options) });
     },
-    [isStatelessApp, maybeSaveOnPageChange, navParams, navigate, orderRef, queryKeysRef, refetchInitialValidations],
+    [orderRef, isStatelessApp, navParams, navigate, maybeSaveOnPageChange, refetchInitialValidations],
   );
 
   const [_, setVisitedPages] = useVisitedPages();
@@ -363,11 +344,36 @@ export function useNavigatePage() {
       return;
     }
 
-    await navigateToPage(navParams.current.mainPageKey, {
-      exitSubform: true,
-      resetReturnToView: false,
-      focusComponentId: navParams.current.componentId,
-    });
+    const searchParams = new URLSearchParams();
+    searchParams.set(SearchParams.ExitSubform, 'true');
+    const componentToNavigateTo = navParams.current.componentId;
+    if (componentToNavigateTo) {
+      searchParams.set(SearchParams.FocusComponentId, componentToNavigateTo);
+    }
+    await navigateToPage(navParams.current.mainPageKey, { searchParams, resetReturnToView: false });
+  };
+
+  const enterSubform = async ({
+    nodeId,
+    dataElementId,
+    page,
+    validate,
+  }: {
+    nodeId: string;
+    dataElementId: string;
+    page?: string;
+    validate?: boolean;
+  }) => {
+    if (page && !orderRef.current.includes(page)) {
+      window.logWarn('enterSubform called with invalid page:', `"${page}"`);
+      return;
+    }
+    const { instanceOwnerPartyId, instanceGuid, taskId, pageKey } = navParams.current;
+    const url = `/instance/${instanceOwnerPartyId}/${instanceGuid}/${taskId}/${page ?? pageKey}/${nodeId}/${dataElementId}${validate ? '?validate=true' : ''}`;
+
+    await maybeSaveOnPageChange();
+    refetchInitialValidations();
+    return navigate(url, undefined, undefined, { targetLocation: url, callback: () => focusMainContent() });
   };
 
   return {
@@ -378,12 +384,14 @@ export function useNavigatePage() {
     navigateToPreviousPage,
     maybeSaveOnPageChange,
     exitSubform,
+    enterSubform,
   };
 }
 
 export function focusMainContent(options?: NavigateToPageOptions) {
-  if (options?.shouldFocusComponent !== true) {
-    document.getElementById('main-content')?.focus({ preventScroll: true });
+  if (!options?.searchParams?.has(SearchParams.FocusComponentId)) {
+    document.getElementById('main-content')?.focus();
+    window.scrollTo(0, 0);
   }
 }
 
@@ -400,3 +408,41 @@ export function useVisitedPages() {
   );
 }
 const emptyArray = [];
+
+export function useNavigateToComponent() {
+  const layoutLookups = useLayoutLookups();
+  const { navigateToPage } = useNavigatePage();
+  const currentPageId = useCurrentView();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  return async (
+    indexedId: string,
+    baseComponentId: string,
+    options: Omit<NavigateToComponentOptions, 'shouldFocus'> | undefined,
+  ) => {
+    const targetPage = layoutLookups.componentToPage[baseComponentId];
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set(SearchParams.FocusComponentId, indexedId);
+    const errorBindingKey = options?.error?.['bindingKey'];
+    if (errorBindingKey) {
+      newSearchParams.set(SearchParams.FocusErrorBinding, errorBindingKey);
+    }
+
+    if (targetPage && targetPage !== currentPageId) {
+      await navigateToPage(targetPage, {
+        ...options?.pageNavOptions,
+        searchParams: newSearchParams,
+        replace:
+          !!newSearchParams.get(SearchParams.FocusComponentId) || !!newSearchParams.get(SearchParams.ExitSubform),
+      });
+    } else {
+      setSearchParams(newSearchParams);
+    }
+  };
+}
+
+export interface NavigateToComponentOptions {
+  shouldFocus?: boolean;
+  pageNavOptions?: NavigateToPageOptions;
+  error?: NodeRefValidation;
+}

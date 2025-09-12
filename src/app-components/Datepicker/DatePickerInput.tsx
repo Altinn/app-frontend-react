@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PatternFormat } from 'react-number-format';
+import type { Ref } from 'react';
 
 import { Textfield } from '@digdir/designsystemet-react';
 import { format, isValid } from 'date-fns';
@@ -10,7 +11,7 @@ import {
   strictParseFormat,
   strictParseISO,
 } from 'src/app-components/Datepicker/utils/dateHelpers';
-import { getFormatPattern } from 'src/utils/formatDateLocale';
+import { dateFormatCanBeNumericInReactPatternFormat, getFormatAsPatternFormat } from 'src/utils/dateUtils';
 
 export interface DatePickerInputProps {
   id: string;
@@ -19,20 +20,17 @@ export interface DatePickerInputProps {
   value?: string;
   onValueChange?: (value: string) => void;
   readOnly?: boolean;
+  autoComplete?: 'bday';
 }
 
-export function DatePickerInput({
-  id,
-  value,
-  datepickerFormat,
-  timeStamp,
-  onValueChange,
-  readOnly,
-}: DatePickerInputProps) {
-  const formatPattern = getFormatPattern(datepickerFormat);
+function DatePickerInputRef(
+  { id, value, datepickerFormat, timeStamp, onValueChange, readOnly, autoComplete }: DatePickerInputProps,
+  ref: Ref<HTMLInputElement>,
+) {
   const dateValue = strictParseISO(value);
   const formattedDateValue = dateValue ? format(dateValue, datepickerFormat) : value;
   const [inputValue, setInputValue] = useState(formattedDateValue ?? '');
+  const numericMode = dateFormatCanBeNumericInReactPatternFormat(datepickerFormat);
 
   useEffect(() => {
     setInputValue(formattedDateValue ?? '');
@@ -56,8 +54,10 @@ export function DatePickerInput({
 
   return (
     <PatternFormat
-      format={formatPattern}
+      getInputRef={ref}
+      format={getFormatAsPatternFormat(datepickerFormat)}
       customInput={Textfield}
+      data-size='sm'
       mask='_'
       className={styles.calendarInput}
       type='text'
@@ -68,6 +68,13 @@ export function DatePickerInput({
       onBlur={saveValue}
       readOnly={readOnly}
       aria-readonly={readOnly}
+      autoComplete={autoComplete}
+      // May force a numerical input mode in mobile browsers
+      inputMode={numericMode ? 'numeric' : 'text'}
+      pattern={numericMode ? '[0-9]*' : undefined}
     />
   );
 }
+
+export const DatePickerInput = React.forwardRef(DatePickerInputRef);
+DatePickerInput.displayName = 'DatePickerInput';

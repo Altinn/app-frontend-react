@@ -1,29 +1,28 @@
 import React from 'react';
 
-import { ErrorMessage, Label, Paragraph } from '@digdir/designsystemet-react';
+import { Label, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Lang } from 'src/features/language/Lang';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
 import type { BaseValidation } from 'src/features/validation';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 type SingleValueSummaryProps = {
   title: React.ReactNode;
   errors?: BaseValidation[];
-  componentNode: LayoutNode;
+  targetBaseComponentId: string;
   displayData?: string;
   hideEditButton?: boolean;
   multiline?: boolean;
-  isCompact?: boolean;
-  emptyFieldText?: string;
+  isCompact: boolean | undefined;
+  emptyFieldText: string | undefined;
 };
 
 export const SingleValueSummary = ({
   title,
   errors,
-  componentNode,
+  targetBaseComponentId,
   displayData,
   hideEditButton,
   multiline,
@@ -61,8 +60,7 @@ export const SingleValueSummary = ({
       {!hideEditButton && (
         <EditButton
           className={classes.editButton}
-          componentNode={componentNode}
-          summaryComponentId={componentNode.id}
+          targetBaseComponentId={targetBaseComponentId}
         />
       )}
     </div>
@@ -70,13 +68,15 @@ export const SingleValueSummary = ({
     {errors &&
       errors?.length > 0 &&
       errors?.map(({ message }) => (
-        <ErrorMessage key={message.key}>
+        <ValidationMessage
+          key={message.key}
+          data-size='sm'
+        >
           <Lang
             id={message.key}
             params={message.params}
-            node={componentNode}
           />
-        </ErrorMessage>
+        </ValidationMessage>
       ))}
   </div>
 );

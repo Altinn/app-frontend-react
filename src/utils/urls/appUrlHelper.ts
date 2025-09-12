@@ -1,5 +1,3 @@
-import type { SortDirection } from '@digdir/design-system-react/dist/types/components/legacy/LegacyTable/utils';
-
 import { getQueryStringFromObject } from 'src/utils/urls/urlHelper';
 
 const { org, app } = window;
@@ -11,7 +9,7 @@ export const applicationMetadataApiUrl = `${appPath}/api/v1/applicationmetadata`
 export const applicationSettingsApiUrl = `${appPath}/api/v1/applicationsettings`;
 export const invalidateCookieUrl = `${appPath}/api/authentication/invalidatecookie`;
 export const validPartiesUrl = `${appPath}/api/v1/parties?allowedtoinstantiatefilter=true`;
-export const currentPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
+export const selectedPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
 export const instancesControllerUrl = `${appPath}/instances`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
 export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
@@ -21,7 +19,7 @@ export const getInstantiateUrl = (language?: string) => {
   return `${appPath}/instances/create${queryString}`;
 };
 
-export const getSetCurrentPartyUrl = (partyId: string | number) => `${appPath}/api/v1/parties/${partyId}`;
+export const getSetSelectedPartyUrl = (partyId: string | number) => `${appPath}/api/v1/parties/${partyId}`;
 
 export const textResourcesUrl = (language: string) => `${origin}/${org}/${app}/api/v1/texts/${language}`;
 
@@ -50,21 +48,17 @@ export const getFileTagUrl = (instanceId: string, dataGuid: string, tag: string 
   return `${appPath}/instances/${instanceId}/data/${dataGuid}/tags`;
 };
 
-export const getAnonymousStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
-  `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+export const getAnonymousStatelessDataModelUrl = (dataType: string) =>
+  `${appPath}/v1/data/anonymous?dataType=${dataType}&includeRowId=true`;
 
-export const getStatelessDataModelUrlWithPrefill = (
-  dataType: string,
-  includeRowIds: boolean,
-  prefillFromQueryParams: string,
-) =>
-  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}&prefill=${prefillFromQueryParams}`;
+export const getStatelessDataModelUrlWithPrefill = (dataType: string, prefillFromQueryParams: string) =>
+  `${appPath}/v1/data?dataType=${dataType}&includeRowId=true&prefill=${prefillFromQueryParams}`;
 
-export const getStatelessDataModelUrl = (dataType: string, includeRowIds: boolean) =>
-  `${appPath}/v1/data?dataType=${dataType}&includeRowId=${includeRowIds.toString()}`;
+export const getStatelessDataModelUrl = (dataType: string) =>
+  `${appPath}/v1/data?dataType=${dataType}&includeRowId=true`;
 
-export const getStatefulDataModelUrl = (instanceId: string, dataGuid: string, includeRowIds: boolean) =>
-  `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=${includeRowIds.toString()}`;
+export const getStatefulDataModelUrl = (instanceId: string, dataGuid: string) =>
+  `${appPath}/instances/${instanceId}/data/${dataGuid}?includeRowId=true`;
 
 export const getMultiPatchUrl = (instanceId: string) => `${appPath}/instances/${instanceId}/data`;
 
@@ -96,6 +90,9 @@ export const getValidationUrl = (instanceId: string, language: string, onlyIncre
   return `${appPath}/instances/${instanceId}/validate${queryString}`;
 };
 
+/**
+ * @deprecated use getValidationUrl instead
+ */
 export const getDataValidationUrl = (instanceId: string, dataGuid: string, language: string) => {
   const queryString = getQueryStringFromObject({ language });
   return `${appPath}/instances/${instanceId}/data/${dataGuid}/validate${queryString}`;
@@ -219,6 +216,9 @@ export const getOptionsUrl = ({ optionsId, queryParameters, language, secure, in
 
   return url.toString();
 };
+
+type SortDirection = 'asc' | 'desc' | 'notSortable' | 'notActive';
+
 interface IGetDataListsUrlParams {
   dataListId: string;
   queryParameters?: Record<string, ParamValue>;

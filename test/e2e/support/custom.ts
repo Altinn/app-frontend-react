@@ -13,7 +13,7 @@ import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 import { getTargetUrl } from 'test/e2e/support/start-app-instance';
-import type { ResponseFuzzing, Size } from 'test/e2e/support/global';
+import type { ResponseFuzzing, Size, SnapshotOptions, SnapshotViewport } from 'test/e2e/support/global';
 
 import type { ILayoutFile } from 'src/layout/common.generated';
 
@@ -52,11 +52,6 @@ Cypress.Commands.add('waitUntilSaved', () => {
   cy.get('[data-testid=NavigationButtons] button[disabled]').should('not.exist');
 });
 
-Cypress.Commands.add('waitUntilNodesReady', () => {
-  cy.get('body').should('not.have.attr', 'data-nodes-ready', 'false');
-  cy.get('body').should('not.have.attr', 'data-commits-pending', 'true');
-});
-
 Cypress.Commands.add('dsReady', (selector) => {
   // In case the option is dynamic, wait for save and progress bars to go away, otherwise the component could
   // rerender after opening, causing it to close again
@@ -64,20 +59,35 @@ Cypress.Commands.add('dsReady', (selector) => {
 
   cy.get(selector).should('not.be.disabled');
   cy.waitUntilSaved();
-  cy.waitUntilNodesReady();
+});
+
+Cypress.Commands.add('dsClear', (selector) => {
+  // Clear the input value and trigger input event to reset dropdown's internal state
+  cy.get(selector).invoke('val', '').trigger('input');
+
+  // Close any open dropdowns by clicking outside
+  cy.get('body').click('bottomRight');
+
+  // Additional step to ensure dropdown is reset
+  cy.get(selector).click();
+  cy.get(selector).type('{esc}');
+  cy.get('[data-floating-ui-portal]').should('not.exist');
 });
 
 Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
   cy.log(`Selecting ${value} in ${selector}, with debounce: ${debounce}`);
   cy.dsReady(selector);
+  // Clear the input value before selecting a new option because the previous value acts as a filter
+  // and prevents the new option from being displayed.
+  cy.dsClear(selector);
   cy.get(selector).click();
 
   // It is tempting to just use findByRole('option', { name: value }) here, but that's flakier than using findByText()
   // as it never retries if the element re-renders. More information here:
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
-  cy.get('[class*="fds-combobox__option"]').findByText(value).click();
+  cy.findByRole('option', { name: value }).click();
   if (debounce) {
-    cy.get('body').click();
+    cy.get('body').click('bottomRight');
   }
 });
 
@@ -98,6 +108,7 @@ Cypress.Commands.add('navPage', (page: string) => {
 Cypress.Commands.add('gotoNavPage', (page: string) => {
   cy.navPage(page).click();
   cy.navPage(page).should('have.attr', 'aria-current', 'page');
+  cy.findByRole('progressbar').should('not.exist');
 });
 
 Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
@@ -292,15 +303,19 @@ Cypress.Commands.add('clearSelectionAndWait', (viewport) => {
 
 Cypress.Commands.add('getCurrentPageId', () => cy.location('hash').then((hash) => hash.split('/').slice(-1)[0]));
 
-Cypress.Commands.add('snapshot', (name: string) => {
+const defaultSnapshotOptions: SnapshotOptions = {
+  wcag: true,
+};
+
+Cypress.Commands.add('visualTesting', (name, _options) => {
+  const options = { ...defaultSnapshotOptions, ..._options };
   cy.clearSelectionAndWait();
-  cy.waitUntilNodesReady();
   cy.waitUntilSaved();
 
   // Running wcag tests before taking snapshot, because the resizing of the viewport can cause some elements to
   // re-render and go slightly out of sync with the proper state of the application. One example is the Dropdown
   // component, which can sometimes render without all the options (and selected value) a short time after resizing.
-  cy.testWcag();
+  options.wcag && cy.testWcag();
 
   cy.window().then((win) => {
     const { innerWidth, innerHeight } = win;
@@ -309,18 +324,18 @@ Cypress.Commands.add('snapshot', (name: string) => {
 
       // We need to manually resize the viewport to ensure that the snapshot is taken with the correct DOM. We sometimes
       // change the DOM based on the viewport size, and Percy only understands CSS media queries (not our React logic).
-      const viewportSizes = {
+      const viewportSizes: Record<SnapshotViewport, { width: number; height: number }> = {
         desktop: { width: 1280, height: 768 },
         tablet: { width: breakpoints.tablet - 5, height: 1024 },
         mobile: { width: 360, height: 768 },
       };
-      for (const [viewport, { width, height }] of Object.entries(viewportSizes)) {
+      for (const [_viewport, { width, height }] of Object.entries(viewportSizes)) {
+        const viewport = _viewport as SnapshotViewport;
         cy.viewport(width, height);
-        cy.clearSelectionAndWait(viewport as keyof typeof viewportSizes);
+        cy.clearSelectionAndWait(viewport);
 
         // Saving happens after a debounce timeout, and even though we checked for unsaved changes above, there might
         // be new ones that appeared after viewport resizing. Let's check again right before we snapshot.
-        cy.waitUntilNodesReady();
         cy.waitUntilSaved();
 
         cy.percySnapshot(`${name} (${viewport})`, { percyCSS, widths: [width] });
@@ -411,6 +426,7 @@ Cypress.Commands.add('reloadAndWait', () => {
 
 Cypress.Commands.add('waitForLoad', () => {
   cy.get('#finishedLoading').should('exist');
+  cy.get('.loading').should('not.exist');
   cy.findByRole('progressbar').should('not.exist');
   // An initialOption can cause a save to occur immediately after loading is finished, wait for this to finish as well
   cy.waitUntilSaved();
@@ -431,9 +447,9 @@ Cypress.Commands.add(
     cy.get(appFrontend.group.mainGroup).find(appFrontend.group.editContainer).find(appFrontend.group.next).click();
 
     if (openByDefault || typeof openByDefault === 'undefined') {
-      cy.get(appFrontend.group.addNewItemSubGroup).should('not.exist');
+      cy.findByRole('button', { name: 'Legg til ny' }).should('not.exist');
     } else {
-      cy.get(appFrontend.group.addNewItemSubGroup).click();
+      cy.findByRole('button', { name: 'Legg til ny' }).click({ force: true });
     }
 
     cy.get(appFrontend.group.comments).type(comment);
@@ -519,14 +535,7 @@ Cypress.Commands.add('changeLayout', (mutator, wholeLayoutMutator) => {
     }
   });
 
-  // To make sure we actually wait for the layout change to become effective, we first wait for the loader to appear,
-  // and then wait for it to disappear.
-  cy.get('[data-testid="loader"]').should('exist');
-  cy.get('[data-testid="loader"]').should('not.exist');
-
-  cy.get('#finishedLoading').should('exist');
   cy.findByRole('progressbar').should('not.exist');
-  cy.waitUntilNodesReady();
 });
 
 Cypress.Commands.add('interceptLayoutSetsUiSettings', (uiSettings) => {
@@ -628,20 +637,6 @@ Cypress.Commands.add(
     cy.waitUntilSaved();
     cy.waitForNetworkIdle('*', '*', 500);
 
-    // Build PDF url and visit
-    cy.location('href', { log: false }).then((href) => {
-      const regex = getInstanceIdRegExp();
-      const instanceId = regex.exec(href)?.[1];
-      const before = href.split(regex)[0];
-      const visitUrl = `${before}${instanceId}?pdf=1`;
-
-      // After the navigation rewrite where we now add the current task ID to the URL, this test is only realistic if
-      // we remove the task and page from the URL before rendering the PDF. This is because the real PDF generator
-      // won't know about the task and page, and will load this URL and assume the app will figure out how to display
-      // the current task as a PDF.
-      cy.visit(visitUrl, { log: false });
-    });
-
     beforeReload?.();
 
     // Disable caching, the real PDF generator does not have anything cached as it always runs in a fresh browser context
@@ -649,7 +644,24 @@ Cypress.Commands.add(
     cy.enableResponseFuzzing({ enabled: enableResponseFuzzing }).as('responseFuzzing');
 
     cy.log('Testing PDF');
-    cy.reload({ log: false });
+
+    // Build PDF url and visit
+    cy.window({ log: false }).then((win) => {
+      const href = win.location.href;
+      const regex = getInstanceIdRegExp();
+      const instanceId = regex.exec(href)?.[1];
+      const before = href.split(regex)[0];
+      const visitUrl = `${before}${instanceId}?pdf=1`;
+
+      // Visit this first so that we don't just re-route in the active react app
+      win.location.href = 'about:blank';
+
+      // After the navigation rewrite where we now add the current task ID to the URL, this test is only realistic if
+      // we remove the task and page from the URL before rendering the PDF. This is because the real PDF generator
+      // won't know about the task and page, and will load this URL and assume the app will figure out how to display
+      // the current task as a PDF.
+      cy.visit(visitUrl);
+    });
 
     // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
     cy.get('#readyForPrint')
@@ -862,15 +874,28 @@ Cypress.Commands.add('getCurrentViewportSize', function () {
   }));
 });
 
-Cypress.Commands.add('showNavGroups', () => {
-  cy.findByRole('button', { name: 'Skjemasider' }).click();
-  cy.findByRole('dialog', { name: 'Skjemasider' }).should('be.visible');
-  cy.findByRole('dialog', { name: 'Skjemasider' }).should('have.css', 'opacity', '1');
+Cypress.Commands.add('showNavGroupsTablet', () => {
+  cy.findByRole('button', { name: /Skjemasider/i }).click();
+  cy.get('div[data-testid="page-navigation-dialog"]').should('be.visible');
+  cy.get('div[data-testid="page-navigation-dialog"]').should('have.css', 'opacity', '1');
 });
 
-Cypress.Commands.add('hideNavGroups', () => {
-  cy.findByRole('dialog', { name: 'Skjemasider' }).within(() => cy.findByRole('button', { name: 'Lukk' }).click());
-  cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+Cypress.Commands.add('showNavGroupsMobile', () => {
+  cy.findByRole('button', { name: /Skjemasider/i }).click();
+  cy.get('dialog[data-testid="page-navigation-dialog"]').should('be.visible');
+  cy.get('dialog[data-testid="page-navigation-dialog"]').should('have.css', 'opacity', '1');
+});
+
+Cypress.Commands.add('hideNavGroupsTablet', () => {
+  cy.get('div[data-testid="page-navigation-dialog"]').within(() => cy.findByRole('button', { name: 'Lukk' }).click());
+  cy.get('div[data-testid="page-navigation-dialog"]').should('not.be.visible');
+});
+
+Cypress.Commands.add('hideNavGroupsMobile', () => {
+  cy.get('dialog[data-testid="page-navigation-dialog"]').within(() =>
+    cy.findByRole('button', { name: /Lukk dialogvindu/i }).click(),
+  );
+  cy.get('dialog[data-testid="page-navigation-dialog"]').should('not.be.visible');
 });
 
 Cypress.Commands.add('navGroup', (groupName, pageName, subformName) => {
@@ -897,9 +922,11 @@ Cypress.Commands.add('navGroup', (groupName, pageName, subformName) => {
   }
 });
 
-Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
+Cypress.Commands.add('gotoNavGroup', (groupName, device, pageName) => {
   cy.get('body').then((body) => {
     const isUsingDialog = !!body.find('[data-testid=page-navigation-trigger]').length;
+    const isMobile = device === 'mobile';
+    const isTablet = device === 'tablet';
     if (pageName) {
       cy.navGroup(groupName).then((group) => {
         if (group[0].getAttribute('aria-expanded') === 'false') {
@@ -908,16 +935,20 @@ Cypress.Commands.add('gotoNavGroup', (groupName, pageName) => {
       });
       cy.navGroup(groupName).should('have.attr', 'aria-expanded', 'true');
       cy.navGroup(groupName, pageName).click();
-      if (isUsingDialog) {
-        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      if (isUsingDialog && isMobile) {
+        cy.findByRole('dialog', { name: /Skjemasider/i }).should('not.exist');
+      } else if (isUsingDialog && isTablet) {
+        cy.get('div[data-testid="page-navigation-dialog"]').should('not.be.visible');
       } else {
         cy.navGroup(groupName, pageName).should('have.attr', 'aria-current', 'page');
       }
     } else {
       cy.navGroup(groupName).should('not.have.attr', 'aria-expanded');
       cy.navGroup(groupName).click();
-      if (isUsingDialog) {
-        cy.findByRole('dialog', { name: 'Skjemasider' }).should('not.exist');
+      if (isUsingDialog && isMobile) {
+        cy.findByRole('dialog', { name: /Skjemasider/i }).should('not.exist');
+      } else if (isUsingDialog && isTablet) {
+        cy.get('div[data-testid="page-navigation-dialog"]').should('not.be.visible');
       } else {
         cy.navGroup(groupName).should('have.attr', 'aria-current', 'page');
       }

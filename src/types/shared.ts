@@ -1,4 +1,5 @@
-import type { FixedLanguageList } from 'src/language/languages';
+import type { FileScanResult } from 'src/features/attachments/types';
+import type { LooseAutocomplete } from 'src/types';
 
 export interface IAltinnOrg {
   name: ITitle;
@@ -23,6 +24,8 @@ export interface IApplicationLogic {
 export interface IDisplayAttachment {
   name?: string;
   iconClass: string;
+  grouping: string | undefined;
+  description: Partial<Record<LooseAutocomplete<'en' | 'nb' | 'nn'>, string>> | undefined;
   url?: string;
   dataType: string;
   tags?: string[];
@@ -46,13 +49,16 @@ export interface IData {
   lastChanged: string;
   lastChangedBy: string;
   contentHash?: unknown;
+  fileScanResult?: FileScanResult;
+  fileScanDetails?: string;
 }
 
 export interface IDataType {
   id: string;
-  description?: string | null;
+  description?: Partial<Record<LooseAutocomplete<'en' | 'nb' | 'nn'>, string>> | null;
   allowedContentTypes: string[] | null;
   allowedContributers?: string[] | null;
+  allowedContributors?: string[] | null;
   appLogic?: IApplicationLogic | null;
   taskId?: string | null;
   maxSize?: number | null;
@@ -104,13 +110,6 @@ export interface IInstanceState {
   isMarkedForHardDelete: boolean;
   isArchived: boolean;
 }
-
-// Language translations for altinn
-export type ILanguage =
-  | FixedLanguageList
-  | {
-      [key: string]: string | ILanguage;
-    };
 
 // Language for the rendered altinn app
 export interface IAppLanguage {
@@ -225,13 +224,18 @@ export interface ISelfLinks {
   platform: string;
 }
 
-type ProcessActionIds = 'read' | 'write' | 'complete';
-
 export interface IUserAction {
-  id: ProcessActionIds | string;
+  id: IActionType | string;
   authorized: boolean;
   type: 'ProcessAction' | 'ServerAction';
 }
+
+export const ELEMENT_TYPE = {
+  SERVICE_TASK: 'ServiceTask',
+  TASK: 'Task',
+} as const;
+
+type ElementType = (typeof ELEMENT_TYPE)[keyof typeof ELEMENT_TYPE];
 
 export type ITask = {
   flow: number;
@@ -239,6 +243,7 @@ export type ITask = {
   elementId: string;
   name: string;
   altinnTaskType: string;
+  elementType?: ElementType;
   ended?: string | null;
   validated?: IValidated | null;
 
@@ -268,12 +273,13 @@ export interface ITextResource {
 
 export interface IVariable {
   key: string;
-  dataSource: 'instanceContext' | 'applicationSettings' | 'dataModel.default' | `dataModel.${string}`;
+  dataSource:
+    | 'instanceContext'
+    | 'applicationSettings'
+    | 'dataModel.default'
+    | `dataModel.${string}`
+    | 'customTextParameters';
   defaultValue?: string;
-}
-
-export interface IAttachmentGrouping {
-  [title: string]: IDisplayAttachment[];
 }
 
 export interface IApplicationSettings {
@@ -288,9 +294,10 @@ export interface IInstanceDataSources {
   appId: string;
   instanceOwnerPartyId: string;
   instanceOwnerPartyType: InstanceOwnerPartyType;
+  instanceOwnerName?: string;
 }
 
-export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject';
+export type IActionType = 'instantiate' | 'confirm' | 'sign' | 'reject' | 'read' | 'write' | 'complete';
 
 export type IAuthContext = {
   read: boolean;

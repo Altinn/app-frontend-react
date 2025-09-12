@@ -1,6 +1,5 @@
-import type { Expression, ExprValToActual } from 'src/features/expressions/types';
-import type { TextReference, ValidLangParam } from 'src/features/language/useLanguage';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { Expression, ExprVal, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { TextReference } from 'src/features/language/useLanguage';
 
 export enum FrontendValidationSource {
   EmptyField = '__empty_field__',
@@ -176,7 +175,7 @@ export type SubformValidation<Severity extends ValidationSeverity = ValidationSe
   subformDataElementIds: string[];
 };
 
-export function isSubformValidation(validation: NodeValidation): validation is NodeValidation<SubformValidation> {
+export function isSubformValidation(validation: NodeRefValidation): validation is NodeRefValidation<SubformValidation> {
   return 'subformDataElementIds' in validation;
 }
 
@@ -187,19 +186,11 @@ export type AnyValidation<Severity extends ValidationSeverity = ValidationSeveri
   | SubformValidation<Severity>;
 
 /**
- * Validation message format used by frontend components.
- * This type is derived from other validation types, but a reference to the node is added.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type NodeValidation<Validation extends AnyValidation<any> = AnyValidation<any>> = Validation & {
-  node: LayoutNode;
-};
-
-/**
  * The same as NodeValidation, but with a nodeId instead of a node.
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type NodeRefValidation<Validation extends AnyValidation<any> = AnyValidation<any>> = Validation & {
+  baseComponentId: string;
   nodeId: string;
 };
 
@@ -220,7 +211,7 @@ export interface BackendValidationIssue {
   source: string;
   noIncrementalUpdates?: boolean; // true if it will not be validated on PATCH, should be ignored when trying to submit
   customTextKey?: string;
-  customTextParams?: ValidLangParam[]; //TODO(Validation): Probably broken for text resources currently
+  customTextParameters?: Record<string, string>;
   showImmediately?: boolean; // Not made available
   actLikeRequired?: boolean; // Not made available
 }
@@ -229,7 +220,7 @@ export interface BackendValidationIssue {
  * Expression validation object.
  */
 export type IExpressionValidation = {
-  message: string;
+  message: ExprValToActualOrExpr<ExprVal.String>;
   condition: Expression | ExprValToActual;
   severity: ValidationSeverity;
   showImmediately: boolean;

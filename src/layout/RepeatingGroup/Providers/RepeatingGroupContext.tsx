@@ -1,25 +1,25 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 
-import { createContext } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
+import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/Providers/OpenByDefaultProvider';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem, useWaitForNodeItem } from 'src/utils/layout/useNodeItem';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
+import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import type { CompInternal } from 'src/layout/layout';
 import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
-import type { RepGroupRow, RepGroupRows } from 'src/layout/RepeatingGroup/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import type { RepGroupRow, RepGroupRowWithButtons } from 'src/layout/RepeatingGroup/utils';
 import type { BaseRow } from 'src/utils/layout/types';
 
 interface Store {
+  baseComponentId: string;
   editingAll: boolean;
   editingNone: boolean;
   editingId: string | undefined;
@@ -35,6 +35,11 @@ interface ZustandHiddenMethods {
   endDeletingRow: (row: BaseRow, successful: boolean) => void;
 }
 
+type AddRowResult =
+  | { result: 'stoppedByBinding'; uuid: undefined; index: undefined }
+  | { result: 'stoppedByValidation'; uuid: undefined; index: undefined }
+  | ({ result: 'addedAndOpened' | 'addedAndHidden' } & BaseRow);
+
 interface ExtendedState {
   // Methods for getting/setting state about which rows are in edit mode
   toggleEditing: (row: BaseRow) => void;
@@ -44,22 +49,7 @@ interface ExtendedState {
   changePage: (page: number) => void;
 }
 
-type AddRowResult =
-  | { result: 'stoppedByBinding'; uuid: undefined; index: undefined }
-  | { result: 'stoppedByValidation'; uuid: undefined; index: undefined }
-  | ({ result: 'addedAndOpened' | 'addedAndHidden' } & BaseRow);
-
-interface ContextMethods extends ExtendedState {
-  addRow: () => Promise<AddRowResult>;
-  deleteRow: (row: BaseRow) => Promise<boolean>;
-  isEditing: (uuid: string) => boolean;
-  isDeleting: (uuid: string) => boolean;
-  changePage: (page: number) => Promise<void>;
-  changePageToRow: (row: BaseRow) => Promise<void>;
-}
-
 type ZustandState = Store & ZustandHiddenMethods & Omit<ExtendedState, 'toggleEditing'>;
-type ExtendedContext = ContextMethods & Props;
 
 const ZStore = createZustandContext({
   name: 'RepeatingGroupZ',
@@ -67,44 +57,34 @@ const ZStore = createZustandContext({
   initialCreateStore: newStore,
 });
 
-const ExtendedStore = createContext<ExtendedContext>({
-  name: 'RepeatingGroup',
-  required: true,
-});
-
 interface RowState {
   numVisibleRows: number;
-  visibleRows: BaseRow[];
-  hiddenRows: BaseRow[];
-  editableRows: BaseRow[];
-  deletableRows: BaseRow[];
+  visibleRows: RepGroupRowWithButtons[];
+  hiddenRows: RepGroupRowWithButtons[];
+  editableRows: RepGroupRowWithButtons[];
+  deletableRows: RepGroupRowWithButtons[];
 }
 
-function produceStateFromRows(rows: RepGroupRows): RowState {
-  const hidden: BaseRow[] = [];
-  const visible: BaseRow[] = [];
-  const editable: BaseRow[] = [];
-  const deletable: BaseRow[] = [];
+function produceStateFromRows(rows: RepGroupRowWithButtons[]): RowState {
+  const hidden: RepGroupRowWithButtons[] = [];
+  const visible: RepGroupRowWithButtons[] = [];
+  const editable: RepGroupRowWithButtons[] = [];
+  const deletable: RepGroupRowWithButtons[] = [];
   for (const row of rows) {
     if (!row) {
       continue;
     }
-    const rowObj: BaseRow = {
-      index: row.index,
-      uuid: row.uuid,
-    };
-
-    if (row.groupExpressions?.hiddenRow) {
-      hidden.push(rowObj);
+    if (row.hidden) {
+      hidden.push(row);
     } else {
-      visible.push(rowObj);
+      visible.push(row);
 
       // Only the visible rows can be edited or deleted
-      if (row.groupExpressions?.edit?.editButton !== false) {
-        editable.push(rowObj);
+      if (row.editButton) {
+        editable.push(row);
       }
-      if (row.groupExpressions?.edit?.deleteButton !== false) {
-        deletable.push(rowObj);
+      if (row.deleteButton) {
+        deletable.push(row);
       }
     }
   }
@@ -205,17 +185,19 @@ function gotoPageForRow(
 }
 
 interface NewStoreProps {
-  getRows: () => RepGroupRows | undefined;
+  baseComponentId: string;
+  getRows: () => RepGroupRowWithButtons[];
   editMode: IGroupEditProperties['mode'];
   pagination: CompInternal<'RepeatingGroup'>['pagination'];
 }
 
-function newStore({ editMode, pagination, getRows }: NewStoreProps) {
+function newStore({ baseComponentId, getRows, editMode, pagination }: NewStoreProps) {
   function produce() {
-    return produceStateFromRows(getRows() ?? []);
+    return produceStateFromRows(getRows());
   }
 
   return createStore<ZustandState>((set) => ({
+    baseComponentId,
     editingAll: editMode === 'showAll',
     editingNone: editMode === 'onlyTable',
     isFirstRender: true,
@@ -318,229 +300,13 @@ function newStore({ editMode, pagination, getRows }: NewStoreProps) {
   }));
 }
 
-function useExtendedRepeatingGroupState(node: LayoutNode<'RepeatingGroup'>): ExtendedContext {
-  const stateRef = ZStore.useSelectorAsRef((state) => state);
-  const validateOnSaveRow = useNodeItem(node, (i) => i.validateOnSaveRow);
-  const groupBinding = useBinding(node);
-
-  const appendToList = FD.useAppendToList();
-  const removeFromList = FD.useRemoveFromListCallback();
-  const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(node);
-  const onGroupCloseValidation = useOnGroupCloseValidation();
-  const markNodesNotReady = NodesInternal.useMarkNotReady();
-
-  const waitForItem = useWaitForNodeItem(node);
-
-  const pagination = useNodeItem(node, (i) => i.pagination);
-  const getRows = useGetFreshRows(node);
-  const getState = useCallback(() => produceStateFromRows(getRows() ?? []), [getRows]);
-  const getPaginationState = useCallback(
-    () => producePaginationState(stateRef.current.currentPage, pagination, getState().visibleRows),
-    [stateRef, pagination, getState],
-  );
-
-  const maybeValidateRow = useCallback(() => {
-    const { editingAll, editingId, editingNone } = stateRef.current;
-    const index = getState().editableRows.find((row) => row.uuid === editingId)?.index;
-    if (!validateOnSaveRow || editingAll || editingNone || editingId === undefined || index === undefined) {
-      return Promise.resolve(false);
-    }
-    return onGroupCloseValidation(node, index, validateOnSaveRow);
-  }, [node, onGroupCloseValidation, getState, stateRef, validateOnSaveRow]);
-
-  const openForEditing = useCallback(
-    async (row: BaseRow) => {
-      if (await maybeValidateRow()) {
-        return;
-      }
-      stateRef.current.openForEditing(row);
-    },
-    [maybeValidateRow, stateRef],
-  );
-
-  const openNextForEditing = useCallback(async () => {
-    if (await maybeValidateRow()) {
-      return;
-    }
-    stateRef.current.openNextForEditing();
-  }, [maybeValidateRow, stateRef]);
-
-  const closeForEditing = useCallback(
-    async (row: BaseRow) => {
-      if (await maybeValidateRow()) {
-        return;
-      }
-      stateRef.current.closeForEditing(row);
-    },
-    [maybeValidateRow, stateRef],
-  );
-
-  const toggleEditing = useCallback(
-    async (row: BaseRow) => {
-      if (await maybeValidateRow()) {
-        return;
-      }
-      const { editingId, closeForEditing, openForEditing } = stateRef.current;
-      if (editingId === row.uuid) {
-        closeForEditing(row);
-      } else {
-        openForEditing(row);
-      }
-    },
-    [maybeValidateRow, stateRef],
-  );
-
-  const changePage = useCallback(
-    async (page: number) => {
-      if (await maybeValidateRow()) {
-        return;
-      }
-      stateRef.current.changePage(page);
-    },
-    [maybeValidateRow, stateRef],
-  );
-
-  const changePageToRow = useCallback(
-    async (row: BaseRow) => {
-      if (await maybeValidateRow()) {
-        return;
-      }
-
-      const page = getPageForRow(row, getPaginationState(), getState().visibleRows);
-      if (page == null) {
-        return;
-      }
-
-      stateRef.current.changePage(page);
-    },
-    [maybeValidateRow, getPaginationState, getState, stateRef],
-  );
-
-  const isEditing = useCallback(
-    (uuid: string) => {
-      const { editingAll, editingId, editingNone } = stateRef.current;
-      if (editingAll) {
-        return true;
-      }
-      if (editingNone) {
-        return false;
-      }
-      return editingId === uuid;
-    },
-    [stateRef],
-  );
-
-  const addRow = useCallback(async (): Promise<AddRowResult> => {
-    const { startAddingRow, endAddingRow } = stateRef.current;
-    if (!groupBinding) {
-      return { result: 'stoppedByBinding', uuid: undefined, index: undefined };
-    }
-    if (await maybeValidateRow()) {
-      return { result: 'stoppedByValidation', uuid: undefined, index: undefined };
-    }
-    const uuid = uuidv4();
-
-    appendToList({
-      reference: groupBinding,
-      newValue: { [ALTINN_ROW_ID]: uuid },
-    });
-
-    markNodesNotReady(); // Doing this early to prevent re-renders when this is added to the data model
-    startAddingRow(uuid);
-    let foundRow: RepGroupRow | undefined;
-    await waitForItem((item) => {
-      foundRow = item?.rows.find((row) => row?.uuid === uuid && row.groupExpressions);
-      return !!foundRow;
-    });
-    endAddingRow(uuid);
-
-    // It may take some time until effects run and the row is put into either the visibleRows or hiddenRows state in
-    // the ref, so we'll loop this a few times until we find the row.
-    let attempts = 5;
-    let foundVisible: boolean | undefined;
-    while (foundVisible === undefined && attempts > 0) {
-      const { visibleRows, hiddenRows } = getState();
-      foundVisible = visibleRows.find((row) => row.uuid === uuid)
-        ? true
-        : hiddenRows.find((row) => row.uuid === uuid)
-          ? false
-          : undefined;
-      if (foundVisible === undefined && attempts > 0) {
-        attempts--;
-        await new Promise((resolve) => setTimeout(resolve, 4));
-      }
-    }
-
-    const index = foundRow?.index ?? -1;
-    if (foundVisible) {
-      await openForEditing({ uuid, index });
-      return { result: 'addedAndOpened', uuid, index };
-    }
-
-    return { result: 'addedAndHidden', uuid, index };
-  }, [
-    stateRef,
-    groupBinding,
-    maybeValidateRow,
-    appendToList,
-    markNodesNotReady,
-    waitForItem,
-    getState,
-    openForEditing,
-  ]);
-
-  const deleteRow = useCallback(
-    async (row: BaseRow) => {
-      const { deletableRows } = getState();
-      const { startDeletingRow, endDeletingRow } = stateRef.current;
-      const deletableRow = deletableRows.find((r) => r.uuid === row.uuid && r.index === row.index);
-      if (!deletableRow) {
-        return false;
-      }
-
-      markNodesNotReady(); // Doing this early to prevent re-renders when this is removed from the data model
-      startDeletingRow(row);
-      const attachmentDeletionSuccessful = await onBeforeRowDeletion(row.index);
-      if (attachmentDeletionSuccessful && groupBinding) {
-        removeFromList({
-          reference: groupBinding,
-          startAtIndex: row.index,
-          callback: (item) => item[ALTINN_ROW_ID] === row.uuid,
-        });
-
-        endDeletingRow(row, true);
-        return true;
-      }
-
-      endDeletingRow(row, false);
-      return false;
-    },
-    [getState, stateRef, markNodesNotReady, onBeforeRowDeletion, groupBinding, removeFromList],
-  );
-
-  const isDeleting = useCallback((uuid: string) => stateRef.current.deletingIds.includes(uuid), [stateRef]);
-
-  return {
-    node,
-    addRow,
-    deleteRow,
-    isDeleting,
-    closeForEditing,
-    isEditing,
-    openForEditing,
-    openNextForEditing,
-    toggleEditing,
-    changePage,
-    changePageToRow,
-  };
-}
-
 function EffectCloseEditing() {
   const editingId = ZStore.useSelector((state) => state.editingId);
   const closeForEditing = ZStore.useSelector((state) => state.closeForEditing);
   const nodeState = useRepeatingGroupRowState();
   const editingAsHidden =
     editingId !== undefined ? nodeState.hiddenRows.find((row) => row.uuid === editingId) : undefined;
+
   useEffect(() => {
     if (editingAsHidden) {
       closeForEditing(editingAsHidden);
@@ -555,6 +321,7 @@ function EffectPagination() {
   const changePage = ZStore.useSelector((state) => state.changePage);
   const paginationState = useRepeatingGroupPagination();
   const { currentPage, totalPages, hasPagination } = paginationState;
+
   useEffect(() => {
     if (hasPagination && currentPage > totalPages - 1) {
       changePage(totalPages - 1);
@@ -564,69 +331,57 @@ function EffectPagination() {
   return null;
 }
 
-/**
- * This function filters out rows that are about to be deleted from the rows state
- */
-function filterByFreshRows(rows: RepGroupRows, freshRowsNum: number | undefined): RepGroupRows {
-  if (!freshRowsNum) {
-    return rows;
-  }
-  return rows.slice(0, freshRowsNum);
-}
-
-function ProvideTheRest({ node, children }: PropsWithChildren<Props>) {
-  const extended = useExtendedRepeatingGroupState(node);
-  return <ExtendedStore.Provider value={extended}>{children}</ExtendedStore.Provider>;
-}
-
 interface Props {
-  node: LayoutNode<'RepeatingGroup'>;
+  baseComponentId: string;
 }
 
-export function RepeatingGroupProvider({ node, children }: PropsWithChildren<Props>) {
-  const pagination = useNodeItem(node, (i) => i.pagination);
-  const editMode = useNodeItem(node, (i) => i.edit?.mode);
-  const getRows = useGetFreshRows(node);
+export function RepeatingGroupProvider({ baseComponentId, children }: PropsWithChildren<Props>) {
+  const component = useExternalItem(baseComponentId, 'RepeatingGroup');
+  const pagination = component.pagination;
+  const editMode = component.edit?.mode;
+  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(baseComponentId);
 
   return (
     <ZStore.Provider
+      baseComponentId={baseComponentId}
       getRows={getRows}
       pagination={pagination}
       editMode={editMode}
     >
-      <ProvideTheRest node={node}>
-        <EffectCloseEditing />
-        <EffectPagination />
-        <OpenByDefaultProvider node={node}>{children}</OpenByDefaultProvider>
-      </ProvideTheRest>
+      <EffectCloseEditing />
+      <EffectPagination />
+      <OpenByDefaultProvider baseComponentId={baseComponentId}>{children}</OpenByDefaultProvider>
     </ZStore.Provider>
   );
 }
 
-export const useRepeatingGroup = () => ExtendedStore.useCtx();
-export const useRepeatingGroupNode = () => ExtendedStore.useCtx().node;
+export const useRepeatingGroupComponentId = () => ZStore.useSelector((state) => state.baseComponentId);
 
-function useBinding(node: LayoutNode<'RepeatingGroup'>) {
-  return NodesInternal.useNodeData(node, (d) => d.layout.dataModelBindings.group);
-}
+function useMaybeValidateRow() {
+  const store = ZStore.useStore();
+  const baseComponentId = useRepeatingGroupComponentId();
+  const { validateOnSaveRow } = useExternalItem(baseComponentId, 'RepeatingGroup');
+  const onGroupCloseValidation = useOnGroupCloseValidation();
+  const getRows = RepGroupHooks.useGetFreshRowsWithButtons(baseComponentId);
 
-function useGetFreshRows(node: LayoutNode<'RepeatingGroup'>) {
-  const getFreshNumRows = FD.useGetFreshNumRows();
-  return NodesInternal.useGetNodeData(node, (d) =>
-    filterByFreshRows(d.item?.rows, getFreshNumRows(d.layout.dataModelBindings.group)),
-  );
+  return () => {
+    const { editingAll, editingId, editingNone } = store.getState();
+    const index = produceStateFromRows(getRows() ?? []).editableRows.find((row) => row.uuid === editingId)?.index;
+    if (!validateOnSaveRow || editingAll || editingNone || editingId === undefined || index === undefined) {
+      return Promise.resolve(false);
+    }
+    return onGroupCloseValidation(baseComponentId, index, validateOnSaveRow);
+  };
 }
 
 export const useRepeatingGroupRowState = () => {
-  const node = useRepeatingGroupNode();
-  const numRows = FD.useFreshNumRows(useBinding(node));
-  return useNodeItem(node, (i) => produceStateFromRows(filterByFreshRows(i.rows, numRows)));
+  const rows = RepGroupHooks.useAllRowsWithButtons(useRepeatingGroupComponentId());
+  return useMemo(() => produceStateFromRows(rows), [rows]);
 };
 
 export const useRepeatingGroupPagination = () => {
-  const node = useRepeatingGroupNode();
   const nodeState = useRepeatingGroupRowState();
-  const pagination = useNodeItem(node, (i) => i.pagination);
+  const { pagination } = useExternalItem(useRepeatingGroupComponentId(), 'RepeatingGroup');
   const currentPage = ZStore.useSelector((state) => state.currentPage);
   return producePaginationState(currentPage, pagination, nodeState.visibleRows);
 };
@@ -634,3 +389,197 @@ export const useRepeatingGroupPagination = () => {
 export function useRepeatingGroupSelector<T>(selector: (state: Store) => T): T {
   return ZStore.useMemoSelector(selector);
 }
+
+export const RepGroupContext = {
+  useIsEditingRow(uuid: string | undefined) {
+    return ZStore.useSelector((state) => {
+      if (state.editingAll) {
+        return true;
+      }
+      if (state.editingNone) {
+        return false;
+      }
+      if (uuid === undefined) {
+        return false;
+      }
+      return state.editingId === uuid;
+    });
+  },
+  useIsDeletingRow(uuid: string | undefined) {
+    return ZStore.useSelector((state) => (uuid ? state.deletingIds.includes(uuid) : false));
+  },
+  useToggleEditing() {
+    const store = ZStore.useStore();
+    const rawOpenForEditing = ZStore.useStaticSelector((state) => state.openForEditing);
+    const rawCloseForEditing = ZStore.useStaticSelector((state) => state.closeForEditing);
+    const maybeValidateRow = useMaybeValidateRow();
+
+    return async (row: BaseRow) => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      const editingId = store.getState().editingId;
+      if (editingId === row.uuid) {
+        rawCloseForEditing(row);
+      } else {
+        rawOpenForEditing(row);
+      }
+    };
+  },
+  useOpenForEditing() {
+    const rawOpenForEditing = ZStore.useStaticSelector((state) => state.openForEditing);
+    const maybeValidateRow = useMaybeValidateRow();
+
+    return async (row: BaseRow) => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      rawOpenForEditing(row);
+    };
+  },
+  useOpenNextForEditing() {
+    const rawOpenNextForEditing = ZStore.useStaticSelector((state) => state.openNextForEditing);
+    const maybeValidateRow = useMaybeValidateRow();
+
+    return async () => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      rawOpenNextForEditing();
+    };
+  },
+  useCloseForEditing() {
+    const rawCloseForEditing = ZStore.useStaticSelector((state) => state.closeForEditing);
+    const maybeValidateRow = useMaybeValidateRow();
+
+    return async (row: BaseRow) => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      rawCloseForEditing(row);
+    };
+  },
+  useChangePage() {
+    const rawChangePage = ZStore.useStaticSelector((state) => state.changePage);
+    const maybeValidateRow = useMaybeValidateRow();
+
+    return async (page: number) => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      rawChangePage(page);
+    };
+  },
+  useChangePageToRow() {
+    const store = ZStore.useStore();
+    const baseComponentId = useRepeatingGroupComponentId();
+    const rawChangePage = ZStore.useStaticSelector((state) => state.changePage);
+    const maybeValidateRow = useMaybeValidateRow();
+
+    const { pagination } = useExternalItem(baseComponentId, 'RepeatingGroup');
+    const getRows = RepGroupHooks.useGetFreshRowsWithButtons(baseComponentId);
+    const getState = () => produceStateFromRows(getRows() ?? []);
+    const getPaginationState = () =>
+      producePaginationState(store.getState().currentPage, pagination, getState().visibleRows);
+
+    return async (row: BaseRow) => {
+      if (await maybeValidateRow()) {
+        return;
+      }
+      const page = getPageForRow(row, getPaginationState(), getState().visibleRows);
+      if (page == null) {
+        return;
+      }
+      rawChangePage(page);
+    };
+  },
+  useAddRow() {
+    const baseComponentId = useRepeatingGroupComponentId();
+    const rawStartAddingRow = ZStore.useStaticSelector((state) => state.startAddingRow);
+    const rawEndAddingRow = ZStore.useStaticSelector((state) => state.endAddingRow);
+    const rawOpenForEditing = ZStore.useStaticSelector((state) => state.openForEditing);
+    const maybeValidateRow = useMaybeValidateRow();
+
+    const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
+    const autoSaving = usePageSettings().autoSaveBehavior !== 'onChangePage';
+    const waitUntilSaved = FD.useWaitForSave();
+    const appendToList = FD.useAppendToList();
+    const getRows = RepGroupHooks.useGetFreshRowsWithButtons(baseComponentId);
+    const getState = () => produceStateFromRows(getRows() ?? []);
+
+    return async (): Promise<AddRowResult> => {
+      if (!groupBinding) {
+        return { result: 'stoppedByBinding', uuid: undefined, index: undefined };
+      }
+      if (await maybeValidateRow()) {
+        return { result: 'stoppedByValidation', uuid: undefined, index: undefined };
+      }
+      const uuid = uuidv4();
+      appendToList({
+        reference: groupBinding,
+        newValue: { [ALTINN_ROW_ID]: uuid },
+      });
+
+      rawStartAddingRow(uuid);
+      if (autoSaving) {
+        await waitUntilSaved();
+      }
+
+      let attempts = 5;
+      let found: RepGroupRow | undefined;
+      while (found === undefined && attempts > 0) {
+        const { visibleRows, hiddenRows } = getState();
+        found = visibleRows.find((row) => row.uuid === uuid) || hiddenRows.find((row) => row.uuid === uuid);
+        if (found === undefined && attempts > 0) {
+          attempts--;
+          await new Promise((resolve) => setTimeout(resolve, 4));
+        }
+      }
+
+      rawEndAddingRow(uuid);
+
+      const index = found?.index ?? -1;
+      if (found && !found.hidden) {
+        rawOpenForEditing({ uuid, index });
+        return { result: 'addedAndOpened', uuid, index };
+      }
+
+      return { result: 'addedAndHidden', uuid, index };
+    };
+  },
+  useDeleteRow() {
+    const baseComponentId = useRepeatingGroupComponentId();
+    const rawStartDeletingRow = ZStore.useStaticSelector((state) => state.startDeletingRow);
+    const rawEndDeletingRow = ZStore.useStaticSelector((state) => state.endDeletingRow);
+
+    const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
+    const removeFromList = FD.useRemoveFromListCallback();
+    const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(baseComponentId);
+    const getRows = RepGroupHooks.useGetFreshRowsWithButtons(baseComponentId);
+    const getState = () => produceStateFromRows(getRows() ?? []);
+
+    return async (row: BaseRow) => {
+      const { deletableRows } = getState();
+      const deletableRow = deletableRows.find((r) => r.uuid === row.uuid && r.index === row.index);
+      if (!deletableRow) {
+        return false;
+      }
+
+      rawStartDeletingRow(row);
+      const attachmentDeletionSuccessful = await onBeforeRowDeletion(row.index);
+      if (attachmentDeletionSuccessful && groupBinding) {
+        removeFromList({
+          reference: groupBinding,
+          startAtIndex: row.index,
+          callback: (item) => item[ALTINN_ROW_ID] === row.uuid,
+        });
+
+        rawEndDeletingRow(row, true);
+        return true;
+      }
+
+      rawEndDeletingRow(row, false);
+      return false;
+    };
+  },
+};

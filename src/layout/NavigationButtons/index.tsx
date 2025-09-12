@@ -3,10 +3,7 @@ import type { JSX } from 'react';
 
 import { NavigationButtonsDef } from 'src/layout/NavigationButtons/config.def.generated';
 import { NavigationButtonsComponent } from 'src/layout/NavigationButtons/NavigationButtonsComponent';
-import { NavigationButtonsNext } from 'src/layout/NavigationButtons/NavigationButtonsNext';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompIntermediateExact } from 'src/layout/layout';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
 
 export class NavigationButtons extends NavigationButtonsDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'NavigationButtons'>>(
@@ -14,16 +11,4 @@ export class NavigationButtons extends NavigationButtonsDef {
       return <NavigationButtonsComponent {...props} />;
     },
   );
-
-  renderNext(
-    component: CompIntermediateExact<'NavigationButtons'>,
-    commonProps: CommonProps,
-  ): React.JSX.Element | null {
-    return (
-      <NavigationButtonsNext
-        component={component}
-        commonProps={commonProps}
-      />
-    );
-  }
 }

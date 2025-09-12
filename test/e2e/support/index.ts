@@ -10,12 +10,16 @@ import 'test/e2e/support/navigation';
 import 'test/e2e/support/formFiller';
 import '@percy/cypress';
 
+import { register as registerSnapshot } from '@cypress/snapshot';
 import failOnConsoleError from 'cypress-fail-on-console-error';
+import installLogsCollector from 'cypress-terminal-report/src/installLogsCollector';
 import type { ConsoleMessage } from 'cypress-fail-on-console-error';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { chaiExtensions } from 'test/e2e/support/chai-extensions';
 import { ignoredConsoleMessages } from 'test/e2e/support/fail-on-console-log';
+
+registerSnapshot();
 
 const appFrontend = new AppFrontend();
 
@@ -32,7 +36,6 @@ beforeEach(() => {
 afterEach(function () {
   if (this.currentTest?.state !== 'failed') {
     cy.waitUntilSaved();
-    cy.waitUntilNodesReady();
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (this.currentTest && (this.currentTest as any).__allowFailureOnEnd === undefined) {
@@ -56,3 +59,5 @@ Cypress.Commands.add('ignoreConsoleMessages', (consoleMessages: ConsoleMessage[]
     consoleMessages: config?.consoleMessages ? [...config.consoleMessages, ...consoleMessages] : consoleMessages,
   });
 });
+
+installLogsCollector();

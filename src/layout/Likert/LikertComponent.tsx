@@ -9,57 +9,51 @@ import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Description } from 'src/components/form/Description';
 import { getDescriptionId, getLabelId } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { LayoutStyle } from 'src/layout/common.generated';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { GenericComponentById } from 'src/layout/GenericComponent';
-import classes from 'src/layout/LikertItem/LikertItemComponent.module.css';
-import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import { typedBoolean } from 'src/utils/typing';
+import { GenericComponent } from 'src/layout/GenericComponent';
+import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
+import classes from 'src/layout/Likert/LikertComponent.module.css';
+import { useLikertRows } from 'src/layout/Likert/rowUtils';
+import { DataModelLocationProvider, useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { IGenericComponentProps } from 'src/layout/GenericComponent';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-type LikertComponentProps = PropsFromGenericComponent<'Likert'>;
-
-export const LikertComponent = ({ node }: LikertComponentProps) => {
-  const textResourceBindings = useNodeItem(node, (item) => item.textResourceBindings);
+export const LikertComponent = ({ baseComponentId }: PropsFromGenericComponent<'Likert'>) => {
+  const { id, dataModelBindings, textResourceBindings, columns } = useItemWhenType(baseComponentId, 'Likert');
+  const groupBinding = dataModelBindings.questions;
   const mobileView = useIsMobileOrTablet();
-  const rows = useNodeItem(node, (item) => item.rows);
-  const rowNodeIds = rows.map((row) => row?.itemNodeId).filter(typedBoolean);
-  const firstLikertNodeId = rowNodeIds[0];
-  const firstLikertNode = useNode(firstLikertNodeId) as LayoutNode<'LikertItem'> | undefined;
-  const { options: calculatedOptions, isFetching } = useNodeOptions(firstLikertNode);
-  const columns = useNodeItem(node, (item) => item.columns);
+  const rows = useLikertRows(baseComponentId);
+  const { options: calculatedOptions, isFetching } = useOptionsFor(makeLikertChildId(baseComponentId), 'single');
 
-  const id = node.id;
-
+  const indexedId = useIndexedId(baseComponentId);
   const title = textResourceBindings?.title;
   const description = textResourceBindings?.description;
 
   if (mobileView) {
     return (
       <ComponentStructureWrapper
-        node={node}
-        data-componentid={node.id}
-        data-componentbaseid={node.baseId}
+        baseComponentId={baseComponentId}
+        data-componentid={indexedId}
+        data-componentbaseid={baseComponentId}
       >
         {title && (
           <div
             className={classes.likertHeading}
-            id={getLabelId(node.id)}
+            id={getLabelId(indexedId)}
           >
             <Heading
               level={2}
-              size='sm'
+              data-size='sm'
             >
               <Lang id={title} />
             </Heading>
             {description && (
               <Description
                 description={<Lang id={description} />}
-                componentId={node.id}
+                componentId={indexedId}
               />
             )}
           </div>
@@ -67,15 +61,20 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
         <div
           role='group'
           className={classes.likertMobileGroup}
-          aria-labelledby={textResourceBindings?.title ? getLabelId(node.id) : undefined}
-          aria-describedby={textResourceBindings?.description ? getDescriptionId(node.id) : undefined}
+          aria-labelledby={textResourceBindings?.title ? getLabelId(indexedId) : undefined}
+          aria-describedby={textResourceBindings?.description ? getDescriptionId(indexedId) : undefined}
         >
-          {rowNodeIds.map((compId) => (
-            <GenericComponentById
-              key={compId}
-              id={compId}
-            />
-          ))}
+          {rows.map((row) =>
+            row ? (
+              <DataModelLocationProvider
+                key={row.index}
+                groupBinding={groupBinding}
+                rowIndex={row.index}
+              >
+                <GenericComponent baseComponentId={makeLikertChildId(baseComponentId)} />
+              </DataModelLocationProvider>
+            ) : null,
+          )}
         </div>
       </ComponentStructureWrapper>
     );
@@ -83,32 +82,33 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
 
   return (
     <ComponentStructureWrapper
-      node={node}
-      data-componentid={node.id}
-      data-componentbaseid={node.baseId}
+      baseComponentId={baseComponentId}
+      data-componentid={indexedId}
+      data-componentbaseid={baseComponentId}
     >
       {isFetching ? (
         <AltinnSpinner />
       ) : (
         <Table
           id={id}
+          border
           className={classes.likertTable}
           aria-describedby={textResourceBindings?.description ? getDescriptionId(id) : undefined}
         >
           {title && (
             <caption
-              id={getLabelId(node.id)}
+              id={getLabelId(indexedId)}
               className={classes.likertHeading}
             >
               <Heading
                 level={2}
-                size='sm'
+                data-size='sm'
               >
                 <Lang id={title} />
               </Heading>
               <Description
                 description={description && <Lang id={description} />}
-                componentId={node.id}
+                componentId={indexedId}
               />
             </caption>
           )}
@@ -144,19 +144,24 @@ export const LikertComponent = ({ node }: LikertComponentProps) => {
             </Table.Row>
           </Table.Head>
           <Table.Body>
-            {rowNodeIds.map((compId) => {
+            {rows.map((row) => {
               const override: IGenericComponentProps<'LikertItem'>['overrideItemProps'] = {
                 layout: LayoutStyle.Table,
               };
 
-              return (
-                <GenericComponentById
-                  key={compId}
-                  id={compId}
-                  overrideDisplay={{ directRender: true }}
-                  overrideItemProps={override}
-                />
-              );
+              return row ? (
+                <DataModelLocationProvider
+                  key={row.index}
+                  groupBinding={groupBinding}
+                  rowIndex={row.index}
+                >
+                  <GenericComponent
+                    baseComponentId={makeLikertChildId(baseComponentId)}
+                    overrideDisplay={{ directRender: true }}
+                    overrideItemProps={override}
+                  />
+                </DataModelLocationProvider>
+              ) : null;
             })}
           </Table.Body>
         </Table>

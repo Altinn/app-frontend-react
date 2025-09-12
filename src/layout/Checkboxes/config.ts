@@ -1,22 +1,7 @@
 import { CG } from 'src/codegen/CG';
-import { AlertOnChangePlugin } from 'src/features/alertOnChange/AlertOnChangePlugin';
+import { ExprVal } from 'src/features/expressions/types';
 import { OptionsPlugin } from 'src/features/options/OptionsPlugin';
 import { CompCategory } from 'src/layout/common';
-
-export const CHECKBOX_SUMMARY_OVERRIDE_PROPS = new CG.obj(
-  new CG.prop(
-    'displayType',
-    new CG.enum('list', 'string')
-      .optional()
-      .setTitle('Display type')
-      .setDescription('How data should be displayed for the radio in the summary'),
-  ),
-)
-  .extends(CG.common('ISummaryOverridesCommon'))
-  .optional()
-  .setTitle('Summary properties')
-  .setDescription('Properties for how to display the summary of the component')
-  .exportAs('CheckboxSummaryOverrideProps');
 
 export const Config = new CG.component({
   category: CompCategory.Form,
@@ -30,11 +15,35 @@ export const Config = new CG.component({
     renderInTabs: true,
   },
   functionality: {
-    customExpressions: false,
+    customExpressions: true,
   },
 })
   .addPlugin(new OptionsPlugin({ supportsPreselection: true, type: 'multi' }))
-  .addDataModelBinding(CG.common('IDataModelBindingsOptionsSimple'))
+  .addDataModelBinding(
+    new CG.obj(
+      new CG.prop(
+        'group',
+        new CG.dataModelBinding()
+          .setTitle('group')
+          .setDescription(
+            'Dot notation location for a repeating structure (array of objects), where you want to save the content of checked checkboxes',
+          )
+          .optional(),
+      ),
+      new CG.prop(
+        'checked',
+        new CG.dataModelBinding()
+          .setTitle('checked')
+          .setDescription(
+            'If deletionStrategy=soft and group is set, this value points to where you want to save deleted status.',
+          )
+          .optional(),
+      ),
+    )
+      .exportAs('IDataModelBindingsForGroupCheckbox')
+      .extends(CG.common('IDataModelBindingsOptionsSimple')),
+  )
+  .addProperty(new CG.prop('deletionStrategy', new CG.enum('soft', 'hard').optional()))
   .addProperty(new CG.prop('layout', CG.common('LayoutStyle').optional()))
   .addProperty(
     new CG.prop(
@@ -45,12 +54,25 @@ export const Config = new CG.component({
         .setDescription('Boolean value indicating if the label should be visible when only one option exists in table'),
     ),
   )
-  .addPlugin(
-    new AlertOnChangePlugin({
-      propName: 'alertOnChange',
-      title: 'Alert on change',
-      description: 'Boolean value indicating if the component should alert on change',
-    }),
+  .addProperty(
+    new CG.prop(
+      'alertOnChange',
+      new CG.expr(ExprVal.Boolean)
+        .optional({ default: false })
+        .setTitle('Alert on change')
+        .setDescription('Boolean value indicating if the component should alert on change'),
+    ),
   )
+  .addSummaryOverrides((obj) => {
+    obj.addProperty(
+      new CG.prop(
+        'displayType',
+        new CG.enum('list', 'string')
+          .optional()
+          .setTitle('Display type')
+          .setDescription('How data should be displayed for this checkboxes component in the summary'),
+      ),
+    );
+  })
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'));

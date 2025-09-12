@@ -11,17 +11,13 @@ import {
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useGetAltinnTaskType } from 'src/features/instance/ProcessContext';
-import { useIsReceiptPage } from 'src/features/routing/AppRoutingContext';
+import { useGetAltinnTaskType } from 'src/features/instance/useProcessQuery';
 import { ValidationMask } from 'src/features/validation';
+import { useIsReceiptPage } from 'src/hooks/navigation';
 import { useVisitedPages } from 'src/hooks/useNavigatePage';
-import { Hidden, NodesInternal } from 'src/utils/layout/NodesContext';
-import type {
-  NavigationPageGroup,
-  NavigationPageGroupSingle,
-  NavigationReceipt,
-  NavigationTask,
-} from 'src/layout/common.generated';
+import { useHiddenPages } from 'src/utils/layout/hidden';
+import { NodesInternal } from 'src/utils/layout/NodesContext';
+import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
@@ -32,12 +28,8 @@ export function useHasGroupedNavigation() {
 
 export const SIDEBAR_BREAKPOINT = 1341;
 
-export function isSingleGroup(group: NavigationPageGroup): group is NavigationPageGroupSingle {
-  return group.order.length === 1;
-}
-
 export function useVisiblePages(order: string[]) {
-  const hiddenPages = Hidden.useHiddenPages();
+  const hiddenPages = useHiddenPages();
   return useMemo(() => order.filter((page) => !hiddenPages.has(page)), [order, hiddenPages]);
 }
 
@@ -100,7 +92,7 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
 
   const allNodeIds = NodesInternal.useLaxMemoSelector((state) => {
     const allNodeIds = Object.fromEntries<string[]>(order.map((page) => [page, []]));
-    Object.values(state.nodeData).forEach((node) => allNodeIds[node.pageKey]?.push(node.layout.id));
+    Object.values(state.nodeData).forEach((node) => allNodeIds[node.pageKey]?.push(node.id));
     return allNodeIds;
   });
 

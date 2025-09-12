@@ -1,35 +1,33 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
 import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { useGetOptionsQuery, useGetOptionsUrl } from 'src/features/options/useGetOptionsQuery';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { useSourceOptions } from 'src/features/options/useSourceOptions';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import { verifyAndDeduplicateOptions } from 'src/utils/options';
-import type { ExprValueArgs, LayoutReference } from 'src/features/expressions/types';
+import type { ExprValueArgs } from 'src/features/expressions/types';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
 import type { IDataModelBindingsOptionsSimple } from 'src/layout/common.generated';
 import type { CompIntermediateExact, CompWithBehavior } from 'src/layout/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 export type OptionsValueType = 'single' | 'multi';
 
 interface FetchOptionsProps {
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
 interface FilteredAndSortedOptionsProps {
   unsorted: IOptionInternal[];
   valueType: OptionsValueType;
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>;
   item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>;
 }
 
@@ -109,27 +107,56 @@ export function useSetOptions(
   };
 }
 
-function useOptionsUrl(node: LayoutNode, item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
+function useOptionsUrl(item: CompIntermediateExact<CompWithBehavior<'canHaveOptions'>>) {
   const { optionsId, secure, mapping, queryParameters } = item;
-  return useGetOptionsUrl(node, optionsId, mapping, queryParameters, secure);
+  return useGetOptionsUrl(optionsId, mapping, queryParameters, secure);
 }
 
-export function useFetchOptions({ node, item }: FetchOptionsProps) {
+export function useFetchOptions({ item }: FetchOptionsProps) {
   const { options, optionsId, source } = item;
-  const url = useOptionsUrl(node, item);
 
-  const sourceOptions = useSourceOptions({ source, node });
-  const staticOptions = useMemo(() => (optionsId ? undefined : castOptionsToStrings(options)), [options, optionsId]);
-  const { data, isFetching, error } = useGetOptionsQuery(url);
-  useLogFetchError(error, item);
+  // Configuration cannot change during runtime, so breaking the rule of hooks here is acceptable. We do this to
+  // avoid gathering lots of data for option sources we don't plan on using. It's always one of these
+  // three (source, optionsId or static options).
 
-  const downstreamParameters: string | undefined = data?.headers['altinn-downstreamparameters'];
+  if (source) {
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const unsorted = useSourceOptions(source);
+    return { unsorted, isFetching: false, downstreamParameters: undefined };
+  }
 
-  return {
-    unsorted: sourceOptions ?? data?.data ?? staticOptions ?? defaultOptions,
-    isFetching,
-    downstreamParameters,
-  };
+  if (optionsId) {
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const url = useOptionsUrl(item);
+    if (!url) {
+      throw new Error(`Failed to fetch options for node ${item.id}: Unable to construct URL`);
+    }
+
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { error, isFetching, data } = useGetOptionsQuery(url);
+
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLogFetchError(error, item);
+
+    return {
+      isFetching,
+      unsorted: data?.data ?? defaultOptions,
+      downstreamParameters: data?.headers['altinn-downstreamparameters'],
+    };
+  }
+
+  if (options) {
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const unsorted = useMemo(() => castOptionsToStrings(options), [options]);
+    return { unsorted, isFetching: false, downstreamParameters: undefined };
+  }
+
+  return { unsorted: defaultOptions, isFetching: false, downstreamParameters: undefined };
 }
 
 // Log error if fetching options failed
@@ -149,15 +176,16 @@ function useLogFetchError(error: Error | null, item: CompIntermediateExact<CompW
   }, [error, item]);
 }
 
-export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }: FilteredAndSortedOptionsProps) {
-  const sortOrder = item.sortOrder;
+export function useFilteredAndSortedOptions({ unsorted, valueType, item }: FilteredAndSortedOptionsProps) {
+  const { id, sortOrder, optionFilter, dataModelBindings } = item;
   const preselected = 'preselectedOptionIndex' in item ? item.preselectedOptionIndex : undefined;
-  const language = useLanguage();
-  const langAsString = language.langAsString;
+  const langAsString = useLanguage().langAsString;
   const selectedLanguage = useCurrentLanguage();
-  const optionFilter = item.optionFilter;
-  const dataModelBindings = item.dataModelBindings as IDataModelBindingsOptionsSimple | undefined;
-  const selectedValues = useSetOptions(valueType, dataModelBindings, unsorted).selectedValues;
+  const selectedValues = useSetOptions(
+    valueType,
+    dataModelBindings as IDataModelBindingsOptionsSimple | undefined,
+    unsorted,
+  ).selectedValues;
   const dataSources = useExpressionDataSources(optionFilter);
 
   return useMemo(() => {
@@ -175,16 +203,14 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
           data: option,
           defaultKey: 'value',
         };
-        const reference: LayoutReference = { type: 'node', id: node.id };
         const keep = evalExpr(
           optionFilter,
-          reference,
           { ...dataSources, currentDataModelPath: dataModelLocation ?? dataSources.currentDataModelPath },
-          { valueArguments },
+          { returnType: ExprVal.Boolean, defaultValue: true, valueArguments },
         );
         if (!keep && selectedValues.includes(option.value)) {
           window.logWarnOnce(
-            `Node '${node.id}': Option with value "${option.value}" was selected, but the option filter ` +
+            `Node '${id}': Option with value "${option.value}" was selected, but the option filter ` +
               `excludes it. This will cause the option to be deselected. If this was unintentional, add a check ` +
               `for the currently selected option in your optionFilter expression.`,
           );
@@ -216,12 +242,12 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
 
     return { options, preselectedOption };
   }, [
+    id,
     unsorted,
     valueType,
     optionFilter,
     preselected,
     sortOrder,
-    node,
     dataSources,
     selectedValues,
     langAsString,
@@ -230,22 +256,19 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, node, item }:
 }
 
 export function useGetOptions(
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
+  baseComponentId: string,
   valueType: OptionsValueType,
 ): GetOptionsResult & SetOptionsResult {
-  const dataModelBindings = useNodeItem(node, (i) => i.dataModelBindings) as
-    | IDataModelBindingsOptionsSimple
-    | undefined;
-
-  return useGetOptionsUsingDmb(node, valueType, dataModelBindings);
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId) as IDataModelBindingsOptionsSimple | undefined;
+  return useGetOptionsUsingDmb(baseComponentId, valueType, dataModelBindings);
 }
 
 export function useGetOptionsUsingDmb(
-  node: LayoutNode<CompWithBehavior<'canHaveOptions'>>,
+  baseComponentId: string,
   valueType: OptionsValueType,
   dataModelBindings: IDataModelBindingsOptionsSimple | undefined,
 ): GetOptionsResult & SetOptionsResult {
-  const get = useNodeOptions(node);
+  const get = useOptionsFor(baseComponentId, valueType);
   const set = useSetOptions(valueType, dataModelBindings, get.options);
 
   return useMemo(() => ({ ...get, ...set }), [get, set]);

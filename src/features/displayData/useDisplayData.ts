@@ -1,30 +1,29 @@
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { useMakeIndexedId } from 'src/features/form/layout/utils/makeIndexedId';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import { getComponentDef, implementsDisplayData } from 'src/layout';
-import type { IDataModelReference } from 'src/layout/common.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useExternalItem } from 'src/utils/layout/hooks';
 
-export function useDisplayData(node: LayoutNode): string {
-  const def = node.def;
+export function useDisplayData(baseComponentId: string): string {
+  const component = useExternalItem(baseComponentId);
+  if (!component) {
+    return '';
+  }
+  const def = getComponentDef(component.type);
   if (!implementsDisplayData(def)) {
     return '';
   }
 
-  return def.useDisplayData(node.id);
+  // eslint-disable-next-line react-compiler/react-compiler
+  return def.useDisplayData(baseComponentId);
 }
 
 /**
  * Use displayData for multiple node ids at once. Make sure you always call this with the same nodeIds, otherwise
  * you'll break the rules of hooks.
  */
-export function useDisplayDataFor(
-  componentIds: string[],
-  dataModelLocation?: IDataModelReference,
-): { [componentId: string]: string | undefined } {
+export function useDisplayDataFor(componentIds: string[]): { [componentId: string]: string | undefined } {
   const layoutLookups = useLayoutLookups();
   const output: { [componentId: string]: string | undefined } = {};
-  const makeIndexedId = useMakeIndexedId(true, dataModelLocation);
 
   for (const id of componentIds) {
     const type = layoutLookups.allComponents[id]?.type;
@@ -35,8 +34,8 @@ export function useDisplayDataFor(
     if (!implementsDisplayData(def)) {
       continue;
     }
-    const indexedId = makeIndexedId(id);
-    output[id] = def.useDisplayData(indexedId);
+    // eslint-disable-next-line react-compiler/react-compiler
+    output[id] = def.useDisplayData(id);
   }
 
   return useShallowMemo(output);

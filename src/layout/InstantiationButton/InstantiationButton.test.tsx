@@ -7,6 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { FormProvider } from 'src/features/form/FormContext';
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -32,6 +33,7 @@ const render = async () => {
       <MemoryRouter
         basename='/ttd/test'
         initialEntries={['/ttd/test']}
+        future={{ v7_relativeSplatPath: true, v7_startTransition: true }}
       >
         <Routes>
           <Route
@@ -45,7 +47,11 @@ const render = async () => {
         </Routes>
       </MemoryRouter>
     ),
-    renderer: (props) => <InstantiationButtonComponent {...props} />,
+    renderer: (props) => (
+      <FormProvider>
+        <InstantiationButtonComponent {...props} />
+      </FormProvider>
+    ),
   });
 };
 
@@ -56,12 +62,12 @@ describe('InstantiationButton', () => {
     expect(screen.getByText('Instantiate')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.queryByText('Laster innhold')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText('Laster innhold')).not.toBeInTheDocument();
     });
 
     await userEvent.click(screen.getByRole('button'));
 
-    expect(screen.getByText('Laster innhold')).toBeInTheDocument();
+    expect(screen.getByLabelText('Laster innhold')).toBeInTheDocument();
 
     expect(mutations.doInstantiateWithPrefill.mock).toHaveBeenCalledTimes(1);
 

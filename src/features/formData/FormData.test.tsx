@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { afterAll, beforeAll, expect, jest } from '@jest/globals';
@@ -22,7 +22,6 @@ import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataRea
 import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { AppRoutingProvider, useNavigate } from 'src/features/routing/AppRoutingContext';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import {
   makeFormDataMethodProxies,
@@ -118,19 +117,19 @@ async function statelessRender(props: RenderProps) {
       ...props,
       initialRenderRef,
       router: ({ children }: PropsWithChildren) => (
-        <MemoryRouter>
+        <MemoryRouter future={{ v7_relativeSplatPath: true, v7_startTransition: true }}>
           <Routes>
             <Route
               path='/'
-              element={<AppRoutingProvider>{children}</AppRoutingProvider>}
+              element={children}
             />
             <Route
               path='/different'
               element={
-                <AppRoutingProvider>
+                <>
                   <div>something different</div>
                   <NavigateBackButton />
-                </AppRoutingProvider>
+                </>
               }
             />
           </Routes>
@@ -186,6 +185,7 @@ async function statefulRender(props: RenderProps) {
 describe('FormData', () => {
   describe('Rendering and re-rendering', () => {
     function RenderCountingReader({ path, countKey, renderCounts }: Props) {
+      // eslint-disable-next-line react-compiler/react-compiler
       renderCounts[countKey]++;
       const {
         formData: { simpleBinding: value },
@@ -197,6 +197,7 @@ describe('FormData', () => {
     }
 
     function RenderCountingWriter({ path, countKey, renderCounts }: Props) {
+      // eslint-disable-next-line react-compiler/react-compiler
       renderCounts[countKey]++;
       const {
         formData: { simpleBinding: value },

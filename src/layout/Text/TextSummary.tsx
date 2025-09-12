@@ -5,40 +5,36 @@ import { Lang } from 'src/features/language/Lang';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useSummaryOverrides, useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-type TextComponentSummaryProps = {
-  componentNode: LayoutNode<'Text'>;
-  isCompact?: boolean;
-  emptyFieldText?: string;
-};
-
-export const TextSummary = ({ componentNode, isCompact, emptyFieldText }: TextComponentSummaryProps) => {
-  const displayData = useDisplayData(componentNode);
-  const validations = useUnifiedValidationsForNode(componentNode);
+export const TextSummary = ({ targetBaseComponentId }: Summary2Props) => {
+  const emptyFieldText = useSummaryOverrides(targetBaseComponentId)?.emptyFieldText;
+  const isCompact = useSummaryProp('isCompact');
+  const displayData = useDisplayData(targetBaseComponentId);
+  const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const title = useNodeItem(componentNode, (i) => i.textResourceBindings?.title);
-  const direction = useNodeItem(componentNode, (i) => i.direction);
+  const { textResourceBindings, direction } = useItemWhenType(targetBaseComponentId, 'Text');
+  const title = textResourceBindings?.title;
 
   const compact = (direction === 'horizontal' && isCompact == undefined) || isCompact;
 
   return (
-    <SingleValueSummary
-      title={
-        title && (
-          <Lang
-            id={title}
-            node={componentNode}
-          />
-        )
-      }
-      displayData={displayData}
-      errors={errors}
-      componentNode={componentNode}
-      hideEditButton
-      isCompact={compact}
-      emptyFieldText={emptyFieldText}
-    />
+    <SummaryFlex
+      targetBaseId={targetBaseComponentId}
+      content={displayData ? SummaryContains.SomeUserContent : SummaryContains.EmptyValueNotRequired}
+    >
+      <SingleValueSummary
+        title={title && <Lang id={title} />}
+        displayData={displayData}
+        errors={errors}
+        targetBaseComponentId={targetBaseComponentId}
+        hideEditButton
+        isCompact={compact}
+        emptyFieldText={emptyFieldText}
+      />
+    </SummaryFlex>
   );
 };

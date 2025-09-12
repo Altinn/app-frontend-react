@@ -13,6 +13,7 @@ const likertPage = new Likert();
 describe('PDF', () => {
   it('should generate PDF for message step', () => {
     cy.goto('message');
+    cy.get('#finishedLoading').should('exist');
 
     cy.testPdf({
       snapshotName: 'message',
@@ -33,6 +34,7 @@ describe('PDF', () => {
     const cookieOptions: Partial<Cypress.SetCookieOptions> = { domain, sameSite: 'lax' };
 
     cy.goto('message');
+    cy.get('#finishedLoading').should('exist');
 
     cy.testPdf({
       beforeReload: () => {
@@ -266,6 +268,16 @@ describe('PDF', () => {
   });
 
   it('should generate PDF for datalist step', () => {
+    // Removing Summary2 page. That page references previous tasks and data models in previous tasks that won't even
+    // be created when we skip over those previous tasks by calling gotoAndComplete(). Not removing that page would
+    // simply crash the whole PDF generation.
+    cy.intercept('GET', '**/layoutsettings/**', (req) =>
+      req.on('response', (res) => {
+        const body: { pages: { order: string[] } } = JSON.parse(res.body);
+        body.pages.order = body.pages.order.filter((page) => page !== 'summary2');
+        res.send(body);
+      }),
+    );
     cy.gotoAndComplete('datalist');
 
     cy.testPdf({

@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
-import type { MouseEventHandler } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Heading, Paragraph, Table } from '@digdir/designsystemet-react';
 import { PencilIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Pagination } from 'src/app-components/Pagination/Pagination';
+import { ErrorListFromInstantiation, ErrorReport } from 'src/components/message/ErrorReport';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useInstantiation } from 'src/features/instantiate/InstantiationContext';
 import {
   ActiveInstancesProvider,
   useActiveInstances,
 } from 'src/features/instantiate/selection/ActiveInstancesProvider';
 import classes from 'src/features/instantiate/selection/InstanceSelection.module.css';
+import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useCurrentParty } from 'src/features/party/PartiesProvider';
-import { useSetNavigationEffect } from 'src/features/routing/AppRoutingContext';
+import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
+import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
@@ -61,13 +61,14 @@ function InstanceSelection() {
   const applicationMetadata = useApplicationMetadata();
   const instanceSelectionOptions = applicationMetadata?.onEntry.instanceSelection;
   const selectedIndex = instanceSelectionOptions?.defaultSelectedOption;
-  const { langAsString, language } = useLanguage();
+  const { langAsString } = useLanguage();
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
-  const instantiate = useInstantiation().instantiate;
-  const currentParty = useCurrentParty();
-  const storeCallback = useSetNavigationEffect();
+  const instantiation = useInstantiation();
+  const selectedParty = useSelectedParty();
+  const setNavigationEffect = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
+  const navigate = useNavigate();
 
   const appName = useAppName();
   const appOwner = useAppOwner();
@@ -76,17 +77,15 @@ function InstanceSelection() {
     selectedIndex !== undefined && rowsPerPageOptions.length - 1 >= selectedIndex && selectedIndex >= 0;
 
   const defaultSelectedOption = doesIndexExist(selectedIndex) ? selectedIndex : 0;
-  const [currentPage, setCurrentPage] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[defaultSelectedOption]);
 
   const instances = instanceSelectionOptions?.sortDirection === 'desc' ? [..._instances].reverse() : _instances;
-  const paginatedInstances = instances.slice(currentPage * rowsPerPage, (currentPage + 1) * rowsPerPage);
-
-  const textStrings = language?.['list_component'];
+  const paginatedInstances = instances.slice((currentPage - 1) * rowsPerPage, currentPage * rowsPerPage);
 
   function handleRowsPerPageChanged(newRowsPerPage: number) {
     setRowsPerPage(newRowsPerPage);
-    if (instances.length < currentPage * newRowsPerPage) {
+    if (instances.length < (currentPage - 1) * newRowsPerPage) {
       setCurrentPage(Math.floor(instances.length / newRowsPerPage));
     }
   }
@@ -94,7 +93,7 @@ function InstanceSelection() {
   const renderMobileTable = () => (
     <>
       <Heading
-        size='xsmall'
+        data-size='xs'
         level={3}
         className={classes.leftOffHeading}
       >
@@ -105,62 +104,57 @@ function InstanceSelection() {
         className={classes.table}
       >
         <Table.Body>
-          {paginatedInstances.map((instance) => {
-            const handleOpenInstance: MouseEventHandler<HTMLButtonElement> = (ev) => {
-              storeCallback(focusMainContent);
-              openInstance(instance.id, ev);
-            };
-            return (
-              <Table.Row key={instance.id}>
-                <Table.Cell className={classes.mobileTableCell}>
-                  <div>
-                    <b>{langAsString('instance_selection.last_changed')}:</b>
-                    <br />
-                    <span>{getDateDisplayString(instance.lastChanged)}</span>
-                  </div>
-                  <div>
-                    <b>{langAsString('instance_selection.changed_by')}:</b>
-                    <br />
-                    <span>{instance.lastChangedBy}</span>
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <div className={classes.tableButtonWrapper}>
-                    <Button
-                      variant='tertiary'
-                      color='second'
-                      icon={true}
-                      onClick={handleOpenInstance}
-                      onMouseDown={handleOpenInstance}
-                      aria-label={`${langAsString('instance_selection.continue')}`}
-                    >
-                      <PencilIcon fontSize='1rem' />
-                    </Button>
-                  </div>
-                </Table.Cell>
-              </Table.Row>
-            );
-          })}
+          {paginatedInstances.map((instance) => (
+            <Table.Row key={instance.id}>
+              <Table.Cell className={classes.mobileTableCell}>
+                <div>
+                  <b>{langAsString('instance_selection.last_changed')}:</b>
+                  <br />
+                  <span>{getDateDisplayString(instance.lastChanged)}</span>
+                </div>
+                <div>
+                  <b>{langAsString('instance_selection.changed_by')}:</b>
+                  <br />
+                  <span>{instance.lastChangedBy}</span>
+                </div>
+              </Table.Cell>
+              <Table.Cell>
+                <div className={classes.tableButtonWrapper}>
+                  <Button
+                    variant='tertiary'
+                    color='second'
+                    icon={true}
+                    onClick={(ev) => openInstance(instance.id, ev, navigate, setNavigationEffect)}
+                    onMouseDown={(ev) => openInstance(instance.id, ev, navigate, setNavigationEffect)}
+                    aria-label={`${langAsString('instance_selection.continue')}`}
+                  >
+                    <PencilIcon fontSize='1rem' />
+                  </Button>
+                </div>
+              </Table.Cell>
+            </Table.Row>
+          ))}
         </Table.Body>
         {instances.length > rowsPerPageOptions[0] && (
           <tfoot>
-            <Table.Row className={classes.tableFooter}>
+            <Table.Row>
               <Table.Cell colSpan={2}>
                 <div className={classes.paginationWrapperMobile}>
                   <Pagination
-                    nextLabel={textStrings['nextPage']}
-                    nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
-                    previousLabel={textStrings['previousPage']}
-                    previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
-                    rowsPerPageText={textStrings['rowsPerPage']}
+                    id='instance-selection'
+                    nextLabel={langAsString('list_component.nextPage')}
+                    nextLabelAriaLabel={langAsString('list_component.nextPageAriaLabel')}
+                    previousLabel={langAsString('list_component.previousPage')}
+                    previousLabelAriaLabel={langAsString('list_component.previousPageAriaLabel')}
+                    rowsPerPageText={langAsString('list_component.rowsPerPage')}
                     size='sm'
-                    currentPage={currentPage}
                     numberOfRows={instances.length}
-                    pageSize={rowsPerPage}
                     showRowsPerPageDropdown={true}
                     rowsPerPageOptions={rowsPerPageOptions}
-                    onPageSizeChange={(value) => handleRowsPerPageChanged(+value)}
-                    onChange={setCurrentPage}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                    pageSize={rowsPerPage}
+                    onPageSizeChange={(value) => handleRowsPerPageChanged(value)}
                   />
                 </div>
               </Table.Cell>
@@ -198,10 +192,7 @@ function InstanceSelection() {
                   <Button
                     variant='tertiary'
                     color='second'
-                    onClick={(ev) => {
-                      storeCallback(focusMainContent);
-                      openInstance(instance.id, ev);
-                    }}
+                    onClick={(ev) => openInstance(instance.id, ev, navigate, setNavigationEffect)}
                   >
                     <Lang id='instance_selection.continue' />
                     <PencilIcon
@@ -216,15 +207,16 @@ function InstanceSelection() {
         </Table.Body>
         {instances.length > rowsPerPageOptions[0] && (
           <tfoot>
-            <Table.Row className={classes.tableFooter}>
+            <Table.Row>
               <Table.Cell colSpan={3}>
                 <div className={classes.paginationWrapper}>
                   <Pagination
-                    nextLabel={textStrings['nextPage']}
-                    nextLabelAriaLabel={textStrings['nextPageAriaLabel']}
-                    previousLabel={textStrings['previousPage']}
-                    previousLabelAriaLabel={textStrings['previousPageAriaLabel']}
-                    rowsPerPageText={textStrings['rowsPerPage']}
+                    id='instance-selection'
+                    nextLabel={langAsString('list_component.nextPage')}
+                    nextLabelAriaLabel={langAsString('list_component.nextPageAriaLabel')}
+                    previousLabel={langAsString('list_component.previousPage')}
+                    previousLabelAriaLabel={langAsString('list_component.previousPageAriaLabel')}
+                    rowsPerPageText={langAsString('list_component.rowsPerPage')}
                     size='sm'
                     hideLabels={false}
                     currentPage={currentPage}
@@ -233,7 +225,7 @@ function InstanceSelection() {
                     pageSize={rowsPerPage}
                     rowsPerPageOptions={rowsPerPageOptions}
                     onPageSizeChange={(value) => handleRowsPerPageChanged(+value)}
-                    onChange={setCurrentPage}
+                    setCurrentPage={setCurrentPage}
                   />
                 </div>
               </Table.Cell>
@@ -246,15 +238,12 @@ function InstanceSelection() {
 
   return (
     <TaskStoreProvider>
-      <Helmet>
-        <title>{`${getPageTitle(appName, langAsString('instance_selection.left_of'), appOwner)}`}</title>
-      </Helmet>
-
+      <title>{`${getPageTitle(appName, langAsString('instance_selection.left_of'), appOwner)}`}</title>
       <div id='instance-selection-container'>
         <div>
           <Heading
             level={2}
-            size='medium'
+            data-size='md'
             id='instance-selection-header'
           >
             <Lang id='instance_selection.header' />
@@ -269,22 +258,34 @@ function InstanceSelection() {
         {mobileView && renderMobileTable()}
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
-          <Button
-            disabled={isAnyProcessing}
-            isLoading={isLoading}
-            size='md'
-            onClick={() =>
-              performProcess(async () => {
-                if (currentParty) {
-                  storeCallback(focusMainContent);
-                  await instantiate(currentParty.partyId);
-                }
-              })
-            }
-            id='new-instance-button'
+          <ErrorReport
+            show={instantiation.error !== undefined}
+            errors={instantiation.error ? <ErrorListFromInstantiation error={instantiation.error} /> : undefined}
           >
-            <Lang id='instance_selection.new_instance' />
-          </Button>
+            <Button
+              disabled={isAnyProcessing}
+              isLoading={isLoading}
+              size='md'
+              onClick={() =>
+                performProcess(async () => {
+                  if (selectedParty) {
+                    await instantiation.instantiate(selectedParty.partyId, {
+                      force: true,
+                      onSuccess: (data) =>
+                        setNavigationEffect({
+                          targetLocation: `/instance/${data.id}`,
+                          matchStart: true,
+                          callback: focusMainContent,
+                        }),
+                    });
+                  }
+                })
+              }
+              id='new-instance-button'
+            >
+              <Lang id='instance_selection.new_instance' />
+            </Button>
+          </ErrorReport>
         </div>
       </div>
       <ReadyForPrint type='load' />
@@ -316,7 +317,12 @@ const openInTab = (url: string, originalEvent: React.MouseEvent<HTMLButtonElemen
  * Opens the instance in a new tab if the user holds down ctrl or meta (cmd) while clicking, otherwise
  * behaves like a normal link.
  */
-const openInstance = (instanceId: string, originalEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+const openInstance = (
+  instanceId: string,
+  originalEvent: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  navigate: ReturnType<typeof useNavigate>,
+  setNavigationEffect: ReturnType<typeof useSetNavigationEffect>,
+) => {
   if (originalEvent.ctrlKey || originalEvent.metaKey || originalEvent.button === 1) {
     originalEvent.stopPropagation();
     originalEvent.preventDefault();
@@ -328,5 +334,10 @@ const openInstance = (instanceId: string, originalEvent: React.MouseEvent<HTMLBu
     return;
   }
 
-  window.location.href = getInstanceUiUrl(instanceId);
+  setNavigationEffect({
+    targetLocation: `/instance/${instanceId}`,
+    matchStart: true,
+    callback: focusMainContent,
+  });
+  navigate(`/instance/${instanceId}`);
 };

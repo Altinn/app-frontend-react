@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { TZDate } from '@date-fns/tz';
 import { formatDate, formatISO } from 'date-fns';
 
 import type { PropsFromGenericComponent } from '..';
@@ -9,12 +8,13 @@ import { PrettyDateAndTime } from 'src/app-components/Datepicker/utils/dateHelpe
 import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { AltinnSummaryTable } from 'src/components/table/AltinnSummaryTable';
 import { useAppReceiver } from 'src/core/texts/appTexts';
-import { useLaxInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import { toTimeZonedDate } from 'src/utils/dateUtils';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { useLabel } from 'src/utils/layout/useLabel';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompInternal } from 'src/layout/layout';
@@ -65,16 +65,14 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
 
   const langTools = useLanguage();
 
-  const lastChanged = useLaxInstanceData((data) => data.lastChanged);
+  const lastChanged = useInstanceDataQuery({ select: (data) => data.lastChanged }).data;
   const instanceId = useLaxInstanceId();
   const appReceiver = useAppReceiver();
 
   const instanceOwnerParty = useInstanceOwnerParty();
 
   const instanceDateSent =
-    lastChanged &&
-    dateSent !== false &&
-    formatDate(new TZDate(new Date(formatISO(lastChanged)), 'Europe/Oslo'), PrettyDateAndTime);
+    lastChanged && dateSent !== false && formatDate(toTimeZonedDate(formatISO(lastChanged)), PrettyDateAndTime);
 
   const instanceSender =
     sender !== false &&
@@ -101,13 +99,14 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
 }
 
 export function InstanceInformationComponent({
-  node,
+  baseComponentId,
   overrideDisplay,
 }: PropsFromGenericComponent<'InstanceInformation'>) {
-  const elements = useNodeItem(node, (i) => i.elements);
-
-  const { grid } = useNodeItem(node);
-  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({ node, overrideDisplay });
+  const { grid, elements } = useExternalItem(baseComponentId, 'InstanceInformation');
+  const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
+    baseComponentId,
+    overrideDisplay,
+  });
 
   return (
     <Fieldset
@@ -116,7 +115,7 @@ export function InstanceInformationComponent({
       description={getDescriptionComponent()}
       help={getHelpTextComponent()}
     >
-      <ComponentStructureWrapper node={node}>
+      <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <InstanceInformation elements={elements} />
       </ComponentStructureWrapper>
     </Fieldset>

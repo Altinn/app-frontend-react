@@ -38,7 +38,9 @@ describe('Navigation', () => {
     cy.scrollTo(0, 1000);
 
     cy.findByRole('button', { name: /Neste/ }).click();
+    cy.window().its('scrollY').should('equal', 0);
 
+    cy.findByRole('button', { name: /Legg til ny referanse/ }).should('be.visible');
     cy.window().its('scrollY').should('equal', 0);
   });
 
@@ -48,7 +50,9 @@ describe('Navigation', () => {
     cy.findByText(/Aktiver preutfylling/).should('exist');
 
     cy.findByRole('button', { name: /Neste/ }).click();
+    cy.get('#main-content').should('be.focused');
 
+    cy.findByRole('button', { name: /Legg til ny referanse/ }).should('be.visible');
     cy.get('#main-content').should('be.focused');
   });
 
@@ -58,7 +62,9 @@ describe('Navigation', () => {
     cy.findByText('Appen for test av app frontend').should('exist');
 
     cy.findByRole('button', { name: /Send inn/ }).click();
+    cy.get('#main-content').should('be.focused');
 
+    cy.findByRole('textbox', { name: /Nytt mellomnavn/ }).should('be.visible');
     cy.get('#main-content').should('be.focused');
   });
 
@@ -139,7 +145,7 @@ describe('Navigation', () => {
     cy.findByRole('button', { name: 'Tilbake til oppsummering' }).should('exist');
   });
 
-  function mockLinkTo(type: 'component' | 'page', target: string) {
+  function mockLinkTo(type: 'component' | 'page', target: string, enableBackButton: boolean) {
     cy.interceptLayout(
       'group',
       (component) => component,
@@ -148,7 +154,7 @@ describe('Navigation', () => {
           id: 'paragraph-formLink-test',
           type: 'Paragraph',
           textResourceBindings: {
-            title: [type === 'component' ? 'linkToComponent' : 'linkToPage', 'Klikk på meg', target],
+            title: [type === 'component' ? 'linkToComponent' : 'linkToPage', 'Klikk på meg', target, enableBackButton],
           },
         });
 
@@ -159,24 +165,24 @@ describe('Navigation', () => {
   }
 
   it('should navigate to a specified page clicking a linkToPage', () => {
-    mockLinkTo('page', 'repeating');
+    mockLinkTo('page', 'repeating', true);
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
-    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/repeating'));
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/repeating?backToPage=prefill'));
   });
 
   it('should navigate to a specified page and focus component when clicking a linkToComponent', () => {
-    mockLinkTo('component', 'hideRepeatingGroupRow');
+    mockLinkTo('component', 'hideRepeatingGroupRow', true);
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
-    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/repeating'));
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/repeating?backToPage=prefill'));
     cy.findByRole('textbox', { name: /hvilket tall må "endre fra" være større enn for å skjule rader\?/i }).should(
       'be.focused',
     );
   });
 
   it('should navigate back to previous page when using browser back after navigating to a component', () => {
-    mockLinkTo('component', 'hideRepeatingGroupRow');
+    mockLinkTo('component', 'hideRepeatingGroupRow', true);
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
-    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/repeating'));
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/repeating?backToPage=prefill'));
     cy.findByRole('textbox', { name: /hvilket tall må "endre fra" være større enn for å skjule rader\?/i }).should(
       'be.focused',
     );
@@ -184,8 +190,19 @@ describe('Navigation', () => {
     cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/prefill'));
   });
 
+  it('should navigate back to previous page when using back button after navigating to a component', () => {
+    mockLinkTo('component', 'hideRepeatingGroupRow', true);
+    cy.findByRole('link', { name: 'Klikk på meg' }).click();
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/repeating?backToPage=prefill'));
+    cy.findByRole('textbox', { name: /hvilket tall må "endre fra" være større enn for å skjule rader\?/i }).should(
+      'be.focused',
+    );
+    cy.findByRole('button', { name: 'Tilbake til prefill' }).click();
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/prefill'));
+  });
+
   it('Should render link as text and not link if it points to a non-existing component', () => {
-    mockLinkTo('component', 'thisComponentIdDoesNotExist');
+    mockLinkTo('component', 'thisComponentIdDoesNotExist', true);
 
     cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/prefill'));
 
@@ -194,14 +211,27 @@ describe('Navigation', () => {
   });
 
   it('should navigate back to previous page when using browser back after trying to navigate to a page', () => {
-    mockLinkTo('page', 'hide');
+    mockLinkTo('page', 'hide', true);
 
     cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/prefill'));
 
     cy.findByRole('link', { name: 'Klikk på meg' }).click();
-    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/hide'));
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/hide?backToPage=prefill'));
 
     cy.go('back');
+
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/prefill'));
+  });
+
+  it('should navigate back to previous page when using back button after trying to navigate to a page', () => {
+    mockLinkTo('page', 'hide', true);
+
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/prefill'));
+
+    cy.findByRole('link', { name: 'Klikk på meg' }).click();
+    cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/hide?backToPage=prefill'));
+
+    cy.findByRole('button', { name: 'Tilbake til prefill' }).click();
 
     cy.url().should('satisfy', (url: string) => url.endsWith('/Task_3/prefill'));
   });

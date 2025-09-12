@@ -11,14 +11,15 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isAttachmentUploaded, isDataPostError } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
-import { appSupportsNewAttachmentAPI, attachmentSelector } from 'src/features/attachments/tools';
+import { attachmentSelector } from 'src/features/attachments/tools';
+import { FileScanResults } from 'src/features/attachments/types';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { dataModelPairsToObject } from 'src/features/formData/types';
 import {
-  useLaxAppendDataElements,
   useLaxInstanceId,
-  useLaxMutateDataElement,
-  useLaxRemoveDataElement,
+  useOptimisticallyAppendDataElements,
+  useOptimisticallyRemoveDataElement,
+  useOptimisticallyUpdateDataElement,
 } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -27,6 +28,7 @@ import { useWaitForState } from 'src/hooks/useWaitForState';
 import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
+import { appSupportsNewAttachmentAPI } from 'src/utils/versioning/versions';
 import type {
   DataPostResponse,
   IAttachment,
@@ -36,6 +38,7 @@ import type {
   UploadedAttachment,
 } from 'src/features/attachments/index';
 import type { AttachmentsSelector } from 'src/features/attachments/tools';
+import type { AttachmentStateInfo } from 'src/features/attachments/types';
 import type { FDActionResult } from 'src/features/formData/FormDataWriteStateMachine';
 import type { DSPropsForSimpleSelector } from 'src/hooks/delayedSelectors';
 import type { IDataModelBindingsList, IDataModelBindingsSimple } from 'src/layout/common.generated';
@@ -128,11 +131,19 @@ export interface AttachmentsStorePluginConfig {
     useWaitUntilUploaded: () => (nodeId: string, attachment: TemporaryAttachment) => Promise<IData | false>;
 
     useHasPendingAttachments: () => boolean;
+    useAttachmentState: () => AttachmentStateInfo;
     useAllAttachments: () => IAttachmentsMap;
   };
 }
 
 const emptyArray = [];
+
+const ATTACHMENT_STATE_RESULTS = {
+  infected: { hasPending: true, state: FileScanResults.Infected },
+  uploading: { hasPending: true, state: 'uploading' },
+  pending: { hasPending: true, state: FileScanResults.Pending },
+  ready: { hasPending: false, state: 'ready' },
+} as const;
 
 type ProperData = NodeData<CompWithBehavior<'canHaveAttachments'>>;
 
@@ -278,7 +289,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
   extraHooks(store: NodesStoreFull): AttachmentsStorePluginConfig['extraHooks'] {
     return {
       useAttachmentsUpload() {
-        const appendDataElements = useLaxAppendDataElements();
+        const appendDataElements = useOptimisticallyAppendDataElements();
         const upload = store.useSelector((state) => state.attachmentUpload);
         const uploadFinished = store.useSelector((state) => state.attachmentUploadFinished);
 
@@ -286,7 +297,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const { mutateAsync: uploadAttachment } = useAttachmentsUploadMutation();
 
         const applicationMetadata = useApplicationMetadata();
-        const supportsNewAttachmentAPI = appSupportsNewAttachmentAPI(applicationMetadata);
+        const supportsNewAttachmentAPI = appSupportsNewAttachmentAPI(applicationMetadata.altinnNugetVersion);
 
         const setAttachmentsInDataModel = useSetAttachmentInDataModel();
         const lock = FD.useLocking('__attachment__upload__');
@@ -353,7 +364,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 action.dataModelBindings,
               );
               uploadFinished(fullAction, results);
-              appendDataElements?.(
+              appendDataElements(
                 results.filter(isAttachmentUploadSuccess).map(({ newInstanceData }) => newInstanceData),
               );
             }
@@ -373,7 +384,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       useAttachmentsUpdate() {
         const { mutateAsync: removeTag } = useAttachmentsRemoveTagMutation();
         const { mutateAsync: addTag } = useAttachmentsAddTagMutation();
-        const mutateDataElement = useLaxMutateDataElement();
+        const mutateDataElement = useOptimisticallyUpdateDataElement();
         const { lang } = useLanguage();
         const update = store.useSelector((state) => state.attachmentUpdate);
         const fulfill = store.useSelector((state) => state.attachmentUpdateFulfilled);
@@ -402,7 +413,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 );
               }
               fulfill(action);
-              mutateDataElement?.(attachment.data.id, (dataElement) => ({ ...dataElement, tags }));
+              mutateDataElement(attachment.data.id, (dataElement) => ({ ...dataElement, tags }));
             } catch (error) {
               reject(action, error);
               toast(lang('form_filler.file_uploader_validation_error_update'), { type: 'error' });
@@ -413,7 +424,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
       },
       useAttachmentsRemove() {
         const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
-        const removeDataElement = useLaxRemoveDataElement();
+        const removeDataElement = useOptimisticallyRemoveDataElement();
         const { lang } = useLanguage();
         const remove = store.useSelector((state) => state.attachmentRemove);
         const fulfill = store.useSelector((state) => state.attachmentRemoveFulfilled);
@@ -439,7 +450,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
               }
 
               fulfill(action);
-              removeDataElement?.(action.attachment.data.id);
+              removeDataElement(action.attachment.data.id);
 
               return true;
             } catch (error) {
@@ -520,11 +531,43 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             if (attachments.some((a) => !a.uploaded || a.updating || a.deleting)) {
               return true;
             }
+
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === FileScanResults.Infected)) {
+              return true;
+            }
           }
           return false;
         });
 
         return out === ContextNotProvided ? false : out;
+      },
+      useAttachmentState(): AttachmentStateInfo {
+        const out = store.useLaxSelector((state): AttachmentStateInfo => {
+          for (const id of Object.keys(state.nodeData)) {
+            const nodeData = state.nodeData[id];
+            if (!nodeData || !('attachments' in nodeData)) {
+              continue;
+            }
+
+            const attachments = Object.values(nodeData.attachments);
+
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === FileScanResults.Infected)) {
+              return ATTACHMENT_STATE_RESULTS.infected;
+            }
+
+            if (attachments.some((a) => !a.uploaded || a.updating || a.deleting)) {
+              return ATTACHMENT_STATE_RESULTS.uploading;
+            }
+
+            if (attachments.some((a) => a.uploaded && a.data.fileScanResult === FileScanResults.Pending)) {
+              return ATTACHMENT_STATE_RESULTS.pending;
+            }
+          }
+
+          return ATTACHMENT_STATE_RESULTS.ready;
+        });
+
+        return out === ContextNotProvided ? ATTACHMENT_STATE_RESULTS.ready : out;
       },
       useAllAttachments() {
         return store.useMemoSelector((state) => {
@@ -599,7 +642,7 @@ function useSetAttachmentInDataModel() {
             newValue: attachmentId,
           });
         }
-        debounce();
+        attachmentIds.length && debounce('listChanges');
       } else if (dataModelBindings && 'simpleBinding' in dataModelBindings) {
         for (const attachmentId of attachmentIds) {
           setLeafValue({
@@ -607,7 +650,7 @@ function useSetAttachmentInDataModel() {
             newValue: attachmentId,
           });
         }
-        debounce();
+        attachmentIds.length && debounce('listChanges');
       }
     },
     [appendToListUnique, debounce, setLeafValue],

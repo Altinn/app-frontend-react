@@ -5,7 +5,7 @@ const appFrontend = new AppFrontend();
 
 describe('Validation in anonymous stateless app', () => {
   it('Should show validation message for missing name', () => {
-    cy.startAppInstance(appFrontend.apps.anonymousStateless, { user: null });
+    cy.startAppInstance(appFrontend.apps.anonymousStateless, { cyUser: null });
     cy.get(appFrontend.stateless.name).should('exist').and('be.visible');
     cy.get(appFrontend.stateless.name).invoke('val').should('be.empty');
     cy.get(appFrontend.navButtons).contains('button', 'next').click();
@@ -19,7 +19,7 @@ describe('Validation in anonymous stateless app', () => {
       .should('contain.text', texts.errorReport)
       .should('contain.text', texts.requiredFieldName);
 
-    cy.snapshot('anonymous:validation');
+    cy.visualTesting('anonymous:validation');
 
     cy.get(appFrontend.stateless.name).type('Hello world');
     cy.get(nameError).should('not.exist');

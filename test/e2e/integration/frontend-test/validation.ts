@@ -3,6 +3,8 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Datalist } from 'test/e2e/pageobjects/datalist';
 
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
+import type { ITextResourceResult } from 'src/features/language/textResources';
+import type { BackendValidationIssue } from 'src/features/validation';
 
 const appFrontend = new AppFrontend();
 const dataListPage = new Datalist();
@@ -38,7 +40,7 @@ describe('Validation', () => {
 
     cy.findByRole('checkbox', { name: /Ja[a-z, ]*/ }).check();
     cy.get(appFrontend.changeOfName.reasonRelationship).type('test');
-    cy.get(`${appFrontend.changeOfName.dateOfEffect}-button`).click();
+    cy.findByRole('button', { name: appFrontend.changeOfName.datePickerButton }).click();
     cy.get('button[aria-label*="Today"]').click();
     cy.findByRole('button', { name: /Neste/ }).click();
 
@@ -167,7 +169,6 @@ describe('Validation', () => {
     cy.goto('changename');
     cy.get(appFrontend.changeOfName.uploadWithTag.uploadZone).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.wait('@upload');
-    cy.waitUntilNodesReady();
     cy.dsReady(appFrontend.changeOfName.uploadWithTag.saveTag);
     cy.get(appFrontend.changeOfName.uploadWithTag.saveTag).click();
     cy.get(appFrontend.changeOfName.uploadWithTag.error).should(
@@ -320,7 +321,7 @@ describe('Validation', () => {
   it('List component: validation messages should only show up once', () => {
     cy.goto('datalist');
     cy.get(dataListPage.tableBody).first().first().contains('Caroline');
-    cy.findByRole('button', { name: 'Neste' }).click();
+    cy.findAllByRole('button', { name: /neste/i }).eq(1).click();
     cy.get(appFrontend.errorReport)
       .should('be.inViewport')
       .should('contain.text', texts.errorReport)
@@ -345,9 +346,8 @@ describe('Validation', () => {
     });
     cy.goto('group');
 
-    cy.get(appFrontend.group.prefill.liten).check();
-    cy.get(appFrontend.group.prefill.stor).check();
-    cy.get(appFrontend.group.prefill.stor).blur();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
     cy.findByRole('button', { name: /Neste/ }).clickAndGone();
     cy.navPage('repeating').should('have.attr', 'aria-current', 'page');
 
@@ -378,9 +378,8 @@ describe('Validation', () => {
 
     // Validation message should now have changed, since we filled out currentValue and saved
     cy.get(appFrontend.errorReport).findByText('Du må fylle ut 2. endre verdi 123 til').should('be.visible');
-    cy.findByRole('button', { name: 'Slett-NOK 123' }).click();
+    cy.findByRole('button', { name: 'Slett NOK 123' }).click();
     cy.get(appFrontend.group.mainGroupTableBody).find('tr').should('have.length', 2);
-    cy.waitUntilNodesReady();
 
     // Check that nested group with multipage gets focus
     cy.findByRole('button', { name: 'Se innhold NOK 1' }).click();
@@ -388,10 +387,11 @@ describe('Validation', () => {
     cy.get(appFrontend.group.row(0).nestedGroup.row(0).comments).type('comment');
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.group.addNewItemSubGroup).click();
+    cy.get(appFrontend.group.row(0).nestedGroup.row(1).comments).should('be.visible');
     cy.get(appFrontend.group.saveSubGroup).click();
     cy.get(appFrontend.errorReport).should('contain.text', texts.requiredComment);
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).should('be.visible');
     cy.gotoNavPage('repeating');
     cy.findByRole('button', { name: 'Se innhold NOK 1 233' }).click();
     cy.get(appFrontend.errorReport).findByText(texts.requiredComment).click();
@@ -438,6 +438,7 @@ describe('Validation', () => {
 
     // Filling out the remaining field should let us save the group and hide leftover errors
     cy.get(appFrontend.group.row(2).newValue).type('456');
+    cy.waitUntilSaved();
     cy.get(appFrontend.group.saveMainGroup).click();
     cy.get(appFrontend.group.editContainer).should('not.exist');
     cy.get(appFrontend.errorReport).should('not.exist');
@@ -477,8 +478,7 @@ describe('Validation', () => {
 
     // Delete the row, start over, and observe that the currentValue now exists as a field in the table and
     // produces a validation message if not filled out. We need to use the 'next' button to trigger validation.
-    cy.findByRole('button', { name: 'Slett-NOK 456' }).click();
-    cy.waitUntilNodesReady();
+    cy.findByRole('button', { name: 'Slett NOK 456' }).click();
     cy.get(appFrontend.group.row(2).currentValue).should('not.exist');
     cy.get(appFrontend.group.addNewItem).click();
     cy.get(appFrontend.group.row(2).currentValue).should('exist');
@@ -769,7 +769,7 @@ describe('Validation', () => {
     });
     cy.goto('message');
 
-    cy.findByRole('textbox', { name: 'Input with falsy value*' }).type('0');
+    cy.findByRole('textbox', { name: 'Input with falsy value' }).type('0');
     cy.findByRole('button', { name: 'Send inn' }).click();
 
     // Content from next page
@@ -938,7 +938,7 @@ describe('Validation', () => {
     cy.get(appFrontend.group.comments).should('be.visible'); // Required field in the nested group
     cy.get(appFrontend.group.row(1).nestedGroup.row(0).tableRow).should('not.contain.text', 'Rett feil her');
     cy.get(appFrontend.group.row(1).tableRow).should('not.contain.text', 'Rett feil her');
-    cy.get(appFrontend.group.saveMainGroup).click();
+    cy.get(appFrontend.group.saveMainGroup).click({ force: true });
     cy.get(appFrontend.group.row(1).nestedGroup.row(0).tableRow).should('contain.text', 'Rett feil her');
     cy.get(appFrontend.group.row(1).tableRow).should('contain.text', 'Rett feil her');
     cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 1);
@@ -946,7 +946,7 @@ describe('Validation', () => {
 
     // Forcing us away from the 'repeating' page should reset the open-state in the repeating group, but not the errors
     cy.gotoNavPage('prefill');
-    cy.get(appFrontend.group.prefill.liten).should('be.visible');
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).should('be.visible');
     cy.gotoNavPage('repeating');
     cy.get(appFrontend.group.row(1).tableRow).should('contain.text', 'Rett feil her');
     cy.get(appFrontend.group.row(1).editBtn).click();
@@ -964,5 +964,55 @@ describe('Validation', () => {
 
     // We're on the next page! Yay
     cy.navPage('Kjæledyr').should('have.attr', 'aria-current', 'page');
+  });
+
+  it('should display backend validation message with customTextKey and customTextParameters correctly', () => {
+    cy.intercept('GET', '**/texts/nb', (req) => {
+      req.on('response', (res) => {
+        const body = res.body as ITextResourceResult;
+        body.resources.push({
+          id: 'custom_error_too_long',
+          value: 'Verdien kan ikke være lengre enn {0}, den er nå {1}',
+          variables: [
+            {
+              key: 'max_length',
+              dataSource: 'customTextParameters',
+            },
+            {
+              key: 'current_length',
+              dataSource: 'customTextParameters',
+            },
+          ],
+        });
+      });
+    });
+
+    cy.window().then((win) => {
+      cy.intercept('GET', '**/validate**', (req) => {
+        req.on('response', (res) => {
+          const body = res.body as BackendValidationIssue[];
+          body.push({
+            severity: 1,
+            source: 'SomeCustomValidator',
+            field: 'NyttNavn-grp-9313.NyttNavn-grp-9314.PersonMellomnavnNytt-datadef-34759.value',
+            dataElementId: win.CypressState!.dataElementIds!['ServiceModel-test']!,
+            customTextKey: 'custom_error_too_long',
+            customTextParameters: {
+              max_length: '10',
+              current_length: '19',
+            },
+          });
+        });
+      });
+    });
+
+    cy.goto('changename');
+    cy.waitForLoad();
+
+    cy.get(appFrontend.fieldValidation('newMiddleName')).should(
+      'have.text',
+      'Verdien kan ikke være lengre enn 10, den er nå 19',
+    );
+    cy.get(appFrontend.errorReport).should('contain.text', 'Verdien kan ikke være lengre enn 10, den er nå 19');
   });
 });

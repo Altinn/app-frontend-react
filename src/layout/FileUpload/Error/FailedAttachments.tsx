@@ -5,17 +5,19 @@ import { XMarkIcon } from '@navikt/aksel-icons';
 import { isAxiosError } from 'axios';
 
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { type FileUploaderNode, type IFailedAttachment, isDataPostError } from 'src/features/attachments';
+import { type IFailedAttachment, isDataPostError } from 'src/features/attachments';
 import { useDeleteFailedAttachment, useFailedAttachmentsFor } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { getValidationIssueMessage } from 'src/features/validation/backendValidation/backendValidationUtils';
 import classes from 'src/layout/FileUpload/Error/FailedAttachments.module.css';
 import { isRejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 
-export function FailedAttachments({ node }: { node: FileUploaderNode }) {
-  const failedAttachments = useFailedAttachmentsFor(node);
+export function FailedAttachments({ baseComponentId }: { baseComponentId: string }) {
+  const failedAttachments = useFailedAttachmentsFor(baseComponentId);
   const deleteFailedAttachment = useDeleteFailedAttachment();
+  const indexedId = useIndexedId(baseComponentId);
 
   return failedAttachments.length > 0 ? (
     <div className={classes.list}>
@@ -23,7 +25,7 @@ export function FailedAttachments({ node }: { node: FileUploaderNode }) {
         <FileUploadError
           key={attachment.data.temporaryId}
           attachment={attachment}
-          handleClose={() => deleteFailedAttachment(node.id, attachment.data.temporaryId)}
+          handleClose={() => deleteFailedAttachment(indexedId, attachment.data.temporaryId)}
         />
       ))}
     </div>
@@ -34,8 +36,8 @@ function FileUploadError({ attachment, handleClose }: { attachment: IFailedAttac
   const { langAsString } = useLanguage();
   return (
     <Alert
-      size='sm'
-      severity='danger'
+      data-size='sm'
+      data-color='danger'
       role='alert'
       aria-live='assertive'
       aria-label={langAsString('form_filler.file_uploader_failed_to_upload_file', [attachment.data.filename])}
@@ -82,11 +84,11 @@ function ErrorDetails({ attachment: { data, error } }: { attachment: IFailedAtta
         : null;
 
     if (issues && issues.length === 1) {
-      const { key, params } = getValidationIssueMessage(issues[0]);
+      const { key, customTextParameters } = getValidationIssueMessage(issues[0]);
       return (
         <Lang
           id={key}
-          params={params}
+          customTextParameters={customTextParameters}
         />
       );
     }
@@ -111,7 +113,7 @@ function ErrorDetails({ attachment: { data, error } }: { attachment: IFailedAtta
             <Button
               id={buttonId}
               style={{ marginTop: '0.5rem' }}
-              size='sm'
+              data-size='sm'
               variant='tertiary'
               color='second'
               onClick={() => {

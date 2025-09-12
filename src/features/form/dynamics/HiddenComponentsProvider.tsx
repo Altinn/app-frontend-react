@@ -53,7 +53,7 @@ function useAllReferencedGroups(rules: IConditionalRenderingRules | null) {
       if (rule?.repeatingGroup) {
         const nodeData = state.nodeData[rule.repeatingGroup.groupId];
         if (nodeData && isRepeatedGroup(nodeData)) {
-          const binding = nodeData.layout.dataModelBindings.group;
+          const binding = nodeData.dataModelBindings.group;
           const numRows = rowsSelector(binding).length;
           const topLevel: TopLevelRepeatingGroup = { numRows, binding, nestedGroups: {} };
           if (rule.repeatingGroup.childGroupId) {
@@ -61,7 +61,7 @@ function useAllReferencedGroups(rules: IConditionalRenderingRules | null) {
               const childId = `${rule.repeatingGroup.childGroupId}-${rowIndex}`;
               const childNodeData = state.nodeData[childId];
               if (childNodeData && isRepeatedGroup(childNodeData)) {
-                const childBinding = childNodeData.layout.dataModelBindings.group;
+                const childBinding = childNodeData.dataModelBindings.group;
                 const childNumRows = rowsSelector(childBinding).length;
                 topLevel.nestedGroups[childId] = {
                   numRows: childNumRows,
@@ -71,7 +71,7 @@ function useAllReferencedGroups(rules: IConditionalRenderingRules | null) {
             }
           }
 
-          out[nodeData.layout.id] = topLevel;
+          out[nodeData.id] = topLevel;
         }
       }
     }
@@ -86,9 +86,18 @@ function useLegacyHiddenComponents() {
   const hiddenNodes: { [nodeId: string]: true } = {};
   const defaultDataType = useCurrentDataModelName() ?? '';
   const topLevelGroups = useAllReferencedGroups(rules);
+  const formIsEmbedded = NodesInternal.useIsEmbedded();
 
   if (!window.conditionalRuleHandlerObject || !rules || Object.keys(rules).length === 0) {
     // Rules have not been initialized
+    return hiddenNodes;
+  }
+
+  if (formIsEmbedded) {
+    window.logErrorOnce(
+      'Conditional rendering rules are not supported in embedded forms (such as Subform or Summary2 with a ' +
+        'taskId override). Rewrite your conditional rendering rules to use expressions instead.',
+    );
     return hiddenNodes;
   }
 
@@ -127,7 +136,7 @@ function useLegacyHiddenComponents() {
 }
 
 function isRepeatedGroup(nodeData: NodeData): nodeData is NodeData<'RepeatingGroup'> {
-  return nodeData.layout.type === 'RepeatingGroup';
+  return nodeData.nodeType === 'RepeatingGroup';
 }
 
 function runConditionalRenderingRule(

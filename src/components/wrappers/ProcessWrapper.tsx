@@ -1,40 +1,35 @@
-import React, { useEffect } from 'react';
-import { Helmet } from 'react-helmet-async';
-import { Route, Routes } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import type { PropsWithChildren } from 'react';
+
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
-import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
-import { FormProvider } from 'src/features/form/FormContext';
-import { useGetTaskTypeById, useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { getProcessNextMutationKey, getTargetTaskFromProcess } from 'src/features/instance/useProcessNext';
+import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
-import {
-  useNavigate,
-  useNavigationParam,
-  useNavigationPath,
-  useQueryKeysAsString,
-} from 'src/features/routing/AppRoutingContext';
-import { useIsCurrentTask, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
+import { useNavigationParam } from 'src/hooks/navigation';
+import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
+import { getComponentDef, implementsSubRouting } from 'src/layout';
 import { RedirectBackToMainForm } from 'src/layout/Subform/SubformWrapper';
 import { ProcessTaskType } from 'src/types';
 import { getPageTitle } from 'src/utils/getPageTitle';
-import { useNode } from 'src/utils/layout/NodesContext';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 interface NavigationErrorProps {
   label: string;
 }
 
 function NavigationError({ label }: NavigationErrorProps) {
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
+  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
   const navigateToTask = useNavigateToTask();
 
   const appName = useAppName();
@@ -43,9 +38,7 @@ function NavigationError({ label }: NavigationErrorProps) {
 
   return (
     <>
-      <Helmet>
-        <title>{`${getPageTitle(appName, langAsString(label), appOwner)}`}</title>
-      </Helmet>
+      <title>{`${getPageTitle(appName, langAsString(label), appOwner)}`}</title>
       <Flex
         item
         size={{ xs: 12 }}
@@ -73,34 +66,57 @@ function NavigationError({ label }: NavigationErrorProps) {
   );
 }
 
-export function NavigateToStartUrl() {
+export function NavigateToStartUrl({ forceCurrentTask = true }: { forceCurrentTask?: boolean }) {
   const navigate = useNavigate();
-  const currentTaskId = useLaxProcessData()?.currentTask?.elementId;
-  const startUrl = useStartUrl(currentTaskId);
+  const currentTaskId = getTargetTaskFromProcess(useProcessQuery().data);
+  const startUrl = useStartUrl(forceCurrentTask ? currentTaskId : undefined);
+  const location = useLocation();
 
-  const currentLocation = `${useNavigationPath()}${useQueryKeysAsString()}`;
+  const processNextKey = getProcessNextMutationKey();
+  const queryClient = useQueryClient();
+  const isRunningProcessNext = queryClient.isMutating({ mutationKey: processNextKey });
+
+  const currentLocation = location.pathname + location.search;
 
   useEffect(() => {
-    if (currentLocation !== startUrl) {
+    if (currentLocation !== startUrl && !isRunningProcessNext) {
       navigate(startUrl, { replace: true });
     }
-  }, [currentLocation, navigate, startUrl]);
+  }, [currentLocation, isRunningProcessNext, navigate, startUrl]);
 
-  return <Loader reason='navigate-to-process-start' />;
+  if (isRunningProcessNext) {
+    return <Loader reason='navigate-to-start-process-next' />;
+  }
+
+  return <Loader reason='navigate-to-start' />;
 }
 
-export const ProcessWrapper = () => {
-  const isCurrentTask = useIsCurrentTask();
-  const isValidTaskId = useIsValidTaskId();
-  const taskIdParam = useNavigationParam('taskId');
-  const taskType = useGetTaskTypeById()(taskIdParam);
-  const process = useLaxProcessData();
+export function ProcessWrapper({ children }: PropsWithChildren) {
+  const { data: process } = useProcessQuery();
+  const currentTaskId = process?.currentTask?.elementId;
+  const taskId = useNavigationParam('taskId');
+  const isCurrentTask =
+    currentTaskId === undefined && taskId === TaskKeys.CustomReceipt ? true : currentTaskId === taskId;
+
+  const isValidTaskId = useIsValidTaskId()(taskId);
+  const taskType = useGetTaskTypeById()(taskId);
+  const queryClient = useQueryClient();
+
+  const [isRunningProcessNext, setIsRunningProcessNext] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    setIsRunningProcessNext(queryClient.isMutating({ mutationKey: getProcessNextMutationKey() }) > 0);
+  }, [queryClient]);
+
+  if (isRunningProcessNext) {
+    return <Loader reason='process-wrapper' />;
+  }
 
   if (process?.ended) {
     return <NavigateToStartUrl />;
   }
 
-  if (!isValidTaskId(taskIdParam)) {
+  if (!isValidTaskId) {
     return (
       <PresentationComponent
         type={ProcessTaskType.Unknown}
@@ -139,58 +155,32 @@ export const ProcessWrapper = () => {
   }
 
   if (taskType === ProcessTaskType.Data) {
-    return (
-      <FormProvider>
-        <Routes>
-          <Route
-            path=':pageKey/:componentId/*'
-            element={<ComponentRouting />}
-          />
-          <Route
-            path='*'
-            element={
-              <PDFWrapper>
-                <PresentationComponent type={ProcessTaskType.Data}>
-                  <Form />
-                </PresentationComponent>
-              </PDFWrapper>
-            }
-          />
-        </Routes>
-      </FormProvider>
-    );
+    return children;
   }
 
   throw new Error(`Unknown task type: ${taskType}`);
-};
+}
 
 export const ComponentRouting = () => {
   const componentId = useNavigationParam('componentId');
-  const node = useNode(componentId);
+  const layoutLookups = useLayoutLookups();
 
   // Wait for props to sync, needed for now
   if (!componentId) {
     return <Loader reason='component-routing' />;
   }
 
-  if (!node) {
+  const component = layoutLookups.allComponents[componentId];
+  if (!component) {
     // Consider adding a 404 page?
     return <RedirectBackToMainForm />;
   }
 
-  function isSubroutingNode(node: LayoutNode): node is LayoutNode<'Subform'> {
-    return node.isType('Subform') && !!node.def.subRouting;
-  }
+  const def = getComponentDef(component.type);
+  if (implementsSubRouting(def)) {
+    const SubRouting = def.subRouting;
 
-  if (isSubroutingNode(node)) {
-    const SubRouting = node.def.subRouting;
-
-    return (
-      <SubRouting
-        key={node.id}
-        node={node}
-      />
-    );
+    return <SubRouting baseComponentId={componentId} />;
   }
 
   // If node exists but does not implement sub routing

@@ -13,8 +13,8 @@ export type IDevToolsState = {
   };
   exprPlayground: {
     expression: string | undefined;
-    forPage: string | undefined;
-    forComponentId: string | undefined;
+    nodeId: string | undefined;
+    baseId: string | undefined;
   };
   logs: IDevToolsLog[];
 };
@@ -28,7 +28,7 @@ export type IDevToolsActions = {
   setPdfPreview: (preview: boolean) => void;
   setShowHiddenComponents: (value: DevToolsHiddenComponents) => void;
   exprPlaygroundSetExpression: (expression: string | undefined) => void;
-  exprPlaygroundSetContext: (forPage: string | undefined, forComponentId: string | undefined) => void;
+  exprPlaygroundSetContext: (nodeId: string | undefined, baseId: string | undefined) => void;
   layoutInspectorSet: (selectedComponentId: string | undefined) => void;
   nodeInspectorSet: (selectedNodeId: string | undefined) => void;
   postLogs: (logs: IDevToolsLog[]) => void;

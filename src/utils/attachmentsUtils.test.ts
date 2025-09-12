@@ -1,239 +1,522 @@
-import { filterDisplayAttachments, filterDisplayPdfAttachments } from 'src/utils/attachmentsUtils';
-import type { IData } from 'src/types/shared';
+import {
+  AttachmentWithDataType,
+  DataTypeReference,
+  filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes,
+  getAttachmentsWithDataType,
+  getRefAsPdfAttachments,
+  toDisplayAttachments,
+} from 'src/utils/attachmentsUtils';
+import type { IData, IDataType, IDisplayAttachment } from 'src/types/shared';
 
-test('filterInstanceAttachments() returns correct attachment array', () => {
-  const instance = {
-    id: '50001/c1572504-9fb6-4829-9652-3ca9c82dabb9',
-    instanceOwnerId: '50001',
-    selfLinks: {
-      apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9',
-    },
-    appId: 'matsgm/tjeneste-190814-1426',
-    org: 'matsgm',
-    createdDateTime: '2019-08-22T15:38:15.1437757Z',
-    createdBy: '0',
-    lastChangedDateTime: '2019-08-22T15:38:15.1440262Z',
-    lastChangedBy: '0',
-    process: {
-      currentTask: 'Archived',
-      isComplete: true,
-    },
-    instanceState: {
-      isDeleted: false,
-      isMarkedForHardDelete: false,
-      isArchived: true,
-    },
-    data: [
+describe(getAttachmentsWithDataType.name, () => {
+  it('should map attachments to their corresponding data types', () => {
+    const attachments: IData[] = [
       {
-        id: '585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
-        dataType: '585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
-        filename: '585b2f4e-5ecb-417b-9d01-82b6e889e1d1.xml',
-        contentType: 'application/Xml',
-        storageUrl:
-          'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
-        selfLinks: {
-          apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
-        },
-        size: 0,
-        isLocked: false,
-        createdDateTime: '2019-08-22T15:38:15.1480698Z',
-        createdBy: '50001',
-        lastChangedDateTime: '2019-08-22T15:38:15.14807Z',
-        lastChangedBy: '50001',
+        id: '1',
+        dataType: 'type1',
       },
       {
-        id: '03e06136-88be-4866-a216-7959afe46137',
-        dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-        filename: '4mb.txt',
-        contentType: 'text/plain',
-        storageUrl:
-          'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/03e06136-88be-4866-a216-7959afe46137',
-        selfLinks: {
-          apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/03e06136-88be-4866-a216-7959afe46137',
-        },
-        size: 4194304,
-        isLocked: false,
-        createdDateTime: '2019-08-22T15:38:27.4719761Z',
-        createdBy: '50001',
-        lastChangedDateTime: '2019-08-22T15:38:27.4719776Z',
-        lastChangedBy: '50001',
+        id: '2',
+        dataType: 'type2',
       },
-      {
-        id: '11943e38-9fc4-43f6-84c4-12e529eebd28',
-        dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-        filename: '8mb.txt',
-        contentType: 'text/plain',
-        storageUrl:
-          'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/11943e38-9fc4-43f6-84c4-12e529eebd28',
-        selfLinks: {
-          apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/11943e38-9fc4-43f6-84c4-12e529eebd28',
-        },
-        size: 8388608,
-        isLocked: false,
-        createdDateTime: '2019-08-22T15:38:28.0099729Z',
-        createdBy: '50001',
-        lastChangedDateTime: '2019-08-22T15:38:28.0099731Z',
-        lastChangedBy: '50001',
-      },
-      {
-        id: '092f032d-f54f-49c1-ae42-ebc0d10a2fcb',
-        dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-        filename: '2mb.txt',
-        contentType: 'text/plain',
-        storageUrl:
-          'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/092f032d-f54f-49c1-ae42-ebc0d10a2fcb',
-        selfLinks: {
-          apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/092f032d-f54f-49c1-ae42-ebc0d10a2fcb',
-        },
-        size: 2097152,
-        isLocked: false,
-        createdDateTime: '2019-08-22T15:38:30.3266993Z',
-        createdBy: '50001',
-        lastChangedDateTime: '2019-08-22T15:38:30.3266995Z',
-        lastChangedBy: '50001',
-      },
-      {
-        id: '8698103b-fad1-4665-85c6-bf88a75ad708',
-        dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-        filename: '4mb.txt',
-        contentType: 'text/plain',
-        storageUrl:
-          'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/8698103b-fad1-4665-85c6-bf88a75ad708',
-        selfLinks: {
-          apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/8698103b-fad1-4665-85c6-bf88a75ad708',
-        },
-        size: 4194304,
-        isLocked: false,
-        createdDateTime: '2019-08-22T15:38:44.2017248Z',
-        createdBy: '50001',
-        lastChangedDateTime: '2019-08-22T15:38:44.2017252Z',
-        lastChangedBy: '50001',
-      },
-      {
-        id: 'e950864d-e304-41ca-a60c-0c5019166df8',
-        dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-        filename: '8mb.txt',
-        contentType: 'text/plain',
-        storageUrl:
-          'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/e950864d-e304-41ca-a60c-0c5019166df8',
-        selfLinks: {
-          apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/e950864d-e304-41ca-a60c-0c5019166df8',
-        },
-        size: 8388608,
-        isLocked: false,
-        createdDateTime: '2019-08-22T15:38:44.6846318Z',
-        createdBy: '50001',
-        lastChangedDateTime: '2019-08-22T15:38:44.684632Z',
-        lastChangedBy: '50001',
-      },
-      {
-        id: '005d5bc3-a315-4705-9b06-3788fed86da1',
-        dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-        filename: '2mb.txt',
-        contentType: 'text/plain',
-        storageUrl:
-          'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/005d5bc3-a315-4705-9b06-3788fed86da1',
-        selfLinks: {
-          apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/005d5bc3-a315-4705-9b06-3788fed86da1',
-        },
-        size: 2097152,
-        isLocked: false,
-        createdDateTime: '2019-08-22T15:38:46.8968953Z',
-        createdBy: '50001',
-        lastChangedDateTime: '2019-08-22T15:38:46.8968955Z',
-        lastChangedBy: '50001',
-      },
-    ],
-  };
+    ] as unknown as IData[];
 
-  const attachmentsTestData = [
-    {
-      dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-      iconClass: 'reg reg-attachment',
-      name: '4mb.txt',
-      url: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/03e06136-88be-4866-a216-7959afe46137',
-    },
-    {
-      dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-      iconClass: 'reg reg-attachment',
-      name: '8mb.txt',
-      url: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/11943e38-9fc4-43f6-84c4-12e529eebd28',
-    },
-    {
-      dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-      iconClass: 'reg reg-attachment',
-      name: '2mb.txt',
-      url: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/092f032d-f54f-49c1-ae42-ebc0d10a2fcb',
-    },
-    {
-      dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-      iconClass: 'reg reg-attachment',
-      name: '4mb.txt',
-      url: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/8698103b-fad1-4665-85c6-bf88a75ad708',
-    },
-    {
-      dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-      iconClass: 'reg reg-attachment',
-      name: '8mb.txt',
-      url: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/e950864d-e304-41ca-a60c-0c5019166df8',
-    },
-    {
-      dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-      iconClass: 'reg reg-attachment',
-      name: '2mb.txt',
-      url: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/005d5bc3-a315-4705-9b06-3788fed86da1',
-    },
-  ];
+    const appMetadataDataTypes: IDataType[] = [
+      {
+        id: 'type1',
+        description: 'Type 1 description',
+      },
+      {
+        id: 'type2',
+        description: 'Type 2 description',
+      },
+    ] as unknown as IDataType[];
 
-  expect(
-    filterDisplayAttachments(instance.data as unknown as IData[], ['585b2f4e-5ecb-417b-9d01-82b6e889e1d1']),
-  ).toEqual(attachmentsTestData);
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'type1' },
+        dataType: { id: 'type1', description: 'Type 1 description' },
+      },
+      {
+        attachment: { id: '2', dataType: 'type2' },
+        dataType: { id: 'type2', description: 'Type 2 description' },
+      },
+    ];
+
+    const result = getAttachmentsWithDataType({
+      attachments,
+      appMetadataDataTypes,
+    });
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should return undefined for dataType when no matching data type is found', () => {
+    const attachments: IData[] = [
+      {
+        id: '1',
+        dataType: 'type1',
+      },
+      {
+        id: '2',
+        dataType: 'nonexistent-type',
+      },
+    ] as unknown as IData[];
+
+    const appMetadataDataTypes: IDataType[] = [
+      {
+        id: 'type1',
+        description: 'Type 1 description',
+      },
+    ] as unknown as IDataType[];
+
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'type1' },
+        dataType: { id: 'type1', description: 'Type 1 description' },
+      },
+      {
+        attachment: { id: '2', dataType: 'nonexistent-type' },
+        dataType: undefined,
+      },
+    ];
+
+    const result = getAttachmentsWithDataType({
+      attachments,
+      appMetadataDataTypes,
+    });
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should handle empty attachments array', () => {
+    const attachments: IData[] = [] as unknown as IData[];
+    const appMetadataDataTypes: IDataType[] = [
+      {
+        id: 'type1',
+        description: 'Type 1 description',
+      },
+    ] as unknown as IDataType[];
+
+    const expectedResult = [];
+
+    const result = getAttachmentsWithDataType({
+      attachments,
+      appMetadataDataTypes,
+    });
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should handle empty appMetadataDataTypes array', () => {
+    const attachments: IData[] = [
+      {
+        id: '1',
+        dataType: 'type1',
+      },
+    ] as unknown as IData[];
+    const appMetadataDataTypes: IDataType[] = [] as unknown as IDataType[];
+
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'type1' },
+        dataType: undefined,
+      },
+    ];
+
+    const result = getAttachmentsWithDataType({
+      attachments,
+      appMetadataDataTypes,
+    });
+
+    expect(result).toEqual(expectedResult);
+  });
 });
 
-test('filterInstancePdfAttachments() returns correct attachement', () => {
-  const data = [
-    {
-      id: '585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
-      dataType: 'ref-data-as-pdf',
-      filename: 'kvittering.pdf',
-      contentType: 'application/pdf',
-      storageUrl: 'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
-      selfLinks: {
-        apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
+describe(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes.name, () => {
+  it('filters out data types that have appLogic', () => {
+    const data: IData[] = [
+      {
+        id: '1',
+        dataType: 'does not have appLogic',
       },
-      size: 0,
-      isLocked: false,
-      createdDateTime: '2019-08-22T15:38:15.1480698Z',
-      createdBy: '50001',
-      lastChangedDateTime: '2019-08-22T15:38:15.14807Z',
-      lastChangedBy: '50001',
-    },
-    {
-      id: '005d5bc3-a315-4705-9b06-3788fed86da1',
-      dataType: 'cca36865-8f2e-4d29-8036-fa33bc4c3c34',
-      filename: '2mb.txt',
-      contentType: 'text/plain',
-      storageUrl: 'tjeneste-190814-1426/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/005d5bc3-a315-4705-9b06-3788fed86da1',
-      selfLinks: {
-        apps: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/005d5bc3-a315-4705-9b06-3788fed86da1',
+      {
+        id: '2',
+        dataType: 'has appLogic',
       },
-      size: 2097152,
-      isLocked: false,
-      createdDateTime: '2019-08-22T15:38:46.8968953Z',
-      createdBy: '50001',
-      lastChangedDateTime: '2019-08-22T15:38:46.8968955Z',
-      lastChangedBy: '50001',
-    },
-  ];
+    ] as unknown as IData[];
 
-  const expectedResult = [
-    {
-      dataType: 'ref-data-as-pdf',
-      iconClass: 'reg reg-attachment',
-      name: 'kvittering.pdf',
-      url: 'https://altinn3.no/matsgm/tjeneste-190814-1426/instances/50001/c1572504-9fb6-4829-9652-3ca9c82dabb9/data/585b2f4e-5ecb-417b-9d01-82b6e889e1d1',
-    },
-  ];
+    const appMetadataDataTypes = [
+      {
+        id: 'does not have appLogic',
+        appLogic: null,
+      },
+      {
+        id: 'has appLogic',
+        appLogic: {},
+      },
+    ] as unknown as IDataType[];
 
-  expect(filterDisplayPdfAttachments(data as unknown as IData[])).toEqual(expectedResult);
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'does not have appLogic' },
+        dataType: { id: 'does not have appLogic', appLogic: null },
+      },
+    ];
+
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
+      appMetadataDataTypes,
+    });
+
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('filters out data types that have allowedContributers app:owned', () => {
+    const data: IData[] = [
+      {
+        id: '1',
+        dataType: 'does not have app:owned',
+      },
+      {
+        id: '2',
+        dataType: 'has app:owned',
+      },
+    ] as unknown as IData[];
+
+    const appMetadataDataTypes = [
+      {
+        id: 'does not have app:owned',
+        allowedContributers: ['something-else'],
+      },
+      {
+        id: 'has app:owned',
+        allowedContributers: ['app:owned'],
+      },
+    ] as unknown as IDataType[];
+
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'does not have app:owned' },
+        dataType: { id: 'does not have app:owned', allowedContributers: ['something-else'] },
+      },
+    ];
+
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
+      appMetadataDataTypes,
+    });
+
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('filters out data types that have allowedContributors app:owned', () => {
+    const data: IData[] = [
+      {
+        id: '1',
+        dataType: 'does not have app:owned',
+      },
+      {
+        id: '2',
+        dataType: 'has app:owned',
+      },
+    ] as unknown as IData[];
+
+    const appMetadataDataTypes = [
+      {
+        id: 'does not have app:owned',
+        allowedContributors: ['something-else'],
+      },
+      {
+        id: 'has app:owned',
+        allowedContributors: ['app:owned'],
+      },
+    ] as unknown as IDataType[];
+
+    const expectedResult = [
+      {
+        attachment: { id: '1', dataType: 'does not have app:owned' },
+        dataType: {
+          id: 'does not have app:owned',
+          allowedContributors: ['something-else'],
+        },
+      },
+    ];
+
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
+      appMetadataDataTypes,
+    });
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('filters out data types that are ref-data-as-pdf', () => {
+    const data = [
+      {
+        id: '1',
+        dataType: DataTypeReference.RefDataAsPdf,
+      },
+      {
+        id: '2',
+        dataType: 'something-else',
+      },
+    ] as unknown as IData[];
+
+    const expectedResult = [
+      {
+        attachment: {
+          id: '2',
+          dataType: 'something-else',
+        },
+        dataType: undefined,
+      },
+    ];
+
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
+      appMetadataDataTypes: [],
+    });
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
+
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('filters out data types that are ref-data-as-pdf and have appLogic or allowedContributers app:owned', () => {
+    const data = [
+      {
+        id: '1',
+        dataType: DataTypeReference.RefDataAsPdf,
+      },
+      {
+        id: '2',
+        dataType: 'has app:owned',
+      },
+      {
+        id: '3',
+        dataType: 'has appLogic',
+      },
+    ] as unknown as IData[];
+
+    const appMetadataDataTypes = [
+      {
+        id: 'has app:owned',
+        allowedContributers: ['app:owned'],
+      },
+      {
+        id: 'has appLogic',
+        appLogic: {},
+      },
+    ] as unknown as IDataType[];
+
+    const expectedResult = [];
+
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
+      appMetadataDataTypes,
+    });
+    const result = filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentsWithDataType);
+
+    expect(result).toEqual(expectedResult);
+  });
+});
+
+describe(getRefAsPdfAttachments.name, () => {
+  it('returns all pdf attachments', () => {
+    const data = [
+      {
+        id: '1',
+        dataType: DataTypeReference.RefDataAsPdf,
+      },
+      {
+        id: '2',
+        dataType: 'something-else',
+      },
+    ] as unknown as IData[];
+
+    const expectedResult = [
+      {
+        attachment: {
+          id: '1',
+          dataType: DataTypeReference.RefDataAsPdf,
+        },
+        dataType: undefined,
+      },
+    ];
+
+    const attachmentsWithDataType = getAttachmentsWithDataType({
+      attachments: data,
+      appMetadataDataTypes: [],
+    });
+    const result = getRefAsPdfAttachments(attachmentsWithDataType);
+    expect(result).toEqual(expectedResult);
+  });
+});
+
+describe(toDisplayAttachments.name, () => {
+  it('should transform attachments with data types to display attachments', () => {
+    const attachmentsWithDataType: AttachmentWithDataType[] = [
+      {
+        attachment: {
+          id: '1',
+          dataType: 'type1',
+          filename: 'file1.pdf',
+          selfLinks: {
+            apps: 'https://example.com/file1.pdf',
+          },
+        } as unknown as IData,
+        dataType: {
+          id: 'type1',
+          description: { nb: 'Type 1 description' },
+          grouping: 'group1',
+        } as unknown as IDataType,
+      },
+      {
+        attachment: {
+          id: '2',
+          dataType: 'type2',
+          filename: 'file2.jpg',
+          selfLinks: {
+            apps: 'https://example.com/file2.jpg',
+          },
+        } as unknown as IData,
+        dataType: {
+          id: 'type2',
+          description: { nb: 'Type 2 description' },
+          grouping: 'group2',
+        } as unknown as IDataType,
+      },
+    ];
+
+    const expectedResult: IDisplayAttachment[] = [
+      {
+        name: 'file1.pdf',
+        url: 'https://example.com/file1.pdf',
+        iconClass: 'reg reg-attachment',
+        dataType: 'type1',
+        grouping: 'group1',
+        description: { nb: 'Type 1 description' },
+      },
+      {
+        name: 'file2.jpg',
+        url: 'https://example.com/file2.jpg',
+        iconClass: 'reg reg-attachment',
+        dataType: 'type2',
+        grouping: 'group2',
+        description: { nb: 'Type 2 description' },
+      },
+    ];
+
+    const result = toDisplayAttachments(attachmentsWithDataType);
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should handle undefined dataType', () => {
+    const attachmentsWithDataType: AttachmentWithDataType[] = [
+      {
+        attachment: {
+          id: '1',
+          dataType: 'type1',
+          filename: 'file1.pdf',
+          selfLinks: {
+            apps: 'https://example.com/file1.pdf',
+          },
+        } as unknown as IData,
+        dataType: undefined,
+      },
+    ];
+
+    const expectedResult: IDisplayAttachment[] = [
+      {
+        name: 'file1.pdf',
+        url: 'https://example.com/file1.pdf',
+        iconClass: 'reg reg-attachment',
+        dataType: 'type1',
+        grouping: undefined,
+        description: undefined,
+      },
+    ];
+
+    const result = toDisplayAttachments(attachmentsWithDataType);
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should handle missing optional properties', () => {
+    const attachmentsWithDataType: AttachmentWithDataType[] = [
+      {
+        attachment: {
+          id: '1',
+          dataType: 'type1',
+          filename: 'file1.pdf',
+          // Missing selfLinks
+        } as unknown as IData,
+        dataType: {
+          id: 'type1',
+          description: { nb: 'Type 1 description' },
+          // Missing grouping
+        } as unknown as IDataType,
+      },
+    ];
+
+    const expectedResult: IDisplayAttachment[] = [
+      {
+        name: 'file1.pdf',
+        url: undefined,
+        iconClass: 'reg reg-attachment',
+        dataType: 'type1',
+        grouping: undefined,
+        description: { nb: 'Type 1 description' },
+      },
+    ];
+
+    const result = toDisplayAttachments(attachmentsWithDataType);
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should handle empty array input', () => {
+    const attachmentsWithDataType: AttachmentWithDataType[] = [];
+    const expectedResult: IDisplayAttachment[] = [];
+
+    const result = toDisplayAttachments(attachmentsWithDataType);
+    expect(result).toEqual(expectedResult);
+  });
+
+  it('should handle missing filename', () => {
+    const attachmentsWithDataType: AttachmentWithDataType[] = [
+      {
+        attachment: {
+          id: '1',
+          dataType: 'type1',
+          // Missing filename
+          selfLinks: {
+            apps: 'https://example.com/file1.pdf',
+          },
+        } as unknown as IData,
+        dataType: {
+          id: 'type1',
+          description: { nb: 'Type 1 description' },
+          grouping: 'group1',
+        } as unknown as IDataType,
+      },
+    ];
+
+    const expectedResult: IDisplayAttachment[] = [
+      {
+        name: undefined,
+        url: 'https://example.com/file1.pdf',
+        iconClass: 'reg reg-attachment',
+        dataType: 'type1',
+        grouping: 'group1',
+        description: { nb: 'Type 1 description' },
+      },
+    ];
+
+    const result = toDisplayAttachments(attachmentsWithDataType);
+    expect(result).toEqual(expectedResult);
+  });
 });

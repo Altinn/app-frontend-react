@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import type { JSX, PropsWithChildren, ReactElement } from 'react';
 
 import { Label as DesignsystemetLabel } from '@digdir/designsystemet-react';
@@ -10,6 +10,7 @@ import classes from 'src/app-components/Label/Label.module.css';
 import type { IGridStyling } from 'src/layout/common.generated';
 
 type LabelProps = {
+  id?: string;
   label: string | ReactElement | undefined;
   htmlFor?: DesignsystemetLabelProps['htmlFor'];
   required?: boolean;
@@ -19,22 +20,28 @@ type LabelProps = {
   description?: ReactElement;
   className?: string;
   grid?: IGridStyling;
+  size?: DesignsystemetLabelProps['data-size'];
   style?: DesignsystemetLabelProps['style'];
 };
 
-export function Label({
-  label,
-  htmlFor,
-  required,
-  requiredIndicator,
-  optionalIndicator,
-  help,
-  description,
-  className,
-  grid,
-  style,
-  children,
-}: PropsWithChildren<LabelProps>) {
+export const Label = forwardRef<HTMLLabelElement, PropsWithChildren<LabelProps>>(function Label(
+  {
+    id,
+    label,
+    htmlFor,
+    required,
+    requiredIndicator,
+    optionalIndicator,
+    help,
+    description,
+    className,
+    grid,
+    size = 'md',
+    style,
+    children,
+  },
+  ref,
+) {
   if (!label) {
     return children;
   }
@@ -52,8 +59,10 @@ export function Label({
         <span className={classes.labelAndDescWrapper}>
           <span className={classes.labelAndHelpWrapper}>
             <DesignsystemetLabel
+              id={id}
+              ref={ref}
               weight='medium'
-              size='md'
+              data-size={size}
               htmlFor={htmlFor}
               className={cn(className, {
                 [classes.labelPadding]: !children,
@@ -72,4 +81,4 @@ export function Label({
       {children}
     </Flex>
   );
-}
+});

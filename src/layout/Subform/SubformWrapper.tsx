@@ -7,14 +7,13 @@ import { useTaskStore } from 'src/core/contexts/taskStoreContext';
 import { Loader } from 'src/core/loading/Loader';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ProcessTaskType } from 'src/types';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
-export function SubformWrapper({ node, children }: PropsWithChildren<{ node: LayoutNode<'Subform'> }>) {
-  const isDone = useDoOverride(node);
+export function SubformWrapper({ baseComponentId, children }: PropsWithChildren<{ baseComponentId: string }>) {
+  const isDone = useDoOverride(baseComponentId);
 
   if (!isDone) {
     return <Loader reason='subform-taskstore' />;
@@ -70,10 +69,10 @@ export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, d
   return isDone;
 };
 
-export const useDoOverride = (node: LayoutNode<'Subform'>, providedDataElementId?: string) => {
+export const useDoOverride = (baseComponentId: string, providedDataElementId?: string) => {
   const dataElementId = useNavigationParam('dataElementId');
   const actualDataElementId = providedDataElementId ? providedDataElementId : dataElementId;
-  const { layoutSet, id } = useNodeItem(node);
+  const { layoutSet, id } = useItemWhenType(baseComponentId, 'Subform');
   const dataType = useDataTypeFromLayoutSet(layoutSet);
 
   if (!dataType) {

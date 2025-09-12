@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
@@ -6,25 +7,30 @@ import { getDescriptionId, getLabelId, Label } from 'src/components/label/Label'
 import { useAddRejectedAttachments, useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
 import { useGetOptions } from 'src/features/options/useGetOptions';
-import { useIsSubformPage } from 'src/features/routing/AppRoutingContext';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
+import { useIsSubformPage } from 'src/hooks/navigation';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { FailedAttachments } from 'src/layout/FileUpload/Error/FailedAttachments';
+import { InfectedFileAlert } from 'src/layout/FileUpload/Error/InfectedFileAlert';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import { RejectedFileError } from 'src/layout/FileUpload/RejectedFileError';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { ComponentErrorList } from 'src/layout/GenericComponent';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export type IFileUploadWithTagProps = PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>;
-
-export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JSX.Element {
-  const item = useNodeItem(node);
+export function FileUploadComponent({
+  baseComponentId,
+}: PropsFromGenericComponent<'FileUpload' | 'FileUploadWithTag'>): React.JSX.Element {
+  const item = useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
+    baseComponentId,
+    (t) => t === 'FileUpload' || t === 'FileUploadWithTag',
+  );
   const {
     id,
     maxFileSizeInMB,
@@ -37,19 +43,20 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
     dataModelBindings,
   } = item;
   const isSubformPage = useIsSubformPage();
-  if (isSubformPage) {
-    throw new Error('Cannot use a FileUpload components within a subform');
-  }
 
   const [showFileUpload, setShowFileUpload] = React.useState(false);
   const mobileView = useIsMobileOrTablet();
-  const attachments = useAttachmentsFor(node);
+  const attachments = useAttachmentsFor(baseComponentId);
   const addRejectedAttachments = useAddRejectedAttachments();
   const uploadAttachments = useAttachmentsUploader();
+  const navigation = useNavigation();
 
-  const validations = useUnifiedValidationsForNode(node).filter((v) => !('attachmentId' in v) || !v.attachmentId);
+  const validations = useUnifiedValidationsForNode(baseComponentId).filter(
+    (v) => !('attachmentId' in v) || !v.attachmentId,
+  );
 
-  const { options, isFetching } = useGetOptions(node as LayoutNode<'FileUploadWithTag'>, 'single');
+  const { options, isFetching } = useGetOptions(baseComponentId, 'single');
+  const indexedId = useIndexedId(baseComponentId);
 
   const canUploadMoreAttachments = attachments.length < maxNumberOfAttachments;
   const isComplexMode = displayMode !== 'simple';
@@ -79,7 +86,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
       return;
     }
     // we should upload all files, if any rejected files we should display an error
-    uploadAttachments({ files: acceptedFiles, nodeId: node.id, dataModelBindings });
+    uploadAttachments({ files: acceptedFiles, nodeId: indexedId, dataModelBindings });
 
     if (acceptedFiles.length > 0) {
       setShowFileUpload(displayMode === 'simple' ? false : attachments.length < maxNumberOfAttachments);
@@ -87,18 +94,27 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
 
     const rejections = rejectedFiles.map((fileRejection) => new RejectedFileError(fileRejection, maxFileSizeInMB));
     if (rejections?.length) {
-      addRejectedAttachments(node.id, rejections);
+      addRejectedAttachments(indexedId, rejections);
     }
   };
 
+  if (isSubformPage && navigation.state !== 'loading') {
+    return (
+      <ComponentErrorList
+        baseComponentId={baseComponentId}
+        errors={['Cannot use a FileUpload components within a subform']}
+      />
+    );
+  }
+
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <div
         id={`altinn-fileuploader-${id}`}
         style={{ padding: '0px', width: '100%' }}
       >
         <Label
-          node={node}
+          baseComponentId={baseComponentId}
           renderLabelAs='plainLabel'
         />
         {shouldShowFileUpload && (
@@ -123,14 +139,14 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             />
             <ComponentValidations
               validations={validations}
-              node={node}
+              baseComponentId={baseComponentId}
             />
             {attachments && attachments.length > 0 && <div className={classes.betweenTableAndDropMargin} />}
           </>
         )}
 
         <FileTable
-          node={node}
+          baseComponentId={baseComponentId}
           mobileView={mobileView}
           attachments={attachments}
           options={options}
@@ -145,7 +161,7 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             />
             <ComponentValidations
               validations={validations}
-              node={node}
+              baseComponentId={baseComponentId}
             />
             <br />
           </>
@@ -158,7 +174,8 @@ export function FileUploadComponent({ node }: IFileUploadWithTagProps): React.JS
             <Lang id='form_filler.file_uploader_add_attachment' />
           </button>
         )}
-        <FailedAttachments node={node} />
+        <FailedAttachments baseComponentId={baseComponentId} />
+        <InfectedFileAlert baseComponentId={baseComponentId} />
       </div>
     </ComponentStructureWrapper>
   );

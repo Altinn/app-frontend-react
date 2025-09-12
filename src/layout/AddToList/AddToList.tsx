@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import type { MonthCaption } from 'react-day-picker';
 
-import { Button, Modal, ModalContent, ModalFooter, ModalHeader } from '@digdir/designsystemet-react';
+import { Button, Dialog } from '@digdir/designsystemet-react';
 import { v4 as uuidv4 } from 'uuid';
 import type { JSONSchema7 } from 'json-schema';
 
@@ -12,11 +12,10 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { DropdownCaption } from 'src/layout/Datepicker/DropdownCaption';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import type { FormDataObject } from 'src/app-components/DynamicForm/DynamicForm';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
-type AddToListProps = PropsFromGenericComponent<'AddToList'>;
 
 export function isJSONSchema7Definition(obj: unknown): obj is JSONSchema7 {
   if (typeof obj === 'boolean') {
@@ -40,7 +39,9 @@ interface ModalDynamicFormProps {
   onChange: (data: FormDataObject) => void;
   initialData?: FormDataObject; // Added to receive existing item
   locale?: string;
-  onInteractOutside?: () => void;
+  backdropClose?: boolean;
+  onClose?: () => void;
+  modalRef?: React.RefObject<HTMLDialogElement | null>;
   DropdownCaption: typeof MonthCaption;
 }
 
@@ -48,11 +49,13 @@ export function AddToListModal({
   onChange,
   initialData,
   dataModelReference,
-  onInteractOutside,
+  onClose,
+  modalRef,
   DropdownCaption,
 }: ModalDynamicFormProps) {
   const appendToList = FD.useAppendToList();
-  const modalRef = useRef<HTMLDialogElement>(null);
+  let addToListModalRef = useRef<HTMLDialogElement | null>(null);
+  addToListModalRef = modalRef ?? addToListModalRef;
 
   const { schemaLookup } = DataModels.useFullStateRef().current;
 
@@ -63,7 +66,6 @@ export function AddToListModal({
   const { langAsString } = useLanguage();
 
   useEffect(() => {
-    modalRef.current?.showModal();
     if (!initialData) {
       const uuid = uuidv4();
       appendToList({
@@ -84,14 +86,14 @@ export function AddToListModal({
     return null;
   }
   return (
-    <Modal
-      ref={modalRef}
-      style={{ padding: 'var(--fds-spacing-3)' }}
-      onInteractOutside={onInteractOutside}
-      onClose={onInteractOutside}
+    <Dialog
+      ref={addToListModalRef}
+      style={{ padding: 'var(--ds-size-3)' }}
+      closedby='any'
+      modal={true}
+      onClose={onClose}
     >
-      <ModalHeader />
-      <ModalContent>
+      <Dialog.Block>
         <DynamicForm
           schema={schema?.items}
           onChange={onFormDataUpdate}
@@ -100,10 +102,10 @@ export function AddToListModal({
           buttonAriaLabel={langAsString('date_picker.aria_label_icon')}
           calendarIconTitle={langAsString('date_picker.aria_label_icon')}
         />
-      </ModalContent>
-      <ModalFooter>
+      </Dialog.Block>
+      <Dialog.Block>
         <Button
-          size='md'
+          data-size='md'
           variant='primary'
           onClick={() => {
             if (tempFormData) {
@@ -113,46 +115,45 @@ export function AddToListModal({
         >
           Lagre
         </Button>
-      </ModalFooter>
-    </Modal>
+      </Dialog.Block>
+    </Dialog>
   );
 }
 
-export function AddToListComponent({ node }: AddToListProps) {
-  const item = useNodeItem(node);
-
-  const { formData } = useDataModelBindings(item.dataModelBindings, 1, 'raw');
+export function AddToListComponent({ baseComponentId }: PropsFromGenericComponent<'AddToList'>) {
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'AddToList');
+  const { formData } = useDataModelBindings(dataModelBindings, 1, 'raw');
   const setMultiLeafValues = FD.useSetMultiLeafValues();
 
+  const modalRef = useRef<HTMLDialogElement>(null);
   const [showForm, setShowForm] = useState(false);
 
   return (
     <div>
       {showForm && (
         <AddToListModal
-          dataModelReference={item.dataModelBindings.data}
+          dataModelReference={dataModelBindings.data}
+          modalRef={modalRef}
           onChange={(formProps) => {
             const changes = Object.entries(formProps).map((entry) => ({
               reference: {
-                dataType: item.dataModelBindings.data.dataType,
-                field: `${item.dataModelBindings.data.field}[${(formData.data as []).length - 1}].${entry[0]}`,
+                dataType: dataModelBindings.data.dataType,
+                field: `${dataModelBindings.data.field}[${(formData.data as []).length - 1}].${entry[0]}`,
               },
               newValue: `${entry[1]}`,
             }));
             setMultiLeafValues({ changes });
             setShowForm(false);
           }}
-          onInteractOutside={() => {
-            setShowForm(false);
-          }}
+          backdropClose={true}
           DropdownCaption={DropdownCaption}
         />
       )}
 
       <Button
-        size='md'
+        data-size='md'
         variant='primary'
-        onClick={() => setShowForm(true)} // Call onChange when button is clicked
+        onClick={() => modalRef.current?.showModal()} // Call onChange when button is clicked
       >
         Legg til
       </Button>

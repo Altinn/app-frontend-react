@@ -1,31 +1,31 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useResetScrollPosition } from 'src/core/ui/useResetScrollPosition';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useLaxProcessData } from 'src/features/instance/ProcessContext';
+import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { useIsSubformPage, useNavigationParam } from 'src/features/routing/AppRoutingContext';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
+import { useIsSubformPage, useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ButtonColor, ButtonVariant } from 'src/app-components/Button/Button';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
-import type { IInstance, IUserAction } from 'src/types/shared';
-
-type Props = PropsFromGenericComponent<'CustomButton'>;
+import type { IInstance } from 'src/types/shared';
 
 type UpdatedDataModels = {
   [dataModelGuid: string]: object;
@@ -71,73 +71,61 @@ function useHandleClientActions(): UseHandleClientActions {
   const mainPageKey = useNavigationParam('mainPageKey');
   const isSubformPage = useIsSubformPage();
 
-  const frontendActions: ClientActionHandlers = useMemo(
-    () => ({
-      nextPage: navigateToNextPage,
-      previousPage: navigateToPreviousPage,
-      navigateToPage: async ({ page }) => navigateToPage(page),
-      closeSubform: exitSubform,
-    }),
-    [exitSubform, navigateToNextPage, navigateToPage, navigateToPreviousPage],
-  );
+  const frontendActions: ClientActionHandlers = {
+    nextPage: navigateToNextPage,
+    previousPage: navigateToPreviousPage,
+    navigateToPage: async ({ page }) => navigateToPage(page),
+    closeSubform: exitSubform,
+  };
 
-  const handleClientAction = useCallback(
-    async (action: CBTypes.ClientAction) => {
-      if (action.id == null) {
-        window.logError('Client action is missing id. Did you provide the id of the action? Action:', action);
-        return;
-      }
+  async function handleClientAction(action: CBTypes.ClientAction) {
+    if (action.id == null) {
+      window.logError('Client action is missing id. Did you provide the id of the action? Action:', action);
+      return;
+    }
 
-      if (isSpecificClientAction('navigateToPage', action)) {
-        return await frontendActions[action.id](action.metadata);
-      }
+    if (isSpecificClientAction('navigateToPage', action)) {
+      return await frontendActions[action.id](action.metadata);
+    }
 
-      const subformActions = ['closeSubform'];
-      if ((!isSubformPage || !mainPageKey) && subformActions.includes(action.id)) {
-        throw new Error('SubformAction is only applicable for subforms');
-      }
+    const subformActions = ['closeSubform'];
+    if ((!isSubformPage || !mainPageKey) && subformActions.includes(action.id)) {
+      throw new Error('SubformAction is only applicable for subforms');
+    }
 
-      await frontendActions[action.id]();
-    },
-    [frontendActions, isSubformPage, mainPageKey],
-  );
+    await frontendActions[action.id]();
+  }
 
-  const handleClientActions: UseHandleClientActions['handleClientActions'] = useCallback(
-    async (actions) => {
-      for (const action of actions) {
-        await handleClientAction(action);
-      }
-    },
-    [handleClientAction],
-  );
+  async function handleClientActions(actions: CBTypes.ClientAction[]) {
+    for (const action of actions) {
+      await handleClientAction(action);
+    }
+  }
 
-  const handleDataModelUpdate: UseHandleClientActions['handleDataModelUpdate'] = useCallback(
-    async (currentLock, result) => {
-      const instance = result.instance;
-      const updatedDataModels = result.updatedDataModels;
-      const _updatedValidationIssues = result.updatedValidationIssues;
+  const handleDataModelUpdate: UseHandleClientActions['handleDataModelUpdate'] = async (currentLock, result) => {
+    const instance = result.instance;
+    const updatedDataModels = result.updatedDataModels;
+    const _updatedValidationIssues = result.updatedValidationIssues;
 
-      // Undo data element mapping from backend by combining sources into a single BackendValidationIssueGroups object
-      const updatedValidationIssues = _updatedValidationIssues
-        ? Object.values(_updatedValidationIssues).reduce((issueGroups, currentGroups) => {
-            for (const [source, group] of Object.entries(currentGroups)) {
-              if (!issueGroups[source]) {
-                issueGroups[source] = [];
-              }
-              issueGroups[source].push(...group);
-              return issueGroups;
+    // Undo data element mapping from backend by combining sources into a single BackendValidationIssueGroups object
+    const updatedValidationIssues = _updatedValidationIssues
+      ? Object.values(_updatedValidationIssues).reduce((issueGroups, currentGroups) => {
+          for (const [source, group] of Object.entries(currentGroups)) {
+            if (!issueGroups[source]) {
+              issueGroups[source] = [];
             }
-          }, {})
-        : undefined;
+            issueGroups[source].push(...group);
+            return issueGroups;
+          }
+        }, {})
+      : undefined;
 
-      currentLock.unlock({
-        instance,
-        updatedDataModels,
-        updatedValidationIssues,
-      });
-    },
-    [],
-  );
+    currentLock.unlock({
+      instance,
+      updatedDataModels,
+      updatedValidationIssues,
+    });
+  };
 
   return { handleClientActions, handleDataModelUpdate };
 }
@@ -147,71 +135,41 @@ type PerformActionMutationProps = {
   buttonId: string;
 };
 
-type UsePerformActionMutation = {
-  isPending: boolean;
-  handleServerAction: (props: PerformActionMutationProps) => Promise<void>;
-};
-
-function useHandleServerActionMutation(acquireLock: FormDataLocking): UsePerformActionMutation {
-  const { doPerformAction } = useAppMutations();
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
-  const markNotReady = NodesInternal.useMarkNotReady();
+function useHandleServerActionMutationFn(acquireLock: FormDataLocking) {
+  const { instanceOwnerPartyId, instanceGuid } = useParams();
   const selectedLanguage = useCurrentLanguage();
+  const queryClient = useQueryClient();
+  const { doPerformAction } = useAppMutations();
+  const { handleClientActions, handleDataModelUpdate } = useHandleClientActions();
 
-  const { mutateAsync, isPending } = useMutation({
-    mutationFn: async ({ action, buttonId }: PerformActionMutationProps) => {
-      if (!instanceGuid || !instanceOwnerPartyId) {
-        throw Error('Cannot perform action without partyId and instanceGuid');
+  return async ({ action, buttonId }: PerformActionMutationProps) => {
+    const lock = await acquireLock();
+    if (!instanceGuid || !instanceOwnerPartyId) {
+      throw Error('Cannot perform action without partyId and instanceGuid');
+    }
+
+    try {
+      const result = await doPerformAction(
+        instanceOwnerPartyId,
+        instanceGuid,
+        { action: action.id, buttonId },
+        selectedLanguage,
+        queryClient,
+      );
+
+      await handleDataModelUpdate(lock, result);
+      if (result.clientActions) {
+        await handleClientActions(result.clientActions);
       }
-      return doPerformAction(instanceOwnerPartyId, instanceGuid, { action: action.id, buttonId }, selectedLanguage);
-    },
-  });
 
-  const handleServerAction = useCallback(
-    async ({ action, buttonId }: PerformActionMutationProps) => {
-      const lock = await acquireLock();
-      try {
-        const result = await mutateAsync({ action, buttonId });
-
-        // Server actions can bring back changes to the data model, which could cause the node tree to update. Marking
-        // it as not ready now will prevent some re-renders with stale data while the result is handled later.
-        markNotReady();
-
-        await handleDataModelUpdate(lock, result);
-        if (result.clientActions) {
-          await handleClientActions(result.clientActions);
-        }
-      } catch (error) {
-        if (lock.isLocked()) {
-          lock.unlock();
-        }
-        if (error?.response?.data?.error?.message !== undefined) {
-          toast(<Lang id={error?.response?.data?.error?.message} />, { type: 'error' });
-        } else {
-          toast(<Lang id='custom_actions.general_error' />, { type: 'error' });
-        }
+      return result;
+    } catch (error) {
+      if (lock.isLocked()) {
+        lock.unlock();
       }
-    },
-    [handleClientActions, handleDataModelUpdate, acquireLock, mutateAsync, markNotReady],
-  );
-
-  return { handleServerAction, isPending };
-}
-
-export function useActionAuthorization() {
-  const currentTask = useLaxProcessData()?.currentTask;
-  const userActions = currentTask?.userActions;
-  const actionPermissions = currentTask?.actions;
-
-  const isAuthorized = useCallback(
-    (action: IUserAction['id']) =>
-      (!!actionPermissions?.[action] || userActions?.find((a) => a.id === action)?.authorized) ?? false,
-    [actionPermissions, userActions],
-  );
-
-  return { isAuthorized };
+      throw error;
+    }
+  };
 }
 
 export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
@@ -219,7 +177,7 @@ export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColo
   secondary: { variant: 'secondary', color: 'first' },
 };
 
-function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' {
+function toShorthandSize(size?: CBTypes.CustomButtonSize): 'sm' | 'md' | 'lg' {
   switch (size) {
     case 'sm':
     case 'small':
@@ -235,15 +193,22 @@ function toShorthandSize(size?: CBTypes.ButtonSize): 'sm' | 'md' | 'lg' {
   }
 }
 
-export const CustomButtonComponent = ({ node }: Props) => {
-  const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useNodeItem(node);
+export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericComponent<'CustomButton'>) => {
+  const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useItemWhenType(
+    baseComponentId,
+    'CustomButton',
+  );
 
   const acquireLock = FD.useLocking(id);
-  const { isAuthorized } = useActionAuthorization();
+  const isAuthorized = useIsAuthorized();
   const { handleClientActions } = useHandleClientActions();
-  const { handleServerAction } = useHandleServerActionMutation(acquireLock);
+  const { mutate: handleServerAction, error } = useMutation({
+    mutationFn: useHandleServerActionMutationFn(acquireLock),
+  });
+
   const onPageNavigationValidation = useOnPageNavigationValidation();
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
+  const layoutLookups = useLayoutLookups();
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -268,12 +233,27 @@ export const CustomButtonComponent = ({ node }: Props) => {
     buttonText = 'general.done';
   }
 
+  useEffect(() => {
+    if (error) {
+      if (isAxiosError(error) && error.response?.data?.error?.message !== undefined) {
+        toast(<Lang id={error.response.data.error.message} />, { type: 'error' });
+      } else {
+        toast(<Lang id='custom_actions.general_error' />, { type: 'error' });
+      }
+    }
+  }, [error]);
+
   const onClick = () =>
     performProcess(async () => {
       for (const action of actions) {
         if (action.validation) {
           const prevScrollPosition = getScrollPosition();
-          const hasErrors = await onPageNavigationValidation(node.page, action.validation);
+          const page = layoutLookups.componentToPage[baseComponentId];
+          if (!page) {
+            throw new Error('Could not find page for component');
+          }
+
+          const hasErrors = await onPageNavigationValidation(page, action.validation);
           if (hasErrors) {
             resetScrollPosition(prevScrollPosition);
             return;
@@ -283,7 +263,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
         if (isClientAction(action)) {
           await handleClientActions([action]);
         } else if (isServerAction(action)) {
-          await handleServerAction({ action, buttonId: id });
+          handleServerAction({ action, buttonId: id });
         }
       }
     });
@@ -291,7 +271,7 @@ export const CustomButtonComponent = ({ node }: Props) => {
   const style = buttonStyles[interceptedButtonStyle];
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <Button
         id={`custom-button-${id}`}
         disabled={disabled}

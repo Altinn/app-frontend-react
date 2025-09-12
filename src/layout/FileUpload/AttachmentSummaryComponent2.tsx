@@ -4,22 +4,22 @@ import { Paragraph } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
-import { useNodeOptions } from 'src/features/options/useNodeOptions';
+import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
+import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
-export interface IAttachmentSummaryComponent {
-  targetNode: LayoutNode<'FileUpload' | 'FileUploadWithTag'>;
-}
-
-export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryComponent) {
-  const attachments = useUploaderSummaryData(targetNode);
-  const hasTag = targetNode.isType('FileUploadWithTag');
-  const { options, isFetching } = useNodeOptions(targetNode as LayoutNode<'FileUploadWithTag'>);
+export function AttachmentSummaryComponent2({ targetBaseComponentId }: Summary2Props) {
+  const attachments = useUploaderSummaryData(targetBaseComponentId);
+  const component = useExternalItem(targetBaseComponentId);
+  const hasTag = component?.type === 'FileUploadWithTag';
+  const { options, isFetching } = useOptionsFor(targetBaseComponentId, 'single');
   const mobileView = useIsMobileOrTablet();
   const pdfModeActive = usePdfModeActive();
   const isSmall = mobileView && !pdfModeActive;
@@ -31,12 +31,27 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
     }
     return attachment.data.tags && attachment.data.tags?.length > 0;
   });
+  const isEmpty = filteredAttachments.length === 0;
+  const required =
+    useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
+      targetBaseComponentId,
+      (t) => t === 'FileUpload' || t === 'FileUploadWithTag',
+    ).minNumberOfAttachments > 0;
 
   return (
-    <>
+    <SummaryFlex
+      targetBaseId={targetBaseComponentId}
+      content={
+        isEmpty
+          ? required
+            ? SummaryContains.EmptyValueRequired
+            : SummaryContains.EmptyValueNotRequired
+          : SummaryContains.SomeUserContent
+      }
+    >
       <Label
-        node={targetNode}
-        overrideId={`attachment-summary2-${targetNode.id}`}
+        baseComponentId={targetBaseComponentId}
+        overrideId={`attachment-summary2-${targetBaseComponentId}`}
         renderLabelAs='span'
         className={classes.summaryLabelMargin}
         weight='regular'
@@ -49,7 +64,7 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
         </Paragraph>
       ) : (
         <FileTable
-          node={targetNode}
+          baseComponentId={targetBaseComponentId}
           mobileView={isSmall}
           attachments={filteredAttachments}
           options={options}
@@ -57,6 +72,6 @@ export function AttachmentSummaryComponent2({ targetNode }: IAttachmentSummaryCo
           isFetching={isFetching}
         />
       )}
-    </>
+    </SummaryFlex>
   );
 }

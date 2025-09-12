@@ -1,46 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { Tabs as DesignsystemetTabs } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
-import { useRegisterNodeNavigationHandler } from 'src/features/form/layout/NavigateToNode';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { SearchParams } from 'src/hooks/navigation';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { GenericComponentById } from 'src/layout/GenericComponent';
+import { GenericComponent } from 'src/layout/GenericComponent';
 import classes from 'src/layout/Tabs/Tabs.module.css';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { getBaseComponentId } from 'src/utils/splitDashedKey';
 import { typedBoolean } from 'src/utils/typing';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
-  const size = useNodeItem(node, (i) => i.size);
-  const defaultTab = useNodeItem(node, (i) => i.defaultTab);
-  const tabs = useNodeItem(node, (i) => i.tabsInternal);
-  const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
+const sizeMap: Record<string, 'sm' | 'md' | 'lg'> = {
+  small: 'sm',
+  medium: 'md',
+  large: 'lg',
+};
 
-  useRegisterNodeNavigationHandler(async (targetNode) => {
-    const parents = parentNodes(targetNode);
-    for (const parent of parents) {
-      if (parent === node) {
-        const targetTabId = tabs.find((tab) => tab.childIds.some((childId) => childId === targetNode.id))?.id;
+export const Tabs = ({ baseComponentId }: PropsFromGenericComponent<'Tabs'>) => {
+  const { size: _size, defaultTab, tabs } = useExternalItem(baseComponentId, 'Tabs');
+  const size = _size ?? 'medium';
+  const [activeTab, setActiveTab] = useState<string | undefined>(defaultTab ?? tabs.at(0)?.id);
+  const layoutLookups = useLayoutLookups();
+
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    const targetIndexedId = searchParams.get(SearchParams.FocusComponentId);
+    if (!targetIndexedId) {
+      return;
+    }
+    const targetBaseComponentId = getBaseComponentId(targetIndexedId);
+
+    let parent = layoutLookups.componentToParent[targetBaseComponentId];
+    while (parent?.type === 'node') {
+      if (parent.id === baseComponentId) {
+        const targetTabId = tabs.find((tab) =>
+          tab.children.some((childBaseId) => childBaseId === targetBaseComponentId),
+        )?.id;
         if (targetTabId) {
           setActiveTab(targetTabId);
-          return true;
+          return;
         }
       }
+      parent = layoutLookups.componentToParent[parent.id];
     }
-    return false;
-  });
+  }, [baseComponentId, layoutLookups.componentToParent, searchParams, tabs]);
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <DesignsystemetTabs
         defaultValue={activeTab}
         value={activeTab}
         onChange={(tabId) => setActiveTab(tabId)}
-        size={size}
+        data-size={sizeMap[size]}
       >
         <DesignsystemetTabs.List>
           {tabs.map((tab) => (
@@ -54,7 +72,7 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
           ))}
         </DesignsystemetTabs.List>
         {tabs.map((tab) => (
-          <DesignsystemetTabs.Content
+          <DesignsystemetTabs.Panel
             key={tab.id}
             value={tab.id}
             role='tabpanel'
@@ -65,31 +83,21 @@ export const Tabs = ({ node }: PropsFromGenericComponent<'Tabs'>) => {
               spacing={6}
               alignItems='flex-start'
             >
-              {tab.childIds.filter(typedBoolean).map((nodeId) => (
-                <GenericComponentById
-                  key={nodeId}
-                  id={nodeId}
+              {tab.children.filter(typedBoolean).map((baseId) => (
+                <GenericComponent
+                  key={baseId}
+                  baseComponentId={baseId}
                 />
               ))}
             </Flex>
-          </DesignsystemetTabs.Content>
+          </DesignsystemetTabs.Panel>
         ))}
       </DesignsystemetTabs>
     </ComponentStructureWrapper>
   );
 };
 
-function TabHeader({
-  id,
-  title,
-  icon,
-  isActive,
-}: {
-  id: string;
-  title: string;
-  icon: string | undefined;
-  isActive?: boolean;
-}) {
+function TabHeader({ id, title, icon }: { id: string; title: string; icon: string | undefined; isActive?: boolean }) {
   const { langAsString } = useLanguage();
   const translatedTitle = langAsString(title);
 
@@ -108,10 +116,8 @@ function TabHeader({
     <DesignsystemetTabs.Tab
       key={id}
       value={id}
-      style={{
-        backgroundColor: isActive ? 'white' : 'transparent',
-      }}
       tabIndex={0}
+      className={classes.tabHeader}
     >
       {!!icon && (
         <img
@@ -123,18 +129,4 @@ function TabHeader({
       <Lang id={translatedTitle} />
     </DesignsystemetTabs.Tab>
   );
-}
-
-function parentNodes(node: LayoutNode): LayoutNode[] {
-  const parents: LayoutNode[] = [];
-  let parent = node.parent;
-  while (parent) {
-    if (!(parent instanceof LayoutNode)) {
-      break;
-    }
-    parents.push(parent);
-    parent = parent.parent;
-  }
-
-  return parents;
 }

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -14,66 +14,72 @@ import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
-export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ILayoutSettings> {
+export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ProcessedLayoutSettings> {
   const { fetchLayoutSettings } = useAppQueries();
   return {
     queryKey: ['layoutSettings', layoutSetId],
-    queryFn: layoutSetId ? () => fetchLayoutSettings(layoutSetId) : skipToken,
-    enabled: !!layoutSetId,
+    queryFn: async () => processData(layoutSetId ? await fetchLayoutSettings(layoutSetId) : null),
   };
 }
 
 function useLayoutSettingsQuery() {
   const layoutSetId = useLayoutSetId();
-
-  if (!layoutSetId) {
-    throw new Error('No layoutSet id found');
-  }
-
-  const utils = useQuery(useLayoutSettingsQueryDef(layoutSetId));
+  const query = useQuery(useLayoutSettingsQueryDef(layoutSetId));
 
   useEffect(() => {
-    utils.error && window.logError('Fetching layout settings failed:\n', utils.error);
-  }, [utils.error]);
+    query.error && window.logError('Fetching layout settings failed:\n', query.error);
+  }, [query.error]);
 
-  return utils;
+  return query;
+}
+
+function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings {
+  if (!settings) {
+    return {
+      order: [],
+      groups: [],
+      pageSettings: {},
+      pdfLayoutName: undefined,
+    };
+  }
+
+  if (!('order' in settings.pages) && !('groups' in settings.pages)) {
+    const msg = 'Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json';
+    window.logError(msg);
+    throw new Error(msg);
+  }
+  if ('order' in settings.pages && 'groups' in settings.pages) {
+    const msg = 'Specify one of `pages.order` or `pages.groups` in Settings.json';
+    window.logError(msg);
+    throw new Error(msg);
+  }
+
+  const order: string[] =
+    'order' in settings.pages
+      ? settings.pages.order
+      : settings.pages.groups.filter((group) => 'order' in group).flatMap((group) => group.order);
+
+  return {
+    order,
+    groups: 'groups' in settings.pages ? settings.pages.groups.map((g) => ({ ...g, id: uuidv4() })) : undefined,
+    pageSettings: omitUndefined({
+      autoSaveBehavior: settings.pages.autoSaveBehavior,
+      expandedWidth: settings.pages.expandedWidth,
+      hideCloseButton: settings.pages.hideCloseButton,
+      showExpandWidthButton: settings.pages.showExpandWidthButton,
+      showLanguageSelector: settings.pages.showLanguageSelector,
+      showProgress: settings.pages.showProgress,
+      taskNavigation: settings.pages.taskNavigation?.map((g) => ({ ...g, id: uuidv4() })),
+    }),
+    pdfLayoutName: settings.pages.pdfLayoutName,
+  };
 }
 
 const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
-  createQueryContext<ILayoutSettings, true, ProcessedLayoutSettings>({
+  createQueryContext<ProcessedLayoutSettings, true>({
     name: 'LayoutSettings',
     required: true,
     query: useLayoutSettingsQuery,
-    process: (settings) => {
-      if (!('order' in settings.pages) && !('groups' in settings.pages)) {
-        window.logError('Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json');
-        throw 'Missing page order, specify one of `pages.order` or `pages.groups` in Settings.json';
-      }
-      if ('order' in settings.pages && 'groups' in settings.pages) {
-        window.logError('Both `pages.order` and `pages.groups` was set in Settings.json');
-        throw 'Both `pages.order` and `pages.groups` was set in Settings.json';
-      }
-
-      const order: string[] =
-        'order' in settings.pages
-          ? settings.pages.order
-          : settings.pages.groups.filter((group) => 'order' in group).flatMap((group) => group.order);
-
-      return {
-        order,
-        groups: 'groups' in settings.pages ? settings.pages.groups.map((g) => ({ ...g, id: uuidv4() })) : undefined,
-        pageSettings: omitUndefined({
-          autoSaveBehavior: settings.pages.autoSaveBehavior,
-          expandedWidth: settings.pages.expandedWidth,
-          hideCloseButton: settings.pages.hideCloseButton,
-          showExpandWidthButton: settings.pages.showExpandWidthButton,
-          showLanguageSelector: settings.pages.showLanguageSelector,
-          showProgress: settings.pages.showProgress,
-          taskNavigation: settings.pages.taskNavigation?.map((g) => ({ ...g, id: uuidv4() })),
-        }),
-        pdfLayoutName: settings.pages.pdfLayoutName,
-      };
-    },
   }),
 );
 

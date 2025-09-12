@@ -14,11 +14,23 @@ export function useLayoutSetsQueryDef() {
   const { fetchLayoutSets } = useAppQueries();
   return {
     queryKey: ['fetchLayoutSets'],
-    queryFn: fetchLayoutSets,
+    queryFn: async () => {
+      const layoutSets = await fetchLayoutSets();
+      if (layoutSets?.uiSettings?.taskNavigation) {
+        return {
+          ...layoutSets,
+          uiSettings: {
+            ...layoutSets.uiSettings,
+            taskNavigation: layoutSets.uiSettings.taskNavigation.map((g) => ({ ...g, id: uuidv4() })),
+          },
+        };
+      }
+      return layoutSets;
+    },
   };
 }
 
-const useLayoutSetsQuery = () => {
+export const useLayoutSetsQuery = () => {
   const utils = useQuery(useLayoutSetsQueryDef());
 
   useEffect(() => {
@@ -33,18 +45,6 @@ const { Provider, useCtx, useLaxCtx } = delayedContext(() =>
     name: 'LayoutSets',
     required: true,
     query: useLayoutSetsQuery,
-    process: (layoutSets) => {
-      if (layoutSets?.uiSettings?.taskNavigation) {
-        return {
-          ...layoutSets,
-          uiSettings: {
-            ...layoutSets.uiSettings,
-            taskNavigation: layoutSets.uiSettings.taskNavigation.map((g) => ({ ...g, id: uuidv4() })),
-          },
-        };
-      }
-      return layoutSets;
-    },
   }),
 );
 

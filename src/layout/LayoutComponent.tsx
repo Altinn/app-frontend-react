@@ -2,55 +2,44 @@ import React from 'react';
 import type { JSX } from 'react';
 
 import type { ErrorObject } from 'ajv';
-import type { JSONSchema7 } from 'json-schema';
 
-import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { DefaultNodeInspector } from 'src/features/devtools/components/NodeInspector/DefaultNodeInspector';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { useEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { CompCategory } from 'src/layout/common';
 import { getComponentCapabilities } from 'src/layout/index';
 import { SummaryItemCompact } from 'src/layout/Summary/SummaryItemCompact';
+import { GenerateNodeChildren } from 'src/utils/layout/generator/LayoutSetGenerator';
 import { NodeGenerator } from 'src/utils/layout/generator/NodeGenerator';
 import type { CompCapabilities } from 'src/codegen/Config';
-import type { LayoutValidationCtx } from 'src/features/devtools/layoutValidation/types';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprVal } from 'src/features/expressions/types';
+import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { ComponentValidation } from 'src/features/validation';
-import type {
-  ComponentBase,
-  FormComponentProps,
-  IDataModelReference,
-  SummarizableComponentProps,
-} from 'src/layout/common.generated';
-import type { FormDataSelector, PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
+import type { ComponentBase, FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
+import type { PropsFromGenericComponent, ValidateEmptyField } from 'src/layout/index';
 import type {
   CompExternal,
   CompExternalExact,
   CompIntermediateExact,
   CompTypes,
+  IDataModelBindings,
   ITextResourceBindingsExternal,
   NodeValidationProps,
 } from 'src/layout/layout';
-import type { ISummaryComponent } from 'src/layout/Summary/SummaryComponent';
+import type { LegacySummaryOverrides } from 'src/layout/Summary/SummaryComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import type { CommonProps } from 'src/next/types/CommonComponentProps';
-import type { ChildClaim, ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
-import type { NodesContext } from 'src/utils/layout/NodesContext';
+import type { ChildClaims } from 'src/utils/layout/generator/GeneratorContext';
 import type { NodeDefPlugin } from 'src/utils/layout/plugins/NodeDefPlugin';
-import type { NodeData, StateFactoryProps } from 'src/utils/layout/types';
+import type { StateFactoryProps } from 'src/utils/layout/types';
 
 export interface NodeGeneratorProps {
   externalItem: CompExternalExact<CompTypes>;
-  claim: ChildClaim;
   childClaims: ChildClaims | undefined;
 }
 
 export interface ExprResolver<Type extends CompTypes> {
   item: CompIntermediateExact<Type>;
-  rowIndex?: number;
-  formDataSelector: FormDataSelector;
   evalBase: () => ExprResolved<Omit<ComponentBase, 'hidden'>>;
   evalFormProps: () => ExprResolved<FormComponentProps>;
   evalSummarizable: () => ExprResolved<SummarizableComponentProps>;
@@ -75,11 +64,7 @@ export abstract class AnyComponent<Type extends CompTypes> {
     | ReturnType<typeof React.forwardRef<HTMLElement, PropsFromGenericComponent<Type>>>
     | ((props: PropsFromGenericComponent<Type>) => JSX.Element | null);
 
-  renderNext?(props: CompIntermediateExact<Type>, commonProps: CommonProps): JSX.Element | null;
-
-  renderSummaryNext?(props: CompIntermediateExact<Type>, commonProps: CommonProps): JSX.Element | null;
-
-  renderSummary2?(props: Summary2Props<Type>): JSX.Element | null;
+  renderSummary2?(props: Summary2Props): JSX.Element | null;
 
   /**
    * Render a node generator for this component. This can be overridden if you want to extend
@@ -107,31 +92,10 @@ export abstract class AnyComponent<Type extends CompTypes> {
   }
 
   /**
-   * This is called to figure out if the nodes state is ready to be rendered. This can be overridden to add
-   * additional checks for any component.
-   */
-  public stateIsReady(state: NodeData<Type>): boolean {
-    return state.item !== undefined && state.hidden !== undefined;
-  }
-
-  /**
-   * Same as the above, but implemented by plugins automatically in the generated code.
-   */
-  abstract pluginStateIsReady(state: NodeData<Type>, fullState: NodesContext): boolean;
-
-  /**
    * Creates the zustand store default state for a node of this component type. Usually this is implemented
    * automatically by code generation, but you can override it if you need to add additional properties to the state.
    */
-  abstract stateFactory(props: StateFactoryProps<Type>): unknown;
-
-  /**
-   * Picks all direct children of a node, returning an array of node IDs for each child. This must be implemented for
-   * every component type that can adopt children.
-   */
-  public pickDirectChildren(_state: NodeData<Type>, _restriction?: number | undefined): string[] {
-    return [];
-  }
+  abstract stateFactory(props: StateFactoryProps): unknown;
 
   /**
    * The default expression evaluator, implemented by code generation. Do not try to override this yourself. If you
@@ -147,18 +111,10 @@ export abstract class AnyComponent<Type extends CompTypes> {
   abstract evalExpressions(props: ExprResolver<Type>): unknown;
 
   /**
-   * This needs to be implemented for components that supports repeating rows
-   * @see RepeatingChildrenPlugin
-   */
-  evalExpressionsForRow(_props: ExprResolver<Type>): unknown {
-    throw new Error('Component does not support evalExpressionsForRow');
-  }
-
-  /**
    * Given a node, a list of the node's data, for display in the devtools node inspector
    */
-  renderDevToolsInspector(node: LayoutNode<Type>): JSX.Element | null {
-    return <DefaultNodeInspector node={node} />;
+  renderDevToolsInspector(baseComponentId: string): JSX.Element | null {
+    return <DefaultNodeInspector baseComponentId={baseComponentId} />;
   }
 
   /**
@@ -169,9 +125,8 @@ export abstract class AnyComponent<Type extends CompTypes> {
     return false;
   }
 
-  shouldRenderInAutomaticPDF(data: NodeData<Type>): boolean {
-    const item = data.item;
-    return !(item && 'renderAsSummary' in item ? item.renderAsSummary : false);
+  shouldRenderInAutomaticPDF(layout: CompExternal<Type>): boolean {
+    return !('renderAsSummary' in layout ? layout.renderAsSummary : false);
   }
 
   /**
@@ -203,18 +158,24 @@ export abstract class AnyComponent<Type extends CompTypes> {
     const schemaPointer = '#/definitions/AnyComponent';
     return validate(schemaPointer, component);
   }
+
+  /**
+   * Extra components to render out in the node generator children
+   */
+  extraNodeGeneratorChildren(_props: NodeGeneratorProps): JSX.Element | null {
+    return null;
+  }
 }
 
 export abstract class PresentationComponent<Type extends CompTypes> extends AnyComponent<Type> {
   readonly category = CompCategory.Presentation;
 }
 
-export interface SummaryRendererProps<Type extends CompTypes> {
-  summaryNode: LayoutNode<'Summary'> | undefined;
-  targetNode: LayoutNode<Type>;
+export interface SummaryRendererProps {
+  targetBaseComponentId: string;
   onChangeClick: () => void;
   changeText: string | null;
-  overrides?: ISummaryComponent['overrides'];
+  overrides?: LegacySummaryOverrides;
 }
 
 abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type> {
@@ -222,7 +183,7 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * Render a summary for this component. For most components, this will return a:
    * <SingleInputSummary formDataAsString={displayData} />
    */
-  abstract renderSummary(props: SummaryRendererProps<Type>): JSX.Element | null;
+  abstract renderSummary(props: SummaryRendererProps): JSX.Element | null;
 
   /**
    * Lets you control if the component renders something like <SummaryBoilerplate /> first, or if the Summary should
@@ -236,11 +197,11 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
    * When rendering a summary of a repeating group with `largeGroup: false`, every FormComponent inside each row is
    * rendered in a compact way. The default
    */
-  public renderCompactSummary({ targetNode }: SummaryRendererProps<Type>): JSX.Element | null {
-    const displayData = useDisplayData(targetNode);
+  public renderCompactSummary({ targetBaseComponentId }: SummaryRendererProps): JSX.Element | null {
+    const displayData = useDisplayData(targetBaseComponentId);
     return (
       <SummaryItemCompact
-        targetNode={targetNode}
+        targetBaseComponentId={targetBaseComponentId}
         displayData={displayData}
       />
     );
@@ -249,94 +210,14 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
   /**
    * Return true if this component requires data model bindings to be configured
    */
-  public isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
+  public isDataModelBindingsRequired(_baseComponentId: string, _layoutLookups: LayoutLookups): boolean {
     return true;
   }
 
   /**
    * Runs validation on data model bindings. Returns an array of error messages.
    */
-  public validateDataModelBindings(_ctx: LayoutValidationCtx<Type>): string[] {
-    return [];
-  }
-
-  protected validateDataModelBindingsAny(
-    ctx: LayoutValidationCtx<Type>,
-    key: string,
-    validTypes: string[],
-    isRequired = this.isDataModelBindingsRequired(ctx.node),
-    name = key,
-  ): [string[], undefined] | [undefined, JSONSchema7] {
-    const { item, lookupBinding } = ctx;
-    const value: IDataModelReference = (item.dataModelBindings ?? {})[key] ?? undefined;
-
-    if (!value) {
-      if (isRequired) {
-        return [
-          [`En ${name} datamodell-binding er påkrevd for denne komponenten, men mangler i layout-konfigurasjonen.`],
-          undefined,
-        ];
-      }
-      return [[], undefined];
-    }
-
-    const [result, error] = lookupBinding(value);
-    if (error) {
-      return [[lookupErrorAsText(error)], undefined];
-    }
-
-    const { type } = result;
-    if (typeof type !== 'string') {
-      return [[`${name}-datamodellbindingen peker mot en ukjent type i datamodellen`], undefined];
-    }
-
-    if (!validTypes.includes(type)) {
-      return [
-        [
-          `${name}-datamodellbindingen peker mot en type definert som ${type} i datamodellen, ` +
-            `men burde være en av ${validTypes.join(', ')}`,
-        ],
-        undefined,
-      ];
-    }
-
-    return [undefined, result];
-  }
-
-  protected validateDataModelBindingsSimple(
-    ctx: LayoutValidationCtx<Type>,
-    isRequired = this.isDataModelBindingsRequired(ctx.node),
-  ): string[] {
-    const [errors] = this.validateDataModelBindingsAny(
-      ctx,
-      'simpleBinding',
-      ['string', 'number', 'integer', 'boolean'],
-      isRequired,
-      'simple',
-    );
-
-    return errors || [];
-  }
-
-  protected validateDataModelBindingsList(
-    ctx: LayoutValidationCtx<Type>,
-    isRequired = this.isDataModelBindingsRequired(ctx.node),
-  ): string[] {
-    const [errors, result] = this.validateDataModelBindingsAny(ctx, 'list', ['array'], isRequired);
-    if (errors) {
-      return errors;
-    }
-
-    if (
-      !result.items ||
-      typeof result.items !== 'object' ||
-      Array.isArray(result.items) ||
-      !result.items.type ||
-      result.items.type !== 'string'
-    ) {
-      return [`list-datamodellbindingen peker mot en ukjent type i datamodellen`];
-    }
-
+  public useDataModelBindingValidation(_baseComponentId: string, _bindings: IDataModelBindings<Type>): string[] {
     return [];
   }
 }
@@ -344,25 +225,22 @@ abstract class _FormComponent<Type extends CompTypes> extends AnyComponent<Type>
 export abstract class ActionComponent<Type extends CompTypes> extends AnyComponent<Type> {
   readonly category = CompCategory.Action;
 
-  shouldRenderInAutomaticPDF(_data: NodeData<Type>): boolean {
+  shouldRenderInAutomaticPDF(_data: CompExternal<Type>): boolean {
     return false;
   }
 }
 
-export abstract class FormComponent<Type extends CompTypes>
-  extends _FormComponent<Type>
-  implements ValidateEmptyField<Type>
-{
+export abstract class FormComponent<Type extends CompTypes> extends _FormComponent<Type> implements ValidateEmptyField {
   readonly category = CompCategory.Form;
 
-  useEmptyFieldValidation(node: LayoutNode<Type>): ComponentValidation[] {
-    return useEmptyFieldValidationAllBindings(node);
+  useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
+    return useEmptyFieldValidationAllBindings(baseComponentId);
   }
 }
 
 export interface ChildClaimerProps<Type extends CompTypes> {
   item: CompExternal<Type>;
-  claimChild: (pluginKey: string, id: string) => void;
+  claimChild: (id: string) => void;
   getType: (id: string) => CompTypes | undefined;
   getCapabilities: (type: CompTypes) => CompCapabilities;
 }
@@ -370,13 +248,15 @@ export interface ChildClaimerProps<Type extends CompTypes> {
 export abstract class ContainerComponent<Type extends CompTypes> extends _FormComponent<Type> {
   readonly category = CompCategory.Container;
 
-  isDataModelBindingsRequired(_node: LayoutNode<Type>): boolean {
+  isDataModelBindingsRequired(_baseComponentId: string, _layoutLookups: LayoutLookups): boolean {
     return false;
   }
 
-  abstract claimChildren(props: ChildClaimerProps<Type>): void;
+  extraNodeGeneratorChildren(props: NodeGeneratorProps): JSX.Element | null {
+    return <GenerateNodeChildren claims={props.childClaims} />;
+  }
 
-  abstract pickDirectChildren(state: NodeData<Type>, restriction?: number | undefined): string[];
+  abstract claimChildren(props: ChildClaimerProps<Type>): void;
 }
 
 export type LayoutComponent<Type extends CompTypes = CompTypes> =

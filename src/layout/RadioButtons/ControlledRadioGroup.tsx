@@ -1,26 +1,31 @@
 import React from 'react';
 
-import { Radio } from '@digdir/designsystemet-react';
+import { Fieldset, useRadioGroup } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
+import { ConditionalWrapper } from 'src/app-components/ConditionalWrapper/ConditionalWrapper';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { LabelContent } from 'src/components/label/LabelContent';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
+import utilClasses from 'src/styles/utils.module.css';
 import { shouldUseRowLayout } from 'src/utils/layout';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IControlledRadioGroupProps = PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>;
-
-export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
-  const { node, overrideDisplay } = props;
-  const isValid = useIsValid(node);
-  const item = useNodeItem(node);
+export const ControlledRadioGroup = (props: PropsFromGenericComponent<'RadioButtons' | 'LikertItem'>) => {
+  const { baseComponentId, overrideDisplay } = props;
+  const isValid = useIsValid(baseComponentId);
+  const item = useItemWhenType<'RadioButtons' | 'LikertItem'>(
+    baseComponentId,
+    (t) => t === 'RadioButtons' || t === 'LikertItem',
+  );
   const { id, layout, readOnly, textResourceBindings, required, showLabelsInTable } = item;
   const showAsCard = 'showAsCard' in item ? item.showAsCard : false;
   const { selectedValues, handleChange, fetchingOptions, calculatedOptions } = useRadioButtons(props);
@@ -34,12 +39,26 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
     : null;
   const confirmChangeText = langAsString('form_filler.alert_confirm');
 
-  const leftColumnHeader = useNodeItem(node.parent instanceof LayoutNode ? node.parent : undefined, (i) =>
-    i.type === 'Likert' ? i.textResourceBindings?.leftColumnHeader : undefined,
-  );
+  const { getRadioProps } = useRadioGroup({
+    name: id,
+    value: selectedValues[0],
+    onChange: () => handleChange,
+    error: !isValid,
+  });
+
+  const layoutLookups = useLayoutLookups();
+  const parent = layoutLookups.componentToParent[baseComponentId];
+  let leftColumnHeader: string | undefined = undefined;
+  if (parent?.type === 'node' && layoutLookups.getComponent(parent.id).type === 'Likert') {
+    // The parent node type never changes, so this doesn't break the rule of hooks
+    // eslint-disable-next-line react-compiler/react-compiler
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    leftColumnHeader = useItemWhenType(parent.id, 'Likert').textResourceBindings?.leftColumnHeader;
+  }
+
   const labelText = (
     <LabelContent
-      componentId={id}
+      id={id}
       label={
         <>
           {leftColumnHeader ? (
@@ -72,37 +91,50 @@ export const ControlledRadioGroup = (props: IControlledRadioGroupProps) => {
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       <div id={id}>
-        <Radio.Group
-          legend={labelText}
-          hideLegend={overrideDisplay?.renderLegend === false}
-          description={<Lang id={textResourceBindings?.description} />}
-          error={!isValid}
-          readOnly={readOnly}
-          inline={shouldDisplayHorizontally}
-          role='radiogroup'
-        >
-          {calculatedOptions.map((option) => (
-            <RadioButton
-              value={option.value}
-              label={langAsString(option.label)}
-              description={option.description && <Lang id={option.description} />}
-              helpText={option.helpText && <Lang id={option.helpText} />}
-              name={id}
-              key={option.value}
-              checked={option.value === selectedValues[0]}
-              showAsCard={showAsCard}
-              readOnly={readOnly}
-              onChange={handleChange}
-              hideLabel={hideLabel}
-              size='small'
-              alertOnChange={alertOnChange}
-              alertText={alertText}
-              confirmChangeText={confirmChangeText}
-            />
-          ))}
-        </Radio.Group>
+        <Fieldset role='radiogroup'>
+          <Fieldset.Legend
+            className={cn(classes.legend, { [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}
+          >
+            {labelText}
+          </Fieldset.Legend>
+          {textResourceBindings?.description && (
+            <Fieldset.Description
+              className={cn({ [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}
+            >
+              <Lang id={textResourceBindings?.description} />
+            </Fieldset.Description>
+          )}
+          <ConditionalWrapper
+            condition={shouldDisplayHorizontally}
+            wrapper={(children) => <div className={classes.inlineRadioGroup}>{children}</div>}
+          >
+            {calculatedOptions.map((option) => {
+              const radioProps = getRadioProps({ value: option.value });
+              return (
+                <RadioButton
+                  key={option.value}
+                  label={langAsString(option.label)}
+                  description={option.description && <Lang id={option.description} />}
+                  helpText={option.helpText && <Lang id={option.helpText} />}
+                  value={radioProps.value}
+                  name={id}
+                  checked={option.value === selectedValues[0]}
+                  showAsCard={showAsCard}
+                  readOnly={readOnly}
+                  onChange={handleChange}
+                  hideLabel={hideLabel}
+                  data-size='sm'
+                  aria-invalid={!isValid}
+                  alertOnChange={alertOnChange}
+                  alertText={alertText}
+                  confirmChangeText={confirmChangeText}
+                />
+              );
+            })}
+          </ConditionalWrapper>
+        </Fieldset>
       </div>
     </ComponentStructureWrapper>
   );

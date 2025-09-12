@@ -9,15 +9,14 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import {
   RepeatingGroupProvider,
-  useRepeatingGroup,
+  RepGroupContext,
   useRepeatingGroupRowState,
   useRepeatingGroupSelector,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
-import { renderWithNode } from 'src/test/renderWithProviders';
+import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { JsonPatch } from 'src/features/formData/jsonPatch/types';
 import type { ILayout } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
 // Mocking so that we can predict the UUIDs for new rows
 const nextUuids: string[] = [];
@@ -36,7 +35,7 @@ describe('openByDefault', () => {
       editingId: state.editingId,
       addingIds: state.addingIds,
     }));
-    const { deleteRow } = useRepeatingGroup();
+    const deleteRow = RepGroupContext.useDeleteRow();
     const { visibleRows, hiddenRows } = useRepeatingGroupRowState();
 
     const data = FD.useDebouncedPick({ field: 'MyGroup', dataType: defaultDataTypeMock });
@@ -97,14 +96,12 @@ describe('openByDefault', () => {
       },
     ];
 
-    return renderWithNode<true, LayoutNode<'RepeatingGroup'>>({
-      renderer: ({ node }) => (
-        <RepeatingGroupProvider node={node}>
+    return renderWithInstanceAndLayout({
+      renderer: (
+        <RepeatingGroupProvider baseComponentId='myGroup'>
           <RenderTest />
         </RepeatingGroupProvider>
       ),
-      nodeId: 'myGroup',
-      inInstance: true,
       queries: {
         fetchFormData: async () => ({
           MyGroup: existingRows ?? [],
@@ -161,6 +158,7 @@ describe('openByDefault', () => {
     expect(mutations?.doPatchFormData.mock).not.toHaveBeenCalled();
 
     if (expectedWarning) {
+      await waitFor(() => expect(window.logWarn).toHaveBeenCalled());
       expect(window.logWarn).toHaveBeenCalledWith(expectedWarning);
     } else {
       expect(window.logWarn).not.toHaveBeenCalled();

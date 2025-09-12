@@ -9,7 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
-import { useNavigationParam } from 'src/features/routing/AppRoutingContext';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
 export function Page({
@@ -50,9 +50,18 @@ export function Page({
           active={isCurrentPage}
           isLoading={isNavigating}
         />
-
         <span className={cn(classes.pageName, { [classes.pageNameActive]: isCurrentPage })}>
           <Lang id={page} />
+          {isComplete && (
+            <span className='sr-only'>
+              <Lang id='navigation.page_complete' />
+            </span>
+          )}
+          {hasErrors && (
+            <span className='sr-only'>
+              <Lang id='navigation.page_error' />
+            </span>
+          )}
         </span>
       </button>
       <SubformsForPage pageKey={page} />
@@ -83,7 +92,7 @@ function PageSymbol({
     return (
       <Spinner
         style={{ width: 20, height: 20 }}
-        title={langAsString('general.loading')}
+        aria-label={langAsString('general.loading')}
       />
     );
   }

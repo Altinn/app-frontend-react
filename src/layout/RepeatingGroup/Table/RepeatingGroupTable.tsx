@@ -4,16 +4,17 @@ import { Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import { Caption } from 'src/components/form/caption/Caption';
-import { useIndexedComponentIds } from 'src/features/form/layout/utils/makeIndexedId';
+import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
-import { GenericComponentById } from 'src/layout/GenericComponent';
-import { GridRowRenderer } from 'src/layout/Grid/GridComponent';
-import { useNodeIdsFromGridRows } from 'src/layout/Grid/tools';
+import { GenericComponent } from 'src/layout/GenericComponent';
+import { GridRowsRenderer } from 'src/layout/Grid/GridComponent';
+import { useBaseIdsFromGridRows } from 'src/layout/Grid/tools';
 import { RepeatingGroupsEditContainer } from 'src/layout/RepeatingGroup/EditContainer/RepeatingGroupsEditContainer';
 import { RepeatingGroupPagination } from 'src/layout/RepeatingGroup/Pagination/RepeatingGroupPagination';
 import {
-  useRepeatingGroup,
+  RepGroupContext,
+  useRepeatingGroupComponentId,
   useRepeatingGroupPagination,
   useRepeatingGroupRowState,
 } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
@@ -21,47 +22,41 @@ import classes from 'src/layout/RepeatingGroup/RepeatingGroup.module.css';
 import { RepeatingGroupTableRow } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableRow';
 import { RepeatingGroupTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
+import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
+import utilClasses from 'src/styles/utils.module.css';
 import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
-import { DataModelLocationProvider, useDataModelLocationForRow } from 'src/utils/layout/DataModelLocation';
-import { LayoutNode } from 'src/utils/layout/LayoutNode';
-import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
-import type { ITableColumnFormatting } from 'src/layout/common.generated';
-import type { GridCellInternal } from 'src/layout/Grid/types';
+import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
+import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { GridCell, ITableColumnFormatting } from 'src/layout/common.generated';
+import type { IDataModelBindings } from 'src/layout/layout';
+import type { IGroupColumnFormatting } from 'src/layout/RepeatingGroup/config.generated';
+import type { BaseRow } from 'src/utils/layout/types';
 
 export function RepeatingGroupTable(): React.JSX.Element | null {
   const mobileView = useIsMobileOrTablet();
-  const { node, isEditing } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
   const { rowsToDisplay } = useRepeatingGroupPagination();
-  const {
-    textResourceBindings,
-    labelSettings,
-    id,
-    edit,
-    minCount,
-    stickyHeader,
-    tableColumns,
-    rows,
-    dataModelBindings,
-  } = useNodeItem(node);
+  const rows = RepGroupHooks.useAllRowsWithButtons(baseComponentId);
+  const { textResourceBindings, labelSettings, id, edit, minCount, stickyHeader, tableColumns, dataModelBindings } =
+    useItemWhenType(baseComponentId, 'RepeatingGroup');
   const required = !!minCount && minCount > 0;
 
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
-  const location = useDataModelLocationForRow(dataModelBindings.group, 0);
-  const tableIds = useIndexedComponentIds(useTableComponentIds(node), location);
-
+  const tableIds = useTableComponentIds(baseComponentId);
   const numRows = rowsToDisplay.length;
   const firstRowId = numRows >= 1 ? rowsToDisplay[0].uuid : undefined;
 
   const isEmpty = numRows === 0;
-  const showTableHeader = numRows > 0 && !(numRows == 1 && firstRowId !== undefined && isEditing(firstRowId));
+  const isEditingFirstRow = RepGroupContext.useIsEditingRow(firstRowId);
+  const showTableHeader = numRows > 0 && !(numRows == 1 && firstRowId !== undefined && isEditingFirstRow);
 
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
   for (const row of rows) {
     if (row && rowsToDisplay.some((r) => r.uuid === row.uuid)) {
-      showDeleteButtonColumns.add(row.groupExpressions?.edit?.deleteButton !== false);
-      showEditButtonColumns.add(row.groupExpressions?.edit?.editButton !== false);
+      showDeleteButtonColumns.add(row.deleteButton);
+      showEditButtonColumns.add(row.editButton);
     }
   }
   const displayDeleteColumn = showDeleteButtonColumns.has(true) || !showDeleteButtonColumns.has(false);
@@ -70,7 +65,8 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     displayEditColumn = false;
   }
 
-  const isNested = node.parent instanceof LayoutNode;
+  const parent = useLayoutLookups().componentToParent[baseComponentId];
+  const isNested = parent?.type === 'node';
   const extraCells = [...(displayEditColumn ? [null] : []), ...(displayDeleteColumn ? [null] : [])];
 
   return (
@@ -116,23 +112,28 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
         {showTableHeader && !mobileView && (
           <Table.Head id={`group-${id}-table-header`}>
             <Table.Row>
-              {tableIds?.map((id) => (
-                <TitleCell
-                  key={id}
-                  nodeId={id}
-                  columnSettings={columnSettings}
-                />
-              ))}
+              <DataModelLocationProvider
+                groupBinding={dataModelBindings.group}
+                rowIndex={0} // Force the header row to show texts as if it is in the first row
+              >
+                {tableIds?.map((id) => (
+                  <TitleCell
+                    key={id}
+                    baseComponentId={id}
+                    columnSettings={columnSettings}
+                  />
+                ))}
+              </DataModelLocationProvider>
               {displayEditColumn && (
                 <Table.HeaderCell style={{ padding: 0, paddingRight: '10px' }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.edit' />
                   </span>
                 </Table.HeaderCell>
               )}
               {displayDeleteColumn && (
                 <Table.HeaderCell style={{ padding: 0 }}>
-                  <span className={classes.visuallyHidden}>
+                  <span className={utilClasses.visuallyHidden}>
                     <Lang id='general.delete' />
                   </span>
                 </Table.HeaderCell>
@@ -141,48 +142,18 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
           </Table.Head>
         )}
         <Table.Body id={`group-${id}-table-body`}>
-          {rowsToDisplay.map((row) => {
-            const isEditingRow = isEditing(row.uuid) && edit?.mode !== 'onlyTable';
-            return (
-              <DataModelLocationProvider
-                key={`${row.uuid}-${row.index}`}
-                groupBinding={dataModelBindings.group}
-                rowIndex={row.index}
-              >
-                <RepeatingGroupTableRow
-                  className={cn({
-                    [classes.editingRow]: isEditingRow,
-                    [classes.editRowOnTopOfStickyHeader]: isEditingRow && stickyHeader,
-                  })}
-                  uuid={row.uuid}
-                  index={row.index}
-                  mobileView={mobileView}
-                  displayDeleteColumn={displayDeleteColumn}
-                  displayEditColumn={displayEditColumn}
-                />
-                {isEditingRow && (
-                  <Table.Row
-                    key={`edit-container-${row.uuid}`}
-                    className={cn(
-                      { [classes.editContainerOnTopOfStickyHeader]: isEditingRow && stickyHeader },
-                      classes.editContainerRow,
-                    )}
-                  >
-                    <Table.Cell
-                      style={{ padding: 0, borderTop: 0 }}
-                      colSpan={
-                        mobileView
-                          ? 2
-                          : tableIds.length + 3 + (displayEditColumn ? 1 : 0) + (displayDeleteColumn ? 1 : 0)
-                      }
-                    >
-                      {edit?.mode !== 'onlyTable' && <RepeatingGroupsEditContainer editId={row.uuid} />}
-                    </Table.Cell>
-                  </Table.Row>
-                )}
-              </DataModelLocationProvider>
-            );
-          })}
+          {rowsToDisplay.map((row) => (
+            <RowToDisplay
+              key={`edit-container-${row.uuid}`}
+              baseComponentId={baseComponentId}
+              dataModelBindings={dataModelBindings}
+              index={row.index}
+              uuid={row.uuid}
+              displayDeleteColumn={displayDeleteColumn}
+              displayEditColumn={displayEditColumn}
+              tableIds={tableIds}
+            />
+          ))}
         </Table.Body>
         <RepeatingGroupPagination />
         <ExtraRows
@@ -195,28 +166,83 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
   );
 }
 
+function RowToDisplay({
+  baseComponentId,
+  dataModelBindings: { group },
+  displayDeleteColumn,
+  displayEditColumn,
+  index,
+  uuid,
+  tableIds,
+}: {
+  baseComponentId: string;
+  dataModelBindings: IDataModelBindings<'RepeatingGroup'>;
+  displayDeleteColumn: boolean;
+  displayEditColumn: boolean;
+  tableIds: string[];
+} & BaseRow) {
+  const component = useExternalItem(baseComponentId, 'RepeatingGroup');
+  const mobileView = useIsMobileOrTablet();
+  const isEditingRow = RepGroupContext.useIsEditingRow(uuid);
+
+  return (
+    <DataModelLocationProvider
+      groupBinding={group}
+      rowIndex={index}
+    >
+      <RepeatingGroupTableRow
+        className={cn({
+          [classes.editingRow]: isEditingRow,
+          [classes.editRowOnTopOfStickyHeader]: isEditingRow && component.stickyHeader,
+        })}
+        uuid={uuid}
+        index={index}
+        mobileView={mobileView}
+        displayDeleteColumn={displayDeleteColumn}
+        displayEditColumn={displayEditColumn}
+      />
+      {isEditingRow && (
+        <Table.Row
+          className={cn(
+            { [classes.editContainerOnTopOfStickyHeader]: component.stickyHeader },
+            classes.editContainerRow,
+          )}
+        >
+          <Table.Cell
+            style={{ padding: 0, borderTop: 0 }}
+            colSpan={mobileView ? 2 : tableIds.length + 3 + (displayEditColumn ? 1 : 0) + (displayDeleteColumn ? 1 : 0)}
+          >
+            {component.edit?.mode !== 'onlyTable' && <RepeatingGroupsEditContainer editId={uuid} />}
+          </Table.Cell>
+        </Table.Row>
+      )}
+    </DataModelLocationProvider>
+  );
+}
+
 interface ExtraRowsProps {
   where: 'Before' | 'After';
-  extraCells: GridCellInternal[];
+  extraCells: GridCell[];
   columnSettings: ITableColumnFormatting;
 }
 
 function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   const mobileView = useIsMobileOrTablet();
-  const { node } = useRepeatingGroup();
+  const baseComponentId = useRepeatingGroupComponentId();
   const { visibleRows } = useRepeatingGroupRowState();
   const isEmpty = visibleRows.length === 0;
-  const item = useNodeItem(node);
-  const isNested = node.parent instanceof LayoutNode;
+  const { rowsBefore, rowsAfter } = useExternalItem(baseComponentId, 'RepeatingGroup');
+  const parent = useLayoutLookups().componentToParent[baseComponentId];
+  const isNested = parent?.type === 'node';
 
-  const rows = where === 'Before' ? item.rowsBeforeInternal : item.rowsAfterInternal;
-  const mobileNodeIds = useNodeIdsFromGridRows(rows, mobileView);
+  const rows = where === 'Before' ? rowsBefore : rowsAfter;
+  const mobileBaseIds = useBaseIdsFromGridRows(rows, mobileView);
   if (isEmpty || !rows) {
     return null;
   }
 
   if (mobileView) {
-    if (!mobileNodeIds || mobileNodeIds.length === 0) {
+    if (!mobileBaseIds || mobileBaseIds.length === 0) {
       return null;
     }
 
@@ -224,10 +250,10 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
       <Table.Body>
         <Table.Row>
           <Table.Cell className={classes.mobileTableCell}>
-            {mobileNodeIds.map((childId) => (
-              <GenericComponentById
+            {mobileBaseIds.map((childId) => (
+              <GenericComponent
                 key={childId}
-                id={childId}
+                baseComponentId={childId}
               />
             ))}
           </Table.Cell>
@@ -239,23 +265,23 @@ function ExtraRows({ where, extraCells, columnSettings }: ExtraRowsProps) {
   }
 
   return (
-    <>
-      {rows.map((row, index) => (
-        <GridRowRenderer
-          key={`grid${where}-${index}`}
-          row={{ ...row, cells: [...row.cells, ...extraCells] }}
-          isNested={isNested}
-          mutableColumnSettings={columnSettings}
-          node={node}
-        />
-      ))}
-    </>
+    <GridRowsRenderer
+      rows={rows}
+      extraCells={extraCells}
+      isNested={isNested}
+      mutableColumnSettings={columnSettings}
+    />
   );
 }
 
-function TitleCell({ nodeId, columnSettings }: { nodeId: string; columnSettings: ITableColumnFormatting }) {
-  const node = useNode(nodeId);
-  const style = useColumnStylesRepeatingGroups(node, columnSettings);
+function TitleCell({
+  baseComponentId,
+  columnSettings,
+}: {
+  baseComponentId: string;
+  columnSettings: IGroupColumnFormatting;
+}) {
+  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
 
   return (
     <Table.HeaderCell
@@ -263,7 +289,7 @@ function TitleCell({ nodeId, columnSettings }: { nodeId: string; columnSettings:
       style={style}
     >
       <RepeatingGroupTableTitle
-        node={node}
+        baseComponentId={baseComponentId}
         columnSettings={columnSettings}
       />
     </Table.HeaderCell>

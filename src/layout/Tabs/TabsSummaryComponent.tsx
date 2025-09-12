@@ -1,24 +1,21 @@
 import React from 'react';
 import type { JSX } from 'react';
 
-import { SummaryComponent } from 'src/layout/Summary/SummaryComponent';
-import { useNode } from 'src/utils/layout/NodesContext';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
+import { useHasCapability } from 'src/utils/layout/canRenderIn';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 
-type Props = Pick<SummaryRendererProps<'Tabs'>, 'targetNode' | 'summaryNode' | 'overrides'>;
-
-export function TabsSummaryComponent({ targetNode, summaryNode, overrides }: Props): JSX.Element | null {
-  const tabsInternal = useNodeItem(targetNode, (i) => i.tabsInternal);
-  const childIds = tabsInternal.map((card) => card.childIds).flat();
+export function TabsSummaryComponent({ targetBaseComponentId, overrides }: SummaryRendererProps): JSX.Element | null {
+  const { tabs } = useExternalItem(targetBaseComponentId, 'Tabs');
+  const childIds = tabs.map((card) => card.children).flat();
 
   return (
     <>
       {childIds.map((childId) => (
         <Child
           key={childId}
-          nodeId={childId}
-          summaryNode={summaryNode}
+          baseId={childId}
           overrides={overrides}
         />
       ))}
@@ -26,19 +23,17 @@ export function TabsSummaryComponent({ targetNode, summaryNode, overrides }: Pro
   );
 }
 
-function Child({ nodeId, summaryNode, overrides }: { nodeId: string } & Pick<Props, 'summaryNode' | 'overrides'>) {
-  const node = useNode(nodeId);
-  if (!node) {
+function Child({ baseId, overrides }: { baseId: string } & Pick<SummaryRendererProps, 'overrides'>) {
+  const canRender = useHasCapability('renderInTabs');
+  if (!canRender(baseId)) {
     return null;
   }
 
   return (
-    <SummaryComponent
-      key={node.id}
-      summaryNode={summaryNode}
+    <SummaryComponentFor
+      targetBaseComponentId={baseId}
       overrides={{
         ...overrides,
-        targetNode: node,
         grid: {},
         largeGroup: true,
       }}

@@ -6,30 +6,25 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export type IHeaderProps = PropsFromGenericComponent<'Header'>;
+type HeadingProps = Pick<Parameters<typeof Heading>[0], 'level' | 'data-size'>;
 
-type HeadingProps = {
-  level: Parameters<typeof Heading>[0]['level'];
-  size: Parameters<typeof Heading>[0]['size'];
-};
-
-export function getHeaderProps(size?: string): HeadingProps {
+function getHeaderProps(size?: string): HeadingProps {
   switch (size) {
     case 'L':
     case 'h2': {
       return {
         level: 2,
-        size: 'medium',
+        'data-size': 'md',
       };
     }
     case 'M':
     case 'h3': {
       return {
         level: 3,
-        size: 'small',
+        'data-size': 'sm',
       };
     }
     case 'S':
@@ -37,35 +32,30 @@ export function getHeaderProps(size?: string): HeadingProps {
     default: {
       return {
         level: 4,
-        size: 'xsmall',
+        'data-size': 'xs',
       };
     }
   }
 }
 
-export const HeaderComponent = ({ node }: IHeaderProps) => {
-  const { id, size, textResourceBindings } = useNodeItem(node);
+export const HeaderComponent = ({ baseComponentId }: PropsFromGenericComponent<'Header'>) => {
+  const { id, size, textResourceBindings } = useItemWhenType(baseComponentId, 'Header');
   const { langAsString } = useLanguage();
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper
+      baseComponentId={baseComponentId}
+      style={{ display: 'flex' }}
+    >
       <Heading
         id={id}
         {...getHeaderProps(size)}
       >
-        <Lang
-          id={textResourceBindings?.title}
-          node={node}
-        />
+        <Lang id={textResourceBindings?.title} />
       </Heading>
       {textResourceBindings?.help && (
         <HelpTextContainer
           id={id}
-          helpText={
-            <Lang
-              id={textResourceBindings.help}
-              node={node}
-            />
-          }
+          helpText={<Lang id={textResourceBindings.help} />}
           title={langAsString(textResourceBindings?.title)}
         />
       )}

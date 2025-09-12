@@ -6,17 +6,14 @@ import { Lang } from 'src/features/language/Lang';
 import { Map } from 'src/layout/Map/Map';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { isLocationValid, parseLocation } from 'src/layout/Map/utils';
-import { useNodeFormData, useNodeItem } from 'src/utils/layout/useNodeItem';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
+import { useFormDataFor } from 'src/utils/layout/useNodeItem';
+import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { RawGeometry } from 'src/layout/Map/types';
-import type { LayoutNode } from 'src/utils/layout/LayoutNode';
 
-export interface IMapComponentSummary {
-  targetNode: LayoutNode<'Map'>;
-}
-
-export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
-  const markerBinding = useNodeItem(targetNode, (item) => item.dataModelBindings.simpleBinding);
-  const formData = useNodeFormData(targetNode);
+export function MapComponentSummary({ targetBaseComponentId }: SummaryRendererProps) {
+  const markerBinding = useDataModelBindingsFor(targetBaseComponentId, 'Map').simpleBinding;
+  const formData = useFormDataFor<'Map'>(targetBaseComponentId);
   const markerLocation = parseLocation(formData.simpleBinding);
   const markerLocationIsValid = isLocationValid(markerLocation);
   const geometries = formData.geometries as RawGeometry[] | undefined;
@@ -32,7 +29,7 @@ export function MapComponentSummary({ targetNode }: IMapComponentSummary) {
   return (
     <>
       <Map
-        mapNode={targetNode}
+        baseComponentId={targetBaseComponentId}
         markerLocation={markerLocation}
         geometries={geometries}
         isSummary={true}

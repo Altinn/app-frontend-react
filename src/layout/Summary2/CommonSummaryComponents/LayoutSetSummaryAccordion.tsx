@@ -1,10 +1,10 @@
 import React from 'react';
 
-import { Accordion, Label } from '@digdir/designsystemet-react';
-
+import { AccordionItem } from 'src/app-components/Accordion/AccordionItem';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Summary2/CommonSummaryComponents/LayoutSetSummaryAccordion.module.css';
+import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { PageSummary } from 'src/layout/Summary2/SummaryComponent2/PageSummary';
 
 type LayoutSetAccordionSummaryProps = {
@@ -12,38 +12,25 @@ type LayoutSetAccordionSummaryProps = {
 };
 
 export function LayoutSetSummaryAccordion({ filteredPages }: LayoutSetAccordionSummaryProps) {
-  return (
-    <Accordion
-      border
-      color='neutral'
+  return filteredPages.map((layoutId: string) => (
+    <AccordionItem
+      key={layoutId}
+      defaultOpen={true}
       className={classes.summaryItem}
+      title={<Lang id={layoutId} />}
     >
-      {filteredPages.map((layoutId: string) => (
-        <Accordion.Item
-          key={layoutId}
-          defaultOpen={true}
-        >
-          <Accordion.Header level={2}>
-            <Label asChild>
-              <span>
-                <Lang id={layoutId} />
-              </span>
-            </Label>
-          </Accordion.Header>
-          <Accordion.Content>
-            <Flex
-              container
-              spacing={6}
-              alignItems='flex-start'
-            >
-              <PageSummary
-                pageId={layoutId}
-                key={layoutId}
-              />
-            </Flex>
-          </Accordion.Content>
-        </Accordion.Item>
-      ))}
-    </Accordion>
-  );
+      <Flex
+        container
+        spacing={6}
+        alignItems='flex-start'
+      >
+        <EmptyChildrenBoundary>
+          <PageSummary
+            pageId={layoutId}
+            key={layoutId}
+          />
+        </EmptyChildrenBoundary>
+      </Flex>
+    </AccordionItem>
+  ));
 }

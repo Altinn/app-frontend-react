@@ -6,7 +6,8 @@ import { Button, type ButtonColor, type ButtonVariant } from 'src/app-components
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { useNodeItem } from 'src/utils/layout/useNodeItem';
+import { alignStyle } from 'src/layout/RepeatingGroup/Container/RepeatingGroupContainer';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { LinkStyle } from 'src/layout/Link/config.generated';
 
 export const buttonStyles: {
@@ -16,18 +17,17 @@ export const buttonStyles: {
   secondary: { variant: 'secondary', color: 'first' },
 };
 
-export type ILinkComponent = PropsFromGenericComponent<'Link'>;
-
-export function LinkComponent({ node }: ILinkComponent) {
+export function LinkComponent({ baseComponentId }: PropsFromGenericComponent<'Link'>) {
   const {
     id,
     style: linkStyle,
+    position,
     openInNewTab,
     textResourceBindings,
     size,
     fullWidth,
-    linkButtonTextAlign,
-  } = useNodeItem(node);
+    textAlign,
+  } = useItemWhenType(baseComponentId, 'Link');
   const { langAsString } = useLanguage();
 
   const downloadName = textResourceBindings?.download;
@@ -48,7 +48,8 @@ export function LinkComponent({ node }: ILinkComponent) {
 
   const LinkButton = () => (
     <Button
-      textAlign={linkButtonTextAlign}
+      style={position ? { ...alignStyle(position) } : {}}
+      textAlign={textAlign}
       id={`link-${id}`}
       color={buttonStyles[linkStyle].color}
       variant={buttonStyles[linkStyle].variant}
@@ -75,7 +76,7 @@ export function LinkComponent({ node }: ILinkComponent) {
   }
 
   return (
-    <ComponentStructureWrapper node={node}>
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
       {linkStyle === 'link' ? <Link /> : <LinkButton />}
     </ComponentStructureWrapper>
   );
