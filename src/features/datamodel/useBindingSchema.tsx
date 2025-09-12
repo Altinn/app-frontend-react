@@ -29,7 +29,7 @@ export type AsSchema<T> = {
   [P in keyof T]: JSONSchema7 | null;
 };
 
-export function useCurrentDataElementId() {
+export function useCurrentDataModelDataElementId() {
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();

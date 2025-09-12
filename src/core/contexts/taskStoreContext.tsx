@@ -11,7 +11,7 @@ type TaskState = {
 type TaskActions = {
   setOverriddenLayoutSetId: (layoutSetId: string) => void;
   setOverriddenDataModelType: (dataModelType: string) => void;
-  setOverriddenDataElementId: (dataElementId: string) => void;
+  setOverriddenDataModelDataElementId: (dataElementId: string) => void;
   setTaskId: (taskId: string) => void;
   setDepth: (depth: number) => void;
   clearTaskId: () => void;
@@ -33,7 +33,7 @@ export function TaskStoreProvider({ children }: React.PropsWithChildren) {
     setOverriddenLayoutSetId: (overriddenLayoutSetId: string) => setState((s) => ({ ...s, overriddenLayoutSetId })),
     setOverriddenDataModelType: (overriddenDataModelType: string) =>
       setState((s) => ({ ...s, overriddenDataModelType })),
-    setOverriddenDataElementId: (overriddenDataElementId: string) =>
+    setOverriddenDataModelDataElementId: (overriddenDataElementId: string) =>
       setState((s) => ({ ...s, overriddenDataElementId })),
     clearTaskId: () => setState((s) => ({ ...s, overriddenTaskId: '' })),
     setDepth: (depth: number) => setState((s) => ({ ...s, depth })),
