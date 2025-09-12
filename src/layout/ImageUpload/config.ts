@@ -50,4 +50,6 @@ export const Config = new CG.component({
         .setDescription('Configuration of the cropping area'),
     ),
   )
+  .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
+  .extends(CG.common('LabeledComponentProps'))
   .addSummaryOverrides();
