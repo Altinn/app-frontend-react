@@ -146,6 +146,10 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
     return topLevel.filter((baseId) => {
       const component = lookups.getComponent(baseId);
       const def = getComponentDef(component.type);
+      if (!def) {
+        throw new Error(`No definition found for component type: ${component.type} (id ${baseId}) in page ${pageKey})`);
+      }
+
       return (
         component.type !== 'Subform' &&
         !pdfSettings?.excludedComponents.includes(baseId) &&
