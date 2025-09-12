@@ -27,6 +27,8 @@
   justify-content: center;
   align-items: center;
   padding: var(--ds-size-4);
+  border-radius: var(--ds-border-radius-lg);
+  border: 1px solid var(--ds-color-border-subtle);
 }
 
 .dropZone {
