@@ -1,5 +1,5 @@
 import { usePrefetchQuery } from 'src/core/queries/usePrefetchQuery';
-import { useCurrentDataElementId, useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelDataElementId, useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { useDynamicsQueryDef } from 'src/features/form/dynamics/DynamicsContext';
 import { useLayoutQueryDef, useLayoutSetId } from 'src/features/form/layout/LayoutsContext';
 import { useLayoutSettingsQueryDef } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -23,7 +23,7 @@ export function FormPrefetcher() {
   // Prefetch layouts
   usePrefetchQuery(useLayoutQueryDef(true, dataTypeId, layoutSetId));
 
-  const dataElementId = useCurrentDataElementId();
+  const dataElementId = useCurrentDataModelDataElementId();
 
   // Prefetch other layout related files
   usePrefetchQuery(useLayoutSettingsQueryDef(layoutSetId));

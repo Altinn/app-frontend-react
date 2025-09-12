@@ -12,7 +12,7 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner, useAppReceiver } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useCurrentDataElementId } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
@@ -92,7 +92,7 @@ export function DefaultReceipt() {
 
 export function CustomReceipt() {
   const layoutSets = useLayoutSets();
-  const dataElementId = useCurrentDataElementId();
+  const dataElementId = useCurrentDataModelDataElementId();
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
   const customReceiptDataModelNotFound = hasCustomReceipt && !dataElementId;
 

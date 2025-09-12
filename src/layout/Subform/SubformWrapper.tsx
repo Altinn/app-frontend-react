@@ -44,7 +44,7 @@ export const RedirectBackToMainForm = () => {
 export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, dataType: string) => {
   const setOverriddenLayoutSetId = useTaskStore((state) => state.setOverriddenLayoutSetId);
   const setOverriddenDataModelType = useTaskStore((state) => state.setOverriddenDataModelType);
-  const setOverriddenDataElementId = useTaskStore((state) => state.setOverriddenDataElementId);
+  const setOverriddenDataModelDataElementId = useTaskStore((state) => state.setOverriddenDataModelDataElementId);
 
   const isDone = useTaskStore(
     (s) =>
@@ -56,13 +56,13 @@ export const useDoOverrideSummary = (dataElementId: string, layoutSet: string, d
   useEffect(() => {
     setOverriddenLayoutSetId?.(layoutSet);
     setOverriddenDataModelType?.(dataType);
-    setOverriddenDataElementId?.(dataElementId!);
+    setOverriddenDataModelDataElementId?.(dataElementId!);
   }, [
     dataElementId,
     dataType,
     layoutSet,
     setOverriddenDataModelType,
-    setOverriddenDataElementId,
+    setOverriddenDataModelDataElementId,
     setOverriddenLayoutSetId,
   ]);
 
@@ -81,7 +81,7 @@ export const useDoOverride = (baseComponentId: string, providedDataElementId?: s
 
   const setOverriddenLayoutSetId = useTaskStore((state) => state.setOverriddenLayoutSetId);
   const setOverriddenDataModelType = useTaskStore((state) => state.setOverriddenDataModelType);
-  const setOverriddenDataElementId = useTaskStore((state) => state.setOverriddenDataElementId);
+  const setOverriddenDataModelDataElementId = useTaskStore((state) => state.setOverriddenDataModelDataElementId);
   const isDone = useTaskStore(
     (s) =>
       s.overriddenDataModelType === dataType &&
@@ -92,13 +92,13 @@ export const useDoOverride = (baseComponentId: string, providedDataElementId?: s
   useEffect(() => {
     setOverriddenLayoutSetId?.(layoutSet);
     setOverriddenDataModelType?.(dataType);
-    setOverriddenDataElementId?.(actualDataElementId!);
+    setOverriddenDataModelDataElementId?.(actualDataElementId!);
   }, [
     actualDataElementId,
     dataType,
     layoutSet,
     setOverriddenDataModelType,
-    setOverriddenDataElementId,
+    setOverriddenDataModelDataElementId,
     setOverriddenLayoutSetId,
   ]);
 
