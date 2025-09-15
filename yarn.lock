@@ -5556,6 +5556,7 @@ __metadata:
     babel-loader: "npm:10.0.0"
     babel-plugin-react-compiler: "npm:^19.1.0-rc.2"
     caniuse-lite: "npm:1.0.30001737"
+    chokidar: "npm:^4.0.3"
     classnames: "npm:2.5.1"
     core-js: "npm:3.45.1"
     cross-env: "npm:10.0.0"
@@ -6756,7 +6757,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chokidar@npm:^4.0.0, chokidar@npm:^4.0.1":
+"chokidar@npm:^4.0.0, chokidar@npm:^4.0.1, chokidar@npm:^4.0.3":
   version: 4.0.3
   resolution: "chokidar@npm:4.0.3"
   dependencies:
