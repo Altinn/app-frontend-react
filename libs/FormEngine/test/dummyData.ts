@@ -3,7 +3,7 @@
  * This contains the complete data structure provided by the user
  */
 
-import type { FormEngineConfig } from '../types';
+import type { FormEngineConfig } from 'libs/FormEngine/types';
 
 export const dummyData: FormEngineConfig = {
   // Form data
@@ -30,28 +30,28 @@ export const dummyData: FormEngineConfig = {
     LikertExample: [
       {
         Id: 'question-1',
-        Answer: ''
+        Answer: '',
       },
       {
         Id: 'question-2',
-        Answer: ''
+        Answer: '',
       },
       {
         Id: 'question-3',
-        Answer: ''
+        Answer: '',
       },
       {
         Id: 'question-4',
-        Answer: ''
+        Answer: '',
       },
       {
         Id: 'question-5',
-        Answer: ''
+        Answer: '',
       },
       {
         Id: 'question-6',
-        Answer: ''
-      }
+        Answer: '',
+      },
     ],
     DatepickerExample: null,
     mapComponent: null,
@@ -65,7 +65,7 @@ export const dummyData: FormEngineConfig = {
     CheckboxesGroupExample: [],
     MultiselectGroupExample: [],
     DatepickerMaxDateExample: null,
-    DatepickerMinDateExample: null
+    DatepickerMinDateExample: null,
   },
 
   // Data model schemas
@@ -74,100 +74,97 @@ export const dummyData: FormEngineConfig = {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       $id: 'http://altinn-repositories:3000/ttd/component-library/App/models/Model.schema.json',
       info: {
-        rootNode: ''
+        rootNode: '',
       },
       '@xsdNamespaces': {
         xsd: 'http://www.w3.org/2001/XMLSchema',
         xsi: 'http://www.w3.org/2001/XMLSchema-instance',
-        seres: 'http://seres.no/xsd/forvaltningsdata'
+        seres: 'http://seres.no/xsd/forvaltningsdata',
       },
       '@xsdSchemaAttributes': {
         AttributeFormDefault: 'Unqualified',
         ElementFormDefault: 'Qualified',
         BlockDefault: 'None',
-        FinalDefault: 'None'
+        FinalDefault: 'None',
       },
       '@xsdRootElement': 'Model',
       type: 'object',
-      required: [
-        'streetnr',
-        'postnr'
-      ],
+      required: ['streetnr', 'postnr'],
       properties: {
         inputfield: {
-          type: 'string'
+          type: 'string',
         },
         shortAnswerInput: {
-          type: 'string'
+          type: 'string',
         },
         longAnswerInput: {
-          type: 'string'
+          type: 'string',
         },
         radioButtonInput: {
-          type: 'string'
+          type: 'string',
         },
         checkboxesInput: {
           type: 'string',
-          pattern: '[A-Za-z,æøå]*(kjoringISkogen)[A-Za-z,æøå]*'
+          pattern: '[A-Za-z,æøå]*(kjoringISkogen)[A-Za-z,æøå]*',
         },
         nestedInput: {
-          type: 'string'
+          type: 'string',
         },
         nestedInput2: {
-          type: 'string'
+          type: 'string',
         },
         nestedInput3: {
-          type: 'string'
+          type: 'string',
         },
         streetnr: {
-          type: 'string'
+          type: 'string',
         },
         postnr: {
-          type: 'string'
+          type: 'string',
         },
         city: {
-          type: 'string'
+          type: 'string',
         },
         co: {
-          type: 'string'
+          type: 'string',
         },
         street: {
-          type: 'string'
-        }
+          type: 'string',
+        },
         // Truncated for brevity - full schema available in original data
-      }
+      },
     },
     model2: {
       $schema: 'https://json-schema.org/draft/2020-12/schema',
       $id: 'http://altinn-repositories:3000/ttd/component-library/App/models/model2.schema.json',
       info: {
-        rootNode: ''
+        rootNode: '',
       },
       '@xsdNamespaces': {
         xsd: 'http://www.w3.org/2001/XMLSchema',
         xsi: 'http://www.w3.org/2001/XMLSchema-instance',
-        seres: 'http://seres.no/xsd/forvaltningsdata'
+        seres: 'http://seres.no/xsd/forvaltningsdata',
       },
       '@xsdSchemaAttributes': {
         AttributeFormDefault: 'Unqualified',
         ElementFormDefault: 'Qualified',
         BlockDefault: 'None',
-        FinalDefault: 'None'
+        FinalDefault: 'None',
       },
       '@xsdRootElement': 'model2',
       type: 'object',
       properties: {
         property1: {
-          type: 'string'
+          type: 'string',
         },
         property2: {
-          type: 'string'
+          type: 'string',
         },
         property3: {
-          type: 'string'
-        }
-      }
-    }
+          type: 'string',
+        },
+      },
+    },
   },
 
   // Layout sets configuration
@@ -177,31 +174,23 @@ export const dummyData: FormEngineConfig = {
       {
         id: 'ComponentLayouts',
         dataType: 'model',
-        tasks: [
-          'Task_1'
-        ]
+        tasks: ['Task_1'],
       },
       {
         id: 'PreviousProcessSummary',
         dataType: 'model2',
-        tasks: [
-          'PreviousProcessSummary'
-        ]
-      }
+        tasks: ['PreviousProcessSummary'],
+      },
     ],
-    uiSettings: {}
+    uiSettings: {},
   },
 
   // Page order
   pageOrder: {
     $schema: 'https://altinncdn.no/schemas/json/layout/layoutSettings.schema.v1.json',
     pages: {
-      order: [
-        'RenderPreviousTask',
-        'RenderSpecificPageFromPreviousTask',
-        'RenderSpecificComponentFromPreviousTask'
-      ]
-    }
+      order: ['RenderPreviousTask', 'RenderSpecificPageFromPreviousTask', 'RenderSpecificComponentFromPreviousTask'],
+    },
   },
 
   // Layouts
@@ -212,15 +201,15 @@ export const dummyData: FormEngineConfig = {
         layout: [
           {
             id: 'PrevComponent-NavigationBar',
-            type: 'NavigationBar'
+            type: 'NavigationBar',
           },
           {
             size: 'M',
             id: 'page3Task2',
             type: 'Header',
             textResourceBindings: {
-              title: 'Her skal vi rendre hele en enkelt komponent fra Task_1:'
-            }
+              title: 'Her skal vi rendre hele en enkelt komponent fra Task_1:',
+            },
           },
           {
             id: 'Summary2-previous-component',
@@ -229,11 +218,11 @@ export const dummyData: FormEngineConfig = {
             target: {
               type: 'component',
               id: 'AddressPage-Address',
-              taskId: 'Task_1'
-            }
-          }
-        ]
-      }
+              taskId: 'Task_1',
+            },
+          },
+        ],
+      },
     },
     RenderSpecificPageFromPreviousTask: {
       $schema: 'https://altinncdn.no/schemas/json/layout/layout.schema.v1.json',
@@ -241,15 +230,15 @@ export const dummyData: FormEngineConfig = {
         layout: [
           {
             id: 'PrevPage-NavigationBar',
-            type: 'NavigationBar'
+            type: 'NavigationBar',
           },
           {
             size: 'M',
             id: 'page2Task2',
             type: 'Header',
             textResourceBindings: {
-              title: 'Her skal vi rendre en enkelt side fra Task_1:'
-            }
+              title: 'Her skal vi rendre en enkelt side fra Task_1:',
+            },
           },
           {
             id: 'Summary2-previous-page',
@@ -258,11 +247,11 @@ export const dummyData: FormEngineConfig = {
             target: {
               type: 'page',
               taskId: 'Task_1',
-              id: 'AddressPage'
-            }
-          }
-        ]
-      }
+              id: 'AddressPage',
+            },
+          },
+        ],
+      },
     },
     RenderPreviousTask: {
       $schema: 'https://altinncdn.no/schemas/json/layout/layout.schema.v1.json',
@@ -270,15 +259,15 @@ export const dummyData: FormEngineConfig = {
         layout: [
           {
             id: 'PrevTask-NavigationBar',
-            type: 'NavigationBar'
+            type: 'NavigationBar',
           },
           {
             size: 'M',
             id: 'page3summarytask',
             type: 'Header',
             textResourceBindings: {
-              title: 'Her skal vi rendre hele Task_1:'
-            }
+              title: 'Her skal vi rendre hele Task_1:',
+            },
           },
           {
             id: 'Summary2-previous-process',
@@ -286,13 +275,13 @@ export const dummyData: FormEngineConfig = {
             hidden: false,
             target: {
               taskId: 'Task_1',
-              type: 'layoutSet'
+              type: 'layoutSet',
             },
-            showPageInAccordion: false
-          }
-        ]
-      }
-    }
+            showPageInAccordion: false,
+          },
+        ],
+      },
+    },
   },
 
   // Application metadata
@@ -300,27 +289,23 @@ export const dummyData: FormEngineConfig = {
     id: 'ttd/component-library',
     org: 'ttd',
     title: {
-      nb: 'altinn-apps-all-components'
+      nb: 'altinn-apps-all-components',
     },
     dataTypes: [
       {
         id: 'ref-data-as-pdf',
-        allowedContentTypes: [
-          'application/pdf'
-        ],
+        allowedContentTypes: ['application/pdf'],
         maxCount: 0,
         minCount: 0,
         enablePdfCreation: true,
         enableFileScan: false,
         validationErrorOnPendingFileScan: false,
         enabledFileAnalysers: [],
-        enabledFileValidators: []
+        enabledFileValidators: [],
       },
       {
         id: 'model',
-        allowedContentTypes: [
-          'application/xml'
-        ],
+        allowedContentTypes: ['application/xml'],
         appLogic: {
           autoCreate: true,
           classRef: 'Altinn.App.Models.Model.Model',
@@ -328,7 +313,7 @@ export const dummyData: FormEngineConfig = {
           autoDeleteOnProcessEnd: false,
           disallowUserCreate: false,
           disallowUserDelete: false,
-          allowInSubform: false
+          allowInSubform: false,
         },
         taskId: 'Task_1',
         maxCount: 1,
@@ -337,13 +322,11 @@ export const dummyData: FormEngineConfig = {
         enableFileScan: false,
         validationErrorOnPendingFileScan: false,
         enabledFileAnalysers: [],
-        enabledFileValidators: []
+        enabledFileValidators: [],
       },
       {
         id: 'model2',
-        allowedContentTypes: [
-          'application/xml'
-        ],
+        allowedContentTypes: ['application/xml'],
         appLogic: {
           autoCreate: true,
           classRef: 'Altinn.App.Models.model2.model2',
@@ -351,7 +334,7 @@ export const dummyData: FormEngineConfig = {
           autoDeleteOnProcessEnd: false,
           disallowUserCreate: false,
           disallowUserDelete: false,
-          allowInSubform: false
+          allowInSubform: false,
         },
         taskId: 'PreviousProcessSummary',
         maxCount: 1,
@@ -360,34 +343,32 @@ export const dummyData: FormEngineConfig = {
         enableFileScan: false,
         validationErrorOnPendingFileScan: false,
         enabledFileAnalysers: [],
-        enabledFileValidators: []
-      }
+        enabledFileValidators: [],
+      },
     ],
     features: {
       footer: true,
       processActions: true,
-      jsonObjectInDataResponse: false
+      jsonObjectInDataResponse: false,
     },
     logo: {
       displayAppOwnerNameInHeader: false,
       source: 'resource',
-      size: 'small'
+      size: 'small',
     },
     altinnNugetVersion: '8.0.0.0',
-    externalApiIds: [
-      'testId'
-    ],
+    externalApiIds: ['testId'],
     partyTypesAllowed: {
       bankruptcyEstate: false,
       organisation: false,
       person: false,
-      subUnit: false
+      subUnit: false,
     },
     autoDeleteOnProcessEnd: false,
     created: '2024-05-15T08:37:14.2656053Z',
     createdBy: 'adamhaeger',
     lastChanged: '2024-05-15T08:37:14.2656068Z',
-    lastChangedBy: 'adamhaeger'
+    lastChangedBy: 'adamhaeger',
   },
 
   // Frontend settings (empty in this case)
@@ -402,14 +383,14 @@ export const dummyData: FormEngineConfig = {
             import: {
               val: {
                 import: 'ValidationPlugin',
-                from: 'src/features/validation/ValidationPlugin'
-              }
-            }
-          }
+                from: 'src/features/validation/ValidationPlugin',
+              },
+            },
+          },
         },
         category: 'Form',
         type: 'Input',
-        render: {}
+        render: {},
       },
       capabilities: {
         renderInTable: true,
@@ -418,21 +399,21 @@ export const dummyData: FormEngineConfig = {
         renderInAccordionGroup: false,
         renderInCards: true,
         renderInCardsMedia: false,
-        renderInTabs: true
+        renderInTabs: true,
       },
       behaviors: {
         isSummarizable: true,
         canHaveLabel: false,
         canHaveOptions: false,
-        canHaveAttachments: false
-      }
+        canHaveAttachments: false,
+      },
     },
     Header: {
       def: {
         plugins: {},
         category: 'Presentation',
         type: 'Header',
-        render: {}
+        render: {},
       },
       capabilities: {
         renderInTable: true,
@@ -441,21 +422,21 @@ export const dummyData: FormEngineConfig = {
         renderInAccordionGroup: false,
         renderInCards: true,
         renderInCardsMedia: false,
-        renderInTabs: true
+        renderInTabs: true,
       },
       behaviors: {
         isSummarizable: true,
         canHaveLabel: false,
         canHaveOptions: false,
-        canHaveAttachments: false
-      }
+        canHaveAttachments: false,
+      },
     },
     NavigationBar: {
       def: {
         plugins: {},
         category: 'Action',
         type: 'NavigationBar',
-        render: {}
+        render: {},
       },
       capabilities: {
         renderInTable: false,
@@ -464,21 +445,21 @@ export const dummyData: FormEngineConfig = {
         renderInAccordionGroup: false,
         renderInCards: false,
         renderInCardsMedia: false,
-        renderInTabs: true
+        renderInTabs: true,
       },
       behaviors: {
         isSummarizable: false,
         canHaveLabel: false,
         canHaveOptions: false,
-        canHaveAttachments: false
-      }
+        canHaveAttachments: false,
+      },
     },
     Summary2: {
       def: {
         plugins: {},
         category: 'Presentation',
         type: 'Summary2',
-        render: {}
+        render: {},
       },
       capabilities: {
         renderInTable: false,
@@ -487,15 +468,15 @@ export const dummyData: FormEngineConfig = {
         renderInAccordionGroup: false,
         renderInCards: true,
         renderInCardsMedia: false,
-        renderInTabs: true
+        renderInTabs: true,
       },
       behaviors: {
         isSummarizable: false,
         canHaveLabel: false,
         canHaveOptions: false,
-        canHaveAttachments: false
-      }
-    }
+        canHaveAttachments: false,
+      },
+    },
   },
 
   // User data (simplified)
@@ -509,8 +490,8 @@ export const dummyData: FormEngineConfig = {
     profileSettingPreference: {
       language: 'nn',
       preSelectedPartyId: 0,
-      doNotPromptForParty: true
-    }
+      doNotPromptForParty: true,
+    },
   },
 
   // Valid parties
@@ -522,7 +503,7 @@ export const dummyData: FormEngineConfig = {
       name: 'Sophie Salt',
       isDeleted: false,
       onlyHierarchyElementWithNoAccess: false,
-      childParties: []
+      childParties: [],
     },
     {
       partyId: 500000,
@@ -543,11 +524,11 @@ export const dummyData: FormEngineConfig = {
           name: 'DDG Fitness Oslo',
           isDeleted: false,
           onlyHierarchyElementWithNoAccess: false,
-          childParties: []
-        }
-      ]
-    }
-  ]
+          childParties: [],
+        },
+      ],
+    },
+  ],
 };
 
 /**
@@ -557,37 +538,37 @@ export const simpleTestData: FormEngineConfig = {
   data: {
     firstName: 'John',
     lastName: 'Doe',
-    email: 'john@example.com'
+    email: 'john@example.com',
   },
-  
+
   dataModelSchemas: {
     model: {
       type: 'object',
       properties: {
         firstName: { type: 'string' },
         lastName: { type: 'string' },
-        email: { type: 'string', format: 'email' }
+        email: { type: 'string', format: 'email' },
       },
-      required: ['firstName', 'lastName']
-    }
+      required: ['firstName', 'lastName'],
+    },
   },
-  
+
   layoutSetsConfig: {
     sets: [
       {
         id: 'main',
         dataType: 'model',
-        tasks: ['form']
-      }
-    ]
+        tasks: ['form'],
+      },
+    ],
   },
-  
+
   pageOrder: {
     pages: {
-      order: ['page1']
-    }
+      order: ['page1'],
+    },
   },
-  
+
   layouts: {
     page1: {
       data: {
@@ -596,39 +577,39 @@ export const simpleTestData: FormEngineConfig = {
             id: 'firstName',
             type: 'Input',
             dataModelBindings: {
-              simpleBinding: 'firstName'
+              simpleBinding: 'firstName',
             },
             textResourceBindings: {
-              title: 'First Name'
+              title: 'First Name',
             },
-            required: true
+            required: true,
           },
           {
             id: 'lastName',
             type: 'Input',
             dataModelBindings: {
-              simpleBinding: 'lastName'
+              simpleBinding: 'lastName',
             },
             textResourceBindings: {
-              title: 'Last Name'
+              title: 'Last Name',
             },
-            required: true
+            required: true,
           },
           {
             id: 'email',
             type: 'Input',
             dataModelBindings: {
-              simpleBinding: 'email'
+              simpleBinding: 'email',
             },
             textResourceBindings: {
-              title: 'Email'
-            }
-          }
-        ]
-      }
-    }
+              title: 'Email',
+            },
+          },
+        ],
+      },
+    },
   },
-  
+
   applicationMetadata: {
     id: 'test/simple-form',
     org: 'test',
@@ -638,19 +619,19 @@ export const simpleTestData: FormEngineConfig = {
         id: 'model',
         allowedContentTypes: ['application/xml'],
         maxCount: 1,
-        minCount: 1
-      }
-    ]
+        minCount: 1,
+      },
+    ],
   },
-  
+
   frontEndSettings: {},
-  
+
   componentConfigs: {
     Input: {
       def: {
         category: 'Form',
         type: 'Input',
-        render: {}
+        render: {},
       },
       capabilities: {
         renderInTable: true,
@@ -659,30 +640,30 @@ export const simpleTestData: FormEngineConfig = {
         renderInAccordionGroup: false,
         renderInCards: true,
         renderInCardsMedia: false,
-        renderInTabs: true
+        renderInTabs: true,
       },
       behaviors: {
         isSummarizable: true,
         canHaveLabel: true,
         canHaveOptions: false,
-        canHaveAttachments: false
-      }
-    }
+        canHaveAttachments: false,
+      },
+    },
   },
-  
+
   user: {
     userId: 1,
     userName: 'testuser',
-    partyId: 1
+    partyId: 1,
   },
-  
+
   validParties: [
     {
       partyId: 1,
       partyUuid: 'test-uuid',
       partyTypeName: 1,
       name: 'Test User',
-      isDeleted: false
-    }
-  ]
+      isDeleted: false,
+    },
+  ],
 };

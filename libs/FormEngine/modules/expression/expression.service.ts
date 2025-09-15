@@ -1,77 +1,163 @@
+import { dataService } from '../data/data.service';
+import { layoutService } from '../layout/layout.service';
+import { evaluateExpression as evaluateAltinnDsl, createExpressionContext, isExpression } from './altinnDsl';
 import type { Expression } from '../../types';
 
 export class ExpressionService {
   /**
-   * Evaluate an expression
-   * This is a stub implementation that will be expanded later
+   * Evaluate an expression using the Altinn DSL
    */
-  evaluateExpression(expression: Expression, context?: any): any {
+  evaluateExpression(expression: Expression, options: {
+    componentMap?: Record<string, any>;
+    parentBinding?: string;
+    itemIndex?: number;
+    data?: Record<string, any>;
+  } = {}): any {
     // If expression is already a boolean, return it
     if (typeof expression === 'boolean') {
       return expression;
     }
 
-    // If expression is an array (Altinn expression format), evaluate it
-    if (Array.isArray(expression)) {
-      // For now, return true for all expressions
-      // TODO: Implement proper expression evaluation
-      console.log('Expression evaluation (stub):', expression, 'with context:', context);
-      return true;
+    // If not an Altinn DSL expression, return as-is
+    if (!isExpression(expression)) {
+      return expression;
     }
 
-    // Default to the expression value
-    return expression;
+    // Get current form data if not provided
+    const data = options.data || dataService.getData();
+    
+    // Get component map from layout service if not provided
+    const componentMap = options.componentMap || layoutService.getComponentMap();
+
+    // Create expression context
+    const context = createExpressionContext(data || {}, {
+      componentMap: componentMap || {},
+      parentBinding: options.parentBinding,
+      itemIndex: options.itemIndex,
+    });
+
+    try {
+      return evaluateAltinnDsl(expression, context);
+    } catch (error) {
+      console.error('Expression evaluation error:', error, 'Expression:', expression);
+      // Return false for failed boolean expressions, null for others
+      return false;
+    }
   }
 
   /**
    * Register a custom function for expression evaluation
+   * TODO: Extend altinnDsl.ts to support custom functions
    */
   registerFunction(name: string, _fn: Function): void {
-    // TODO: Implement custom function registration
     console.log(`Registering custom function: ${name}`);
+    // Store function for later integration with DSL
+    // This could be extended to add custom operators to the DSL
   }
 
   /**
-   * Check if a value is an expression
+   * Check if a value is an Altinn DSL expression
    */
   isExpression(value: any): boolean {
-    return Array.isArray(value) && value.length > 0;
+    return isExpression(value);
   }
 
   /**
    * Evaluate boolean expression (for hidden, required, etc.)
    */
-  evaluateBooleanExpression(expression: boolean | Expression, context?: any): boolean {
+  evaluateBooleanExpression(
+    expression: boolean | Expression, 
+    options: {
+      componentMap?: Record<string, any>;
+      parentBinding?: string;
+      itemIndex?: number;
+      data?: Record<string, any>;
+    } = {}
+  ): boolean {
     if (typeof expression === 'boolean') {
       return expression;
     }
 
-    const result = this.evaluateExpression(expression, context);
+    const result = this.evaluateExpression(expression, options);
     return Boolean(result);
   }
 
   /**
    * Evaluate string expression (for text resources, etc.)
    */
-  evaluateStringExpression(expression: string | Expression, context?: any): string {
+  evaluateStringExpression(
+    expression: string | Expression, 
+    options: {
+      componentMap?: Record<string, any>;
+      parentBinding?: string;
+      itemIndex?: number;
+      data?: Record<string, any>;
+    } = {}
+  ): string {
     if (typeof expression === 'string') {
       return expression;
     }
 
-    const result = this.evaluateExpression(expression, context);
+    const result = this.evaluateExpression(expression, options);
     return String(result || '');
   }
 
   /**
-   * Create expression context from data
+   * Create expression context from current state
    */
-  createContext(data: any, componentId?: string, itemIndex?: number): any {
-    return {
-      dataModel: data,
-      component: componentId,
-      index: itemIndex,
-      // Add more context properties as needed
-    };
+  createContext(options: {
+    data?: Record<string, any>;
+    componentMap?: Record<string, any>;
+    parentBinding?: string;
+    itemIndex?: number;
+  } = {}) {
+    return createExpressionContext(
+      options.data || dataService.getData() || {},
+      {
+        componentMap: options.componentMap || layoutService.getComponentMap() || {},
+        parentBinding: options.parentBinding,
+        itemIndex: options.itemIndex,
+      }
+    );
+  }
+
+  /**
+   * Evaluate visibility expression for a component
+   */
+  evaluateVisibility(
+    hiddenExpression: boolean | Expression | undefined,
+    options: {
+      componentMap?: Record<string, any>;
+      parentBinding?: string;
+      itemIndex?: number;
+      data?: Record<string, any>;
+    } = {}
+  ): boolean {
+    if (hiddenExpression === undefined) {
+      return true; // Visible by default
+    }
+
+    const isHidden = this.evaluateBooleanExpression(hiddenExpression, options);
+    return !isHidden; // Return visibility (opposite of hidden)
+  }
+
+  /**
+   * Evaluate required expression for a component
+   */
+  evaluateRequired(
+    requiredExpression: boolean | Expression | undefined,
+    options: {
+      componentMap?: Record<string, any>;
+      parentBinding?: string;
+      itemIndex?: number;
+      data?: Record<string, any>;
+    } = {}
+  ): boolean {
+    if (requiredExpression === undefined) {
+      return false; // Not required by default
+    }
+
+    return this.evaluateBooleanExpression(requiredExpression, options);
   }
 }
 

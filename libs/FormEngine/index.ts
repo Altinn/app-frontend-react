@@ -14,13 +14,12 @@ export { layoutStore } from './modules/layout/layout.store';
 export { applicationStore } from './modules/application/application.store';
 
 // Import services for FormEngine
-import { dataService } from './modules/data/data.service';
-import { layoutService } from './modules/layout/layout.service';
-import { applicationService } from './modules/application/application.service';
-import { expressionService } from './modules/expression/expression.service';
-import { validationService } from './modules/validation/validation.service';
-
-import type { FormEngineConfig } from './types';
+import { applicationService } from 'libs/FormEngine/modules/application/application.service';
+import { dataService } from 'libs/FormEngine/modules/data/data.service';
+import { expressionService } from 'libs/FormEngine/modules/expression/expression.service';
+import { layoutService } from 'libs/FormEngine/modules/layout/layout.service';
+import { validationService } from 'libs/FormEngine/modules/validation/validation.service';
+import type { FormEngineConfig } from 'libs/FormEngine/types';
 
 /**
  * Main FormEngine class that orchestrates all services
@@ -130,7 +129,7 @@ export class FormEngine {
   updateData(path: string, value: any): void {
     const oldValue = this.data.getValue(path);
     this.data.setValue(path, value);
-    
+
     this.emit('dataChanged', { path, value, oldValue });
   }
 
@@ -158,7 +157,7 @@ export class FormEngine {
     this.layout.reset();
     this.application.reset();
     this.eventListeners.clear();
-    
+
     this.emit('reset');
   }
 
@@ -215,7 +214,9 @@ export class FormEngine {
    */
   isComponentVisible(componentId: string): boolean {
     const component = this.getComponent(componentId);
-    if (!component) return false;
+    if (!component) {
+      return false;
+    }
 
     // Evaluate visibility using expression service
     if (typeof component.hidden === 'boolean') {
@@ -223,11 +224,10 @@ export class FormEngine {
     }
 
     if (Array.isArray(component.hidden)) {
-      const context = this.expression.createContext(
-        this.data.getData(),
-        componentId
-      );
-      return !this.expression.evaluateBooleanExpression(component.hidden, context);
+      return this.expression.evaluateVisibility(component.hidden, {
+        data: this.data.getData(),
+        componentMap: this.layout.getComponentMap()
+      });
     }
 
     return true; // Default to visible
@@ -252,7 +252,7 @@ export class FormEngine {
       state: this.getState(),
       layouts: this.layout.getAllResolvedLayouts(),
       components: Object.keys(this.layout.getAllResolvedLayouts()).reduce((acc, pageId) => {
-        acc[pageId] = this.layout.getVisibleComponents(pageId).map(c => ({ id: c.id, type: c.type }));
+        acc[pageId] = this.layout.getVisibleComponents(pageId).map((c) => ({ id: c.id, type: c.type }));
         return acc;
       }, {} as any),
       data: this.data.getData(),

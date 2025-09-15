@@ -1,10 +1,11 @@
-import type { ValidationError, ValidationResult } from '../../types';
+import type { ValidationError, ValidationResult } from 'libs/FormEngine/types';
 
 export class ValidationService {
   /**
    * Validate a value against a schema
    * This is a stub implementation that will be expanded later
    */
+
   validateValue(value: any, schema: any, path: string = ''): ValidationResult {
     const errors: ValidationError[] = [];
 
@@ -26,7 +27,7 @@ export class ValidationService {
           code: 'type',
         });
       }
-      
+
       if (schema.type === 'number' && typeof value !== 'number') {
         errors.push({
           path,
@@ -145,7 +146,7 @@ export class ValidationService {
   validateComponent(componentId: string, value: any, config: any): ValidationResult {
     // TODO: Implement component-specific validation
     console.log(`Validating component ${componentId}:`, value, config);
-    
+
     // For now, just return valid
     return {
       isValid: true,

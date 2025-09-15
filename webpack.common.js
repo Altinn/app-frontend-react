@@ -15,6 +15,7 @@ module.exports = {
     alias: {
       src: path.resolve(__dirname, './src'),
       libs: path.resolve(__dirname, './libs'),
+      apps: path.resolve(__dirname, './apps'),
       axios: require.resolve('./node_modules/axios/dist/browser/axios.cjs'),
     },
   },

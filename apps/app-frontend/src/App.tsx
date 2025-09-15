@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+
+import { FormPage } from 'apps/app-frontend/src/pages/FormPage';
 import { FormEngine } from 'libs/FormEngine';
 import { simpleTestData } from 'libs/FormEngine/test/dummyData';
-import { FormPage } from './pages/FormPage';
 
 export function App() {
   const [engine] = useState(() => new FormEngine());

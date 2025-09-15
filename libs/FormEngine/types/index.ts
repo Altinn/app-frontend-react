@@ -356,7 +356,8 @@ export interface Option {
 // Expression & Validation Types
 // ============================================
 
-export type Expression = string[] | boolean;
+// Altinn DSL Expression type - can be nested arrays with strings, numbers, booleans
+export type Expression = any[] | string | number | boolean;
 
 export interface ValidationResult {
   isValid: boolean;

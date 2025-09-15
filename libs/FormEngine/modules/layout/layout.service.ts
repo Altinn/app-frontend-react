@@ -44,24 +44,23 @@ export class LayoutService {
   }
 
   /**
-   * Filter components based on visibility
+   * Filter components based on visibility using expression evaluation
    */
   private filterVisibleComponents(components: ResolvedComponent[]): ResolvedComponent[] {
+    // Import here to avoid circular dependency
+    const { expressionService } = require('../expression/expression.service');
+    
     return components.filter((component) => {
-      // If hidden is explicitly true, hide the component
-      if (component.hidden === true) {
-        return false;
-      }
-
-      // If hidden is an expression (array), we'll evaluate it later
-      // For now, treat expressions as visible
-      if (Array.isArray(component.hidden)) {
-        // TODO: Evaluate expression when Expression Service is available
+      try {
+        // Use expression service to evaluate visibility
+        return expressionService.evaluateVisibility(component.hidden, {
+          componentMap: this.getComponentMap()
+        });
+      } catch (error) {
+        console.error(`Error evaluating visibility for component ${component.id}:`, error);
+        // Default to visible on error
         return true;
       }
-
-      // Default to visible
-      return true;
     });
   }
 
@@ -251,6 +250,13 @@ export class LayoutService {
   getChildComponents(componentId: string): ResolvedComponent[] {
     const component = this.getComponentById(componentId);
     return component?.children || [];
+  }
+
+  /**
+   * Get component map for expression evaluation
+   */
+  getComponentMap(): Record<string, ResolvedComponent> {
+    return this.store.getState().componentMap;
   }
 }
 

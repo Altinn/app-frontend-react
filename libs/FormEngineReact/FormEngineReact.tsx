@@ -1,7 +1,9 @@
 import React from 'react';
-import { FormEngine } from 'libs/FormEngine';
-import { FormEngineProvider, ComponentMap } from './FormEngineProvider';
-import { PageRenderer } from './components';
+
+import { PageRenderer } from 'libs/FormEngineReact/components';
+import { FormEngineProvider } from 'libs/FormEngineReact/FormEngineProvider';
+import type { FormEngine } from 'libs/FormEngine';
+import type { ComponentMap } from 'libs/FormEngineReact/FormEngineProvider';
 
 interface FormEngineReactProps {
   engine: FormEngine;
@@ -10,17 +12,13 @@ interface FormEngineReactProps {
   children?: React.ReactNode;
 }
 
-export function FormEngineReact({ 
-  engine, 
-  componentMap, 
-  pageId,
-  children 
-}: FormEngineReactProps) {
+export function FormEngineReact({ engine, componentMap, pageId, children }: FormEngineReactProps) {
   return (
-    <FormEngineProvider engine={engine} componentMap={componentMap}>
-      <div className="form-engine-react">
-        {children || <PageRenderer pageId={pageId} />}
-      </div>
+    <FormEngineProvider
+      engine={engine}
+      componentMap={componentMap}
+    >
+      <div className='form-engine-react'>{children || <PageRenderer pageId={pageId} />}</div>
     </FormEngineProvider>
   );
 }
