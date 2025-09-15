@@ -11,7 +11,7 @@ import { App } from 'src/next/app/App/App';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
-import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
+// import '@digdir/designsystemet-theme/brand/altinn/tokens.css';
 
 export function newEntry() {
   document.addEventListener('DOMContentLoaded', () => {

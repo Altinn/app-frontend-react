@@ -1,5 +1,7 @@
 import type { LoaderFunctionArgs } from 'react-router-dom';
 
+import { dataService } from 'libs/FormEngine/modules/data/data.service';
+
 import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
 import { instanceStore } from 'src/next/stores/instanceStore';
 import { layoutStore } from 'src/next/stores/layoutStore';
@@ -44,6 +46,15 @@ export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams
   );
   const data = await res.json();
   layoutStore.getState().setDataObject(data);
+
+  // Also initialize the FormEngine data store
+  dataService.setData(data);
+  
+  // Verify the data was set correctly
+  const storedData = dataService.getData();
+  console.log('Data set in FormEngine data store:', storedData);
+  console.log('Sample value using dot notation (if exists):', dataService.getValue('person.firstName'));
+
   return {};
 }
 

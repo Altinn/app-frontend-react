@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Button, ErrorMessage, Label, Paragraph } from '@digdir/designsystemet-react';
+import { Button, Label, Paragraph } from '@digdir/designsystemet-react';
 import cn from 'classnames';
 
 import classes from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary.module.css';
@@ -60,8 +60,8 @@ export const SingleValueSummaryNext = ({
       )}
     </div>
 
-    {errors &&
-      errors?.length > 0 &&
-      errors?.map(({ message }) => <ErrorMessage key={message.key}>{message.key}</ErrorMessage>)}
+    {/*{errors &&*/}
+    {/*  errors?.length > 0 &&*/}
+    {/*  errors?.map(({ message }) => <ErrorMessage key={message.key}>{message.key}</ErrorMessage>)}*/}
   </div>
 );

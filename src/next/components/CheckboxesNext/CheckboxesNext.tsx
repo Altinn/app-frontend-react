@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import { Checkbox } from '@digdir/designsystemet-react';
+import { Checkbox, Fieldset, useCheckboxGroup } from '@digdir/designsystemet-react';
 
-import { useResolvedOptions } from 'src/next/components/CheckboxesNext/useResolvedOptions'; // or inline if you prefer
+import { useResolvedOptions } from 'src/next/components/CheckboxesNext/useResolvedOptions';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { CompIntermediateExact } from 'src/layout/layout';
 import type { CommonProps } from 'src/next/types/CommonComponentProps';
@@ -23,32 +23,33 @@ export const CheckboxesNext: React.FC<CheckboxesNextType> = ({ component, common
     }
   }, [commonProps.currentValue]);
 
+  const { getCheckboxProps, validationMessageProps } = useCheckboxGroup({
+    name: 'my-checkbox-group',
+    value: localOptions,
+    error: 'Du må velge minst ett alternativ',
+  });
+
   return (
-    <div>
-      <Checkbox.Group
-        legend=''
-        role='radiogroup'
-      >
-        {fetchedOptions?.map((option, idx) => (
-          <Checkbox
-            key={idx}
-            description={option.description}
-            value={`${option.value}`}
-            checked={option.value ? localOptions.includes(`${option.value}`) : false}
-            onChange={(e) => {
-              let nextOptions: string[] = [];
-              if (localOptions.includes(e.target.value)) {
-                nextOptions = localOptions.filter((val) => val !== e.target.value);
-              } else {
-                nextOptions = [...localOptions, e.target.value];
-              }
-              commonProps.onChange(nextOptions.join(','));
-            }}
-          >
-            {option.label}
-          </Checkbox>
-        ))}
-      </Checkbox.Group>
-    </div>
+    <Fieldset>
+      {fetchedOptions?.map((option, idx) => (
+        <Checkbox
+          key={idx}
+          {...getCheckboxProps(`${option.value}`)}
+          label={option.label}
+          value={`${option.value}`}
+          description={option.description}
+          checked={option.value ? localOptions.includes(`${option.value}`) : false}
+          onChange={(e) => {
+            let nextOptions: string[] = [];
+            if (localOptions.includes(e.target.value)) {
+              nextOptions = localOptions.filter((val) => val !== e.target.value);
+            } else {
+              nextOptions = [...localOptions, e.target.value];
+            }
+            commonProps.onChange(nextOptions.join(','));
+          }}
+        />
+      ))}
+    </Fieldset>
   );
 };

@@ -18,7 +18,7 @@ export interface ILayouts {
 
 type ComponentConfigs = ReturnType<typeof getComponentConfigs>;
 export type CompTypes = keyof ComponentConfigs & keyof ComponentTypeConfigs;
-type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
+export type AllComponents = ComponentTypeConfigs[CompTypes]['layout'];
 
 /**
  * This type can be used to reference the layout declaration for a component. You can either use it to specify

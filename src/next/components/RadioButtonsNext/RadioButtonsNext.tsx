@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { Radio } from '@digdir/designsystemet-react';
+import { Fieldset, Radio, useRadioGroup } from '@digdir/designsystemet-react';
 
 import { useResolvedOptions } from 'src/next/components/CheckboxesNext/useResolvedOptions';
 import type { IRawOption } from 'src/layout/common.generated';
@@ -19,24 +19,28 @@ export const RadioButtonsNext: React.FC<RadioButtonsNextType> = ({ component, co
   // 2. Manage a single, selected value
   const [selected, setSelected] = useState<string>(commonProps.currentValue || '');
 
+  const { getRadioProps, validationMessageProps } = useRadioGroup({
+    name: 'my-radio-group',
+    value: 'sjokolade',
+    error: 'Du må velge et alternativ',
+  });
+
   return (
-    <div>
-      <Radio.Group legend=''>
-        {fetchedOptions?.map((option, idx) => (
-          <Radio
-            key={idx}
-            value={`${option.value}`}
-            description={option.description}
-            checked={selected === option.value}
-            onChange={(e) => {
-              setSelected(e.target.value);
-              commonProps.onChange(e.target.value);
-            }}
-          >
-            {option.label}
-          </Radio>
-        ))}
-      </Radio.Group>
-    </div>
+    <Fieldset>
+      {fetchedOptions?.map((option, idx) => (
+        <Radio
+          key={idx}
+          {...getRadioProps(`${option.value}`)}
+          label={option.label}
+          value={`${option.value}`}
+          description={option.description}
+          checked={selected === option.value}
+          onChange={(e) => {
+            setSelected(e.target.value);
+            commonProps.onChange(e.target.value);
+          }}
+        />
+      ))}
+    </Fieldset>
   );
 };

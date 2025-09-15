@@ -24,6 +24,8 @@ const getInitialState = (): InitialState => {
   };
 };
 
+// const initState = getInitialState();
+
 // Create the Zustand store with devtools
 export const initialStateStore = createStore<InitialState>()(
   devtools(

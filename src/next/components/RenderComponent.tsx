@@ -3,17 +3,13 @@ import React, { memo, useState } from 'react';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
-import { Flex } from 'src/app-components/Flex/Flex';
 import { areEqualIgnoringOrder } from 'src/next/app/utils/arrayCompare';
 import { CheckboxesNext } from 'src/next/components/CheckboxesNext/CheckboxesNext';
-import { Navbar } from 'src/next/components/navbar/Navbar';
-import { RadioButtonsNext } from 'src/next/components/RadioButtonsNext/RadioButtonsNext';
 import { RepeatingGroupNext } from 'src/next/components/RepeatingGroupNext/RepeatingGroupNext';
-import { SummaryNext } from 'src/next/components/SummaryNext/SummaryNext';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
-import type { CompIntermediateExact, CompTypes } from 'src/layout/layout';
+import type { CompTypes } from 'src/layout/layout';
 import type { LayoutComponent } from 'src/layout/LayoutComponent';
 import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
@@ -54,7 +50,7 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
   }
 
   const layoutComponent = components[component.type].def as unknown as LayoutComponent<Type>;
-  const RenderComponent = renderAsSummary ? layoutComponent.renderSummaryNext : layoutComponent.renderNext;
+  const RenderComponent = renderAsSummary ? layoutComponent.renderSummary2 : layoutComponent.render;
 
   const value = useStore(
     layoutStore,
@@ -104,20 +100,20 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
       />
     );
   }
-
-  if (component.type === 'RadioButtons') {
-    return (
-      <RadioButtonsNext
-        component={component}
-        commonProps={commonProps}
-      />
-    );
-  }
-
-  if (isHidden) {
-    return <div>Im hidden!</div>;
-  }
-
+  //
+  // if (component.type === 'RadioButtons') {
+  //   return (
+  //     <RadioButtonsNext
+  //       component={component}
+  //       commonProps={commonProps}
+  //     />
+  //   );
+  // }
+  //
+  // if (isHidden) {
+  //   return <div>Im hidden!</div>;
+  // }
+  //
   if (component.type === 'RepeatingGroup') {
     return (
       <RepeatingGroupNext
@@ -127,31 +123,31 @@ export const RenderComponent = memo(function RenderComponentMemo<Type extends Co
       />
     );
   }
-
-  if (component.type === 'Summary2') {
-    return (
-      <SummaryNext
-        component={component}
-        summaryComponent={component as unknown as CompIntermediateExact<'Summary2'>}
-      />
-    );
-  }
-
-  if (!RenderComponent) {
-    return <h1>Not implemented {component.type}</h1>;
-  }
-
-  if (component.type === 'NavigationBar') {
-    return <Navbar component={component} />;
-  }
-
-  return (
-    <Flex
-      id={`form-content-${component.id}`}
-      size={{ xs: 12, ...component.grid?.innerGrid }}
-      item
-    >
-      {RenderComponent(component as unknown as CompIntermediateExact<Type>, commonProps)}
-    </Flex>
-  );
+  //
+  // if (component.type === 'Summary2') {
+  //   return (
+  //     <SummaryNext
+  //       component={component}
+  //       summaryComponent={component as unknown as CompIntermediateExact<'Summary2'>}
+  //     />
+  //   );
+  // }
+  //
+  // if (!RenderComponent) {
+  //   return <h1>Not implemented {component.type}</h1>;
+  // }
+  //
+  // if (component.type === 'NavigationBar') {
+  //   return <Navbar component={component} />;
+  // }
+  //
+  // return (
+  //   <Flex
+  //     id={`form-content-${component.id}`}
+  //     size={{ xs: 12, ...component.grid?.innerGrid }}
+  //     item
+  //   >
+  //     {RenderComponent(component as unknown as CompIntermediateExact<Type>)}
+  //   </Flex>
+  // );
 });

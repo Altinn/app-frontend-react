@@ -1,7 +1,6 @@
 import React from 'react';
 
-import type { CharacterLimit } from '@digdir/design-system-react/dist/types/utilities/InputWrapper';
-
+// import type { CharacterLimit } from '@digdir/design-system-react/dist/types/utilities/InputWrapper';
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
 import { NumericInput } from 'src/app-components/Input/NumericInput';
@@ -59,7 +58,6 @@ export interface InputVariantProps {
   required?: boolean;
   autoComplete?: string;
   error?: boolean;
-  characterLimit?: CharacterLimit;
   className?: string;
   prefix?: string;
   suffix?: string;
@@ -81,7 +79,7 @@ export const InputVariant: React.FC<InputVariantProps> = ({
   required,
   autoComplete,
   error,
-  characterLimit,
+
   className,
   prefix,
   suffix,
@@ -92,6 +90,16 @@ export const InputVariant: React.FC<InputVariantProps> = ({
   patternFormatProps,
 }) => {
   const inputProps: InputProps = {
+    'aria-describedby': undefined,
+    'aria-labelledby': '',
+    inputMode: undefined,
+    label: undefined,
+    onBlur: undefined,
+    onChange: undefined,
+    onKeyDown: undefined,
+    pattern: undefined,
+    placeholder: undefined,
+    value: undefined,
     id,
     'aria-label': renderedInTable ? undefined : undefined, // Adjust as needed if you'd like
     readOnly,
@@ -101,7 +109,7 @@ export const InputVariant: React.FC<InputVariantProps> = ({
     autoComplete,
     prefix,
     suffix,
-    characterLimit: !readOnly ? characterLimit : undefined,
+
     className,
     style: style ?? { width: '100%' },
   };

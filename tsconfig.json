@@ -22,6 +22,7 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "paths": {
+      "libs/*": ["libs/*"],
       "src/*": ["src/*"],
       "test/*": ["test/*"],
       "schemas/*": ["schemas/*"],
@@ -45,6 +46,6 @@
       }
     ]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "libs/**/*.ts", "libs/**/*.tsx"],
   "exclude": ["node_modules/cypress"]
 }
