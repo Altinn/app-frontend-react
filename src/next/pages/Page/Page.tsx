@@ -1,36 +1,30 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { useStore } from 'zustand';
-import { useShallow } from 'zustand/react/shallow';
-
 import { RenderLayout } from 'libs/FormEngineReact/components';
-import { layoutStore } from 'src/next/stores/layoutStore';
+import { useEngine } from 'libs/FormEngineReact';
 
 export type PageParams = {
   pageId: string;
 };
 
 export const Page = () => {
+  console.log('Page: Starting with FormEngine hook');
+  
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
+  const engine = useEngine();
 
-  const currentPage = useStore(
-    layoutStore,
-    useShallow((state) => state.layouts?.[pageId]),
-  );
+  console.log('Page: Getting layout for pageId:', pageId);
 
-  if (!currentPage) {
-    throw new Error(`could not find layout`);
-  }
-  if (!currentPage) {
-    // In production, you might prefer graceful handling rather than throwing
-    throw new Error(`No layout found for page: ${pageId}`);
+  // Get layout from FormEngine instead of old stores
+  const currentPageLayout = engine?.layout.getVisibleComponents(pageId);
+
+  if (!currentPageLayout || currentPageLayout.length === 0) {
+    console.log('Page: No layout found for pageId:', pageId);
+    return <div>No layout found for page: {pageId}</div>;
   }
 
-  const currentPageLayout = currentPage.data?.layout;
-  if (!currentPageLayout) {
-    return null;
-  }
+  console.log('Page: Rendering layout with', currentPageLayout.length, 'components');
 
-  return <RenderLayout components={currentPageLayout as any} />;
+  return <RenderLayout components={currentPageLayout} />;
 };

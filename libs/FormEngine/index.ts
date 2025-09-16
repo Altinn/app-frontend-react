@@ -54,6 +54,16 @@ export class FormEngine {
   }
 
   /**
+   * Initialize FormEngine with empty state for progressive loading
+   */
+  initializeEmpty(): void {
+    console.log('FormEngine: Initializing empty for progressive loading');
+    // Reset to ensure clean state
+    this.reset();
+    console.log('FormEngine: Empty initialization complete - ready for progressive data loading');
+  }
+
+  /**
    * Initialize FormEngine with configuration
    */
   initialize(config: FormEngineConfig): void {

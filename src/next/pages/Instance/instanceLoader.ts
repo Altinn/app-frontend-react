@@ -1,7 +1,6 @@
 import type { LoaderFunctionArgs } from 'react-router-dom';
 
-import { dataService } from 'libs/FormEngine/modules/data/data.service';
-
+import type { FormEngine } from 'libs/FormEngine';
 import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
 import { instanceStore } from 'src/next/stores/instanceStore';
 import { layoutStore } from 'src/next/stores/layoutStore';
@@ -12,7 +11,13 @@ type InstanceParams = {
   instanceGuid: string;
 };
 
-export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams) {
+type InstanceLoaderParams = InstanceParams & {
+  formEngine: FormEngine;
+};
+
+export async function instanceLoaderFn({ partyId, instanceGuid, formEngine }: InstanceLoaderParams) {
+  console.log('instanceLoader: Starting with FormEngine instance');
+  
   const { instance } = instanceStore.getState();
 
   let localInstance = instance;
@@ -27,7 +32,7 @@ export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams
   }
 
   if (!instance) {
-    const res = await API_CLIENT.org.instancesDetail(ORG, APP, parseInt(partyId), instanceGuid); //fetch('/api/users');
+    const res = await API_CLIENT.org.instancesDetail(ORG, APP, parseInt(partyId), instanceGuid);
     const instance = await res.json();
     instanceStore.setState({ instance });
     localInstance = instance;
@@ -45,24 +50,28 @@ export async function instanceLoaderFn({ partyId, instanceGuid }: InstanceParams
     localInstance.data[0].id,
   );
   const data = await res.json();
+  
+  // Set data in old store (for compatibility)
   layoutStore.getState().setDataObject(data);
 
-  // Also initialize the FormEngine data store
-  dataService.setData(data);
+  // Set real form data in FormEngine
+  formEngine.data.setData(data);
   
-  // Verify the data was set correctly
-  const storedData = dataService.getData();
-  console.log('Data set in FormEngine data store:', storedData);
-  console.log('Sample value using dot notation (if exists):', dataService.getValue('person.firstName'));
+  console.log('instanceLoader: Set real form data in FormEngine:', data);
+  console.log('instanceLoader: Progressive loading phase 2 complete - form data loaded');
+  
+  // Verify data was set
+  const storedData = formEngine.data.getData();
+  console.log('instanceLoader: Verified FormEngine data:', Object.keys(storedData || {}));
 
   return {};
 }
 
-export async function instanceLoader({ params }: LoaderFunctionArgs<InstanceParams>) {
+export async function instanceLoader({ params, formEngine }: { params: any; formEngine: FormEngine }) {
   const { partyId, instanceGuid } = params;
   if (!partyId || !instanceGuid) {
     throw new Error('partyId, instanceGuid should be set');
   }
-  await instanceLoaderFn({ partyId, instanceGuid });
+  await instanceLoaderFn({ partyId, instanceGuid, formEngine });
   return {};
 }

@@ -13,6 +13,9 @@ interface FormEngineContextType {
 // Create context
 const FormEngineContext = createContext<FormEngineContextType | null>(null);
 
+// Export the context for external use if needed
+export { FormEngineContext };
+
 // Provider props
 interface FormEngineProviderProps {
   engine: FormEngine;

@@ -53,6 +53,12 @@ export function withFormEngine<P extends object>(
   return function FormEngineEnhancedComponent(props: P & FormEngineComponentProps) {
     const { config, parentBinding, itemIndex, ...otherProps } = props;
 
+    // Early return if config is undefined
+    if (!config) {
+      console.warn('FormEngineEnhancedComponent: config is undefined, rendering nothing');
+      return null;
+    }
+
     // Component data binding
     const { value, updateValue } = useComponentData(config, parentBinding, itemIndex);
 
@@ -123,6 +129,12 @@ export function FormEngineComponent({
   className,
   ...props
 }: FormEngineComponentProps) {
+  // Early return if config is undefined
+  if (!config) {
+    console.warn('FormEngineComponent: config is undefined, rendering nothing');
+    return null;
+  }
+
   const { value, updateValue } = useComponentData(config, parentBinding, itemIndex);
   const { errors, isValid } = useComponentValidation(config, parentBinding, itemIndex);
   const isVisible = useComponentVisibility(config.id);

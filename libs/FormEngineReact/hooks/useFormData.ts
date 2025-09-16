@@ -31,8 +31,18 @@ export function useFormData(path: string): [any, (value: any) => void] {
 export function useComponentData(component: any, parentBinding?: string, itemIndex?: number) {
   const engine = useEngine();
   
+  // Early return if component is undefined or null
+  if (!component) {
+    const [value] = useState(undefined);
+    const updateValue = useCallback(() => {}, []);
+    return { value, updateValue };
+  }
+  
+  // Check if component has data binding before attempting to get bound value
+  const hasDataBinding = component.dataModelBindings && component.dataModelBindings.simpleBinding;
+  
   const [value, setValue] = useState(() => 
-    engine.getBoundValue(component, parentBinding, itemIndex)
+    hasDataBinding ? engine.getBoundValue(component, parentBinding, itemIndex) : undefined
   );
 
   useEffect(() => {
@@ -52,6 +62,7 @@ export function useComponentData(component: any, parentBinding?: string, itemInd
 
   const updateValue = useCallback(
     (newValue: any) => {
+      if (!component) return;
       engine.setBoundValue(component, newValue, parentBinding, itemIndex);
     },
     [engine, component, parentBinding, itemIndex]

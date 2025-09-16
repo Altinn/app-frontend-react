@@ -4,6 +4,7 @@ import { scan } from 'react-scan';
 
 import { setAutoFreeze } from 'immer';
 
+import { FormEngine } from 'libs/FormEngine';
 import { Api } from 'src/next/app/api';
 import { AppLayout } from 'src/next/app/App/AppLayout/AppLayout';
 import { initialLoader } from 'src/next/app/App/AppLayout/initialLoader';
@@ -24,20 +25,24 @@ export const API_CLIENT = new Api({
   baseUrl: origin,
 });
 
+// Create FormEngine instance at router level for progressive loading
+const formEngineInstance = new FormEngine();
+formEngineInstance.initializeEmpty();
+
 const router = createHashRouter([
   {
     path: '/',
-    loader: initialLoader,
-    element: <AppLayout />,
+    loader: () => initialLoader(formEngineInstance),
+    element: <AppLayout formEngine={formEngineInstance} />,
     children: [
       {
-        loader: instanceLoader,
+        loader: ({ params }) => instanceLoader({ params, formEngine: formEngineInstance }),
         path: 'instance/:partyId/:instanceGuid',
         element: <Instance />,
         children: [
           {
             path: ':taskId',
-            element: <Task />,
+            element: <Task formEngine={formEngineInstance} />,
             children: [
               {
                 path: ':pageId',

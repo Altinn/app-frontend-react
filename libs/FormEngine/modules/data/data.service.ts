@@ -255,7 +255,12 @@ export class DataService {
       return undefined;
     }
 
-    const simpleBinding = component.dataModelBindings?.simpleBinding;
+    // Ensure component has dataModelBindings
+    if (!component || !component.dataModelBindings) {
+      return undefined;
+    }
+
+    const simpleBinding = component.dataModelBindings.simpleBinding;
     if (!simpleBinding) {
       return undefined;
     }

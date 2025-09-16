@@ -1,3 +1,5 @@
+// Core hooks - useEngine is exported from FormEngineProvider
+
 // Data hooks
 export { useFormData, useComponentData, useAllFormData } from './useFormData';
 

@@ -1,7 +1,10 @@
+import type { FormEngine } from 'libs/FormEngine';
+import type { ApplicationMetadata as FormEngineApplicationMetadata } from 'libs/FormEngine/types';
 import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
 import { textResourceStore } from 'src/next/stores/textResourceStore';
+import type { ApplicationMetadata as OldApplicationMetadata } from 'src/next/types/InitialState/InitialState';
 
 /**
  * Recursively resolves any $ref entries in a JSON schema that point into $defs.
@@ -49,11 +52,42 @@ const xsrfCookie = document.cookie
   .split('=')[1];
 const headers = { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrfCookie };
 
-export async function initialLoader() {
+/**
+ * Converts old ApplicationMetadata type to FormEngine's expected type
+ */
+function convertApplicationMetadata(oldMetadata: OldApplicationMetadata): FormEngineApplicationMetadata {
+  return {
+    ...oldMetadata,
+    dataTypes: oldMetadata.dataTypes.map(dataType => {
+      // Convert individual data type, excluding problematic fields
+      const { appLogic, allowedContributers, ...baseDataType } = dataType;
+      return {
+        ...baseDataType,
+        // Convert appLogic if it exists, filtering out null values
+        ...(appLogic && {
+          appLogic: {
+            autoCreate: appLogic.autoCreate ?? undefined,
+            allowAnonymousOnStateless: appLogic.allowAnonymousOnStateless ?? undefined,
+            classRef: appLogic.classRef ?? undefined,
+            schemaRef: appLogic.schemaRef ?? undefined,
+            disallowUserCreate: appLogic.disallowUserCreate ?? undefined,
+          }
+        }),
+        // Keep allowedContributers as is (it should be compatible)
+        allowedContributers,
+      };
+    }),
+  };
+}
+
+export async function initialLoader(formEngine: FormEngine) {
+  console.log('initialLoader: Starting with FormEngine instance');
+  
   const { user, validParties, applicationMetadata } = initialStateStore.getState();
 
   const { layoutSetsConfig, setDataModelSchema } = layoutStore.getState();
 
+  // Load and populate schemas in FormEngine
   const dataModelNames = applicationMetadata.dataTypes
     .filter((dataType) => dataType.allowedContentTypes?.includes('application/xml'))
     .map((dataType) => dataType.id);
@@ -64,7 +98,30 @@ export async function initialLoader() {
 
   const schemaData = await Promise.all(dataModelSchemaResponses.map(async (res) => await res.json()));
 
-  schemaData.forEach((data, idx) => setDataModelSchema(dataModelNames[idx], resolveSchemaDefs(data)));
+  // Set schemas in both old store (for compatibility) and FormEngine
+  const resolvedSchemas: Record<string, any> = {};
+  schemaData.forEach((data, idx) => {
+    const resolvedSchema = resolveSchemaDefs(data);
+    const schemaName = dataModelNames[idx];
+    
+    // Old store
+    setDataModelSchema(schemaName, resolvedSchema);
+    
+    // FormEngine
+    formEngine.schema.setSchema(schemaName, resolvedSchema);
+    resolvedSchemas[schemaName] = resolvedSchema;
+  });
+
+  console.log('initialLoader: Loaded schemas into FormEngine:', Object.keys(resolvedSchemas));
+
+  // Set application metadata in FormEngine (convert from old type to new type)
+  formEngine.application.initialize({
+    applicationMetadata: convertApplicationMetadata(applicationMetadata),
+    frontEndSettings: {},
+    componentConfigs: {},
+  });
+
+  console.log('initialLoader: Set application metadata in FormEngine');
 
   const currentParty = validParties[0];
 
@@ -95,15 +152,30 @@ export async function initialLoader() {
     instanceId = data.id;
   }
 
-  if (!layoutSetsConfig) {
+  // Load layout sets configuration
+  let layoutSetsConfigData = layoutSetsConfig;
+  if (!layoutSetsConfigData) {
     const res = await API_CLIENT.org.layoutsetsDetail(ORG, APP);
     const data = await res.json();
     layoutStore.getState().setLayoutSets(data);
+    layoutSetsConfigData = data;
+  }
+
+  // Set layout sets config in FormEngine (with minimal data for now)
+  if (layoutSetsConfigData) {
+    formEngine.layout.setLayoutData({
+      layoutSetsConfig: layoutSetsConfigData,
+      pageOrder: { pages: { order: [] } }, // Will be populated later
+      layouts: {}, // Will be populated later
+    });
+    console.log('initialLoader: Set layout sets config in FormEngine');
   }
 
   const langRes = await API_CLIENT.org.v1TextsDetail(ORG, APP, user.profileSettingPreference.language ?? 'nb');
-  const data = await langRes.json();
-  textResourceStore.setState({ textResource: data });
+  const langData = await langRes.json();
+  textResourceStore.setState({ textResource: langData });
+
+  console.log('initialLoader: Progressive loading phase 1 complete - app metadata, schemas, and layout sets loaded');
 
   return { instanceId };
 }
