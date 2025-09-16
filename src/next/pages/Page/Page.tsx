@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { useStore } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 
-import { RenderLayout } from 'src/next/components/RenderLayout';
+import { RenderLayout } from 'libs/FormEngineReact/components';
 import { layoutStore } from 'src/next/stores/layoutStore';
 
 export type PageParams = {
@@ -32,5 +32,5 @@ export const Page = () => {
     return null;
   }
 
-  return <RenderLayout components={currentPageLayout} />;
+  return <RenderLayout components={currentPageLayout as any} />;
 };

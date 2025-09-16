@@ -1,75 +1,65 @@
 import React from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
-import classNames from 'classnames';
+import { ComponentRenderer } from 'libs/FormEngineReact/components/ComponentRenderer';
+import type { BaseComponent } from 'libs/FormEngine/types';
 
-import { Flex } from 'src/app-components/Flex/Flex';
-import { gridToClasses } from 'src/layout/GenericComponent';
-import classes from 'src/layout/GenericComponent.module.css';
-import { RenderComponent } from 'src/next/components/RenderComponent';
 import type { Expression } from 'src/features/expressions/types';
-import type { ResolvedCompExternal } from 'src/next/stores/layoutStore';
 
 interface RenderLayoutType {
-  components?: ResolvedCompExternal[];
+  components?: BaseComponent[];
   parentBinding?: string;
   itemIndex?: number;
+  className?: string;
 }
 
-const getBinding = (component: ResolvedCompExternal): string | undefined => {
+const getBinding = (component: BaseComponent): string | undefined => {
   if (component.type === 'RepeatingGroup') {
-    // @ts-ignore
-    return component.dataModelBindings['group'];
+    return component.dataModelBindings?.group;
   }
 
-  return component.dataModelBindings && component.dataModelBindings['simpleBinding']
-    ? component.dataModelBindings['simpleBinding']
-    : undefined;
+  return component.dataModelBindings?.simpleBinding;
 };
 
-export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({ components, parentBinding, itemIndex }) => {
+export const RenderLayout: React.FunctionComponent<RenderLayoutType> = ({
+  components,
+  parentBinding,
+  itemIndex,
+  className = '',
+}) => {
   if (!components) {
     return null;
   }
 
   return (
-    <Flex
-      container
-      spacing={6}
-      alignItems='flex-start'
-    >
+    <div className={`render-layout ${className}`}>
       {components.map((currentComponent) => {
         const childMapping = getBinding(currentComponent);
-
         const childField = childMapping && parentBinding ? childMapping.replace(parentBinding, '') : undefined;
         const id = `item-${currentComponent.id}`;
 
         return (
-          <Flex
+          <div
+            key={`grid-${id}`}
             data-componentbaseid={id}
             data-componentid={id}
             data-componenttype={currentComponent.type}
-            item
-            container
-            size={currentComponent.grid}
-            key={`grid-${id}`}
-            className={classNames(classes.container, gridToClasses(currentComponent.grid?.labelGrid, classes))}
+            style={{ marginBottom: '16px' }}
           >
-            <RenderComponent
+            <ComponentRenderer
               component={currentComponent}
               parentBinding={parentBinding}
               itemIndex={itemIndex}
-              childField={childField}
             />
-          </Flex>
+          </div>
         );
       })}
-    </Flex>
+    </div>
   );
 };
 
 interface RenderLayoutRowType {
-  components?: ResolvedCompExternal[];
+  components?: BaseComponent[];
   parentBinding?: string;
   itemIndex?: number;
   isRowHiddenExpression?: Expression;
@@ -79,20 +69,16 @@ export const RenderLayoutRow: React.FunctionComponent<RenderLayoutRowType> = ({
   components,
   parentBinding,
   itemIndex,
-  isRowHiddenExpression,
+  isRowHiddenExpression: _isRowHiddenExpression,
 }) => {
-  console.log('isRowHiddenExpression', isRowHiddenExpression);
-  // const isHidden = useStore(layoutStore, (state) => {
-  //   if (!isRowHiddenExpression) {
-  //     return false;
-  //   }
-  //   // @ts-ignore
-  //   return state.evaluateExpression(isRowHiddenExpression, parentBinding, itemIndex);
-  // });
-  //
+  // TODO: Implement expression evaluation for row visibility
+  // const isHidden = useExpression(isRowHiddenExpression, [parentBinding, itemIndex]);
+
   // if (isHidden) {
   //   return null;
   // }
+
+  // Note: isRowHiddenExpression is kept for future implementation but currently unused
 
   if (!components) {
     return null;
@@ -102,16 +88,14 @@ export const RenderLayoutRow: React.FunctionComponent<RenderLayoutRowType> = ({
     <Table.Row>
       {components.map((currentComponent) => {
         const childMapping = getBinding(currentComponent);
-
         const childField = childMapping && parentBinding ? childMapping.replace(parentBinding, '') : undefined;
 
         return (
           <Table.Cell key={currentComponent.id}>
-            <RenderComponent
+            <ComponentRenderer
               component={currentComponent}
               parentBinding={parentBinding}
               itemIndex={itemIndex}
-              childField={childField}
             />
           </Table.Cell>
         );

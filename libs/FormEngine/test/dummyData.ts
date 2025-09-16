@@ -6,6 +6,7 @@
 import type { FormEngineConfig } from 'libs/FormEngine/types';
 
 export const dummyData: FormEngineConfig = {
+  dataModelSchemas: {},
   // Form data
   data: {
     inputfield: null,
@@ -66,105 +67,6 @@ export const dummyData: FormEngineConfig = {
     MultiselectGroupExample: [],
     DatepickerMaxDateExample: null,
     DatepickerMinDateExample: null,
-  },
-
-  // Data model schemas
-  dataModelSchemas: {
-    model: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      $id: 'http://altinn-repositories:3000/ttd/component-library/App/models/Model.schema.json',
-      info: {
-        rootNode: '',
-      },
-      '@xsdNamespaces': {
-        xsd: 'http://www.w3.org/2001/XMLSchema',
-        xsi: 'http://www.w3.org/2001/XMLSchema-instance',
-        seres: 'http://seres.no/xsd/forvaltningsdata',
-      },
-      '@xsdSchemaAttributes': {
-        AttributeFormDefault: 'Unqualified',
-        ElementFormDefault: 'Qualified',
-        BlockDefault: 'None',
-        FinalDefault: 'None',
-      },
-      '@xsdRootElement': 'Model',
-      type: 'object',
-      required: ['streetnr', 'postnr'],
-      properties: {
-        inputfield: {
-          type: 'string',
-        },
-        shortAnswerInput: {
-          type: 'string',
-        },
-        longAnswerInput: {
-          type: 'string',
-        },
-        radioButtonInput: {
-          type: 'string',
-        },
-        checkboxesInput: {
-          type: 'string',
-          pattern: '[A-Za-z,æøå]*(kjoringISkogen)[A-Za-z,æøå]*',
-        },
-        nestedInput: {
-          type: 'string',
-        },
-        nestedInput2: {
-          type: 'string',
-        },
-        nestedInput3: {
-          type: 'string',
-        },
-        streetnr: {
-          type: 'string',
-        },
-        postnr: {
-          type: 'string',
-        },
-        city: {
-          type: 'string',
-        },
-        co: {
-          type: 'string',
-        },
-        street: {
-          type: 'string',
-        },
-        // Truncated for brevity - full schema available in original data
-      },
-    },
-    model2: {
-      $schema: 'https://json-schema.org/draft/2020-12/schema',
-      $id: 'http://altinn-repositories:3000/ttd/component-library/App/models/model2.schema.json',
-      info: {
-        rootNode: '',
-      },
-      '@xsdNamespaces': {
-        xsd: 'http://www.w3.org/2001/XMLSchema',
-        xsi: 'http://www.w3.org/2001/XMLSchema-instance',
-        seres: 'http://seres.no/xsd/forvaltningsdata',
-      },
-      '@xsdSchemaAttributes': {
-        AttributeFormDefault: 'Unqualified',
-        ElementFormDefault: 'Qualified',
-        BlockDefault: 'None',
-        FinalDefault: 'None',
-      },
-      '@xsdRootElement': 'model2',
-      type: 'object',
-      properties: {
-        property1: {
-          type: 'string',
-        },
-        property2: {
-          type: 'string',
-        },
-        property3: {
-          type: 'string',
-        },
-      },
-    },
   },
 
   // Layout sets configuration

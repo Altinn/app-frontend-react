@@ -1,18 +1,25 @@
-import { dataService } from '../data/data.service';
-import { layoutService } from '../layout/layout.service';
-import { evaluateExpression as evaluateAltinnDsl, createExpressionContext, isExpression } from './altinnDsl';
-import type { Expression } from '../../types';
+import { dataService } from 'libs/FormEngine/modules/data/data.service';
+import {
+  createExpressionContext,
+  evaluateExpression as evaluateAltinnDsl,
+  isExpression,
+} from 'libs/FormEngine/modules/expression/altinnDsl';
+import { layoutService } from 'libs/FormEngine/modules/layout/layout.service';
+import type { Expression } from 'libs/FormEngine/types';
 
 export class ExpressionService {
   /**
    * Evaluate an expression using the Altinn DSL
    */
-  evaluateExpression(expression: Expression, options: {
-    componentMap?: Record<string, any>;
-    parentBinding?: string;
-    itemIndex?: number;
-    data?: Record<string, any>;
-  } = {}): any {
+  evaluateExpression(
+    expression: Expression,
+    options: {
+      componentMap?: Record<string, any>;
+      parentBinding?: string;
+      itemIndex?: number;
+      data?: Record<string, any>;
+    } = {},
+  ): any {
     // If expression is already a boolean, return it
     if (typeof expression === 'boolean') {
       return expression;
@@ -25,7 +32,7 @@ export class ExpressionService {
 
     // Get current form data if not provided
     const data = options.data || dataService.getData();
-    
+
     // Get component map from layout service if not provided
     const componentMap = options.componentMap || layoutService.getComponentMap();
 
@@ -66,13 +73,13 @@ export class ExpressionService {
    * Evaluate boolean expression (for hidden, required, etc.)
    */
   evaluateBooleanExpression(
-    expression: boolean | Expression, 
+    expression: boolean | Expression,
     options: {
       componentMap?: Record<string, any>;
       parentBinding?: string;
       itemIndex?: number;
       data?: Record<string, any>;
-    } = {}
+    } = {},
   ): boolean {
     if (typeof expression === 'boolean') {
       return expression;
@@ -86,13 +93,13 @@ export class ExpressionService {
    * Evaluate string expression (for text resources, etc.)
    */
   evaluateStringExpression(
-    expression: string | Expression, 
+    expression: string | Expression,
     options: {
       componentMap?: Record<string, any>;
       parentBinding?: string;
       itemIndex?: number;
       data?: Record<string, any>;
-    } = {}
+    } = {},
   ): string {
     if (typeof expression === 'string') {
       return expression;
@@ -105,20 +112,19 @@ export class ExpressionService {
   /**
    * Create expression context from current state
    */
-  createContext(options: {
-    data?: Record<string, any>;
-    componentMap?: Record<string, any>;
-    parentBinding?: string;
-    itemIndex?: number;
-  } = {}) {
-    return createExpressionContext(
-      options.data || dataService.getData() || {},
-      {
-        componentMap: options.componentMap || layoutService.getComponentMap() || {},
-        parentBinding: options.parentBinding,
-        itemIndex: options.itemIndex,
-      }
-    );
+  createContext(
+    options: {
+      data?: Record<string, any>;
+      componentMap?: Record<string, any>;
+      parentBinding?: string;
+      itemIndex?: number;
+    } = {},
+  ) {
+    return createExpressionContext(options.data || dataService.getData() || {}, {
+      componentMap: options.componentMap || layoutService.getComponentMap() || {},
+      parentBinding: options.parentBinding,
+      itemIndex: options.itemIndex,
+    });
   }
 
   /**
@@ -131,7 +137,7 @@ export class ExpressionService {
       parentBinding?: string;
       itemIndex?: number;
       data?: Record<string, any>;
-    } = {}
+    } = {},
   ): boolean {
     if (hiddenExpression === undefined) {
       return true; // Visible by default
@@ -151,7 +157,7 @@ export class ExpressionService {
       parentBinding?: string;
       itemIndex?: number;
       data?: Record<string, any>;
-    } = {}
+    } = {},
   ): boolean {
     if (requiredExpression === undefined) {
       return false; // Not required by default

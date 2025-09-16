@@ -1,4 +1,5 @@
 import { layoutStore } from './layout.store';
+import { moveChildren, buildComponentMap, filterVisibleComponents } from './layout.utils';
 import type {
   Expression,
   LayoutCollection,
@@ -6,6 +7,7 @@ import type {
   PageOrder,
   ResolvedComponent,
 } from '../../types';
+import type { ComponentWithChildren, LayoutFileInput, LayoutFileOutput } from './layout.utils';
 
 export class LayoutService {
   private store = layoutStore;
@@ -257,6 +259,69 @@ export class LayoutService {
    */
   getComponentMap(): Record<string, ResolvedComponent> {
     return this.store.getState().componentMap;
+  }
+
+  /**
+   * Transform flat layout into hierarchical structure using moveChildren
+   */
+  resolveComponentHierarchy(layouts: LayoutCollection): Record<string, LayoutFileOutput> {
+    const resolvedLayouts: Record<string, LayoutFileOutput> = {};
+
+    for (const [pageId, layout] of Object.entries(layouts)) {
+      try {
+        resolvedLayouts[pageId] = moveChildren(layout as LayoutFileInput);
+      } catch (error) {
+        console.error(`Failed to resolve component hierarchy for page ${pageId}:`, error);
+        // Fall back to original layout structure
+        resolvedLayouts[pageId] = layout as LayoutFileOutput;
+      }
+    }
+
+    return resolvedLayouts;
+  }
+
+  /**
+   * Build component map from resolved hierarchical layouts
+   */
+  buildLayoutComponentMap(resolvedLayouts: Record<string, LayoutFileOutput>): Record<string, ComponentWithChildren> {
+    return buildComponentMap(resolvedLayouts);
+  }
+
+  /**
+   * Process layout data with component hierarchy resolution
+   */
+  processLayoutsWithHierarchy(data: {
+    layoutSetsConfig: LayoutSetsConfig;
+    pageOrder: PageOrder;
+    layouts: LayoutCollection;
+  }): void {
+    // First resolve component hierarchies
+    const resolvedLayouts = this.resolveComponentHierarchy(data.layouts);
+    
+    // Build component map
+    const componentMap = this.buildLayoutComponentMap(resolvedLayouts);
+    
+    // Update store with processed data
+    this.store.getState().setLayoutSetsConfig(data.layoutSetsConfig);
+    this.store.getState().setPageOrder(data.pageOrder);
+    this.store.getState().setLayouts(data.layouts);
+    
+    // Store resolved layouts and component map for advanced usage
+    // This would require extending the store interface
+    console.log('Processed layouts with component hierarchy:', {
+      resolvedLayouts,
+      componentMapSize: Object.keys(componentMap).length,
+    });
+  }
+
+  /**
+   * Filter components using hierarchy-aware visibility evaluation
+   */
+  filterComponentsWithHierarchy(
+    components: ComponentWithChildren[],
+    evaluateVisibility: (component: ComponentWithChildren) => boolean,
+  ): ComponentWithChildren[] {
+    return filterVisibleComponents(components, evaluateVisibility);
   }
 }
 

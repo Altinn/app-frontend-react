@@ -101,29 +101,9 @@ export interface TargetConfig {
 // Schema Types
 // ============================================
 
-export interface JSONSchema7 {
-  $schema?: string;
-  $id?: string;
-  type?: string;
-  properties?: Record<string, any>;
-  required?: string[];
-  $defs?: Record<string, any>;
-  info?: {
-    rootNode?: string;
-  };
-  '@xsdNamespaces'?: Record<string, string>;
-  '@xsdSchemaAttributes'?: Record<string, string>;
-  '@xsdRootElement'?: string;
-  items?: any;
-  maximum?: number;
-  minimum?: number;
-  maxLength?: number;
-  minLength?: number;
-  pattern?: string;
-  format?: string;
-  title?: string;
-  [key: string]: any;
-}
+// Use the standard JSONSchema7 type from json-schema package
+import type { JSONSchema7 } from 'json-schema';
+export type { JSONSchema7 };
 
 // ============================================
 // Application Types

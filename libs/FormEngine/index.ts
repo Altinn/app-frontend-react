@@ -1,16 +1,27 @@
 // Export all types
+// eslint-disable-next-line no-restricted-syntax
 export * from './types';
 
 // Export services
+// eslint-disable-next-line no-restricted-syntax
 export { dataService } from './modules/data/data.service';
+// eslint-disable-next-line no-restricted-syntax
 export { layoutService } from './modules/layout/layout.service';
+// eslint-disable-next-line no-restricted-syntax
 export { applicationService } from './modules/application/application.service';
+// eslint-disable-next-line no-restricted-syntax
 export { expressionService } from './modules/expression/expression.service';
+// eslint-disable-next-line no-restricted-syntax
 export { validationService } from './modules/validation/validation.service';
+// eslint-disable-next-line no-restricted-syntax
+export { schemaService } from './modules/schema/schema.service';
 
 // Export stores (for advanced usage)
+// eslint-disable-next-line no-restricted-syntax
 export { dataStore } from './modules/data/data.store';
+// eslint-disable-next-line no-restricted-syntax
 export { layoutStore } from './modules/layout/layout.store';
+// eslint-disable-next-line no-restricted-syntax
 export { applicationStore } from './modules/application/application.store';
 
 // Import services for FormEngine
@@ -18,6 +29,7 @@ import { applicationService } from 'libs/FormEngine/modules/application/applicat
 import { dataService } from 'libs/FormEngine/modules/data/data.service';
 import { expressionService } from 'libs/FormEngine/modules/expression/expression.service';
 import { layoutService } from 'libs/FormEngine/modules/layout/layout.service';
+import { schemaService } from 'libs/FormEngine/modules/schema/schema.service';
 import { validationService } from 'libs/FormEngine/modules/validation/validation.service';
 import type { FormEngineConfig } from 'libs/FormEngine/types';
 
@@ -31,6 +43,7 @@ export class FormEngine {
   public application = applicationService;
   public expression = expressionService;
   public validation = validationService;
+  public schema = schemaService;
 
   // Event emitter for form events
   private eventListeners: Map<string, Set<Function>> = new Map();
@@ -63,10 +76,13 @@ export class FormEngine {
 
       // Set form data
       this.data.setData(config.data);
+      console.log('FormEngine: Data initialized:', config.data);
 
-      // Store schemas in data service for now (will move to schema service later)
-      // TODO: Implement schema service
-      console.log('FormEngine: Schemas available:', Object.keys(config.dataModelSchemas));
+      // Set schemas in schema service
+      for (const [schemaName, schema] of Object.entries(config.dataModelSchemas)) {
+        this.schema.setSchema(schemaName, schema);
+      }
+      console.log('FormEngine: Schemas loaded:', Object.keys(config.dataModelSchemas));
 
       // Emit initialization event
       this.emit('initialized', config);
@@ -75,6 +91,7 @@ export class FormEngine {
       console.log('- Current page:', this.layout.getCurrentPage());
       console.log('- Available pages:', this.layout.getPageList());
       console.log('- Component count:', Object.keys(this.layout.getAllResolvedLayouts()).length);
+      console.log('- Stores should be visible in Redux DevTools now!');
     } catch (error) {
       console.error('FormEngine: Initialization failed:', error);
       throw error;
@@ -141,12 +158,64 @@ export class FormEngine {
   }
 
   /**
+   * Get bound value for a component with support for repeating groups
+   */
+  getBoundValue(component: any, parentBinding?: string, itemIndex?: number, childField?: string): any {
+    return this.data.getBoundValue(component, parentBinding, itemIndex, childField);
+  }
+
+  /**
+   * Set bound value for a component with support for repeating groups
+   */
+  setBoundValue(component: any, newValue: any, parentBinding?: string, itemIndex?: number, childField?: string): void {
+    const oldValue = this.data.getBoundValue(component, parentBinding, itemIndex, childField);
+    this.data.setBoundValue(component, newValue, parentBinding, itemIndex, childField);
+
+    this.emit('dataChanged', {
+      component: component.id,
+      value: newValue,
+      oldValue,
+      parentBinding,
+      itemIndex,
+      childField,
+    });
+  }
+
+  /**
    * Validate current form data
    */
   validate(): boolean {
     // TODO: Implement comprehensive validation
     console.log('FormEngine: Validating form data...');
     return true;
+  }
+
+  /**
+   * Validate a specific component with expression support
+   */
+  // validateComponent(component: any, parentBinding?: string, itemIndex?: number, childField?: string): string[] {
+  //   return this.validation.validateComponentAdvanced(
+  //     component,
+  //     this.data,
+  //     this.expression,
+  //     parentBinding,
+  //     itemIndex,
+  //     childField,
+  //   );
+  // }
+
+  /**
+   * Add a row to a repeating group
+   */
+  addRow(dataModelBinding: string, parentBinding?: string, itemIndex?: number, childField?: string): void {
+    this.data.addRow(dataModelBinding, parentBinding, itemIndex, childField);
+
+    this.emit('rowAdded', {
+      dataModelBinding,
+      parentBinding,
+      itemIndex,
+      childField,
+    });
   }
 
   /**
@@ -226,7 +295,7 @@ export class FormEngine {
     if (Array.isArray(component.hidden)) {
       return this.expression.evaluateVisibility(component.hidden, {
         data: this.data.getData(),
-        componentMap: this.layout.getComponentMap()
+        componentMap: this.layout.getComponentMap(),
       });
     }
 

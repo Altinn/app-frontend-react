@@ -26,6 +26,44 @@ export function useFormData(path: string): [any, (value: any) => void] {
 }
 
 /**
+ * Hook for component data binding with repeating group support
+ */
+export function useComponentData(component: any, parentBinding?: string, itemIndex?: number) {
+  const engine = useEngine();
+  
+  const [value, setValue] = useState(() => 
+    engine.getBoundValue(component, parentBinding, itemIndex)
+  );
+
+  useEffect(() => {
+    const binding = component.dataModelBindings?.simpleBinding;
+    if (!binding) return;
+
+    const effectivePath = parentBinding 
+      ? `${parentBinding}[${itemIndex}].${binding.split('.').pop()}`
+      : binding;
+
+    const unsubscribe = engine.data.subscribeToPath(effectivePath, (newValue) => {
+      setValue(newValue);
+    });
+
+    return unsubscribe;
+  }, [engine, component, parentBinding, itemIndex]);
+
+  const updateValue = useCallback(
+    (newValue: any) => {
+      engine.setBoundValue(component, newValue, parentBinding, itemIndex);
+    },
+    [engine, component, parentBinding, itemIndex]
+  );
+
+  return {
+    value,
+    updateValue,
+  };
+}
+
+/**
  * Hook for getting all form data
  */
 export function useAllFormData(): [any, (data: any) => void] {

@@ -1,5 +1,6 @@
 import dot from 'dot-object';
 import { dataStore } from 'libs/FormEngine/modules/data/data.store';
+import { schemaService } from 'libs/FormEngine/modules/schema/schema.service';
 import type { DataObject } from 'libs/FormEngine/modules/data/data.store';
 
 export class DataService {
@@ -242,6 +243,98 @@ export class DataService {
       }
 
       return newData;
+    });
+  }
+
+  /**
+   * Get bound value for a component with support for repeating groups
+   */
+  getBoundValue(component: any, parentBinding?: string, itemIndex?: number, __childField?: string): any {
+    const data = this.getData();
+    if (!data) {
+      return undefined;
+    }
+
+    const simpleBinding = component.dataModelBindings?.simpleBinding;
+    if (!simpleBinding) {
+      return undefined;
+    }
+
+    const splittedBinding = simpleBinding.split('.');
+    const binding =
+      parentBinding !== undefined
+        ? `${parentBinding}[${itemIndex}].${splittedBinding[splittedBinding.length - 1] || ''}`
+        : simpleBinding;
+
+    return dot.pick(binding, data);
+  }
+
+  /**
+   * Set bound value for a component with support for repeating groups
+   */
+  setBoundValue(component: any, newValue: any, parentBinding?: string, itemIndex?: number, _childField?: string): void {
+    const simpleBinding = component.dataModelBindings?.simpleBinding;
+    if (!simpleBinding) {
+      return;
+    }
+
+    const parts = simpleBinding.split('.');
+    const binding =
+      parentBinding !== undefined ? `${parentBinding}[${itemIndex}].${parts.at(-1) ?? ''}` : simpleBinding;
+
+    this.store.getState().updateData((data) => {
+      if (!data) {
+        throw new Error('No data object');
+      }
+
+      const currentVal = dot.pick(binding, data);
+      if (currentVal === newValue) {
+        return data;
+      }
+
+      const newData = { ...data };
+      dot.set(binding, newValue, newData);
+      return newData;
+    });
+  }
+
+  /**
+   * Add a new row to a repeating group using schema information
+   */
+  addRow(
+    dataModelBinding: string,
+    parentBinding?: string,
+    itemIndex?: number,
+    _childField?: string,
+  ): void {
+    this.store.getState().updateData((data) => {
+      if (!data) {
+        throw new Error('tried to set data before data is loaded, this is an error');
+      }
+
+      // Get properties to add from schema
+      const propsToAdd = schemaService.getPropertiesForPath(dataModelBinding, parentBinding);
+      if (!propsToAdd) {
+        throw new Error('Could not find schema properties for repeating group');
+      }
+
+      // Construct the binding path
+      const binding = parentBinding
+        ? `${parentBinding}[${itemIndex}].${dataModelBinding.split('.')[1] || ''}`
+        : dataModelBinding;
+
+      // Get or initialize array
+      let currentValue = dot.pick(binding, data);
+      if (!Array.isArray(currentValue)) {
+        currentValue = [];
+        dot.set(binding, currentValue, data);
+      }
+
+      // Create new row with null values for all properties
+      const newRow = schemaService.createEmptyRow(propsToAdd);
+      currentValue.push(newRow);
+
+      return { ...data };
     });
   }
 }

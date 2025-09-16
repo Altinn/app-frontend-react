@@ -141,7 +141,57 @@ export class ValidationService {
   }
 
   /**
-   * Validate component value
+   * Validate component with support for dynamic expressions and repeating groups
+   */
+  validateComponentAdvanced(
+    component: any,
+    dataService: any,
+    expressionService: any,
+    parentBinding?: string,
+    itemIndex?: number,
+    childField?: string,
+  ): string[] {
+    // Check if component is a form component with validation properties
+    if (!this.isFormComponent(component)) {
+      return [];
+    }
+    
+    const errors: string[] = [];
+    const currentValue = dataService.getBoundValue(component, parentBinding, itemIndex, childField);
+
+    let isRequired: boolean;
+
+    if (!Array.isArray(component.required)) {
+      isRequired = !!component.required;
+    } else {
+      // Evaluate expression for required field
+      isRequired = expressionService.evaluateExpression(component.required, {
+        data: dataService.getData(),
+        componentMap: expressionService.layoutService?.getComponentMap?.(),
+        parentBinding,
+        itemIndex,
+      });
+    }
+
+    if (isRequired) {
+      if (!currentValue) {
+        errors.push('This value is required');
+      }
+    }
+    
+    return errors;
+  }
+
+  /**
+   * Check if component is a form component that supports validation
+   */
+  private isFormComponent(component: any): boolean {
+    return component != null && 
+           ('readOnly' in component || 'required' in component || 'showValidations' in component);
+  }
+
+  /**
+   * Validate component value (legacy compatibility)
    */
   validateComponent(componentId: string, value: any, config: any): ValidationResult {
     // TODO: Implement component-specific validation

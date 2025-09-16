@@ -1,4 +1,4 @@
-import { subscribeWithSelector, devtools } from 'zustand/middleware';
+import { devtools, subscribeWithSelector } from 'zustand/middleware';
 import { createStore } from 'zustand/vanilla';
 
 export interface DataObject {
@@ -24,14 +24,18 @@ export const createDataStore = () =>
         setData: (data) => set({ data }, false, 'setData'),
 
         updateData: (updater) =>
-          set((state) => ({
-            data: state.data ? updater(state.data) : undefined,
-          }), false, 'updateData'),
+          set(
+            (state) => ({
+              data: state.data ? updater(state.data) : undefined,
+            }),
+            false,
+            'updateData',
+          ),
 
         clearData: () => set({ data: undefined }, false, 'clearData'),
       })),
-      { name: 'FormEngine-DataStore' }
-    )
+      { name: 'FormEngine-DataStore' },
+    ),
   );
 
 export const dataStore = createDataStore();

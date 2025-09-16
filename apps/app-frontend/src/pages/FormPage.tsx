@@ -9,6 +9,8 @@ interface FormPageProps {
 }
 
 export function FormPage({ engine }: FormPageProps) {
+   const customComponentMap = { ...defaultComponentMap };
+
   return (
     <div>
       <h2>Form Renderer</h2>
