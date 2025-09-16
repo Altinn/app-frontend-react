@@ -7,11 +7,15 @@ import cn from 'classnames';
 
 import classes from 'src/app-components/Dropzone/Dropzone.module.css';
 import { mapExtensionToAcceptMime } from 'src/app-components/Dropzone/mapExtensionToAcceptMime';
-import { Lang } from 'src/features/language/Lang';
+
+type MaxFileSize = {
+  sizeInMB: number;
+  text: string;
+};
 
 export type IDropzoneComponentProps = {
   id: string;
-  maxFileSizeInMB?: number;
+  maxFileSize?: MaxFileSize;
   readOnly: boolean;
   onClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onDrop: (acceptedFiles: File[], rejectedFiles: FileRejection[]) => void;
@@ -27,7 +31,7 @@ const bytesInOneMB = 1048576;
 
 export function Dropzone({
   id,
-  maxFileSizeInMB,
+  maxFileSize,
   readOnly,
   onClick,
   onDrop,
@@ -41,26 +45,23 @@ export function Dropzone({
   ...rest
 }: IDropzoneComponentProps): React.JSX.Element {
   const maxSizeLabelId = `file-upload-max-size-${id}`;
-  const describedby = maxFileSizeInMB ? `${describedBy} ${maxSizeLabelId}` : describedBy;
+  const describedby = maxFileSize?.sizeInMB ? `${describedBy} ${maxSizeLabelId}` : describedBy;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    maxSize: maxFileSizeInMB && maxFileSizeInMB * bytesInOneMB,
+    maxSize: maxFileSize && maxFileSize.sizeInMB * bytesInOneMB,
     disabled: readOnly,
     accept:
       hasCustomFileEndings && validFileEndings !== undefined ? mapExtensionToAcceptMime(validFileEndings) : undefined,
   });
   return (
     <div>
-      {maxFileSizeInMB && (
+      {maxFileSize && (
         <div
           className={classes.fileUploadTextBoldSmall}
           id={maxSizeLabelId}
         >
-          <Lang
-            id='form_filler.file_uploader_max_size_mb'
-            params={[maxFileSizeInMB]}
-          />
+          {maxFileSize.text}
         </div>
       )}
 

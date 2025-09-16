@@ -131,7 +131,10 @@ export function FileUploadComponent({
           <>
             <Dropzone
               id={id}
-              maxFileSizeInMB={maxFileSizeInMB}
+              maxFileSize={{
+                sizeInMB: maxFileSizeInMB,
+                text: langAsString('form_filler.file_uploader_max_size_mb', [maxFileSizeInMB]),
+              }}
               readOnly={!!readOnly}
               onClick={(e) => e.preventDefault()}
               onDrop={handleDrop}
