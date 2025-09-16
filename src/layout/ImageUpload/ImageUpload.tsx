@@ -112,6 +112,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
 
       if (typeof result === 'string') {
         const img = new Image();
+        img.id = file.name;
         img.onload = () => {
           updateImageState({ minZoom: calculateMinZoom({ img, cropArea }), img });
         };
@@ -145,7 +146,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       if (!blob) {
         return;
       }
-      const fileName = img?.name || 'cropped-image.png';
+      const fileName = img?.id || 'cropped-image.png';
       const imageFile = new File([blob], fileName, { type: 'image/png' });
       saveImage(imageFile);
     }, 'image/png');
