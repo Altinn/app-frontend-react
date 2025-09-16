@@ -10,9 +10,10 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { CropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 
 export function ImageUploadComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'ImageUpload'>) {
-  const { id, cropArea, grid, required } = useItemWhenType(baseComponentId, 'ImageUpload');
+  const { id, cropHeight, cropShape, cropWidth, grid, required } = useItemWhenType(baseComponentId, 'ImageUpload');
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
+  const cropArea = { width: cropWidth, height: cropHeight, type: cropShape } as CropArea;
 
   return (
     <Label
@@ -27,7 +28,7 @@ export function ImageUploadComponent({ baseComponentId, overrideDisplay }: Props
     >
       <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <ImageCropper
-          cropArea={getCropArea(cropArea as CropArea)}
+          cropArea={getCropArea(cropArea)}
           baseComponentId={baseComponentId}
         />
       </ComponentStructureWrapper>
