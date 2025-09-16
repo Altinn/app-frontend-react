@@ -63,7 +63,7 @@
   color: var(--ds-color-text-default);
 }
 
-@media (max-width: 400px) {
+@media (max-width: 450px) {
   .actionButtons {
     flex-direction: column;
     align-items: stretch;
