@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import classes from 'src/layout/ImageUpload/ImageCanvas.module.css';
 import { cropAreaPlacement, drawCropArea, imagePlacement } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
@@ -19,11 +18,13 @@ interface ImageCanvasProps {
   onPositionChange: (newPosition: Position) => void;
   onZoomChange: (newZoom: number) => void;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const CANVAS_HEIGHT = 320;
 const CANVAS_WIDTH = 800;
 const MOBILE_CANVAS_WIDTH = 400;
+const CONTAINER_WIDTH = 450;
 
 export function ImageCanvas({
   imageRef,
@@ -34,11 +35,10 @@ export function ImageCanvas({
   onPositionChange,
   onZoomChange,
   canvasRef,
+  containerRef,
 }: ImageCanvasProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const { storedImage, imageUrl } = useImageFile(baseComponentId);
-  const mobileView = useIsMobileOrTablet();
-  const canvasWidth = mobileView ? MOBILE_CANVAS_WIDTH : CANVAS_WIDTH;
+  const canvasWidth = (containerRef.current?.offsetWidth ?? 0) > CONTAINER_WIDTH ? CANVAS_WIDTH : MOBILE_CANVAS_WIDTH;
   const { langAsString } = useLanguage();
 
   // Handles all drawing operations on the canvas
@@ -166,17 +166,15 @@ export function ImageCanvas({
   }
 
   return (
-    <div ref={containerRef}>
-      <canvas
-        onPointerDown={handlePointerDown}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-        ref={canvasRef}
-        height={CANVAS_HEIGHT}
-        width={canvasWidth}
-        className={classes.canvas}
-        aria-label='Image cropping area'
-      />
-    </div>
+    <canvas
+      onPointerDown={handlePointerDown}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      ref={canvasRef}
+      height={CANVAS_HEIGHT}
+      width={canvasWidth}
+      className={classes.canvas}
+      aria-label='Image cropping area'
+    />
   );
 }
