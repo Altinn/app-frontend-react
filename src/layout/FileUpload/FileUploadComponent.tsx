@@ -3,9 +3,14 @@ import { useNavigation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import type { FileRejection } from 'react-dropzone';
 
+import { CloudUpIcon } from '@navikt/aksel-icons';
+import cn from 'classnames';
+
+import { Dropzone } from 'src/app-components/Dropzone/Dropzone';
 import { getDescriptionId, getLabelId, Label } from 'src/components/label/Label';
 import { useAddRejectedAttachments, useAttachmentsFor, useAttachmentsUploader } from 'src/features/attachments/hooks';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { useGetOptions } from 'src/features/options/useGetOptions';
 import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
@@ -13,7 +18,6 @@ import { hasValidationErrors } from 'src/features/validation/utils';
 import { useIsSubformPage } from 'src/hooks/navigation';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { DropzoneComponent } from 'src/layout/FileUpload/DropZone/DropzoneComponent';
 import { FailedAttachments } from 'src/layout/FileUpload/Error/FailedAttachments';
 import { InfectedFileAlert } from 'src/layout/FileUpload/Error/InfectedFileAlert';
 import classes from 'src/layout/FileUpload/FileUploadComponent.module.css';
@@ -50,6 +54,7 @@ export function FileUploadComponent({
   const addRejectedAttachments = useAddRejectedAttachments();
   const uploadAttachments = useAttachmentsUploader();
   const navigation = useNavigation();
+  const { langAsString } = useLanguage();
 
   const validations = useUnifiedValidationsForNode(baseComponentId).filter(
     (v) => !('attachmentId' in v) || !v.attachmentId,
@@ -70,6 +75,11 @@ export function FileUploadComponent({
     !showFileUpload &&
     attachments.length < maxNumberOfAttachments &&
     attachments.length > 0;
+
+  const dragLabelId = `file-upload-drag-${id}`;
+  const formatLabelId = `file-upload-format-${id}`;
+  const descriptionId = textResourceBindings?.description ? getDescriptionId(id) : undefined;
+  const ariaDescribedBy = `${descriptionId} ${dragLabelId} ${formatLabelId}`;
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const totalAttachments = acceptedFiles.length + rejectedFiles.length + attachments.length;
@@ -119,9 +129,8 @@ export function FileUploadComponent({
         />
         {shouldShowFileUpload && (
           <>
-            <DropzoneComponent
+            <Dropzone
               id={id}
-              isMobile={mobileView}
               maxFileSizeInMB={maxFileSizeInMB}
               readOnly={!!readOnly}
               onClick={(e) => e.preventDefault()}
@@ -130,8 +139,35 @@ export function FileUploadComponent({
               hasCustomFileEndings={hasCustomFileEndings}
               validFileEndings={validFileEndings}
               labelId={textResourceBindings?.title ? getLabelId(id) : undefined}
-              descriptionId={textResourceBindings?.description ? getDescriptionId(id) : undefined}
-            />
+              aria-describedby={ariaDescribedBy}
+            >
+              <div className={classes.fileUploadWrapper}>
+                <CloudUpIcon
+                  className={classes.uploadIcon}
+                  aria-hidden
+                />
+
+                <b id={dragLabelId}>
+                  {mobileView ? (
+                    <Lang id='form_filler.file_uploader_upload' />
+                  ) : (
+                    <>
+                      <Lang id='form_filler.file_uploader_drag' />
+                      <span className={cn(classes.blueUnderLine)}>
+                        {' '}
+                        <Lang id='form_filler.file_uploader_find' />
+                      </span>
+                    </>
+                  )}
+                </b>
+                <span id={formatLabelId}>
+                  <Lang id='form_filler.file_uploader_valid_file_format' />
+                  {hasCustomFileEndings
+                    ? ` ${validFileEndings}`
+                    : ` ${langAsString('form_filler.file_upload_valid_file_format_all')}`}
+                </span>
+              </div>
+            </Dropzone>
 
             <AttachmentsCounter
               numAttachments={attachments.length}
