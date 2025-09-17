@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
@@ -21,6 +21,7 @@ interface ImageCanvasProps {
 }
 
 const CANVAS_HEIGHT = 320;
+const CANVAS_WIDTH = 800;
 
 export function ImageCanvas({
   imageRef,
@@ -33,7 +34,6 @@ export function ImageCanvas({
   canvasRef,
 }: ImageCanvasProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [canvasWidth, setCanvasWidth] = useState(800);
   const { storedImage, imageUrl } = useImageFile(baseComponentId);
   const { langAsString } = useLanguage();
 
@@ -76,30 +76,7 @@ export function ImageCanvas({
 
   useEffect(() => {
     draw();
-  }, [draw, canvasWidth]);
-
-  // Observes the container size to make the canvas responsive
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) {
-      return;
-    }
-    let animationFrameId: number | null = null;
-    const resizeObserver = new ResizeObserver((entries) => {
-      animationFrameId = window.requestAnimationFrame(() => {
-        if (entries[0]) {
-          setCanvasWidth(entries[0].contentRect.width);
-        }
-      });
-    });
-    resizeObserver.observe(container);
-    return () => {
-      if (animationFrameId) {
-        window.cancelAnimationFrame(animationFrameId);
-      }
-      resizeObserver.disconnect();
-    };
-  }, []);
+  }, [draw]);
 
   // Handles panning via pointer events (mouse/touch)
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -188,7 +165,7 @@ export function ImageCanvas({
         onKeyDown={handleKeyDown}
         tabIndex={0}
         ref={canvasRef}
-        width={canvasWidth}
+        width={CANVAS_WIDTH}
         height={CANVAS_HEIGHT}
         className={classes.canvas}
         aria-label='Image cropping area'
