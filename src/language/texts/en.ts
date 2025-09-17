@@ -56,6 +56,7 @@ export function en() {
     'form_filler.multi_select_alert': 'Are you sure you want to delete <b>{0}</b>?',
     'form_filler.dropdown_alert': 'Are you sure you want to change to <b>{0}</b>?',
     'form_filler.back_to_summary': 'Return to summary',
+    'form_filler.back_to_page': 'Back to {0}',
     'form_filler.error_report_header': 'These need to be corrected before continuing',
     'form_filler.error_required': 'You have to fill out {0}',
     'form_filler.file_upload_valid_file_format_all': 'all',
@@ -207,6 +208,7 @@ export function en() {
     'image_upload_component.error_invalid_file_type':
       'Invalid file type. Please upload an image file (jpg, jpeg, png, gif).',
     'image_upload_component.error_file_size_exceeded': 'File size exceeds 10MB limit.',
+    'image_upload_component.valid_file_types': 'Valid file types are: jpg, jpeg, png and gif.',
     'input_components.remaining_characters': 'You have %d characters left',
     'input_components.exceeded_max_limit': 'You have exceeded the maximum limit with %d characters',
     'instance_selection.changed_by': 'Changed by',

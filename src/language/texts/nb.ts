@@ -53,6 +53,7 @@ export function nb() {
     'form_filler.error_validation_inside_subform': 'Det er feil i en eller flere {0} oppføringer',
     'form_filler.subform_default_header': 'Oppføringer',
     'form_filler.back_to_summary': 'Tilbake til oppsummering',
+    'form_filler.back_to_page': 'Tilbake til {0}',
     'form_filler.alert_confirm': 'Bekreft',
     'form_filler.checkbox_alert': 'Er du sikker på at du vil fjerne avkrysningen?',
     'form_filler.multi_select_alert': 'Er du sikker på at du vil slette <b>{0}</b>?',
@@ -208,6 +209,7 @@ export function nb() {
     'image_upload_component.error_invalid_file_type':
       'Feil filformat. Last opp en fil med bildeformat (jpg, jpeg, png, gif).',
     'image_upload_component.error_file_size_exceeded': 'Filen er for stor. Største tillatte filstørrelse er 10MB.',
+    'image_upload_component.valid_file_types': 'Gyldige filformater er: jpg, jpeg, png og gif.',
     'input_components.remaining_characters': 'Du har %d tegn igjen',
     'input_components.exceeded_max_limit': 'Du har overskredet maks antall tegn med %d',
     'instance_selection.changed_by': 'Endret av',

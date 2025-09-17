@@ -4,6 +4,8 @@ export enum CropForm {
   Circle = 'circle',
 }
 
+export const VALID_FILE_ENDINGS = ['.jpg', '.jpeg', '.png', '.gif'];
+
 export type CropAreaParams = { width?: number; height?: number; type?: CropForm.Square | CropForm.Circle } | undefined;
 export type CropArea = { width: number; height: number; type: CropForm.Square | CropForm.Circle };
 
