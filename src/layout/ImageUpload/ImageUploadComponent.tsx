@@ -2,7 +2,7 @@ import React from 'react';
 
 import { Label } from 'src/app-components/Label/Label';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { ImageCropper } from 'src/layout/ImageUpload/ImageUpload';
+import { ImageCropper } from 'src/layout/ImageUpload/ImageCropper';
 import { getCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';

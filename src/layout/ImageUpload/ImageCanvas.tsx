@@ -157,9 +157,6 @@ export function ImageCanvas({
       </div>
     );
   }
-  if (!imageRef.current) {
-    return <div className={classes.placeholder} />;
-  }
 
   return (
     <div ref={containerRef}>
