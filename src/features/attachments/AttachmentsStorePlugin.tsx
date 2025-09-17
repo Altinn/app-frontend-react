@@ -11,7 +11,7 @@ import { ContextNotProvided } from 'src/core/contexts/context';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isAttachmentUploaded, isDataPostError } from 'src/features/attachments/index';
 import { sortAttachmentsByName } from 'src/features/attachments/sortAttachments';
-import { appSupportsNewAttachmentAPI, attachmentSelector } from 'src/features/attachments/tools';
+import { attachmentSelector } from 'src/features/attachments/tools';
 import { FileScanResults } from 'src/features/attachments/types';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { dataModelPairsToObject } from 'src/features/formData/types';
@@ -28,6 +28,7 @@ import { useWaitForState } from 'src/hooks/useWaitForState';
 import { nodesProduce } from 'src/utils/layout/NodesContext';
 import { NodeDataPlugin } from 'src/utils/layout/plugins/NodeDataPlugin';
 import { splitDashedKey } from 'src/utils/splitDashedKey';
+import { appSupportsNewAttachmentAPI } from 'src/utils/versioning/versions';
 import type {
   DataPostResponse,
   IAttachment,
@@ -296,7 +297,7 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
         const { mutateAsync: uploadAttachment } = useAttachmentsUploadMutation();
 
         const applicationMetadata = useApplicationMetadata();
-        const supportsNewAttachmentAPI = appSupportsNewAttachmentAPI(applicationMetadata);
+        const supportsNewAttachmentAPI = appSupportsNewAttachmentAPI(applicationMetadata.altinnNugetVersion);
 
         const setAttachmentsInDataModel = useSetAttachmentInDataModel();
         const lock = FD.useLocking('__attachment__upload__');
@@ -404,11 +405,11 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
             update(action);
             try {
               if (tagToAdd.length) {
-                await Promise.all(tagToAdd.map((tag) => addTag({ dataGuid: attachment.data.id, tagToAdd: tag })));
+                await Promise.all(tagToAdd.map((tag) => addTag({ dataElementId: attachment.data.id, tagToAdd: tag })));
               }
               if (tagToRemove.length) {
                 await Promise.all(
-                  tagToRemove.map((tag) => removeTag({ dataGuid: attachment.data.id, tagToRemove: tag })),
+                  tagToRemove.map((tag) => removeTag({ dataElementId: attachment.data.id, tagToRemove: tag })),
                 );
               }
               fulfill(action);
@@ -708,13 +709,13 @@ function useAttachmentsAddTagMutation() {
   const { doAttachmentAddTag } = useAppMutations();
   const instanceId = useLaxInstanceId();
 
-  return useMutation({
-    mutationFn: ({ dataGuid, tagToAdd }: { dataGuid: string; tagToAdd: string }) => {
+  return useMutation<void, AxiosError, { dataElementId: string; tagToAdd: string }>({
+    mutationFn: ({ dataElementId, tagToAdd }: { dataElementId: string; tagToAdd: string }) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot add attachment');
       }
 
-      return doAttachmentAddTag(instanceId, dataGuid, tagToAdd);
+      return doAttachmentAddTag(instanceId, dataElementId, tagToAdd);
     },
     onError: (error: AxiosError) => {
       window.logError('Failed to add tag to attachment:\n', error);
@@ -726,13 +727,13 @@ function useAttachmentsRemoveTagMutation() {
   const { doAttachmentRemoveTag } = useAppMutations();
   const instanceId = useLaxInstanceId();
 
-  return useMutation({
-    mutationFn: ({ dataGuid, tagToRemove }: { dataGuid: string; tagToRemove: string }) => {
+  return useMutation<void, AxiosError, { dataElementId: string; tagToRemove: string }>({
+    mutationFn: ({ dataElementId, tagToRemove }: { dataElementId: string; tagToRemove: string }) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot remove attachment');
       }
 
-      return doAttachmentRemoveTag(instanceId, dataGuid, tagToRemove);
+      return doAttachmentRemoveTag(instanceId, dataElementId, tagToRemove);
     },
     onError: (error: AxiosError) => {
       window.logError('Failed to remove tag from attachment:\n', error);
@@ -745,13 +746,13 @@ function useAttachmentsRemoveMutation() {
   const instanceId = useLaxInstanceId();
   const language = useCurrentLanguage();
 
-  return useMutation({
-    mutationFn: (dataGuid: string) => {
+  return useMutation<void, AxiosError, string>({
+    mutationFn: (dataElementId: string) => {
       if (!instanceId) {
         throw new Error('Missing instanceId, cannot remove attachment');
       }
 
-      return doAttachmentRemove(instanceId, dataGuid, language);
+      return doAttachmentRemove(instanceId, dataElementId, language);
     },
     onError: (error: AxiosError) => {
       window.logError('Failed to delete attachment:\n', error);
