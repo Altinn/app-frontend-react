@@ -4,3 +4,6 @@ export { HeaderComponent } from './HeaderComponent';
 export { CheckboxesComponent } from './CheckboxesComponent';
 export { RepeatingGroupComponent } from './RepeatingGroupComponent';
 export { SummaryComponent } from './SummaryComponent';
+export { NavigationBarComponent } from './NavigationBarComponent';
+export { NavigationButtonsComponent } from './NavigationButtonsComponent';
+export { SummaryV1Component } from './SummaryV1Component';

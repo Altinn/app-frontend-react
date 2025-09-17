@@ -1,135 +1,236 @@
-import React from 'react';
-import { withFormEngine } from 'libs/FormEngineReact/components/FormEngineComponent';
-import type { FormEngineComponentContext } from 'libs/FormEngineReact/components/FormEngineComponent';
+import React, { useMemo, useState } from 'react';
+
+import { FormattedInput, Input, NumericInput } from 'libs/AppComponents';
+import type { InputProps } from 'libs/AppComponents';
+import type { FormEngineComponentContext } from 'libs/FormEngineReact/components';
+
+// Types for input formatting
+type NumberFormatProps = {
+  thousandSeparator?: boolean | string;
+  decimalSeparator?: string;
+  suffix?: string;
+  prefix?: string;
+  allowNegative?: boolean;
+  decimalScale?: number;
+  fixedDecimalScale?: boolean;
+};
+
+type PatternFormatProps = {
+  format: string;
+  mask?: string;
+};
+
+type SearchVariant = { type: 'search' };
+type TextVariant = { type: 'text' };
+type NumberVariant = { type: 'number'; format: NumberFormatProps };
+type PatternVariant = { type: 'pattern'; format: PatternFormatProps };
+type Variant = SearchVariant | TextVariant | NumberVariant | PatternVariant;
 
 interface InputComponentProps {
   formEngine: FormEngineComponentContext;
-  placeholder?: string;
-  type?: 'text' | 'email' | 'password' | 'number';
-  className?: string;
 }
 
-function InputComponentBase({ 
-  formEngine,
-  placeholder,
-  type = 'text',
-  className = ''
-}: InputComponentProps) {
-  const { 
-    value, 
-    updateValue, 
-    errors, 
-    isValid, 
-    isRequired, 
-    isReadOnly, 
-    config 
-  } = formEngine;
+// Helper functions for input variants
+function isNumberFormat(format: any): format is NumberFormatProps {
+  return (
+    format &&
+    (format.thousandSeparator !== undefined || format.decimalScale !== undefined || format.allowNegative !== undefined)
+  );
+}
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    updateValue(event.target.value);
+function isPatternFormat(format: any): format is PatternFormatProps {
+  return format && typeof format.format === 'string';
+}
+
+function getVariantWithFormat(
+  type: 'text' | 'search' | undefined,
+  format: NumberFormatProps | PatternFormatProps | undefined,
+): Variant {
+  if (type === 'search') {
+    return { type: 'search' };
+  }
+  if (isPatternFormat(format)) {
+    return { type: 'pattern', format };
+  }
+  if (isNumberFormat(format)) {
+    return { type: 'number', format };
+  }
+  return { type: 'text' };
+}
+
+function getMobileKeyboardProps(
+  variant: Variant,
+  autocomplete: string | undefined,
+): Pick<InputProps, 'inputMode' | 'pattern'> {
+  if (variant.type === 'search') {
+    return { inputMode: 'search', pattern: undefined };
+  }
+
+  if (autocomplete === 'email') {
+    return { inputMode: 'email', pattern: undefined };
+  }
+
+  if (autocomplete === 'url' || autocomplete === 'photo') {
+    return { inputMode: 'url', pattern: undefined };
+  }
+
+  if (autocomplete === 'tel') {
+    return { inputMode: 'tel', pattern: '[-+()0-9]*' };
+  }
+
+  if (variant.type === 'pattern') {
+    return { inputMode: 'numeric', pattern: undefined };
+  }
+
+  if (variant.type === 'number') {
+    if (variant.format.allowNegative === false) {
+      return { inputMode: 'decimal', pattern: `[0-9,.]*` };
+    }
+
+    if (navigator?.platform && /iPhone|iPad/.test(navigator.platform)) {
+      return { inputMode: 'text', pattern: `-?[0-9,.]*` };
+    }
+
+    return { inputMode: 'decimal', pattern: `-?[0-9,.]*` };
+  }
+
+  return { inputMode: 'text', pattern: undefined };
+}
+
+function InputComponentBase({ formEngine }: InputComponentProps) {
+  const { value, updateValue, errors, isValid, isRequired, isReadOnly, config } = formEngine;
+
+  const [localValue, setLocalValue] = useState<string | undefined>(undefined);
+  const formValue = localValue ?? value;
+
+  // Determine input variant and properties
+  const variant = useMemo(() => {
+    const inputVariant = config.variant;
+    const formatting = config.formatting;
+    return getVariantWithFormat(inputVariant, formatting);
+  }, [config.variant, config.formatting]);
+
+  const { inputMode, pattern } = getMobileKeyboardProps(variant, config.autocomplete);
+
+  // Common input props
+  const commonInputProps: InputProps = {
+    id: config.id,
+    'aria-label': config.textResourceBindings?.title || config.id,
+    'aria-describedby':
+      [
+        errors.length > 0 ? `${config.id}-errors` : '',
+        config.textResourceBindings?.help ? `${config.id}-help` : '',
+        config.textResourceBindings?.description ? `${config.id}-description` : '',
+      ]
+        .filter(Boolean)
+        .join(' ') || undefined,
+    autoComplete: config.autocomplete,
+    className: config.formatting?.align ? `text-align-${config.formatting.align}` : '',
+    readOnly: isReadOnly,
+    required: isRequired,
+    onBlur: () => {
+      setLocalValue(undefined);
+    },
+    error: !isValid ? errors.join(', ') : undefined,
+    prefix: config.textResourceBindings?.prefix,
+    suffix: config.textResourceBindings?.suffix,
+    style: { width: '100%' },
+    inputMode,
+    pattern,
+    maxLength: config.maxLength,
+    placeholder: config.textResourceBindings?.placeholder,
   };
 
-  const inputStyles = {
-    width: '100%',
-    padding: '8px',
-    border: `1px solid ${!isValid ? '#d32f2f' : '#ccc'}`,
-    borderRadius: '4px',
-    backgroundColor: isReadOnly ? '#f5f5f5' : 'white',
-    fontSize: '14px',
-  };
+  // Render different input types
+  const renderInput = () => {
+    switch (variant.type) {
+      case 'search':
+      case 'text':
+        return (
+          <Input
+            {...commonInputProps}
+            value={formValue || ''}
+            type={variant.type}
+            onChange={(event) => {
+              updateValue(event.target.value);
+            }}
+          />
+        );
+      case 'pattern':
+        return (
+          <FormattedInput
+            {...commonInputProps}
+            {...variant.format}
+            value={formValue || ''}
+            type='text'
+            onValueChange={(values, sourceInfo) => {
+              if (sourceInfo.source === 'prop') {
+                return;
+              }
+              updateValue(values.value);
+            }}
+          />
+        );
+      case 'number':
+        return (
+          <NumericInput
+            {...commonInputProps}
+            {...variant.format}
+            value={formValue || ''}
+            type='text'
+            onBlur={() => {
+              setLocalValue(undefined);
+            }}
+            onValueChange={(values, sourceInfo) => {
+              if (sourceInfo.source === 'prop') {
+                return;
+              }
 
-  const containerStyles = {
-    marginBottom: '16px',
-  };
+              // Handle temporary local value for number formatting
+              const noZeroesAfterComma = values.value.replace(/[.,]0+$/, '');
+              const numericValue = parseFloat(values.value);
 
-  const labelStyles = {
-    display: 'block',
-    marginBottom: '4px',
-    fontWeight: 'bold' as const,
-    fontSize: '14px',
-  };
+              // If the value has trailing zeros but is still valid, keep local state
+              if (
+                !isNaN(numericValue) &&
+                values.value !== numericValue.toString() &&
+                noZeroesAfterComma === numericValue.toString()
+              ) {
+                setLocalValue(values.value);
+              } else {
+                setLocalValue(undefined);
+              }
 
-  const descriptionStyles = {
-    margin: '0 0 8px 0',
-    fontSize: '12px',
-    color: '#666',
-  };
-
-  const errorStyles = {
-    marginTop: '4px',
-    fontSize: '12px',
-    color: '#d32f2f',
-  };
-
-  const helpStyles = {
-    marginTop: '4px',
-    fontSize: '12px',
-    color: '#666',
+              updateValue(values.value);
+            }}
+            onPaste={(event: React.ClipboardEvent<HTMLInputElement>) => {
+              event.preventDefault();
+              if (commonInputProps.readOnly) {
+                return;
+              }
+              const pastedText = event.clipboardData.getData('Text');
+              if (pastedText.indexOf(',') !== -1) {
+                updateValue(pastedText.replace(',', '.'));
+              } else {
+                updateValue(pastedText);
+              }
+            }}
+          />
+        );
+    }
   };
 
   return (
-    <div style={containerStyles} className={`input-component ${className}`}>
-      {/* Label */}
-      {config.textResourceBindings?.title && (
-        <label htmlFor={config.id} style={labelStyles}>
-          {config.textResourceBindings.title}
-          {isRequired && <span style={{ color: '#d32f2f' }}> *</span>}
-        </label>
-      )}
-
-      {/* Description */}
-      {config.textResourceBindings?.description && (
-        <div style={descriptionStyles}>
-          {config.textResourceBindings.description}
-        </div>
-      )}
-
-      {/* Input field */}
-      <input
-        id={config.id}
-        name={config.id}
-        type={type}
-        value={value || ''}
-        onChange={handleChange}
-        placeholder={placeholder}
-        style={inputStyles}
-        disabled={isReadOnly}
-        aria-invalid={!isValid}
-        aria-describedby={[
-          errors.length > 0 ? `${config.id}-errors` : '',
-          config.textResourceBindings?.help ? `${config.id}-help` : '',
-        ].filter(Boolean).join(' ') || undefined}
-        aria-required={isRequired}
-      />
-
-      {/* Error messages */}
-      {errors.length > 0 && (
-        <div 
-          id={`${config.id}-errors`}
-          style={errorStyles}
-          role="alert"
-          aria-live="polite"
-        >
-          {errors.map((error, index) => (
-            <div key={index}>
-              {error}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Help text */}
-      {config.textResourceBindings?.help && (
-        <div 
-          id={`${config.id}-help`}
-          style={helpStyles}
-        >
-          {config.textResourceBindings.help}
-        </div>
-      )}
+    <div
+      className='input-component'
+      data-component-id={config.id}
+      data-testid='Input'
+      style={{ marginBottom: '16px' }}
+    >
+      {renderInput()}
     </div>
   );
 }
 
-// Export wrapped component
-export const InputComponent = withFormEngine(InputComponentBase);
+// Export the component directly - FormEngine integration is handled via props
+export const InputComponent: React.FC<{ formEngine: FormEngineComponentContext }> = InputComponentBase;

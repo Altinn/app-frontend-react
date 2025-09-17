@@ -1,8 +1,8 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 
-import { RenderLayout } from 'libs/FormEngineReact/components';
 import { useEngine } from 'libs/FormEngineReact';
+import { RenderLayout } from 'libs/FormEngineReact/components';
 
 export type PageParams = {
   pageId: string;
@@ -10,7 +10,7 @@ export type PageParams = {
 
 export const Page = () => {
   console.log('Page: Starting with FormEngine hook');
-  
+
   const { pageId } = useParams<PageParams>() as Required<PageParams>;
   const engine = useEngine();
 
@@ -18,6 +18,8 @@ export const Page = () => {
 
   // Get layout from FormEngine instead of old stores
   const currentPageLayout = engine?.layout.getVisibleComponents(pageId);
+
+  // debugger;
 
   if (!currentPageLayout || currentPageLayout.length === 0) {
     console.log('Page: No layout found for pageId:', pageId);

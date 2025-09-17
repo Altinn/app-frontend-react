@@ -15,12 +15,13 @@ The current application architecture in `src/` is tightly coupled, making it dif
 
 ## Solution Overview
 
-Decompose the application into four core libraries:
+Decompose the application into five core libraries:
 
 1. **@libs/FormEngine** - Framework-agnostic core engine
 2. **@libs/FormEngineReact** - React adapter for the form engine
-3. **@libs/LayoutComponents** - React component library
-4. **@apps/app-frontend** - Application layer for routing and data fetching
+3. **@libs/AppComponents** - Design system compatible UI components
+4. **@libs/LayoutComponents** - FormEngine-integrated layout components
+5. **@apps/app-frontend** - Application layer for routing and data fetching
 
 ## Architecture Diagram
 
@@ -32,7 +33,8 @@ graph TB
     
     subgraph "React Integration Layer"
         FER[libs/FormEngineReact<br/>- React Hooks<br/>- Context Providers<br/>- Component Renderer<br/>- React Optimizations]
-        LC[libs/LayoutComponents<br/>- Input, Select, etc.<br/>- Component Configs<br/>- Default Styles<br/>- Component Map]
+        LC[libs/LayoutComponents<br/>- FormEngine Components<br/>- Component Registry<br/>- Data Integration<br/>- Component Map]
+        AC[libs/AppComponents<br/>- Design System UI<br/>- Input, Textfield, etc.<br/>- Self-contained<br/>- Reusable Components]
     end
     
     subgraph "Core Engine Layer"

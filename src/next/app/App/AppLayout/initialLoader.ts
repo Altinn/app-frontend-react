@@ -1,5 +1,6 @@
 import type { FormEngine } from 'libs/FormEngine';
 import type { ApplicationMetadata as FormEngineApplicationMetadata } from 'libs/FormEngine/types';
+
 import { API_CLIENT, APP, ORG } from 'src/next/app/App/App';
 import { layoutStore } from 'src/next/stores/layoutStore';
 import { initialStateStore } from 'src/next/stores/settingsStore';
@@ -58,7 +59,7 @@ const headers = { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': xsrfCookie
 function convertApplicationMetadata(oldMetadata: OldApplicationMetadata): FormEngineApplicationMetadata {
   return {
     ...oldMetadata,
-    dataTypes: oldMetadata.dataTypes.map(dataType => {
+    dataTypes: oldMetadata.dataTypes.map((dataType) => {
       // Convert individual data type, excluding problematic fields
       const { appLogic, allowedContributers, ...baseDataType } = dataType;
       return {
@@ -71,7 +72,7 @@ function convertApplicationMetadata(oldMetadata: OldApplicationMetadata): FormEn
             classRef: appLogic.classRef ?? undefined,
             schemaRef: appLogic.schemaRef ?? undefined,
             disallowUserCreate: appLogic.disallowUserCreate ?? undefined,
-          }
+          },
         }),
         // Keep allowedContributers as is (it should be compatible)
         allowedContributers,
@@ -82,7 +83,7 @@ function convertApplicationMetadata(oldMetadata: OldApplicationMetadata): FormEn
 
 export async function initialLoader(formEngine: FormEngine) {
   console.log('initialLoader: Starting with FormEngine instance');
-  
+
   const { user, validParties, applicationMetadata } = initialStateStore.getState();
 
   const { layoutSetsConfig, setDataModelSchema } = layoutStore.getState();
@@ -103,10 +104,10 @@ export async function initialLoader(formEngine: FormEngine) {
   schemaData.forEach((data, idx) => {
     const resolvedSchema = resolveSchemaDefs(data);
     const schemaName = dataModelNames[idx];
-    
+
     // Old store
     setDataModelSchema(schemaName, resolvedSchema);
-    
+
     // FormEngine
     formEngine.schema.setSchema(schemaName, resolvedSchema);
     resolvedSchemas[schemaName] = resolvedSchema;

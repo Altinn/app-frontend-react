@@ -5,7 +5,10 @@ import {
   HeaderComponent,
   CheckboxesComponent,
   RepeatingGroupComponent,
-  SummaryComponent
+  SummaryComponent,
+  NavigationBarComponent,
+  NavigationButtonsComponent,
+  SummaryV1Component
 } from './components';
 
 export const defaultComponentMap: ComponentMap = {
@@ -15,4 +18,7 @@ export const defaultComponentMap: ComponentMap = {
   Checkboxes: CheckboxesComponent,
   RepeatingGroup: RepeatingGroupComponent,
   Summary2: SummaryComponent,
+  NavigationBar: NavigationBarComponent,
+  NavigationButtons: NavigationButtonsComponent,
+  Summary: SummaryV1Component,
 };
