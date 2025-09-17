@@ -168,13 +168,16 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
 
   if (!imageRef.current && !storedImage) {
     return (
-      <ImageDropzone
-        componentId={baseComponentId}
-        descriptionId={getDescriptionId(baseComponentId)}
-        onDrop={(files) => handleFileUpload(files[0])}
-        readOnly={false}
-        hasErrors={!!validationErrors && validationErrors?.length > 0}
-      />
+      <>
+        <ImageDropzone
+          componentId={baseComponentId}
+          descriptionId={getDescriptionId(baseComponentId)}
+          onDrop={(files) => handleFileUpload(files[0])}
+          readOnly={false}
+          hasErrors={!!validationErrors && validationErrors?.length > 0}
+        />
+        <ValidationMessages validationErrors={validationErrors} />
+      </>
     );
   }
 
@@ -208,18 +211,26 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
           onReset={() => updateImageState({})}
         />
       )}
-      {validationErrors && (
-        <div>
-          {validationErrors.map((error, index) => (
-            <ValidationMessage
-              data-size='sm'
-              key={index}
-            >
-              <Lang id={error} />
-            </ValidationMessage>
-          ))}
-        </div>
-      )}
+      <ValidationMessages validationErrors={validationErrors} />
     </AppCard>
   );
 }
+
+const ValidationMessages = ({ validationErrors }: { validationErrors: string[] | null }) => {
+  if (!validationErrors) {
+    return null;
+  }
+
+  return (
+    <>
+      {validationErrors.map((error, index) => (
+        <ValidationMessage
+          data-size='sm'
+          key={index}
+        >
+          <Lang id={error} />
+        </ValidationMessage>
+      ))}
+    </>
+  );
+};
