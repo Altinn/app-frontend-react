@@ -140,7 +140,7 @@ export function ImageCanvas({
 
   if (storedImage) {
     return (
-      <div className={classes.placeholder}>
+      <div className={classes.previewBackground}>
         {storedImage.uploaded ? (
           <img
             src={imageUrl}
