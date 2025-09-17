@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
@@ -18,10 +18,13 @@ interface ImageCanvasProps {
   onPositionChange: (newPosition: Position) => void;
   onZoomChange: (newZoom: number) => void;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const CANVAS_HEIGHT = 320;
 const CANVAS_WIDTH = 800;
+const MOBILE_CANVAS_WIDTH = 400;
+const CONTAINER_WIDTH = 450;
 
 export function ImageCanvas({
   imageRef,
@@ -32,9 +35,10 @@ export function ImageCanvas({
   onPositionChange,
   onZoomChange,
   canvasRef,
+  containerRef,
 }: ImageCanvasProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const { storedImage, imageUrl } = useImageFile(baseComponentId);
+  const canvasWidth = (containerRef.current?.offsetWidth ?? 0) > CONTAINER_WIDTH ? CANVAS_WIDTH : MOBILE_CANVAS_WIDTH;
   const { langAsString } = useLanguage();
 
   // Handles all drawing operations on the canvas
@@ -159,17 +163,15 @@ export function ImageCanvas({
   }
 
   return (
-    <div ref={containerRef}>
-      <canvas
-        onPointerDown={handlePointerDown}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-        ref={canvasRef}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
-        className={classes.canvas}
-        aria-label='Image cropping area'
-      />
-    </div>
+    <canvas
+      onPointerDown={handlePointerDown}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      ref={canvasRef}
+      height={CANVAS_HEIGHT}
+      width={canvasWidth}
+      className={classes.canvas}
+      aria-label='Image cropping area'
+    />
   );
 }

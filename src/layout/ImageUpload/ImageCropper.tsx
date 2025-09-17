@@ -34,6 +34,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   // Refs for canvas and image
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // State management
   const [zoom, setZoom] = useState<number>(1);
@@ -110,6 +111,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
 
       if (typeof result === 'string') {
         const img = new Image();
+        img.id = file.name;
         img.onload = () => {
           updateImageState({ minZoom: calculateMinZoom({ img, cropArea }), img });
         };
@@ -143,7 +145,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       if (!blob) {
         return;
       }
-      const fileName = img?.name || 'cropped-image.png';
+      const fileName = img?.id || 'cropped-image.png';
       const imageFile = new File([blob], fileName, { type: 'image/png' });
       saveImage(imageFile);
     }, 'image/png');
@@ -182,9 +184,11 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     <AppCard
       variant='default'
       mediaPosition='top'
+      ref={containerRef}
       media={
         <ImageCanvas
           canvasRef={canvasRef}
+          containerRef={containerRef}
           imageRef={imageRef}
           zoom={zoom}
           position={position}
