@@ -38,7 +38,6 @@ export function ImageDropzone({ componentId, hasErrors, readOnly, descriptionId,
       className={cn(classes.placeholder, { [classes.dragActive]: dragActive })}
       describedBy={ariaDescribedBy}
     >
-      {/* <div className={classes.dropZone}>test</div> */}
       <div className={classes.dropZone}>
         <b id={dragLabelId}>
           {isMobile ? (
