@@ -3,6 +3,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { ValidationMessage } from '@digdir/designsystemet-react';
 
 import { AppCard } from 'src/app-components/Card/Card';
+import { getDescriptionId } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
@@ -168,6 +169,8 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   if (!imageRef.current && !storedImage) {
     return (
       <ImageDropzone
+        componentId={baseComponentId}
+        descriptionId={getDescriptionId(baseComponentId)}
         onDrop={(files) => handleFileUpload(files[0])}
         readOnly={false}
         hasErrors={!!validationErrors && validationErrors?.length > 0}

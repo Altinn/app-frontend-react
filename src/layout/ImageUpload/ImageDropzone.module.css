@@ -20,7 +20,6 @@
   background-position:
     0 0,
     10px 10px; /* Offset the second gradient */
-  width: 100%;
   height: 320px;
   overflow: hidden;
   display: flex;
@@ -28,10 +27,69 @@
   align-items: center;
   padding: var(--ds-size-4);
   border-radius: var(--ds-border-radius-lg);
-  border: 1px solid var(--ds-color-border-subtle);
+  border: var(--ds-border-width-default) solid var(--ds-color-border-subtle);
+  box-sizing: border-box;
+}
+
+.placeholder:hover {
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(204, 204, 204, 0.75) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(204, 204, 204, 0.75) 75%,
+      rgba(204, 204, 204, 0.75) 100%
+    ),
+    linear-gradient(
+      45deg,
+      rgba(204, 204, 204, 0.75) 25%,
+      rgba(255, 255, 255, 0.75) 25%,
+      rgba(255, 255, 255, 0.75) 75%,
+      rgba(204, 204, 204, 0.75) 75%,
+      rgba(204, 204, 204, 0.75) 100%
+    );
+
+  .dropZone {
+    border-style: solid;
+  }
+}
+
+.blueUnderLine {
+  border-bottom: 2px solid var(--colors-primary-blue) !important;
 }
 
 .dropZone {
+  padding: var(--ds-size-4);
+  background-color: var(--ds-color-neutral-surface-default);
   border-radius: var(--ds-border-radius-lg);
   border: 2px dashed var(--ds-color-border-default);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.dragActive {
+  background-image:
+    linear-gradient(
+      45deg,
+      rgba(204, 204, 204, 0.75) 25%,
+      transparent 25%,
+      transparent 75%,
+      rgba(204, 204, 204, 0.75) 75%,
+      rgba(204, 204, 204, 0.75) 100%
+    ),
+    linear-gradient(
+      45deg,
+      rgba(204, 204, 204, 0.75) 25%,
+      rgba(255, 255, 255, 0.75) 25%,
+      rgba(255, 255, 255, 0.75) 75%,
+      rgba(204, 204, 204, 0.75) 75%,
+      rgba(204, 204, 204, 0.75) 100%
+    );
+
+  .dropZone {
+    border-style: solid;
+  }
 }

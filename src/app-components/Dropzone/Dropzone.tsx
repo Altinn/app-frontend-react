@@ -13,12 +13,13 @@ type MaxFileSize = {
   text: string;
 };
 
-export type IDropzoneComponentProps = {
+export type IDropzoneProps = {
   id: string;
   maxFileSize?: MaxFileSize;
   readOnly: boolean;
   onClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onDrop: (acceptedFiles: File[], rejectedFiles: FileRejection[]) => void;
+  onDragActiveChange?: (isDragActive: boolean) => void;
   hasValidationMessages: boolean;
   hasCustomFileEndings?: boolean;
   validFileEndings?: string | string[];
@@ -35,6 +36,7 @@ export function Dropzone({
   readOnly,
   onClick,
   onDrop,
+  onDragActiveChange,
   hasValidationMessages,
   hasCustomFileEndings,
   validFileEndings,
@@ -43,7 +45,7 @@ export function Dropzone({
   className,
   describedBy,
   ...rest
-}: IDropzoneComponentProps): React.JSX.Element {
+}: IDropzoneProps): React.JSX.Element {
   const maxSizeLabelId = `file-upload-max-size-${id}`;
   const describedby =
     [describedBy, maxFileSize?.sizeInMB ? maxSizeLabelId : undefined].filter(Boolean).join(' ') || undefined;
@@ -55,6 +57,14 @@ export function Dropzone({
     accept:
       hasCustomFileEndings && validFileEndings !== undefined ? mapExtensionToAcceptMime(validFileEndings) : undefined,
   });
+
+  // set drag active state in parent component if callback is provided
+  React.useEffect(() => {
+    if (onDragActiveChange) {
+      onDragActiveChange(isDragActive);
+    }
+  }, [isDragActive, onDragActiveChange]);
+
   return (
     <div>
       {maxFileSize && (
