@@ -71,27 +71,3 @@
     border-style: solid;
   }
 }
-
-.dragActive {
-  background-image:
-    linear-gradient(
-      45deg,
-      rgba(204, 204, 204, 0.75) 25%,
-      transparent 25%,
-      transparent 75%,
-      rgba(204, 204, 204, 0.75) 75%,
-      rgba(204, 204, 204, 0.75) 100%
-    ),
-    linear-gradient(
-      45deg,
-      rgba(204, 204, 204, 0.75) 25%,
-      rgba(255, 255, 255, 0.75) 25%,
-      rgba(255, 255, 255, 0.75) 75%,
-      rgba(204, 204, 204, 0.75) 75%,
-      rgba(204, 204, 204, 0.75) 100%
-    );
-
-  .dropZone {
-    border-style: solid;
-  }
-}
