@@ -45,7 +45,8 @@ export function Dropzone({
   ...rest
 }: IDropzoneComponentProps): React.JSX.Element {
   const maxSizeLabelId = `file-upload-max-size-${id}`;
-  const describedby = maxFileSize?.sizeInMB ? `${describedBy} ${maxSizeLabelId}` : describedBy;
+  const describedby =
+    [describedBy, maxFileSize?.sizeInMB ? maxSizeLabelId : undefined].filter(Boolean).join(' ') || undefined;
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -70,6 +71,7 @@ export function Dropzone({
           onClick,
         })}
         id={`altinn-drop-zone-${id}`}
+        {...rest}
         className={cn(
           classes.fileUpload,
           { [classes.active]: isDragActive },
@@ -79,7 +81,6 @@ export function Dropzone({
         )}
         aria-labelledby={labelId}
         aria-describedby={describedby}
-        {...rest}
       >
         <input
           {...getInputProps()}

@@ -79,7 +79,7 @@ export function FileUploadComponent({
   const dragLabelId = `file-upload-drag-${id}`;
   const formatLabelId = `file-upload-format-${id}`;
   const descriptionId = textResourceBindings?.description ? getDescriptionId(id) : undefined;
-  const ariaDescribedBy = `${descriptionId} ${dragLabelId} ${formatLabelId}`;
+  const ariaDescribedBy = [descriptionId, dragLabelId, formatLabelId].filter(Boolean).join(' ');
 
   const handleDrop = (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
     const totalAttachments = acceptedFiles.length + rejectedFiles.length + attachments.length;
@@ -142,7 +142,7 @@ export function FileUploadComponent({
               hasCustomFileEndings={hasCustomFileEndings}
               validFileEndings={validFileEndings}
               labelId={textResourceBindings?.title ? getLabelId(id) : undefined}
-              aria-describedby={ariaDescribedBy}
+              describedBy={ariaDescribedBy}
             >
               <div className={classes.fileUploadWrapper}>
                 <CloudUpIcon
