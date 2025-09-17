@@ -221,16 +221,12 @@ const ValidationMessages = ({ validationErrors }: { validationErrors: string[] |
     return null;
   }
 
-  return (
-    <>
-      {validationErrors.map((error, index) => (
-        <ValidationMessage
-          data-size='sm'
-          key={index}
-        >
-          <Lang id={error} />
-        </ValidationMessage>
-      ))}
-    </>
-  );
+  return validationErrors.map((error, index) => (
+    <ValidationMessage
+      data-size='sm'
+      key={index}
+    >
+      <Lang id={error} />
+    </ValidationMessage>
+  ));
 };
