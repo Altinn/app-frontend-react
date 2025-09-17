@@ -8,7 +8,7 @@ export const FEATURE_VERSION_MAP = {
   NEW_ATTACHMENTS_API: '8.5.0.153',
   PDF_PREVIEW_BUTTON: '8.5.0.157',
   APP_LANGUAGES_IN_ANONYMOUS: '8.5.6.180',
-  SET_TAGS_ENDPOINT: '8.7.0.0',
+  SET_TAGS_ENDPOINT: '8.8.0.0',
 } as const;
 
 type AppFeature = keyof typeof FEATURE_VERSION_MAP;
