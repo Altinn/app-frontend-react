@@ -506,7 +506,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
               role='group'
               aria-label='Hours selection'
             >
-              <div className={styles.dropdownLabel}>Timer</div>
+              <div className={styles.dropdownLabel}>{segmentLabels.hours}</div>
               <div
                 className={`${styles.dropdownList} ${
                   dropdownFocus.isActive && dropdownFocus.column === 0 ? styles.dropdownListFocused : ''
@@ -563,7 +563,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
               role='group'
               aria-label='Minutes selection'
             >
-              <div className={styles.dropdownLabel}>Minutter</div>
+              <div className={styles.dropdownLabel}>{segmentLabels.minutes}</div>
               <div
                 className={`${styles.dropdownList} ${
                   dropdownFocus.isActive && dropdownFocus.column === 1 ? styles.dropdownListFocused : ''

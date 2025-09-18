@@ -5,12 +5,6 @@ import {
 } from 'src/app-components/TimePicker/utils/calculateNextFocusState/calculateNextFocusState';
 
 describe('calculateNextFocusState', () => {
-  const initialState: DropdownFocusState = {
-    column: 0,
-    option: 0,
-    isActive: true,
-  };
-
   const maxColumns = 3; // hours, minutes, seconds
   const optionCounts = [24, 60, 60]; // 24 hours, 60 minutes, 60 seconds
 
