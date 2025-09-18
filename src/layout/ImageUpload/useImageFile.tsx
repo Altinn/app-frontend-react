@@ -37,12 +37,12 @@ export const useImageFile = (baseComponentId: string): ReturnType => {
   };
 
   const deleteImage = () => {
-    if (storedImage?.deleting) {
+    if (storedImage?.deleting || !storedImage) {
       return;
     }
 
     removeImage({
-      attachment: storedImage as UploadedAttachment,
+      attachment: storedImage,
       nodeId: indexedId,
       dataModelBindings,
     });
