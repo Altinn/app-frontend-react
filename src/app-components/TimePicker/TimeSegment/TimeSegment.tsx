@@ -21,6 +21,7 @@ export interface TimeSegmentProps {
   readOnly?: boolean;
   required?: boolean;
   'aria-label': string;
+  'aria-describedby'?: string;
   className?: string;
   autoFocus?: boolean;
 }
@@ -38,6 +39,7 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
       readOnly,
       required,
       'aria-label': ariaLabel,
+      'aria-describedby': ariaDescribedBy,
       className,
     },
     ref,
@@ -128,7 +130,6 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
         ref={ref}
         type='text'
         value={displayValue}
-        onChange={() => {}}
         onKeyDown={handleCharacterTyping}
         onBlur={handleBlurEvent}
         placeholder={placeholder}
@@ -136,16 +137,17 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
         readOnly={readOnly}
         required={required}
         aria-label={ariaLabel}
+        aria-describedby={ariaDescribedBy}
         className={className}
         data-size='sm'
         style={{
-          width: type === 'period' ? '4rem' : '3rem',
+          width: '3rem',
           textAlign: 'center',
           padding: '0.25rem',
         }}
         autoComplete='off'
         inputMode={type === 'period' ? 'text' : 'numeric'}
-        maxLength={type === 'period' ? 2 : 2}
+        maxLength={2}
       />
     );
   },

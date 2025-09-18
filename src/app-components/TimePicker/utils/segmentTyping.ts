@@ -199,7 +199,8 @@ export const handleSegmentCharacterInput = (
 
   // Handle period segment
   if (segmentType === 'period') {
-    const newPeriod = processPeriodInput(char, 'AM');
+    const currentPeriod = currentBuffer === 'AM' || currentBuffer === 'PM' ? (currentBuffer as 'AM' | 'PM') : 'AM';
+    const newPeriod = processPeriodInput(char, currentPeriod);
     return {
       newBuffer: newPeriod,
       shouldAdvance: false,

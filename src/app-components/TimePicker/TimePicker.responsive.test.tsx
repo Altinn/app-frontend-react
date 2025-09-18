@@ -173,9 +173,9 @@ describe('TimePicker - Responsive & Accessibility', () => {
       const clockButton = screen.getByRole('button', { name: /open time picker/i });
       await user.click(clockButton);
 
-      const dropdown = screen.getByRole('dialog');
+      // The Popover component doesn't set role="dialog" but does set aria-modal
+      const dropdown = screen.getByLabelText('Time selection dropdown');
       expect(dropdown).toHaveAttribute('aria-modal', 'true');
-      expect(dropdown).toHaveAttribute('role', 'dialog');
     });
 
     it('should maintain semantic structure for screen readers', () => {

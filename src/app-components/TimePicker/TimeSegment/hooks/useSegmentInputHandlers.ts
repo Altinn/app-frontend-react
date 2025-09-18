@@ -78,7 +78,11 @@ export function useSegmentInputHandlers({
   const handleDeleteOrBackspace = useCallback(() => {
     const clearedSegment = clearSegment();
     onUpdateDisplay(clearedSegment.displayValue);
-  }, [onUpdateDisplay]);
+
+    // Use commitSegmentValue to handle null and provide appropriate defaults
+    const committedValue = commitSegmentValue(clearedSegment.actualValue, segmentType);
+    onValueChange(committedValue);
+  }, [onUpdateDisplay, onValueChange, segmentType]);
 
   const handleArrowKeyNavigation = useCallback(
     (event: React.KeyboardEvent<HTMLInputElement>) => {

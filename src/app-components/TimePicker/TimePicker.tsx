@@ -13,6 +13,7 @@ import {
   generateSecondOptions,
 } from 'src/app-components/TimePicker/utils/generateTimeOptions/generateTimeOptions';
 import { handleSegmentValueChange } from 'src/app-components/TimePicker/utils/handleSegmentValueChange/handleSegmentValueChange';
+import { normalizeHour } from 'src/app-components/TimePicker/utils/normalizeHour';
 import { getSegmentConstraints, parseTimeString } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 import { formatTimeValue } from 'src/app-components/TimePicker/utils/timeFormatUtils';
 import type {
@@ -231,7 +232,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       case 2:
         return includesSeconds ? secondOptions : is12Hour ? [{ value: 'AM' }, { value: 'PM' }] : [];
       case 3:
-        return is12Hour && includesSeconds ? [{ value: 'AM' }, { value: 'PM' }] : [];
+        if (includesSeconds) {
+          return secondOptions;
+        }
+        return is12Hour ? [{ value: 'AM' }, { value: 'PM' }] : [];
       default:
         return [];
     }
@@ -468,7 +472,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           className={styles.timePickerDropdown}
           aria-modal='true'
           aria-label='Time selection dropdown'
-          role='dialog'
           open={showDropdown}
           data-size='lg'
           placement='bottom-start'
@@ -495,7 +498,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
             closeDropdown();
           }}
           onKeyDown={handleDropdownKeyDown}
-          tabIndex={0}
         >
           <div className={styles.dropdownColumns}>
             {/* Hours Column */}
@@ -512,18 +514,12 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 ref={hoursListRef}
               >
                 {hourOptions.map((option, optionIndex) => {
+                  const normalizedHour = normalizeHour(option.value, is12Hour, timeValue.period || 'AM');
+
                   const isDisabled =
                     constraints.minTime || constraints.maxTime
                       ? !getSegmentConstraints('hours', timeValue, constraints, format).validValues.includes(
-                          is12Hour
-                            ? option.value === 12
-                              ? timeValue.period === 'AM'
-                                ? 0
-                                : 12
-                              : timeValue.period === 'PM' && option.value !== 12
-                                ? option.value + 12
-                                : option.value
-                            : option.value,
+                          normalizedHour,
                         )
                       : false;
 

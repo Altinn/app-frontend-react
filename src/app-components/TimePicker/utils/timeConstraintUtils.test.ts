@@ -3,19 +3,8 @@ import {
   getSegmentConstraints,
   isTimeInRange,
   parseTimeString,
+  TimeValue,
 } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
-
-interface TimeValue {
-  hours: number;
-  minutes: number;
-  seconds: number;
-  period: 'AM' | 'PM';
-}
-
-interface TimeConstraints {
-  minTime?: string;
-  maxTime?: string;
-}
 
 interface SegmentConstraints {
   min: number;

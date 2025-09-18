@@ -1,10 +1,4 @@
-import type { TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
-
-export interface SegmentConstraints {
-  min: number;
-  max: number;
-  validValues: number[];
-}
+import type { SegmentConstraints, TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 
 export type NumericSegmentType = 'hours' | 'minutes' | 'seconds';
 export type PeriodSegmentType = 'period';
