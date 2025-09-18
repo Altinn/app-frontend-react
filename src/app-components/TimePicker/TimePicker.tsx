@@ -215,9 +215,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
     // Find the focused option element
     const options = container.children;
-    const focusedOption = options[optionIndex] as HTMLElement;
+    const focusedOption = options[optionIndex];
 
-    if (focusedOption && focusedOption.scrollIntoView) {
+    if (focusedOption) {
       focusedOption.scrollIntoView({
         behavior: 'smooth',
         block: 'nearest',
@@ -348,21 +348,29 @@ export const TimePicker: React.FC<TimePickerProps> = ({
 
     event.preventDefault();
 
-    if (action.type === 'ARROW_UP' || action.type === 'ARROW_DOWN') {
-      navigateUpDown(action.type === 'ARROW_UP' ? 'up' : 'down');
-    } else if (action.type === 'ARROW_LEFT' || action.type === 'ARROW_RIGHT') {
-      navigateLeftRight(action.type === 'ARROW_LEFT' ? 'left' : 'right');
-    } else if (action.type === 'ENTER' || action.type === 'ESCAPE') {
-      const newFocus = calculateNextFocusState(dropdownFocus, action, getMaxColumns(), getOptionCounts());
-      setDropdownFocus(newFocus);
-      closeDropdown();
+    switch (action.type) {
+      case 'ARROW_UP':
+        navigateUpDown('up');
+        break;
+      case 'ARROW_DOWN':
+        navigateUpDown('down');
+        break;
+      case 'ARROW_LEFT':
+        navigateLeftRight('left');
+        break;
+      case 'ARROW_RIGHT':
+        navigateLeftRight('right');
+        break;
+      case 'ENTER':
+      case 'ESCAPE':
+        setDropdownFocus(calculateNextFocusState(dropdownFocus, action, getMaxColumns(), getOptionCounts()));
+        closeDropdown();
+        break;
     }
   };
 
-  // Get display values for segments using pure functions
   const displayHours = formatDisplayHour(timeValue.hours, is12Hour);
 
-  // Generate options for dropdown using pure functions
   const hourOptions = generateHourOptions(is12Hour);
   const minuteOptions = generateMinuteOptions(1);
   const secondOptions = generateSecondOptions(1);
@@ -454,6 +462,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           aria-controls={`${id}-dropdown`}
           disabled={disabled || readOnly}
           data-size='sm'
+          onClick={() => setShowDropdown(!showDropdown)}
         >
           <ClockIcon />
         </Popover.Trigger>
@@ -466,7 +475,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           role='dialog'
           open={showDropdown}
           data-size='lg'
-          placement='bottom'
+          placement='bottom-start'
           autoFocus={true}
           onOpen={() => {
             // Initialize dropdown focus on the currently selected hour
@@ -477,21 +486,18 @@ export const TimePicker: React.FC<TimePickerProps> = ({
               isActive: true,
             };
             setDropdownFocus(initialFocus);
-            setShowDropdown(true);
 
-            // Scroll to selected options
             scrollToSelectedOptions();
 
-            // Focus the initial selected option after DOM is ready
+            // Focus the initial selected option after DOM is ready with preventScroll
             requestAnimationFrame(() => {
               const button = getOptionButton(initialFocus.column, initialFocus.option);
-              button?.focus();
+              button?.focus({ preventScroll: true });
             });
           }}
           onClose={() => {
             closeDropdown();
-            // Restore focus to the trigger button
-            triggerButtonRef.current?.focus();
+            triggerButtonRef.current?.focus({ preventScroll: true });
           }}
           onKeyDown={handleDropdownKeyDown}
           tabIndex={0}
