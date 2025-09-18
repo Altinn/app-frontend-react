@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
@@ -37,9 +37,26 @@ export function ImageCanvas({
   canvasRef,
   containerRef,
 }: ImageCanvasProps) {
+  const [canvasWidth, setCanvasWidth] = useState(CANVAS_WIDTH);
   const { storedImage, imageUrl } = useImageFile(baseComponentId);
-  const canvasWidth = (containerRef.current?.offsetWidth ?? 0) > CONTAINER_WIDTH ? CANVAS_WIDTH : MOBILE_CANVAS_WIDTH;
   const { langAsString } = useLanguage();
+
+  useEffect(() => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    const updateWidth = () => {
+      const width = containerRef.current!.offsetWidth > CONTAINER_WIDTH ? CANVAS_WIDTH : MOBILE_CANVAS_WIDTH;
+      setCanvasWidth(width);
+    };
+
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, [containerRef]);
 
   // Handles all drawing operations on the canvas
   const draw = useCallback(() => {
@@ -80,7 +97,7 @@ export function ImageCanvas({
 
   useEffect(() => {
     draw();
-  }, [draw]);
+  }, [draw, canvasWidth]);
 
   // Handles panning via pointer events (mouse/touch)
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
