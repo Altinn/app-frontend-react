@@ -12,14 +12,15 @@ export type CropArea = { width: number; height: number; type: CropForm.Square | 
 export const getCropArea = (cropArea?: CropAreaParams): CropArea => {
   const defaultSize = 300;
 
-  const width = cropArea?.width ?? defaultSize;
-  const height = cropArea?.height ?? defaultSize;
+  let width = cropArea?.width ?? defaultSize;
+  let height = cropArea?.height ?? defaultSize;
 
-  let type = cropArea?.type ?? CropForm.Circle;
+  const type = cropArea?.type ?? CropForm.Circle;
 
-  // Force square if circle dimensions are mismatched
   if (type === CropForm.Circle && width !== height) {
-    type = CropForm.Square;
+    const minDimension = Math.min(width, height);
+    width = minDimension;
+    height = minDimension;
   }
 
   return { width, height, type };
