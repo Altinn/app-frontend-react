@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
+import { useAttachmentsFor } from 'src/features/attachments/hooks';
 import { useFileUploaderDataBindingsValidation } from 'src/layout/FileUpload/utils/useFileUploaderDataBindingsValidation';
 import { ImageUploadDef } from 'src/layout/ImageUpload/config.def.generated';
 import { ImageUploadComponent } from 'src/layout/ImageUpload/ImageUploadComponent';
@@ -10,8 +11,9 @@ import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 
 export class ImageUpload extends ImageUploadDef {
-  useDisplayData(): string {
-    return '';
+  useDisplayData(baseComponentId: string): string {
+    const attachments = useAttachmentsFor(baseComponentId);
+    return attachments.map((a) => a.data.filename).join(', ');
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'ImageUpload'>>(
