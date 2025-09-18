@@ -9,6 +9,7 @@ import { getFormDataMockForRepGroup } from 'src/__mocks__/getFormDataMockForRepG
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { DropdownComponent } from 'src/layout/Dropdown/DropdownComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { queryPromiseMock, renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { IRawOption } from 'src/layout/common.generated';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
@@ -47,6 +48,9 @@ function MySuperSimpleInput() {
 }
 
 const render = async ({ component, options, ...rest }: Props = {}) => {
+  jest.mocked(fetchFormData).mockImplementation(async () => ({
+    ...getFormDataMockForRepGroup(),
+  }));
   const fetchOptions = queryPromiseMock('fetchOptions');
   const utils = await renderGenericComponentTest({
     type: 'Dropdown',
@@ -69,9 +73,6 @@ const render = async ({ component, options, ...rest }: Props = {}) => {
     },
     ...rest,
     queries: {
-      fetchFormData: async () => ({
-        ...getFormDataMockForRepGroup(),
-      }),
       fetchOptions: (...args) =>
         options === undefined
           ? fetchOptions.mock(...args)
@@ -305,6 +306,7 @@ describe('DropdownComponent', () => {
   });
 
   it('required validation should only show for simpleBinding', async () => {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => ({ simpleBinding: '', label: '', metadata: '' }));
     await render({
       component: {
         showValidations: ['Required'],
@@ -316,9 +318,6 @@ describe('DropdownComponent', () => {
         },
       },
       options: countries,
-      queries: {
-        fetchFormData: () => Promise.resolve({ simpleBinding: '', label: '', metadata: '' }),
-      },
     });
 
     expect(screen.getAllByRole('listitem')).toHaveLength(1);

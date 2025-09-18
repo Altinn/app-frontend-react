@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { v4 as uuidv4 } from 'uuid';
 import type { AxiosResponse } from 'axios';
 
@@ -8,6 +9,7 @@ import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { type BackendValidationIssue, BackendValidationSeverity } from 'src/features/validation';
 import { LikertComponent } from 'src/layout/Likert/LikertComponent';
+import { fetchFormData } from 'src/queries/queries';
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IRawTextResource, ITextResourceResult } from 'src/features/language/textResources';
@@ -119,6 +121,7 @@ export const render = async ({
 }: IRenderProps) => {
   const mockLikertLayout = createLikertLayout(likertProps);
 
+  jest.mocked(fetchFormData).mockImplementationOnce(async () => generateMockFormData(mockQuestions));
   setScreenWidth(mobileView ? 600 : 1200);
   return await renderWithInstanceAndLayout({
     renderer: () => <ContainerTester id={mockLikertLayout.id} />,
@@ -126,7 +129,6 @@ export const render = async ({
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       fetchOptions: async () => ({ data: mockOptions, headers: {} }) as AxiosResponse<IRawOption[], any>,
       fetchTextResources: async () => createTextResource(mockQuestions, extraTextResources),
-      fetchFormData: async () => generateMockFormData(mockQuestions),
       fetchLayouts: async () => ({
         FormLayout: {
           data: {

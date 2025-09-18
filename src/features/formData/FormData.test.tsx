@@ -22,7 +22,7 @@ import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataRea
 import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
-import { fetchApplicationMetadata } from 'src/queries/queries';
+import { fetchApplicationMetadata, fetchFormData } from 'src/queries/queries';
 import {
   makeFormDataMethodProxies,
   renderWithInstanceAndLayout,
@@ -158,7 +158,6 @@ async function statelessRender(props: RenderProps) {
       ),
       queries: {
         fetchDataModelSchema: async () => mockSchema,
-        fetchFormData: async () => ({}),
         fetchLayouts: async () => ({}),
         ...props.queries,
       },
@@ -175,7 +174,6 @@ async function statefulRender(props: RenderProps) {
     alwaysRouteToChildren: true,
     queries: {
       fetchDataModelSchema: async () => mockSchema,
-      fetchFormData: async () => ({}),
       fetchLayouts: async () => ({}),
       ...props.queries,
     },
@@ -216,6 +214,16 @@ describe('FormData', () => {
     }
 
     async function render(props: MinimalRenderProps = {}) {
+      jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+        obj1: {
+          prop1: 'value1',
+          prop2: 'value2',
+        },
+        obj2: {
+          prop1: 'value3',
+        },
+      }));
+
       const renderCounts: RenderCounts = {
         ReaderObj1Prop1: 0,
         ReaderObj1Prop2: 0,
@@ -262,15 +270,6 @@ describe('FormData', () => {
           </>
         ),
         queries: {
-          fetchFormData: async () => ({
-            obj1: {
-              prop1: 'value1',
-              prop2: 'value2',
-            },
-            obj2: {
-              prop1: 'value3',
-            },
-          }),
           ...props.queries,
         },
         ...props,
@@ -382,6 +381,11 @@ describe('FormData', () => {
     }
 
     async function render(props: MinimalRenderProps = {}) {
+      jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+        obj1: {
+          prop1: 'value1',
+        },
+      }));
       return statefulRender({
         renderer: (
           <>
@@ -409,11 +413,6 @@ describe('FormData', () => {
           </>
         ),
         queries: {
-          fetchFormData: async () => ({
-            obj1: {
-              prop1: 'value1',
-            },
-          }),
           ...props.queries,
         },
         ...props,
@@ -611,7 +610,6 @@ describe('FormData', () => {
           </>
         ),
         queries: {
-          fetchFormData: async () => ({}),
           ...props.queries,
         },
         ...props,
@@ -649,13 +647,12 @@ describe('FormData', () => {
 
     it('Navigating away and back again should restore the form data', async () => {
       const user = userEvent.setup({ delay: null });
-      const { mutations, queries } = await render();
+      const { mutations } = await render();
 
       await user.type(screen.getByTestId('obj2.prop1'), 'a');
       expect(screen.getByTestId('obj2.prop1')).toHaveValue('a');
       expect(screen.getByTestId('hasUnsavedChanges')).toHaveTextContent('true');
 
-      expect(queries.fetchFormData).toHaveBeenCalledTimes(1);
       await user.click(screen.getByRole('button', { name: 'Navigate to a different page' }));
       await screen.findByText('something different');
 
@@ -667,11 +664,6 @@ describe('FormData', () => {
 
       await user.click(screen.getByRole('button', { name: 'Navigate back' }));
       await screen.findByTestId('obj2.prop1');
-
-      // We tried to cache the form data, however that broke back button functionality for some apps.
-      // See this issue: https://github.com/Altinn/app-frontend-react/issues/2564
-      // Also see src/features/formData/useFormDataQuery.tsx where we prevent caching for statless apps
-      expect(queries.fetchFormData).toHaveBeenCalledTimes(2);
 
       // Our mock fetchFormData returns an empty object, so the form data should be reset. Realistically, the form data
       // would be restored when fetching it from the server, as we asserted that it was saved before navigating away.
@@ -719,14 +711,15 @@ describe('FormData', () => {
     }
 
     async function render(props: MinimalRenderProps = {}) {
+      jest.mocked(fetchFormData).mockImplementationOnce(async () => ({
+        obj3: {
+          prop1: null,
+        },
+      }));
+
       const utils = await statelessRender({
         renderer: <InvalidReadWrite path='obj3.prop1' />,
         queries: {
-          fetchFormData: async () => ({
-            obj3: {
-              prop1: null,
-            },
-          }),
           ...props.queries,
         },
         ...props,

@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
@@ -8,6 +9,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import * as useNavigatePageModule from 'src/hooks/useNavigatePage';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { ILayoutCollection } from 'src/layout/layout';
 
@@ -146,8 +148,13 @@ describe('RepeatingGroupTableSummary', () => {
   };
 
   const render = async ({ navigate, layout = layoutWithHidden([]) }: IRenderProps = {}) => {
+    jest.mocked(fetchFormData).mockImplementation(async () => ({
+      group: [{ field1: 'field1-row0', field2: 'field2-row0', field3: 'field3-row0', [ALTINN_ROW_ID]: 'abc123' }],
+    }));
     if (navigate) {
-      jest.spyOn(useNavigatePageModule, 'useNavigateToComponent').mockReturnValue(navigate);
+      jest
+        .spyOn(useNavigatePageModule, 'useNavigateToComponent')
+        .mockReturnValue(navigate as ReturnType<typeof useNavigatePageModule.useNavigateToComponent>);
     }
 
     return await renderWithInstanceAndLayout({
@@ -159,9 +166,6 @@ describe('RepeatingGroupTableSummary', () => {
       initialPage: 'FormPage2',
       queries: {
         fetchLayouts: async () => layout,
-        fetchFormData: async () => ({
-          group: [{ field1: 'field1-row0', field2: 'field2-row0', field3: 'field3-row0', [ALTINN_ROW_ID]: 'abc123' }],
-        }),
         fetchLayoutSettings: async () => ({
           pages: {
             order: ['FormPage1', 'FormPage2'],

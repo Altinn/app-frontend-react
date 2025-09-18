@@ -20,7 +20,13 @@ import {
   isRepeatingComponent,
   RepeatingComponents,
 } from 'src/features/form/layout/utils/repeating';
-import { fetchApplicationMetadata, fetchInstanceData, fetchProcessState, fetchUserProfile } from 'src/queries/queries';
+import {
+  fetchApplicationMetadata,
+  fetchFormData,
+  fetchInstanceData,
+  fetchProcessState,
+  fetchUserProfile,
+} from 'src/queries/queries';
 import { AppQueries } from 'src/queries/types';
 import {
   renderWithInstanceAndLayout,
@@ -292,23 +298,6 @@ describe('Expressions shared function tests', () => {
         profile.profileSettingPreference.language = profileSettings.language;
       }
 
-      async function fetchFormData(url: string) {
-        if (!dataModels) {
-          return dataModel ?? {};
-        }
-
-        const statelessDataType = url.match(/dataType=([\w-]+)&/)?.[1];
-        const statefulDataElementId = url.match(/data\/([a-f0-9-]+)\?/)?.[1];
-
-        const model = dataModels.find(
-          (dm) => dm.dataElement.dataType === statelessDataType || dm.dataElement.id === statefulDataElementId,
-        );
-        if (model) {
-          return model.data;
-        }
-        throw new Error(`Datamodel ${url} not found in ${JSON.stringify(dataModels)}`);
-      }
-
       // Clear localstorage, because LanguageProvider uses it to cache selected languages
       localStorage.clear();
 
@@ -332,6 +321,22 @@ describe('Expressions shared function tests', () => {
         }
         return instanceData;
       });
+      jest.mocked(fetchFormData).mockImplementation(async (url: string) => {
+        if (!dataModels) {
+          return dataModel ?? {};
+        }
+
+        const statelessDataType = url.match(/dataType=([\w-]+)&/)?.[1];
+        const statefulDataElementId = url.match(/data\/([a-f0-9-]+)\?/)?.[1];
+
+        const model = dataModels.find(
+          (dm) => dm.dataElement.dataType === statelessDataType || dm.dataElement.id === statefulDataElementId,
+        );
+        if (model) {
+          return model.data;
+        }
+        throw new Error(`Datamodel ${url} not found in ${JSON.stringify(dataModels)}`);
+      });
 
       const toRender = (
         <ExpressionRunner
@@ -347,7 +352,6 @@ describe('Expressions shared function tests', () => {
           sets: [{ id: 'layout-set', dataType: 'default', tasks: ['Task_1'] }, getSubFormLayoutSetMock()],
         }),
         fetchLayouts: async () => layouts,
-        fetchFormData,
         ...(frontendSettings ? { fetchApplicationSettings: async () => frontendSettings } : {}),
         fetchTextResources: async () => ({
           language: 'nb',

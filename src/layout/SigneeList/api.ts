@@ -33,10 +33,17 @@ export type SigneeState = z.infer<typeof signeeStateSchema>;
 
 export const signingQueries = {
   all: ['signing'] as const,
-  signeeList: (partyId: string | undefined, instanceGuid: string | undefined, taskId: string | undefined) =>
+  signeeList: (
+    instanceOwnerPartyId: string | undefined,
+    instanceGuid: string | undefined,
+    taskId: string | undefined,
+  ) =>
     queryOptions({
-      queryKey: [...signingQueries.all, 'signeeList', partyId, instanceGuid, taskId],
-      queryFn: partyId && instanceGuid && taskId ? () => fetchSigneeList(partyId, instanceGuid) : skipToken,
+      queryKey: [...signingQueries.all, 'signeeList', instanceOwnerPartyId, instanceGuid, taskId],
+      queryFn:
+        instanceOwnerPartyId && instanceGuid && taskId
+          ? () => fetchSigneeList(instanceOwnerPartyId, instanceGuid)
+          : skipToken,
       refetchInterval: 1000 * 60, // 1 minute
       refetchOnMount: 'always',
     }),

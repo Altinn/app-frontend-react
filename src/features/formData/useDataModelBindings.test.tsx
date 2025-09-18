@@ -7,6 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
+import { fetchFormData } from 'src/queries/queries';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { IDataModelPatchResponse } from 'src/features/formData/types';
 
@@ -92,10 +93,10 @@ describe('useDataModelBindings', () => {
   }
 
   async function render({ formData = {} }: { formData?: object } = {}) {
+    jest.mocked(fetchFormData).mockImplementationOnce(async () => formData);
     return await renderWithInstanceAndLayout({
       renderer: <DummyComponent />,
       queries: {
-        fetchFormData: async () => formData,
         fetchDataModelSchema: async () => ({
           type: 'object',
           properties: {

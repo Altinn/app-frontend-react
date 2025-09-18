@@ -20,6 +20,7 @@ import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
 import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { SubmitSigningButton } from 'src/layout/SigningActions/SubmitSigningButton';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import type { OnBehalfOf } from 'src/layout/SigningActions/api';
 
 type AwaitingCurrentUserSignaturePanelProps = {
   baseComponentId: string;
@@ -47,7 +48,7 @@ export function AwaitingCurrentUserSignaturePanel({
   const signingButtonText = textResourceBindings?.signingButton ?? 'signing.sign_button';
 
   const [confirmReadDocuments, setConfirmReadDocuments] = useState(false);
-  const [onBehalfOf, setOnBehalfOf] = useState<string | null>(null);
+  const [onBehalfOf, setOnBehalfOf] = useState<OnBehalfOf | null>(null);
   const [onBehalfOfError, setOnBehalfOfError] = useState(false);
   const [confirmReadDocumentsError, setConfirmReadDocumentsError] = useState(false);
 
@@ -95,7 +96,10 @@ export function AwaitingCurrentUserSignaturePanel({
       unsignedUserSigneeParties.length === 1 &&
       unsignedUserSigneeParties[0].partyId === unsignedAuthorizedOrgSignees.at(0)?.partyId
     ) {
-      setOnBehalfOf(unsignedAuthorizedOrgSignees[0].orgNumber);
+      setOnBehalfOf({
+        orgNoOrSsn: unsignedAuthorizedOrgSignees[0].orgNumber,
+        partyId: unsignedAuthorizedOrgSignees[0].partyId.toString(),
+      });
     }
   }, [unsignedUserSigneeParties, unsignedAuthorizedOrgSignees]);
 
@@ -142,10 +146,10 @@ export function AwaitingCurrentUserSignaturePanel({
         <OnBehalfOfChooser
           currentUserSignee={unsignedUserSigneeParties.find((s) => s.partyId === currentUserPartyId)}
           authorizedOrganizationDetails={unsignedAuthorizedOrgSignees}
-          onBehalfOfOrg={onBehalfOf}
+          onBehalfOf={onBehalfOf}
           error={onBehalfOfError}
           onChange={(e) => {
-            setOnBehalfOf(e.target.value);
+            setOnBehalfOf(JSON.parse(e.target.value));
             setOnBehalfOfError(false);
           }}
         />
