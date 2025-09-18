@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Loader } from 'src/core/loading/Loader';
-import { useCurrentDataModelGuid } from 'src/features/datamodel/useBindingSchema';
+import { useCurrentDataModelDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
@@ -18,8 +18,8 @@ export function FixWrongReceiptType({ children }: PropsWithChildren) {
   const layoutSets = useLayoutSets();
   const hasCustomReceipt = behavesLikeDataTask(TaskKeys.CustomReceipt, layoutSets);
   const navigateToTask = useNavigateToTask();
-  const dataModelGuid = useCurrentDataModelGuid();
-  const customReceiptDataModelNotFound = hasCustomReceipt && !dataModelGuid;
+  const dataElementId = useCurrentDataModelDataElementId();
+  const customReceiptDataModelNotFound = hasCustomReceipt && !dataElementId;
 
   let redirectTo: undefined | TaskKeys = undefined;
   if (taskId === TaskKeys.ProcessEnd && hasCustomReceipt) {
