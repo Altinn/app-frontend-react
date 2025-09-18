@@ -150,7 +150,6 @@ const defaultQueryMocks: AppQueries = {
   fetchTextResources: async (language) => ({ language, resources: getTextResourcesMock() }),
   fetchLayoutSchema: async () => ({}) as JSONSchema7,
   fetchAppLanguages: async () => [{ language: 'nb' }, { language: 'nn' }, { language: 'en' }],
-  fetchProcessNextSteps: async () => [],
   fetchPostPlace: async () => ({ valid: true, result: 'OSLO' }),
   fetchLayoutSettings: async () => ({ pages: { order: [] } }),
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
@@ -252,6 +251,45 @@ export function InstanceRouter({
       },
       {
         path: 'instance/:instanceOwnerPartyId/:instanceGuid/:taskId',
+        element: children,
+      },
+      {
+        path: '*',
+        element: alwaysRouteToChildren ? children : <NotFound />,
+      },
+    ],
+    {
+      basename: '/ttd/test',
+      initialEntries: [query ? `${path}?${query}` : path],
+      future: { v7_relativeSplatPath: true },
+    },
+  );
+
+  if (routerRef) {
+    // eslint-disable-next-line react-compiler/react-compiler
+    routerRef.current = router;
+  }
+
+  return (
+    <RouterProvider
+      router={router}
+      future={{ v7_startTransition: true }}
+    />
+  );
+}
+
+export function StatelessRouter({
+  children,
+  routerRef,
+  initialPage = 'FormLayout',
+  alwaysRouteToChildren = false,
+  query,
+}: PropsWithChildren<Omit<InstanceRouterProps, 'taskId' | 'instanceId'>>) {
+  const path = `/ttd/test/${initialPage}`;
+  const router = createMemoryRouter(
+    [
+      {
+        path: ':pageKey',
         element: children,
       },
       {
@@ -421,17 +459,21 @@ function injectFormDataSavingSimulator(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (mutationMocks as any).doPatchFormData = jest
     .fn()
-    .mockImplementation(async (url: string, req: IDataModelPatchRequest): Promise<IDataModelPatchResponse> => {
-      const model = structuredClone(models[url] ?? {});
-      applyPatch(model, req.patch);
-      const afterProcessing = typeof mockBackend === 'function' ? mockBackend(model, url) : model;
-      models[url] = afterProcessing;
+    .mockImplementation(
+      async (url: string, req: IDataModelPatchRequest): Promise<{ data: IDataModelPatchResponse }> => {
+        const model = structuredClone(models[url] ?? {});
+        applyPatch(model, req.patch);
+        const afterProcessing = typeof mockBackend === 'function' ? mockBackend(model, url) : model;
+        models[url] = afterProcessing;
 
-      return {
-        newDataModel: afterProcessing as object,
-        validationIssues: {},
-      };
-    });
+        return {
+          data: {
+            newDataModel: afterProcessing as object,
+            validationIssues: {},
+          },
+        };
+      },
+    );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (mutationMocks as any).doPostStatelessFormData = jest.fn().mockImplementation(async (url: string, data: unknown) => {
