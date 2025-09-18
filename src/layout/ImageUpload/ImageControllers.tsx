@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId, useRef } from 'react';
 
 import { Button, Input, Label } from '@digdir/designsystemet-react';
 import { ArrowUndoIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
@@ -31,6 +31,11 @@ export function ImageControllers({
   onFileUploaded,
   onReset,
 }: ImageControllersProps) {
+  const uid = useId();
+  const zoomId = `${uid}-zoom`;
+  const inputId = `${uid}-image-upload`;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
     const logarithmicZoomValue = normalToLogZoom({
       value: parseFloat(e.target.value),
@@ -67,12 +72,12 @@ export function ImageControllers({
   return (
     <div className={classes.controlsContainer}>
       <div>
-        <Label htmlFor='zoom'>
+        <Label htmlFor={zoomId}>
           <Lang id='image_upload_component.slider_zoom' />
         </Label>
         <div className={classes.zoomControls}>
           <input
-            id='zoom'
+            id={zoomId}
             type='range'
             min='0'
             max='100'
@@ -99,7 +104,8 @@ export function ImageControllers({
           <Lang id='image_upload_component.button_save' />
         </Button>
         <Input
-          id='image-upload'
+          id={inputId}
+          ref={fileInputRef}
           type='file'
           accept='image/*'
           onChange={handleImageChange}
@@ -115,7 +121,7 @@ export function ImageControllers({
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              document.getElementById('image-upload')?.click();
+              fileInputRef?.current?.click();
             }
           }}
         >

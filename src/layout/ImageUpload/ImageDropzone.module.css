@@ -66,8 +66,9 @@
       rgba(204, 204, 204, 0.75) 75%,
       rgba(204, 204, 204, 0.75) 100%
     );
+}
 
-  .dropZone {
-    border-style: solid;
-  }
+.placeholder:hover .dropZone,
+.dragActive .dropZone {
+  border-style: solid;
 }
