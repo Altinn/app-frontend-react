@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import type React from 'react';
 
 import {
@@ -32,90 +31,87 @@ export function useSegmentInputHandlers({
   onNavigate,
   onUpdateDisplay,
 }: SegmentInputConfig) {
-  const processCharacterInput = useCallback(
-    (character: string, currentBuffer: string) => {
-      const inputResult = handleSegmentCharacterInput(character, segmentType, currentBuffer, timeFormat);
-      const bufferResult = processSegmentBuffer(inputResult.newBuffer, segmentType, timeFormat.includes('a'));
-
-      onUpdateDisplay(bufferResult.displayValue);
-
-      return {
-        newBuffer: inputResult.newBuffer,
-        shouldNavigateRight: inputResult.shouldNavigate || inputResult.shouldAdvance,
-        shouldCommitImmediately: inputResult.shouldAdvance,
-        processedValue: bufferResult.actualValue,
-      };
-    },
-    [segmentType, timeFormat, onUpdateDisplay],
-  );
-
-  const commitBufferValue = useCallback(
-    (bufferValue: string) => {
-      if (segmentType === 'period') {
-        // Period segments are handled differently - the buffer IS the final value
-        onValueChange(bufferValue);
-      } else {
-        const processed = processSegmentBuffer(bufferValue, segmentType, timeFormat.includes('a'));
-        if (processed.actualValue !== null) {
-          const committedValue = commitSegmentValue(processed.actualValue, segmentType);
-          onValueChange(committedValue);
-        }
-      }
-    },
-    [segmentType, timeFormat, onValueChange],
-  );
-
-  const handleArrowKeyIncrement = useCallback(() => {
+  function incrementCurrentValue() {
     const newValue = handleValueIncrement(currentValue, segmentType, timeFormat);
     onValueChange(newValue);
-  }, [currentValue, segmentType, timeFormat, onValueChange]);
+  }
 
-  const handleArrowKeyDecrement = useCallback(() => {
+  function decrementCurrentValue() {
     const newValue = handleValueDecrement(currentValue, segmentType, timeFormat);
     onValueChange(newValue);
-  }, [currentValue, segmentType, timeFormat, onValueChange]);
+  }
 
-  const handleDeleteOrBackspace = useCallback(() => {
+  function clearCurrentValueAndDisplay() {
     const clearedSegment = clearSegment();
     onUpdateDisplay(clearedSegment.displayValue);
-
-    // Use commitSegmentValue to handle null and provide appropriate defaults
     const committedValue = commitSegmentValue(clearedSegment.actualValue, segmentType);
     onValueChange(committedValue);
-  }, [onUpdateDisplay, onValueChange, segmentType]);
+  }
 
-  const handleArrowKeyNavigation = useCallback(
-    (event: React.KeyboardEvent<HTMLInputElement>) => {
-      const result = handleSegmentKeyDown(event);
-
-      if (result.shouldNavigate && result.direction) {
-        onNavigate(result.direction);
-        return true;
-      }
-
-      if (result.shouldIncrement) {
-        handleArrowKeyIncrement();
-        return true;
-      }
-
-      if (result.shouldDecrement) {
-        handleArrowKeyDecrement();
-        return true;
-      }
-
-      return false;
-    },
-    [onNavigate, handleArrowKeyIncrement, handleArrowKeyDecrement],
-  );
-
-  const fillEmptyMinutesOrSecondsWithZero = useCallback(() => {
+  function fillEmptyTimeSegmentWithZero() {
     const valueIsEmpty =
       currentValue === null || currentValue === '' || (typeof currentValue === 'number' && isNaN(currentValue));
 
     if (valueIsEmpty && (segmentType === 'minutes' || segmentType === 'seconds')) {
       onValueChange(0);
     }
-  }, [currentValue, segmentType, onValueChange]);
+  }
+
+  function processCharacterInput(character: string, currentBuffer: string) {
+    const inputResult = handleSegmentCharacterInput(character, segmentType, currentBuffer, timeFormat);
+    const bufferResult = processSegmentBuffer(inputResult.newBuffer, segmentType, timeFormat.includes('a'));
+
+    onUpdateDisplay(bufferResult.displayValue);
+
+    return {
+      newBuffer: inputResult.newBuffer,
+      shouldNavigateRight: inputResult.shouldNavigate || inputResult.shouldAdvance,
+      shouldCommitImmediately: inputResult.shouldAdvance,
+      processedValue: bufferResult.actualValue,
+    };
+  }
+
+  function commitBufferValue(bufferValue: string) {
+    if (segmentType === 'period') {
+      onValueChange(bufferValue);
+      return;
+    }
+
+    const processed = processSegmentBuffer(bufferValue, segmentType, timeFormat.includes('a'));
+    if (processed.actualValue !== null) {
+      const committedValue = commitSegmentValue(processed.actualValue, segmentType);
+      onValueChange(committedValue);
+    }
+  }
+
+  function handleArrowKeyNavigation(event: React.KeyboardEvent<HTMLInputElement>) {
+    const result = handleSegmentKeyDown(event);
+
+    if (result.shouldNavigate && result.direction) {
+      onNavigate(result.direction);
+      return true;
+    }
+
+    if (result.shouldIncrement) {
+      incrementCurrentValue();
+      return true;
+    }
+
+    if (result.shouldDecrement) {
+      decrementCurrentValue();
+      return true;
+    }
+
+    return false;
+  }
+
+  function handleDeleteOrBackspace() {
+    clearCurrentValueAndDisplay();
+  }
+
+  function fillEmptyMinutesOrSecondsWithZero() {
+    fillEmptyTimeSegmentWithZero();
+  }
 
   return {
     processCharacterInput,

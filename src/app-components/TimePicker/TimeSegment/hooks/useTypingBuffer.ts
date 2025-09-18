@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useTimeout } from 'src/app-components/TimePicker/TimeSegment/hooks/useTimeout';
 
@@ -13,69 +13,61 @@ export function useTypingBuffer({ onCommit, commitDelayMs, typingEndDelayMs }: T
   const [isTyping, setIsTyping] = useState(false);
   const bufferRef = useRef('');
 
-  const commitTimer = useTimeout(() => commitBufferWithoutEndingTyping(), commitDelayMs);
+  const commitTimer = useTimeout(() => commitBufferAndClearIt(), commitDelayMs);
   const typingEndTimer = useTimeout(() => setIsTyping(false), typingEndDelayMs);
 
-  const clearBuffer = useCallback(() => {
+  function clearBufferCompletely() {
     setBuffer('');
     bufferRef.current = '';
-  }, []);
+  }
 
-  const commitBufferWithoutEndingTyping = useCallback(() => {
+  function commitBufferAndClearIt() {
     const currentBuffer = bufferRef.current;
     if (currentBuffer) {
       onCommit(currentBuffer);
-      clearBuffer();
+      clearBufferCompletely();
     }
-  }, [clearBuffer, onCommit]);
+  }
 
-  const clearAllTimers = useCallback(() => {
+  function stopAllTimers() {
     commitTimer.clear();
     typingEndTimer.clear();
-  }, [commitTimer, typingEndTimer]);
+  }
 
-  const restartTimers = useCallback(() => {
-    clearAllTimers();
+  function startBothTimersAfterClearing() {
+    stopAllTimers();
     commitTimer.start();
     typingEndTimer.start();
-  }, [clearAllTimers, commitTimer, typingEndTimer]);
+  }
 
-  const addCharacterToBuffer = useCallback(
-    (char: string) => {
-      const newBuffer = bufferRef.current + char;
-      setBuffer(newBuffer);
-      bufferRef.current = newBuffer;
-      setIsTyping(true);
+  function updateBufferAndStartTyping(newBuffer: string) {
+    setBuffer(newBuffer);
+    bufferRef.current = newBuffer;
+    setIsTyping(true);
+    startBothTimersAfterClearing();
+  }
 
-      restartTimers();
+  function addCharacterToBuffer(char: string) {
+    const newBuffer = bufferRef.current + char;
+    updateBufferAndStartTyping(newBuffer);
+    return newBuffer;
+  }
 
-      return newBuffer;
-    },
-    [restartTimers],
-  );
+  function replaceBuffer(newBuffer: string) {
+    updateBufferAndStartTyping(newBuffer);
+  }
 
-  const commitImmediatelyAndEndTyping = useCallback(() => {
-    commitBufferWithoutEndingTyping();
+  function commitImmediatelyAndEndTyping() {
+    commitBufferAndClearIt();
     setIsTyping(false);
-    clearAllTimers();
-  }, [commitBufferWithoutEndingTyping, clearAllTimers]);
+    stopAllTimers();
+  }
 
-  const resetToIdleState = useCallback(() => {
-    clearBuffer();
+  function resetToIdleState() {
+    clearBufferCompletely();
     setIsTyping(false);
-    clearAllTimers();
-  }, [clearBuffer, clearAllTimers]);
-
-  const replaceBuffer = useCallback(
-    (newBuffer: string) => {
-      setBuffer(newBuffer);
-      bufferRef.current = newBuffer;
-      setIsTyping(true);
-
-      restartTimers();
-    },
-    [restartTimers],
-  );
+    stopAllTimers();
+  }
 
   return {
     buffer,
