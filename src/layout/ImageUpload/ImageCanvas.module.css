@@ -5,7 +5,6 @@
   overflow: hidden;
   cursor: grab;
   touch-action: none;
-  overflow: visible;
 }
 
 .canvas:active {
