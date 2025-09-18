@@ -141,12 +141,6 @@
   z-index: 1;
 }
 
-.dropdownOptionFocused.dropdownOptionSelected {
-  /* When option is both focused and selected, prioritize selection styling but add focus outline */
-  /*outline: 2px solid var(--ds-color-neutral-text-on-inverted);*/
-  /*outline-offset: -2px;*/
-}
-
 .dropdownOptionDisabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -180,7 +174,7 @@
 @media (max-width: 348px) {
   .calendarInputWrapper {
     flex-wrap: wrap;
-    gap: var(--ds-size-0-5);
+    gap: var(--ds-size-1);
   }
 
   .segmentContainer {

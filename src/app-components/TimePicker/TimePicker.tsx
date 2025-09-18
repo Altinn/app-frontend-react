@@ -55,7 +55,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   const timeValue = parseTimeString(value, format);
 
   const [showDropdown, setShowDropdown] = useState(false);
-  const [_focusedSegment, setFocusedSegment] = useState<number | null>(null);
 
   // Dropdown keyboard navigation state
   const [dropdownFocus, setDropdownFocus] = useState<DropdownFocusState>({
@@ -89,7 +88,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     maxTime,
   };
 
-  // Segment labels and placeholders
   const segmentLabels = {
     hours: labels.hours || 'Hours',
     minutes: labels.minutes || 'Minutes',
@@ -105,7 +103,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   };
 
   const scrollToSelectedOptions = () => {
-    // Use requestAnimationFrame to ensure DOM is ready
     requestAnimationFrame(() => {
       const scrollToSelected = (container: HTMLDivElement | null) => {
         if (!container) {
@@ -156,7 +153,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     }
 
     segmentRefs.current[nextIndex]?.focus();
-    setFocusedSegment(nextIndex);
   };
 
   const closeDropdown = () => {
@@ -438,8 +434,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 format={format}
                 onValueChange={(newValue) => handleSegmentChange(segmentType, newValue)}
                 onNavigate={(direction) => handleSegmentNavigate(direction, index)}
-                onFocus={() => setFocusedSegment(index)}
-                onBlur={() => setFocusedSegment(null)}
                 placeholder={segmentPlaceholders[segmentType]}
                 disabled={disabled}
                 readOnly={readOnly}
@@ -462,7 +456,9 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           aria-controls={`${id}-dropdown`}
           disabled={disabled || readOnly}
           data-size='sm'
-          onClick={() => setShowDropdown(!showDropdown)}
+          onClick={() => {
+            setShowDropdown(!showDropdown);
+          }}
         >
           <ClockIcon />
         </Popover.Trigger>
@@ -497,7 +493,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
           }}
           onClose={() => {
             closeDropdown();
-            triggerButtonRef.current?.focus({ preventScroll: true });
           }}
           onKeyDown={handleDropdownKeyDown}
           tabIndex={0}
@@ -545,7 +540,17 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                       } ${isFocused ? styles.dropdownOptionFocused : ''} ${
                         isDisabled ? styles.dropdownOptionDisabled : ''
                       }`}
-                      onClick={() => !isDisabled && handleDropdownHoursChange(option.value.toString())}
+                      onClick={() => {
+                        if (!isDisabled) {
+                          handleDropdownHoursChange(option.value.toString());
+                          // Update focus to the clicked option
+                          setDropdownFocus({
+                            column: 0,
+                            option: optionIndex,
+                            isActive: true,
+                          });
+                        }
+                      }}
                       disabled={isDisabled}
                       aria-label={option.label}
                     >
@@ -590,7 +595,17 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                       } ${isFocused ? styles.dropdownOptionFocused : ''} ${
                         isDisabled ? styles.dropdownOptionDisabled : ''
                       }`}
-                      onClick={() => !isDisabled && handleDropdownMinutesChange(option.value.toString())}
+                      onClick={() => {
+                        if (!isDisabled) {
+                          handleDropdownMinutesChange(option.value.toString());
+                          // Update focus to the clicked option
+                          setDropdownFocus({
+                            column: 1,
+                            option: optionIndex,
+                            isActive: true,
+                          });
+                        }
+                      }}
                       disabled={isDisabled}
                       aria-label={option.label}
                     >
@@ -636,7 +651,17 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                         } ${isFocused ? styles.dropdownOptionFocused : ''} ${
                           isDisabled ? styles.dropdownOptionDisabled : ''
                         }`}
-                        onClick={() => !isDisabled && handleDropdownSecondsChange(option.value.toString())}
+                        onClick={() => {
+                          if (!isDisabled) {
+                            handleDropdownSecondsChange(option.value.toString());
+                            // Update focus to the clicked option
+                            setDropdownFocus({
+                              column: 2,
+                              option: optionIndex,
+                              isActive: true,
+                            });
+                          }
+                        }}
                         disabled={isDisabled}
                         aria-label={option.label}
                       >
@@ -679,7 +704,14 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                         className={`${styles.dropdownOption} ${
                           isSelected ? styles.dropdownOptionSelected : ''
                         } ${isFocused ? styles.dropdownOptionFocused : ''}`}
-                        onClick={() => handleDropdownPeriodChange(period as 'AM' | 'PM')}
+                        onClick={() => {
+                          handleDropdownPeriodChange(period as 'AM' | 'PM');
+                          setDropdownFocus({
+                            column: columnIndex,
+                            option: optionIndex,
+                            isActive: true,
+                          });
+                        }}
                         aria-label={period}
                       >
                         {period}

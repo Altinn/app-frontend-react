@@ -16,7 +16,6 @@ export interface TimeSegmentProps {
   format: TimeFormat;
   onValueChange: (value: number | string) => void;
   onNavigate: (direction: 'left' | 'right') => void;
-  onFocus?: () => void;
   onBlur?: () => void;
   placeholder?: string;
   disabled?: boolean;
@@ -35,7 +34,6 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
       format,
       onValueChange,
       onNavigate,
-      onFocus,
       onBlur,
       placeholder,
       disabled,
@@ -43,7 +41,7 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
       required,
       'aria-label': ariaLabel,
       className,
-      autoFocus,
+      // autoFocus,
     },
     ref,
   ) => {
@@ -65,13 +63,15 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
     });
 
     const syncExternalChangesWhenNotTyping = () => {
+      console.log('syncExternalChangesWhenNotTyping called, isTyping:', typingBuffer.isTyping);
       if (!typingBuffer.isTyping) {
+        console.log('syncing external value and resetting to idle');
         syncWithExternalValue();
         typingBuffer.resetToIdleState();
       }
     };
 
-    React.useEffect(syncExternalChangesWhenNotTyping, [value, type, format, typingBuffer, syncWithExternalValue]);
+    React.useEffect(syncExternalChangesWhenNotTyping, [value, type, format, syncWithExternalValue, typingBuffer]);
 
     const handleCharacterTyping = (event: React.KeyboardEvent<HTMLInputElement>) => {
       const character = event.key;
@@ -108,21 +108,22 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
       }
     };
 
-    const handleFocusEvent = (event: React.FocusEvent<HTMLInputElement>) => {
-      const wasFreshFocus = event.currentTarget !== document.activeElement;
-
-      if (wasFreshFocus) {
-        typingBuffer.resetToIdleState();
-        event.target.select();
-      }
-
-      onFocus?.();
+    const handleFocusEvent = (_: React.FocusEvent<HTMLInputElement>) => {
+      console.log('focus');
+      // Don't reset typing buffer on focus as it causes issues
+      // Let the user focus and type naturally
     };
 
     const handleBlurEvent = () => {
+      console.log('blur');
       typingBuffer.commitImmediatelyAndEndTyping();
       inputHandlers.fillEmptyMinutesOrSecondsWithZero();
       onBlur?.();
+    };
+
+    const handleClick = (_: React.MouseEvent<HTMLInputElement>) => {
+      // Ensure the input gets focus when clicked
+      // event.currentTarget.focus();
     };
 
     return (
@@ -135,13 +136,14 @@ export const TimeSegment = React.forwardRef<HTMLInputElement, TimeSegmentProps>(
         onKeyDown={handleSpecialKeys}
         onFocus={handleFocusEvent}
         onBlur={handleBlurEvent}
+        onClick={handleClick}
         placeholder={placeholder}
         disabled={disabled}
         readOnly={readOnly}
         required={required}
         aria-label={ariaLabel}
         className={className}
-        autoFocus={autoFocus}
+        autoFocus={false}
         data-size='sm'
         style={{
           width: type === 'period' ? '4rem' : '3rem',
