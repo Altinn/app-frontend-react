@@ -27,9 +27,8 @@ export function ImageDropzone({ componentId, hasErrors, readOnly, descriptionId,
 
   return (
     <Dropzone
-      id='image-upload'
+      id={componentId}
       readOnly={readOnly}
-      onClick={(e) => e.preventDefault()}
       onDrop={onDrop}
       onDragActiveChange={setDragActive}
       hasValidationMessages={hasErrors}

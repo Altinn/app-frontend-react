@@ -17,7 +17,7 @@ export type IDropzoneProps = {
   id: string;
   maxFileSize?: MaxFileSize;
   readOnly: boolean;
-  onClick: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  onClick?: (event: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   onDrop: (acceptedFiles: File[], rejectedFiles: FileRejection[]) => void;
   onDragActiveChange?: (isDragActive: boolean) => void;
   hasValidationMessages: boolean;
