@@ -4,6 +4,7 @@ import { Button, Input, Label } from '@digdir/designsystemet-react';
 import { ArrowUndoIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
 
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { UploadedAttachment } from 'src/features/attachments';
@@ -31,6 +32,7 @@ export function ImageControllers({
   onFileUploaded,
   onReset,
 }: ImageControllersProps) {
+  const { langAsString } = useLanguage();
   const uid = useId();
   const zoomId = `${uid}-zoom`;
   const inputId = `${uid}-image-upload`;
@@ -91,7 +93,10 @@ export function ImageControllers({
             variant='tertiary'
             icon={true}
           >
-            <ArrowUndoIcon className={classes.resetButton} />
+            <ArrowUndoIcon
+              title={langAsString('image_upload_component.reset')}
+              className={classes.resetButton}
+            />
           </Button>
         </div>
       </div>

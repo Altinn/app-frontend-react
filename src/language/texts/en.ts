@@ -205,6 +205,7 @@ export function en() {
     'image_upload_component.button_delete': 'Delete image',
     'image_upload_component.button_save': 'Save image',
     'image_upload_component.slider_zoom': 'Zoom',
+    'image_upload_component.reset': 'Reset position and zoom',
     'image_upload_component.error_invalid_file_type':
       'Invalid file type. Please upload an image file (jpg, jpeg, png, gif).',
     'image_upload_component.error_file_size_exceeded': 'File size exceeds 10MB limit.',
