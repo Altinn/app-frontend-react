@@ -130,7 +130,7 @@ export function ImageControllers({
             }
           }}
         >
-          <Label htmlFor='image-upload'>
+          <Label htmlFor={inputId}>
             <UploadIcon />
             <Lang id='image_upload_component.button_change' />
           </Label>
