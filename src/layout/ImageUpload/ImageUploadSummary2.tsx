@@ -22,16 +22,16 @@ export function ImageUploadSummary2({ targetBaseComponentId }: Summary2Props) {
   const isSmall = mobileView && !pdfModeActive;
   const isEmpty = attachment.length === 0;
 
+  const contentLogic = isEmpty
+    ? required
+      ? SummaryContains.EmptyValueRequired
+      : SummaryContains.EmptyValueNotRequired
+    : SummaryContains.SomeUserContent;
+
   return (
     <SummaryFlex
       targetBaseId={targetBaseComponentId}
-      content={
-        isEmpty
-          ? required
-            ? SummaryContains.EmptyValueRequired
-            : SummaryContains.EmptyValueNotRequired
-          : SummaryContains.SomeUserContent
-      }
+      content={contentLogic}
     >
       <Label
         baseComponentId={targetBaseComponentId}
@@ -39,7 +39,7 @@ export function ImageUploadSummary2({ targetBaseComponentId }: Summary2Props) {
         renderLabelAs='span'
         weight='regular'
       />
-      {attachment.length === 0 ? (
+      {isEmpty ? (
         <Paragraph asChild>
           <span>
             <Lang id='general.empty_summary' />
