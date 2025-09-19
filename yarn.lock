@@ -5403,6 +5403,7 @@ __metadata:
     esbuild-loader: "npm:4.3.0"
     eslint: "npm:9.35.0"
     eslint-config-prettier: "npm:10.1.8"
+    eslint-plugin-css-modules: "npm:^2.12.0"
     eslint-plugin-cypress: "npm:5.1.1"
     eslint-plugin-import: "npm:2.32.0"
     eslint-plugin-jsx-a11y: "npm:6.10.2"
@@ -8489,6 +8490,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eslint-plugin-css-modules@npm:^2.12.0":
+  version: 2.12.0
+  resolution: "eslint-plugin-css-modules@npm:2.12.0"
+  dependencies:
+    gonzales-pe: "npm:^4.3.0"
+    lodash: "npm:^4.17.2"
+  peerDependencies:
+    eslint: ">=2.0.0"
+  checksum: 10c0/91b462e13439822de24b6b7c9eff366cbe444d2cb755f77187a5ff87fc5bcade8060e924ec22e3cba043384f694919a0f1bb863d2b12f2e36a9a4cf8f8b1b2cc
+  languageName: node
+  linkType: hard
+
 "eslint-plugin-cypress@npm:5.1.1":
   version: 5.1.1
   resolution: "eslint-plugin-cypress@npm:5.1.1"
@@ -9826,6 +9839,17 @@ __metadata:
     define-properties: "npm:^1.2.1"
     gopd: "npm:^1.0.1"
   checksum: 10c0/9d156f313af79d80b1566b93e19285f481c591ad6d0d319b4be5e03750d004dde40a39a0f26f7e635f9007a3600802f53ecd85a759b86f109e80a5f705e01846
+  languageName: node
+  linkType: hard
+
+"gonzales-pe@npm:^4.3.0":
+  version: 4.3.0
+  resolution: "gonzales-pe@npm:4.3.0"
+  dependencies:
+    minimist: "npm:^1.2.5"
+  bin:
+    gonzales: bin/gonzales.js
+  checksum: 10c0/b99a6ef4bf28ca0b0adcc0b42fd0179676ee8bfe1d3e3c0025d7d38ba35a3f2d5b1d4beb16101a7fc7cb2dbda1ec045bbce0932697095df41d729bac1703476f
   languageName: node
   linkType: hard
 
@@ -12275,7 +12299,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lodash@npm:^4.17.21":
+"lodash@npm:^4.17.2, lodash@npm:^4.17.21":
   version: 4.17.21
   resolution: "lodash@npm:4.17.21"
   checksum: 10c0/d8cbea072bb08655bb4c989da418994b073a608dffa608b09ac04b43a791b12aeae7cd7ad919aa4c925f33b48490b5cfe6c1f71d827956071dae2e7bb3a6b74c

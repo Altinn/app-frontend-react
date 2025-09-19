@@ -1,6 +1,7 @@
 import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
 import { FlatCompat } from '@eslint/eslintrc';
 import js from '@eslint/js';
+import cssModules from 'eslint-plugin-css-modules';
 import pluginCypress from 'eslint-plugin-cypress/flat';
 import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths';
 import preferredImportPath from 'eslint-plugin-preferred-import-path';
@@ -64,6 +65,7 @@ export default tseslint.config(
       'unused-imports': unusedImports,
       react: fixupPluginRules(reactPlugin),
       'react-compiler': reactCompiler,
+      'css-modules': fixupPluginRules(cssModules),
       local: {
         rules: {
           'language-key': langKey,
@@ -169,6 +171,8 @@ export default tseslint.config(
           ],
         },
       ],
+
+      'css-modules/no-undef-class': ['error'],
     },
   },
   {
