@@ -9,7 +9,6 @@ import classes from 'src/layout/ImageUpload/ImageDropzone.module.css';
 import { VALID_FILE_ENDINGS } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { IDropzoneProps } from 'src/app-components/Dropzone/Dropzone';
 
-// interface ImageDropzoneProps extends IDropzoneComponentProps {}
 type ImageDropzoneProps = {
   componentId: string;
   hasErrors: boolean;
