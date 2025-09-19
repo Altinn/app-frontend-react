@@ -3,7 +3,7 @@ import { uploadImageAndVerify } from 'test/e2e/support/apps/component-library/up
 
 const appFrontend = new AppFrontend();
 
-const fileName1 = 'uploadThis1.jpg';
+const fileName1 = 'uploadThis1.png';
 
 describe('ImageUpload component', () => {
   beforeEach(() => {
