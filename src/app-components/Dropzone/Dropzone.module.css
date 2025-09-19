@@ -40,3 +40,12 @@
   border-style: dotted;
   border-color: var(--colors-danger);
 }
+
+.active {
+  border-style: solid;
+}
+
+.validationError {
+  border-style: dotted;
+  border-color: var(--colors-danger);
+}
