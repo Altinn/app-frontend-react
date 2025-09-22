@@ -80,7 +80,7 @@ export function EditButton({
     return null;
   }
 
-  if (pdfModeActive || (overriddenTaskId && overriddenTaskId?.length > 0)) {
+  if (pdfModeActive || overriddenTaskId?.length) {
     return null;
   }
 

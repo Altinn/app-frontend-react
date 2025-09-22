@@ -9,8 +9,9 @@ interface TaskOverridesContext {
 }
 
 const Context = createContext<TaskOverridesContext>({});
+Context.displayName = 'TaskOverridesContext';
 
-type Props = PropsWithChildren & Omit<TaskOverridesContext, 'depth'>;
+type Props = PropsWithChildren & TaskOverridesContext;
 export function TaskOverrides({ children, ...overrides }: Props) {
   const parentContext = useContext(Context);
 

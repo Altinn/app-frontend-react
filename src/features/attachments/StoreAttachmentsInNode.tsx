@@ -96,8 +96,7 @@ function useNodeAttachments(): AttachmentRecord {
   const data = useInstanceDataElements(baseId);
 
   const mappedAttachments = useMemoDeepEqual(() => {
-    const taskId = overriddenTaskId ? overriddenTaskId : currentTask;
-
+    const taskId = overriddenTaskId ?? currentTask;
     return mapAttachments(indexedId, baseId, data, application, taskId, nodeData);
   }, [indexedId, baseId, data, application, currentTask, nodeData, overriddenTaskId]);
 
