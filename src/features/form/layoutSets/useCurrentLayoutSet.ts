@@ -1,5 +1,5 @@
 import { ContextNotProvided } from 'src/core/contexts/context';
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/taskStoreContext';
 import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getCurrentLayoutSet } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -13,7 +13,7 @@ export function useCurrentLayoutSet() {
   const application = useLaxApplicationMetadata();
   const layoutSets = useLaxLayoutSets();
   const taskId = useProcessTaskId();
-  const overriddenLayoutSetId = useTaskStore((state) => state.overriddenLayoutSetId);
+  const overriddenLayoutSetId = useTaskOverrides()?.layoutSetId;
 
   if (application === ContextNotProvided || layoutSets === ContextNotProvided) {
     return undefined;

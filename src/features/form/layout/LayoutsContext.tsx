@@ -6,7 +6,7 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/taskStoreContext';
 import { useCurrentDataModelName } from 'src/features/datamodel/useBindingSchema';
 import { cleanLayout } from 'src/features/form/layout/cleanLayout';
 import { makeLayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
@@ -83,7 +83,7 @@ export function useLayoutSetId() {
   const currentProcessLayoutSetId = useCurrentLayoutSetId();
   const taskId = useNavigationParam('taskId');
 
-  const overriddenLayoutSetId = useTaskStore((state) => state.overriddenLayoutSetId);
+  const overriddenLayoutSetId = useTaskOverrides()?.layoutSetId;
 
   if (overriddenLayoutSetId) {
     return overriddenLayoutSetId;

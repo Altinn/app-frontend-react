@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 import deepEqual from 'fast-deep-equal';
 
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/taskStoreContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
@@ -89,7 +89,7 @@ function useNodeAttachments(): AttachmentRecord {
   const { indexedId, baseId } = parent;
   const nodeData = useFormDataFor(baseId) as IComponentFormData<CompWithBehavior<'canHaveAttachments'>>;
 
-  const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
+  const overriddenTaskId = useTaskOverrides()?.taskId;
 
   const application = useApplicationMetadata();
   const currentTask = useProcessQuery().data?.currentTask?.elementId;

@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/taskStoreContext';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { FileScanResults } from 'src/features/attachments/types';
 import { Lang } from 'src/features/language/Lang';
@@ -40,7 +40,7 @@ export function FileTableRow({
   const pdfModeActive = usePdfModeActive();
   const readableSize = getSizeWithUnit(attachment.data.size, 2);
 
-  const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
+  const overriddenTaskId = useTaskOverrides()?.taskId;
 
   const hasOverridenTaskId = !!overriddenTaskId;
 
