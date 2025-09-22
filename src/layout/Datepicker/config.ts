@@ -59,18 +59,6 @@ export const Config = new CG.component({
   )
   .addProperty(
     new CG.prop(
-      'timeStamp',
-      new CG.bool()
-        .optional({ default: true })
-        .setTitle('Include time')
-        .setDescription(
-          'Boolean value indicating if the date time should be stored as a timeStamp. Defaults to true. ' +
-            "If true: 'yyyy-MM-ddThh:mm:ss.sssZ', if false 'yyyy-MM-dd';",
-        ),
-    ),
-  )
-  .addProperty(
-    new CG.prop(
       'format',
       new CG.str()
         .optional({ default: 'dd.MM.yyyy' })

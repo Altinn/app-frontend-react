@@ -52,18 +52,6 @@ export const Config = new CG.component({
         .addExample('17:00', '23:30'),
     ),
   )
-  .addProperty(
-    new CG.prop(
-      'timeStamp',
-      new CG.bool()
-        .optional({ default: false })
-        .setTitle('Include date')
-        .setDescription(
-          'Boolean value indicating if the time should be stored with a date timestamp. ' +
-            'If true, stores as ISO datetime string. If false, stores as time string (HH:mm or HH:mm:ss).',
-        ),
-    ),
-  )
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'))
   .addSummaryOverrides();

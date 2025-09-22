@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import type { JSX } from 'react';
 
-import { isValid, parseISO } from 'date-fns';
-
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
@@ -13,7 +11,6 @@ import { TimePickerComponent } from 'src/layout/TimePicker/TimePickerComponent';
 import { TimePickerSummary } from 'src/layout/TimePicker/TimePickerSummary';
 import { useTimePickerValidation } from 'src/layout/TimePicker/useTimePickerValidation';
 import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
-import { useExternalItem } from 'src/utils/layout/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { BaseValidation, ComponentValidation } from 'src/features/validation';
@@ -36,49 +33,7 @@ export class TimePicker extends TimePickerDef implements ValidateComponent, Vali
 
   useDisplayData(baseComponentId: string): string {
     const formData = useNodeFormDataWhenType(baseComponentId, 'TimePicker');
-    const component = useExternalItem(baseComponentId, 'TimePicker');
-    const { format: timeFormat = 'HH:mm', timeStamp = false } = component || {};
-    const data = formData?.simpleBinding ?? '';
-
-    if (!data) {
-      return '';
-    }
-
-    if (timeStamp && data.includes('T')) {
-      try {
-        const date = parseISO(data);
-        if (!isValid(date)) {
-          return data;
-        }
-
-        const year = date.getFullYear();
-        const hours = date.getHours();
-        const minutes = date.getMinutes();
-        const seconds = date.getSeconds();
-
-        if (timeFormat.includes('a')) {
-          const period = hours >= 12 ? 'PM' : 'AM';
-          const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-          let timeString = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-          if (timeFormat.includes('ss')) {
-            timeString += `:${seconds.toString().padStart(2, '0')}`;
-          }
-          timeString += ` ${period} ${year}`;
-          return timeString;
-        } else {
-          let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-          if (timeFormat.includes('ss')) {
-            timeString += `:${seconds.toString().padStart(2, '0')}`;
-          }
-          timeString += ` ${year}`;
-          return timeString;
-        }
-      } catch {
-        return data;
-      }
-    }
-
-    return data;
+    return formData?.simpleBinding ?? '';
   }
 
   renderSummary(props: SummaryRendererProps): JSX.Element | null {
