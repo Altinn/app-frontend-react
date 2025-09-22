@@ -4,15 +4,27 @@ import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/Appl
 import { getCurrentLayoutSet } from 'src/features/applicationMetadata/appMetadataUtils';
 import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useNavigationParam } from 'src/hooks/navigation';
 
-export function useCurrentLayoutSetId() {
-  return useCurrentLayoutSet()?.id;
+/**
+ * This is a variant that prefers the taskId from the URL. The alternative useCurrentLayoutSetId() and
+ * useCurrentLayoutSet() will prefer the taskId from the current process state (i.e., where the process is right now,
+ * not necessarily what the user is looking at right now).
+ */
+export function useLayoutSetIdFromUrl() {
+  const taskId = useNavigationParam('taskId');
+  return useCurrentLayoutSetId(taskId);
 }
 
-export function useCurrentLayoutSet() {
+export function useCurrentLayoutSetId(taskId?: string) {
+  return useCurrentLayoutSet(taskId)?.id;
+}
+
+export function useCurrentLayoutSet(_taskId?: string) {
   const application = useLaxApplicationMetadata();
   const layoutSets = useLaxLayoutSets();
-  const taskId = useProcessTaskId();
+  const processTaskId = useProcessTaskId();
+  const taskId = _taskId ?? processTaskId;
   const overriddenLayoutSetId = useTaskOverrides()?.layoutSetId;
 
   if (application === ContextNotProvided || layoutSets === ContextNotProvided) {
