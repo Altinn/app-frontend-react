@@ -15,6 +15,7 @@ import { getProcessNextMutationKey, getTargetTaskFromProcess } from 'src/feature
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
 import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
 import { Feedback } from 'src/features/processEnd/feedback/Feedback';
 import { useNavigationParam } from 'src/hooks/navigation';
@@ -151,6 +152,16 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
       <PresentationComponent type={ProcessTaskType.Feedback}>
         <Feedback />
       </PresentationComponent>
+    );
+  }
+
+  if (taskType === ProcessTaskType.Service) {
+    return (
+      <PdfWrapper>
+        <PresentationComponent type={ProcessTaskType.Service}>
+          <h1>You reached a service task</h1> {/* TODO */}
+        </PresentationComponent>
+      </PdfWrapper>
     );
   }
 

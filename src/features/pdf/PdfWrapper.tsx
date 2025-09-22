@@ -4,9 +4,12 @@ import type { PropsWithChildren } from 'react';
 import cn from 'classnames';
 
 import { useDevToolsStore } from 'src/features/devtools/data/DevToolsStore';
+import { useGetTaskTypeById } from 'src/features/instance/useProcessQuery';
+import { PdfForServiceTask, PdfFromLayout } from 'src/features/pdf/PdfFromLayout';
 import classes from 'src/features/pdf/PDFView.module.css';
-import { PDFView2 } from 'src/features/pdf/PdfView2';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
+import { ProcessTaskType } from 'src/types';
 
 export const usePdfModeActive = (): boolean => {
   const previewPDF = useDevToolsStore((state) => state.pdfPreview);
@@ -14,10 +17,13 @@ export const usePdfModeActive = (): boolean => {
   return pdfIsSetInUrl || previewPDF;
 };
 
-export function PDFWrapper({ children }: PropsWithChildren) {
+export function PdfWrapper({ children }: PropsWithChildren) {
   const previewPDF = useDevToolsStore((state) => state.pdfPreview);
   const setPdfPreview = useDevToolsStore((state) => state.actions.setPdfPreview);
   const renderInstead = useIsPdf();
+
+  const taskId = useNavigationParam('taskId');
+  const taskType = useGetTaskTypeById()(taskId);
 
   useEffect(() => {
     if (previewPDF) {
@@ -33,7 +39,11 @@ export function PDFWrapper({ children }: PropsWithChildren) {
   }, [previewPDF, setPdfPreview]);
 
   if (renderInstead) {
-    return <PDFView2 />;
+    if (taskType === ProcessTaskType.Service) {
+      return <PdfForServiceTask />;
+    }
+
+    return <PdfFromLayout />;
   }
 
   return (
@@ -42,7 +52,7 @@ export function PDFWrapper({ children }: PropsWithChildren) {
 
       {previewPDF && (
         <div className={classes.onlyInPrint}>
-          <PDFView2 />
+          <PdfFromLayout />
         </div>
       )}
     </>
