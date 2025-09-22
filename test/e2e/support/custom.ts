@@ -6,16 +6,14 @@ import type axe from 'axe-core';
 import type { Options as AxeOptions } from 'cypress-axe';
 
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
+import { getTargetUrl } from 'test/e2e/support/start-app-instance';
+import type { ResponseFuzzing, Size, SnapshotOptions, SnapshotViewport } from 'test/e2e/support/global';
 
 import { breakpoints } from 'src/hooks/useDeviceWidths';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
-import JQueryWithSelector = Cypress.JQueryWithSelector;
-
-import { getTargetUrl } from 'test/e2e/support/start-app-instance';
-import type { ResponseFuzzing, Size, SnapshotOptions, SnapshotViewport } from 'test/e2e/support/global';
-
 import type { ILayoutFile } from 'src/layout/common.generated';
+import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 const appFrontend = new AppFrontend();
 
@@ -603,12 +601,14 @@ Cypress.Commands.add('directSnapshot', (snapshotName, { width, minHeight }, rese
             </style>
           </head>
           <body>
-            <img src="${imageData.dataUrl}">
+            <img src="${imageData.dataUrl}" id="direct-snapshot">
           </body>
        </html>`,
     ),
   );
+
   cy.visit(getTargetUrl('screenshot'));
+  cy.get('#direct-snapshot').should('exist');
 
   cy.percySnapshot(snapshotName, { widths: [width], minHeight });
 
@@ -618,12 +618,27 @@ Cypress.Commands.add('directSnapshot', (snapshotName, { width, minHeight }, rese
     cy.get<Size>('@directSnapshotViewportSize').then(({ width, height }) => {
       cy.viewport(width, height);
     });
+    cy.findByTestId('presentation').should('exist');
   }
 });
 
+function buildPdfUrl(href: string): string {
+  const regex = getInstanceIdRegExp();
+  const instanceId = regex.exec(href)?.[1];
+  const before = href.split(regex)[0];
+  return `${before}${instanceId}?pdf=1`;
+}
+
 Cypress.Commands.add(
   'testPdf',
-  ({ snapshotName = false, beforeReload, callback, returnToForm = false, enableResponseFuzzing = false }) => {
+  ({
+    snapshotName = false,
+    beforeReload,
+    callback,
+    returnToForm = false,
+    enableResponseFuzzing = false,
+    buildUrl = buildPdfUrl,
+  }) => {
     // Store initial viewport size for later
     cy.getCurrentViewportSize().as('testPdfViewportSize');
 
@@ -647,11 +662,7 @@ Cypress.Commands.add(
 
     // Build PDF url and visit
     cy.window({ log: false }).then((win) => {
-      const href = win.location.href;
-      const regex = getInstanceIdRegExp();
-      const instanceId = regex.exec(href)?.[1];
-      const before = href.split(regex)[0];
-      const visitUrl = `${before}${instanceId}?pdf=1`;
+      const visitUrl = buildUrl(win.location.href);
 
       // Visit this first so that we don't just re-route in the active react app
       win.location.href = 'about:blank';
@@ -861,7 +872,7 @@ Cypress.Commands.add('enableResponseFuzzing', function (options) {
       req.on('response', (res) => {
         res.setDelay(rand());
       });
-    });
+    }).as('responseFuzzing');
   }
 
   return cy.wrap({ disable: () => (responseFuzzingEnabled = false) }, { log: false });
