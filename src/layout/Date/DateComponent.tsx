@@ -23,8 +23,6 @@ export const DateComponent = ({ baseComponentId }: PropsFromGenericComponent<'Da
   const parsedValue = parseISO(value);
   const indexedId = useIndexedId(baseComponentId);
 
-  console.log('value', value);
-
   let displayData: string | null = null;
   try {
     displayData = isValid(parsedValue) ? formatDateLocale(language, parsedValue, format) : null;
@@ -39,8 +37,6 @@ export const DateComponent = ({ baseComponentId }: PropsFromGenericComponent<'Da
       window.logErrorOnce(`Date component "${baseComponentId}" failed to parse date "${value}":`, err);
     }
   }
-
-  console.log('displayData', displayData);
 
   if (!textResourceBindings?.title) {
     return <DisplayDate value={displayData} />;
