@@ -207,7 +207,10 @@ export const getNextValidValue = (
       const nextValid = validValues.find((v) => v > currentValue);
       return nextValid ?? null;
     } else {
-      const prevValid = validValues.reverse().find((v) => v < currentValue);
+      const prevValid = validValues
+        .slice()
+        .reverse()
+        .find((v) => v < currentValue);
       return prevValid ?? null;
     }
   }

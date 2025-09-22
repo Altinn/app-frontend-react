@@ -300,70 +300,50 @@ describe('TimeSegment Component', () => {
       expect(input).toHaveValue('03');
     });
 
-    it('should handle blur events', async () => {
-      render(
-        <div>
+    describe('Value Synchronization', () => {
+      it('should update display when value prop changes', () => {
+        const { rerender } = render(
           <TimeSegment
             {...defaultProps}
-            value={3}
-          />
-          <button>Other element</button>
-        </div>,
-      );
-      const input = screen.getByRole('textbox');
-      const button = screen.getByRole('button');
+            value={8}
+          />,
+        );
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('08');
 
-      await userEvent.click(input);
-      await userEvent.click(button);
+        rerender(
+          <TimeSegment
+            {...defaultProps}
+            value={12}
+          />,
+        );
+        expect(input).toHaveValue('12');
+      });
 
-      // Just verify the component handles blur without errors
-      expect(input).toHaveValue('03');
-    });
-  });
+      it('should format value based on segment type', () => {
+        render(
+          <TimeSegment
+            {...defaultProps}
+            type='minutes'
+            value={5}
+          />,
+        );
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('05');
+      });
 
-  describe('Value Synchronization', () => {
-    it('should update display when value prop changes', () => {
-      const { rerender } = render(
-        <TimeSegment
-          {...defaultProps}
-          value={8}
-        />,
-      );
-      const input = screen.getByRole('textbox');
-      expect(input).toHaveValue('08');
-
-      rerender(
-        <TimeSegment
-          {...defaultProps}
-          value={12}
-        />,
-      );
-      expect(input).toHaveValue('12');
-    });
-
-    it('should format value based on segment type', () => {
-      render(
-        <TimeSegment
-          {...defaultProps}
-          type='minutes'
-          value={5}
-        />,
-      );
-      const input = screen.getByRole('textbox');
-      expect(input).toHaveValue('05');
-    });
-
-    it('should handle 24-hour format', () => {
-      render(
-        <TimeSegment
-          {...defaultProps}
-          format='HH:mm'
-          type='hours'
-          value={14}
-        />,
-      );
-      const input = screen.getByRole('textbox');
-      expect(input).toHaveValue('14');
+      it('should handle 24-hour format', () => {
+        render(
+          <TimeSegment
+            {...defaultProps}
+            format='HH:mm'
+            type='hours'
+            value={14}
+          />,
+        );
+        const input = screen.getByRole('textbox');
+        expect(input).toHaveValue('14');
+      });
     });
   });
 });

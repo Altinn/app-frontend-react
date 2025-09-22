@@ -44,8 +44,10 @@ export function useSegmentInputHandlers({
   function clearCurrentValueAndDisplay() {
     const clearedSegment = clearSegment();
     onUpdateDisplay(clearedSegment.displayValue);
-    const committedValue = commitSegmentValue(clearedSegment.actualValue, segmentType);
-    onValueChange(committedValue);
+    if (clearedSegment.actualValue) {
+      const committedValue = commitSegmentValue(clearedSegment.actualValue, segmentType);
+      onValueChange(committedValue);
+    }
   }
 
   function fillEmptyTimeSegmentWithZero() {

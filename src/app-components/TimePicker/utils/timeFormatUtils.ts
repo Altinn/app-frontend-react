@@ -6,24 +6,25 @@ export const formatTimeValue = (time: TimeValue, format: TimeFormat): string => 
   const is12Hour = format.includes('a');
   const includesSeconds = format.includes('ss');
 
-  let displayHours = time.hours;
-
-  if (is12Hour) {
-    if (displayHours === 0) {
-      displayHours = 12; // Midnight = 12 AM
-    } else if (displayHours > 12) {
-      displayHours -= 12; // PM hours
-    }
-  }
-
-  // Use different padding logic for 12-hour vs 24-hour format
+  const displayHours = is12Hour ? convertTo12HourDisplay(time.hours) : time.hours;
   const hoursStr = is12Hour ? displayHours.toString() : displayHours.toString().padStart(2, '0');
   const minutesStr = time.minutes.toString().padStart(2, '0');
   const secondsStr = includesSeconds ? `:${time.seconds.toString().padStart(2, '0')}` : '';
-  const periodStr = is12Hour ? ` ${time.period}` : '';
+  const period = time.hours >= 12 ? 'PM' : 'AM';
+  const periodStr = is12Hour ? ` ${period}` : '';
 
   return `${hoursStr}:${minutesStr}${secondsStr}${periodStr}`;
 };
+
+function convertTo12HourDisplay(hours: number): number {
+  if (hours === 0) {
+    return 12;
+  }
+  if (hours > 12) {
+    return hours - 12;
+  }
+  return hours;
+}
 
 export const formatSegmentValue = (value: number | string, segmentType: SegmentType, format: TimeFormat): string => {
   if (segmentType === 'period') {
