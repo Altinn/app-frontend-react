@@ -29,21 +29,17 @@ export const formatSegmentValue = (value: number | string, segmentType: SegmentT
     return value.toString();
   }
 
-  const numValue = typeof value === 'number' ? value : 0;
-
+  let numValue = typeof value === 'number' ? value : Number.parseInt(value, 10);
+  if (Number.isNaN(numValue)) {
+    numValue = 0;
+  }
   if (segmentType === 'hours') {
     const is12Hour = format.includes('a');
     if (is12Hour) {
-      let displayHour = numValue;
-      if (displayHour === 0) {
-        displayHour = 12; // Midnight
-      } else if (displayHour > 12) {
-        displayHour -= 12; // PM hours
-      }
+      const displayHour = convertTo12HourDisplay(numValue);
       return displayHour.toString().padStart(2, '0');
     }
   }
-
   return numValue.toString().padStart(2, '0');
 };
 
