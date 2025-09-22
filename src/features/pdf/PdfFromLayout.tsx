@@ -24,28 +24,31 @@ import { AllSubformSummaryComponent2 } from 'src/layout/Subform/Summary/SubformS
 import { SummaryComponentFor } from 'src/layout/Summary/SummaryComponent';
 import { ComponentSummary } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { SummaryComponent2 } from 'src/layout/Summary2/SummaryComponent2/SummaryComponent2';
+import { TaskSummaryWrapper } from 'src/layout/Summary2/SummaryComponent2/TaskSummaryWrapper';
 import { useIsHiddenMulti } from 'src/utils/layout/hidden';
 import { useExternalItem } from 'src/utils/layout/hooks';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useItemIfType } from 'src/utils/layout/useNodeItem';
 import type { IPdfFormat } from 'src/features/pdf/types';
 
-export const PDFView2 = () => {
-  const order = usePageOrder();
-  const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
+export function PdfFromLayout() {
   const pdfLayoutName = usePdfLayoutName();
-
-  if (pdfFormatIsLoading) {
-    return <BlockPrint />;
-  }
-
   if (pdfLayoutName) {
-    // Render all components directly if given a separate PDF layout
     return (
       <PdfWrapping>
         <PlainPage pageKey={pdfLayoutName} />
       </PdfWrapping>
     );
+  }
+
+  return <AutoGeneratePdfFromLayout />;
+}
+
+function AutoGeneratePdfFromLayout() {
+  const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
+
+  if (pdfFormatIsLoading) {
+    return <BlockPrint />;
   }
 
   return (
@@ -61,20 +64,48 @@ export const PDFView2 = () => {
             }}
           />
         </div>
-        {order
-          .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
-          .map((pageKey) => (
-            <PdfForPage
-              key={pageKey}
-              pageKey={pageKey}
-              pdfSettings={pdfSettings}
-            />
-          ))}
+        <AllPages pdfSettings={pdfSettings} />
         <AllSubformSummaryComponent2 />
       </PdfWrapping>
     </DummyPresentation>
   );
-};
+}
+
+export function PdfForServiceTask() {
+  // TODO: Detect which tasks to render PDF for, either by checking previous data tasks and figuring
+  //  it out automatically, or reading query params.
+  return <AutoGeneratePdfFromTasks taskIds={['Task_1', 'Task_2']} />;
+}
+
+function AutoGeneratePdfFromTasks({ taskIds }: { taskIds: string[] }) {
+  return (
+    <DummyPresentation>
+      <PdfWrapping>
+        <div className={classes.instanceInfo}>
+          <InstanceInformation
+            elements={{
+              dateSent: true,
+              sender: true,
+              receiver: true,
+              referenceNumber: true,
+            }}
+          />
+        </div>
+        {taskIds.map((taskId) => (
+          <TaskSummaryWrapper
+            key={taskId}
+            taskId={taskId}
+          >
+            {/* Settings intentionally omitted, as this is new functionality
+            and PDF settings are deprecated at this point. */}
+            <AllPages pdfSettings={undefined} />
+            <AllSubformSummaryComponent2 />
+          </TaskSummaryWrapper>
+        ))}
+      </PdfWrapping>
+    </DummyPresentation>
+  );
+}
 
 function PdfWrapping({ children }: PropsWithChildren) {
   const orgLogoEnabled = Boolean(useApplicationMetadata().logoOptions);
@@ -136,6 +167,24 @@ function PlainPage({ pageKey }: { pageKey: string }) {
         ))}
       </Flex>
     </div>
+  );
+}
+
+function AllPages({ pdfSettings }: { pdfSettings: IPdfFormat | undefined }) {
+  const order = usePageOrder();
+
+  return (
+    <>
+      {order
+        .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
+        .map((pageKey) => (
+          <PdfForPage
+            key={pageKey}
+            pageKey={pageKey}
+            pdfSettings={pdfSettings}
+          />
+        ))}
+    </>
   );
 }
 
