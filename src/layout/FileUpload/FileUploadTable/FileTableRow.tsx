@@ -3,7 +3,7 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { AltinnLoader } from 'src/components/AltinnLoader';
-import { useTaskOverrides } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/TaskOverrides';
 import { isAttachmentUploaded } from 'src/features/attachments';
 import { FileScanResults } from 'src/features/attachments/types';
 import { Lang } from 'src/features/language/Lang';

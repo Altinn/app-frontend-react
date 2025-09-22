@@ -4,7 +4,7 @@ import type { PropsWithChildren } from 'react';
 interface TaskOverridesContext {
   taskId?: string;
   dataModelType?: string;
-  dataElementId?: string;
+  dataModelElementId?: string;
   layoutSetId?: string;
   depth: number;
 }
@@ -20,7 +20,7 @@ export function TaskOverrides({ children, ...overrides }: Props) {
       value={{
         taskId: overrides.taskId ?? parentContext.taskId,
         dataModelType: overrides.dataModelType ?? parentContext.dataModelType,
-        dataElementId: overrides.dataElementId ?? parentContext.dataElementId,
+        dataModelElementId: overrides.dataModelElementId ?? parentContext.dataModelElementId,
         layoutSetId: overrides.layoutSetId ?? parentContext.layoutSetId,
         depth: parentContext.depth + 1,
       }}

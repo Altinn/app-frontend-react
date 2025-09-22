@@ -3,7 +3,7 @@ import type { PropsWithChildren } from 'react';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
-import { TaskOverrides } from 'src/core/contexts/taskStoreContext';
+import { TaskOverrides } from 'src/core/contexts/TaskOverrides';
 import { Loader } from 'src/core/loading/Loader';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
@@ -62,7 +62,7 @@ export function SubformOverrideWrapper({
   return (
     <TaskOverrides
       dataModelType={dataType}
-      dataElementId={actualDataElementId}
+      dataModelElementId={actualDataElementId}
       layoutSetId={layoutSet}
     >
       {children}

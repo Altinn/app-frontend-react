@@ -4,7 +4,7 @@ import { Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Label, LabelInner } from 'src/components/label/Label';
-import { TaskOverrides } from 'src/core/contexts/taskStoreContext';
+import { TaskOverrides } from 'src/core/contexts/TaskOverrides';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { FormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
@@ -103,7 +103,7 @@ const DoSummaryWrapper = ({
   return (
     <div className={classes.summaryWrapperMargin}>
       <TaskOverrides
-        dataElementId={dataElement.id}
+        dataModelElementId={dataElement.id}
         dataModelType={dataElement.dataType}
         layoutSetId={layoutSet}
       >
