@@ -17,7 +17,7 @@ describe('Time Format Utilities', () => {
     it('should format 12-hour time correctly', () => {
       const time: TimeValue = { hours: 14, minutes: 30, seconds: 0, period: 'PM' };
       const result = formatTimeValue(time, 'hh:mm a');
-      expect(result).toBe('2:30 PM');
+      expect(result).toBe('02:30 PM');
     });
 
     it('should format time with seconds', () => {
@@ -196,8 +196,8 @@ describe('Time Format Utilities', () => {
 
       expect(formatTimeValue(time, 'HH:mm')).toBe('09:05');
       expect(formatTimeValue(time, 'HH:mm:ss')).toBe('09:05:03');
-      expect(formatTimeValue(time, 'hh:mm a')).toBe('9:05 AM');
-      expect(formatTimeValue(time, 'hh:mm:ss a')).toBe('9:05:03 AM');
+      expect(formatTimeValue(time, 'hh:mm a')).toBe('09:05 AM');
+      expect(formatTimeValue(time, 'hh:mm:ss a')).toBe('09:05:03 AM');
     });
 
     it('should handle hour conversion edge cases', () => {
