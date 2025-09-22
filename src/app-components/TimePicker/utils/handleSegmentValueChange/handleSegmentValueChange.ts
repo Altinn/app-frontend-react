@@ -77,8 +77,14 @@ const wrapNumericValue = (value: number, segmentType: NumericSegmentType, is12Ho
 /**
  * Finds the nearest valid value from constraints
  */
-const findNearestValidValue = (targetValue: number, validValues: number[]): number =>
-  validValues.reduce((prev, curr) => (Math.abs(curr - targetValue) < Math.abs(prev - targetValue) ? curr : prev));
+const findNearestValidValue = (targetValue: number, validValues: number[]): number => {
+  if (validValues.length === 0) {
+    return targetValue;
+  }
+  return validValues.reduce((prev, curr) =>
+    Math.abs(curr - targetValue) < Math.abs(prev - targetValue) ? curr : prev,
+  );
+};
 
 /**
  * Handles numeric segment changes with validation and wrapping

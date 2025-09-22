@@ -5,7 +5,7 @@ export const formatTimeValue = (time: TimeValue, format: TimeFormat): string => 
   const includesSeconds = format.includes('ss');
 
   const displayHours = is12Hour ? convertTo12HourDisplay(time.hours) : time.hours;
-  const hoursStr = is12Hour ? displayHours.toString() : displayHours.toString().padStart(2, '0');
+  const hoursStr = displayHours.toString().padStart(2, '0');
   const minutesStr = time.minutes.toString().padStart(2, '0');
   const secondsStr = includesSeconds ? `:${time.seconds.toString().padStart(2, '0')}` : '';
   const period = time.hours >= 12 ? 'PM' : 'AM';

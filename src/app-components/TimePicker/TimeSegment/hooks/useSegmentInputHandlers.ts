@@ -34,10 +34,11 @@ export function useSegmentInputHandlers({
   function clearCurrentValueAndDisplay() {
     const clearedSegment = clearSegment();
     onUpdateDisplay(clearedSegment.displayValue);
-    if (clearedSegment.actualValue && segmentType !== 'period') {
-      const committedValue = commitSegmentValue(clearedSegment.actualValue, segmentType);
-      onValueChange(committedValue);
+    if (segmentType === 'period') {
+      onValueChange(null);
     }
+    const committedValue = commitSegmentValue(segmentType, clearedSegment.actualValue);
+    onValueChange(committedValue);
   }
 
   function fillEmptyTimeSegmentWithZero() {
@@ -71,7 +72,7 @@ export function useSegmentInputHandlers({
 
     const processed = processSegmentBuffer(bufferValue, segmentType, timeFormat.includes('a'));
     if (processed.actualValue !== null) {
-      const committedValue = commitSegmentValue(processed.actualValue, segmentType);
+      const committedValue = commitSegmentValue(segmentType, processed.actualValue);
       onValueChange(committedValue);
     }
   }

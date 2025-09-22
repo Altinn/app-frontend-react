@@ -214,10 +214,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
         return is12Hour ? [{ value: 'AM' }, { value: 'PM' }] : [];
       }
       case 3:
-        if (includesSeconds) {
-          return secondOptions;
-        }
-        return is12Hour ? [{ value: 'AM' }, { value: 'PM' }] : [];
+        return [{ value: 'AM' }, { value: 'PM' }];
       default:
         return [];
     }

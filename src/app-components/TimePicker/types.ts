@@ -110,7 +110,7 @@ export interface SegmentInputConfig {
   segmentType: SegmentType;
   timeFormat: TimeFormat;
   currentValue: number | string;
-  onValueChange: (value: number | string) => void;
+  onValueChange: (value: number | string | null) => void;
   onNavigate: (direction: 'left' | 'right') => void;
   onUpdateDisplay: (value: string) => void;
 }

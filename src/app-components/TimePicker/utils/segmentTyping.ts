@@ -151,19 +151,16 @@ export const clearSegment = (): { displayValue: string; actualValue: null } => (
 /**
  * Commit segment value (fill empty minutes with 00, etc.)
  */
-export const commitSegmentValue = (value: number | string, segmentType: SegmentType): number | string => {
-  if (value === null) {
-    if (segmentType === 'minutes' || segmentType === 'seconds') {
-      return 0; // Fill empty minutes/seconds with 00
-    }
-    if (segmentType === 'hours') {
-      return 0; // Default for hours too
-    }
-    if (segmentType === 'period') {
-      return 'AM'; // Safe default for period
-    }
+export const commitSegmentValue = (segmentType: SegmentType, value: number | string | null): number | string => {
+  if (value !== null) {
+    return value;
   }
-  return value;
+
+  if (segmentType === 'period') {
+    return 'AM'; // Safe default for period
+  }
+
+  return 0; // Default for hours, minutes and seconds
 };
 /**
  * Handle character input for segment typing
