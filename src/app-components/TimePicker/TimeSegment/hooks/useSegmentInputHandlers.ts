@@ -44,7 +44,7 @@ export function useSegmentInputHandlers({
   function clearCurrentValueAndDisplay() {
     const clearedSegment = clearSegment();
     onUpdateDisplay(clearedSegment.displayValue);
-    if (clearedSegment.actualValue) {
+    if (clearedSegment.actualValue && segmentType !== 'period') {
       const committedValue = commitSegmentValue(clearedSegment.actualValue, segmentType);
       onValueChange(committedValue);
     }
