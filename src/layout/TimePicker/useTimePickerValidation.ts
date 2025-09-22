@@ -1,15 +1,13 @@
+import { parseTimeString } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { TimeFormat } from 'src/app-components/TimePicker/types';
+import type { TimeFormat, TimeValue } from 'src/app-components/TimePicker/types';
 
-const parseTimeString = (
-  timeStr: string,
-  format: TimeFormat,
-): { hours: number; minutes: number; seconds?: number } | null => {
+const isValidTimeString = (timeStr: string, format: TimeFormat): boolean => {
   if (!timeStr) {
-    return null;
+    return false;
   }
 
   const is12Hour = format.includes('a');
@@ -26,46 +24,34 @@ const parseTimeString = (
 
   const match = cleanTime.match(timeRegex);
   if (!match) {
-    return null;
+    return false;
   }
 
   const hours = parseInt(match[1], 10);
   const minutes = parseInt(match[2], 10);
-  const seconds = includesSeconds ? parseInt(match[3], 10) : undefined;
+  const seconds = includesSeconds ? parseInt(match[3], 10) : 0;
 
   if (is12Hour) {
     if (hours < 1 || hours > 12) {
-      return null;
+      return false;
     }
   } else {
     if (hours < 0 || hours > 23) {
-      return null;
+      return false;
     }
   }
 
   if (minutes < 0 || minutes > 59) {
-    return null;
+    return false;
   }
-  if (seconds !== undefined && (seconds < 0 || seconds > 59)) {
-    return null;
-  }
-
-  let adjustedHours = hours;
-  if (is12Hour) {
-    const period = match[includesSeconds ? 4 : 3];
-    if (period.toUpperCase() === 'PM' && hours !== 12) {
-      adjustedHours += 12;
-    }
-    if (period.toUpperCase() === 'AM' && hours === 12) {
-      adjustedHours = 0;
-    }
+  if (seconds < 0 || seconds > 59) {
+    return false;
   }
 
-  return { hours: adjustedHours, minutes, seconds };
+  return true;
 };
 
-const timeToSeconds = (time: { hours: number; minutes: number; seconds?: number }): number =>
-  time.hours * 3600 + time.minutes * 60 + (time.seconds ?? 0);
+const timeToSeconds = (time: TimeValue): number => time.hours * 3600 + time.minutes * 60 + time.seconds;
 
 export function useTimePickerValidation(baseComponentId: string): ComponentValidation[] {
   const field = useDataModelBindingsFor(baseComponentId, 'TimePicker')?.simpleBinding;
@@ -80,8 +66,7 @@ export function useTimePickerValidation(baseComponentId: string): ComponentValid
 
   const validations: ComponentValidation[] = [];
 
-  const parsedTime = parseTimeString(timeString, format);
-  if (!parsedTime) {
+  if (!isValidTimeString(timeString, format)) {
     validations.push({
       message: { key: 'time_picker.invalid_time_message', params: [format] },
       severity: 'error',
@@ -91,9 +76,11 @@ export function useTimePickerValidation(baseComponentId: string): ComponentValid
     return validations;
   }
 
-  if (minTime) {
+  const parsedTime = parseTimeString(timeString, format);
+
+  if (minTime && isValidTimeString(minTime, format)) {
     const minParsed = parseTimeString(minTime, format);
-    if (minParsed && timeToSeconds(parsedTime) < timeToSeconds(minParsed)) {
+    if (timeToSeconds(parsedTime) < timeToSeconds(minParsed)) {
       validations.push({
         message: { key: 'time_picker.min_time_exceeded', params: [minTime] },
         severity: 'error',
@@ -103,9 +90,9 @@ export function useTimePickerValidation(baseComponentId: string): ComponentValid
     }
   }
 
-  if (maxTime) {
+  if (maxTime && isValidTimeString(maxTime, format)) {
     const maxParsed = parseTimeString(maxTime, format);
-    if (maxParsed && timeToSeconds(parsedTime) > timeToSeconds(maxParsed)) {
+    if (timeToSeconds(parsedTime) > timeToSeconds(maxParsed)) {
       validations.push({
         message: { key: 'time_picker.max_time_exceeded', params: [maxTime] },
         severity: 'error',
