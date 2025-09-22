@@ -6,10 +6,9 @@ interface TaskOverridesContext {
   dataModelType?: string;
   dataModelElementId?: string;
   layoutSetId?: string;
-  depth: number;
 }
 
-const Context = createContext<TaskOverridesContext>({ depth: 1 });
+const Context = createContext<TaskOverridesContext>({});
 
 type Props = PropsWithChildren & Omit<TaskOverridesContext, 'depth'>;
 export function TaskOverrides({ children, ...overrides }: Props) {
@@ -22,7 +21,6 @@ export function TaskOverrides({ children, ...overrides }: Props) {
         dataModelType: overrides.dataModelType ?? parentContext.dataModelType,
         dataModelElementId: overrides.dataModelElementId ?? parentContext.dataModelElementId,
         layoutSetId: overrides.layoutSetId ?? parentContext.layoutSetId,
-        depth: parentContext.depth + 1,
       }}
     >
       {children}
