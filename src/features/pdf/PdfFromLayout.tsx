@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
 import { Heading } from '@digdir/designsystemet-react';
@@ -16,6 +17,7 @@ import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
+import { SearchParams } from 'src/hooks/navigation';
 import { usePageOrder } from 'src/hooks/useNavigatePage';
 import { getComponentDef } from 'src/layout';
 import { GenericComponent } from 'src/layout/GenericComponent';
@@ -72,9 +74,15 @@ function AutoGeneratePdfFromLayout() {
 }
 
 export function PdfForServiceTask() {
-  // TODO: Detect which tasks to render PDF for, either by checking previous data tasks and figuring
-  //  it out automatically, or reading query params.
-  return <AutoGeneratePdfFromTasks taskIds={['Task_1', 'Task_2']} />;
+  const [params] = useSearchParams();
+  const taskIds = params.getAll(SearchParams.PdfForTask);
+  if (taskIds.length === 0) {
+    throw new Error(
+      `No task ids provided (this mode requires passing one or multiple ${SearchParams.PdfForTask} as a search param)`,
+    );
+  }
+
+  return <AutoGeneratePdfFromTasks taskIds={taskIds} />;
 }
 
 function AutoGeneratePdfFromTasks({ taskIds }: { taskIds: string[] }) {
