@@ -4,7 +4,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
+import type { TimeFormat } from 'src/app-components/TimePicker/types';
 
 const parseTimeString = (
   timeStr: string,

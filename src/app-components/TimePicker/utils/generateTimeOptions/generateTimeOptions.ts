@@ -1,7 +1,4 @@
-export interface TimeOption {
-  value: number;
-  label: string;
-}
+import type { TimeOption } from 'src/app-components/TimePicker/types';
 
 /**
  * Generates hour options for the timepicker dropdown
@@ -23,23 +20,6 @@ export const generateHourOptions = (is12Hour: boolean): TimeOption[] => {
 };
 
 /**
- * Generates minute options for the timepicker dropdown
- * @param step - Step increment for minutes (default: 1, common values: 1, 5, 15, 30)
- * @returns Array of minute options with value and label
- */
-export const generateMinuteOptions = (step: number = 1): TimeOption[] => {
-  const count = Math.floor(60 / step);
-
-  return Array.from({ length: count }, (_, i) => {
-    const value = i * step;
-    return {
-      value,
-      label: value.toString().padStart(2, '0'),
-    };
-  });
-};
-
-/**
  * Generates second options for the timepicker dropdown
  * @param step - Step increment for seconds (default: 1, common values: 1, 5, 15, 30)
  * @returns Array of second options with value and label
@@ -55,3 +35,10 @@ export const generateSecondOptions = (step: number = 1): TimeOption[] => {
     };
   });
 };
+
+/**
+ * Generates minute options for the timepicker dropdown
+ * @param step - Step increment for minutes (default: 1, common values: 1, 5, 15, 30)
+ * @returns Array of minute options with value and label
+ */
+export const generateMinuteOptions = (step: number = 1): TimeOption[] => generateSecondOptions(step);

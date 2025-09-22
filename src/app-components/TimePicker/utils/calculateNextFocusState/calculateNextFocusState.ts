@@ -1,16 +1,4 @@
-export interface DropdownFocusState {
-  column: number;
-  option: number;
-  isActive: boolean;
-}
-
-export type NavigationAction =
-  | { type: 'ARROW_UP' }
-  | { type: 'ARROW_DOWN' }
-  | { type: 'ARROW_LEFT' }
-  | { type: 'ARROW_RIGHT' }
-  | { type: 'ESCAPE' }
-  | { type: 'ENTER' };
+import type { DropdownFocusState, NavigationAction } from 'src/app-components/TimePicker/types';
 
 /**
  * Calculates the next focus state based on the current state and navigation action

@@ -1,5 +1,5 @@
+import { SegmentConstraints, TimeValue } from 'src/app-components/TimePicker/types';
 import { handleSegmentValueChange } from 'src/app-components/TimePicker/utils/handleSegmentValueChange/handleSegmentValueChange';
-import type { SegmentConstraints, TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 
 describe('handleSegmentValueChange', () => {
   const mockTimeValue: TimeValue = {

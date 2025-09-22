@@ -1,6 +1,4 @@
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
-import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
-import type { TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
+import type { SegmentType, TimeFormat, TimeValue } from 'src/app-components/TimePicker/types';
 
 export const formatTimeValue = (time: TimeValue, format: TimeFormat): string => {
   const is12Hour = format.includes('a');

@@ -1,15 +1,9 @@
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
-import type { SegmentConstraints } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
-
-export type SegmentType = 'hours' | 'minutes' | 'seconds' | 'period';
-
-export interface SegmentNavigationResult {
-  shouldNavigate: boolean;
-  direction?: 'left' | 'right';
-  shouldIncrement?: boolean;
-  shouldDecrement?: boolean;
-  preventDefault: boolean;
-}
+import type {
+  SegmentConstraints,
+  SegmentNavigationResult,
+  SegmentType,
+  TimeFormat,
+} from 'src/app-components/TimePicker/types';
 
 export const handleSegmentKeyDown = (event: { key: string; preventDefault: () => void }): SegmentNavigationResult => {
   const { key } = event;

@@ -1,16 +1,4 @@
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
-import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
-
-export interface SegmentTypingResult {
-  value: string;
-  shouldAdvance: boolean;
-}
-
-export interface SegmentBuffer {
-  displayValue: string;
-  actualValue: number | string | null;
-  isComplete: boolean;
-}
+import type { SegmentBuffer, SegmentType, SegmentTypingResult, TimeFormat } from 'src/app-components/TimePicker/types';
 
 /**
  * Process hour input with Chrome-like smart coercion

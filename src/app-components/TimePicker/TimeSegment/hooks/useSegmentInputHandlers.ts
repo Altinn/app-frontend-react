@@ -11,17 +11,7 @@ import {
   handleSegmentCharacterInput,
   processSegmentBuffer,
 } from 'src/app-components/TimePicker/utils/segmentTyping';
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
-import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
-
-interface SegmentInputConfig {
-  segmentType: SegmentType;
-  timeFormat: TimeFormat;
-  currentValue: number | string;
-  onValueChange: (value: number | string) => void;
-  onNavigate: (direction: 'left' | 'right') => void;
-  onUpdateDisplay: (value: string) => void;
-}
+import type { SegmentInputConfig } from 'src/app-components/TimePicker/types';
 
 export function useSegmentInputHandlers({
   segmentType,

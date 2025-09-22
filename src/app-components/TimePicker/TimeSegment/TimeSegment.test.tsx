@@ -4,7 +4,7 @@ import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { TimeSegment } from 'src/app-components/TimePicker/TimeSegment/TimeSegment';
-import type { TimeSegmentProps } from 'src/app-components/TimePicker/TimeSegment/TimeSegment';
+import { TimeSegmentProps } from 'src/app-components/TimePicker/types';
 
 describe('TimeSegment Component', () => {
   const defaultProps: TimeSegmentProps = {

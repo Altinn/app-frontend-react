@@ -1,12 +1,10 @@
-import type { SegmentConstraints, TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
-
-export type NumericSegmentType = 'hours' | 'minutes' | 'seconds';
-export type PeriodSegmentType = 'period';
-export type SegmentType = NumericSegmentType | PeriodSegmentType;
-
-export interface SegmentChangeResult {
-  updatedTimeValue: Partial<TimeValue>;
-}
+import type {
+  NumericSegmentType,
+  SegmentChangeResult,
+  SegmentConstraints,
+  SegmentType,
+  TimeValue,
+} from 'src/app-components/TimePicker/types';
 
 /**
  * Handles period (AM/PM) changes by adjusting hours accordingly

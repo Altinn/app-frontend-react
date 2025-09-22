@@ -1,9 +1,9 @@
+import { TimeValue } from 'src/app-components/TimePicker/types';
 import {
   getNextValidValue,
   getSegmentConstraints,
   isTimeInRange,
   parseTimeString,
-  TimeValue,
 } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
 
 interface SegmentConstraints {

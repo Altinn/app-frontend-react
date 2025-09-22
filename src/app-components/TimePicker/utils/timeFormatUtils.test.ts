@@ -1,16 +1,10 @@
+import { TimeValue } from 'src/app-components/TimePicker/types';
 import {
   formatSegmentValue,
   formatTimeValue,
   isValidSegmentInput,
   parseSegmentInput,
 } from 'src/app-components/TimePicker/utils/timeFormatUtils';
-
-interface TimeValue {
-  hours: number;
-  minutes: number;
-  seconds: number;
-  period: 'AM' | 'PM';
-}
 
 describe('Time Format Utilities', () => {
   describe('formatTimeValue', () => {

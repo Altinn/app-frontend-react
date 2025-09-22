@@ -19,28 +19,11 @@ import { formatTimeValue } from 'src/app-components/TimePicker/utils/timeFormatU
 import type {
   DropdownFocusState,
   NavigationAction,
-} from 'src/app-components/TimePicker/utils/calculateNextFocusState/calculateNextFocusState';
-import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
-import type { TimeConstraints, TimeValue } from 'src/app-components/TimePicker/utils/timeConstraintUtils';
-
-export type TimeFormat = 'HH:mm' | 'HH:mm:ss' | 'hh:mm a' | 'hh:mm:ss a';
-
-export interface TimePickerProps {
-  id: string;
-  value: string;
-  onChange: (time: string) => void;
-  format?: TimeFormat;
-  minTime?: string;
-  maxTime?: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-  labels?: {
-    hours?: string;
-    minutes?: string;
-    seconds?: string;
-    amPm?: string;
-  };
-}
+  SegmentType,
+  TimeConstraints,
+  TimePickerProps,
+  TimeValue,
+} from 'src/app-components/TimePicker/types';
 
 export const TimePicker: React.FC<TimePickerProps> = ({
   id,
@@ -161,7 +144,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     setDropdownFocus({ column: 0, option: -1, isActive: false });
   };
 
-  // Helper function to get option button DOM element
   const getOptionButton = (columnIndex: number, optionIndex: number): HTMLButtonElement | null => {
     const getContainerRef = () => {
       switch (columnIndex) {
@@ -183,12 +165,10 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       return null;
     }
 
-    // Find the button at the specified index
     const buttons = container.querySelectorAll('button');
-    return (buttons[optionIndex] as HTMLButtonElement) || null;
+    return buttons[optionIndex];
   };
 
-  // Scroll focused option into view
   const scrollFocusedOptionIntoView = (columnIndex: number, optionIndex: number) => {
     const getContainerRef = () => {
       switch (columnIndex) {
@@ -210,7 +190,6 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       return;
     }
 
-    // Find the focused option element
     const options = container.children;
     const focusedOption = options[optionIndex];
 
@@ -222,15 +201,18 @@ export const TimePicker: React.FC<TimePickerProps> = ({
     }
   };
 
-  // Helper function to get current column options
   const getCurrentColumnOptions = (columnIndex: number) => {
     switch (columnIndex) {
       case 0:
         return hourOptions;
       case 1:
         return minuteOptions;
-      case 2:
-        return includesSeconds ? secondOptions : is12Hour ? [{ value: 'AM' }, { value: 'PM' }] : [];
+      case 2: {
+        if (includesSeconds) {
+          return secondOptions;
+        }
+        return is12Hour ? [{ value: 'AM' }, { value: 'PM' }] : [];
+      }
       case 3:
         if (includesSeconds) {
           return secondOptions;

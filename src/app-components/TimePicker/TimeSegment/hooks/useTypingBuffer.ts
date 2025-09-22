@@ -1,12 +1,7 @@
 import { useRef, useState } from 'react';
 
 import { useTimeout } from 'src/app-components/TimePicker/TimeSegment/hooks/useTimeout';
-
-interface TypingBufferConfig {
-  onCommit: (buffer: string) => void;
-  commitDelayMs: number;
-  typingEndDelayMs: number;
-}
+import type { TypingBufferConfig } from 'src/app-components/TimePicker/types';
 
 export function useTypingBuffer({ onCommit, commitDelayMs, typingEndDelayMs }: TypingBufferConfig) {
   const [buffer, setBuffer] = useState('');

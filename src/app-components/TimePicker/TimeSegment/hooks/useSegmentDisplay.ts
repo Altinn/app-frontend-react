@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { formatSegmentValue } from 'src/app-components/TimePicker/utils/timeFormatUtils';
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
-import type { SegmentType } from 'src/app-components/TimePicker/utils/keyboardNavigation';
+import type { SegmentType, TimeFormat } from 'src/app-components/TimePicker/types';
 
 export function useSegmentDisplay(externalValue: number | string, segmentType: SegmentType, timeFormat: TimeFormat) {
   const [displayValue, setDisplayValue] = useState(() => formatSegmentValue(externalValue, segmentType, timeFormat));

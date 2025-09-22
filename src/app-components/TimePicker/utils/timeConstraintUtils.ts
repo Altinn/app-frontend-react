@@ -1,22 +1,4 @@
-import type { TimeFormat } from 'src/app-components/TimePicker/TimePicker';
-
-export interface TimeValue {
-  hours: number;
-  minutes: number;
-  seconds: number;
-  period?: 'AM' | 'PM';
-}
-
-export interface TimeConstraints {
-  minTime?: string;
-  maxTime?: string;
-}
-
-export interface SegmentConstraints {
-  min: number;
-  max: number;
-  validValues: number[];
-}
+import type { SegmentConstraints, TimeConstraints, TimeFormat, TimeValue } from 'src/app-components/TimePicker/types';
 
 export const parseTimeString = (timeStr: string, format: TimeFormat): TimeValue => {
   const is12Hour = format.includes('a');
