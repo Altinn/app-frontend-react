@@ -1,5 +1,3 @@
-import { isValid, parseISO } from 'date-fns';
-
 import { FD } from 'src/features/formData/FormDataWrite';
 import { type ComponentValidation, FrontendValidationSource, ValidationMask } from 'src/features/validation';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
@@ -66,60 +64,21 @@ const parseTimeString = (
   return { hours: adjustedHours, minutes, seconds };
 };
 
-// const timeToMinutes = (time: { hours: number; minutes: number }): number => time.hours * 60 + time.minutes;
-
 const timeToSeconds = (time: { hours: number; minutes: number; seconds?: number }): number =>
   time.hours * 3600 + time.minutes * 60 + (time.seconds ?? 0);
-
-const extractTimeFromValue = (value: string, format: TimeFormat, timeStamp: boolean): string => {
-  if (!value) {
-    return '';
-  }
-
-  if (timeStamp && value.includes('T')) {
-    const date = parseISO(value);
-    if (!isValid(date)) {
-      return value;
-    }
-
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    if (format.includes('a')) {
-      const period = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-      let timeString = `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      if (format.includes('ss')) {
-        timeString += `:${seconds.toString().padStart(2, '0')}`;
-      }
-      timeString += ` ${period}`;
-      return timeString;
-    } else {
-      let timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      if (format.includes('ss')) {
-        timeString += `:${seconds.toString().padStart(2, '0')}`;
-      }
-      return timeString;
-    }
-  }
-
-  return value;
-};
 
 export function useTimePickerValidation(baseComponentId: string): ComponentValidation[] {
   const field = useDataModelBindingsFor(baseComponentId, 'TimePicker')?.simpleBinding;
   const component = useItemWhenType(baseComponentId, 'TimePicker');
   const data = FD.useDebouncedPick(field);
-  const { minTime, maxTime, format = 'HH:mm', timeStamp = false } = component || {};
+  const { minTime, maxTime, format = 'HH:mm' } = component || {};
 
-  const dataAsString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
-  if (!dataAsString) {
+  const timeString = typeof data === 'string' || typeof data === 'number' ? String(data) : undefined;
+  if (!timeString) {
     return [];
   }
 
   const validations: ComponentValidation[] = [];
-  const timeString = extractTimeFromValue(dataAsString, format, timeStamp);
 
   const parsedTime = parseTimeString(timeString, format);
   if (!parsedTime) {
