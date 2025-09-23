@@ -18,8 +18,8 @@ import {
   getActiveInstancesUrl,
   getCreateInstancesUrl,
   getCustomValidationConfigUrl,
+  getDataElementIdUrl,
   getDataElementUrl,
-  getDataModelGuidUrl,
   getDataModelTypeUrl,
   getDataValidationUrl,
   getFetchFormDynamicsUrl,
@@ -40,6 +40,7 @@ import {
   getRedirectUrl,
   getRulehandlerUrl,
   getSetSelectedPartyUrl,
+  getUpdateFileTagsUrl,
   getValidationUrl,
   instancesControllerUrl,
   profileApiUrl,
@@ -64,7 +65,11 @@ import type { Instantiation } from 'src/features/instantiate/useInstantiation';
 import type { ITextResourceResult } from 'src/features/language/textResources';
 import type { OrderDetails, PaymentResponsePayload } from 'src/features/payment/types';
 import type { IPdfFormat } from 'src/features/pdf/types';
-import type { BackendValidationIssue, IExpressionValidationConfig } from 'src/features/validation';
+import type {
+  BackendValidationIssue,
+  BackendValidationIssuesWithSource,
+  IExpressionValidationConfig,
+} from 'src/features/validation';
 import type { ILayoutSets, ILayoutSettings, IRawOption } from 'src/layout/common.generated';
 import type { ActionResult } from 'src/layout/CustomButton/CustomButtonComponent';
 import type { ILayoutCollection } from 'src/layout/layout';
@@ -85,10 +90,10 @@ export const doSetSelectedParty = (partyId: number | string) =>
   putWithoutConfig<LooseAutocomplete<'Party successfully updated'> | null>(getSetSelectedPartyUrl(partyId));
 
 export const doInstantiateWithPrefill = async (data: Instantiation, language?: string): Promise<IInstance> =>
-  removeProcessFromInstance((await httpPost(getInstantiateUrl(language), undefined, data)).data);
+  removeProcessFromInstance((await httpPost<IInstance>(getInstantiateUrl(language), undefined, data)).data);
 
 export const doInstantiate = async (partyId: number, language?: string): Promise<IInstance> =>
-  removeProcessFromInstance((await httpPost(getCreateInstancesUrl(partyId, language))).data);
+  removeProcessFromInstance((await httpPost<IInstance>(getCreateInstancesUrl(partyId, language))).data);
 
 export const doProcessNext = async (instanceId: string, language?: string, action?: IActionType) =>
   httpPut<IProcess>(getProcessNextUrl(instanceId, language), action ? { action } : null);
@@ -104,7 +109,7 @@ export const doAttachmentUploadOld = async (instanceId: string, dataTypeId: stri
     },
   };
 
-  return (await httpPost(url, config, file)).data;
+  return (await httpPost<IData>(url, config, file)).data;
 };
 
 export const doAttachmentUpload = async (
@@ -123,15 +128,24 @@ export const doAttachmentUpload = async (
     },
   };
 
-  return (await httpPost(url, config, file)).data;
+  return (await httpPost<DataPostResponse>(url, config, file)).data;
 };
 
-export const doAttachmentRemoveTag = async (instanceId: string, dataGuid: string, tagToRemove: string): Promise<void> =>
-  (await httpDelete(getFileTagUrl(instanceId, dataGuid, tagToRemove))).data;
+export const doAttachmentRemoveTag = async (
+  instanceId: string,
+  dataElementId: string,
+  tagToRemove: string,
+): Promise<void> => {
+  await httpDelete(getFileTagUrl(instanceId, dataElementId, tagToRemove));
+};
 
-export const doAttachmentAddTag = async (instanceId: string, dataGuid: string, tagToAdd: string): Promise<void> => {
+export const doAttachmentAddTag = async (
+  instanceId: string,
+  dataElementId: string,
+  tagToAdd: string,
+): Promise<void> => {
   const response = await httpPost(
-    getFileTagUrl(instanceId, dataGuid, undefined),
+    getFileTagUrl(instanceId, dataElementId, undefined),
     {
       headers: {
         'Content-Type': 'application/json',
@@ -141,6 +155,38 @@ export const doAttachmentAddTag = async (instanceId: string, dataGuid: string, t
   );
   if (response.status !== 201) {
     throw new Error('Failed to add tag to attachment');
+  }
+
+  return;
+};
+
+export type SetTagsRequest = {
+  tags: string[];
+};
+
+type UpdateTagsResponse = {
+  tags: string[];
+  validationIssues?: BackendValidationIssuesWithSource[];
+};
+
+export const doUpdateAttachmentTags = async ({
+  instanceId,
+  dataElementId,
+  setTagsRequest,
+}: {
+  instanceId: string;
+  dataElementId: string;
+  setTagsRequest: SetTagsRequest;
+}) => {
+  const url = getUpdateFileTagsUrl(instanceId, dataElementId);
+  const response = await httpPut<UpdateTagsResponse, SetTagsRequest>(url, setTagsRequest, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (response.status !== 200) {
+    throw new Error('Failed to update tags on attachment');
   }
 
   return response.data;
@@ -161,8 +207,12 @@ export const doPerformAction = async (
   language: string,
   queryClient: QueryClient,
 ): Promise<ActionResult> => {
-  const response = await httpPost(getActionsUrl(partyId, instanceGuid, language), undefined, actionRequest);
-  if (response.status !== 200) {
+  const response = await httpPost<ActionResult>(
+    getActionsUrl(partyId, instanceGuid, language),
+    undefined,
+    actionRequest,
+  );
+  if (response.status < 200 || response.status >= 300) {
     throw new Error('Failed to perform action');
   }
 
@@ -172,25 +222,28 @@ export const doPerformAction = async (
   return response.data;
 };
 
-export const doAttachmentRemove = async (instanceId: string, dataGuid: string, language: string): Promise<void> => {
-  const response = await httpDelete(getDataElementUrl(instanceId, dataGuid, language));
-  if (response.status !== 200) {
+export const doAttachmentRemove = async (
+  instanceId: string,
+  dataElementId: string,
+  language: string,
+): Promise<void> => {
+  const response = await httpDelete(getDataElementUrl(instanceId, dataElementId, language));
+  if (response.status < 200 || response.status >= 300) {
     throw new Error('Failed to remove attachment');
   }
-  return response.data;
 };
 
 export const doSubformEntryAdd = async (instanceId: string, dataType: string, data: unknown): Promise<IData> => {
-  const response = await httpPost(getDataModelTypeUrl(instanceId, dataType), undefined, data);
+  const response = await httpPost<IData>(getDataModelTypeUrl(instanceId, dataType), undefined, data);
   if (response.status >= 300) {
     throw new Error('Failed to add sub form');
   }
   return response.data;
 };
 
-export const doSubformEntryDelete = async (instanceId: string, dataGuid: string): Promise<void> => {
-  const response = await httpDelete(getDataModelGuidUrl(instanceId, dataGuid));
-  if (response.status !== 200) {
+export const doSubformEntryDelete = async (instanceId: string, dataElementId: string): Promise<void> => {
+  const response = await httpDelete(getDataElementIdUrl(instanceId, dataElementId));
+  if (response.status < 200 || response.status >= 300) {
     throw new Error('Failed to delete sub form');
   }
 };
@@ -208,7 +261,7 @@ export const doPostStatelessFormData = async (
   url: string,
   data: object,
   options?: AxiosRequestConfig,
-): Promise<object> => (await httpPost(url, options, data)).data;
+): Promise<object> => (await httpPost<object>(url, options, data)).data;
 
 /**
  * Query functions (these should use httpGet and start with 'fetch')
@@ -226,8 +279,6 @@ export const fetchInstanceData = async (partyId: string, instanceGuid: string): 
   );
 
 export const fetchProcessState = (instanceId: string): Promise<IProcess> => httpGet(getProcessStateUrl(instanceId));
-
-export const fetchProcessNextSteps = (instanceId: string): Promise<string[]> => httpGet(getProcessNextUrl(instanceId));
 
 export const fetchApplicationMetadata = () => httpGet<IncomingApplicationMetadata>(applicationMetadataApiUrl);
 
@@ -273,8 +324,8 @@ export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7>
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);
 
-export const fetchPdfFormat = (instanceId: string, dataGuid: string): Promise<IPdfFormat> =>
-  httpGet(getPdfFormatUrl(instanceId, dataGuid));
+export const fetchPdfFormat = (instanceId: string, dataElementId: string): Promise<IPdfFormat> =>
+  httpGet(getPdfFormatUrl(instanceId, dataElementId));
 
 export const fetchDynamics = (layoutSetId: string): Promise<{ data: IFormDynamics } | null> =>
   httpGet(getFetchFormDynamicsUrl(layoutSetId));

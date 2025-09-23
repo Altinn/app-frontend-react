@@ -20,7 +20,6 @@ import { getPartyMock } from 'src/__mocks__/getPartyMock';
 import { paymentResponsePayload } from 'src/__mocks__/getPaymentPayloadMock';
 import { getTextResourcesMock } from 'src/__mocks__/getTextResourcesMock';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
-import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
@@ -150,7 +149,6 @@ const defaultQueryMocks: AppQueries = {
   fetchTextResources: async (language) => ({ language, resources: getTextResourcesMock() }),
   fetchLayoutSchema: async () => ({}) as JSONSchema7,
   fetchAppLanguages: async () => [{ language: 'nb' }, { language: 'nn' }, { language: 'en' }],
-  fetchProcessNextSteps: async () => [],
   fetchPostPlace: async () => ({ valid: true, result: 'OSLO' }),
   fetchLayoutSettings: async () => ({ pages: { order: [] } }),
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
@@ -331,34 +329,32 @@ function DefaultProviders({ children, queries, queryClient, Router = DefaultRout
       queryClient={queryClient}
     >
       <LanguageProvider>
-        <TaskStoreProvider>
-          <LangToolsStoreProvider>
-            <UiConfigProvider>
-              <PageNavigationProvider>
-                <Router>
-                  <NavigationEffectProvider>
-                    <ApplicationMetadataProvider>
-                      <GlobalFormDataReadersProvider>
-                        <OrgsProvider>
-                          <ApplicationSettingsProvider>
-                            <LayoutSetsProvider>
-                              <SetShouldFetchAppLanguages />
-                              <ProfileProvider>
-                                <PartyProvider>
-                                  <TextResourcesProvider>{children}</TextResourcesProvider>
-                                </PartyProvider>
-                              </ProfileProvider>
-                            </LayoutSetsProvider>
-                          </ApplicationSettingsProvider>
-                        </OrgsProvider>
-                      </GlobalFormDataReadersProvider>
-                    </ApplicationMetadataProvider>
-                  </NavigationEffectProvider>
-                </Router>
-              </PageNavigationProvider>
-            </UiConfigProvider>
-          </LangToolsStoreProvider>
-        </TaskStoreProvider>
+        <LangToolsStoreProvider>
+          <UiConfigProvider>
+            <PageNavigationProvider>
+              <Router>
+                <NavigationEffectProvider>
+                  <ApplicationMetadataProvider>
+                    <GlobalFormDataReadersProvider>
+                      <OrgsProvider>
+                        <ApplicationSettingsProvider>
+                          <LayoutSetsProvider>
+                            <SetShouldFetchAppLanguages />
+                            <ProfileProvider>
+                              <PartyProvider>
+                                <TextResourcesProvider>{children}</TextResourcesProvider>
+                              </PartyProvider>
+                            </ProfileProvider>
+                          </LayoutSetsProvider>
+                        </ApplicationSettingsProvider>
+                      </OrgsProvider>
+                    </GlobalFormDataReadersProvider>
+                  </ApplicationMetadataProvider>
+                </NavigationEffectProvider>
+              </Router>
+            </PageNavigationProvider>
+          </UiConfigProvider>
+        </LangToolsStoreProvider>
       </LanguageProvider>
     </AppQueriesProvider>
   );
@@ -384,13 +380,11 @@ function MinimalProviders({ children, queries, queryClient, Router = DefaultRout
       {...queries}
       queryClient={queryClient}
     >
-      <TaskStoreProvider>
-        <LangToolsStoreProvider>
-          <Router>
-            <NavigationEffectProvider>{children}</NavigationEffectProvider>
-          </Router>
-        </LangToolsStoreProvider>
-      </TaskStoreProvider>
+      <LangToolsStoreProvider>
+        <Router>
+          <NavigationEffectProvider>{children}</NavigationEffectProvider>
+        </Router>
+      </LangToolsStoreProvider>
     </AppQueriesProvider>
   );
 }
@@ -460,17 +454,21 @@ function injectFormDataSavingSimulator(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (mutationMocks as any).doPatchFormData = jest
     .fn()
-    .mockImplementation(async (url: string, req: IDataModelPatchRequest): Promise<IDataModelPatchResponse> => {
-      const model = structuredClone(models[url] ?? {});
-      applyPatch(model, req.patch);
-      const afterProcessing = typeof mockBackend === 'function' ? mockBackend(model, url) : model;
-      models[url] = afterProcessing;
+    .mockImplementation(
+      async (url: string, req: IDataModelPatchRequest): Promise<{ data: IDataModelPatchResponse }> => {
+        const model = structuredClone(models[url] ?? {});
+        applyPatch(model, req.patch);
+        const afterProcessing = typeof mockBackend === 'function' ? mockBackend(model, url) : model;
+        models[url] = afterProcessing;
 
-      return {
-        newDataModel: afterProcessing as object,
-        validationIssues: {},
-      };
-    });
+        return {
+          data: {
+            newDataModel: afterProcessing as object,
+            validationIssues: {},
+          },
+        };
+      },
+    );
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (mutationMocks as any).doPostStatelessFormData = jest.fn().mockImplementation(async (url: string, data: unknown) => {
