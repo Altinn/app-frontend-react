@@ -18,8 +18,8 @@ import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/usePr
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
-import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
-import { Feedback } from 'src/features/processEnd/feedback/Feedback';
+import { Confirm } from 'src/features/process/confirm/containers/Confirm';
+import { Feedback } from 'src/features/process/feedback/Feedback';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { useWaitForQueries } from 'src/hooks/useWaitForQueries';
