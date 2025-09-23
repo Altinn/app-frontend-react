@@ -20,6 +20,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
 import { Confirm } from 'src/features/process/confirm/containers/Confirm';
 import { Feedback } from 'src/features/process/feedback/Feedback';
+import { ServiceTask } from 'src/features/process/service/ServiceTask';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { useWaitForQueries } from 'src/hooks/useWaitForQueries';
@@ -148,7 +149,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
     return (
       <PdfWrapper>
         <PresentationComponent type={ProcessTaskType.Service}>
-          <h1>You reached a service task</h1> {/* TODO */}
+          <ServiceTask />
         </PresentationComponent>
       </PdfWrapper>
     );
