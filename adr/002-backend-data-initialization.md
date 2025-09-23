@@ -142,6 +142,7 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 
 - Which option sources (datalists) are always API-fetched vs allowed to be embedded for tiny lists? (Epic notes say datalist+options stay API. Confirm.)
 - Error UX if embedded payload fails to parse (serve minimal shell with error boundary?).
+- What consequences does removing index.cshtml have and how should we support existing modifications that apps have implemented?
 
 ## Acceptance Criteria
 
@@ -149,7 +150,7 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 - No client refetch for data already embedded at boot.
 - Path URLs work for all previously supported deep links; legacy hashes redirect.
 - Parties/instances APIs expose tested pagination; UI consumes it.
-- RuleHandler/RuleConfiguration removed from templates and docs.
+- Update RuleHandler/RuleConfiguration to mention that this functionality will be removed in future versions.
 
 **Sources:** Epic details and tasks from Altinn/altinn-studio issue #16309. ([GitHub][1])
 
