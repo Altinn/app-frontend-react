@@ -148,7 +148,7 @@
     "ajv-formats-draft2019": "1.6.1",
     "axios": "1.12.2",
     "babel-plugin-react-compiler": "^19.1.0-rc.2",
-    "chokidar": "^4.0.3",
+    "chokidar": "4.0.3",
     "classnames": "2.5.1",
     "cypress-parallel": "0.15.0",
     "date-fns": "4.1.0",
