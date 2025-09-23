@@ -38,12 +38,10 @@ export function PdfWrapper({ children }: PropsWithChildren) {
     }
   }, [previewPDF, setPdfPreview]);
 
-  if (renderInstead) {
-    if (taskType === ProcessTaskType.Service) {
-      return <PdfForServiceTask />;
-    }
+  const PdfComponent = taskType === ProcessTaskType.Service ? PdfForServiceTask : PdfFromLayout;
 
-    return <PdfFromLayout />;
+  if (renderInstead) {
+    return <PdfComponent />;
   }
 
   return (
@@ -52,7 +50,7 @@ export function PdfWrapper({ children }: PropsWithChildren) {
 
       {previewPDF && (
         <div className={classes.onlyInPrint}>
-          <PdfFromLayout />
+          <PdfComponent />
         </div>
       )}
     </>
