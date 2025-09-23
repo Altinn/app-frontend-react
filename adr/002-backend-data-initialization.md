@@ -20,17 +20,17 @@ Epic #16309 proposes shifting _initial_ data orchestration to `app-backend` and 
 We will:
 
 1. **Generate the bootstrap HTML in `HomeController` (app-backend).**
-   Backend takes ownership of serving the app shell (replaces handcrafted Index.cshtml). ([GitHub][1])
+   Backend takes ownership of serving the app shell (replaces handcrafted Index.cshtml).
 2. **Adopt path-based routing (no `HashRouter`).**
-   Backend resolves/serves deep links, delegating route rendering to `app-frontend`. Back-compat preserved for legacy hash URLs (see Rollout). ([GitHub][1])
+   Backend resolves/serves deep links, delegating route rendering to `app-frontend`. Back-compat preserved for legacy hash URLs (see Rollout).
 3. **Embed immutable “AppData” in the HTML.**
-   Static, versionable, cross-variant data is serialized into a global (e.g., `window.AltinnAppData = {...}`) in the bootstrap page. ([GitHub][1])
+   Static, versionable, cross-variant data is serialized into a global (e.g., `window.AltinnAppData = {...}`) in the bootstrap page.
 4. **Provide an “InitialInstanceData” bundle when opening an existing instance.**
    When backend detects an instance context, it embeds (or exposes via single endpoint) the static-at-boot instance data adjacent to `AppData`, so the client does not immediately refetch/invalidate. Further interactions use targeted APIs. ([GitHub][1])
 5. **Remove RuleHandler/RuleConfiguration in this major.**
-   Do not migrate them to the new boot flow (handled by separate task). ([GitHub][1])
+   Do not migrate them to the new boot flow (handled by separate task).
 
-In scope: catalog and migrate all initial queries across stateless, stateless-anon, and stateful apps. Out of scope: data that must be updated _after_ boot. ([GitHub][1])
+In scope: catalog and migrate all initial queries across stateless, stateless-anon, and stateful apps. Out of scope: data that must be updated _after_ boot.
 
 ```mermaid
 graph LR
@@ -122,7 +122,7 @@ classDef actor fill:#eef,stroke:#77f,color:#000
   - TanStack Query seeds caches with `dehydrate(...)` from embedded objects to avoid first paint refetch.
 
 - **Pagination upgrades:**
-  - Add pagination on _active instances_ and _parties_ APIs as specified in tasks. Cursor-based preferred. ([GitHub][1])
+  - Add pagination on _active instances_ and _parties_ APIs as specified in tasks. Cursor-based preferred.
 
 ## Consequences
 
@@ -143,7 +143,6 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 - Enforce CSP with nonces; no unsafe-inline.
 - Ensure embedded data contains only what the current principal may see.
 - PII in instance payload must _not_ be cacheable by intermediaries (`private, no-store`).
-- Log correlation ids for all preloads.
 
 ## Rollout Plan
 
@@ -157,12 +156,12 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 
 - `app-backend`: `HomeController`, payload assemblers, auth.
 - `app-frontend`: routing, bootstrapping, query seeding, removal of nested providers.
-- APIs: instances list, parties list (add pagination). ([GitHub][1])
+- APIs: instances list, parties list (add pagination).
 
 ## Open Questions
 
 - Precise schema boundaries for `AppData` vs `InitialInstanceData`.
-- Which option sources (datalists) are always API-fetched vs allowed to be embedded for tiny lists? (Epic notes say datalist+options stay API. Confirm.) ([GitHub][1])
+- Which option sources (datalists) are always API-fetched vs allowed to be embedded for tiny lists? (Epic notes say datalist+options stay API. Confirm.)
 - CSP strategy: JSON script tags vs inline assignment with nonce—prefer JSON tags.
 - Error UX if embedded payload fails to parse (serve minimal shell with error boundary?).
 
