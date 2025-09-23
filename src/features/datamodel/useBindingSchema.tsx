@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 
 import type { JSONSchema7 } from 'json-schema';
 
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/TaskOverrides';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import {
   getCurrentDataTypeForApplication,
@@ -29,19 +29,19 @@ export type AsSchema<T> = {
   [P in keyof T]: JSONSchema7 | null;
 };
 
-export function useCurrentDataModelGuid() {
+export function useCurrentDataModelDataElementId() {
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();
   const taskId = useProcessTaskId();
 
-  const overriddenDataModelGuid = useTaskStore((s) => s.overriddenDataModelUuid);
+  const overriddenDataElementId = useTaskOverrides()?.dataModelElementId;
 
   // Instance data elements will update often (after each save), so we have to use a selector to make
   // sure components don't re-render too often.
   return useInstanceDataQuery({
     select: (data) => {
-      if (overriddenDataModelGuid) {
-        return overriddenDataModelGuid;
+      if (overriddenDataElementId) {
+        return overriddenDataElementId;
       }
 
       return getCurrentTaskDataElementId({ application, dataElements: data.data, taskId, layoutSets });
@@ -130,7 +130,7 @@ export function useDataModelUrl({ dataType, dataElementId, language, prefillFrom
 }
 
 export function useCurrentDataModelName() {
-  const overriddenDataModelType = useTaskStore((state) => state.overriddenDataModelType);
+  const overriddenDataModelType = useTaskOverrides()?.dataModelType;
 
   const application = useApplicationMetadata();
   const layoutSets = useLayoutSets();

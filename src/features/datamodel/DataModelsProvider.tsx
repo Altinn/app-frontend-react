@@ -6,7 +6,7 @@ import deepEqual from 'fast-deep-equal';
 import { createStore } from 'zustand';
 import type { JSONSchema7 } from 'json-schema';
 
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/TaskOverrides';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { DisplayError } from 'src/core/errorHandling/DisplayError';
 import { Loader } from 'src/core/loading/Loader';
@@ -170,8 +170,9 @@ function DataModelsLoader() {
   const layoutSetId = useCurrentLayoutSetId();
 
   // Subform
-  const overriddenDataElement = useTaskStore((state) => state.overriddenDataModelUuid);
-  const overriddenDataType = useTaskStore((state) => state.overriddenDataModelType);
+  const overrides = useTaskOverrides();
+  const overriddenDataElementId = overrides?.dataModelElementId;
+  const overriddenDataType = overrides?.dataModelType;
 
   // Find all data types referenced in dataModelBindings in the layout
   useEffect(() => {
@@ -196,7 +197,7 @@ function DataModelsLoader() {
 
       // We don't check this if the data model is overridden, because dataElements (from the instance) may not
       // even be up to date yet when (for example) a subform has just been added.
-      const isOverridden = overriddenDataType === dataType && !!overriddenDataElement;
+      const isOverridden = overriddenDataType === dataType && !!overriddenDataElementId;
       if (!isStateless && !isOverridden && !dataElements.find((data) => data.dataType === dataType)) {
         const error = new MissingDataElementException(dataType);
         window.logErrorOnce(error.message);
@@ -220,7 +221,7 @@ function DataModelsLoader() {
     dataElements,
     layoutSetId,
     overriddenDataType,
-    overriddenDataElement,
+    overriddenDataElementId,
   ]);
 
   // We should load form data and schema for all referenced data models, schema is used for dataModelBinding validation which we want to do even if it is readonly
@@ -231,7 +232,7 @@ function DataModelsLoader() {
         <LoadInitialData
           key={dataType}
           dataType={dataType}
-          overrideDataElement={dataType === overriddenDataType ? overriddenDataElement : undefined}
+          overrideDataElement={dataType === overriddenDataType ? overriddenDataElementId : undefined}
         />
       ))}
       {allDataTypes?.map((dataType) => (

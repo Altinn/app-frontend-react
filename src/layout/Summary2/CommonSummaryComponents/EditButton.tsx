@@ -3,7 +3,7 @@ import React from 'react';
 import { PencilIcon } from '@navikt/aksel-icons';
 
 import { Button } from 'src/app-components/Button/Button';
-import { useTaskStore } from 'src/core/contexts/taskStoreContext';
+import { useTaskOverrides } from 'src/core/contexts/TaskOverrides';
 import { useSetReturnToView, useSetSummaryNodeOfOrigin } from 'src/features/form/layout/PageNavigationContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -66,8 +66,9 @@ export function EditButton({
   const titleTrb = textResourceBindings && 'title' in textResourceBindings ? textResourceBindings.title : undefined;
   const accessibleTitle = titleTrb ? langAsString(titleTrb) : '';
 
-  const overriddenTaskId = useTaskStore((state) => state.overriddenTaskId);
-  const overriddenDataModelUuid = useTaskStore((state) => state.overriddenDataModelUuid);
+  const overrides = useTaskOverrides();
+  const overriddenTaskId = overrides?.taskId;
+  const overriddenDataElementId = overrides?.dataModelElementId;
   const indexedId = useIndexedId(targetBaseComponentId, skipLastIdMutator);
   const summary2Id = useSummaryProp('id');
 
@@ -75,11 +76,11 @@ export function EditButton({
     return null;
   }
 
-  if (overriddenDataModelUuid) {
+  if (overriddenDataElementId) {
     return null;
   }
 
-  if (pdfModeActive || (overriddenTaskId && overriddenTaskId?.length > 0)) {
+  if (pdfModeActive || overriddenTaskId?.length) {
     return null;
   }
 
