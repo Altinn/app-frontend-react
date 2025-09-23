@@ -22,7 +22,7 @@ We will:
 1. **Generate the bootstrap HTML in `HomeController` (app-backend).**
    Backend takes ownership of serving the app shell (replaces handcrafted Index.cshtml).
 2. **Adopt path-based routing (no `HashRouter`).**
-   Backend resolves/serves deep links, delegating route rendering to `app-frontend`. Back-compat preserved for legacy hash URLs (see Rollout).
+   Backend resolves/serves deep links, delegating route rendering to `app-frontend`. Back-compat preserved for legacy hash URLs.
 3. **Embed immutable “AppData” in the HTML.**
    Static, versionable, cross-variant data is serialized into a global (e.g., `window.AltinnAppData = {...}`) in the bootstrap page.
 4. **Provide an “InitialInstanceData” bundle when opening an existing instance.**
@@ -53,12 +53,8 @@ BE -->|orchestrates| P1[(Platform APIs)]
 P1 --> BE
 BE -->|Bootstrap HTML + AppData + InitialInstanceData| A
 A --> FFE2[app-frontend hydrate & render]
-FFE2 -->|seed query cache| QC[Dehydrated caches]
+FFE2 -->|reads global variable| QC[global state variables]
 FFE2 -->|targeted fetch on demand| P2[(Platform APIs)]
-end
-
-subgraph R["Routing change"]
-H1[Legacy hash routes] -->|301/compat| PATH[Path-based URLs]
 end
 
 classDef actor fill:#eef,stroke:#77f,color:#000
@@ -69,15 +65,12 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 - **Performance:** Fewer requests and no waterfall; better TTFB/TTI by shipping what the app needs up front.
 - **Simplicity:** One place orchestrates initial data; frontend boot becomes deterministic.
 - **Reliability:** Backend can decide what to load based on route/instance/party and enforce pagination/limits.
-- **Security:** Backend can apply authz, shape data, and set cache headers consistently before client executes.
 
 ## Considered Options
 
 1. **Status quo (frontend-orchestrated queries).**
    Rejected: retains complexity and network overhead.
-2. **SSR/streaming React for all routes.**
-   Rejected for now: higher cost/risk; we only need consolidated data at boot, not full SSR.
-3. **Bulk endpoints.**
+   2**Bulk endpoints.**
    Rejected: increases backend complexity without clear benefit vs app-backend controller.
 
 ## Technical Notes (non-normative)
@@ -107,19 +100,9 @@ classDef actor fill:#eef,stroke:#77f,color:#000
   </script>
   ```
 
-  Prefer `<script type="application/json">` nodes over inline JS to simplify CSP. Add a nonce for any inline scripts if needed.
-
-- **Caching:**
-  - `AppData`: strong ETag keyed by app version/build hash; `Cache-Control: public, max-age=0, must-revalidate`.
-  - Instance bundle: `no-store` or short max-age; includes stable pagination cursors if applicable.
-
 - **Routing:**
   - Backend maps `/` `/instances/:id/*` `/tasks/:taskId` etc. to a single `HomeController` action that embeds the correct initial payload and serves static assets.
-  - Legacy `/#/...` routes: 301 to new path form; preserve query and fragment where safe.
-
-- **Frontend boot:**
-  - Replace nested providers with a single `BootContext` that hydrates from embedded JSON.
-  - TanStack Query seeds caches with `dehydrate(...)` from embedded objects to avoid first paint refetch.
+  - Legacy `/#/...` routes: frontend redirects to updated routes.
 
 - **Pagination upgrades:**
   - Add pagination on _active instances_ and _parties_ APIs as specified in tasks. Cursor-based preferred.
@@ -140,38 +123,25 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 
 ## Security & Compliance
 
-- Enforce CSP with nonces; no unsafe-inline.
 - Ensure embedded data contains only what the current principal may see.
-- PII in instance payload must _not_ be cacheable by intermediaries (`private, no-store`).
 
 ## Rollout Plan
 
-1. **Behind feature flag** in app-backend and app-frontend.
-2. **Dual-boot phase:** serve embedded payload but keep existing client queries as fallback; add telemetry comparing both.
-3. **Route migration:** enable path-based routing; ship redirects for legacy hash URLs; validate deep links.
-4. **Delete old providers/effects** and RuleHandler/RuleConfiguration.
-5. **Docs & templates:** update app templates and docs; provide migration guide for app owners.
+1**Route migration:** enable path-based routing; ship redirects for legacy hash URLs; validate deep links.
+2**Delete old providers/effects** and RuleHandler/RuleConfiguration.
+3**Docs & templates:** update app templates and docs; provide migration guide for app owners.
 
 ## Impacted Areas
 
 - `app-backend`: `HomeController`, payload assemblers, auth.
-- `app-frontend`: routing, bootstrapping, query seeding, removal of nested providers.
+- `app-frontend`: routing, bootstrapping, removal of nested providers.
 - APIs: instances list, parties list (add pagination).
+- `app-template`: must be updated to support new loading.
 
 ## Open Questions
 
-- Precise schema boundaries for `AppData` vs `InitialInstanceData`.
 - Which option sources (datalists) are always API-fetched vs allowed to be embedded for tiny lists? (Epic notes say datalist+options stay API. Confirm.)
-- CSP strategy: JSON script tags vs inline assignment with nonce—prefer JSON tags.
 - Error UX if embedded payload fails to parse (serve minimal shell with error boundary?).
-
-## Migration Guide (high level)
-
-- Stop reading boot-critical data via effects/providers.
-- Read from `window.AltinnAppData` / `window.AltinnInitialInstanceData` (or JSON script tags).
-- Pre-seed TanStack Query caches using embedded payload; keep mutations/targeted fetches unchanged.
-- Replace hash routes with path routes; verify deep links and bookmarking.
-- Remove RuleHandler/RuleConfiguration references.
 
 ## Acceptance Criteria
 
