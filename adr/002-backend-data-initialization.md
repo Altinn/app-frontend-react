@@ -70,7 +70,7 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 
 1. **Status quo (frontend-orchestrated queries).**
    Rejected: retains complexity and network overhead.
-   2**Bulk endpoints.**
+2. **Bulk endpoints.**
    Rejected: increases backend complexity without clear benefit vs app-backend controller.
 
 ## Technical Notes (non-normative)
