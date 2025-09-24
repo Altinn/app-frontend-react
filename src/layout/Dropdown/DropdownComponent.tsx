@@ -105,10 +105,11 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           </DSLabel>
         )}
         <Suggestion
+          multiple={true}
+          onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
           filter={(args) => optionFilter(args, selectedLabels)}
           data-size='sm'
           selected={formatSelectedValues(selectedValues, options)}
-          onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
           onBlur={() => debounce}
           name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
           className={cn(comboboxClasses.container, classes.showCaretsWithoutClear, { [classes.readOnly]: readOnly })}
