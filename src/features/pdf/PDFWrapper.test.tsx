@@ -11,7 +11,7 @@ import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { FormProvider } from 'src/features/form/FormContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
-import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
+import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
 import { fetchApplicationMetadata, fetchInstanceData, fetchProcessState } from 'src/queries/queries';
 import { InstanceRouter, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 import { ProcessTaskType } from 'src/types';
@@ -53,11 +53,11 @@ const render = async (renderAs: RenderAs, queriesOverride?: Partial<AppQueries>)
     renderer: () => (
       <InstanceProvider>
         <FormProvider>
-          <PDFWrapper>
+          <PdfWrapper>
             <PresentationComponent type={ProcessTaskType.Data}>
               <Form />
             </PresentationComponent>
-          </PDFWrapper>
+          </PdfWrapper>
         </FormProvider>
       </InstanceProvider>
     ),

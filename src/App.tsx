@@ -9,7 +9,7 @@ import { FormProvider } from 'src/features/form/FormContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
-import { PDFWrapper } from 'src/features/pdf/PDFWrapper';
+import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
 import { CustomReceipt, DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { PresentationType, ProcessTaskType } from 'src/types';
@@ -84,9 +84,9 @@ export const App = () => (
           <Route
             index
             element={
-              <PDFWrapper>
+              <PdfWrapper>
                 <Form />
-              </PDFWrapper>
+              </PdfWrapper>
             }
           />
           <Route path=':componentId'>
@@ -120,11 +120,11 @@ export const App = () => (
           <Route
             index
             element={
-              <PDFWrapper>
+              <PdfWrapper>
                 <PresentationComponent type={ProcessTaskType.Data}>
                   <Form />
                 </PresentationComponent>
-              </PDFWrapper>
+              </PdfWrapper>
             }
           />
           <Route path=':componentId'>

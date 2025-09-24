@@ -109,6 +109,10 @@ export function useGetTaskTypeById() {
       return ProcessTaskType.Archived;
     }
 
+    if (task?.elementType === 'ServiceTask') {
+      return ProcessTaskType.Service;
+    }
+
     const altinnTaskType = task?.altinnTaskType;
     if (altinnTaskType && isProcessTaskType(altinnTaskType)) {
       return altinnTaskType;
