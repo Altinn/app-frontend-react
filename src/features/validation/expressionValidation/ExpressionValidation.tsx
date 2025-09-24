@@ -63,11 +63,10 @@ function DataTypeValidation({ dataType }: { dataType: string }) {
     <>
       {Object.keys(expressionValidationConfig).map((field) => (
         <BaseFieldExpressionValidation
-          key={`${dataType}-${field}`}
-          dataType={dataType}
+          key={field}
           dataElementId={dataElementId}
           validationDefs={expressionValidationConfig[field]}
-          baseFieldReference={{ dataType, field }}
+          reference={{ dataType, field }}
           collector={collector}
         />
       ))}
@@ -76,69 +75,67 @@ function DataTypeValidation({ dataType }: { dataType: string }) {
 }
 
 function BaseFieldExpressionValidation({
-  dataType,
   dataElementId,
   validationDefs,
-  baseFieldReference,
+  reference,
   collector,
 }: {
-  dataType: string;
   dataElementId: string;
   validationDefs: IExpressionValidation[];
-  baseFieldReference: IDataModelReference;
+  reference: IDataModelReference;
   collector: ValidationCollectorApi;
 }) {
-  const actualFieldPaths = FD.useDebouncedAllPaths(baseFieldReference);
+  const allPaths = FD.useDebouncedAllPaths(reference);
+
+  if (allPaths.length === 0 || (allPaths.length === 1 && allPaths[0] === reference.field)) {
+    return (
+      <FieldExpressionValidation
+        dataElementId={dataElementId}
+        reference={reference}
+        validationDefs={validationDefs}
+        collector={collector}
+      />
+    );
+  }
 
   return (
     <>
-      {actualFieldPaths.map((fieldPath) => {
-        const reference = { dataType: baseFieldReference.dataType, field: fieldPath };
-        return (
-          <NestedDataModelLocationProviders
-            key={fieldPath}
-            reference={reference}
-          >
-            <FieldExpressionValidation
-              dataType={dataType}
-              dataElementId={dataElementId}
-              reference={reference}
-              validationDefs={validationDefs}
-              collector={collector}
-            />
-          </NestedDataModelLocationProviders>
-        );
-      })}
+      {allPaths.map((field) => (
+        <NestedDataModelLocationProviders
+          key={field}
+          reference={{ dataType: reference.dataType, field }}
+        >
+          <FieldExpressionValidation
+            dataElementId={dataElementId}
+            reference={{ dataType: reference.dataType, field }}
+            validationDefs={validationDefs}
+            collector={collector}
+          />
+        </NestedDataModelLocationProviders>
+      ))}
     </>
   );
 }
 
 function FieldExpressionValidation({
-  dataType,
   dataElementId,
   reference,
   validationDefs,
   collector,
 }: {
-  dataType: string;
   dataElementId: string;
   reference: IDataModelReference;
   validationDefs: IExpressionValidation[];
   collector: ValidationCollectorApi;
 }) {
-  const fieldData = FD.useDebouncedPick(reference);
   const baseDataSources = useExpressionDataSources(validationDefs);
   const dataSources: ExpressionDataSources = useMemo(
-    () => ({
-      ...baseDataSources,
-      defaultDataType: dataType,
-    }),
-    [baseDataSources, dataType],
+    () => ({ ...baseDataSources, defaultDataType: reference.dataType }),
+    [baseDataSources, reference.dataType],
   );
 
   useEffect(() => {
     const field = reference.field;
-
     const validations: FieldValidations[string] = [];
 
     for (const validationDef of validationDefs) {
@@ -169,7 +166,7 @@ function FieldExpressionValidation({
     }
 
     collector.setFieldValidations(reference.field, validations);
-  }, [collector, validationDefs, fieldData, dataElementId, dataSources, reference, dataType]);
+  }, [collector, validationDefs, dataElementId, dataSources, reference.field, reference.dataType]);
 
   return null;
 }

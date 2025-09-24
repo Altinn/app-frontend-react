@@ -827,12 +827,12 @@ export const FD = {
 
       const formData = v.dataModels[reference.dataType]?.debouncedCurrentData;
       if (!formData) {
-        return emptyArray;
+        return [reference.field];
       }
 
       const paths: string[] = [];
       collectMatchingFieldPaths(formData, reference.field.split('.'), '', 0, paths);
-      return paths.sort();
+      return paths.length === 0 ? [reference.field] : paths.sort();
     });
   },
 
