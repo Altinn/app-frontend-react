@@ -820,19 +820,30 @@ export const FD = {
    * This is useful for finding all instances of a field in repeating groups.
    */
   useDebouncedAllPaths(reference: IDataModelReference | undefined): string[] {
+    const lookupTool = DataModels.useLookupBinding();
+    const [, lookupErr] = (reference ? lookupTool?.(reference) : undefined) ?? [undefined, undefined];
+
     return useShallowSelector((v) => {
       if (!reference) {
         return emptyArray;
       }
 
+      if (lookupErr?.error !== 'missingRepeatingGroup') {
+        // This is hacky. We use the lookup tool to determine if the base path hits a 'repeating group' structure in
+        // the data model. Meaning, we should have had indexes somewhere in the path.
+        // If there's no array to be found anywhere in this path, it's safe to just return the same path.
+        // Only when there is repeating stuff should we continue looking at how many rows there are.
+        return [reference?.field];
+      }
+
       const formData = v.dataModels[reference.dataType]?.debouncedCurrentData;
       if (!formData) {
-        return [reference.field];
+        return [];
       }
 
       const paths: string[] = [];
       collectMatchingFieldPaths(formData, reference.field.split('.'), '', 0, paths);
-      return paths.length === 0 ? [reference.field] : paths.sort();
+      return paths.sort();
     });
   },
 

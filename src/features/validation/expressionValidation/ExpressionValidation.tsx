@@ -87,17 +87,6 @@ function BaseFieldExpressionValidation({
 }) {
   const allPaths = FD.useDebouncedAllPaths(reference);
 
-  if (allPaths.length === 0 || (allPaths.length === 1 && allPaths[0] === reference.field)) {
-    return (
-      <FieldExpressionValidation
-        dataElementId={dataElementId}
-        reference={reference}
-        validationDefs={validationDefs}
-        collector={collector}
-      />
-    );
-  }
-
   return (
     <>
       {allPaths.map((field) => (
