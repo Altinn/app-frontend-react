@@ -13,7 +13,7 @@
     "gen:watch": "scripts/codegen.sh watch",
     "copy-schemas": "tsx scripts/copy-schemas.ts",
     "start": "./scripts/dev-with-watch.sh",
-    "startchok": "yarn gen && (FORCE_COLOR=1 cross-env NODE_ENV=development webpack-dev-server --config webpack.config.development.js --mode development --progress --color & yarn chokidar 'src/layout/**/config.ts' src/codegen -c 'yarn gen')",
+    "startchok": "yarn gen && (FORCE_COLOR=1 cross-env NODE_ENV=development webpack-dev-server --config webpack.config.development.js --color & yarn chokidar 'src/layout/**/config.ts' src/codegen -c 'yarn gen')",
     "build": "yarn gen && yarn copy-schemas && cross-env NODE_ENV=production webpack --config webpack.config.production.js --progress",
     "docker": "yarn gen && yarn copy-schemas && cross-env NODE_ENV=development webpack --config webpack.config.development.js --progress && yarn serve 8080",
     "serve": "http-server dist --cors='*' -p",
