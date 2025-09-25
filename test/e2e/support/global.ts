@@ -325,6 +325,11 @@ declare global {
 
       openNavGroup(groupName: RegExp, pageName?: RegExp, subformName?: RegExp): Chainable<null>;
 
+      /**
+       * Get the approximate number of pages in a printout by counting CSS break-before and break-after page properties
+       */
+      getPrintPageCount(): Chainable<number>;
+
       ignoreConsoleMessages(consoleMessages: ConsoleMessage[]): Chainable<null>;
     }
   }

@@ -230,6 +230,43 @@ describe('PDF', () => {
     });
   });
 
+  it('should generate PDF for group step using summary page as pdfLayout', () => {
+    cy.intercept('GET', '**/api/layoutsettings/group', (req) => {
+      req.on('response', (res) => {
+        const body = JSON.parse(res.body) as ILayoutSettings;
+        body.pages.pdfLayoutName = 'summary'; // Forces PDF engine to use the 'summary' page as the PDF page
+        res.send(body);
+      });
+    }).as('settings');
+
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
+        component.pageBreak = {
+          breakBefore: 'always',
+          breakAfter: 'auto',
+        };
+      }
+    });
+
+    cy.goto('group');
+    cy.findByRole('checkbox', { name: /liten/i }).check();
+    cy.findByRole('checkbox', { name: /middels/i }).check();
+    cy.findByRole('checkbox', { name: /stor/i }).check();
+    cy.findByRole('checkbox', { name: /svær/i }).check();
+    cy.findByRole('checkbox', { name: /enorm/i }).check();
+
+    cy.gotoNavPage('repeating');
+    cy.findByRole('checkbox', { name: /ja/i }).check();
+
+    cy.testPdf({
+      snapshotName: 'group-custom',
+      callback: () => {
+        // Regression test for https://github.com/Altinn/app-frontend-react/issues/3745
+        cy.get('@pageCount').should('equal', 6);
+      },
+    });
+  });
+
   it('should generate PDF for likert step', () => {
     cy.goto('likert');
     cy.findByRole('table', { name: likertPage.optionalTableTitle }).within(() => {

@@ -684,6 +684,7 @@ Cypress.Commands.add(
         // Set viewport to A4 paper
         cy.viewport(794, 1123);
         cy.get('body').invoke('css', 'margin', '0.75in');
+        cy.getPrintPageCount().as('pageCount');
 
         // Stops timers which helps in 'freezing' the page in its current state, makes it easier to see when data is missing
         cy.clock();
@@ -986,4 +987,16 @@ Cypress.Commands.add('openNavGroup', (groupName, pageName, subformName) => {
       }
     });
   }
+});
+
+Cypress.Commands.add('getPrintPageCount', () => {
+  cy.window().then((win) => {
+    if (!win.matchMedia('print').matches) {
+      throw new Error('getPrintPageCount can only be called when media is in print mode');
+    }
+    const allElements = Array.from(win.document.querySelectorAll('*'));
+    const breakBeforeCount = allElements.filter((e) => win.getComputedStyle(e).breakBefore === 'page').length;
+    const breakAfterCount = allElements.filter((e) => win.getComputedStyle(e).breakAfter === 'page').length;
+    return breakBeforeCount + breakAfterCount;
+  });
 });
