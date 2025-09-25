@@ -2,6 +2,7 @@ import React from 'react';
 
 import { EXPERIMENTAL_Suggestion as Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
+import type { SuggestionItem } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -47,6 +48,22 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
     (values) => values[0] !== selectedValues[0] && !!selectedValues.length,
     changeMessageGenerator,
   );
+
+  function formatSelectedValue(
+    selectedValues: string[],
+    options: { value: string; label: string }[],
+  ): string | SuggestionItem | undefined {
+    // Since this is a single-select dropdown (multiple={false}), return only the first selected value
+    const value = selectedValues[0];
+    if (!value) {
+      return undefined;
+    }
+
+    const option = options.find((o) => o.value === value);
+    return option ? { value: option.value, label: langAsString(option.label) } : value;
+  }
+
+  const selectedValue = formatSelectedValue(selectedValues, options);
 
   if (isFetching) {
     return <AltinnSpinner />;
@@ -94,6 +111,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
           className={cn(comboboxClasses.container, classes.showCaretsWithoutClear, { [classes.readOnly]: readOnly })}
           style={{ width: '100%' }}
+          selected={selectedValue}
         >
           <Suggestion.Input
             id={id}
