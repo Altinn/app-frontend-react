@@ -16,7 +16,6 @@ export function ImageUploadComponent({ baseComponentId, overrideDisplay }: Props
   );
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
-  const cropArea = { width: cropWidth, height: cropHeight, type: cropShape } as CropArea;
 
   return (
     <Label
@@ -31,8 +30,8 @@ export function ImageUploadComponent({ baseComponentId, overrideDisplay }: Props
     >
       <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <ImageCropper
-          cropArea={getCropArea(cropArea)}
           validFileEndings={validFileEndings}
+          cropArea={getCropArea({ width: cropWidth, height: cropHeight, type: cropShape } as CropArea)}
           baseComponentId={baseComponentId}
         />
       </ComponentStructureWrapper>

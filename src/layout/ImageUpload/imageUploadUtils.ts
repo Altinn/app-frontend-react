@@ -10,7 +10,7 @@ export type CropAreaParams = { width?: number; height?: number; type?: CropForm.
 export type CropArea = { width: number; height: number; type: CropForm.Square | CropForm.Circle };
 
 export const getCropArea = (cropArea?: CropAreaParams): CropArea => {
-  const defaultSize = 300;
+  const defaultSize = 250;
 
   let width = cropArea?.width ?? defaultSize;
   let height = cropArea?.height ?? defaultSize;

@@ -5,10 +5,12 @@ import { useAttachmentsFor } from 'src/features/attachments/hooks';
 import { useFileUploaderDataBindingsValidation } from 'src/layout/FileUpload/utils/useFileUploaderDataBindingsValidation';
 import { ImageUploadDef } from 'src/layout/ImageUpload/config.def.generated';
 import { ImageUploadComponent } from 'src/layout/ImageUpload/ImageUploadComponent';
+import { ImageUploadSummary2 } from 'src/layout/ImageUpload/ImageUploadSummary2';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class ImageUpload extends ImageUploadDef {
   useDisplayData(baseComponentId: string): string {
@@ -37,8 +39,8 @@ export class ImageUpload extends ImageUploadDef {
     throw new Error('Method not implemented.'); // TODO
   }
 
-  renderSummary2(): JSX.Element | null {
-    return <div>test</div>;
+  renderSummary2(props: Summary2Props): JSX.Element | null {
+    return <ImageUploadSummary2 {...props} />;
   }
 
   evalExpressions(props: ExprResolver<'ImageUpload'>) {
