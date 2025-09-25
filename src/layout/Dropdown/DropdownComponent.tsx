@@ -2,6 +2,7 @@ import React from 'react';
 
 import { EXPERIMENTAL_Suggestion as Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
+import type { SuggestionItem } from '@digdir/designsystemet-react';
 
 import { Label } from 'src/app-components/Label/Label';
 import { AltinnSpinner } from 'src/components/AltinnSpinner';
@@ -19,7 +20,6 @@ import comboboxClasses from 'src/styles/combobox.module.css';
 import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
@@ -27,17 +27,11 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
   const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
   const { langAsString, lang } = useLanguage();
-
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
 
   const { options, isFetching, selectedValues, setData } = useGetOptions(baseComponentId, 'single');
   const debounce = FD.useDebounceImmediately();
-
-  const selectedLabels = selectedValues.map((value) => {
-    const option = options.find((o) => o.value === value);
-    return option ? langAsString(option.label).toLowerCase() : value;
-  });
 
   const changeMessageGenerator = (values: string[]) => {
     const label = options
@@ -55,16 +49,21 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
     changeMessageGenerator,
   );
 
-  // return a new array of objects with value and label properties without changing the selectedValues array
-  function formatSelectedValues(
+  function formatSelectedValue(
     selectedValues: string[],
     options: { value: string; label: string }[],
-  ): { value: string; label: string }[] {
-    return selectedValues.map((value) => {
-      const option = options.find((o) => o.value === value);
-      return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
-    });
+  ): string | SuggestionItem | undefined {
+    // Since this is a single-select dropdown (multiple={false}), return only the first selected value
+    const value = selectedValues[0];
+    if (!value) {
+      return undefined;
+    }
+
+    const option = options.find((o) => o.value === value);
+    return option ? { value: option.value, label: langAsString(option.label) } : value;
   }
+
+  const selectedValue = formatSelectedValue(selectedValues, options);
 
   if (isFetching) {
     return <AltinnSpinner />;
@@ -105,14 +104,14 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           </DSLabel>
         )}
         <Suggestion
-          filter={(args) => optionFilter(args, selectedLabels)}
+          multiple={false}
+          filter={(_) => true}
           data-size='sm'
-          selected={formatSelectedValues(selectedValues, options)}
-          onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
           onBlur={() => debounce}
           name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
           className={cn(comboboxClasses.container, classes.showCaretsWithoutClear, { [classes.readOnly]: readOnly })}
           style={{ width: '100%' }}
+          selected={selectedValue}
         >
           <Suggestion.Input
             id={id}
@@ -136,6 +135,9 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
                 key={option.value}
                 value={option.value}
                 label={langAsString(option.label)}
+                onClick={(_) => {
+                  handleChange(option?.value ? [option?.value] : []);
+                }}
               >
                 <span className={classes.optionContent}>
                   <Lang id={option.label} />
