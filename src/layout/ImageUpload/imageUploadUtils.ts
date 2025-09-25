@@ -1,10 +1,10 @@
+import { mapExtensionToAcceptMime } from 'src/app-components/Dropzone/mapExtensionToAcceptMime';
+
 export type Position = { x: number; y: number };
 export enum CropForm {
   Square = 'square',
   Circle = 'circle',
 }
-
-export const VALID_FILE_ENDINGS = ['.jpg', '.jpeg', '.png', '.gif'];
 
 export type CropAreaParams = { width?: number; height?: number; type?: CropForm.Square | CropForm.Circle } | undefined;
 export type CropArea = { width: number; height: number; type: CropForm.Square | CropForm.Circle };
@@ -112,7 +112,7 @@ export function logToNormalZoom({ value, minZoom, maxZoom }: CalculateZoomParams
   const { logScale, logMin } = getLogValues({ minZoom, maxZoom });
   if (logScale === 0) {
     return 0;
-  } // Avoid division by zero if minZoom equals maxZoom
+  }
   return (Math.log(value) - logMin) / logScale;
 }
 
@@ -120,14 +120,52 @@ type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
 export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
   Math.max(cropArea.width / img.width, cropArea.height / img.height);
 
-type ValidateFileParams = { file: File; validFileEndings: string[] };
+type ValidateFileParams = { file?: File; validFileEndings?: string[] };
+export type ValidationErrors = { key: string; validFileEndings?: string }[];
 export const validateFile = ({ file, validFileEndings }: ValidateFileParams) => {
-  const errors: string[] = [];
+  const errors: ValidationErrors = [];
+  const typeError = {
+    key: 'image_upload_component.error_invalid_file_type',
+    validFileEndings: validFileEndings?.join(', ') ?? 'image_upload_component.valid_file_types_all',
+  };
+  const sizeError = { key: 'image_upload_component.error_file_size_exceeded' };
+
+  if (!file) {
+    errors.push(typeError);
+    return errors;
+  }
+
+  const fileName = file.name.toLowerCase();
+  const isTypeInvalid = validFileEndings
+    ? !validFileEndings.some((ending) => fileName?.endsWith(ending))
+    : !file.type.startsWith('image/');
+
+  if (isTypeInvalid) {
+    errors.push(typeError);
+  }
+
   if (file.size > 10 * 1024 * 1024) {
-    errors.push('image_upload_component.error_file_size_exceeded');
+    errors.push(sizeError);
   }
-  if (!validFileEndings.some((ending) => file.name.toLowerCase().endsWith(ending))) {
-    errors.push('image_upload_component.error_invalid_file_type');
-  }
+
   return errors;
+};
+
+export type AcceptedFiles = {
+  dropzone: Record<string, string[]>;
+  input: string;
+};
+
+export const getAcceptedFiles = (validFileEndings?: string[]): AcceptedFiles => {
+  if (!validFileEndings?.length) {
+    return {
+      dropzone: { 'image/*': [] },
+      input: 'image/*',
+    };
+  }
+
+  return {
+    dropzone: mapExtensionToAcceptMime(validFileEndings),
+    input: validFileEndings.join(','),
+  };
 };

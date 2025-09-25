@@ -8,11 +8,13 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
 import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { UploadedAttachment } from 'src/features/attachments';
+import type { AcceptedFiles } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type ImageControllersProps = {
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
   storedImage?: UploadedAttachment;
+  acceptedFiles: AcceptedFiles;
   onSave: () => void;
   onDelete: () => void;
   onCancel: () => void;
@@ -25,6 +27,7 @@ export function ImageControllers({
   zoom,
   zoomLimits: { minZoom, maxZoom },
   storedImage,
+  acceptedFiles,
   onSave,
   onDelete,
   onCancel,
@@ -112,7 +115,7 @@ export function ImageControllers({
           id={inputId}
           ref={fileInputRef}
           type='file'
-          accept='image/*'
+          accept={acceptedFiles.input}
           onChange={handleImageChange}
           hidden
         />

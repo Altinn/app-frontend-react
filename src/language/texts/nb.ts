@@ -207,10 +207,10 @@ export function nb() {
     'image_upload_component.button_save': 'Lagre bilde',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
     'image_upload_component.reset': 'Tilbakestill zoom og plassering',
-    'image_upload_component.error_invalid_file_type':
-      'Feil filformat. Last opp en fil med bildeformat (jpg, jpeg, png, gif).',
+    'image_upload_component.error_invalid_file_type': 'Feil filformat. Last opp en fil med: ',
     'image_upload_component.error_file_size_exceeded': 'Filen er for stor. Største tillatte filstørrelse er 10MB.',
-    'image_upload_component.valid_file_types': 'Gyldige filformater er: jpg, jpeg, png og gif.',
+    'image_upload_component.valid_file_types': 'Gyldige filer: ',
+    'image_upload_component.valid_file_types_all': 'bildeformat',
     'input_components.remaining_characters': 'Du har %d tegn igjen',
     'input_components.exceeded_max_limit': 'Du har overskredet maks antall tegn med %d',
     'instance_selection.changed_by': 'Endret av',

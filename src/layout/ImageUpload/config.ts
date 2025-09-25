@@ -40,6 +40,18 @@ export const Config = new CG.component({
       new CG.num().optional({ default: 250 }).setTitle('Height').setDescription('Optional height of the cropping area'),
     ),
   )
+  .addProperty(
+    new CG.prop(
+      'validFileEndings',
+      new CG.union(new CG.arr(new CG.str()))
+        .optional()
+        .setTitle('Valid image file endings')
+        .setDescription(
+          'A separated string array of valid image file endings to upload. If not set all endings are accepted.',
+        )
+        .addExample(['.jpeg', 'jpg', '.png', '.svg', '.webP', '.gif']),
+    ),
+  )
   .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())
   .extends(CG.common('LabeledComponentProps'))
   .addSummaryOverrides();

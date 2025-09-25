@@ -6,7 +6,6 @@ import type { FileRejection } from 'react-dropzone';
 import cn from 'classnames';
 
 import classes from 'src/app-components/Dropzone/Dropzone.module.css';
-import { mapExtensionToAcceptMime } from 'src/app-components/Dropzone/mapExtensionToAcceptMime';
 
 type MaxFileSize = {
   sizeInMB: number;
@@ -21,8 +20,7 @@ export type IDropzoneProps = {
   onDrop: (acceptedFiles: File[], rejectedFiles: FileRejection[]) => void;
   onDragActiveChange?: (isDragActive: boolean) => void;
   hasValidationMessages: boolean;
-  hasCustomFileEndings?: boolean;
-  validFileEndings?: string | string[];
+  acceptedFiles?: { [key: string]: string[] };
   labelId?: string;
   describedBy?: string;
   className?: string;
@@ -38,8 +36,7 @@ export function Dropzone({
   onDrop,
   onDragActiveChange,
   hasValidationMessages,
-  hasCustomFileEndings,
-  validFileEndings,
+  acceptedFiles,
   labelId,
   children,
   className,
@@ -54,8 +51,7 @@ export function Dropzone({
     onDrop,
     maxSize: maxFileSize && maxFileSize.sizeInMB * bytesInOneMB,
     disabled: readOnly,
-    accept:
-      hasCustomFileEndings && validFileEndings !== undefined ? mapExtensionToAcceptMime(validFileEndings) : undefined,
+    accept: acceptedFiles,
   });
 
   // set drag active state in parent component if callback is provided
