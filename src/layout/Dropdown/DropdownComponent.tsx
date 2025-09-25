@@ -19,7 +19,6 @@ import comboboxClasses from 'src/styles/combobox.module.css';
 import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
 export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
@@ -27,17 +26,11 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
   const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
   const { langAsString, lang } = useLanguage();
-
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
 
   const { options, isFetching, selectedValues, setData } = useGetOptions(baseComponentId, 'single');
   const debounce = FD.useDebounceImmediately();
-
-  const selectedLabels = selectedValues.map((value) => {
-    const option = options.find((o) => o.value === value);
-    return option ? langAsString(option.label).toLowerCase() : value;
-  });
 
   const changeMessageGenerator = (values: string[]) => {
     const label = options
@@ -54,17 +47,6 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
     (values) => values[0] !== selectedValues[0] && !!selectedValues.length,
     changeMessageGenerator,
   );
-
-  // return a new array of objects with value and label properties without changing the selectedValues array
-  function formatSelectedValues(
-    selectedValues: string[],
-    options: { value: string; label: string }[],
-  ): { value: string; label: string }[] {
-    return selectedValues.map((value) => {
-      const option = options.find((o) => o.value === value);
-      return option ? { value: option.value, label: langAsString(option.label) } : { value, label: value };
-    });
-  }
 
   if (isFetching) {
     return <AltinnSpinner />;
@@ -105,11 +87,9 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           </DSLabel>
         )}
         <Suggestion
-          multiple={true}
-          onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
-          filter={(args) => optionFilter(args, selectedLabels)}
+          multiple={false}
+          filter={(_) => true}
           data-size='sm'
-          selected={formatSelectedValues(selectedValues, options)}
           onBlur={() => debounce}
           name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
           className={cn(comboboxClasses.container, classes.showCaretsWithoutClear, { [classes.readOnly]: readOnly })}
@@ -137,6 +117,9 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
                 key={option.value}
                 value={option.value}
                 label={langAsString(option.label)}
+                onClick={(_) => {
+                  handleChange(option?.value ? [option?.value] : []);
+                }}
               >
                 <span className={classes.optionContent}>
                   <Lang id={option.label} />
