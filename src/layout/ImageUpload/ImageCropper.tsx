@@ -144,6 +144,7 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
       const fileName = img?.id || 'cropped-image.png';
       const imageFile = new File([blob], fileName, { type: 'image/png' });
       saveImage(imageFile);
+      setValidationErrors(null);
     }, 'image/png');
   };
 
