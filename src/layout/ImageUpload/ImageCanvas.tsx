@@ -24,7 +24,7 @@ interface ImageCanvasProps {
 const CANVAS_HEIGHT = 320;
 const CANVAS_WIDTH = 800;
 const MOBILE_CANVAS_WIDTH = 400;
-const CONTAINER_WIDTH = 450;
+const CONTAINER_WIDTH = 475;
 
 export function ImageCanvas({
   imageRef,
