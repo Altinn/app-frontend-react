@@ -33,7 +33,7 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
-  const [zoom, setZoom] = useState<number>(1);
+  const [zoom, setZoom] = useState<number>(0);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null);
 
@@ -159,7 +159,7 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
 
   type UpdateImageState = { minZoom?: number; img?: HTMLImageElement | null };
   const updateImageState = ({ minZoom = minAllowedZoom, img = imageRef.current }: UpdateImageState) => {
-    setZoom(Math.max(1, minZoom));
+    setZoom(minZoom);
     setPosition({ x: 0, y: 0 });
     imageRef.current = img;
   };
