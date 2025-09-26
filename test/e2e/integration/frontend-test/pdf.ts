@@ -230,7 +230,7 @@ describe('PDF', () => {
     });
   });
 
-  it('should generate PDF for group step using summary page as pdfLayout', () => {
+  it('should generate PDF for group step (using Summary1 pdfLayout)', () => {
     cy.intercept('GET', '**/api/layoutsettings/group', (req) => {
       req.on('response', (res) => {
         const body = JSON.parse(res.body) as ILayoutSettings;
@@ -238,15 +238,6 @@ describe('PDF', () => {
         res.send(body);
       });
     }).as('settings');
-
-    cy.interceptLayout('group', (component) => {
-      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
-        component.pageBreak = {
-          breakBefore: 'always',
-          breakAfter: 'auto',
-        };
-      }
-    });
 
     cy.goto('group');
     cy.findByRole('checkbox', { name: /liten/i }).check();
@@ -258,11 +249,52 @@ describe('PDF', () => {
     cy.gotoNavPage('repeating');
     cy.findByRole('checkbox', { name: /ja/i }).check();
 
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
+        component.pageBreak = {
+          breakBefore: 'always',
+          breakAfter: 'auto',
+        };
+      }
+    });
+
     cy.testPdf({
-      snapshotName: 'group-custom',
+      freeze: false,
+      snapshotName: 'group-custom-summary1',
       callback: () => {
         // Regression test for https://github.com/Altinn/app-frontend-react/issues/3745
-        cy.get('@pageCount').should('equal', 6);
+        cy.expectPageBreaks(6);
+      },
+    });
+  });
+
+  it('should generate PDF for group step (using Summary2 automatic PDF)', () => {
+    cy.setFeatureToggle('betaPDFenabled', true);
+    cy.goto('group');
+    cy.findByRole('checkbox', { name: /liten/i }).check();
+    cy.findByRole('checkbox', { name: /middels/i }).check();
+    cy.findByRole('checkbox', { name: /stor/i }).check();
+    cy.findByRole('checkbox', { name: /svær/i }).check();
+    cy.findByRole('checkbox', { name: /enorm/i }).check();
+
+    cy.gotoNavPage('repeating');
+    cy.findByRole('checkbox', { name: /ja/i }).check();
+
+    cy.interceptLayout('group', (component) => {
+      if (component.type === 'RepeatingGroup' && component.id === 'mainGroup') {
+        component.pageBreak = {
+          breakBefore: 'always',
+          breakAfter: 'auto',
+        };
+      }
+    });
+
+    cy.testPdf({
+      freeze: false,
+      snapshotName: 'group-custom-summary2',
+      callback: () => {
+        // Summary2 doesn't do page-breaks per row, only for the component itself
+        cy.expectPageBreaks(1);
       },
     });
   });

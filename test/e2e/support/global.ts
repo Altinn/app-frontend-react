@@ -4,6 +4,7 @@ import type { ConsoleMessage } from 'cypress-fail-on-console-error';
 
 import type { CyUser, TenorUser } from 'test/e2e/support/auth';
 
+import type { IFeatureToggles } from 'src/features/toggles';
 import type { BackendValidationIssue, BackendValidationIssuesWithSource } from 'src/features/validation';
 import type { ILayoutSets } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
@@ -33,6 +34,7 @@ export type StartAppInstanceOptions = {
 export interface TestPdfOptions {
   snapshotName?: string;
   beforeReload?: () => void;
+  freeze?: boolean;
   callback: () => void;
   returnToForm?: boolean;
   enableResponseFuzzing?: boolean;
@@ -326,9 +328,14 @@ declare global {
       openNavGroup(groupName: RegExp, pageName?: RegExp, subformName?: RegExp): Chainable<null>;
 
       /**
-       * Get the approximate number of pages in a printout by counting CSS break-before and break-after page properties
+       * Assert the approximate number of pages in a printout by counting CSS break-before and break-after page properties
        */
-      getPrintPageCount(): Chainable<number>;
+      expectPageBreaks(expectedCount: number): Chainable<null>;
+
+      /**
+       * Set a feature toggle value via cookie
+       */
+      setFeatureToggle(toggleName: IFeatureToggles, value: boolean): Chainable<null>;
 
       ignoreConsoleMessages(consoleMessages: ConsoleMessage[]): Chainable<null>;
     }
