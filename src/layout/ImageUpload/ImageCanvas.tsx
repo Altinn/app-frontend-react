@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 
 import { Spinner } from '@digdir/designsystemet-react';
 
@@ -8,7 +8,6 @@ import { cropAreaPlacement, drawCropArea, imagePlacement } from 'src/layout/Imag
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
-// Props for the ImageCanvas component
 interface ImageCanvasProps {
   imageRef: React.RefObject<HTMLImageElement | null>;
   zoom: number;
@@ -18,13 +17,10 @@ interface ImageCanvasProps {
   onPositionChange: (newPosition: Position) => void;
   onZoomChange: (newZoom: number) => void;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
-  containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const CANVAS_HEIGHT = 320;
-const CANVAS_WIDTH = 800;
-const MOBILE_CANVAS_WIDTH = 400;
-const CONTAINER_WIDTH = 475;
+const CANVAS_WIDTH = 1000;
 
 export function ImageCanvas({
   imageRef,
@@ -35,30 +31,10 @@ export function ImageCanvas({
   onPositionChange,
   onZoomChange,
   canvasRef,
-  containerRef,
 }: ImageCanvasProps) {
-  const [canvasWidth, setCanvasWidth] = useState(CANVAS_WIDTH);
   const { storedImage, imageUrl } = useImageFile(baseComponentId);
   const { langAsString } = useLanguage();
 
-  useEffect(() => {
-    if (!containerRef.current) {
-      return;
-    }
-
-    const updateWidth = () => {
-      const width = containerRef.current!.offsetWidth > CONTAINER_WIDTH ? CANVAS_WIDTH : MOBILE_CANVAS_WIDTH;
-      setCanvasWidth(width);
-    };
-
-    updateWidth();
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(containerRef.current);
-
-    return () => observer.disconnect();
-  }, [containerRef]);
-
-  // Handles all drawing operations on the canvas
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext('2d');
@@ -69,12 +45,7 @@ export function ImageCanvas({
     }
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({
-      canvas,
-      img,
-      zoom,
-      position,
-    });
+    const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({ canvas, img, zoom, position });
 
     ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
@@ -97,9 +68,8 @@ export function ImageCanvas({
 
   useEffect(() => {
     draw();
-  }, [draw, canvasWidth]);
+  }, [draw]);
 
-  // Handles panning via pointer events (mouse/touch)
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     const canvas = canvasRef.current;
@@ -124,7 +94,6 @@ export function ImageCanvas({
     document.addEventListener('pointerup', handlePointerUp);
   };
 
-  // Handles zooming via the mouse wheel
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       e.preventDefault();
@@ -143,7 +112,6 @@ export function ImageCanvas({
     };
   }, [handleWheel, canvasRef]);
 
-  // Handles panning via keyboard arrow keys
   const handleKeyDown = (e: React.KeyboardEvent<HTMLCanvasElement>) => {
     const moveAmount = 10;
     const keyMap: Record<string, () => void> = {
@@ -166,7 +134,6 @@ export function ImageCanvas({
           <img
             src={imageUrl}
             alt={storedImage.data?.filename}
-            className={classes.uploadedImage}
           />
         ) : (
           <Spinner
@@ -186,7 +153,7 @@ export function ImageCanvas({
       tabIndex={0}
       ref={canvasRef}
       height={CANVAS_HEIGHT}
-      width={canvasWidth}
+      width={CANVAS_WIDTH}
       className={classes.canvas}
       aria-label='Image cropping area'
     />

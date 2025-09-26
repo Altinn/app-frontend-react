@@ -32,7 +32,6 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
   const acceptedFiles = getAcceptedFiles(validFileEndings);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const [zoom, setZoom] = useState<number>(1);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
@@ -184,11 +183,9 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
     <AppCard
       variant='default'
       mediaPosition='top'
-      ref={containerRef}
       media={
         <ImageCanvas
           canvasRef={canvasRef}
-          containerRef={containerRef}
           imageRef={imageRef}
           zoom={zoom}
           position={position}

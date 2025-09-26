@@ -1,8 +1,8 @@
 .canvas {
   display: block;
-  width: 100%;
-  background-color: #e5e7eb;
-  overflow: hidden;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
   cursor: grab;
   touch-action: none;
 }
@@ -19,9 +19,4 @@
   align-items: center;
   padding: var(--ds-size-4);
   box-sizing: border-box;
-}
-
-.uploadedImage {
-  max-width: 100%;
-  max-height: 100%;
 }
