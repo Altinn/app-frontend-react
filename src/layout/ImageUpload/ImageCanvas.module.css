@@ -1,0 +1,22 @@
+.canvas {
+  display: block;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: grab;
+  touch-action: none;
+}
+
+.canvas:active {
+  cursor: grabbing;
+}
+
+.previewBackground {
+  background-color: #f4f5f6; /* Following does not exist in v1: var(--ds-color-neutral-background-subtle); */
+  height: 320px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--ds-size-4);
+  box-sizing: border-box;
+}
