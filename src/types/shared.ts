@@ -21,6 +21,11 @@ export interface IApplicationLogic {
   disallowUserCreate?: boolean | null;
 }
 
+export interface IMetadata {
+  key?: string;
+  value?: string;
+}
+
 export interface IDisplayAttachment {
   name?: string;
   iconClass: string;
@@ -51,6 +56,7 @@ export interface IData {
   contentHash?: unknown;
   fileScanResult?: FileScanResult;
   fileScanDetails?: string;
+  metadata?: IMetadata[]; // Added metadata field to support thumbnails
 }
 
 export interface IDataType {
