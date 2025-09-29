@@ -15,8 +15,10 @@ import { getProcessNextMutationKey, getTargetTaskFromProcess } from 'src/feature
 import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { Confirm } from 'src/features/processEnd/confirm/containers/Confirm';
-import { Feedback } from 'src/features/processEnd/feedback/Feedback';
+import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
+import { Confirm } from 'src/features/process/confirm/containers/Confirm';
+import { Feedback } from 'src/features/process/feedback/Feedback';
+import { ServiceTask } from 'src/features/process/service/ServiceTask';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
@@ -151,6 +153,16 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
       <PresentationComponent type={ProcessTaskType.Feedback}>
         <Feedback />
       </PresentationComponent>
+    );
+  }
+
+  if (taskType === ProcessTaskType.Service) {
+    return (
+      <PdfWrapper>
+        <PresentationComponent type={ProcessTaskType.Service}>
+          <ServiceTask />
+        </PresentationComponent>
+      </PdfWrapper>
     );
   }
 
