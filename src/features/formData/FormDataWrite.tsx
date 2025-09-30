@@ -828,14 +828,15 @@ export const FD = {
         return emptyArray;
       }
 
-      if (lookupErr?.error !== 'missingRepeatingGroup') {
-        // This is hacky. We use the lookup tool to determine if the base path hits a 'repeating group' structure in
-        // the data model. Meaning, we should have had indexes somewhere in the path.
-        // If there's no array to be found anywhere in this path, it's safe to just return the same path.
-        // Only when there is repeating stuff should we continue looking at how many rows there are.
+      // When lookupTool is available and doesn't report a missing repeating group error, we know there's no
+      // repeating group structure in this path, so we can return the field as-is.
+      const foundInDataModel = lookupTool && (!lookupErr || lookupErr.error !== 'missingProperty');
+      if (foundInDataModel && lookupErr?.error !== 'missingRepeatingGroup') {
         return [reference?.field];
       }
 
+      // If lookupTool is not available (e.g., in tests), or if there's a missingRepeatingGroup error,
+      // we need to check the actual data to find all matching paths.
       const formData = v.dataModels[reference.dataType]?.debouncedCurrentData;
       if (!formData) {
         return [];
@@ -843,7 +844,7 @@ export const FD = {
 
       const paths: string[] = [];
       collectMatchingFieldPaths(formData, reference.field.split('.'), '', 0, paths);
-      return paths.sort();
+      return paths.length === 0 ? [reference.field] : paths.sort();
     });
   },
 
