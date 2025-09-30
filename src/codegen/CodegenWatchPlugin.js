@@ -8,7 +8,7 @@ class CodegenWatchPlugin {
     // Check if bun is available for faster codegen execution
     let hasBun;
     try {
-      execSync('which bun', { stdio: 'pipe' });
+      execSync(process.platform === 'win32' ? 'where bun' : 'which bun', { stdio: 'pipe' });
       hasBun = true;
     } catch {
       hasBun = false;
@@ -37,7 +37,7 @@ class CodegenWatchPlugin {
     // Use chokidar-cli to watch files and run codegen on changes
     this.watcherProcess = spawn(
       'npx',
-      ['chokidar-cli', '--silent', 'src/layout/**/config.ts', 'src/codegen', '-c', this.codegenCommand],
+      ['chokidar-cli', '--initial', '--silent', 'src/layout/**/config.ts', 'src/codegen', '-c', this.codegenCommand],
       { cwd: process.cwd(), stdio: 'inherit' },
     );
 
