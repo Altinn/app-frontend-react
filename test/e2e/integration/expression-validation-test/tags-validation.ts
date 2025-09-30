@@ -42,6 +42,7 @@ describe('Attachment tags validation', () => {
     // Upload second file and tag as "Søknad"
     cy.get(appFrontend.expressionValidationTest.cvUploader).selectFile('test/e2e/fixtures/test.pdf', { force: true });
     cy.contains('Ferdig lastet').should('be.visible');
+    cy.get(appFrontend.errorReport).should('contain.text', "Du må laste opp 'Søknad'");
     cy.dsSelect(appFrontend.expressionValidationTest.groupTag, 'Søknad');
     cy.findAllByRole('button', { name: /^lagre$/i })
       .last()
