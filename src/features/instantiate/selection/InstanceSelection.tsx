@@ -10,7 +10,6 @@ import { ErrorListFromInstantiation, ErrorReport } from 'src/components/message/
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { TaskStoreProvider } from 'src/core/contexts/taskStoreContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import {
@@ -43,13 +42,11 @@ function getDateDisplayString(timeStamp: string) {
 }
 
 export const InstanceSelectionWrapper = () => (
-  <TaskStoreProvider>
-    <ActiveInstancesProvider>
-      <PresentationComponent showNavigation={false}>
-        <InstanceSelection />
-      </PresentationComponent>
-    </ActiveInstancesProvider>
-  </TaskStoreProvider>
+  <ActiveInstancesProvider>
+    <PresentationComponent showNavigation={false}>
+      <InstanceSelection />
+    </PresentationComponent>
+  </ActiveInstancesProvider>
 );
 
 function InstanceSelection() {
@@ -233,7 +230,7 @@ function InstanceSelection() {
   );
 
   return (
-    <TaskStoreProvider>
+    <>
       <title>{`${getPageTitle(appName, langAsString('instance_selection.left_of'), appOwner)}`}</title>
       <div id='instance-selection-container'>
         <div>
@@ -285,7 +282,7 @@ function InstanceSelection() {
         </div>
       </div>
       <ReadyForPrint type='load' />
-    </TaskStoreProvider>
+    </>
   );
 }
 

@@ -126,6 +126,14 @@
     },
     "logo": {
       "$ref": "#/definitions/logo"
+    },
+    "preventInstanceDeletionForDays": {
+      "type": "integer",
+      "title": "Prevent instance deletion for days",
+      "description": "Prevents the deletion of an instance for the specified number of days. This property takes precedence over the autoDeleteOnProcessEnd property."
+    },
+    "apiScopes": {
+      "$ref": "#/definitions/apiScopesConfiguration"
     }
   },
   "definitions": {
@@ -399,6 +407,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "actionRequiredToRead": {
+          "type": "string",
+          "title": "Action required to read",
+          "description": "When this is set, it overrides what action is required to read the blob of data elements of this data type."
+        },
+        "actionRequiredToWrite": {
+          "type": "string",
+          "title": "Action required to write",
+          "description": "When this is set, it overrides what action is required to write to the blob of data elements of this data type."
         }
       }
     },
@@ -489,6 +507,11 @@
           "items": {
             "type": "string"
           }
+        },
+        "includeAttachments": {
+          "type": "boolean",
+          "title": "Include attachments",
+          "description": "Gets or sets a boolean indicating if copying of attachments is enabled."
         }
       }
     },
@@ -587,6 +610,48 @@
       },
       "required": ["source"],
       "additionalProperties": false
+    },
+    "apiScopesConfiguration": {
+      "type": "object",
+      "title": "API scopes configuration",
+      "description": "Custom API scopes configuration for an app",
+      "additionalProperties": false,
+      "properties": {
+        "users": {
+          "$ref": "#/definitions/apiScopes"
+        },
+        "serviceOwners": {
+          "$ref": "#/definitions/apiScopes"
+        },
+        "errorMessageTextResourceKey": {
+          "type": "string",
+          "title": "Error message text resource key",
+          "description": "Text resource key for a custom error message to show when a user tries to access the app API without having the required scopes. Will apply for both service owners and users if specified (has lower precedence than the one in 'users' and 'serviceOwners')."
+        }
+      }
+    },
+    "apiScopes": {
+      "type": "object",
+      "title": "API scopes",
+      "description": "Custom scopes for an app",
+      "additionalProperties": false,
+      "properties": {
+        "read": {
+          "type": "string",
+          "title": "Read scope",
+          "description": "Gets or sets the read scope for the app. Can use '[app]' as placeholders for the app name that will be substituted when validating the token. Example: \"<your-IDporten-org>:[app]/instances.read\""
+        },
+        "write": {
+          "type": "string",
+          "title": "Write scope",
+          "description": "Gets or sets the write scope for the app. Can use '[app]' as placeholders for the app name that will be substituted when validating the token. Example: \"<your-IDporten-org>:[app]/instances.write\""
+        },
+        "errorMessageTextResourceKey": {
+          "type": "string",
+          "title": "Error message text resource key",
+          "description": "Text resource key for a custom error message to show when a user tries to access the app API without having the required scopes. Will apply if set (takes precedence over the one in 'apiScopesConfiguration')."
+        }
+      }
     }
   }
 }
