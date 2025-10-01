@@ -40,7 +40,7 @@ export function ImageControllers({
 
   const handleSliderZoom = (e: React.ChangeEvent<HTMLInputElement>) => {
     const logarithmicZoomValue = normalToLogZoom({
-      value: parseFloat(e.target.value),
+      value: Number.parseFloat(e.target.value),
       minZoom,
       maxZoom,
     });

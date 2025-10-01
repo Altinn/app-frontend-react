@@ -22,11 +22,8 @@ export function ImageUploadSummary2({ targetBaseComponentId }: Summary2Props) {
   const isSmall = mobileView && !pdfModeActive;
   const isEmpty = attachment.length === 0;
 
-  const contentLogic = isEmpty
-    ? required
-      ? SummaryContains.EmptyValueRequired
-      : SummaryContains.EmptyValueNotRequired
-    : SummaryContains.SomeUserContent;
+  const emptyValueText = required ? SummaryContains.EmptyValueRequired : SummaryContains.EmptyValueNotRequired;
+  const contentLogic = isEmpty ? emptyValueText : SummaryContains.SomeUserContent;
 
   return (
     <SummaryFlex

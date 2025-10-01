@@ -218,7 +218,7 @@ const ValidationMessages = ({ validationErrors }: { validationErrors: string[] |
 
   return validationErrors.map((error, index) => (
     <ValidationMessage
-      key={index}
+      key={`error-${index}`}
       data-size='sm'
     >
       <Lang id={error} />

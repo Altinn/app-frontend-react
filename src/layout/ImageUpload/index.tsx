@@ -36,7 +36,7 @@ export class ImageUpload extends ImageUploadDef {
   }
 
   renderSummary(_props: SummaryRendererProps): JSX.Element | null {
-    throw new Error('Method not implemented.'); // TODO
+    throw new Error('Method not implemented.'); // Use renderSummary2, will probably not be supported
   }
 
   renderSummary2(props: Summary2Props): JSX.Element | null {
