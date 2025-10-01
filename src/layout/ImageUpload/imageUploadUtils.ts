@@ -1,5 +1,3 @@
-import { mapExtensionToAcceptMime } from 'src/app-components/Dropzone/mapExtensionToAcceptMime';
-
 export type Position = { x: number; y: number };
 export enum CropForm {
   Square = 'square',
@@ -120,26 +118,17 @@ type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
 export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
   Math.max(cropArea.width / img.width, cropArea.height / img.height);
 
-type ValidateFileParams = { file?: File; validFileEndings?: string[] };
-export type ValidationErrors = { key: string; validFileEndings?: string }[];
-export const validateFile = ({ file, validFileEndings }: ValidateFileParams) => {
-  const errors: ValidationErrors = [];
-  const typeError = {
-    key: 'image_upload_component.error_invalid_file_type',
-    validFileEndings: validFileEndings?.join(', ') ?? 'image_upload_component.valid_file_types_all',
-  };
-  const sizeError = { key: 'image_upload_component.error_file_size_exceeded' };
+export const validateFile = (file?: File): string[] => {
+  const errors: string[] = [];
+  const typeError = 'image_upload_component.error_invalid_file_type';
+  const sizeError = 'image_upload_component.error_file_size_exceeded';
 
   if (!file) {
     errors.push(typeError);
     return errors;
   }
 
-  const fileName = file.name.toLowerCase();
-  const isTypeInvalid = validFileEndings
-    ? !validFileEndings.some((ending) => fileName?.endsWith(ending))
-    : !file.type.startsWith('image/');
-
+  const isTypeInvalid = !file.type.startsWith('image/');
   if (isTypeInvalid) {
     errors.push(typeError);
   }
@@ -149,23 +138,4 @@ export const validateFile = ({ file, validFileEndings }: ValidateFileParams) => 
   }
 
   return errors;
-};
-
-export type AcceptedFiles = {
-  dropzone: Record<string, string[]>;
-  input: string;
-};
-
-export const getAcceptedFiles = (validFileEndings?: string[]): AcceptedFiles => {
-  if (!validFileEndings?.length) {
-    return {
-      dropzone: { 'image/*': [] },
-      input: 'image/*',
-    };
-  }
-
-  return {
-    dropzone: mapExtensionToAcceptMime(validFileEndings),
-    input: validFileEndings.join(','),
-  };
 };

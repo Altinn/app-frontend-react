@@ -12,30 +12,27 @@ import {
   constrainToArea,
   cropAreaPlacement,
   drawCropArea,
-  getAcceptedFiles,
   imagePlacement,
   validateFile,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
-import type { CropArea, Position, ValidationErrors } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
   baseComponentId: string;
   cropArea: CropArea;
-  validFileEndings?: string[];
 }
 
 const MAX_ZOOM = 5;
 
-export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: ImageCropperProps) {
+export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
-  const acceptedFiles = getAcceptedFiles(validFileEndings);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
 
   const [zoom, setZoom] = useState<number>(0);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
   const minAllowedZoom = imageRef.current ? calculateMinZoom({ img: imageRef.current, cropArea }) : 0.1;
 
@@ -95,7 +92,7 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
   );
 
   const handleFileUpload = (file: File) => {
-    const validationErrors = validateFile({ file, validFileEndings });
+    const validationErrors = validateFile(file);
     setValidationErrors(validationErrors);
     if (validationErrors.length > 0) {
       return;
@@ -171,7 +168,6 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
         <ImageDropzone
           baseComponentId={baseComponentId}
           onDrop={(files) => handleFileUpload(files[0])}
-          acceptedFiles={acceptedFiles}
           readOnly={false}
           hasErrors={!!validationErrors && validationErrors?.length > 0}
         />
@@ -202,7 +198,6 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
           storedImage={storedImage}
-          acceptedFiles={acceptedFiles}
           updateZoom={handleZoomChange}
           onSave={handleSave}
           onDelete={handleDeleteImage}
@@ -216,7 +211,7 @@ export function ImageCropper({ baseComponentId, cropArea, validFileEndings }: Im
   );
 }
 
-const ValidationMessages = ({ validationErrors }: { validationErrors: ValidationErrors | null }) => {
+const ValidationMessages = ({ validationErrors }: { validationErrors: string[] | null }) => {
   if (!validationErrors) {
     return null;
   }
@@ -226,8 +221,7 @@ const ValidationMessages = ({ validationErrors }: { validationErrors: Validation
       key={index}
       data-size='sm'
     >
-      <Lang id={error.key} />
-      <Lang id={error.validFileEndings} />
+      <Lang id={error} />
     </ValidationMessage>
   ));
 };
