@@ -53,7 +53,6 @@ export function ImageControllers({
     if (file) {
       onFileUploaded(file);
     }
-    e.target.value = '';
   };
 
   if (storedImage) {

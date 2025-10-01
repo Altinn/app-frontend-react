@@ -1,8 +1,8 @@
-export const makeTestFile = (fileName: string): Cypress.FileReference => ({
+export const makeTestFile = (fileName: string, newImageUrl?: string): Cypress.FileReference => ({
   fileName,
   mimeType: 'image/png',
   lastModified: Date.now(),
-  contents: 'test/e2e/fixtures/map-tile.png',
+  contents: newImageUrl ?? 'test/e2e/fixtures/map-tile.png',
 });
 
 export const uploadImageAndVerify = (fileName: string) => {
