@@ -49,8 +49,6 @@
   border-radius: var(--ds-border-radius-full);
 }
 
-/* Buttons */
-
 .actionButtons {
   display: flex;
   gap: var(--ds-size-2);

@@ -36,7 +36,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
 
   const minAllowedZoom = imageRef.current ? calculateMinZoom({ img: imageRef.current, cropArea }) : 0.1;
 
-  // Constrains position changes from the canvas component
   const handlePositionChange = useCallback(
     (newPosition: Position) => {
       if (!imageRef.current) {
@@ -54,7 +53,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     [zoom, cropArea],
   );
 
-  // Constrains zoom changes from the canvas or controllers
   const handleZoomChange = useCallback(
     (newZoomValue: number) => {
       const newZoom = Math.max(minAllowedZoom, Math.min(newZoomValue, MAX_ZOOM));
@@ -72,7 +70,6 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       const imageCenterX = (viewportCenterX - imgX) / zoom;
       const imageCenterY = (viewportCenterY - imgY) / zoom;
 
-      // Compute new position to keep the same image point under viewport center
       const newPosition = {
         x: viewportCenterX - imageCenterX * newZoom - (canvas.width - img.width * newZoom) / 2,
         y: viewportCenterY - imageCenterY * newZoom - (canvas.height - img.height * newZoom) / 2,

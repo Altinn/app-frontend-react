@@ -17,12 +17,7 @@ export const uploadImageAndVerify = (fileName: string) => {
     const canvas = $canvas[0] as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
     const data = ctx?.getImageData(0, 0, canvas.width, canvas.height).data;
-    // Count non-transparent pixels
-    const hasImage =
-      data &&
-      Array.from(data).some(
-        (value, index) => index % 4 !== 3 && value !== 0, // not alpha channel, and not 0
-      );
+    const hasImage = data && Array.from(data).some((value, index) => index % 4 !== 3 && value !== 0);
     expect(hasImage).to.be.true;
   });
 };
