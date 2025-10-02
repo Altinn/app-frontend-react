@@ -108,6 +108,8 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           filter={(args) => optionFilter(args, selectedLabels)}
           data-size='sm'
           selected={formatSelectedValues(selectedValues, options)}
+          //TODO: Remove the "key" prop when designsystemet have fixed the update https://github.com/digdir/designsystemet/issues/4109
+          key={selectedValues.toString()}
           onSelectedChange={(options) => handleChange(options.map((o) => o.value))}
           onBlur={() => debounce}
           name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
