@@ -22,6 +22,15 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
 import type { PropsFromGenericComponent } from 'src/layout';
 
+/**
+ * Render a localized, accessible dropdown input with optional alert-on-change confirmation and table-specific behavior.
+ *
+ * Renders a labeled combobox that shows a loading spinner while options are fetching, displays localized option labels,
+ * supports read-only mode and inline table rendering accessibility adjustments, and optionally prompts for confirmation
+ * when the selection changes. Selected values are kept synchronized with available options and presented with localized labels.
+ *
+ * @returns A labeled dropdown React element that manages selection state, localization, read-only rendering, and optional delete-confirmation popover.
+ */
 export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Dropdown'>) {
   const item = useItemWhenType(baseComponentId, 'Dropdown');
   const isValid = useIsValid(baseComponentId);
