@@ -263,7 +263,11 @@ export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericCompo
         if (isClientAction(action)) {
           await handleClientActions([action]);
         } else if (isServerAction(action)) {
-          await handleServerAction({ action, buttonId: id });
+          try {
+            await handleServerAction({ action, buttonId: id });
+          } catch {
+            // Error is handled elsewhere
+          }
         }
       }
     });
