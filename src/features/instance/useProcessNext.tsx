@@ -36,7 +36,7 @@ export function getProcessNextMutationKey(action?: IActionType) {
 }
 
 export function useProcessNext({ action }: ProcessNextProps = {}) {
-  const reFetchInstanceData = useInstanceDataQuery().refetch;
+  const reFetchInstanceData = useInstanceDataQuery({ enabled: false }).refetch;
   const language = useCurrentLanguage();
   const { data: process, refetch: refetchProcessData } = useProcessQuery();
   const navigateToTask = useNavigateToTask();
@@ -72,7 +72,7 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
       }
 
       return doProcessNext(instanceId, language, action)
-        .then((process) => [process, null] as const)
+        .then(({ data: process }) => [process, null] as const)
         .catch((error) => {
           if (error.response?.status === 409 && error.response?.data?.['validationIssues']?.length) {
             // If process next failed due to validation, return validationIssues instead of throwing
@@ -93,8 +93,7 @@ export function useProcessNext({ action }: ProcessNextProps = {}) {
     onSuccess: async ([processData, validationIssues]) => {
       if (processData) {
         optimisticallyUpdateProcess(processData);
-        refetchProcessData();
-        reFetchInstanceData();
+        await Promise.all([refetchProcessData(), reFetchInstanceData()]);
         await invalidateFormDataQueries(queryClient);
 
         const task = getTargetTaskFromProcess(processData);
