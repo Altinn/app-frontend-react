@@ -214,7 +214,7 @@ export function nn() {
     'image_upload_component.button_save': 'Lagre bilde',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
     'image_upload_component.reset': 'Tilbakestill zoom og plassering',
-    'image_upload_component.error_invalid_file_type': 'Feil filformat. Last opp en fil med: ',
+    'image_upload_component.error_invalid_file_type': 'Ugyldig filformat. Last opp ein bildefil med format: {0}.',
     'image_upload_component.error_file_size_exceeded': 'Fila er for stor. Største tillatte filstorleik er 10MB.',
     'image_upload_component.valid_file_types': 'Bildefiler er tillatne',
     'input_components.remaining_characters': 'Du har %d teikn igjen',

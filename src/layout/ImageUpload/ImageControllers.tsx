@@ -6,7 +6,7 @@ import { ArrowUndoIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
-import { logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
+import { acceptedImageFiles, logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { UploadedAttachment } from 'src/features/attachments';
 
 type ImageControllersProps = {
@@ -111,7 +111,7 @@ export function ImageControllers({
           id={inputId}
           ref={fileInputRef}
           type='file'
-          accept='image/*'
+          accept={acceptedImageFiles.join(',')}
           onChange={handleImageChange}
           hidden
         />

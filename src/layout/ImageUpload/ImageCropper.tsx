@@ -16,7 +16,7 @@ import {
   validateFile,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
-import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropArea, ErrorTypes, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
   baseComponentId: string;
@@ -32,7 +32,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
 
   const [zoom, setZoom] = useState<number>(0);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
+  const [validationErrors, setValidationErrors] = useState<ErrorTypes | null>(null);
 
   const minAllowedZoom = imageRef.current ? calculateMinZoom({ img: imageRef.current, cropArea }) : 0.1;
 
@@ -135,7 +135,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       if (!blob) {
         return;
       }
-      const fileName = img?.id || 'cropped-image.png';
+      const fileName = img.id;
       const imageFile = new File([blob], fileName, { type: 'image/png' });
       saveImage(imageFile);
       setValidationErrors(null);
@@ -208,7 +208,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   );
 }
 
-const ValidationMessages = ({ validationErrors }: { validationErrors: string[] | null }) => {
+const ValidationMessages = ({ validationErrors }: { validationErrors: ErrorTypes | null }) => {
   if (!validationErrors) {
     return null;
   }
@@ -218,7 +218,10 @@ const ValidationMessages = ({ validationErrors }: { validationErrors: string[] |
       key={`error-${index}`}
       data-size='sm'
     >
-      <Lang id={error} />
+      <Lang
+        id={error.key}
+        params={[error?.fileTypes]}
+      />
     </ValidationMessage>
   ));
 };

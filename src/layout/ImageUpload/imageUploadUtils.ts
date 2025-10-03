@@ -118,23 +118,26 @@ type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
 export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
   Math.max(cropArea.width / img.width, cropArea.height / img.height);
 
-export const validateFile = (file?: File): string[] => {
-  const errors: string[] = [];
+export const acceptedImageFiles = ['.png', '.jpg', '.jpeg', '.heic', '.webp'];
+export type ErrorTypes = { key: string; fileTypes?: string }[];
+export const validateFile = (file?: File): ErrorTypes => {
+  const errors: ErrorTypes = [];
+
   const typeError = 'image_upload_component.error_invalid_file_type';
   const sizeError = 'image_upload_component.error_file_size_exceeded';
 
   if (!file) {
-    errors.push(typeError);
+    errors.push({ key: typeError, fileTypes: acceptedImageFiles.join(', ') });
     return errors;
   }
 
-  const isTypeInvalid = !file.type.startsWith('image/');
-  if (isTypeInvalid) {
-    errors.push(typeError);
+  if (file.size > 10 * 1024 * 1024) {
+    errors.push({ key: sizeError });
   }
 
-  if (file.size > 10 * 1024 * 1024) {
-    errors.push(sizeError);
+  const isTypeInvalid = !acceptedImageFiles.some((type) => file.name.toLowerCase().endsWith(type));
+  if (isTypeInvalid) {
+    errors.push({ key: typeError, fileTypes: acceptedImageFiles.join(', ') });
   }
 
   return errors;

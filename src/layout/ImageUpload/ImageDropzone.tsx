@@ -7,6 +7,7 @@ import { getDescriptionId } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import classes from 'src/layout/ImageUpload/ImageDropzone.module.css';
+import { acceptedImageFiles } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { IDropzoneProps } from 'src/app-components/Dropzone/Dropzone';
 
 type ImageDropzoneProps = {
@@ -30,7 +31,7 @@ export function ImageDropzone({ baseComponentId, hasErrors, readOnly, onDrop }: 
       onDrop={onDrop}
       onDragActiveChange={setDragActive}
       hasValidationMessages={hasErrors}
-      acceptedFiles={{ 'image/*': [] }}
+      acceptedFiles={{ acceptedImageFiles }}
       data-color='neutral'
       className={cn(classes.placeholder, { [classes.dragActive]: dragActive })}
       describedBy={ariaDescribedBy}
