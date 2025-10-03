@@ -685,12 +685,11 @@ function collectMatchingFieldPaths(
   }
 
   const part = fieldParts[partIndex];
-  const nextData = data?.[part];
-
-  if (nextData === undefined || nextData === null) {
+  if (typeof data !== 'object' || data === null || data[part] === undefined || data[part] === null) {
     return;
   }
 
+  const nextData = data[part];
   const nextPath = currentPath ? `${currentPath}.${part}` : part;
 
   if (Array.isArray(nextData)) {
