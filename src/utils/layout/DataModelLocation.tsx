@@ -177,6 +177,7 @@ export function NestedDataModelLocationProviders({ reference, children }: PropsW
   return groupContexts.reduceRight(
     (child, { groupBinding, rowIndex }) => (
       <DataModelLocationProvider
+        key={`${groupBinding.dataType}-${groupBinding.field}-${rowIndex}`}
         groupBinding={groupBinding}
         rowIndex={rowIndex}
       >
