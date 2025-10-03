@@ -41,11 +41,14 @@ function DataTypeValidation({ dataType }: { dataType: string }) {
   const expressionValidationConfig = DataModels.useExpressionValidationConfig(dataType);
 
   const [allFieldValidations, setAllFieldValidations] = useState<FieldValidations>({});
-  const collector: ValidationCollectorApi = {
-    setFieldValidations: (fieldKey, validations) => {
-      setAllFieldValidations((prev) => ({ ...prev, [fieldKey]: validations }));
-    },
-  };
+  const collector: ValidationCollectorApi = useMemo(
+    () => ({
+      setFieldValidations: (fieldKey, validations) => {
+        setAllFieldValidations((prev) => ({ ...prev, [fieldKey]: validations }));
+      },
+    }),
+    [],
+  );
 
   useEffect(() => {
     if (!dataElementId) {
