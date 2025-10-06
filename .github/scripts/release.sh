@@ -92,8 +92,15 @@ fi
 echo " * Copying Patch version"
 mkdir -p "$TARGET/$APP_FULL"
 cp -fr $SOURCE/* "$TARGET/$APP_FULL/"
-
 echo "-------------------------------------"
+
+echo "Files to be synced:"
+echo
+find "$TARGET" -type f
+echo "-------------------------------------"
+
+echo "Log:"
+echo
 if [[ -z "$AZURE_STORAGE_ACCOUNT_NAME" ]]; then
   echo "Skipping publish to azure cdn. As --azure-sa-name flag not defined"
 else
@@ -123,7 +130,9 @@ else
     else
       echo "Publishing files to azure cdn"
     fi
+    set -x
     azcopy sync "$TARGET" "$AZURE_TARGET_URI/toolkits" "${AZCOPY_TOOLKITS_OPTS[@]}" "${AZCOPY_ADDITIONAL_OPTS[@]}"
+    set +x
     echo "-------------------------------------"
     if [[ "$SYNC_AZURE_CDN" == "yes" && "$PRE_RELEASE" == "no" ]]; then
       bash ".github/scripts/purge-frontdoor-cache.sh" --path "/toolkits/altinn-app-frontend/$APP_MAJOR/*" --path "/toolkits/altinn-app-frontend/$APP_MAJOR_MINOR/*"
