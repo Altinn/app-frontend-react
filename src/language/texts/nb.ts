@@ -213,6 +213,7 @@ export function nb() {
     'image_upload_component.button_delete': 'Slett bildet',
     'image_upload_component.button_save': 'Lagre bilde',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
+    'image_upload_component.summary_empty': 'Du har ikke lastet opp noe bilde',
     'image_upload_component.reset': 'Tilbakestill zoom og plassering',
     'image_upload_component.error_invalid_file_type': 'Feil filformat. Last opp en  bildefil med format: {0}.',
     'image_upload_component.error_file_size_exceeded': 'Filen er for stor. Største tillatte filstørrelse er 10MB.',

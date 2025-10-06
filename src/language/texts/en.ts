@@ -212,6 +212,7 @@ export function en() {
     'image_upload_component.button_delete': 'Delete image',
     'image_upload_component.button_save': 'Save image',
     'image_upload_component.slider_zoom': 'Zoom',
+    'image_upload_component.summary_empty': "You haven't uploaded an image",
     'image_upload_component.reset': 'Reset position and zoom',
     'image_upload_component.error_invalid_file_type':
       'Invalid file format. Please upload an image file with the following formats: {0}.',
