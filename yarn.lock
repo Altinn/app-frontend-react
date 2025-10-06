@@ -1949,20 +1949,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-css@npm:1.5.1":
-  version: 1.5.1
-  resolution: "@digdir/designsystemet-css@npm:1.5.1"
-  checksum: 10c0/34c22e0127e1a15c7a3ca3d6246c92fc3d9727fb45768e08faae47f255249d7eb12aa79369d9bfcd743fc3210e3949040e849902d93a0fc6f0b4c7dc82b6502b
+"@digdir/designsystemet-css@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@digdir/designsystemet-css@npm:1.6.0"
+  checksum: 10c0/0db3467edf0e53b0f43d33e927771304ff61881d721bd2fb75d9760ca7be48d480be5f5e24a293c834b5138ada9985d0706462c8c3eab460523a37994a01f4cf
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-react@npm:1.5.1":
-  version: 1.5.1
-  resolution: "@digdir/designsystemet-react@npm:1.5.1"
+"@digdir/designsystemet-react@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@digdir/designsystemet-react@npm:1.6.0"
   dependencies:
     "@floating-ui/dom": "npm:^1.7.4"
     "@floating-ui/react": "npm:0.26.23"
-    "@navikt/aksel-icons": "npm:^7.29.1"
+    "@navikt/aksel-icons": "npm:^7.30.1"
     "@radix-ui/react-slot": "npm:^1.2.3"
     "@tanstack/react-virtual": "npm:^3.13.12"
     "@u-elements/u-combobox": "npm:^1.0.1"
@@ -1972,14 +1972,14 @@ __metadata:
   peerDependencies:
     react: ">=18.3.1 || ^19.0.0"
     react-dom: ">=18.3.1 || ^19.0.0"
-  checksum: 10c0/35f946c44d7e07c2bb3044827f425560575e03b983087725325b2fa5aa813ec43d2423f8f24fa317ea9f9788b82a2f76d31363fbb72520b39482c639c4fd5274
+  checksum: 10c0/653c10410af4a811508aeca54ad3c502ba46398b3931e4a3cc5c1142e3c6343d00f855e080279b750ccbde641c18567adf6989c5d2e484c73f6fa2daf8dc311c
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-theme@npm:1.5.1":
-  version: 1.5.1
-  resolution: "@digdir/designsystemet-theme@npm:1.5.1"
-  checksum: 10c0/81442cbe470fd9d3082c0547c60aaf4700c4e37340392dc72a2b3cf5c03c51a2a5d55e819becf4a89511f83f29714059ab4e2ba5b6e4ec671e1f9da4dc0d0f53
+"@digdir/designsystemet-theme@npm:1.6.0":
+  version: 1.6.0
+  resolution: "@digdir/designsystemet-theme@npm:1.6.0"
+  checksum: 10c0/9433b5a2272c46323fe7f84b547a9eaf3041b1d53560a97e99c7834c8a7b472ac15c67426d87af324a8fdbb0b5b73a08795c9959ce62e98165c40b9cfb23d447
   languageName: node
   linkType: hard
 
@@ -3184,7 +3184,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@navikt/aksel-icons@npm:7.31.0, @navikt/aksel-icons@npm:^7.29.1":
+"@navikt/aksel-icons@npm:7.31.0, @navikt/aksel-icons@npm:^7.30.1":
   version: 7.31.0
   resolution: "@navikt/aksel-icons@npm:7.31.0"
   checksum: 10c0/10488569dec7c49ace82eab9684f122ccfded18fc99f290ea62589d52dc2b63c6c0be8f524308a63cf36cb235b827d2eab96f3079c65643fd34ff9e93552177a
@@ -5569,9 +5569,9 @@ __metadata:
     "@babel/runtime-corejs3": "npm:7.28.4"
     "@cypress/snapshot": "npm:^2.1.7"
     "@date-fns/tz": "npm:1.4.1"
-    "@digdir/designsystemet-css": "npm:1.5.1"
-    "@digdir/designsystemet-react": "npm:1.5.1"
-    "@digdir/designsystemet-theme": "npm:1.5.1"
+    "@digdir/designsystemet-css": "npm:1.6.0"
+    "@digdir/designsystemet-react": "npm:1.6.0"
+    "@digdir/designsystemet-theme": "npm:1.6.0"
     "@eslint/compat": "npm:1.4.0"
     "@faker-js/faker": "npm:10.0.0"
     "@navikt/aksel-icons": "npm:7.31.0"
