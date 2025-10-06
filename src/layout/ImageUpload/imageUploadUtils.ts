@@ -118,6 +118,8 @@ type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
 export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
   Math.max(cropArea.width / img.width, cropArea.height / img.height);
 
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 export const acceptedImageFiles = ['.png', '.jpg', '.jpeg', '.heic', '.webp'];
 export type ErrorTypes = { key: string; fileTypes?: string }[];
 export const validateFile = (file?: File): ErrorTypes => {
@@ -131,7 +133,7 @@ export const validateFile = (file?: File): ErrorTypes => {
     return errors;
   }
 
-  if (file.size > 10 * 1024 * 1024) {
+  if (file.size > MAX_FILE_SIZE_BYTES) {
     errors.push({ key: sizeError });
   }
 
