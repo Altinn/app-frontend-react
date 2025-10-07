@@ -91,6 +91,7 @@ describe('Language', () => {
     cy.focused().should('contain.text', 'Engelsk');
     cy.press('Space');
 
+    cy.waitForLoad();
     cy.wait('@texts');
   });
 });
