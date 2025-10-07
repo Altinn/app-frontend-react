@@ -30,7 +30,7 @@ function InnerPopoverNavigation(props: Parameters<typeof Button>[0]) {
   const modalRef = useRef<HTMLDialogElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
-  const dropdownStyle = useDynamicHeight(dropdownRef, false);
+  const dropdownStyle = useDynamicHeight(dropdownRef, isDialogOpen && !isMobile);
 
   useEffect(() => {
     isDialogOpen && modalRef.current?.showModal();
@@ -133,8 +133,8 @@ function useDynamicHeight(elementRef: React.RefObject<HTMLDivElement | null>, is
     const updateMaxHeight = () => {
       const rect = elementRef.current?.getBoundingClientRect();
       if (rect) {
-        const availableHeight = window.innerHeight - rect.top - 20; // 20px margin
-        setMaxHeight(Math.max(200, availableHeight)); // Minimum 200px
+        const availableHeight = Math.max(0, window.innerHeight - rect.top - 20); // 20px margin, non-negative
+        setMaxHeight(availableHeight);
       }
     };
 
