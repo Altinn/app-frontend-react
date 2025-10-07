@@ -7,7 +7,7 @@ import { getCropArea } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CropArea } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropForm } from 'src/layout/ImageUpload/imageUploadUtils';
 
 export function ImageUploadComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'ImageUpload'>) {
   const { id, cropHeight, cropShape, cropWidth, grid, required, readOnly } = useItemWhenType(
@@ -30,7 +30,7 @@ export function ImageUploadComponent({ baseComponentId, overrideDisplay }: Props
     >
       <ComponentStructureWrapper baseComponentId={baseComponentId}>
         <ImageCropper
-          cropArea={getCropArea({ width: cropWidth, height: cropHeight, type: cropShape } as CropArea)}
+          cropArea={getCropArea({ width: cropWidth, height: cropHeight, type: cropShape as CropForm })}
           baseComponentId={baseComponentId}
           readOnly={!!readOnly}
         />
