@@ -11,6 +11,7 @@ import type { UploadedAttachment } from 'src/features/attachments';
 
 type ImageControllersProps = {
   imageType: string;
+  readOnly: boolean;
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
   storedImage?: UploadedAttachment;
@@ -24,6 +25,7 @@ type ImageControllersProps = {
 
 export function ImageControllers({
   imageType,
+  readOnly,
   zoom,
   zoomLimits: { minZoom, maxZoom },
   storedImage,
@@ -64,7 +66,7 @@ export function ImageControllers({
         variant='secondary'
         data-color='danger'
         onClick={onDelete}
-        disabled={!storedImage.uploaded || storedImage.deleting}
+        disabled={!storedImage.uploaded || storedImage.deleting || readOnly}
       >
         <TrashIcon />
         <Lang id='image_upload_component.button_delete' />

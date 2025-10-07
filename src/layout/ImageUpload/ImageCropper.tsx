@@ -21,11 +21,12 @@ import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils
 interface ImageCropperProps {
   baseComponentId: string;
   cropArea: CropArea;
+  readOnly: boolean;
 }
 
 const MAX_ZOOM = 5;
 
-export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
+export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropperProps) {
   const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
@@ -166,7 +167,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
         <ImageDropzone
           baseComponentId={baseComponentId}
           onDrop={(files) => handleFileUpload(files[0])}
-          readOnly={false}
+          readOnly={!!readOnly}
           hasErrors={!!validationErrors && validationErrors?.length > 0}
         />
         <ValidationMessages validationErrors={validationErrors} />
@@ -194,6 +195,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       {(imageRef.current || storedImage) && (
         <ImageControllers
           imageType={imageTypeRef.current!}
+          readOnly={readOnly}
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
           storedImage={storedImage}

@@ -32,6 +32,18 @@ describe('ImageUploadComponent', () => {
     expect(screen.getByRole('button', { name: 'Slett bildet' })).toBeInTheDocument();
   });
 
+  it('should render disabled delete button when there is an stored image and is readOnly', async () => {
+    jest.spyOn(imageHooks, 'useImageFile').mockReturnValue({
+      storedImage: attachmentsMock[0],
+      saveImage: jest.fn(),
+      deleteImage: jest.fn(),
+    });
+    await renderImageUploadComponent({ component: { readOnly: true } });
+    const deleteButton = screen.getByRole('button', { name: 'Slett bildet' });
+    expect(deleteButton).toBeInTheDocument();
+    expect(deleteButton).toBeDisabled();
+  });
+
   it('should call to delete image when delete button is clicked', async () => {
     const user = userEvent.setup();
     const deleteImage = jest.fn();
