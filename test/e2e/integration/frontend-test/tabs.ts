@@ -13,6 +13,11 @@ describe('Tabs', () => {
     cy.findByRole('tab', { name: tab1 }).findByAltText('').should('exist'); // Check if icon is present
     cy.findByRole('tab', { name: tab1 }).should('have.text', 'Nytt mellomnavn'); // check if text is present
 
+    // Regression test for one time when all tabs were visible at the same time
+    cy.findAllByRole('tabpanel').should('have.length', 1);
+    cy.get('#form-content-newMiddleName').should('be.visible');
+    cy.get('#form-content-newLastName').should('not.be.visible');
+
     cy.findByRole('textbox', { name: /Nytt mellomnavn/i });
 
     cy.get('label').should('contain.text', 'Nytt mellomnavn');
