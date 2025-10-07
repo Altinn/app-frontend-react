@@ -16,7 +16,7 @@ describe('Tabs', () => {
     // Regression test for one time when all tabs were visible at the same time
     cy.findAllByRole('tabpanel').should('have.length', 1);
     cy.get('#form-content-newMiddleName').should('be.visible');
-    cy.get('#form-content-newLastName').should('not.be.visible');
+    cy.get('#form-content-newLastName').should('not.exist');
 
     cy.findByRole('textbox', { name: /Nytt mellomnavn/i });
 
