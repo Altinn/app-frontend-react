@@ -118,29 +118,32 @@ type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
 export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
   Math.max(cropArea.width / img.width, cropArea.height / img.height);
 
-const MAX_FILE_SIZE_MB = 10;
-const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
-export const acceptedImageFiles = ['.png', '.jpg', '.jpeg', '.heic', '.webp'];
-export type ErrorTypes = { key: string; fileTypes?: string }[];
-export const validateFile = (file?: File): ErrorTypes => {
-  const errors: ErrorTypes = [];
+export const validateFile = (file?: File): string[] => {
+  const MAX_FILE_SIZE_MB = 10;
+  const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+  const errors: string[] = [];
 
   const typeError = 'image_upload_component.error_invalid_file_type';
   const sizeError = 'image_upload_component.error_file_size_exceeded';
 
   if (!file) {
-    errors.push({ key: typeError, fileTypes: acceptedImageFiles.join(', ') });
+    errors.push(typeError);
     return errors;
   }
 
   if (file.size > MAX_FILE_SIZE_BYTES) {
-    errors.push({ key: sizeError });
+    errors.push(sizeError);
   }
 
-  const isTypeInvalid = !acceptedImageFiles.some((type) => file.name.toLowerCase().endsWith(type));
+  const isTypeInvalid = !file.type.startsWith('image/');
   if (isTypeInvalid) {
-    errors.push({ key: typeError, fileTypes: acceptedImageFiles.join(', ') });
+    errors.push(typeError);
   }
 
   return errors;
+};
+
+export const isAnimationFile = (fileType: string): boolean => {
+  const animationMimeTypes = ['image/gif', 'image/apng', 'image/webp'];
+  return animationMimeTypes.includes(fileType.toLowerCase());
 };

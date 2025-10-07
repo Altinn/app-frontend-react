@@ -6,6 +6,7 @@ import {
   drawCropArea,
   getCropArea,
   imagePlacement,
+  isAnimationFile,
   logToNormalZoom,
   normalToLogZoom,
   validateFile,
@@ -216,11 +217,29 @@ describe('validateFile', () => {
   it('returns both errors for invalid type and size', () => {
     const bigBuffer = new Uint8Array(maxSize + 1);
     const file = new File([bigBuffer], 'bigfile.txt', { type: 'text/plain' });
-    expect(validateFile(file)).toEqual([typeError, sizeError]);
+    expect(validateFile(file)).toEqual([sizeError, typeError]);
   });
 
   it('returns no errors for valid image file', () => {
     const file = new File([new Uint8Array(maxSize)], 'image.png', { type: 'image/png' });
     expect(validateFile(file)).toEqual([]);
+  });
+});
+
+describe('isAnimationFile', () => {
+  it('returns true for .gif files', () => {
+    expect(isAnimationFile('image/gif')).toBe(true);
+    expect(isAnimationFile('IMAGE/GIF')).toBe(true);
+  });
+  it('returns true for .apng files', () => {
+    expect(isAnimationFile('image/apng')).toBe(true);
+    expect(isAnimationFile('IMAGE/APNG')).toBe(true);
+  });
+  it('returns true for .webp files', () => {
+    expect(isAnimationFile('image/webp')).toBe(true);
+    expect(isAnimationFile('IMAGE/WEBP')).toBe(true);
+  });
+  it('returns false for non-animated image types', () => {
+    expect(isAnimationFile('image/png')).toBe(false);
   });
 });

@@ -16,7 +16,7 @@ import {
   validateFile,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
-import type { CropArea, ErrorTypes, Position } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
   baseComponentId: string;
@@ -29,10 +29,10 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
-
+  const imageTypeRef = useRef<string | null>(null);
   const [zoom, setZoom] = useState<number>(0);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
-  const [validationErrors, setValidationErrors] = useState<ErrorTypes | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
 
   const minAllowedZoom = imageRef.current ? calculateMinZoom({ img: imageRef.current, cropArea }) : 0.1;
 
@@ -102,6 +102,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
       if (typeof result === 'string') {
         const img = new Image();
         img.id = file.name;
+        imageTypeRef.current = file.type;
         img.onload = () => {
           updateImageState({ minZoom: calculateMinZoom({ img, cropArea }), img });
         };
@@ -192,6 +193,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
     >
       {(imageRef.current || storedImage) && (
         <ImageControllers
+          imageType={imageTypeRef.current!}
           zoom={zoom}
           zoomLimits={{ minZoom: minAllowedZoom, maxZoom: MAX_ZOOM }}
           storedImage={storedImage}
@@ -208,7 +210,7 @@ export function ImageCropper({ baseComponentId, cropArea }: ImageCropperProps) {
   );
 }
 
-const ValidationMessages = ({ validationErrors }: { validationErrors: ErrorTypes | null }) => {
+const ValidationMessages = ({ validationErrors }: { validationErrors: string[] | null }) => {
   if (!validationErrors) {
     return null;
   }
@@ -218,10 +220,7 @@ const ValidationMessages = ({ validationErrors }: { validationErrors: ErrorTypes
       key={`error-${index}`}
       data-size='sm'
     >
-      <Lang
-        id={error.key}
-        params={[error?.fileTypes]}
-      />
+      <Lang id={error} />
     </ValidationMessage>
   ));
 };

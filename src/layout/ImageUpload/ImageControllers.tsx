@@ -6,10 +6,11 @@ import { ArrowUndoIcon, TrashIcon, UploadIcon } from '@navikt/aksel-icons';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/layout/ImageUpload/ImageControllers.module.css';
-import { acceptedImageFiles, logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
+import { isAnimationFile, logToNormalZoom, normalToLogZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 import type { UploadedAttachment } from 'src/features/attachments';
 
 type ImageControllersProps = {
+  imageType: string;
   zoom: number;
   zoomLimits: { minZoom: number; maxZoom: number };
   storedImage?: UploadedAttachment;
@@ -22,6 +23,7 @@ type ImageControllersProps = {
 };
 
 export function ImageControllers({
+  imageType,
   zoom,
   zoomLimits: { minZoom, maxZoom },
   storedImage,
@@ -72,6 +74,11 @@ export function ImageControllers({
 
   return (
     <div className={classes.controlsContainer}>
+      {isAnimationFile(imageType) && (
+        <span>
+          <Lang id='image_upload_component.animated_warning' />
+        </span>
+      )}
       <div>
         <Label htmlFor={zoomId}>
           <Lang id='image_upload_component.slider_zoom' />
@@ -111,7 +118,7 @@ export function ImageControllers({
           id={inputId}
           ref={fileInputRef}
           type='file'
-          accept={acceptedImageFiles.join(',')}
+          accept='image/*'
           onChange={handleImageChange}
           hidden
         />

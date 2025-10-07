@@ -208,6 +208,7 @@ export function en() {
     'iframe_component.unsupported_browser_title': 'Your browser is unsupported',
     'iframe_component.unsupported_browser':
       'Your browser does not support iframes that use srcdoc. This may result in not being able to see all the content intended to be displayed here. We recommend trying a different browser.',
+    'image_upload_component.animated_warning': 'If the image is animated, only the first frame will be shown.',
     'image_upload_component.button_change': 'Change image',
     'image_upload_component.button_delete': 'Delete image',
     'image_upload_component.button_save': 'Save image',

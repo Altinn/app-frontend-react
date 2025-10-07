@@ -70,7 +70,7 @@ export function nn() {
     'form_filler.file_upload_valid_file_format_all': 'alle',
     'form_filler.file_uploader_add_attachment': 'Legg til fleire vedlegg',
     'form_filler.file_uploader_drag': 'Dra og slepp eller',
-    'form_filler.file_uploader_find': 'leit etter fil',
+    'form_filler.file_uploader_find': 'finn fil',
     'form_filler.file_uploader_list_delete': 'Slett vedlegg',
     'form_filler.file_uploader_delete_warning': 'Er du sikker på at du vil sletta dette vedlegget?',
     'form_filler.file_uploader_delete_button_confirm': 'Ja, slett vedlegg',
@@ -209,6 +209,7 @@ export function nn() {
     'iframe_component.unsupported_browser_title': 'Nettlesaren din støttas ikkje',
     'iframe_component.unsupported_browser':
       'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
+    'image_upload_component.animated_warning': 'Hvis bildet er animert, vises bare det første bildet.',
     'image_upload_component.button_change': 'Bytt bilde',
     'image_upload_component.button_delete': 'Slett bildet',
     'image_upload_component.button_save': 'Lagre bilde',
