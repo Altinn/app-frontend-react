@@ -148,7 +148,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
   if (taskType === ProcessTaskType.Service) {
     return (
       <PdfWrapper>
-        <PresentationComponent type={ProcessTaskType.Service}>
+        <PresentationComponent>
           <ServiceTask />
         </PresentationComponent>
       </PdfWrapper>
