@@ -506,9 +506,8 @@ export function nb() {
     'signing_document_list.attachment_type_form': 'Skjema',
     'signing_document_list.download': 'Last ned',
     'signing_document_list_summary.header': 'Signerte dokumenter',
-    'service_task.title': 'Noe gikk galt under behandlingen',
-    'service_task.body':
-      'En feil oppstod under automatisk behandling av skjemaet. Dette kan skyldes problemer med generering av PDF-sammendrag eller andre tekniske feil.',
+    'service_task.title': 'Noe gikk galt',
+    'service_task.body': 'En feil oppstod under automatisk behandling av skjemaet.',
     'service_task.help_text':
       'Du kan prøve å utføre behandlingen på nytt ved å klikke på "{0}". Hvis problemet vedvarer, ta kontakt med oss på brukerservice {1}.',
     'service_task.retry_button': 'Prøv igjen',

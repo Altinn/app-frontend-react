@@ -503,9 +503,8 @@ export function nn() {
     'signing_document_list.attachment_type_form': 'Skjema',
     'signing_document_list.download': 'Last ned',
     'signing_document_list_summary.header': 'Signerte dokument',
-    'service_task.title': 'Noko gjekk gale under handsaming',
-    'service_task.body':
-      'Ein feil oppstod under automatisk handsaming av skjemaet. Dette kan skuldast problem med generering av PDF-samandrag eller andre tekniske feil.',
+    'service_task.title': 'Noko gjekk gale',
+    'service_task.body': 'Ein feil oppstod under automatisk handsaming av skjemaet.',
     'service_task.help_text':
       'Du kan prøve å utføre handsaminga på nytt ved å klikke på "{0}". Om problemet held fram, ta kontakt med oss på brukarservice {1}.',
     'service_task.retry_button': 'Prøv igjen',
