@@ -134,6 +134,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
                 key={option.value}
                 value={option.value}
                 label={langAsString(option.label)}
+                onClick={() => handleChange([option.value])}
               >
                 <span className={classes.optionContent}>
                   <Lang id={option.label} />
