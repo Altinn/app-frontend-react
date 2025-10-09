@@ -47,6 +47,17 @@ export function PdfFromLayout() {
 }
 
 function AutoGeneratePdfFromLayout() {
+  const [params] = useSearchParams();
+  const taskIds = params.getAll(SearchParams.PdfForTask);
+  if (taskIds.length > 0) {
+    throw new Error(
+      `Unexpected search param ${SearchParams.PdfForTask} provided. This mode does not support passing ` +
+        `${SearchParams.PdfForTask} as a search param, but will auto-generate a PDF from the ` +
+        `current layout-set instead. To use the multi-task mode, you cannot have a layout-set ` +
+        `set up for the current task.`,
+    );
+  }
+
   const { data: pdfSettings, isFetching: pdfFormatIsLoading } = usePdfFormatQuery(true);
 
   if (pdfFormatIsLoading) {
