@@ -22,7 +22,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'cropShape',
-      new CG.enum('square', 'circle')
+      new CG.enum('rectangle', 'circle')
         .optional({ default: 'circle' })
         .setTitle('Shape')
         .setDescription('The shape of the cropping area'),

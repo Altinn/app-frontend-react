@@ -1,11 +1,13 @@
 export type Position = { x: number; y: number };
 export enum CropForm {
-  Square = 'square',
+  Rectangle = 'rectangle',
   Circle = 'circle',
 }
 
-export type CropAreaParams = { width?: number; height?: number; type?: CropForm.Square | CropForm.Circle } | undefined;
-export type CropArea = { width: number; height: number; type: CropForm.Square | CropForm.Circle };
+export type CropAreaParams =
+  | { width?: number; height?: number; type?: CropForm.Rectangle | CropForm.Circle }
+  | undefined;
+export type CropArea = { width: number; height: number; type: CropForm.Rectangle | CropForm.Circle };
 
 export const getCropArea = (cropArea?: CropAreaParams): CropArea => {
   const defaultSize = 250;
