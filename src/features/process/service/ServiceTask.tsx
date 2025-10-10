@@ -3,6 +3,7 @@ import React from 'react';
 import { Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
+import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppOwner } from 'src/core/texts/appTexts';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
@@ -48,6 +49,7 @@ export function ServiceTask() {
           <BackButton />
         </div>
       </div>
+      <ReadyForPrint type='load' />
     </>
   );
 }
