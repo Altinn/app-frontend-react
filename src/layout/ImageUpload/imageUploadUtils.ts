@@ -1,3 +1,8 @@
+import type { IDataType } from 'src/types/shared';
+
+// Always save canvas as PNG to preserve transparency; JPEG is not suitable for circular crops
+export const IMAGE_TYPE = 'image/png';
+
 export type Position = { x: number; y: number };
 export enum CropForm {
   Rectangle = 'rectangle',
@@ -148,4 +153,21 @@ export const validateFile = (file?: File): string[] => {
 export const isAnimationFile = (fileType: string): boolean => {
   const animationMimeTypes = ['image/gif', 'image/apng', 'image/webp'];
   return animationMimeTypes.includes(fileType.toLowerCase());
+};
+
+type AllowedImageTypeParams = {
+  baseComponentId: string;
+  dataTypes: IDataType[];
+};
+
+export const isAllowedContentTypesValid = ({ baseComponentId, dataTypes }: AllowedImageTypeParams) => {
+  const dataTypeItem = dataTypes.find((dt) => dt.id === baseComponentId);
+  const allowedTypes = (dataTypeItem?.allowedContentTypes ?? []).map((type) => type.toLowerCase());
+
+  return allowedTypes.length === 0 || allowedTypes.includes(IMAGE_TYPE);
+};
+
+export const getNewFileName = ({ fileName }: { fileName: string }) => {
+  const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
+  return `${nameWithoutExtension}.png`;
 };

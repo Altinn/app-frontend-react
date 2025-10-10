@@ -5,12 +5,15 @@ import {
   CropForm,
   drawCropArea,
   getCropArea,
+  getNewFileName,
   imagePlacement,
+  isAllowedContentTypesValid,
   isAnimationFile,
   logToNormalZoom,
   normalToLogZoom,
   validateFile,
 } from 'src/layout/ImageUpload/imageUploadUtils';
+import { IDataType } from 'src/types/shared';
 
 const mockImage = (width: number, height: number): HTMLImageElement => {
   const img = new Image();
@@ -241,5 +244,29 @@ describe('isAnimationFile', () => {
   });
   it('returns false for non-animated image types', () => {
     expect(isAnimationFile('image/png')).toBe(false);
+  });
+});
+
+describe('isAllowedContentTypesValid', () => {
+  const dataTypes: IDataType[] = [
+    { id: 'comp1', allowedContentTypes: null, maxCount: 1, minCount: 1 },
+    { id: 'comp2', allowedContentTypes: ['image/png'], maxCount: 1, minCount: 1 },
+    { id: 'comp3', allowedContentTypes: ['image/jpeg'], maxCount: 1, minCount: 1 },
+  ];
+
+  it('returns true when allowedContentTypes is empty', () => {
+    expect(isAllowedContentTypesValid({ baseComponentId: 'comp1', dataTypes })).toBe(true);
+  });
+  it('returns true when allowedContentTypes includes image/png', () => {
+    expect(isAllowedContentTypesValid({ baseComponentId: 'comp2', dataTypes })).toBe(true);
+  });
+  it('returns false when allowedContentTypes does not include image/png', () => {
+    expect(isAllowedContentTypesValid({ baseComponentId: 'comp3', dataTypes })).toBe(false);
+  });
+});
+
+describe('getNewFileName', () => {
+  it('replaces file extension based on image type to be saved', () => {
+    expect(getNewFileName({ fileName: 'picture.jpg' })).toBe('picture.png');
   });
 });

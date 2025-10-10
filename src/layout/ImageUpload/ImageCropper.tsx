@@ -12,6 +12,8 @@ import {
   constrainToArea,
   cropAreaPlacement,
   drawCropArea,
+  getNewFileName,
+  IMAGE_TYPE,
   imagePlacement,
   validateFile,
 } from 'src/layout/ImageUpload/imageUploadUtils';
@@ -137,11 +139,12 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
       if (!blob) {
         return;
       }
-      const fileName = img.id;
-      const imageFile = new File([blob], fileName, { type: 'image/png' });
+
+      const newFileName = getNewFileName({ fileName: img.id });
+      const imageFile = new File([blob], newFileName, { type: IMAGE_TYPE });
       saveImage(imageFile);
       setValidationErrors(null);
-    }, 'image/png');
+    }, IMAGE_TYPE);
   };
 
   const handleDeleteImage = () => {
