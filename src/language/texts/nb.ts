@@ -213,6 +213,7 @@ export function nb() {
     'image_upload_component.button_change': 'Bytt bilde',
     'image_upload_component.button_delete': 'Slett bildet',
     'image_upload_component.button_save': 'Lagre bilde',
+    'image_upload_component.crop_area': 'Beskjæringsområde',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
     'image_upload_component.summary_empty': 'Du har ikke lastet opp noe bilde',
     'image_upload_component.reset': 'Tilbakestill zoom og plassering',

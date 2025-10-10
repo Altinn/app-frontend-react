@@ -155,7 +155,7 @@ export function ImageCanvas({
       height={CANVAS_HEIGHT}
       width={CANVAS_WIDTH}
       className={classes.canvas}
-      aria-label='Image cropping area'
+      aria-label={langAsString('image_upload_component.crop_area')}
     />
   );
 }

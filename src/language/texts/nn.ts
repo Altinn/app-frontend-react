@@ -214,6 +214,7 @@ export function nn() {
     'image_upload_component.button_delete': 'Slett bildet',
     'image_upload_component.button_save': 'Lagre bilde',
     'image_upload_component.slider_zoom': 'Tilpass bildet',
+    'image_upload_component.crop_area': 'Beskjæringsområde',
     'image_upload_component.summary_empty': 'Du har ikkje lasta opp noko bilde',
     'image_upload_component.reset': 'Tilbakestill zoom og plassering',
     'image_upload_component.error_invalid_file_type': 'Ugyldig filformat. Last opp ein bildefil.',

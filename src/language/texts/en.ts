@@ -212,6 +212,7 @@ export function en() {
     'image_upload_component.button_change': 'Change image',
     'image_upload_component.button_delete': 'Delete image',
     'image_upload_component.button_save': 'Save image',
+    'image_upload_component.crop_area': 'Crop area',
     'image_upload_component.slider_zoom': 'Zoom',
     'image_upload_component.summary_empty': "You haven't uploaded an image",
     'image_upload_component.reset': 'Reset position and zoom',
