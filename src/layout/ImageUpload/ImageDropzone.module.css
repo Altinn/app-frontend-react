@@ -31,7 +31,7 @@
   box-sizing: border-box;
 }
 
-.blueUnderLine {
+.underLine {
   border-bottom: 2px solid var(--colors-primary-blue) !important;
 }
 

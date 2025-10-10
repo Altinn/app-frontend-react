@@ -42,7 +42,7 @@ export function ImageDropzone({ baseComponentId, hasErrors, readOnly, onDrop }: 
           ) : (
             <>
               <Lang id='form_filler.file_uploader_drag' />
-              <span className={classes.blueUnderLine}>
+              <span className={classes.underLine}>
                 {' '}
                 <Lang id='form_filler.file_uploader_find' />
               </span>
