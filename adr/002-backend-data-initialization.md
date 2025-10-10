@@ -107,7 +107,9 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 - **Pagination upgrades:**
   - Add pagination on _active instances_ and _parties_ APIs as specified in tasks. Cursor-based preferred.
 
-We move redirect orchestration to the backend HomeController. The backend now:
+### Move redirection logic to backend HomeController:
+
+The backend now:
 
 1. Resolves the user's context (authentication, party, app type)
 2. Determines the appropriate destination (party selection, instance selection, or
@@ -120,6 +122,8 @@ The frontend receives either:
 - The final HTML with window.AltinnAppData already populated
 
 Flow Comparison
+
+### Before:
 
 ```mermaid
 flowchart TD
@@ -134,6 +138,12 @@ B7 -->|Needs party| B8[Client-side redirect<br/>to party selection]
 B7 -->|Has instances| B9[Client-side redirect<br/>to instance selection]
 B7 -->|Direct access| B10[Render app]
 end
+
+```
+
+### After:
+
+```mermaid
 
 subgraph After["After: Backend-Driven Redirects"]
     A1[User requests /org/app/] --> A2[HomeController evaluates]
