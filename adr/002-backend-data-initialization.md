@@ -144,7 +144,7 @@ end
 ### After:
 
 ```mermaid
-
+flowchart TD
 subgraph After["After: Backend-Driven Redirects"]
     A1[User requests /org/app/] --> A2[HomeController evaluates]
     A2 --> A3[Load app metadata<br/>& user context]
