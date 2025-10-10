@@ -20,7 +20,7 @@
   touch-action: none;
 }
 
-/* ✅ Chrome / Safari / Edge */
+/* Chrome / Safari / Edge */
 .zoomSlider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -32,7 +32,7 @@
   cursor: pointer;
 }
 
-/* ✅ Firefox */
+/* Firefox */
 .zoomSlider::-moz-range-thumb {
   width: var(--ds-size-8);
   height: var(--ds-size-8);
@@ -42,7 +42,7 @@
   cursor: pointer;
 }
 
-/* ✅ Firefox track (to override default blue bar) */
+/* Firefox track (to override default blue bar) */
 .zoomSlider::-moz-range-track {
   background-color: var(--ds-color-neutral-border-strong);
   height: var(--ds-size-3);
