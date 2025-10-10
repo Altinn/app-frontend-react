@@ -123,7 +123,7 @@ The frontend receives either:
 
 Flow Comparison
 
-### Before:
+### Before (simplified):
 
 ```mermaid
 flowchart TD
@@ -139,9 +139,11 @@ B7 -->|Has instances| B9[Client-side redirect<br/>to instance selection]
 B7 -->|Direct access| B10[Render app]
 end
 
+style Before fill:#ffeeee
+
 ```
 
-### After:
+### After (simplified):
 
 ```mermaid
 flowchart TD
@@ -154,7 +156,6 @@ subgraph After["After: Backend-Driven Redirects"]
     A4 -->|Direct access| A7[Render HTML with<br/>window.AltinnAppData]
 end
 
-style Before fill:#ffeeee
 style After fill:#eeffee
 ```
 
