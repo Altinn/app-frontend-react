@@ -1,6 +1,6 @@
 # ADR: Move most initial data loading to app-backend
 
-- **Status:** Proposed
+- **Status:** Approved
 - **Date:** 2025-09-23
 - **Owner:** Team Studio
 - **Related:** Altinn/altinn-studio#16309 (Epic) ([GitHub][1])
@@ -106,6 +106,81 @@ classDef actor fill:#eef,stroke:#77f,color:#000
 
 - **Pagination upgrades:**
   - Add pagination on _active instances_ and _parties_ APIs as specified in tasks. Cursor-based preferred.
+
+We move redirect orchestration to the backend HomeController. The backend now:
+
+1. Resolves the user's context (authentication, party, app type)
+2. Determines the appropriate destination (party selection, instance selection, or
+   direct app render)
+3. Either redirects or renders the appropriate HTML with embedded data
+
+The frontend receives either:
+
+- A redirect (HTTP 302) to the correct route, OR
+- The final HTML with window.AltinnAppData already populated
+
+Flow Comparison
+
+```mermaid
+flowchart TD
+subgraph Before["Before: Frontend-Driven Redirects"]
+B1[User requests /org/app/] --> B2[Load index.html]
+B2 --> B3[Frontend mounts]
+B3 --> B4[Fetch app metadata]
+B4 --> B5[Fetch user profile]
+B5 --> B6[Fetch instances]
+B6 --> B7{Frontend decides<br/>where to go}
+B7 -->|Needs party| B8[Client-side redirect<br/>to party selection]
+B7 -->|Has instances| B9[Client-side redirect<br/>to instance selection]
+B7 -->|Direct access| B10[Render app]
+end
+
+subgraph After["After: Backend-Driven Redirects"]
+    A1[User requests /org/app/] --> A2[HomeController evaluates]
+    A2 --> A3[Load app metadata<br/>& user context]
+    A3 --> A4{Backend decides<br/>where to go}
+    A4 -->|Needs party| A5[HTTP 302 to<br/>/org/app/party-selection]
+    A4 -->|Multiple instances| A6[HTTP 302 to<br/>/org/app/instance-selection]
+    A4 -->|Direct access| A7[Render HTML with<br/>window.AltinnAppData]
+end
+
+style Before fill:#ffeeee
+style After fill:#eeffee
+```
+
+Benefits
+
+- Reduced network requests: User context evaluation happens server-side in one pass
+- Faster redirects: HTTP 302 redirects are faster than client-side route changes
+- Single source of truth: Redirect logic centralized in HomeController instead of
+  scattered across frontend providers
+
+Implementation Details
+
+The HomeController.Index() method now follows this flow:
+
+1. Check if stateless + anonymous allowed → Render immediately
+2. Validate authentication → Error if not authenticated
+3. Load user details and validate party → Redirect to party selection if needed
+4. Check if stateless + authenticated → Render with user context
+5. Load instances → Redirect to instance selection or render most recent instance
+6. Render final app → With all initial data embedded
+
+Each redirect target (/party-selection, /instance-selection) also renders HTML with
+the necessary data for that view embedded in window.AltinnAppData.
+
+Consequences
+
+Positive:
+
+- Users see fewer "flashing" redirects
+- Initial page load completes faster
+- Backend has full control over routing logic
+
+Trade-offs:
+
+- Backend must maintain routing logic that was previously in frontend
+- Coordinated changes needed when adding new route types
 
 ## Consequences
 
