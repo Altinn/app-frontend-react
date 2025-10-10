@@ -99,3 +99,12 @@ export function useHasElementsByClass(className: string) {
 
   return hasElements;
 }
+
+export function BlockPrint() {
+  return (
+    <div
+      className={loadingClassName}
+      style={{ display: 'none' }}
+    />
+  );
+}
