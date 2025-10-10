@@ -74,6 +74,13 @@ export function ImageControllers({
     );
   }
 
+  const handleFileSelectKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInputRef?.current?.click();
+    }
+  };
+
   return (
     <div className={classes.controlsContainer}>
       {isAnimationFile(imageType) && (
@@ -131,12 +138,7 @@ export function ImageControllers({
           variant='secondary'
           data-color='accent'
           tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              fileInputRef?.current?.click();
-            }
-          }}
+          onKeyDown={(e) => handleFileSelectKeyDown(e)}
         >
           <Label htmlFor={inputId}>
             <UploadIcon />
