@@ -4,7 +4,7 @@ import { ValidationMessage } from '@digdir/designsystemet-react';
 
 import { AppCard } from 'src/app-components/Card/Card';
 import { Lang } from 'src/features/language/Lang';
-import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas';
+import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import { ImageDropzone } from 'src/layout/ImageUpload/ImageDropzone';
 import {

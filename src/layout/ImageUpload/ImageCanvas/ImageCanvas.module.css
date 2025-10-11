@@ -10,13 +10,3 @@
 .canvas:active {
   cursor: grabbing;
 }
-
-.previewBackground {
-  background-color: #f4f5f6; /* Following does not exist in v1: var(--ds-color-neutral-background-subtle); */
-  height: 320px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: var(--ds-size-4);
-  box-sizing: border-box;
-}
