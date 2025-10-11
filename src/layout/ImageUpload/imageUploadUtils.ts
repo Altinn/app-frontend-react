@@ -171,3 +171,34 @@ export const getNewFileName = ({ fileName }: { fileName: string }) => {
   const nameWithoutExtension = fileName.replace(/\.[^/.]+$/, '');
   return `${nameWithoutExtension}.png`;
 };
+
+type CalculateNewPositionProps = {
+  canvas: HTMLCanvasElement;
+  img: HTMLImageElement;
+  position: Position;
+  oldZoom: number;
+  newZoom: number;
+  cropArea: CropArea;
+};
+
+export const calculatePositionForZoom = ({
+  canvas,
+  img,
+  position,
+  oldZoom,
+  newZoom,
+  cropArea,
+}: CalculateNewPositionProps) => {
+  const viewportCenterX = canvas.width / 2;
+  const viewportCenterY = canvas.height / 2;
+
+  const { imgX, imgY } = imagePlacement({ canvas, img, zoom: oldZoom, position });
+  const imageCenterX = (viewportCenterX - imgX) / oldZoom;
+  const imageCenterY = (viewportCenterY - imgY) / oldZoom;
+
+  const newPosition = {
+    x: viewportCenterX - imageCenterX * newZoom - (canvas.width - img.width * newZoom) / 2,
+    y: viewportCenterY - imageCenterY * newZoom - (canvas.height - img.height * newZoom) / 2,
+  };
+  return constrainToArea({ image: img, zoom: newZoom, position: newPosition, cropArea });
+};

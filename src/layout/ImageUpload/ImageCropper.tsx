@@ -9,6 +9,7 @@ import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import { ImageDropzone } from 'src/layout/ImageUpload/ImageDropzone';
 import {
   calculateMinZoom,
+  calculatePositionForZoom,
   constrainToArea,
   cropAreaPlacement,
   drawCropArea,
@@ -58,7 +59,6 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
 
   const handleZoomChange = useCallback(
     (newZoomValue: number) => {
-      const newZoom = Math.max(minAllowedZoom, Math.min(newZoomValue, MAX_ZOOM));
       const canvas = canvasRef.current;
       const img = imageRef.current;
 
@@ -66,29 +66,12 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
         return;
       }
 
-      const viewportCenterX = canvas.width / 2;
-      const viewportCenterY = canvas.height / 2;
-
-      const { imgX, imgY } = imagePlacement({ canvas, img, zoom, position });
-      const imageCenterX = (viewportCenterX - imgX) / zoom;
-      const imageCenterY = (viewportCenterY - imgY) / zoom;
-
-      const newPosition = {
-        x: viewportCenterX - imageCenterX * newZoom - (canvas.width - img.width * newZoom) / 2,
-        y: viewportCenterY - imageCenterY * newZoom - (canvas.height - img.height * newZoom) / 2,
-      };
-
+      const newZoom = Math.max(minAllowedZoom, Math.min(newZoomValue, MAX_ZOOM));
+      const newPosition = calculatePositionForZoom({ canvas, img, oldZoom: zoom, newZoom, position, cropArea });
       setZoom(newZoom);
-      setPosition(
-        constrainToArea({
-          image: img,
-          zoom: newZoom,
-          position: newPosition,
-          cropArea,
-        }),
-      );
+      setPosition(newPosition);
     },
-    [minAllowedZoom, cropArea, position, zoom],
+    [minAllowedZoom, position, zoom, cropArea],
   );
 
   const handleFileUpload = (file: File) => {

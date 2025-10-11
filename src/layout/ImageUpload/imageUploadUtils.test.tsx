@@ -1,5 +1,6 @@
 import {
   calculateMinZoom,
+  calculatePositionForZoom,
   constrainToArea,
   cropAreaPlacement,
   CropForm,
@@ -268,5 +269,19 @@ describe('isAllowedContentTypesValid', () => {
 describe('getNewFileName', () => {
   it('replaces file extension based on image type to be saved', () => {
     expect(getNewFileName({ fileName: 'picture.jpg' })).toBe('picture.png');
+  });
+});
+
+describe('calculatePositionForZoom', () => {
+  it('calculates new position to keep image centered on zoom', () => {
+    const canvas = mockCanvas();
+    const img = mockImage(500, 500);
+    const cropArea = { width: 200, height: 200, type: CropForm.Rectangle };
+    const position = { x: 50, y: 30 };
+    const minZoom = calculateMinZoom({ img, cropArea });
+    const oldZoom = minZoom;
+    const newZoom = oldZoom * 2;
+    const newPosition = calculatePositionForZoom({ canvas, img, position, oldZoom, newZoom, cropArea });
+    expect(newPosition).toEqual({ x: 100, y: 60 });
   });
 });
