@@ -12,6 +12,7 @@ import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 interface ImageCanvasProps {
   imageRef: React.RefObject<HTMLImageElement | null>;
   zoom: number;
+  minAllowedZoom: number;
   position: Position;
   cropArea: CropArea;
   baseComponentId: string;
@@ -26,6 +27,7 @@ const CANVAS_WIDTH = 1000;
 export function ImageCanvas({
   imageRef,
   zoom,
+  minAllowedZoom,
   position,
   cropArea,
   baseComponentId,
@@ -54,7 +56,7 @@ export function ImageCanvas({
   );
 
   useCanvasDraw({ canvasRef, imageRef, zoom, position, cropArea });
-  useZoomInteraction({ canvasRef, zoom, onZoomChange });
+  useZoomInteraction({ canvasRef, zoom, minAllowedZoom, onZoomChange });
   const { handlePointerDown } = useDragInteraction({ canvasRef, position, onPositionChange: handlePositionChange });
   const { handleKeyDown } = useKeyboardNavigation({ position, onPositionChange: handlePositionChange });
 

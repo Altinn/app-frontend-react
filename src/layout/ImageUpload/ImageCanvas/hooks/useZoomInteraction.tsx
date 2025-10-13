@@ -1,19 +1,26 @@
 import { useCallback, useEffect } from 'react';
 import type React from 'react';
 
+import { MAX_ZOOM } from 'src/layout/ImageUpload/ImageCropper';
+
 interface UseZoomInteractionProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   zoom: number;
+  minAllowedZoom: number;
   onZoomChange: (newZoom: number) => void;
 }
 
-export const useZoomInteraction = ({ canvasRef, zoom, onZoomChange }: UseZoomInteractionProps) => {
+export const useZoomInteraction = ({ canvasRef, zoom, minAllowedZoom, onZoomChange }: UseZoomInteractionProps) => {
   const handleWheel = useCallback(
     (e: WheelEvent) => {
       e.preventDefault();
-      onZoomChange(zoom - e.deltaY * 0.001);
+
+      const zoomSensitivity = 0.001;
+      const zoomFactor = 1 - e.deltaY * zoomSensitivity;
+      const newZoom = Math.max(minAllowedZoom, Math.min(zoom * zoomFactor, MAX_ZOOM));
+      onZoomChange(newZoom);
     },
-    [zoom, onZoomChange],
+    [zoom, onZoomChange, minAllowedZoom],
   );
 
   useEffect(() => {

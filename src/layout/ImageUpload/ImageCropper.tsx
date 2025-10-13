@@ -19,7 +19,7 @@ interface ImageCropperProps {
   readOnly: boolean;
 }
 
-const MAX_ZOOM = 5;
+export const MAX_ZOOM = 5;
 
 export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropperProps) {
   const { deleteImage, storedImage } = useImageFile(baseComponentId);
@@ -99,6 +99,7 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
           canvasRef={canvasRef}
           imageRef={imageRef}
           zoom={zoom}
+          minAllowedZoom={minAllowedZoom}
           position={position}
           cropArea={cropArea}
           baseComponentId={baseComponentId}
