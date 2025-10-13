@@ -4,20 +4,12 @@ import { ValidationMessage } from '@digdir/designsystemet-react';
 
 import { AppCard } from 'src/app-components/Card/Card';
 import { Lang } from 'src/features/language/Lang';
+import { useImageCropperSave } from 'src/layout/ImageUpload/hooks/useImageCropperSave';
+import { useImageUploader } from 'src/layout/ImageUpload/hooks/useImageUploader';
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import { ImageDropzone } from 'src/layout/ImageUpload/ImageDropzone';
-import {
-  calculateMinZoom,
-  calculatePositionForZoom,
-  constrainToArea,
-  cropAreaPlacement,
-  drawCropArea,
-  getNewFileName,
-  IMAGE_TYPE,
-  imagePlacement,
-  validateFile,
-} from 'src/layout/ImageUpload/imageUploadUtils';
+import { calculateMinZoom, calculatePositionForZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
@@ -30,32 +22,32 @@ interface ImageCropperProps {
 const MAX_ZOOM = 5;
 
 export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropperProps) {
-  const { saveImage, deleteImage, storedImage } = useImageFile(baseComponentId);
+  const { deleteImage, storedImage } = useImageFile(baseComponentId);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const imageTypeRef = useRef<string | null>(null);
   const [zoom, setZoom] = useState<number>(0);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
   const [validationErrors, setValidationErrors] = useState<string[] | null>(null);
+  const { handleSave } = useImageCropperSave({
+    canvasRef,
+    imageRef,
+    cropArea,
+    zoom,
+    position,
+    baseComponentId,
+    setValidationErrors,
+  });
 
+  type UpdateImageState = { minZoom?: number; img?: HTMLImageElement | null };
+  const updateImageState = ({ minZoom = minAllowedZoom, img = imageRef.current }: UpdateImageState) => {
+    setZoom(minZoom);
+    setPosition({ x: 0, y: 0 });
+    imageRef.current = img;
+  };
+
+  const { handleFileUpload } = useImageUploader({ cropArea, updateImageState, setValidationErrors, imageTypeRef });
   const minAllowedZoom = imageRef.current ? calculateMinZoom({ img: imageRef.current, cropArea }) : 0.1;
-
-  const handlePositionChange = useCallback(
-    (newPosition: Position) => {
-      if (!imageRef.current) {
-        return;
-      }
-      setPosition(
-        constrainToArea({
-          image: imageRef.current,
-          zoom,
-          position: newPosition,
-          cropArea,
-        }),
-      );
-    },
-    [zoom, cropArea],
-  );
 
   const handleZoomChange = useCallback(
     (newZoomValue: number) => {
@@ -74,62 +66,6 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
     [minAllowedZoom, position, zoom, cropArea],
   );
 
-  const handleFileUpload = (file: File) => {
-    const validationErrors = validateFile(file);
-    setValidationErrors(validationErrors);
-    if (validationErrors.length > 0) {
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const result = event.target?.result;
-
-      if (typeof result === 'string') {
-        const img = new Image();
-        img.id = file.name;
-        imageTypeRef.current = file.type;
-        img.onload = () => {
-          updateImageState({ minZoom: calculateMinZoom({ img, cropArea }), img });
-        };
-        img.src = result;
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleSave = () => {
-    const canvas = canvasRef.current;
-    const img = imageRef.current;
-    const cropCanvas = document.createElement('canvas');
-    const cropCtx = cropCanvas.getContext('2d');
-
-    if (!canvas || !img || !cropCtx) {
-      return;
-    }
-
-    cropCanvas.width = cropArea.width;
-    cropCanvas.height = cropArea.height;
-
-    const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({ canvas, img, zoom, position });
-    const { cropAreaX, cropAreaY } = cropAreaPlacement({ canvas, cropArea });
-
-    drawCropArea({ ctx: cropCtx, cropArea });
-    cropCtx.clip();
-    cropCtx.drawImage(img, imgX - cropAreaX, imgY - cropAreaY, scaledWidth, scaledHeight);
-
-    cropCanvas.toBlob((blob) => {
-      if (!blob) {
-        return;
-      }
-
-      const newFileName = getNewFileName({ fileName: img.id });
-      const imageFile = new File([blob], newFileName, { type: IMAGE_TYPE });
-      saveImage(imageFile);
-      setValidationErrors(null);
-    }, IMAGE_TYPE);
-  };
-
   const handleDeleteImage = () => {
     deleteImage();
     updateImageState({ img: null });
@@ -138,13 +74,6 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
   const handleCancel = () => {
     setValidationErrors(null);
     updateImageState({ img: null });
-  };
-
-  type UpdateImageState = { minZoom?: number; img?: HTMLImageElement | null };
-  const updateImageState = ({ minZoom = minAllowedZoom, img = imageRef.current }: UpdateImageState) => {
-    setZoom(minZoom);
-    setPosition({ x: 0, y: 0 });
-    imageRef.current = img;
   };
 
   if (!imageRef.current && !storedImage) {
@@ -173,7 +102,7 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
           position={position}
           cropArea={cropArea}
           baseComponentId={baseComponentId}
-          onPositionChange={handlePositionChange}
+          setPosition={setPosition}
           onZoomChange={handleZoomChange}
         />
       }
