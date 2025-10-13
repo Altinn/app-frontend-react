@@ -70,7 +70,7 @@ export function useValidateGeometriesBindings(baseComponentId: string, bindings:
       errors.push(lookupErrorAsText(err));
     } else if (schema?.type !== expectedType) {
       if (binding) {
-        errors.push(`${name} field must be of type ${expectedType}`);
+        errors.push(`${name} field must be of type ${expectedType} (${binding.field} is of type ${schema?.type})`);
       } else {
         errors.push(
           `geometries array objects must have a '${defaultProperty}' property of type ${expectedType} (or specify a ${name} binding to override)`,

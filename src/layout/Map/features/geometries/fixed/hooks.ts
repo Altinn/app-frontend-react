@@ -1,10 +1,13 @@
 import { useMemo } from 'react';
 
+import dot from 'dot-object';
 import { geoJson, LatLngBounds } from 'leaflet';
 import WKT from 'terraformer-wkt-parser';
 import type { GeoJSON } from 'geojson';
 
 import { FD } from 'src/features/formData/FormDataWrite';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
+import { toRelativePath } from 'src/features/saveToGroup/useSaveToGroup';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import type { IGeometryType } from 'src/layout/Map/config.generated';
 import type { Geometry, RawGeometry } from 'src/layout/Map/types';
@@ -13,7 +16,28 @@ export function useMapRawGeometries(baseComponentId: string): RawGeometry[] | un
   const dataModelBindings = useDataModelBindingsFor(baseComponentId, 'Map');
   const formData = FD.useDebouncedPick(dataModelBindings?.geometries);
 
-  return formData as RawGeometry[] | undefined;
+  return useMemo(() => {
+    if (!formData || !Array.isArray(formData)) {
+      return formData as RawGeometry[] | undefined;
+    }
+
+    const labelPath = toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryLabel) ?? 'label';
+    const dataPath = toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryData) ?? 'data';
+
+    return formData.map((item: unknown): RawGeometry => {
+      if (!item || typeof item !== 'object' || !item[ALTINN_ROW_ID]) {
+        throw new Error(
+          `Invalid geometry item: ${JSON.stringify(item)} (expected object with ${ALTINN_ROW_ID} property)`,
+        );
+      }
+
+      return {
+        altinnRowId: item[ALTINN_ROW_ID],
+        data: dot.pick(dataPath, item),
+        label: dot.pick(labelPath, item),
+      };
+    });
+  }, [dataModelBindings?.geometries, dataModelBindings?.geometryData, dataModelBindings?.geometryLabel, formData]);
 }
 
 export function useMapParsedGeometries(baseComponentId: string): Geometry[] | null {
