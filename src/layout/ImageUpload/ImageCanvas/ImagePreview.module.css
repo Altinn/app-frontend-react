@@ -1,5 +1,5 @@
 .previewWrapper {
-  background-color: #f4f5f6; /* Following does not exist in v1: var(--ds-color-neutral-background-subtle); */
+  background-color: var(--ds-color-neutral-background-tinted);
   height: 320px;
   display: flex;
   justify-content: center;
