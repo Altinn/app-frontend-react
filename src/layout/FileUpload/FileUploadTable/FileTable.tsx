@@ -30,9 +30,9 @@ export function FileTable({
   isSummary,
   isFetching,
 }: FileTableProps): React.JSX.Element | null {
-  const { textResourceBindings, type, readOnly } = useItemWhenType<'FileUpload' | 'FileUploadWithTag' | 'ImageUpload'>(
+  const { textResourceBindings, type, readOnly } = useItemWhenType<'FileUpload' | 'FileUploadWithTag'>(
     baseComponentId,
-    (t) => t === 'FileUpload' || t === 'FileUploadWithTag' || t === 'ImageUpload',
+    (t) => t === 'FileUpload' || t === 'FileUploadWithTag',
   );
   const hasTag = type === 'FileUploadWithTag';
   const pdfModeActive = usePdfModeActive();
