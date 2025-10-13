@@ -6,7 +6,7 @@ import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
 export function useValidateGeometriesBindings(baseComponentId: string, bindings: IDataModelBindings<'Map'>) {
-  const { geometries, geometryLabel, geometryData } = bindings ?? {};
+  const { geometries, geometryLabel, geometryData, geometryIsEditable } = bindings ?? {};
   const lookupBinding = DataModels.useLookupBinding();
   const layoutLookups = useLayoutLookups();
 
@@ -45,6 +45,7 @@ export function useValidateGeometriesBindings(baseComponentId: string, bindings:
   }[] = [
     { binding: geometryLabel, name: 'geometryLabel', expectedType: 'string', defaultProperty: 'label' },
     { binding: geometryData, name: 'geometryData', expectedType: 'string', defaultProperty: 'data' },
+    { binding: geometryIsEditable, name: 'geometryIsEditable', expectedType: 'boolean' },
   ];
 
   for (const { binding, name, expectedType, defaultProperty } of fieldsToValidate) {

@@ -42,6 +42,12 @@ export class Map extends MapDef {
     const lookupBinding = DataModels.useLookupBinding();
     const layoutLookups = useLayoutLookups();
 
+    if (bindings?.simpleBinding && bindings?.geometryIsEditable) {
+      errors.push(
+        'geometryIsEditable cannot be used with simpleBinding (markers will be added as geometry when geometryIsEditable is set)',
+      );
+    }
+
     const [simpleBindingErrors] = validateDataModelBindingsAny(
       baseComponentId,
       bindings,

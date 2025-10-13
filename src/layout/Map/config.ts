@@ -39,6 +39,14 @@ export const Config = new CG.component({
           .optional()
           .setDescription('Should point to a string (defaults to a "data" property on the geometries array objects)'),
       ),
+      new CG.prop(
+        'geometryIsEditable',
+        new CG.dataModelBinding()
+          .optional()
+          .setDescription(
+            'Should point to a boolean indicating if this geometry is editable. This has no default value, geometries will not be editable if this is not specified.',
+          ),
+      ),
     ).exportAs('IDataModelBindingsForMap'),
   )
   .addProperty(
