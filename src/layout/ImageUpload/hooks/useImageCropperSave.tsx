@@ -41,6 +41,9 @@ export function useImageCropperSave({
       return;
     }
 
+    cropCtx.imageSmoothingEnabled = true;
+    cropCtx.imageSmoothingQuality = 'high';
+
     cropCanvas.width = cropArea.width;
     cropCanvas.height = cropArea.height;
 
