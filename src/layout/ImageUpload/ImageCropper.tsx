@@ -11,11 +11,11 @@ import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import { ImageDropzone } from 'src/layout/ImageUpload/ImageDropzone';
 import { calculateMinZoom, calculatePositionForZoom } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
-import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropInternal, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
   baseComponentId: string;
-  cropArea: CropArea;
+  cropArea: CropInternal;
   readOnly: boolean;
 }
 

@@ -8,12 +8,12 @@ import {
   imagePlacement,
 } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
-import type { CropArea, Position } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropInternal, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type UseImageCropperSaveProps = {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   imageRef: React.RefObject<HTMLImageElement | null>;
-  cropArea: CropArea;
+  cropArea: CropInternal;
   zoom: number;
   position: Position;
   baseComponentId: string;

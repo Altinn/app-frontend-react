@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import type React from 'react';
 
 import {
-  type CropArea,
   cropAreaPlacement,
+  type CropInternal,
   drawCropArea,
   imagePlacement,
   type Position,
@@ -14,7 +14,7 @@ type UseCanvasDrawProps = {
   imageRef: React.RefObject<HTMLImageElement | null>;
   zoom: number;
   position: Position;
-  cropArea: CropArea;
+  cropArea: CropInternal;
 };
 
 export const useCanvasDraw = ({ canvasRef, imageRef, zoom, position, cropArea }: UseCanvasDrawProps) => {

@@ -1,10 +1,10 @@
 import type React from 'react';
 
 import { calculateMinZoom, validateFile } from 'src/layout/ImageUpload/imageUploadUtils';
-import type { CropArea } from 'src/layout/ImageUpload/imageUploadUtils';
+import type { CropInternal } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type UseImageUploaderProps = {
-  cropArea: CropArea;
+  cropArea: CropInternal;
   updateImageState: (args: { minZoom: number; img: HTMLImageElement }) => void;
   setValidationErrors: (errors: string[]) => void;
   imageTypeRef: React.RefObject<string | null>;

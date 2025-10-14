@@ -21,23 +21,30 @@ export const Config = new CG.component({
   .extendTextResources(CG.common('TRBLabel'))
   .addProperty(
     new CG.prop(
-      'cropShape',
-      new CG.enum('rectangle', 'circle')
-        .optional({ default: 'circle' })
-        .setTitle('Shape')
-        .setDescription('The shape of the cropping area'),
-    ),
-  )
-  .addProperty(
-    new CG.prop(
-      'cropWidth',
-      new CG.num().optional({ default: 250 }).setTitle('Width').setDescription('Optional width of the cropping area'),
-    ),
-  )
-  .addProperty(
-    new CG.prop(
-      'cropHeight',
-      new CG.num().optional({ default: 250 }).setTitle('Height').setDescription('Optional height of the cropping area'),
+      'crop',
+      new CG.union(
+        new CG.obj(
+          new CG.prop('shape', new CG.const('circle').setTitle('Shape').setDescription('Circular cropping area')),
+          new CG.prop(
+            'diameter',
+            new CG.num().optional({ default: 250 }).setTitle('Diameter').setDescription('Diameter of the circle'),
+          ),
+        ).exportAs('CropConfigCircle'),
+        new CG.obj(
+          new CG.prop('shape', new CG.const('rectangle').setTitle('Shape').setDescription('Rectangular cropping area')),
+          new CG.prop(
+            'width',
+            new CG.num().optional({ default: 250 }).setTitle('Width').setDescription('Width of the rectangle'),
+          ),
+          new CG.prop(
+            'height',
+            new CG.num().optional({ default: 250 }).setTitle('Height').setDescription('Height of the rectangle'),
+          ),
+        ).exportAs('CropConfigRect'),
+      )
+        .setUnionType('discriminated')
+        .optional({ default: { shape: 'circle', diameter: 250 } })
+        .exportAs('CropConfig'),
     ),
   )
   .addDataModelBinding(CG.common('IDataModelBindingsSimple').optional())

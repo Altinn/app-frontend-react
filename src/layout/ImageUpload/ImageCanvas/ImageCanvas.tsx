@@ -7,14 +7,14 @@ import { useKeyboardNavigation } from 'src/layout/ImageUpload/ImageCanvas/hooks/
 import { useZoomInteraction } from 'src/layout/ImageUpload/ImageCanvas/hooks/useZoomInteraction';
 import classes from 'src/layout/ImageUpload/ImageCanvas/ImageCanvas.module.css';
 import { ImagePreview } from 'src/layout/ImageUpload/ImageCanvas/ImagePreview';
-import { constrainToArea, type CropArea, type Position } from 'src/layout/ImageUpload/imageUploadUtils';
+import { constrainToArea, type CropInternal, type Position } from 'src/layout/ImageUpload/imageUploadUtils';
 import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 interface ImageCanvasProps {
   imageRef: React.RefObject<HTMLImageElement | null>;
   zoom: number;
   minAllowedZoom: number;
   position: Position;
-  cropArea: CropArea;
+  cropArea: CropInternal;
   baseComponentId: string;
   setPosition: (newPosition: Position) => void;
   onZoomChange: (newZoom: number) => void;

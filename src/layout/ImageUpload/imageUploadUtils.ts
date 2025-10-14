@@ -1,3 +1,4 @@
+import type { CropConfig } from 'src/layout/ImageUpload/config.generated';
 import type { IDataType } from 'src/types/shared';
 
 // Always save canvas as PNG to preserve transparency; JPEG is not suitable for circular crops
@@ -9,33 +10,28 @@ export enum CropForm {
   Circle = 'circle',
 }
 
-export type CropAreaParams =
-  | { width?: number; height?: number; type?: CropForm.Rectangle | CropForm.Circle }
-  | undefined;
-export type CropArea = { width: number; height: number; type: CropForm.Rectangle | CropForm.Circle };
-
-export const getCropArea = (cropArea?: CropAreaParams): CropArea => {
+export type CropInternal = { width: number; height: number; shape: CropForm.Rectangle | CropForm.Circle };
+export const getCropArea = (crop?: CropConfig): CropInternal => {
   const defaultSize = 250;
 
-  let width = cropArea?.width ?? defaultSize;
-  let height = cropArea?.height ?? defaultSize;
-
-  const type = cropArea?.type ?? CropForm.Circle;
-
-  if (type === CropForm.Circle && width !== height) {
-    const minDimension = Math.min(width, height);
-    width = minDimension;
-    height = minDimension;
+  if (!crop) {
+    return { width: defaultSize, height: defaultSize, shape: CropForm.Circle };
   }
 
-  return { width, height, type };
+  const isCircle = !crop?.shape || crop.shape === CropForm.Circle;
+
+  const width = (isCircle ? crop.diameter : crop.width) ?? defaultSize;
+  const height = (isCircle ? crop.diameter : crop.height) ?? defaultSize;
+  const shape = isCircle ? CropForm.Circle : CropForm.Rectangle;
+
+  return { width, height, shape };
 };
 
 interface ConstrainToAreaParams {
   image: HTMLImageElement;
   zoom: number;
   position: Position;
-  cropArea: CropArea;
+  cropArea: CropInternal;
 }
 
 export function constrainToArea({ image, zoom, position, cropArea }: ConstrainToAreaParams): Position {
@@ -67,7 +63,7 @@ export const imagePlacement = ({ canvas, img, zoom, position }: ImagePlacementPa
   return { imgX, imgY, scaledWidth, scaledHeight };
 };
 
-type CropAreaPlacementParams = { canvas: HTMLCanvasElement; cropArea: CropArea };
+type CropAreaPlacementParams = { canvas: HTMLCanvasElement; cropArea: CropInternal };
 type CropAreaPlacement = { cropAreaX: number; cropAreaY: number };
 
 export const cropAreaPlacement = ({ canvas, cropArea }: CropAreaPlacementParams): CropAreaPlacement => {
@@ -78,15 +74,15 @@ export const cropAreaPlacement = ({ canvas, cropArea }: CropAreaPlacementParams)
 
 interface DrawCropAreaParams {
   ctx: CanvasRenderingContext2D;
-  cropArea: CropArea;
+  cropArea: CropInternal;
   x?: number;
   y?: number;
 }
 
 export function drawCropArea({ ctx, x = 0, y = 0, cropArea }: DrawCropAreaParams) {
-  const { width, height, type } = cropArea;
+  const { width, height, shape } = cropArea;
   ctx.beginPath();
-  if (type === CropForm.Circle) {
+  if (shape === CropForm.Circle) {
     ctx.arc(x + width / 2, y + height / 2, width / 2, 0, Math.PI * 2);
   } else {
     ctx.rect(x, y, width, height);
@@ -121,7 +117,7 @@ export function logToNormalZoom({ value, minZoom, maxZoom }: CalculateZoomParams
   return (Math.log(value) - logMin) / logScale;
 }
 
-type CalculateMinZoomParams = { cropArea: CropArea; img: HTMLImageElement };
+type CalculateMinZoomParams = { cropArea: CropInternal; img: HTMLImageElement };
 export const calculateMinZoom = ({ img, cropArea }: CalculateMinZoomParams) =>
   Math.max(cropArea.width / img.width, cropArea.height / img.height);
 
@@ -178,7 +174,7 @@ type CalculateNewPositionProps = {
   position: Position;
   oldZoom: number;
   newZoom: number;
-  cropArea: CropArea;
+  cropArea: CropInternal;
 };
 
 export const calculatePositionForZoom = ({

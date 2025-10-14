@@ -31,47 +31,44 @@ const mockCanvas = (): HTMLCanvasElement => {
 
 describe('getCropArea', () => {
   it('returns default crop area when no params are provided', () => {
-    expect(getCropArea()).toEqual({ width: 250, height: 250, type: CropForm.Circle });
+    expect(getCropArea()).toEqual({ width: 250, height: 250, shape: CropForm.Circle });
   });
 
   it('returns provided width and height', () => {
-    expect(getCropArea({ width: 300, height: 200, type: CropForm.Rectangle })).toEqual({
+    const crop1 = { shape: CropForm.Rectangle, width: 300, height: 200 };
+    expect(getCropArea(crop1)).toEqual({
       width: 300,
       height: 200,
-      type: CropForm.Rectangle,
+      shape: CropForm.Rectangle,
     });
-    expect(getCropArea({ width: 200, height: 200, type: CropForm.Circle })).toEqual({
+
+    const crop2 = { shape: CropForm.Circle, diameter: 200 };
+    expect(getCropArea(crop2)).toEqual({
       width: 200,
       height: 200,
-      type: CropForm.Circle,
+      shape: CropForm.Circle,
     });
   });
 
   it('returns default size for missing dimensions', () => {
-    expect(getCropArea({ width: 300, type: CropForm.Rectangle })).toEqual({
+    const crop1 = { shape: CropForm.Rectangle, width: 300 };
+    expect(getCropArea(crop1)).toEqual({
       width: 300,
       height: 250,
-      type: CropForm.Rectangle,
+      shape: CropForm.Rectangle,
     });
-    expect(getCropArea({ height: 200, type: CropForm.Rectangle })).toEqual({
+    const crop2 = { shape: CropForm.Rectangle, height: 200 };
+    expect(getCropArea(crop2)).toEqual({
       width: 250,
       height: 200,
-      type: CropForm.Rectangle,
-    });
-  });
-
-  it('returns the smallest dimension if type is circle and width and height are different', () => {
-    expect(getCropArea({ width: 300, height: 200, type: CropForm.Circle })).toEqual({
-      width: 200,
-      height: 200,
-      type: CropForm.Circle,
+      shape: CropForm.Rectangle,
     });
   });
 });
 
 describe('constrainToArea', () => {
   const image = mockImage(500, 500);
-  const cropArea = { width: 200, height: 200, type: CropForm.Rectangle };
+  const cropArea = { width: 200, height: 200, shape: CropForm.Rectangle };
   const wantedPosition = { x: 200, y: 200 };
 
   it('should clamp position to max offset for image larger than crop area', () => {
@@ -119,14 +116,14 @@ describe('imagePlacement', () => {
 describe('cropAreaPlacement', () => {
   it('calculates centered crop area position within canvas', () => {
     const canvas = mockCanvas();
-    const cropArea = { width: 200, height: 200, type: CropForm.Rectangle };
+    const cropArea = { width: 200, height: 200, shape: CropForm.Rectangle };
     const cropAreaCenter = cropAreaPlacement({ canvas, cropArea });
     expect(cropAreaCenter).toEqual({ cropAreaX: 100, cropAreaY: 100 });
   });
 
   it('calculates centered crop area position with non-square area', () => {
     const canvas = mockCanvas();
-    const cropArea = { width: 300, height: 200, type: CropForm.Rectangle };
+    const cropArea = { width: 300, height: 200, shape: CropForm.Rectangle };
     const cropAreaCenter = cropAreaPlacement({ canvas, cropArea });
     expect(cropAreaCenter).toEqual({ cropAreaX: 50, cropAreaY: 100 });
   });
@@ -147,7 +144,7 @@ describe('drawCropArea', () => {
   const cropHeight = 100;
 
   it('should draw a circle crop area at the given position', () => {
-    const cropArea = { width: cropWidth, height: cropHeight, type: CropForm.Circle };
+    const cropArea = { width: cropWidth, height: cropHeight, shape: CropForm.Circle };
 
     drawCropArea({ ctx: mockCtx, cropArea });
     expect(mockCtx.beginPath).toHaveBeenCalled();
@@ -155,7 +152,7 @@ describe('drawCropArea', () => {
   });
 
   it('should draw a rectangle crop area at the given position', () => {
-    const cropArea = { width: cropWidth, height: cropHeight, type: CropForm.Rectangle };
+    const cropArea = { width: cropWidth, height: cropHeight, shape: CropForm.Rectangle };
     drawCropArea({ ctx: mockCtx, cropArea });
     expect(mockCtx.beginPath).toHaveBeenCalled();
     expect(mockCtx.arc).not.toHaveBeenCalled();
@@ -190,7 +187,7 @@ describe('logToNormalZoom', () => {
 
 describe('calculateMinZoom', () => {
   it('calculates minimum zoom to cover crop area', () => {
-    const cropArea = { width: 200, height: 100, type: CropForm.Rectangle };
+    const cropArea = { width: 200, height: 100, shape: CropForm.Rectangle };
     const image = mockImage(400, 400);
     expect(calculateMinZoom({ img: image, cropArea })).toBe(0.5);
     const wideImage = mockImage(200, 100);
@@ -276,7 +273,7 @@ describe('calculatePositionForZoom', () => {
   it('calculates new position to keep image centered on zoom', () => {
     const canvas = mockCanvas();
     const img = mockImage(500, 500);
-    const cropArea = { width: 200, height: 200, type: CropForm.Rectangle };
+    const cropArea = { width: 200, height: 200, shape: CropForm.Rectangle };
     const position = { x: 50, y: 30 };
     const minZoom = calculateMinZoom({ img, cropArea });
     const oldZoom = minZoom;
