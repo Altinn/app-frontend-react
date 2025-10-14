@@ -19,7 +19,7 @@ export class ImageUpload extends ImageUploadDef {
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'ImageUpload'>>(
-    function LayoutComponentTextRender(props, _): JSX.Element | null {
+    function LayoutComponentImageUploadRender(props, _): JSX.Element | null {
       return <ImageUploadComponent {...props} />;
     },
   );

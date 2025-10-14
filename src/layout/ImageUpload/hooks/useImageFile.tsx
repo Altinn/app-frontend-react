@@ -7,14 +7,14 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
 import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 
-type ReturnType = {
+type UseImageFileResult = {
   storedImage?: UploadedAttachment;
   imageUrl?: string;
   saveImage: (file: File) => void;
   deleteImage: () => void;
 };
 
-export const useImageFile = (baseComponentId: string): ReturnType => {
+export const useImageFile = (baseComponentId: string): UseImageFileResult => {
   const { dataModelBindings } = useItemWhenType(baseComponentId, 'ImageUpload');
   const indexedId = useIndexedId(baseComponentId);
   const uploadImage = useAttachmentsUploader();
