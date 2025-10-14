@@ -5,7 +5,7 @@ import { screen } from '@testing-library/react';
 import { getAttachmentsMock } from 'src/__mocks__/getAttachmentsMock';
 import { UploadedAttachment } from 'src/features/attachments';
 import * as useImageFile from 'src/layout/ImageUpload/hooks/useImageFile';
-import { ImageUploadSummary2 } from 'src/layout/ImageUpload/ImageUploadSummary2';
+import { ImageUploadSummary2 } from 'src/layout/ImageUpload/ImageUploadSummary2/ImageUploadSummary2';
 import { renderGenericComponentTest, RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const targetBaseComponentId = 'mock-id';
