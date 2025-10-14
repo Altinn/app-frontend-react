@@ -2,12 +2,26 @@ import React, { useRef } from 'react';
 import { FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 
-import type L from 'leaflet';
+import { v4 as uuidv4 } from 'uuid';
+import type * as L from 'leaflet';
 
+import { FD } from 'src/features/formData/FormDataWrite';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useLeafletDrawSpritesheetFix } from 'src/layout/Map/features/geometries/editable/useLeafletDrawSpritesheetFix';
+import { useMapParsedGeometries } from 'src/layout/Map/features/geometries/fixed/hooks';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 
-export function MapEditGeometries() {
+interface MapEditGeometriesProps {
+  baseComponentId: string;
+}
+
+export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   const editRef = useRef<L.FeatureGroup>(null);
+  const geometryBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometries;
+  const geometryDataBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryData;
+  const geometries = useMapParsedGeometries(baseComponentId);
+
+  const appendToList = FD.useAppendToList();
 
   useLeafletDrawSpritesheetFix();
 
@@ -44,9 +58,33 @@ export function MapEditGeometries() {
   }, [geojson]);
 
  */
+
+  // useEffect(() => {
+  // geometries?.forEach((layer) => {
+  //   if (
+  //     layer.data instanceof L.Polyline ||
+  //     layer.data instanceof L.Polygon ||
+  //     layer.data instanceof L.Marker
+  //   ) {
+  //   editRef.current?.addLayer(layer.data);
+  //   }
+  // })}, [geometries]);
+
   const onShapeDrawn = () => {
+    if (!geometryBinding) {
+      return { result: 'stoppedByBinding', uuid: undefined, index: undefined };
+    }
+
+    if (!geometryDataBinding) {
+      return { result: 'stoppedByBinding', uuid: undefined, index: undefined };
+    }
+
     const geo = editRef.current?.toGeoJSON();
-    console.log(geo);
+    const geoString = JSON.stringify(geo);
+    const uuid = uuidv4();
+
+    console.log('geoString', geoString);
+    appendToList({ reference: geometryBinding, newValue: { [ALTINN_ROW_ID]: uuid, wkt: geoString } });
     // if (geo?.type === 'FeatureCollection') {
     // setGeojson(geo);
     // }

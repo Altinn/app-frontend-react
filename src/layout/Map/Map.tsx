@@ -11,7 +11,6 @@ import { useMapGeometryBounds } from 'src/layout/Map/features/geometries/fixed/h
 import { MapGeometries } from 'src/layout/Map/features/geometries/fixed/MapGeometries';
 import { MapLayers } from 'src/layout/Map/features/layers/MapLayers';
 import { useSingleMarker } from 'src/layout/Map/features/singleMarker/hooks';
-import { MapSingleMarker } from 'src/layout/Map/features/singleMarker/MapSingleMarker';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { DefaultBoundsPadding, DefaultFlyToZoomLevel, getMapStartingView, isLocationValid } from 'src/layout/Map/utils';
 import { useExternalItem } from 'src/utils/layout/hooks';
@@ -49,16 +48,16 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
       scrollWheelZoom={!readOnly}
       attributionControl={false}
     >
-      <MapEditGeometries />
+      <MapEditGeometries baseComponentId={baseComponentId} />
       <MapLayers baseComponentId={baseComponentId} />
       <MapGeometries
         baseComponentId={baseComponentId}
         readOnly={readOnly}
       />
-      <MapSingleMarker
+      {/* <MapSingleMarker
         baseComponentId={baseComponentId}
         readOnly={readOnly}
-      />
+      /> */}
       <AttributionControl prefix={false} />
     </MapContainer>
   );
