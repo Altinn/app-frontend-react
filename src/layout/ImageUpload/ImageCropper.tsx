@@ -10,7 +10,12 @@ import { useImageUploader } from 'src/layout/ImageUpload/hooks/useImageUploader'
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import { ImageDropzone } from 'src/layout/ImageUpload/ImageDropzone';
-import { calculateMinZoom, calculatePositionForZoom, IMAGE_TYPE } from 'src/layout/ImageUpload/imageUploadUtils';
+import {
+  calculateMinZoom,
+  calculatePositionForZoom,
+  IMAGE_TYPE,
+  MAX_ZOOM,
+} from 'src/layout/ImageUpload/imageUploadUtils';
 import type { CropInternal, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {
@@ -18,8 +23,6 @@ interface ImageCropperProps {
   cropArea: CropInternal;
   readOnly: boolean;
 }
-
-export const MAX_ZOOM = 5;
 
 export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropperProps) {
   const { deleteImage, storedImage } = useImageFile(baseComponentId);

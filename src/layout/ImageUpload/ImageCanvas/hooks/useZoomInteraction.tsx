@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import type React from 'react';
 
-import { MAX_ZOOM } from 'src/layout/ImageUpload/ImageCropper';
+import { MAX_ZOOM } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface UseZoomInteractionProps {
   canvasRef: React.RefObject<HTMLCanvasElement | null>;

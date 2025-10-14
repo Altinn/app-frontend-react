@@ -1,6 +1,7 @@
 import type { CropConfig } from 'src/layout/ImageUpload/config.generated';
 import type { IDataType } from 'src/types/shared';
 
+export const MAX_ZOOM = 5;
 // Always save canvas as PNG to preserve transparency; JPEG is not suitable for circular crops
 export const IMAGE_TYPE = 'image/png';
 
