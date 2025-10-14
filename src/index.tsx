@@ -41,6 +41,7 @@ import { PartyPrefetcher } from 'src/queries/partyPrefetcher';
 import * as queries from 'src/queries/queries';
 
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 import 'react-toastify/dist/ReactToastify.css';
 import 'src/index.css';
 

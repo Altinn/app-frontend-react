@@ -4380,7 +4380,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/leaflet@npm:1":
+"@types/leaflet-draw@npm:^1":
+  version: 1.0.13
+  resolution: "@types/leaflet-draw@npm:1.0.13"
+  dependencies:
+    "@types/leaflet": "npm:^1.9"
+  checksum: 10c0/0b72a8afc38cd097fb024cd767dae1bd053c15987a7fa57ec7b13802adfa280a952665a0fd314d0a69686095b67f5eeb0e00c1f5dc02eb3507b6995ea5a3b024
+  languageName: node
+  linkType: hard
+
+"@types/leaflet@npm:1, @types/leaflet@npm:^1.9":
   version: 1.9.20
   resolution: "@types/leaflet@npm:1.9.20"
   dependencies:
@@ -5600,6 +5609,7 @@ __metadata:
     "@types/js-levenshtein": "npm:1.1.3"
     "@types/json-schema": "npm:7.0.15"
     "@types/leaflet": "npm:1"
+    "@types/leaflet-draw": "npm:^1"
     "@types/marked": "npm:6.0.0"
     "@types/mime": "npm:4.0.0"
     "@types/node": "npm:22.18.8"
@@ -5673,6 +5683,7 @@ __metadata:
     jsdom: "patch:jsdom@npm%3A26.1.0#~/.yarn/patches/jsdom-npm-26.1.0-3857255f02.patch"
     jsonpointer: "npm:5.0.1"
     leaflet: "npm:1.9.4"
+    leaflet-draw: "npm:^1.0.4"
     lint-staged: "npm:16.2.3"
     lru-cache: "npm:11.2.2"
     marked: "npm:16.3.0"
@@ -5689,6 +5700,7 @@ __metadata:
     react-dom: "npm:19.2.0"
     react-dropzone: "npm:14.3.8"
     react-leaflet: "npm:5.0.0"
+    react-leaflet-draw: "npm:^0.21.0"
     react-number-format: "npm:5.4.4"
     react-refresh: "npm:0.18.0"
     react-router-dom: "npm:6.30.1"
@@ -12971,6 +12983,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"leaflet-draw@npm:^1.0.4":
+  version: 1.0.4
+  resolution: "leaflet-draw@npm:1.0.4"
+  checksum: 10c0/9e700b7e5e7d70c0f9d66efe2fec282f635eff63699e5f2f4eb733b140188058cc7cb2a5d3c6889c300958ec9e415fd5c0a02a08db0e1fc13a063d4710cff004
+  languageName: node
+  linkType: hard
+
 "leaflet@npm:1.9.4":
   version: 1.9.4
   resolution: "leaflet@npm:1.9.4"
@@ -13146,6 +13165,13 @@ __metadata:
   dependencies:
     p-locate: "npm:^5.0.0"
   checksum: 10c0/d3972ab70dfe58ce620e64265f90162d247e87159b6126b01314dd67be43d50e96a50b517bce2d9452a79409c7614054c277b5232377de50416564a77ac7aad3
+  languageName: node
+  linkType: hard
+
+"lodash-es@npm:^4.17.15":
+  version: 4.17.21
+  resolution: "lodash-es@npm:4.17.21"
+  checksum: 10c0/fb407355f7e6cd523a9383e76e6b455321f0f153a6c9625e21a8827d10c54c2a2341bd2ae8d034358b60e07325e1330c14c224ff582d04612a46a4f0479ff2f2
   languageName: node
   linkType: hard
 
@@ -15292,6 +15318,22 @@ __metadata:
   version: 18.3.1
   resolution: "react-is@npm:18.3.1"
   checksum: 10c0/f2f1e60010c683479e74c63f96b09fb41603527cd131a9959e2aee1e5a8b0caf270b365e5ca77d4a6b18aae659b60a86150bb3979073528877029b35aecd2072
+  languageName: node
+  linkType: hard
+
+"react-leaflet-draw@npm:^0.21.0":
+  version: 0.21.0
+  resolution: "react-leaflet-draw@npm:0.21.0"
+  dependencies:
+    fast-deep-equal: "npm:^3.1.3"
+    lodash-es: "npm:^4.17.15"
+  peerDependencies:
+    leaflet: ^1.8.0
+    leaflet-draw: ^1.0.4
+    prop-types: ^15.5.2
+    react: ^19.1.0
+    react-leaflet: ^5.0.0
+  checksum: 10c0/98b37e322fd72f3f3ffc8b29c85bbf39ac49f1ce3f3155744c96804e782f580f24f8472da8c77f9b983e58ef6f49d520024d2125b7184614e34559007826a941
   languageName: node
   linkType: hard
 
