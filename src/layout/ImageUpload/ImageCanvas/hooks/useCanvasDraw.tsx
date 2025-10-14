@@ -27,25 +27,37 @@ export const useCanvasDraw = ({ canvasRef, imageRef, zoom, position, cropArea }:
       return;
     }
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({ canvas, img, zoom, position });
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const { imgX, imgY, scaledWidth, scaledHeight } = imagePlacement({ canvas, img, zoom, position });
 
-    ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.save();
+      ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
 
-    const { cropAreaX, cropAreaY } = cropAreaPlacement({ canvas, cropArea });
-    drawCropArea({ ctx, x: cropAreaX, y: cropAreaY, cropArea });
-    ctx.clip();
-    ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
-    ctx.restore();
+      const { cropAreaX, cropAreaY } = cropAreaPlacement({ canvas, cropArea });
+      drawCropArea({ ctx, x: cropAreaX, y: cropAreaY, cropArea });
+      ctx.clip();
+      ctx.drawImage(img, imgX, imgY, scaledWidth, scaledHeight);
+      ctx.restore();
 
-    drawCropArea({ ctx, x: cropAreaX, y: cropAreaY, cropArea });
-    ctx.strokeStyle = 'white';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.stroke();
-    ctx.setLineDash([]);
+      drawCropArea({ ctx, x: cropAreaX, y: cropAreaY, cropArea });
+      ctx.strokeStyle = 'white';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([5, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    };
+
+    if (img.complete) {
+      draw();
+    } else {
+      img.addEventListener('load', draw, { once: true });
+    }
+
+    return () => {
+      img.removeEventListener('load', draw);
+    };
   }, [canvasRef, imageRef, zoom, position, cropArea]);
 };
