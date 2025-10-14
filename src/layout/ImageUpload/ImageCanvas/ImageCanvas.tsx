@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useImageFile } from 'src/layout/ImageUpload/hooks/useImageFile';
 import { useCanvasDraw } from 'src/layout/ImageUpload/ImageCanvas/hooks/useCanvasDraw';
 import { useDragInteraction } from 'src/layout/ImageUpload/ImageCanvas/hooks/useDragInteraction';
 import { useKeyboardNavigation } from 'src/layout/ImageUpload/ImageCanvas/hooks/useKeyboardNavigation';
@@ -8,7 +9,6 @@ import { useZoomInteraction } from 'src/layout/ImageUpload/ImageCanvas/hooks/use
 import classes from 'src/layout/ImageUpload/ImageCanvas/ImageCanvas.module.css';
 import { ImagePreview } from 'src/layout/ImageUpload/ImageCanvas/ImagePreview';
 import { constrainToArea, type CropInternal, type Position } from 'src/layout/ImageUpload/imageUploadUtils';
-import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 interface ImageCanvasProps {
   imageRef: React.RefObject<HTMLImageElement | null>;
   zoom: number;

@@ -6,8 +6,8 @@ import userEvent from '@testing-library/user-event';
 import { getAttachmentsMock } from 'src/__mocks__/getAttachmentsMock';
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { UploadedAttachment } from 'src/features/attachments';
+import * as imageHooks from 'src/layout/ImageUpload/hooks/useImageFile';
 import { ImageUploadComponent } from 'src/layout/ImageUpload/ImageUploadComponent';
-import * as imageHooks from 'src/layout/ImageUpload/useImageFile';
 import { renderGenericComponentTest, RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
 
 const attachmentsMock: UploadedAttachment[] = getAttachmentsMock({ count: 1, fileSize: 500 });

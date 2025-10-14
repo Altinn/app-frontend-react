@@ -5,12 +5,12 @@ import { ValidationMessage } from '@digdir/designsystemet-react';
 import { AppCard } from 'src/app-components/Card/Card';
 import { Lang } from 'src/features/language/Lang';
 import { useImageCropperSave } from 'src/layout/ImageUpload/hooks/useImageCropperSave';
+import { useImageFile } from 'src/layout/ImageUpload/hooks/useImageFile';
 import { useImageUploader } from 'src/layout/ImageUpload/hooks/useImageUploader';
 import { ImageCanvas } from 'src/layout/ImageUpload/ImageCanvas/ImageCanvas';
 import { ImageControllers } from 'src/layout/ImageUpload/ImageControllers';
 import { ImageDropzone } from 'src/layout/ImageUpload/ImageDropzone';
 import { calculateMinZoom, calculatePositionForZoom, IMAGE_TYPE } from 'src/layout/ImageUpload/imageUploadUtils';
-import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropInternal, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 interface ImageCropperProps {

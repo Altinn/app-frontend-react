@@ -2,8 +2,8 @@ import React from 'react';
 
 import { Lang } from 'src/features/language/Lang';
 import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
+import { useImageFile } from 'src/layout/ImageUpload/hooks/useImageFile';
 import classes from 'src/layout/ImageUpload/ImageUploadSummary2.module.css';
-import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import { SingleValueSummary } from 'src/layout/Summary2/CommonSummaryComponents/SingleValueSummary';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';

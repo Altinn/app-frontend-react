@@ -1,5 +1,6 @@
 import type React from 'react';
 
+import { useImageFile } from 'src/layout/ImageUpload/hooks/useImageFile';
 import {
   cropAreaPlacement,
   drawCropArea,
@@ -7,7 +8,6 @@ import {
   IMAGE_TYPE,
   imagePlacement,
 } from 'src/layout/ImageUpload/imageUploadUtils';
-import { useImageFile } from 'src/layout/ImageUpload/useImageFile';
 import type { CropInternal, Position } from 'src/layout/ImageUpload/imageUploadUtils';
 
 type UseImageCropperSaveProps = {
