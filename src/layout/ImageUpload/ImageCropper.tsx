@@ -82,7 +82,7 @@ export function ImageCropper({ baseComponentId, cropArea, readOnly }: ImageCropp
         <ImageDropzone
           baseComponentId={baseComponentId}
           onDrop={(files) => handleFileUpload(files[0])}
-          readOnly={!!readOnly}
+          readOnly={readOnly}
           hasErrors={!!validationErrors && validationErrors?.length > 0}
         />
         <ValidationMessages validationErrors={validationErrors} />
