@@ -84,11 +84,7 @@ describe('List component', () => {
     cy.findAllByRole('button', { name: /neste/i }).first().click();
     cy.findAllByRole('button', { name: /neste/i }).first().get(dataListPage.tableBody).first().first().contains('Hans');
     cy.findByRole('button', { name: /forrige/i }).click();
-    cy.findByRole('button', { name: /forrige/i })
-      .get(dataListPage.tableBody)
-      .first()
-      .first()
-      .contains('Caroline');
+    cy.findByRole('button', { name: /neste/i }).get(dataListPage.tableBody).first().first().contains('Caroline');
   });
 
   it('Should expand to 10 rows and take a snapshot', () => {
