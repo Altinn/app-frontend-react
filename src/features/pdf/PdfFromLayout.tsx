@@ -110,11 +110,12 @@ function AutoGeneratePdfFromTasks({ taskIds }: { taskIds: string[] }) {
             }}
           />
         </div>
-        {taskIds.map((taskId) => (
+        {taskIds.map((taskId, idx) => (
           <TaskSummaryWrapper
             key={taskId}
             taskId={taskId}
           >
+            {idx > 0 && <div className={classes.pageBreak} />}
             {/* Settings intentionally omitted, as this is new functionality
             and PDF settings are deprecated at this point. */}
             <AllPages pdfSettings={undefined} />
