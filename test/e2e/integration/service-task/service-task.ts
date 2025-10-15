@@ -12,7 +12,7 @@ describe('Service task', () => {
     startAppAndFillToFailure();
 
     // This message comes from a custom layout-set showing an error in this service-task
-    cy.findByText('Uff da! Det gikk ikke helt som planlagt.', { timeout: 60000 }).should('be.visible');
+    cy.findByText('Uff da! Det gikk ikke helt som planlagt.').should('be.visible');
 
     assertAndDismissNotification('Service task fail returned a failed result!');
 
@@ -46,7 +46,7 @@ describe('Service task', () => {
 
     startAppAndFillToFailure();
 
-    cy.findByText(/En feil oppstod under automatisk behandling av skjemaet/, { timeout: 60000 }).should('be.visible');
+    cy.findByText(/En feil oppstod under automatisk behandling av skjemaet/).should('be.visible');
     cy.findByText(/Du kan prøve å utføre behandlingen på nytt/).should('be.visible');
     cy.visualTesting('service-task-no-layout-set');
     assertAndDismissNotification('Service task fail returned a failed result!');
@@ -66,6 +66,7 @@ describe('Service task', () => {
         return `${baseUrl}?${queryArgs.toString()}`;
       },
       callback: () => {
+        cy.expectPageBreaks(2);
         cy.findByText('En hilsen fra Task_1').should('be.visible');
         cy.findByText('Lykkeønsker fra et underskjema').should('be.visible');
         cy.findByText('Himling med øyne og skuldertrekk fra Task_2').should('be.visible');
@@ -97,7 +98,7 @@ function startAppAndFillToFailure() {
     'have.value',
     'Himling med øyne og skuldertrekk fra Task_2',
   );
-  cy.findByRole('radiogroup', { name: /Skal Task_5 servicetask feile\?/ })
+  cy.findByRole('radiogroup', { name: /Skal Task_6 servicetask feile\?/ })
     .findByRole('radio', { name: 'Ja' })
     .click();
   cy.waitUntilSaved();
@@ -120,13 +121,14 @@ function goBackAndAchieveSuccess() {
   cy.findByRole('button', { name: 'Prøv igjen' }).should('be.visible');
   cy.findByRole('button', { name: 'Gå tilbake' }).click();
 
-  cy.findByRole('radiogroup', { name: /Skal Task_5 servicetask feile\?/, timeout: 60000 })
+  cy.findByRole('radiogroup', { name: /Skal Task_6 servicetask feile\?/ })
     .findByRole('radio', { name: 'Nei' })
     .click();
   cy.waitUntilSaved();
   cy.findByRole('button', { name: 'Neste' }).click();
 
-  cy.findByText('Skjemaet er sendt inn', { timeout: 60000 }).should('be.visible');
-  cy.findByRole('link', { name: /service-task\.pdf/ }).should('be.visible');
-  cy.findByRole('link', { name: /Summary av to tasks\.pdf/ }).should('be.visible');
+  cy.findByText('Skjemaet er sendt inn').should('be.visible');
+  cy.findAllByRole('link', { name: /\.pdf$/ }).should('have.length', 2);
+  cy.findByRole('link', { name: /Autogenerert PDF av Task_1 og Task_2\.pdf$/ }).should('be.visible');
+  cy.findByRole('link', { name: /PDF basert på layout-set\.pdf$/ }).should('be.visible');
 }
