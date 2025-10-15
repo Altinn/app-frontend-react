@@ -11,7 +11,7 @@
 
 .zoomSlider {
   width: 100%;
-  height: var(--ds-size-3);
+  height: var(--ds-size-2);
   background-color: var(--ds-color-neutral-border-strong);
   border-radius: var(--ds-border-radius-full);
   -webkit-appearance: none;
@@ -24,8 +24,8 @@
 .zoomSlider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: var(--ds-size-8);
-  height: var(--ds-size-8);
+  width: var(--ds-size-7);
+  height: var(--ds-size-7);
   border-radius: var(--ds-border-radius-full);
   border: 1px solid var(--ds-color-border-strong);
   background: var(--ds-color-base-contrast-default);
@@ -34,8 +34,8 @@
 
 /* Firefox */
 .zoomSlider::-moz-range-thumb {
-  width: var(--ds-size-8);
-  height: var(--ds-size-8);
+  width: var(--ds-size-7);
+  height: var(--ds-size-7);
   border-radius: var(--ds-border-radius-full);
   border: 1px solid var(--ds-color-border-strong);
   background: var(--ds-color-base-contrast-default);
@@ -45,7 +45,7 @@
 /* Firefox track (to override default blue bar) */
 .zoomSlider::-moz-range-track {
   background-color: var(--ds-color-neutral-border-strong);
-  height: var(--ds-size-3);
+  height: var(--ds-size-2);
   border-radius: var(--ds-border-radius-full);
 }
 
