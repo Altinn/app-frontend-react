@@ -8,7 +8,7 @@ import type { ILayoutSets } from 'src/layout/common.generated';
 const appFrontend = new AppFrontend();
 
 describe('Service task', () => {
-  it('should display the default service task layout when failing', () => {
+  it('should display the default service task layout when failing', { retries: 0 }, () => {
     startAppAndFillToFailure();
 
     // This message comes from a custom layout-set showing an error in this service-task
@@ -35,7 +35,7 @@ describe('Service task', () => {
     goBackAndAchieveSuccess();
   });
 
-  it('should display something sensible when there is no layout-set for the service task', () => {
+  it('should display something sensible when there is no layout-set for the service task', { retries: 0 }, () => {
     cy.intercept('**/layoutsets', (req) => {
       req.on('response', (res) => {
         // We do some trickery here. Ordinarily it's the PDF service task we would test, but we can't really reach
