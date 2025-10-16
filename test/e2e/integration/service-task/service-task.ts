@@ -1,5 +1,3 @@
-import 'cypress-iframe';
-
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 import { SearchParams } from 'src/core/routing/types';
