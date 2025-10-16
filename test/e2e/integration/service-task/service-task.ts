@@ -12,7 +12,9 @@ describe('Service task', () => {
     startAppAndFillToFailure();
 
     // This message comes from a custom layout-set showing an error in this service-task
-    cy.findByText('Uff da! Det gikk ikke helt som planlagt.').should('be.visible');
+    cy.findByText('Uff da! Her tryna denne service-tasken, men det var jo du som valgte at det skulle skje.').should(
+      'be.visible',
+    );
 
     assertAndDismissNotification('Service task fail returned a failed result!');
 
@@ -24,7 +26,9 @@ describe('Service task', () => {
       callback: () => {
         // This is not a great-looking PDF, but when overriding it is the responsibility of the
         // developer to make a good PDF.
-        cy.findByText('Uff da! Det gikk ikke helt som planlagt.').should('be.visible');
+        cy.findByText(
+          'Uff da! Her tryna denne service-tasken, men det var jo du som valgte at det skulle skje.',
+        ).should('be.visible');
       },
     });
 
@@ -58,7 +62,7 @@ describe('Service task', () => {
       buildUrl: (href) => {
         const queryArgs = new URLSearchParams();
         queryArgs.append(SearchParams.Pdf, '1');
-        for (const task of ['Task_1', 'Task_2']) {
+        for (const task of ['Task_Utfylling1', 'Task_Utfylling2']) {
           queryArgs.append(SearchParams.PdfForTask, task);
         }
 
@@ -67,9 +71,9 @@ describe('Service task', () => {
       },
       callback: () => {
         cy.expectPageBreaks(2);
-        cy.findByText('En hilsen fra Task_1').should('be.visible');
+        cy.findByText('En hilsen fra Task_Utfylling1').should('be.visible');
         cy.findByText('Lykkeønsker fra et underskjema').should('be.visible');
-        cy.findByText('Himling med øyne og skuldertrekk fra Task_2').should('be.visible');
+        cy.findByText('Himling med øyne og skuldertrekk fra Task_Utfylling2').should('be.visible');
       },
     });
 
@@ -79,7 +83,7 @@ describe('Service task', () => {
 
 function startAppAndFillToFailure() {
   cy.startAppInstance(appFrontend.apps.serviceTask, { cyUser: 'manager' });
-  cy.findByRole('textbox', { name: 'En tekst i Task_1' }).type('En hilsen fra Task_1');
+  cy.findByRole('textbox', { name: 'En tekst i Task_Utfylling1' }).type('En hilsen fra Task_Utfylling1');
   cy.waitUntilSaved();
 
   cy.get('#subform-Subform-z8we7d-add-button').click();
@@ -87,18 +91,23 @@ function startAppAndFillToFailure() {
   cy.findByRole('textbox', { name: 'Subform tekstfelt' }).type('Lykkeønsker fra et underskjema');
   cy.findByRole('button', { name: 'Ferdig' }).click();
 
-  cy.findByRole('textbox', { name: 'En tekst i Task_1' }).should('have.value', 'En hilsen fra Task_1');
+  cy.findByRole('textbox', { name: 'En tekst i Task_Utfylling1' }).should(
+    'have.value',
+    'En hilsen fra Task_Utfylling1',
+  );
   cy.waitUntilSaved();
   cy.findByRole('button', { name: 'Neste' }).click();
 
-  cy.findByRole('heading', { name: 'Task_2' }).should('be.visible');
+  cy.findByRole('heading', { name: 'Task_Utfylling2' }).should('be.visible');
   cy.get('#finishedLoading').should('exist');
-  cy.findByRole('textbox', { name: 'En tekst i Task_2' }).type('Himling med øyne og skuldertrekk fra Task_2');
-  cy.findByRole('textbox', { name: 'En tekst i Task_2' }).should(
-    'have.value',
-    'Himling med øyne og skuldertrekk fra Task_2',
+  cy.findByRole('textbox', { name: 'En tekst i Task_Utfylling2' }).type(
+    'Himling med øyne og skuldertrekk fra Task_Utfylling2',
   );
-  cy.findByRole('radiogroup', { name: /Skal Task_6 servicetask feile\?/ })
+  cy.findByRole('textbox', { name: 'En tekst i Task_Utfylling2' }).should(
+    'have.value',
+    'Himling med øyne og skuldertrekk fra Task_Utfylling2',
+  );
+  cy.findByRole('radiogroup', { name: /Skal Task_Fail servicetask feile\?/ })
     .findByRole('radio', { name: 'Ja' })
     .click();
   cy.waitUntilSaved();
@@ -121,7 +130,7 @@ function goBackAndAchieveSuccess() {
   cy.findByRole('button', { name: 'Prøv igjen' }).should('be.visible');
   cy.findByRole('button', { name: 'Gå tilbake' }).click();
 
-  cy.findByRole('radiogroup', { name: /Skal Task_6 servicetask feile\?/ })
+  cy.findByRole('radiogroup', { name: /Skal Task_Fail servicetask feile\?/ })
     .findByRole('radio', { name: 'Nei' })
     .click();
   cy.waitUntilSaved();
@@ -129,6 +138,6 @@ function goBackAndAchieveSuccess() {
 
   cy.findByText('Skjemaet er sendt inn').should('be.visible');
   cy.findAllByRole('link', { name: /\.pdf$/ }).should('have.length', 2);
-  cy.findByRole('link', { name: /Autogenerert PDF av Task_1 og Task_2\.pdf$/ }).should('be.visible');
+  cy.findByRole('link', { name: /Autogenerert PDF av Task_Utfylling1 og Task_Utfylling2\.pdf$/ }).should('be.visible');
   cy.findByRole('link', { name: /PDF basert på layout-set\.pdf$/ }).should('be.visible');
 }
