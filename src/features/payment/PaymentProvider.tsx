@@ -72,11 +72,15 @@ function PaymentNavigation() {
         paymentInitiatedForInstance.set(instanceGuid, true);
         performPayment();
       }
-    } else if (instanceGuid && !paymentDoesNotExist) {
-      // Clean up the flag once payment is no longer uninitialized
+    } else if (
+      instanceGuid &&
+      paymentInfo?.status !== undefined &&
+      paymentInfo.status !== PaymentStatus.Uninitialized
+    ) {
+      // Clean up the flag once payment status is known and no longer Uninitialized
       paymentInitiatedForInstance.delete(instanceGuid);
     }
-  }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, instanceGuid]);
+  }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, instanceGuid, paymentInfo?.status]);
 
   const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
 
