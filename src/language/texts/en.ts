@@ -74,6 +74,7 @@ export function en() {
     'form_filler.file_uploader_delete_warning': 'Are you sure you want to delete this attachment?',
     'form_filler.file_uploader_delete_button_confirm': 'Yes, delete attachment',
     'form_filler.file_uploader_list_header_file_size': 'File size',
+    'form_filler.file_uploader_list_header_thumbnail': 'Thumbnail',
     'form_filler.file_uploader_list_header_name': 'Name',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_header_delete_sr': 'Delete',
