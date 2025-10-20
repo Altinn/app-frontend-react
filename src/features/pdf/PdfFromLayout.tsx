@@ -192,36 +192,30 @@ function PlainPage({ pageKey }: { pageKey: string }) {
 
 function AllPages({ pdfSettings }: { pdfSettings: IPdfFormat | undefined }) {
   const order = usePageOrder();
+  const visiblePages = getPdfVisiblePages(order, pdfSettings);
 
   return (
     <>
-      {order
-        .filter((pageKey) => !pdfSettings?.excludedPages.includes(pageKey))
-        .map((pageKey) => (
-          <PdfForPage
-            key={pageKey}
-            pageKey={pageKey}
-            pdfSettings={pdfSettings}
-          />
-        ))}
+      {visiblePages.map((pageKey) => (
+        <PdfForPage
+          key={pageKey}
+          pageKey={pageKey}
+          pdfSettings={pdfSettings}
+        />
+      ))}
     </>
   );
 }
 
+function getPdfVisiblePages(pages: string[], pdfSettings: IPdfFormat | undefined): string[] {
+  if (!pdfSettings?.excludedPages) {
+    return pages;
+  }
+  return pages.filter((pageKey) => !pdfSettings.excludedPages.includes(pageKey));
+}
+
 function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IPdfFormat | undefined }) {
-  const lookups = useLayoutLookups();
-  const children = useMemo(() => {
-    const topLevel = lookups.topLevelComponents[pageKey] ?? [];
-    return topLevel.filter((baseId) => {
-      const component = lookups.getComponent(baseId);
-      const def = getComponentDef(component.type);
-      return (
-        component.type !== 'Subform' &&
-        !pdfSettings?.excludedComponents.includes(baseId) &&
-        def.shouldRenderInAutomaticPDF(component as never)
-      );
-    });
-  }, [lookups, pageKey, pdfSettings?.excludedComponents]);
+  const children = useTopLevelComponentsToAutoRender(pageKey, pdfSettings);
   const hidden = useIsHiddenMulti(children);
 
   return (
@@ -246,6 +240,22 @@ function PdfForPage({ pageKey, pdfSettings }: { pageKey: string; pdfSettings: IP
       </Flex>
     </div>
   );
+}
+
+function useTopLevelComponentsToAutoRender(pageKey: string, pdfSettings: IPdfFormat | undefined): string[] {
+  const lookups = useLayoutLookups();
+  return useMemo(() => {
+    const topLevel = lookups.topLevelComponents[pageKey] ?? [];
+    return topLevel.filter((baseId) => {
+      const component = lookups.getComponent(baseId);
+      const def = getComponentDef(component.type);
+      return (
+        component.type !== 'Subform' &&
+        !pdfSettings?.excludedComponents.includes(baseId) &&
+        def.shouldRenderInAutomaticPDF(component as never)
+      );
+    });
+  }, [lookups, pageKey, pdfSettings?.excludedComponents]);
 }
 
 function PdfForNode({ baseComponentId }: { baseComponentId: string }) {
