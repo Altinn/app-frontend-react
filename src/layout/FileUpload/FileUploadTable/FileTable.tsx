@@ -51,6 +51,21 @@ export function FileTable({
     return options?.find((option) => option.value === firstTag)?.label;
   };
 
+  //Check if any uploaded attachment has thumbnails
+  const hasImages = attachments.some((attachment) => {
+    if (!isAttachmentUploaded(attachment)) {
+      return false;
+    }
+    return attachment.data.metadata?.some((meta) => meta.key === 'thumbnailLink');
+  });
+
+  const calculateColSpan = () => {
+    if (mobileView) {
+      return hasImages ? 4 : 3;
+    }
+    return hasImages ? 7 : 6;
+  };
+
   return (
     <table
       className={!mobileView ? classes.table : classes.tableMobile}
@@ -63,7 +78,7 @@ export function FileTable({
             className={pdfModeActive ? classes.grayUnderline : classes.blueUnderline}
             id='altinn-file-list-row-header'
           >
-            <th style={{ width: mobileView ? '80%' : '40%' }}>
+            <th style={{ width: mobileView ? (hasImages ? '60%' : '80%') : '40%' }}>
               <Lang id='form_filler.file_uploader_list_header_name' />
             </th>
             {!mobileView && (
@@ -81,7 +96,11 @@ export function FileTable({
                 <Lang id='form_filler.file_uploader_list_header_status' />
               </th>
             )}
-
+            {hasImages && (
+              <th>
+                <Lang id='form_filler.file_uploader_list_header_thumbnail' />
+              </th>
+            )}
             {!pdfModeActive && (
               <th>
                 <p className='sr-only'>
@@ -116,6 +135,7 @@ export function FileTable({
                 mobileView={mobileView}
                 tagLabel={label(attachment)}
                 isSummary={isSummary}
+                hasImages={hasImages}
               />
             </FileTableRowProvider>
           ) : (
@@ -126,7 +146,7 @@ export function FileTable({
               <tr>
                 <td
                   className={mobileView ? classes.fullGrid : ''}
-                  colSpan={!mobileView ? 5 : 3}
+                  colSpan={calculateColSpan()}
                 >
                   <EditWindowComponent
                     baseComponentId={baseComponentId}

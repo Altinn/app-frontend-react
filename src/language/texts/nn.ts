@@ -75,6 +75,7 @@ export function nn() {
     'form_filler.file_uploader_delete_warning': 'Er du sikker på at du vil sletta dette vedlegget?',
     'form_filler.file_uploader_delete_button_confirm': 'Ja, slett vedlegg',
     'form_filler.file_uploader_list_header_file_size': 'Filstorleik',
+    'form_filler.file_uploader_list_header_thumbnail': 'Thumbnail',
     'form_filler.file_uploader_list_header_name': 'Namn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lasta',

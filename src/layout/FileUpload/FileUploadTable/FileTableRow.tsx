@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PDFWrapper';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
+import { AttachmentThumbnail } from 'src/layout/FileUpload/FileUploadTable/AttachmentThumbnail';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
@@ -25,6 +26,7 @@ interface IFileUploadTableRowProps {
   baseComponentId: string;
   tagLabel: string | undefined;
   isSummary?: boolean;
+  hasImages?: boolean;
 }
 
 export function FileTableRow({
@@ -33,6 +35,7 @@ export function FileTableRow({
   mobileView,
   tagLabel,
   isSummary,
+  hasImages,
 }: IFileUploadTableRowProps) {
   const { langAsString } = useLanguage();
   const component = useExternalItem(baseComponentId);
@@ -94,7 +97,14 @@ export function FileTableRow({
           scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
         />
       )}
-
+      {hasImages && (
+        <td>
+          <AttachmentThumbnail
+            attachment={attachment}
+            mobileView={mobileView}
+          />
+        </td>
+      )}
       {!isSummary && (
         <ButtonCellContent
           baseComponentId={baseComponentId}
