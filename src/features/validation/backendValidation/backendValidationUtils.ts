@@ -151,7 +151,11 @@ export function mapBackendValidationsToValidatorGroups(
  */
 export function getValidationIssueMessage(issue: BackendValidationIssue): TextReference {
   if (issue.customTextKey) {
-    return { key: issue.customTextKey, customTextParameters: issue.customTextParameters };
+    return {
+      key: issue.customTextKey,
+      customTextParameters: issue.customTextParameters,
+      defaultText: issue.description,
+    };
   }
 
   if (issue.source && issue.code) {

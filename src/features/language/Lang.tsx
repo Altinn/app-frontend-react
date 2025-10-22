@@ -10,16 +10,17 @@ export interface LangProps {
   params?: ValidLangParam[];
   customTextParameters?: Record<string, string>;
   parseHtmlAndMarkdown?: boolean;
+  defaultText?: string;
 }
 
-export function Lang({ id, params, customTextParameters, parseHtmlAndMarkdown }: LangProps) {
+export function Lang({ id, params, customTextParameters, parseHtmlAndMarkdown, defaultText }: LangProps) {
   const { lang, langAsNonProcessedString } = useLanguage();
 
   if (parseHtmlAndMarkdown === false) {
-    return langAsNonProcessedString(id, params, customTextParameters);
+    return langAsNonProcessedString(id, params, customTextParameters, defaultText);
   }
 
-  return lang(id, params, customTextParameters);
+  return lang(id, params, customTextParameters, defaultText);
 }
 
 /**

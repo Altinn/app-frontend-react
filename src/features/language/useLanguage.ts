@@ -31,6 +31,7 @@ export type TextReference = {
   params?: ValidLangParam[];
   customTextParameters?: Record<string, string>;
   makeLowerCase?: boolean;
+  defaultText?: string;
 };
 
 export interface IUseLanguage {
@@ -39,12 +40,14 @@ export interface IUseLanguage {
     key: LooseAutocomplete<ValidLanguageKey> | undefined,
     params?: ValidLangParam[],
     customTextParameters?: Record<string, string>,
+    defaultText?: string,
   ): string | JSX.Element | JSX.Element[] | null;
   langAsString(
     key: LooseAutocomplete<ValidLanguageKey> | undefined,
     params?: ValidLangParam[],
     makeLowerCase?: boolean,
     customTextParameters?: Record<string, string>,
+    defaultText?: string,
   ): string;
   langAsStringUsingPathInDataModel(
     key: ValidLanguageKey | string | undefined,
@@ -56,6 +59,7 @@ export interface IUseLanguage {
     key: LooseAutocomplete<ValidLanguageKey> | undefined,
     params?: ValidLangParam[],
     customTextParameters?: Record<string, string>,
+    defaultText?: string,
   ): string;
   langAsNonProcessedStringUsingPathInDataModel(
     key: LooseAutocomplete<ValidLanguageKey> | undefined,
@@ -154,8 +158,8 @@ export function staticUseLanguage(
   dataSources: TextResourceVariablesDataSources,
 ): IUseLanguage {
   const language = _language || getLanguageFromCode(selectedLanguage);
-  const lang: IUseLanguage['lang'] = (key, params, customTextParameters) => {
-    const result = getUnprocessedTextValueByLanguage(key, params, { customTextParameters });
+  const lang: IUseLanguage['lang'] = (key, params, customTextParameters, defaultText) => {
+    const result = getUnprocessedTextValueByLanguage(key, params, { customTextParameters }, defaultText);
 
     return parseAndCleanText(result);
   };
@@ -201,16 +205,17 @@ export function staticUseLanguage(
     key: string | undefined,
     params?: ValidLangParam[],
     extendedSources?: Partial<TextResourceVariablesDataSources>,
+    defaultText?: string,
   ) {
     if (!key) {
-      return '';
+      return defaultText || '';
     }
 
     const textResource = getTextResourceByKey(key, textResources, { ...dataSources, ...extendedSources });
 
     if (textResource !== key) {
       // TODO(Validation): Use params if exists and only if no variables are specified (maybe add datasource params to variables definition)
-      return textResource;
+      return defaultText || textResource;
     }
 
     const name = getLanguageSpecificText(key, language);
