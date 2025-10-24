@@ -37,7 +37,7 @@ export function useValidateGeometriesBindings(baseComponentId: string, bindings:
     errors.push(`geometries binding must point to an array of objects`);
   }
 
-  const fieldsToValidate: {
+  let fieldsToValidate: {
     binding: IDataModelReference | undefined;
     name: string;
     expectedType: string;
@@ -45,8 +45,14 @@ export function useValidateGeometriesBindings(baseComponentId: string, bindings:
   }[] = [
     { binding: geometryLabel, name: 'geometryLabel', expectedType: 'string', defaultProperty: 'label' },
     { binding: geometryData, name: 'geometryData', expectedType: 'string', defaultProperty: 'data' },
-    { binding: geometryIsEditable, name: 'geometryIsEditable', expectedType: 'boolean' },
   ];
+
+  if (bindings?.geometries && !bindings?.simpleBinding) {
+    fieldsToValidate = [
+      ...fieldsToValidate,
+      { binding: geometryIsEditable, name: 'geometryIsEditable', expectedType: 'boolean' },
+    ];
+  }
 
   for (const { binding, name, expectedType, defaultProperty } of fieldsToValidate) {
     const fieldPath = binding ? binding.field.replace(`${geometries.field}.`, '') : defaultProperty;
