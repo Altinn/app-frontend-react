@@ -5,9 +5,15 @@ import { EditControl } from 'react-leaflet-draw';
 import type L from 'leaflet';
 
 import { useLeafletDrawSpritesheetFix } from 'src/layout/Map/features/geometries/editable/useLeafletDrawSpritesheetFix';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
-export function MapEditGeometries() {
+interface MapEditProps {
+  baseComponentId: string;
+}
+
+export function MapEditGeometries({ baseComponentId }: MapEditProps) {
   const editRef = useRef<L.FeatureGroup>(null);
+  const { toolbar } = useItemWhenType(baseComponentId, 'Map');
 
   useLeafletDrawSpritesheetFix();
 
@@ -58,12 +64,12 @@ export function MapEditGeometries() {
         position='topright'
         onCreated={onShapeDrawn}
         draw={{
-          marker: true,
-          polyline: true,
-          rectangle: true,
+          polyline: !!toolbar?.polyline,
+          polygon: !!toolbar?.polygon,
+          rectangle: !!toolbar?.rectangle,
+          circle: !!toolbar?.circle,
+          marker: !!toolbar?.marker,
           circlemarker: false,
-          circle: true,
-          polygon: true,
         }}
       />
     </FeatureGroup>

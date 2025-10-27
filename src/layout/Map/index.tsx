@@ -10,6 +10,7 @@ import { MapComponentSummary } from 'src/layout/Map/MapComponentSummary';
 import { MapSummary } from 'src/layout/Map/Summary2/MapSummary';
 import { parseLocation } from 'src/layout/Map/utils';
 import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindings } from 'src/layout/layout';
@@ -41,11 +42,20 @@ export class Map extends MapDef {
     const errors: string[] = [];
     const lookupBinding = DataModels.useLookupBinding();
     const layoutLookups = useLayoutLookups();
+    const toolbar = useExternalItem(baseComponentId, 'Map').toolbar;
 
     if (bindings?.simpleBinding && bindings?.geometryIsEditable) {
       errors.push(
         'geometryIsEditable cannot be used with simpleBinding (markers will be added as geometry when geometryIsEditable is set)',
       );
+    }
+
+    if (bindings?.geometryIsEditable && toolbar === undefined) {
+      errors.push('geometryIsEditable cannot be used without a defined toolbar');
+    }
+
+    if (!bindings?.geometryIsEditable && toolbar !== undefined) {
+      errors.push('toolbar cannot be used without setting geometryIsEditable in dataModelBindings');
     }
 
     const [simpleBindingErrors] = validateDataModelBindingsAny(
