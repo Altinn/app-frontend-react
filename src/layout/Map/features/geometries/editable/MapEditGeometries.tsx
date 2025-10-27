@@ -5,7 +5,7 @@ import { EditControl } from 'react-leaflet-draw';
 import type L from 'leaflet';
 
 import { useLeafletDrawSpritesheetFix } from 'src/layout/Map/features/geometries/editable/useLeafletDrawSpritesheetFix';
-import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
 interface MapEditProps {
   baseComponentId: string;
@@ -13,7 +13,7 @@ interface MapEditProps {
 
 export function MapEditGeometries({ baseComponentId }: MapEditProps) {
   const editRef = useRef<L.FeatureGroup>(null);
-  const toolbar = useExternalItem(baseComponentId, 'Map').toolbar;
+  const { toolbar } = useItemWhenType(baseComponentId, 'Map');
 
   useLeafletDrawSpritesheetFix();
 

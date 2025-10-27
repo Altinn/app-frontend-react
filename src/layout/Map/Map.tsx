@@ -15,6 +15,7 @@ import { MapSingleMarker } from 'src/layout/Map/features/singleMarker/MapSingleM
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { DefaultBoundsPadding, DefaultFlyToZoomLevel, getMapStartingView, isLocationValid } from 'src/layout/Map/utils';
 import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
 type MapProps = {
   baseComponentId: string;
@@ -27,8 +28,8 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
   const map = useRef<LeafletMap | null>(null);
   const isPdf = useIsPdf();
   const { center, zoom, bounds } = useAutoViewport(baseComponentId, map, animate);
-  const toolbar = useExternalItem(baseComponentId, 'Map').toolbar;
-  const simpleBinding = useExternalItem(baseComponentId, 'Map').dataModelBindings?.simpleBinding;
+  const { toolbar, dataModelBindings } = useItemWhenType(baseComponentId, 'Map');
+  const simpleBinding = dataModelBindings?.simpleBinding;
 
   return (
     <MapContainer
