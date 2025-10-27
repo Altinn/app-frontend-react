@@ -22,7 +22,8 @@ type MapGeometriesProps = {
 };
 
 export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps) {
-  const geometries = useMapParsedGeometries(baseComponentId);
+  const geometries = useMapParsedGeometries(baseComponentId)?.filter((g) => !g.isEditable);
+  console.log('rendering MapGeometries with geometries:', geometries);
   if (!geometries || geometries.length === 0) {
     return null;
   }
