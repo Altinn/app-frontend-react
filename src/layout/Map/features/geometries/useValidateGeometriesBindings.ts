@@ -2,6 +2,7 @@ import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { validateDataModelBindingsAny } from 'src/utils/layout/generator/validation/hooks';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings } from 'src/layout/layout';
 
@@ -9,6 +10,7 @@ export function useValidateGeometriesBindings(baseComponentId: string, bindings:
   const { geometries, geometryLabel, geometryData, geometryIsEditable } = bindings ?? {};
   const lookupBinding = DataModels.useLookupBinding();
   const layoutLookups = useLayoutLookups();
+  const toolbar = useExternalItem(baseComponentId, 'Map').toolbar;
 
   const errors: string[] = [];
   if (!geometries) {
@@ -47,7 +49,7 @@ export function useValidateGeometriesBindings(baseComponentId: string, bindings:
     { binding: geometryData, name: 'geometryData', expectedType: 'string', defaultProperty: 'data' },
   ];
 
-  if (bindings?.geometries && !bindings?.simpleBinding) {
+  if (bindings?.geometries && !bindings?.simpleBinding && toolbar) {
     fieldsToValidate = [
       ...fieldsToValidate,
       { binding: geometryIsEditable, name: 'geometryIsEditable', expectedType: 'boolean' },

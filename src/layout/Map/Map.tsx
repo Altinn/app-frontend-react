@@ -28,6 +28,7 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
   const isPdf = useIsPdf();
   const { center, zoom, bounds } = useAutoViewport(baseComponentId, map, animate);
   const toolbar = useExternalItem(baseComponentId, 'Map').toolbar;
+  const simpleBinding = useExternalItem(baseComponentId, 'Map').dataModelBindings?.simpleBinding;
 
   return (
     <MapContainer
@@ -56,7 +57,7 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
         baseComponentId={baseComponentId}
         readOnly={readOnly}
       />
-      {toolbar === undefined && (
+      {toolbar === undefined && simpleBinding && (
         <MapSingleMarker
           baseComponentId={baseComponentId}
           readOnly={readOnly}
