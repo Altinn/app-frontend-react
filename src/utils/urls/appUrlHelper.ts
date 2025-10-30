@@ -185,7 +185,12 @@ export const getLayoutSettingsUrl = (layoutSetId: string) => `${appPath}/api/lay
 export const getLayoutSetsUrl = () => `${appPath}/api/layoutsets`;
 export const getFooterLayoutUrl = () => `${appPath}/api/v1/footer`;
 export const getFetchFormDynamicsUrl = (layoutSetId: string) => `${appPath}/api/ruleconfiguration/${layoutSetId}`;
-export const getLayoutsUrl = (layoutSetId: string) => `${appPath}/api/layouts/${layoutSetId}`;
+export const getLayoutsUrl = (layoutSetId: string, instanceId?: string) => {
+  if (instanceId) {
+    return `${appPath}/instance/${instanceId}/layouts/${layoutSetId}`;
+  }
+  return `${appPath}/api/layouts/${layoutSetId}`;
+};
 export const getRulehandlerUrl = (layoutSet: string) => `${appPath}/api/rulehandler/${layoutSet}`;
 export const getActiveInstancesUrl = (partyId: number) => `${appPath}/instances/${partyId}/active`;
 export const getInstanceUiUrl = (instanceId: string) => `${appPath}#/instance/${instanceId}`;
