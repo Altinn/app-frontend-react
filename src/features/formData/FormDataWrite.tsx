@@ -28,6 +28,7 @@ import {
   IgnoredValidators,
 } from 'src/features/validation';
 import { useIsUpdatingInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
+import { Validation } from 'src/features/validation/validationContext';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { useWaitForState } from 'src/hooks/useWaitForState';
 import { doPatchMultipleFormData } from 'src/queries/queries';
@@ -103,6 +104,8 @@ function useFormDataSaveMutation() {
   const isStateless = useApplicationMetadata().isStatelessApp;
   const debounce = useSelector((s) => s.debounce);
   const selectedPartyId = useSelectedParty()?.partyId;
+  const updateBackendValidations = Validation.useLaxUpdateBackendValidations();
+
   const waitFor = useWaitForState<
     { prev: { [dataType: string]: object }; next: { [dataType: string]: object } },
     FormDataContext
@@ -352,6 +355,9 @@ function useFormDataSaveMutation() {
       if (result) {
         updateQueryCache(result);
         saveFinished(result);
+        if (updateBackendValidations !== ContextNotProvided) {
+          updateBackendValidations(undefined, { incremental: result.validationIssues });
+        }
       } else {
         cancelSave();
       }
@@ -621,9 +627,8 @@ const useWaitForSave = () => {
         return Promise.resolve(undefined);
       }
 
-      return await waitFor((state, setReturnValue) => {
+      return await waitFor((state) => {
         if (state === ContextNotProvided) {
-          setReturnValue(undefined);
           return true;
         }
 
@@ -632,12 +637,7 @@ const useWaitForSave = () => {
           return false;
         }
 
-        if (hasUnsavedChanges(state)) {
-          return false;
-        }
-
-        setReturnValue(state.validationIssues);
-        return true;
+        return !hasUnsavedChanges(state);
       });
     },
     [requestSave, dataTypes, waitFor],
@@ -1154,11 +1154,6 @@ export const FD = {
    * safer alternative to useRemoveIndexFromList().
    */
   useRemoveValueFromList: () => useStaticSelector((s) => s.removeValueFromList),
-
-  /**
-   * Returns the latest validation issues from the backend, from the last time the form data was saved.
-   */
-  useLastSaveValidationIssues: () => useSelector((s) => s.validationIssues),
 
   useRemoveIndexFromList: () => useStaticSelector((s) => s.removeIndexFromList),
 

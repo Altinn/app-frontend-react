@@ -85,9 +85,6 @@ type FormDataState = {
   // as a way to immediately save the data model to the server, for example before locking the data model.
   manualSaveRequested: boolean;
 
-  // This contains the validation issues we receive from the server last time we saved the data model.
-  validationIssues: BackendValidationIssueGroups | undefined;
-
   // This is used to track which component is currently blocking the auto-saving feature. If this is set to a string
   // value, auto-saving will be disabled, even if the autoSaving flag is set to true. This is useful when you want
   // to temporarily disable auto-saving, for example when clicking a CustomButton and waiting for the server to
@@ -260,9 +257,8 @@ function makeActions(
   }
 
   function processChanges(state: FormDataContext, toProcess: FDSaveFinished) {
-    const { validationIssues, savedData, newDataModels, instance } = toProcess;
+    const { savedData, newDataModels, instance } = toProcess;
     state.manualSaveRequested = false;
-    state.validationIssues = validationIssues;
 
     if (instance) {
       changeInstance(() => instance);

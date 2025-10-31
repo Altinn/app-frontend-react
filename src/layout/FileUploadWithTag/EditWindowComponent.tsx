@@ -56,16 +56,16 @@ export function EditWindowComponent({
 
   const hasErrors = hasValidationErrors(attachmentValidations);
 
-  const formatSelectedValue = (tags: string[]): string | SuggestionItem | undefined => {
+  function formatSelectedValue(tags: string[]): string | SuggestionItem | undefined {
     const tag = tags[0];
     if (!tag) {
       return undefined;
     }
     const option = options?.find((o) => o.value === tag);
     return option ? { value: option.value, label: langAsString(option.label) } : tag;
-  };
+  }
 
-  const handleSave = async () => {
+  async function handleSave() {
     if (!uploadedAttachment) {
       return;
     }
@@ -78,15 +78,15 @@ export function EditWindowComponent({
     }
     setEditIndex(-1);
     await onAttachmentSave(baseComponentId, uploadedAttachment.data.id);
-  };
+  }
 
-  const setAttachmentTag = async (tags: string[]) => {
+  async function setAttachmentTag(tags: string[]) {
     if (!isAttachmentUploaded(attachment)) {
       return;
     }
 
     await updateAttachment({ attachment, nodeId, tags });
-  };
+  }
 
   const isLoading = attachment.updating || !attachment.uploaded || isFetching || options?.length === 0;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;

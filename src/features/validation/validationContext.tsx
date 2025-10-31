@@ -199,14 +199,12 @@ function useWaitForValidation(): WaitForValidation {
 
       // Wait until we've saved changed to backend, and we've processed the backend validations we got from that save
       await waitForNodesReady();
-      const validationsFromSave = await waitForSave(forceSave);
+      await waitForSave(forceSave);
       // If validationsFromSave is not defined, we check if initial validations are done processing
       await waitForState(async (state) => {
         const { isFetching, cachedInitialValidations } = getCachedInitialValidations();
-        const incrementalMatch = deepEqual(state.processedLast.incremental, validationsFromSave);
         const initialMatch = deepEqual(state.processedLast.initial, cachedInitialValidations);
-
-        const validationsReady = incrementalMatch && initialMatch && !isFetching;
+        const validationsReady = initialMatch && !isFetching;
 
         if (validationsReady) {
           await waitForNodesToValidate(state.processedLast);
@@ -266,9 +264,9 @@ function UpdateShowAllErrors() {
    * Call /validate manually whenever a data element changes to get updated non-incremental validations.
    * This should happen whenever any data element changes, so we should check the lastChanged on each data element,
    * or if new data elements are added. Single-patch does not return updated instance data so for now we need to
-   * also check useLastSaveValidationIssues which will change on each patch.
+   * also check useGetIncrementalValidations which will change on each patch.
    */
-  const lastSaved = FD.useLastSaveValidationIssues();
+  const lastSaved = Validation.useGetIncrementalValidations();
   const instanceDataChanges = useInstanceDataQuery({
     select: (instance) => instance.data.map(({ id, lastChanged }) => ({ id, lastChanged })),
   }).data;
@@ -362,7 +360,8 @@ export const Validation = {
   useValidating: () => useSelector((state) => state.validating!),
   useUpdateDataModelValidations: () => useStaticSelector((state) => state.updateDataModelValidations),
   useUpdateBackendValidations: () => useStaticSelector((state) => state.updateBackendValidations),
-
+  useLaxUpdateBackendValidations: () => useLaxShallowSelector((state) => state.updateBackendValidations),
+  useGetIncrementalValidations: () => useSelector((state) => state.processedLast.incremental),
   useFullState: <U,>(selector: (state: ValidationContext & Internals) => U): U =>
     useMemoSelector((state) => selector(state)),
   useGetProcessedLast: () => {
