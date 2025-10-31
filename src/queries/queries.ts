@@ -290,7 +290,8 @@ export const fetchFooterLayout = (): Promise<IFooterLayout | null> => httpGet(ge
 
 export const fetchLayoutSets = (): Promise<ILayoutSets> => httpGet(getLayoutSetsUrl());
 
-export const fetchLayouts = (layoutSetId: string): Promise<ILayoutCollection> => httpGet(getLayoutsUrl(layoutSetId));
+export const fetchLayouts = (layoutSetId: string, instanceId?: string): Promise<ILayoutCollection> =>
+  httpGet(getLayoutsUrl(layoutSetId, instanceId));
 
 export const fetchLayoutSettings = (layoutSetId: string): Promise<ILayoutSettings> =>
   httpGet(getLayoutSettingsUrl(layoutSetId));
