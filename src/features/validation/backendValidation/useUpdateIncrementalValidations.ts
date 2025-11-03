@@ -35,6 +35,10 @@ export function useUpdateIncrementalValidations(setInFormData = true) {
         newValidatorGroups[group] = mapBackendIssuesToFieldValidations(validationIssues, defaultDataElementId);
       }
 
+      if (setInFormData) {
+        updateInFormData(lastSaveValidations);
+      }
+
       if (deepEqual(initialValidatorGroups, newValidatorGroups)) {
         // Don't update any validations, only set last saved validations
         updateBackendValidations(undefined, { incremental: lastSaveValidations });
@@ -43,9 +47,6 @@ export function useUpdateIncrementalValidations(setInFormData = true) {
 
       const backendValidations = mapValidatorGroupsToDataModelValidations(newValidatorGroups);
       updateBackendValidations(backendValidations, { incremental: lastSaveValidations });
-      if (setInFormData) {
-        updateInFormData(lastSaveValidations);
-      }
     },
     [defaultDataElementId, getCachedInitialValidations, updateBackendValidations, setInFormData, updateInFormData],
   );
