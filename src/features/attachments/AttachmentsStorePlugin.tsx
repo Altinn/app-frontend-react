@@ -418,10 +418,8 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                   tagsToRemove.map((tag) => removeTag({ dataElementId: attachment.data.id, tagToRemove: tag })),
                 );
               }
-              fulfill(action);
               optimisticallyUpdateDataElement(dataElementId, (dataElement) => ({ ...dataElement, tags }));
-
-              return;
+              fulfill(action);
             } catch (error) {
               reject(action, error);
               toast(lang('form_filler.file_uploader_validation_error_update'), { type: 'error' });
