@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 import deepEqual from 'fast-deep-equal';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
+import { FD } from 'src/features/formData/FormDataWrite';
 import { useGetCachedInitialValidations } from 'src/features/validation/backendValidation/backendValidationQuery';
 import {
   mapBackendIssuesToFieldValidations,
@@ -15,10 +16,11 @@ import type { BackendValidationIssueGroups } from 'src/features/validation';
 /**
  * Hook for updating incremental validations from various sources (usually the validations updated from last saved data)
  */
-export function useUpdateIncrementalValidations() {
+export function useUpdateIncrementalValidations(setInFormData = true) {
   const updateBackendValidations = Validation.useUpdateBackendValidations();
   const defaultDataElementId = DataModels.useDefaultDataElementId();
   const getCachedInitialValidations = useGetCachedInitialValidations();
+  const updateInFormData = FD.useSetLastValidationIssues();
 
   return useCallback(
     (lastSaveValidations: BackendValidationIssueGroups) => {
@@ -41,7 +43,10 @@ export function useUpdateIncrementalValidations() {
 
       const backendValidations = mapValidatorGroupsToDataModelValidations(newValidatorGroups);
       updateBackendValidations(backendValidations, { incremental: lastSaveValidations });
+      if (setInFormData) {
+        updateInFormData(lastSaveValidations);
+      }
     },
-    [defaultDataElementId, getCachedInitialValidations, updateBackendValidations],
+    [defaultDataElementId, getCachedInitialValidations, updateBackendValidations, setInFormData, updateInFormData],
   );
 }
