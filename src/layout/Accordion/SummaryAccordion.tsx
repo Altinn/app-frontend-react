@@ -33,7 +33,7 @@ export function SummaryAccordionComponent({ targetBaseComponentId }: SummaryRend
   const { textResourceBindings, headingLevel, children } = useItemWhenType(targetBaseComponentId, 'Accordion');
   const { langAsString } = useLanguage();
 
-  const title = langAsString(textResourceBindings?.title);
+  const title = langAsString(textResourceBindings?.summaryTitle || textResourceBindings?.title);
   const Heading = getHeadingLevel(headingLevel);
 
   return (
@@ -60,7 +60,7 @@ export function SummaryAccordionComponent2({ targetBaseComponentId }: Summary2Pr
 
   const hideEmptyFields = useSummaryProp('hideEmptyFields');
 
-  const title = langAsString(textResourceBindings?.title);
+  const title = langAsString(textResourceBindings?.summaryTitle || textResourceBindings?.title);
   const Heading = getHeadingLevel(headingLevel);
 
   return (
@@ -73,7 +73,7 @@ export function SummaryAccordionComponent2({ targetBaseComponentId }: Summary2Pr
           <Heading className={classes.paddingSmall}>{title}</Heading>
         </div>
         <div className={classes.padding}>
-          {children.filter(canRenderInAccordion).map((baseId) => (
+          {(children ?? []).filter(canRenderInAccordion).map((baseId) => (
             <ComponentSummary
               key={baseId}
               targetBaseComponentId={baseId}

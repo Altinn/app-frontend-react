@@ -29,7 +29,7 @@ export const LikertComponent = ({ baseComponentId }: PropsFromGenericComponent<'
   const { options: calculatedOptions, isFetching } = useOptionsFor(makeLikertChildId(baseComponentId), 'single');
 
   const indexedId = useIndexedId(baseComponentId);
-  const title = textResourceBindings?.title;
+  const title = textResourceBindings?.summaryTitle || textResourceBindings?.title;
   const description = textResourceBindings?.description;
 
   if (mobileView) {
