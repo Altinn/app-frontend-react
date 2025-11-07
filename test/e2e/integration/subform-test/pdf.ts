@@ -114,7 +114,7 @@ describe('Subform test', () => {
     cy.intercept({ method: 'GET', url: '**/instances/*/*', times: 1 }, (req) => {
       req.on('response', (res) => {
         const instance: IInstance = res.body;
-        const dataElementToBlock = instance.data.find((data) => data.dataType == 'moped');
+        const dataElementToBlock = instance.data.find((data) => data.dataType === 'moped');
         if (!dataElementToBlock) {
           throw 'Could not find data element to block';
         }
