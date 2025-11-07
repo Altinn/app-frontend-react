@@ -4,6 +4,7 @@ import type { SetURLSearchParams } from 'react-router-dom';
 
 import classNames from 'classnames';
 
+import { FatalErrorEmpty } from 'src/app-components/error/FatalErrorEmpty/FatalErrorEmpty';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { SearchParams } from 'src/core/routing/types';
 import { useIsNavigating } from 'src/core/routing/useIsNavigating';
@@ -190,7 +191,7 @@ const gridToClasses = (labelGrid: IGridStyling | undefined, classes: { [key: str
 
 export function ComponentErrorList({ baseComponentId, errors }: { baseComponentId: string; errors: string[] }) {
   if (!isDev()) {
-    return null;
+    return <FatalErrorEmpty />;
   }
 
   return (

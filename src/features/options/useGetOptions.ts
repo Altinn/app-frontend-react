@@ -255,6 +255,7 @@ export function useFilteredAndSortedOptions({ unsorted, valueType, item }: Filte
   ]);
 }
 
+// TODO(Error handling): If fetching fails, we just log and PDF generation will still succeed?
 export function useGetOptions(
   baseComponentId: string,
   valueType: OptionsValueType,

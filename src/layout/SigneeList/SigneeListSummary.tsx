@@ -6,6 +6,7 @@ import { Divider, Paragraph } from '@digdir/designsystemet-react';
 import { format } from 'date-fns';
 import { nb } from 'date-fns/locale/nb';
 
+import { FatalError } from 'src/app-components/error/FatalError/FatalError';
 import { Label } from 'src/app-components/Label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { type SigneeState, useSigneeList } from 'src/layout/SigneeList/api';
@@ -45,15 +46,17 @@ export function SigneeListSummary({ targetBaseComponentId, titleOverride }: Sign
 
   if (error) {
     return (
-      <SigneeListSummaryContainer
-        heading={heading}
-        baseComponentId={targetBaseComponentId}
-        content={SummaryContains.SomeUserContent}
-      >
-        <Paragraph>
-          <Lang id='signee_list_summary.error' />
-        </Paragraph>
-      </SigneeListSummaryContainer>
+      <FatalError>
+        <SigneeListSummaryContainer
+          heading={heading}
+          baseComponentId={targetBaseComponentId}
+          content={SummaryContains.SomeUserContent}
+        >
+          <Paragraph>
+            <Lang id='signee_list_summary.error' />
+          </Paragraph>
+        </SigneeListSummaryContainer>
+      </FatalError>
     );
   }
 
