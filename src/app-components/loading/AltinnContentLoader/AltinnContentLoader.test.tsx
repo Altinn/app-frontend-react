@@ -29,7 +29,7 @@ describe('AltinnContentLoader', () => {
     expect(screen.queryByTestId('AltinnContentIconReceipt')).not.toBeInTheDocument();
   });
 
-  it('should not show form loader when variant=form', () => {
+  it('should show form loader when variant=form', () => {
     render({ variant: 'form' });
 
     expect(screen.queryByTestId('AltinnContentIconFormData')).toBeInTheDocument();
@@ -37,7 +37,7 @@ describe('AltinnContentLoader', () => {
     expect(screen.queryByTestId('AltinnContentIcon')).not.toBeInTheDocument();
   });
 
-  it('should not show receipt loader when variant=receipt', () => {
+  it('should show receipt loader when variant=receipt', () => {
     render({ variant: 'receipt' });
 
     expect(screen.queryByTestId('AltinnContentIconReceipt')).toBeInTheDocument();
