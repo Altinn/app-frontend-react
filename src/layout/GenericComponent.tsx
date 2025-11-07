@@ -4,6 +4,7 @@ import type { SetURLSearchParams } from 'react-router-dom';
 
 import classNames from 'classnames';
 
+import { FatalError } from 'src/app-components/error/FatalError/FatalError';
 import { FatalErrorEmpty } from 'src/app-components/error/FatalErrorEmpty/FatalErrorEmpty';
 import { Flex } from 'src/app-components/Flex/Flex';
 import { SearchParams } from 'src/core/routing/types';
@@ -195,7 +196,7 @@ export function ComponentErrorList({ baseComponentId, errors }: { baseComponentI
   }
 
   return (
-    <div className={classes.errorFallback}>
+    <FatalError className={classes.errorFallback}>
       <h3>
         <Lang
           id='config_error.component_has_errors'
@@ -210,7 +211,7 @@ export function ComponentErrorList({ baseComponentId, errors }: { baseComponentI
       <p>
         <Lang id='config_error.component_has_errors_after' />
       </p>
-    </div>
+    </FatalError>
   );
 }
 
