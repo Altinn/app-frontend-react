@@ -187,7 +187,7 @@ export const getFooterLayoutUrl = () => `${appPath}/api/v1/footer`;
 export const getFetchFormDynamicsUrl = (layoutSetId: string) => `${appPath}/api/ruleconfiguration/${layoutSetId}`;
 export const getLayoutsUrl = (layoutSetId: string, instanceId?: string) => {
   if (instanceId) {
-    return `${appPath}/instance/${instanceId}/layouts/${layoutSetId}`;
+    return `${appPath}/instances/${instanceId}/layouts/${layoutSetId}`;
   }
   return `${appPath}/api/layouts/${layoutSetId}`;
 };
