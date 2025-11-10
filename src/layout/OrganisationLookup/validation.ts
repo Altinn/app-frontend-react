@@ -38,7 +38,7 @@ export function checkValidOrgnNr(orgNr: string): boolean {
     return false;
   }
   const orgnr_digits = orgNr.split('').map(Number);
-  const k1 = orgnr_digits.at(-1);
+  const k1 = orgnr_digits.at(-1)!;
 
   const weights = [3, 2, 7, 6, 5, 4, 3, 2];
 
