@@ -34,7 +34,7 @@ const orgNrSchema: JSONSchemaType<Pick<Organisation, 'orgNr'>> = {
 };
 
 export function checkValidOrgnNr(orgNr: string): boolean {
-  if (orgNr.length !== 9) {
+  if (orgNr.length !== 9 || !/^\d{9}$/.test(orgNr)) {
     return false;
   }
   const orgnr_digits = orgNr.split('').map(Number);
@@ -47,7 +47,7 @@ export function checkValidOrgnNr(orgNr: string): boolean {
     sum += orgnr_digits[i] * weights[i];
   }
 
-  let calculated_k1 = modular_additive_inverse(sum, 11);
+  let calculated_k1 = modularAdditiveInverse(sum, 11);
   calculated_k1 = calculated_k1 % 11;
 
   return calculated_k1 === k1;
@@ -55,7 +55,7 @@ export function checkValidOrgnNr(orgNr: string): boolean {
 
 export const validateOrgnr = ajv.compile(orgNrSchema);
 
-const modular_additive_inverse = (value: number, base: number): number => base - (value % base);
+const modularAdditiveInverse = (value: number, base: number): number => base - (value % base);
 
 const organisationLookupResponseSchema: JSONSchemaType<OrganisationLookupResponse> = {
   type: 'object',
