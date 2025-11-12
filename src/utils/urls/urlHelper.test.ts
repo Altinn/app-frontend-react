@@ -55,12 +55,12 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('returnUrlTProfile() returning correct environments', () => {
-    expect(returnUrlToProfile(hostTT)).toBe('https://tt02.altinn.no/ui/profile');
-    expect(returnUrlToProfile(hostAT)).toBe('https://at21.altinn.cloud/ui/profile');
-    expect(returnUrlToProfile(hostYT)).toBe('https://yt01.altinn.cloud/ui/profile');
-    expect(returnUrlToProfile(hostProd)).toBe('https://altinn.no/ui/profile');
-    expect(returnUrlToProfile(hostDocker)).toBe('http://local.altinn.cloud/');
-    expect(returnUrlToProfile(hostPodman)).toBe('http://local.altinn.cloud:8000/');
+    expect(returnUrlToProfile(hostTT)).toBe('https://af.tt.altinn.no/profile');
+    expect(returnUrlToProfile(hostAT)).toBe('https://af.at.altinn.cloud/profile');
+    expect(returnUrlToProfile(hostYT)).toBe('https://af.yt.altinn.cloud/profile');
+    expect(returnUrlToProfile(hostProd)).toBe('https://af.altinn.no/profile');
+    expect(returnUrlToProfile(hostDocker)).toBe('http://local.altinn.cloud/profile');
+    expect(returnUrlToProfile(hostPodman)).toBe('http://local.altinn.cloud:8000/profile');
     expect(returnUrlToProfile(hostStudio)).toBe(undefined);
     expect(returnUrlToProfile(hostStudioDev)).toBe(undefined);
     expect(returnUrlToProfile(hostUnknown)).toBe(undefined);

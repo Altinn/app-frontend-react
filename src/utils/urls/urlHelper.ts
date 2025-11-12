@@ -75,23 +75,18 @@ export const returnUrlToArchive = (host: string): string | undefined => {
   return buildArbeidsflateUrl(altinnHost);
 };
 
-export const returnUrlToProfile = (host: string, partyId?: number | undefined): string | undefined => {
-  if (host.match(localRegex)) {
-    return `http://${host}/`;
+export const returnUrlToProfile = (host: string, _partyId?: number | undefined): string | undefined => {
+  if (isLocalEnvironment(host)) {
+    return `http://${host}/profile`;
   }
 
-  const baseUrl = returnBaseUrlToAltinn(host);
-  if (!baseUrl) {
-    return;
+  const altinnHost = extractAltinnHost(host);
+  if (!altinnHost) {
+    return undefined;
   }
 
-  const profileUrl = `${baseUrl}ui/profile`;
-
-  if (partyId === undefined) {
-    return profileUrl;
-  }
-
-  return `${baseUrl}${redirectAndChangeParty(profileUrl, partyId)}`;
+  const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
+  return `${arbeidsflateUrl.replace(/\/$/, '')}/profile`;
 };
 
 export const returnUrlToAllForms = (host: string): string | undefined => {
