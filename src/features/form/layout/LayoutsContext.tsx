@@ -16,6 +16,7 @@ import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLa
 import { useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
+import { fetchLayoutsForInstance } from 'src/queries/queries';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
@@ -39,10 +40,14 @@ export function useLayoutQueryDef(
   return {
     queryKey: ['formLayouts', layoutSetId, enabled],
     queryFn: layoutSetId
-      ? () =>
-          fetchLayouts(layoutSetId, features.addInstanceIdentifierToLayoutRequests ? instanceId : undefined).then(
-            (layouts) => processLayouts(layouts, layoutSetId, defaultDataModelType),
-          )
+      ? async () => {
+          const shouldUseInstanceEndpoint = features.addInstanceIdentifierToLayoutRequests && instanceId;
+          const layouts = shouldUseInstanceEndpoint
+            ? await fetchLayoutsForInstance(layoutSetId, instanceId)
+            : await fetchLayouts(layoutSetId);
+
+          return processLayouts(layouts, layoutSetId, defaultDataModelType);
+        }
       : skipToken,
     enabled: enabled && !!layoutSetId,
   };
