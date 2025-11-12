@@ -1,3 +1,4 @@
 .optionDescription {
-  display: flex;
+  display: block;
+  color: var(--ds-color-neutral-text-subtle);
 }
