@@ -35,14 +35,6 @@ function buildArbeidsflateUrl(altinnHost: string): string {
   return `https://af.${altinnHost}/`;
 }
 
-function addPartyRedirect(arbeidsflateUrl: string, partyId: number, host: string): string | undefined {
-  const baseUrl = returnBaseUrlToAltinn(host);
-  if (!baseUrl) {
-    return undefined;
-  }
-  return `${baseUrl}${redirectAndChangeParty(arbeidsflateUrl, partyId)}`;
-}
-
 export const returnBaseUrlToAltinn = (host: string): string | undefined => {
   const altinnHost = extractAltinnHost(host);
   if (!altinnHost) {
@@ -51,7 +43,7 @@ export const returnBaseUrlToAltinn = (host: string): string | undefined => {
   return `https://${altinnHost}/`;
 };
 
-export const getMessageBoxUrl = (partyId?: number): string | undefined => {
+export const getMessageBoxUrl = (): string | undefined => {
   const host = window.location.host;
 
   if (isLocalEnvironment(host)) {
@@ -63,13 +55,7 @@ export const getMessageBoxUrl = (partyId?: number): string | undefined => {
     return undefined;
   }
 
-  const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
-
-  if (partyId !== undefined) {
-    return addPartyRedirect(arbeidsflateUrl, partyId, host);
-  }
-
-  return arbeidsflateUrl;
+  return buildArbeidsflateUrl(altinnHost);
 };
 
 export const returnUrlToArchive = (host: string): string | undefined => {
