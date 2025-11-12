@@ -6,63 +6,83 @@ const redirectAndChangeParty = (goTo: string, partyId: number) =>
 
 const prodStagingRegex = /^\w+\.apps\.((\w+\.)?altinn\.(no|cloud))$/;
 const localRegex = /^local\.altinn\.cloud(:\d+)?$/;
+const testEnvironmentRegex = /^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/;
+
+function isLocalEnvironment(host: string): boolean {
+  return localRegex.test(host);
+}
+
+function extractAltinnHost(host: string): string | undefined {
+  const match = host.match(prodStagingRegex);
+  return match?.[1];
+}
+
+function isProductionEnvironment(altinnHost: string): boolean {
+  return altinnHost === 'altinn.no';
+}
+
+function buildArbeidsflateUrl(altinnHost: string): string {
+  if (isProductionEnvironment(altinnHost)) {
+    return 'https://af.altinn.no/';
+  }
+
+  const envMatch = altinnHost.match(testEnvironmentRegex);
+  if (envMatch) {
+    const [, env, domain] = envMatch;
+    return `https://af.${env}.${domain}/`;
+  }
+
+  return `https://af.${altinnHost}/`;
+}
+
+function addPartyRedirect(arbeidsflateUrl: string, partyId: number, host: string): string | undefined {
+  const baseUrl = returnBaseUrlToAltinn(host);
+  if (!baseUrl) {
+    return undefined;
+  }
+  return `${baseUrl}${redirectAndChangeParty(arbeidsflateUrl, partyId)}`;
+}
 
 export const returnBaseUrlToAltinn = (host: string): string | undefined => {
-  const prodStagingMatch = host.match(prodStagingRegex);
-  if (prodStagingMatch) {
-    const altinnHost = prodStagingMatch[1];
-
-    return `https://${altinnHost}/`;
+  const altinnHost = extractAltinnHost(host);
+  if (!altinnHost) {
+    return undefined;
   }
+  return `https://${altinnHost}/`;
 };
 
-export const getMessageBoxUrl = (partyId?: number | undefined): string | undefined => {
+export const getMessageBoxUrl = (partyId?: number): string | undefined => {
   const host = window.location.host;
 
-  if (host.match(localRegex)) {
+  if (isLocalEnvironment(host)) {
     return `http://${host}/`;
   }
 
-  const baseUrl = returnBaseUrlToAltinn(host);
-  if (!baseUrl) {
-    return;
+  const altinnHost = extractAltinnHost(host);
+  if (!altinnHost) {
+    return undefined;
   }
 
-  const messageBoxUrl = `${baseUrl}ui/messagebox`;
+  const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
 
-  if (partyId === undefined) {
-    return messageBoxUrl;
+  if (partyId !== undefined) {
+    return addPartyRedirect(arbeidsflateUrl, partyId, host);
   }
 
-  return `${baseUrl}${redirectAndChangeParty(messageBoxUrl, partyId)}`;
+  return arbeidsflateUrl;
 };
 
 export const returnUrlToArchive = (host: string): string | undefined => {
-  if (host.match(localRegex)) {
+  if (isLocalEnvironment(host)) {
     return `http://${host}/`;
   }
 
-  const prodStagingMatch = host.match(prodStagingRegex);
-  if (prodStagingMatch) {
-    const altinnHost = prodStagingMatch[1];
-    // Production: af.altinn.no
-    // Test environments: af.{env}.altinn.{no|cloud} (without numbers like tt02, at21, yt01)
-    if (altinnHost === 'altinn.no') {
-      return 'https://af.altinn.no/';
-    }
-
-    const envMatch = altinnHost.match(/^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/);
-    if (envMatch) {
-      const env = envMatch[1]; // at, tt, or yt (without numbers)
-      const domain = envMatch[2]; // altinn.no or altinn.cloud
-      return `https://af.${env}.${domain}/`;
-    }
-
-    // Fallback for other environments
-    return `https://af.${altinnHost}/`;
+  const altinnHost = extractAltinnHost(host);
+  if (!altinnHost) {
+    return undefined;
   }
 
-  return undefined;
+  return buildArbeidsflateUrl(altinnHost);
 };
 
 export const returnUrlToProfile = (host: string, partyId?: number | undefined): string | undefined => {
