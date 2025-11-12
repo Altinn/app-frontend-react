@@ -79,10 +79,10 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('returnUrlToArchive() returning correct environments', () => {
-    expect(returnUrlToArchive(hostTT)).toBe('https://tt02.altinn.no/ui/messagebox/archive');
-    expect(returnUrlToArchive(hostAT)).toBe('https://at21.altinn.cloud/ui/messagebox/archive');
-    expect(returnUrlToArchive(hostYT)).toBe('https://yt01.altinn.cloud/ui/messagebox/archive');
-    expect(returnUrlToArchive(hostProd)).toBe('https://altinn.no/ui/messagebox/archive');
+    expect(returnUrlToArchive(hostTT)).toBe('https://af.tt.altinn.no/');
+    expect(returnUrlToArchive(hostAT)).toBe('https://af.at.altinn.cloud/');
+    expect(returnUrlToArchive(hostYT)).toBe('https://af.yt.altinn.cloud/');
+    expect(returnUrlToArchive(hostProd)).toBe('https://af.altinn.no/');
     expect(returnUrlToArchive(hostDocker)).toBe('http://local.altinn.cloud/');
     expect(returnUrlToArchive(hostPodman)).toBe('http://local.altinn.cloud:8000/');
     expect(returnUrlToArchive(hostStudio)).toBe(undefined);

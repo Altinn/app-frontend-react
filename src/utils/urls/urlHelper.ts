@@ -42,12 +42,28 @@ export const returnUrlToArchive = (host: string): string | undefined => {
     return `http://${host}/`;
   }
 
-  const baseUrl = returnBaseUrlToAltinn(host);
-  if (!baseUrl) {
-    return;
+  const prodStagingMatch = host.match(prodStagingRegex);
+  if (prodStagingMatch) {
+    const altinnHost = prodStagingMatch[1];
+    // Production: af.altinn.no
+    // Test environments: af.{env}.altinn.{no|cloud} (without numbers like tt02, at21, yt01)
+    if (altinnHost === 'altinn.no') {
+      return 'https://af.altinn.no/';
+    }
+
+    // Match test environments like tt02.altinn.no, at21.altinn.cloud, yt01.altinn.cloud
+    const envMatch = altinnHost.match(/^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/);
+    if (envMatch) {
+      const env = envMatch[1]; // at, tt, or yt (without numbers)
+      const domain = envMatch[2]; // altinn.no or altinn.cloud
+      return `https://af.${env}.${domain}/`;
+    }
+
+    // Fallback for other environments
+    return `https://af.${altinnHost}/`;
   }
 
-  return `${baseUrl}ui/messagebox/archive`;
+  return undefined;
 };
 
 export const returnUrlToProfile = (host: string, partyId?: number | undefined): string | undefined => {
