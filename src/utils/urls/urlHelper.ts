@@ -1,12 +1,8 @@
 export const altinnAppsIllustrationHelpCircleSvgUrl = 'https://altinncdn.no/img/illustration-help-circle.svg';
 export const orgsListUrl = 'https://altinncdn.no/orgs/altinn-orgs.json';
 
-const redirectAndChangeParty = (goTo: string, partyId: number) =>
-  `ui/Reportee/ChangeReporteeAndRedirect?goTo=${encodeURIComponent(goTo)}&R=${partyId}`;
-
 const prodStagingRegex = /^\w+\.apps\.((\w+\.)?altinn\.(no|cloud))$/;
 const localRegex = /^local\.altinn\.cloud(:\d+)?$/;
-const testEnvironmentRegex = /^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/;
 
 function isLocalEnvironment(host: string): boolean {
   return localRegex.test(host);
@@ -24,12 +20,6 @@ function isProductionEnvironment(altinnHost: string): boolean {
 function buildArbeidsflateUrl(altinnHost: string): string {
   if (isProductionEnvironment(altinnHost)) {
     return 'https://af.altinn.no/';
-  }
-
-  const envMatch = altinnHost.match(testEnvironmentRegex);
-  if (envMatch) {
-    const [, env, domain] = envMatch;
-    return `https://af.${env}.${domain}/`;
   }
 
   return `https://af.${altinnHost}/`;

@@ -23,11 +23,11 @@ const hostUnknown = 'www.vg.no';
 describe('Shared urlHelper.ts', () => {
   test('returnUrlToMessageBox() returning correct environemnts', () => {
     jest.spyOn(window, 'location', 'get').mockReturnValueOnce({ host: hostTT } as Location);
-    expect(getMessageBoxUrl()).toBe('https://af.tt.altinn.no/');
+    expect(getMessageBoxUrl()).toBe('https://af.tt02.altinn.no/');
     jest.spyOn(window, 'location', 'get').mockReturnValueOnce({ host: hostAT } as Location);
-    expect(getMessageBoxUrl()).toBe('https://af.at.altinn.cloud/');
+    expect(getMessageBoxUrl()).toBe('https://af.at21.altinn.cloud/');
     jest.spyOn(window, 'location', 'get').mockReturnValueOnce({ host: hostYT } as Location);
-    expect(getMessageBoxUrl()).toBe('https://af.yt.altinn.cloud/');
+    expect(getMessageBoxUrl()).toBe('https://af.yt01.altinn.cloud/');
     jest.spyOn(window, 'location', 'get').mockReturnValueOnce({ host: hostProd } as Location);
     expect(getMessageBoxUrl()).toBe('https://af.altinn.no/');
     jest.spyOn(window, 'location', 'get').mockReturnValueOnce({ host: hostDocker } as Location);
@@ -55,9 +55,9 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('returnUrlTProfile() returning correct environments', () => {
-    expect(returnUrlToProfile(hostTT)).toBe('https://af.tt.altinn.no/profile');
-    expect(returnUrlToProfile(hostAT)).toBe('https://af.at.altinn.cloud/profile');
-    expect(returnUrlToProfile(hostYT)).toBe('https://af.yt.altinn.cloud/profile');
+    expect(returnUrlToProfile(hostTT)).toBe('https://af.tt02.altinn.no/profile');
+    expect(returnUrlToProfile(hostAT)).toBe('https://af.at21.altinn.cloud/profile');
+    expect(returnUrlToProfile(hostYT)).toBe('https://af.yt01.altinn.cloud/profile');
     expect(returnUrlToProfile(hostProd)).toBe('https://af.altinn.no/profile');
     expect(returnUrlToProfile(hostDocker)).toBe('http://local.altinn.cloud/profile');
     expect(returnUrlToProfile(hostPodman)).toBe('http://local.altinn.cloud:8000/profile');
@@ -79,9 +79,9 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('returnUrlToArchive() returning correct environments', () => {
-    expect(returnUrlToArchive(hostTT)).toBe('https://af.tt.altinn.no/');
-    expect(returnUrlToArchive(hostAT)).toBe('https://af.at.altinn.cloud/');
-    expect(returnUrlToArchive(hostYT)).toBe('https://af.yt.altinn.cloud/');
+    expect(returnUrlToArchive(hostTT)).toBe('https://af.tt02.altinn.no/');
+    expect(returnUrlToArchive(hostAT)).toBe('https://af.at21.altinn.cloud/');
+    expect(returnUrlToArchive(hostYT)).toBe('https://af.yt01.altinn.cloud/');
     expect(returnUrlToArchive(hostProd)).toBe('https://af.altinn.no/');
     expect(returnUrlToArchive(hostDocker)).toBe('http://local.altinn.cloud/');
     expect(returnUrlToArchive(hostPodman)).toBe('http://local.altinn.cloud:8000/');
