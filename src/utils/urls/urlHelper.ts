@@ -3,25 +3,55 @@ export const orgsListUrl = 'https://altinncdn.no/orgs/altinn-orgs.json';
 export const baseHostnameAltinnProd = 'altinn.no';
 export const baseHostnameAltinnTest = 'altinn.cloud';
 export const baseHostnameAltinnLocal = 'altinn3local.no';
-export const pathToMessageBox = 'ui/messagebox';
-export const pathToArchive = 'ui/messagebox/archive';
 export const pathToProfile = 'ui/profile';
 export const pathToAllSchemas = 'skjemaoversikt';
 const prodRegex = new RegExp(baseHostnameAltinnProd);
 const testRegex = new RegExp(baseHostnameAltinnTest);
 const localRegex = new RegExp(baseHostnameAltinnLocal);
+const testEnvironmentRegex = /^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/;
 
-export const returnUrlToMessagebox = (url: string, partyId?: string | undefined): string | null => {
-  const baseUrl = returnBaseUrlToAltinn(url);
-  if (!baseUrl) {
+function extractHostFromUrl(url: string): string | null {
+  if (url.search(prodRegex) >= 0) {
+    const split = url.split('.');
+    const env = split[split.length - 3];
+    if (env === 'tt02') {
+      return `${env}.${baseHostnameAltinnProd}`;
+    }
+    return baseHostnameAltinnProd;
+  } else if (url.search(testRegex) >= 0) {
+    const split = url.split('.');
+    const env = split[split.length - 3];
+    return `${env}.${baseHostnameAltinnTest}`;
+  }
+  return null;
+}
+
+function buildArbeidsflateUrl(host: string): string {
+  if (host === baseHostnameAltinnProd) {
+    return `https://af.${baseHostnameAltinnProd}/`;
+  }
+
+  const envMatch = host.match(testEnvironmentRegex);
+  if (envMatch) {
+    const [, env, domain] = envMatch;
+    return `https://af.${env}.${domain}/`;
+  }
+
+  // Fallback for other environments
+  return `https://af.${host}/`;
+}
+
+export const returnUrlToMessagebox = (url: string, _partyId?: string | undefined): string | null => {
+  if (url.search(localRegex) >= 0) {
+    return '/';
+  }
+
+  const host = extractHostFromUrl(url);
+  if (!host) {
     return null;
   }
 
-  if (partyId === undefined) {
-    return baseUrl + pathToMessageBox;
-  }
-
-  return `${baseUrl}ui/Reportee/ChangeReporteeAndRedirect?goTo=${baseUrl}${pathToMessageBox}&R=${partyId}`;
+  return buildArbeidsflateUrl(host);
 };
 
 export const returnUrlFromQueryParameter = (): string | null => {
@@ -30,12 +60,16 @@ export const returnUrlFromQueryParameter = (): string | null => {
 };
 
 export const returnUrlToArchive = (url: string): string | null => {
-  const baseUrl = returnBaseUrlToAltinn(url);
-  if (!baseUrl) {
+  if (url.search(localRegex) >= 0) {
+    return '/';
+  }
+
+  const host = extractHostFromUrl(url);
+  if (!host) {
     return null;
   }
 
-  return baseUrl + pathToArchive;
+  return buildArbeidsflateUrl(host);
 };
 
 export const returnUrlToProfile = (url: string, partyId?: string | undefined): string | null => {
