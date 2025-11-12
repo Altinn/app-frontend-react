@@ -48,10 +48,10 @@ describe('Shared urlHelper.ts', () => {
     const originYT = 'https://ttd.apps.yt01.altinn.cloud/tdd/tjeneste-20190826-1130';
     const originProd = 'https://ttd.apps.altinn.no/tdd/tjeneste-20190826-1130';
     const originUnknown = 'https://www.vg.no';
-    expect(returnUrlToProfile(originTT)).toContain('tt02.altinn.no/ui/profile');
-    expect(returnUrlToProfile(originAT)).toContain('at21.altinn.cloud/ui/profile');
-    expect(returnUrlToProfile(originYT)).toContain('yt01.altinn.cloud/ui/profile');
-    expect(returnUrlToProfile(originProd)).toContain('altinn.no/ui/profile');
+    expect(returnUrlToProfile(originTT)).toBe('https://af.tt.altinn.no/profile');
+    expect(returnUrlToProfile(originAT)).toBe('https://af.at.altinn.cloud/profile');
+    expect(returnUrlToProfile(originYT)).toBe('https://af.yt.altinn.cloud/profile');
+    expect(returnUrlToProfile(originProd)).toBe('https://af.altinn.no/profile');
     expect(returnUrlToProfile(originUnknown)).toBe(null);
   });
 
