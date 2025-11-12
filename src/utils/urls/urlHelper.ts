@@ -43,7 +43,11 @@ export const returnBaseUrlToAltinn = (host: string): string | undefined => {
   return `https://${altinnHost}/`;
 };
 
-export const getMessageBoxUrl = (): string | undefined => {
+/**
+ * Returns the URL to the arbeidsflate (workspace) inbox.
+ * @param _partyId - Deprecated: Party selection is now handled by arbeidsflate itself
+ */
+export const getMessageBoxUrl = (_partyId?: number): string | undefined => {
   const host = window.location.host;
 
   if (isLocalEnvironment(host)) {
