@@ -33,6 +33,8 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
   const appendToList = FD.useAppendToList();
 
+  const { toolbar } = useItemWhenType(baseComponentId, 'Map');
+
   useLeafletDrawSpritesheetFix();
 
   // Load initial data into the FeatureGroup on component mount
@@ -117,12 +119,12 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
         onCreated={onCreatedHandler}
         onEdited={onEditedHandler}
         draw={{
-          marker: true,
-          polyline: true,
-          rectangle: true,
+          polyline: !!toolbar?.polyline,
+          polygon: !!toolbar?.polygon,
+          rectangle: !!toolbar?.rectangle,
+          circle: !!toolbar?.circle,
+          marker: !!toolbar?.marker,
           circlemarker: false,
-          circle: true,
-          polygon: true,
         }}
       />
     </FeatureGroup>
