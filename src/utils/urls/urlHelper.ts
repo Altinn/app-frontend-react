@@ -72,17 +72,18 @@ export const returnUrlToArchive = (url: string): string | null => {
   return buildArbeidsflateUrl(host);
 };
 
-export const returnUrlToProfile = (url: string, partyId?: string | undefined): string | null => {
-  const baseUrl = returnBaseUrlToAltinn(url);
-  if (!baseUrl) {
+export const returnUrlToProfile = (url: string, _partyId?: string | undefined): string | null => {
+  if (url.search(localRegex) >= 0) {
+    return '/profile';
+  }
+
+  const host = extractHostFromUrl(url);
+  if (!host) {
     return null;
   }
 
-  if (partyId === undefined) {
-    return baseUrl + pathToProfile;
-  }
-
-  return `${baseUrl}ui/Reportee/ChangeReporteeAndRedirect?goTo=${baseUrl}${pathToProfile}&R=${partyId}`;
+  const arbeidsflateUrl = buildArbeidsflateUrl(host);
+  return `${arbeidsflateUrl.replace(/\/$/, '')}/profile`;
 };
 
 export const returnUrlToAllSchemas = (url: string): string | null => {
