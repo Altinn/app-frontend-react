@@ -51,7 +51,6 @@ export const returnUrlToArchive = (host: string): string | undefined => {
       return 'https://af.altinn.no/';
     }
 
-    // Match test environments like tt02.altinn.no, at21.altinn.cloud, yt01.altinn.cloud
     const envMatch = altinnHost.match(/^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/);
     if (envMatch) {
       const env = envMatch[1]; // at, tt, or yt (without numbers)
