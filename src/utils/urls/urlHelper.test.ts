@@ -9,19 +9,19 @@ import {
 } from 'src/utils/urls/urlHelper';
 
 describe('Shared urlHelper.ts', () => {
-  test('returnUrlToMessagebox() returning production messagebox', () => {
+  test('returnUrlToMessagebox() returning production arbeidsflate', () => {
     const origin = 'https://tdd.apps.altinn.no/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toContain('altinn.no');
+    expect(returnUrlToMessagebox(origin)).toBe('https://af.altinn.no/');
   });
 
-  test('returnUrlToMessagebox() returning at21 messagebox', () => {
+  test('returnUrlToMessagebox() returning at21 arbeidsflate', () => {
     const origin = 'https://tdd.apps.at21.altinn.cloud/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toContain('at21.altinn.cloud');
+    expect(returnUrlToMessagebox(origin)).toBe('https://af.at.altinn.cloud/');
   });
 
-  test('returnUrlToMessagebox() returning tt02 messagebox', () => {
+  test('returnUrlToMessagebox() returning tt02 arbeidsflate', () => {
     const origin = 'https://tdd.apps.tt02.altinn.no/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toContain('tt02.altinn.no');
+    expect(returnUrlToMessagebox(origin)).toBe('https://af.tt.altinn.no/');
   });
 
   test('returnUrlToMessagebox() returning null when unknown origin', () => {
@@ -48,10 +48,10 @@ describe('Shared urlHelper.ts', () => {
     const originYT = 'https://ttd.apps.yt01.altinn.cloud/tdd/tjeneste-20190826-1130';
     const originProd = 'https://ttd.apps.altinn.no/tdd/tjeneste-20190826-1130';
     const originUnknown = 'https://www.vg.no';
-    expect(returnUrlToProfile(originTT)).toContain('tt02.altinn.no/ui/profile');
-    expect(returnUrlToProfile(originAT)).toContain('at21.altinn.cloud/ui/profile');
-    expect(returnUrlToProfile(originYT)).toContain('yt01.altinn.cloud/ui/profile');
-    expect(returnUrlToProfile(originProd)).toContain('altinn.no/ui/profile');
+    expect(returnUrlToProfile(originTT)).toBe('https://af.tt.altinn.no/profile');
+    expect(returnUrlToProfile(originAT)).toBe('https://af.at.altinn.cloud/profile');
+    expect(returnUrlToProfile(originYT)).toBe('https://af.yt.altinn.cloud/profile');
+    expect(returnUrlToProfile(originProd)).toBe('https://af.altinn.no/profile');
     expect(returnUrlToProfile(originUnknown)).toBe(null);
   });
 
