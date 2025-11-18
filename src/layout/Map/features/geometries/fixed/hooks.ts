@@ -23,6 +23,9 @@ export function useMapRawGeometries(baseComponentId: string): RawGeometry[] | un
 
     const labelPath = toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryLabel) ?? 'label';
     const dataPath = toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryData) ?? 'data';
+    const isEditablePath =
+      toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryIsEditable) ?? 'isEditable';
+    console.log('isEditablePath', isEditablePath);
 
     return formData.map((item: unknown): RawGeometry => {
       if (!item || typeof item !== 'object' || !item[ALTINN_ROW_ID]) {
@@ -30,19 +33,30 @@ export function useMapRawGeometries(baseComponentId: string): RawGeometry[] | un
           `Invalid geometry item: ${JSON.stringify(item)} (expected object with ${ALTINN_ROW_ID} property)`,
         );
       }
+      console.log('item', JSON.stringify(item));
 
-      return {
+      const test = {
         altinnRowId: item[ALTINN_ROW_ID],
         data: dot.pick(dataPath, item),
         label: dot.pick(labelPath, item),
+        isEditable: dot.pick(isEditablePath, item),
       };
+      console.log('test', JSON.stringify(test));
+      return test;
     });
-  }, [dataModelBindings?.geometries, dataModelBindings?.geometryData, dataModelBindings?.geometryLabel, formData]);
+  }, [
+    dataModelBindings?.geometries,
+    dataModelBindings?.geometryData,
+    dataModelBindings?.geometryLabel,
+    dataModelBindings?.geometryIsEditable,
+    formData,
+  ]);
 }
 
 export function useMapParsedGeometries(baseComponentId: string): Geometry[] | null {
   const geometryType = useExternalItem(baseComponentId, 'Map').geometryType;
   const rawGeometries = useMapRawGeometries(baseComponentId);
+  console.log('useMapParsedGeometries', rawGeometries);
 
   return useMemo(() => {
     try {
@@ -66,13 +80,13 @@ function parseGeometries(geometries: RawGeometry[] | undefined, geometryType?: I
   }
 
   const out: Geometry[] = [];
-  for (const { altinnRowId, data: rawData, label } of geometries) {
+  for (const { altinnRowId, data: rawData, label, isEditable } of geometries) {
     if (geometryType === 'WKT') {
       const data = WKT.parse(rawData);
-      out.push({ altinnRowId, data, label });
+      out.push({ altinnRowId, data, label, isEditable });
     } else {
       const data = JSON.parse(rawData) as GeoJSON;
-      out.push({ altinnRowId, data, label });
+      out.push({ altinnRowId, data, label, isEditable });
     }
   }
 

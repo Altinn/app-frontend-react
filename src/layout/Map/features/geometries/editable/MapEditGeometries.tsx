@@ -1,68 +1,123 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 
-import type L from 'leaflet';
+// Import GeoJSON type
+import L from 'leaflet';
+import { v4 as uuidv4 } from 'uuid';
+import type { Feature } from 'geojson';
 
+import { FD } from 'src/features/formData/FormDataWrite';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useLeafletDrawSpritesheetFix } from 'src/layout/Map/features/geometries/editable/useLeafletDrawSpritesheetFix';
+import { useMapParsedGeometries } from 'src/layout/Map/features/geometries/fixed/hooks';
+import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
-interface MapEditProps {
+interface FeatureWithId extends Feature {
+  properties: {
+    altinnRowId?: string;
+  };
+}
+interface MapEditGeometriesProps {
   baseComponentId: string;
 }
 
-export function MapEditGeometries({ baseComponentId }: MapEditProps) {
+export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
+  const { geometryType } = useItemWhenType(baseComponentId, 'Map');
   const editRef = useRef<L.FeatureGroup>(null);
+  const geometryBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometries;
+  const geometryDataBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryData;
+  const geometryDataFieldName = geometryDataBinding?.field.split('.').pop();
+  const initialGeometries = useMapParsedGeometries(baseComponentId)?.filter((g) => g.isEditable);
+
+  const appendToList = FD.useAppendToList();
+
   const { toolbar } = useItemWhenType(baseComponentId, 'Map');
 
   useLeafletDrawSpritesheetFix();
 
-  /* const onShapeDrawn = (e) => {
-    e.layer.on('click', () => {
-      //editRef.current.leafletElement._toolbars.edit._modes.edit.handler.enable();
-    });
-    e.layer.on('contextmenu', () => {
-      //do some contextmenu action here
-    });
-    e.layer.bindTooltip('Text', {
-      className: 'leaflet-draw-tooltip:before leaflet-draw-tooltip leaflet-draw-tooltip-visible',
-      sticky: true,
-      direction: 'right',
-    });
-  }; */
+  // Load initial data into the FeatureGroup on component mount
+  useEffect(() => {
+    const featureGroup = editRef.current;
+    if (featureGroup && initialGeometries) {
+      // Clear existing layers to prevent duplication if initialData changes
+      featureGroup.clearLayers();
+      console.log('initialGeometries', initialGeometries);
 
-  /* React.useEffect(() => {
-    if (editRef.current?.getLayers().length === 0 && geojson) {
-      L.geoJSON(geojson).eachLayer((layer) => {
-        if (
-          layer instanceof L.Marker
-        ) {
-          if (layer?.feature?.properties.radius && ref.current) {
-            new L.Circle(layer.feature.geometry.coordinates.slice().reverse(), {
-              radius: layer.feature?.properties.radius,
-            }).addTo(ref.current);
-          } else {
-            ref.current?.addLayer(layer);
-          }
+      // 1. Iterate through the array of data items
+      initialGeometries.forEach((item) => {
+        // if (geometryType == 'WKT') {
+
+        // }
+        if (item.data && item.data.type === 'FeatureCollection') {
+          // 2. Iterate through the features within each item's FeatureCollection
+          item.data.features.forEach((feature: Feature) => {
+            // 3. IMPORTANT: Attach the unique ID to the feature's properties
+            const newFeature: FeatureWithId = {
+              ...feature, // Copy type, geometry, etc.
+              properties: {
+                ...feature.properties, // Copy any existing properties
+                altinnRowId: item.altinnRowId, // Add our ID
+              },
+            };
+
+            // 4. Create a GeoJSON layer for the single feature and add it to the group
+            const leafletLayer = L.geoJSON(newFeature);
+            leafletLayer.eachLayer((layer) => {
+              featureGroup.addLayer(layer);
+            });
+          });
+        }
+
+        if (item.data && item.data.type === 'Feature') {
+          const feature = item.data as Feature;
+          const newFeature: FeatureWithId = {
+            ...feature,
+            properties: {
+              ...feature.properties,
+              altinnRowId: item.altinnRowId,
+            },
+          };
+
+          const leafletLayer = L.geoJSON(newFeature);
+          leafletLayer.eachLayer((layer) => {
+            featureGroup.addLayer(layer);
+          });
         }
       });
     }
-  }, [geojson]);
+  }, [initialGeometries]); // Dependency array ensures this runs if initialData changes
 
- */
-  const onShapeDrawn = () => {
-    const geo = editRef.current?.toGeoJSON();
-    console.log(geo);
-    // if (geo?.type === 'FeatureCollection') {
-    // setGeojson(geo);
-    // }
+  const onCreatedHandler = (e: L.DrawEvents.Created) => {
+    if (!geometryBinding) {
+      return;
+    }
+
+    if (!geometryDataFieldName) {
+      return;
+    }
+
+    const geo = e.layer.toGeoJSON();
+    const geoString = JSON.stringify(geo);
+    const uuid = uuidv4();
+    console.log('geometryDataFieldName', JSON.stringify(geometryDataFieldName));
+
+    console.log('geoString', JSON.stringify(geoString));
+    appendToList({
+      reference: geometryBinding,
+      newValue: { [ALTINN_ROW_ID]: uuid, [geometryDataFieldName]: geoString, isEditable: true },
+    });
   };
+
+  const onEditedHandler = () => {};
 
   return (
     <FeatureGroup ref={editRef}>
       <EditControl
         position='topright'
-        onCreated={onShapeDrawn}
+        onCreated={onCreatedHandler}
+        onEdited={onEditedHandler}
         draw={{
           polyline: !!toolbar?.polyline,
           polygon: !!toolbar?.polygon,
