@@ -1,11 +1,15 @@
 import { queryOptions, skipToken } from '@tanstack/react-query';
 import slugify from 'slugify';
+import type { AxiosRequestConfig } from 'axios';
 
 import credentialOptions from 'src/layout/Lommebok/options.json';
 import { credentialTypes } from 'src/layout/Lommebok/types';
+import { getFileContentType } from 'src/utils/attachmentsUtils';
 import { httpGet, httpPost } from 'src/utils/network/networking';
-import { appPath } from 'src/utils/urls/appUrlHelper';
+import { appPath, getFileUploadUrl } from 'src/utils/urls/appUrlHelper';
+import { customEncodeURI } from 'src/utils/urls/urlHelper';
 import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
+import type { IData } from 'src/types/shared';
 
 // TypeScript interfaces for API responses
 export interface VerificationStartResponse {
@@ -94,19 +98,23 @@ const validRequests = Object.entries(credentialOptions.credential_configurations
 export const getDocumentDisplayName = (docType: Keys): string =>
   validRequests[docType]?.name || `Not in known types: ${credentialTypes.join(', ')}`;
 
-// Helper function to get claims for a document type
-export const getDocumentClaims = (docType: Keys): Array<{ name: string; mandatory: boolean }> => {
-  const credentialId = Object.entries(credentialOptions.credential_configurations_supported).find(([_, config]) => {
+// Helper function to get credential configuration from document type
+export const getCredentialConfig = (docType: Keys) =>
+  Object.entries(credentialOptions.credential_configurations_supported).find(([_, config]) => {
     const displayName = config.display.find((d) => d.locale === 'no')?.name || '';
     const key = slugify(displayName, { lower: true, strict: true, locale: 'nb' });
     return key === docType;
   });
 
-  if (!credentialId) {
+// Helper function to get claims for a document type
+export const getDocumentClaims = (docType: Keys): Array<{ name: string; mandatory: boolean }> => {
+  const credentialEntry = getCredentialConfig(docType);
+
+  if (!credentialEntry) {
     return [];
   }
 
-  const [, config] = credentialId;
+  const [, config] = credentialEntry;
   return (
     config.claims?.map((claim) => ({
       name: claim.display.find((d) => d.locale === 'no')?.name || claim.path[claim.path.length - 1],
@@ -168,4 +176,45 @@ export const walletQueries = {
       },
       retry: false, // Don't retry failed requests while polling
     }),
+
+  resultKey: (verificationId: string | null) => [...walletQueries.all(), 'result', verificationId] as const,
+
+  result: (verificationId: string | null) =>
+    queryOptions({
+      queryKey: walletQueries.resultKey(verificationId),
+      queryFn: verificationId ? () => fetchWalletResult(verificationId) : skipToken,
+      enabled: !!verificationId,
+      staleTime: Infinity, // Claims data doesn't change once fetched
+    }),
 } as const;
+
+/**
+ * Upload a PDF file as an alternative to wallet verification
+ * @param instanceId - The instance ID
+ * @param dataType - The attachment data type ID
+ * @param language - The current language
+ * @param file - The PDF file to upload
+ * @returns The created data element
+ */
+export const doLommebokPdfUpload = async (
+  instanceId: string,
+  dataType: string,
+  language: string,
+  file: File,
+): Promise<IData> => {
+  const url = getFileUploadUrl(instanceId, dataType, language);
+  const contentType = getFileContentType(file);
+
+  const config: AxiosRequestConfig = {
+    headers: {
+      'Content-Type': contentType,
+      'Content-Disposition': `attachment; filename=${customEncodeURI(file.name)}`,
+    },
+  };
+
+  const response = await httpPost<IData>(url, config, file);
+  if (response.status >= 300) {
+    throw new Error('Failed to upload lommebok PDF');
+  }
+  return response.data;
+};

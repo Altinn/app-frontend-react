@@ -410,6 +410,14 @@ export function nn() {
     'config_error.subform_no_datatype_appmetadata': "Datatype '{0}' vart ikkje funnen i applicationmetadata.json.",
     'config_error.subform_misconfigured_add_button':
       "Datatype '{0}' er markert som 'disallowUserCreate=true', men underskjema-komponenten er konfigurert med 'showAddButton=true'. Dette er ei motseiing, Sidan brukaren aldri vil få lov til å utføre handlingane bak legg-til knappen.",
+    'config_error.lommebok_datatype_not_found':
+      "Datatype '{0}' spesifisert i saveToDataType for dokumenttype '{1}' vart ikkje funnen i applicationmetadata.json",
+    'config_error.lommebok_datatype_invalid_settings':
+      "Datatype '{0}' for dokumenttype '{1}' har ugyldig konfigurasjon: {2}. Forventa: autoCreate=false, allowUserCreate=true, maxCount=1, minCount=0",
+    'config_error.lommebok_upload_datatype_not_found':
+      "Datatype '{0}' spesifisert i alternativeUploadToDataType for dokumenttype '{1}' vart ikkje funnen i applicationmetadata.json",
+    'config_error.lommebok_upload_datatype_invalid_mimetype':
+      "Datatype '{0}' for dokumenttype '{1}' tillèt ikkje PDF-opplasting (application/pdf må vere i allowedContentTypes)",
     'config_error.file_upload_same_binding':
       'Det er fleire filopplastingskomponentar med same datamodellbinding. Kvar komponent må ha ein unik binding. Andre komponentar med same binding: {0}',
     'config_error.deletion_strategy_no_group': 'Felta deletionStrategy og checked kan berre brukast saman med group.',
@@ -509,11 +517,26 @@ export function nn() {
       'Du kan prøve å utføre handsaminga på nytt ved å klikke på "{0}". Om problemet held fram, ta kontakt med oss på brukarservice {1}.',
     'service_task.retry_button': 'Prøv igjen',
     'service_task.back_button': 'Gå tilbake',
-    'wallet.request_title': 'Be om dokument frå digital lommebok',
-    'wallet.request_description': 'Vel kva for dokument du ønskjer å hente frå din digitale lommebok.',
     'wallet.request_button': 'Be om legitimasjon',
     'wallet.request_document': 'Hent dokument frå digital lommebok',
+    'wallet.upload_document': 'Last opp dokument',
+    'wallet.upload_not_implemented': 'Alternativ dokumentopplasting er ikkje implementert enno',
     'wallet.document_received': 'Dokument motteke',
+    'wallet.document_saved': 'Dokument lagra',
+    'wallet.alternative_file_uploaded': 'Alternativ fil lasta opp',
+    'wallet.no_data_to_save': 'Ingen data å lagre - sjekk konfigurasjonen',
+    'wallet.no_configured_fields': 'Ingen datafelt er konfigurert for vising.',
+    'wallet.data_received_title': 'Data motteke frå lommebok',
+    'wallet.data_received_description': 'Dataene er henta frå din digitale lommebok.',
+    'wallet.received_claims_title': 'Motteken informasjon',
+    'wallet.save_button': 'Lagre data',
+    'wallet.upload_success': 'Data lagra',
+    'wallet.upload_failed': 'Kunne ikkje lagre data. Prøv igjen.',
+    'wallet.upload_conflict': 'Maksimalt antal dokument er allereie nådd',
+    'wallet.pdf_upload_success': 'Dokument lasta opp',
+    'wallet.pdf_upload_failed': 'Kunne ikkje laste opp dokument. Prøv igjen.',
+    'wallet.pdf_upload_conflict': 'Maksimalt antal dokument er allereie nådd',
+    'wallet.pdf_only': 'Berre PDF-filer er tillatne',
     'wallet.confirm_request_title': 'Stadfest førespurnad',
     'wallet.confirm_request_description':
       'Vi er i ferd med å kontakte din digitale lommebok og be om følgjande informasjon. Ønskjer du å fortsette?',

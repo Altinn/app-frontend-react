@@ -16,13 +16,35 @@ export const Config = new CG.component({
   functionality: {
     customExpressions: false,
   },
-}).addProperty(
-  new CG.prop(
-    'request',
-    new CG.arr(
-      new CG.union(...credentialTypes.map((type) => new CG.obj(new CG.prop('type', new CG.const(type)))))
-        .setUnionType('discriminated')
-        .exportAs('RequestedDocument'),
+})
+  .extends(CG.common('LabeledComponentProps'))
+  .extendTextResources(CG.common('TRBLabel'))
+  .addProperty(
+    new CG.prop(
+      'request',
+      new CG.arr(
+        new CG.union(
+          ...credentialTypes.map(
+            (type) =>
+              new CG.obj(
+                new CG.prop('type', new CG.const(type)),
+                new CG.prop('saveToDataType', new CG.str().optional()),
+                new CG.prop('alternativeUploadToDataType', new CG.str().optional()),
+                new CG.prop(
+                  'data',
+                  new CG.arr(
+                    new CG.obj(
+                      new CG.prop('field', new CG.str()),
+                      new CG.prop('title', new CG.str()),
+                      new CG.prop('displayType', new CG.enum('string', 'date', 'image').optional()),
+                    ),
+                  ).optional(),
+                ),
+              ),
+          ),
+        )
+          .setUnionType('discriminated')
+          .exportAs('RequestedDocument'),
+      ),
     ),
-  ),
-);
+  );

@@ -1,0 +1,123 @@
+import { toast } from 'react-toastify';
+
+import { useMutation } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
+import dot from 'dot-object';
+
+import { FD } from 'src/features/formData/FormDataWrite';
+import {
+  useInvalidateInstanceDataCache,
+  useOptimisticallyAppendDataElements,
+  useStrictInstanceId,
+} from 'src/features/instance/InstanceContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { doLommebokPdfUpload } from 'src/layout/Lommebok/api';
+import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
+import type { VerificationResultResponse } from 'src/layout/Lommebok/api';
+import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
+
+/**
+ * Helper function to extract a value from nested claims object using dot notation
+ */
+const getNestedClaimValue = (claims: Record<string, unknown>, path: string): FDLeafValue | undefined => {
+  const value = dot.pick(path, claims);
+
+  // Handle various value types
+  if (value === null || value === undefined) {
+    return undefined;
+  }
+
+  // FDLeafValue accepts string, number, boolean, or null
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+    return value;
+  }
+
+  // Convert objects/arrays to JSON strings as fallback
+  if (typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  return undefined;
+};
+
+/**
+ * Hook for saving lommebok wallet verification data to a data model using FormData hooks
+ * Now supports configurable field mappings via the 'data' property
+ */
+export const useSaveLommebokData = (dataType: string, dataConfig?: RequestedDocument['data']) => {
+  const { langAsString } = useLanguage();
+  const setMultiLeafValues = FD.useSetMultiLeafValues();
+
+  return (claims: VerificationResultResponse['claims']) => {
+    let changes: Array<{ reference: { dataType: string; field: string }; newValue: FDLeafValue }> = [];
+
+    if (dataConfig && dataConfig.length > 0) {
+      // New behavior: Use configured field mappings
+      changes = dataConfig
+        .map((mapping) => {
+          const value = getNestedClaimValue(claims, mapping.field);
+
+          if (value === undefined) {
+            window.logWarnOnce(`[Lommebok] No value found for claim path: ${mapping.field}`);
+            return null;
+          }
+
+          return {
+            reference: { dataType, field: mapping.field },
+            newValue: value,
+          };
+        })
+        .filter((change): change is NonNullable<typeof change> => change !== null);
+    } else {
+      // Legacy behavior: Flatten all claims (for backwards compatibility)
+      const flattenedClaims = dot.dot(claims);
+      changes = Object.entries(flattenedClaims).map(([field, value]) => ({
+        reference: { dataType, field },
+        newValue: value as FDLeafValue,
+      }));
+    }
+
+    if (changes.length === 0) {
+      window.logWarn('[Lommebok] No claims to save - check your data configuration');
+      toast(langAsString('wallet.no_data_to_save'), { type: 'warning' });
+      return;
+    }
+
+    setMultiLeafValues({ changes });
+    toast(langAsString('wallet.upload_success'), { type: 'success' });
+  };
+};
+
+/**
+ * Hook for uploading a PDF file as an alternative to wallet verification
+ */
+export const useUploadLommebokPdfMutation = (dataType: string) => {
+  const instanceId = useStrictInstanceId();
+  const { langAsString } = useLanguage();
+  const language = useCurrentLanguage();
+  const invalidateInstanceData = useInvalidateInstanceDataCache();
+  const optimisticallyAppendDataElements = useOptimisticallyAppendDataElements();
+
+  return useMutation({
+    mutationKey: ['uploadLommebokPdf', dataType],
+    mutationFn: async (file: File) => await doLommebokPdfUpload(instanceId, dataType, language, file),
+    onSuccess: (data) => {
+      optimisticallyAppendDataElements([data]);
+      invalidateInstanceData();
+      toast(langAsString('wallet.pdf_upload_success'), { type: 'success' });
+    },
+    onError: (error) => {
+      window.logErrorOnce('Failed to upload lommebok PDF:', error);
+
+      if (isAxiosError(error) && error.response?.status === 409) {
+        toast(langAsString('wallet.pdf_upload_conflict'), { type: 'error' });
+      } else {
+        toast(langAsString('wallet.pdf_upload_failed'), { type: 'error' });
+      }
+
+      // Re-throw so the component can handle it
+      throw error;
+    },
+  });
+};

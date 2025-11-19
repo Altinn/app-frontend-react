@@ -121,14 +121,20 @@
 
 .documentInfo {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.5rem;
   flex: 1;
 }
 
 .documentName {
   font-weight: 500;
   font-size: 1rem;
+}
+
+.documentActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }
 
 .statusSuccess {
@@ -156,4 +162,61 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+}
+
+.presentationFields {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--fds-semantic-surface-neutral-subtle);
+  border-radius: var(--fds-border_radius-medium);
+}
+
+.presentationField {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--fds-semantic-border-divider);
+}
+
+.presentationField:last-child {
+  border-bottom: none;
+}
+
+.presentationField strong {
+  color: var(--fds-semantic-text-neutral-default);
+  margin-right: 0.5rem;
+}
+
+.dataPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  background-color: var(--fds-semantic-surface-neutral-subtle);
+  border-radius: var(--fds-border_radius-medium);
+  border: 1px solid var(--fds-semantic-border-neutral-subtle);
+}
+
+.dataPreviewItem {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--fds-semantic-border-divider);
+}
+
+.dataPreviewItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dataPreviewLabel {
+  font-weight: 500;
+  color: var(--fds-semantic-text-neutral-subtle);
+  margin: 0;
+  word-break: break-word;
+}
+
+.dataPreviewValue {
+  margin: 0;
+  color: var(--fds-semantic-text-neutral-default);
+  word-break: break-word;
 }

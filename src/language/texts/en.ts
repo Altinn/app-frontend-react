@@ -408,6 +408,14 @@ export function en() {
     'config_error.subform_no_datatype_appmetadata': "Data type '{0}' was not found in applicationmetadata.json",
     'config_error.subform_misconfigured_add_button':
       "Data type '{0}' is marked as 'disallowUserCreate=true', but the subform component is configured with 'showAddButton=true'. This is a contradiction, as the user will never be permitted to perform the add-button operation.",
+    'config_error.lommebok_datatype_not_found':
+      "Data type '{0}' specified in saveToDataType for document type '{1}' was not found in applicationmetadata.json",
+    'config_error.lommebok_datatype_invalid_settings':
+      "Data type '{0}' for document type '{1}' has invalid settings: {2}. Expected: autoCreate=false, allowUserCreate=true, maxCount=1, minCount=0",
+    'config_error.lommebok_upload_datatype_not_found':
+      "Data type '{0}' specified in alternativeUploadToDataType for document type '{1}' was not found in applicationmetadata.json",
+    'config_error.lommebok_upload_datatype_invalid_mimetype':
+      "Data type '{0}' for document type '{1}' does not allow PDF uploads (application/pdf must be in allowedContentTypes)",
     'config_error.file_upload_same_binding':
       'There are multiple FileUpload components with the same data model binding. Each component must have a unique binding. Other components with the same binding: {0}',
     'config_error.deletion_strategy_no_group':
@@ -511,11 +519,26 @@ export function en() {
       'You can try to process again by clicking "{0}". If the problem persists, contact customer service at {1}.',
     'service_task.retry_button': 'Try again',
     'service_task.back_button': 'Go back',
-    'wallet.request_title': 'Request Documents from Digital Wallet',
-    'wallet.request_description': 'Select which documents you want to retrieve from your digital wallet.',
     'wallet.request_button': 'Request Credential',
     'wallet.request_document': 'Get document from digital wallet',
+    'wallet.upload_document': 'Upload Document',
+    'wallet.upload_not_implemented': 'Alternative document upload is not implemented yet',
     'wallet.document_received': 'Document successfully received',
+    'wallet.document_saved': 'Document saved',
+    'wallet.alternative_file_uploaded': 'Alternative file uploaded',
+    'wallet.no_data_to_save': 'No data to save - check your configuration',
+    'wallet.no_configured_fields': 'No data fields have been configured for display.',
+    'wallet.data_received_title': 'Data Received from Wallet',
+    'wallet.data_received_description': 'The data has been successfully retrieved from your digital wallet.',
+    'wallet.received_claims_title': 'Received Information',
+    'wallet.save_button': 'Save Data',
+    'wallet.upload_success': 'Data saved successfully',
+    'wallet.upload_failed': 'Failed to save data. Please try again.',
+    'wallet.upload_conflict': 'Maximum number of documents already reached',
+    'wallet.pdf_upload_success': 'Document uploaded successfully',
+    'wallet.pdf_upload_failed': 'Failed to upload document. Please try again.',
+    'wallet.pdf_upload_conflict': 'Maximum number of documents already reached',
+    'wallet.pdf_only': 'Only PDF files are allowed',
     'wallet.confirm_request_title': 'Confirm Wallet Request',
     'wallet.confirm_request_description':
       'We are about to contact your digital wallet and request the following information. Do you want to proceed?',

@@ -1,108 +1,72 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 
-import { Dialog, Heading, List, Paragraph, Tag } from '@digdir/designsystemet-react';
+import { Dialog, Heading, List, Paragraph } from '@digdir/designsystemet-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import dot from 'dot-object';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import { Panel } from 'src/app-components/Panel/Panel';
+import { Description } from 'src/components/form/Description';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import {
-  fetchWalletResult,
   getDocumentClaims,
   getDocumentDisplayName,
   startWalletVerification,
-  type VerificationResultResponse,
   walletQueries,
 } from 'src/layout/Lommebok/api';
+import { DocumentListItem } from 'src/layout/Lommebok/DocumentListItem';
+import { generateXsdFromWalletClaims } from 'src/layout/Lommebok/generateXsd';
 import classes from 'src/layout/Lommebok/LommebokComponent.module.css';
-import { useExternalItem } from 'src/utils/layout/hooks';
+import { PresentationValue } from 'src/layout/Lommebok/PresentationValue';
+import { useSaveLommebokData, useUploadLommebokPdfMutation } from 'src/layout/Lommebok/useLommebokMutations';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
 
-// State per document type
-interface DocumentState {
-  verificationId: string | null;
-  authorizationUrl: string | null;
-  claims: VerificationResultResponse['claims'] | null;
-  error: boolean;
-}
-
 export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) {
-  const { request } = useExternalItem(props.baseComponentId, 'Lommebok');
+  const { request, textResourceBindings } = useItemWhenType(props.baseComponentId, 'Lommebok');
+  const { title, description } = textResourceBindings || {};
+  const indexedId = useIndexedId(props.baseComponentId);
   const { langAsString } = useLanguage();
   const queryClient = useQueryClient();
   const confirmDialogRef = useRef<HTMLDialogElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Track state for each document type
-  const [documentStates, setDocumentStates] = useState<Record<string, DocumentState>>({});
+  // Simplified local state - only track active dialogs and flows
   const [activeDocument, setActiveDocument] = useState<RequestedDocument['type'] | null>(null);
   const [pendingDocument, setPendingDocument] = useState<RequestedDocument['type'] | null>(null);
+  const [pendingPdfUpload, setPendingPdfUpload] = useState<RequestedDocument['type'] | null>(null);
+  const [verificationId, setVerificationId] = useState<string | null>(null);
+  const activeRequestDoc = request?.find((doc) => doc.type === activeDocument);
 
-  // Get active document state
-  const activeState = activeDocument ? documentStates[activeDocument] : null;
+  const saveLommebokData = useSaveLommebokData(activeRequestDoc?.saveToDataType || 'default', activeRequestDoc?.data);
+  const uploadPdfMutation = useUploadLommebokPdfMutation(
+    request?.find((doc) => doc.type === pendingPdfUpload)?.alternativeUploadToDataType || 'default',
+  );
 
   // Mutation to start verification
   const startMutation = useMutation({
-    mutationKey: ['startWalletVerification', activeDocument],
+    mutationKey: ['startWalletVerification'],
     mutationFn: (docType: RequestedDocument['type']) => startWalletVerification(docType),
     onSuccess: (data, docType) => {
-      setDocumentStates((prev) => ({
-        ...prev,
-        [docType]: {
-          verificationId: data.verifier_transaction_id,
-          authorizationUrl: data.authorization_request,
-          claims: null,
-          error: false,
-        },
-      }));
+      // Store verificationId in state and set active document
+      setVerificationId(data.verifier_transaction_id);
       setActiveDocument(docType);
     },
-    onError: (error, docType) => {
+    onError: (error) => {
       window.logError('Failed to start wallet verification:', error);
-      setDocumentStates((prev) => ({
-        ...prev,
-        [docType]: {
-          ...prev[docType],
-          error: true,
-        },
-      }));
     },
   });
 
-  // Query to poll status for active document
-  const statusQuery = useQuery(walletQueries.status(activeState?.verificationId ?? null));
-
-  // Fetch result when status becomes AVAILABLE
-  useEffect(() => {
-    const fetchResult = async () => {
-      if (
-        statusQuery.data?.status === 'AVAILABLE' &&
-        activeDocument &&
-        activeState?.verificationId &&
-        !activeState.claims
-      ) {
-        try {
-          const result = await fetchWalletResult(activeState.verificationId);
-          if (result.claims) {
-            setDocumentStates((prev) => ({
-              ...prev,
-              [activeDocument]: {
-                ...prev[activeDocument],
-                claims: result.claims,
-              },
-            }));
-          }
-        } catch (error) {
-          window.logError('Failed to fetch wallet result:', error);
-        }
-      }
-    };
-
-    void fetchResult();
-  }, [statusQuery.data?.status, activeDocument, activeState]);
+  const statusQuery = useQuery(walletQueries.status(verificationId));
+  const resultQuery = useQuery({
+    ...walletQueries.result(verificationId),
+    enabled: statusQuery.data?.status === 'AVAILABLE' && !!verificationId,
+  });
 
   // Handle confirmation dialog
   const handleRequestDocument = (docType: RequestedDocument['type']) => {
@@ -125,15 +89,77 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
 
   // Handle cancel active verification
   const handleCancelVerification = () => {
-    if (activeDocument) {
-      setDocumentStates((prev) => {
-        const newState = { ...prev };
-        delete newState[activeDocument];
-        return newState;
+    if (verificationId) {
+      // Clean up queries for this verification
+      queryClient.removeQueries({ queryKey: walletQueries.statusKey(verificationId) });
+      queryClient.removeQueries({ queryKey: walletQueries.resultKey(verificationId) });
+    }
+    setActiveDocument(null);
+    setVerificationId(null);
+    confirmDialogRef.current?.close();
+  };
+
+  // Handle save wallet data
+  const handleSaveData = async () => {
+    if (!activeDocument || !resultQuery.data?.claims || !activeRequestDoc?.saveToDataType) {
+      window.logWarn('[Lommebok] Missing required data for save', {
+        activeDocument,
+        hasClaims: !!resultQuery.data?.claims,
+        saveToDataType: activeRequestDoc?.saveToDataType,
       });
-      queryClient.removeQueries({ queryKey: walletQueries.statusKey(activeState?.verificationId ?? null) });
-      setActiveDocument(null);
-      confirmDialogRef.current?.close();
+      return;
+    }
+
+    saveLommebokData(resultQuery.data.claims);
+    // Close dialog after successful save
+    confirmDialogRef.current?.close();
+    setActiveDocument(null);
+    setVerificationId(null);
+  };
+
+  // Handle XSD download from wallet claims
+  const handleDownloadXsdFromClaims = () => {
+    if (!activeDocument || !resultQuery.data?.claims) {
+      return;
+    }
+
+    const xsd = generateXsdFromWalletClaims(resultQuery.data.claims, activeDocument);
+
+    // Create blob and download
+    const blob = new Blob([xsd], { type: 'application/xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${activeDocument.replace(/-/g, '')}.xsd`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  // Handle alternative PDF upload
+  const handleAlternativeUpload = (docType: RequestedDocument['type']) => {
+    setPendingPdfUpload(docType);
+    fileInputRef.current?.click();
+  };
+
+  // Handle file selection
+  const handleFileSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !pendingPdfUpload) {
+      return;
+    }
+
+    // Validate it's a PDF
+    if (file.type !== 'application/pdf') {
+      alert(langAsString('wallet.pdf_only'));
+      return;
+    }
+
+    await uploadPdfMutation.mutateAsync(file);
+    setPendingPdfUpload(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -145,6 +171,8 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
 
     const isPolling = statusQuery.isFetching;
     const hasFailed = statusQuery.data?.status === 'FAILED';
+    const hasClaims = !!resultQuery.data?.claims;
+    const authorizationUrl = startMutation.data?.authorization_request;
 
     // Show loading while starting
     if (startMutation.isPending) {
@@ -195,8 +223,132 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
       );
     }
 
+    // Show claims with save button
+    if (hasClaims && activeRequestDoc?.saveToDataType) {
+      // Get presentation fields from the configured data array
+      const presentationFields =
+        activeRequestDoc.data
+          ?.map((mapping) => {
+            const value = dot.pick(mapping.field, resultQuery.data?.claims || {});
+
+            if (value === undefined || value === null) {
+              return null;
+            }
+
+            return {
+              title: mapping.title,
+              value,
+              displayType: mapping.displayType,
+            };
+          })
+          .filter((field): field is NonNullable<typeof field> => field !== null) || [];
+
+      return (
+        <>
+          <Dialog.Block>
+            <Heading level={2}>
+              <Lang id='wallet.data_received_title' />
+            </Heading>
+            <Paragraph>
+              <Lang id='wallet.data_received_description' />
+            </Paragraph>
+          </Dialog.Block>
+          <Dialog.Block>
+            {presentationFields.length > 0 ? (
+              <div className={classes.dataPreview}>
+                {presentationFields.map((field, index) => (
+                  <div
+                    key={index}
+                    className={classes.dataPreviewItem}
+                  >
+                    <dt className={classes.dataPreviewLabel}>{field.title}</dt>
+                    <dd className={classes.dataPreviewValue}>
+                      <PresentationValue
+                        value={field.value}
+                        displayType={field.displayType}
+                      />
+                    </dd>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <Paragraph>
+                <Lang id='wallet.no_configured_fields' />
+              </Paragraph>
+            )}
+          </Dialog.Block>
+          <Dialog.Block>
+            <div className={classes.dialogButtons}>
+              <Button
+                onClick={handleSaveData}
+                variant='primary'
+              >
+                <Lang id='wallet.save_button' />
+              </Button>
+              <Button
+                onClick={handleCancelVerification}
+                variant='secondary'
+              >
+                <Lang id='general.cancel' />
+              </Button>
+            </div>
+          </Dialog.Block>
+        </>
+      );
+    }
+
+    // Show claims with XSD download button (when no saveToDataType configured)
+    if (hasClaims && !activeRequestDoc?.saveToDataType) {
+      return (
+        <>
+          <Dialog.Block>
+            <Heading level={2}>
+              <Lang id='wallet.data_received_title' />
+            </Heading>
+          </Dialog.Block>
+          <Dialog.Block>
+            <Panel
+              variant='success'
+              showIcon
+            >
+              <Lang id='wallet.data_received_description' />
+            </Panel>
+            <Heading
+              level={3}
+              data-size='sm'
+            >
+              <Lang id='wallet.received_claims_title' />
+            </Heading>
+            <List.Unordered className={classes.claimsList}>
+              {Object.entries(resultQuery.data?.claims || {}).map(([key, value]) => (
+                <List.Item key={key}>
+                  <strong>{key}:</strong> {JSON.stringify(value)}
+                </List.Item>
+              ))}
+            </List.Unordered>
+          </Dialog.Block>
+          <Dialog.Block>
+            <div className={classes.dialogButtons}>
+              <Button
+                onClick={handleDownloadXsdFromClaims}
+                variant='primary'
+              >
+                Download XSD
+              </Button>
+              <Button
+                onClick={handleCancelVerification}
+                variant='secondary'
+              >
+                <Lang id='general.close' />
+              </Button>
+            </div>
+          </Dialog.Block>
+        </>
+      );
+    }
+
     // Show QR/polling state
-    if (activeState?.authorizationUrl) {
+    if (authorizationUrl) {
       return (
         <>
           <Dialog.Block>
@@ -210,7 +362,7 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
             </Paragraph>
             <div className={classes.qrContainer}>
               <QRCodeSVG
-                value={activeState.authorizationUrl}
+                value={authorizationUrl}
                 size={256}
                 level='M'
                 includeMargin={true}
@@ -219,7 +371,7 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
             </div>
             <div className={classes.linkContainer}>
               <Button
-                onClick={() => (window.location.href = activeState?.authorizationUrl || '')}
+                onClick={() => (window.location.href = authorizationUrl)}
                 variant='primary'
               >
                 <Lang id='wallet.open_wallet' />
@@ -252,69 +404,29 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
     return null;
   };
 
-  // Close dialog when claims are successfully retrieved
-  useEffect(() => {
-    if (activeState?.claims && confirmDialogRef.current?.open) {
-      confirmDialogRef.current.close();
-      setActiveDocument(null);
-    }
-  }, [activeState?.claims]);
-
-  // Render document list
   return (
     <div className={classes.container}>
       <Heading
         level={2}
-        data-size='md'
+        data-size='sm'
       >
-        <Lang id='wallet.request_title' />
+        <Lang id={title} />
       </Heading>
-      <Paragraph>
-        <Lang id='wallet.request_description' />
-      </Paragraph>
-
+      {description && (
+        <Description
+          description={<Lang id={description} />}
+          componentId={indexedId}
+        />
+      )}
       <List.Unordered className={classes.documentList}>
-        {request?.map((doc) => {
-          const docState = documentStates[doc.type];
-          const hasSuccess = !!docState?.claims;
-          const hasError = !!docState?.error;
-
-          return (
-            <List.Item
-              key={doc.type}
-              className={classes.documentListItem}
-            >
-              <div className={classes.documentItemContent}>
-                <div className={classes.documentInfo}>
-                  <span className={classes.documentName}>{getDocumentDisplayName(doc.type)}</span>
-                </div>
-                {hasSuccess ? (
-                  <Tag
-                    data-color='success'
-                    data-size='sm'
-                  >
-                    <Lang id='wallet.document_received' />
-                  </Tag>
-                ) : hasError ? (
-                  <Tag
-                    data-color='danger'
-                    data-size='sm'
-                  >
-                    <Lang id='wallet.start_failed' />
-                  </Tag>
-                ) : (
-                  <Button
-                    onClick={() => handleRequestDocument(doc.type)}
-                    variant='primary'
-                    size='sm'
-                  >
-                    <Lang id='wallet.request_document' />
-                  </Button>
-                )}
-              </div>
-            </List.Item>
-          );
-        })}
+        {request?.map((doc) => (
+          <DocumentListItem
+            key={doc.type}
+            doc={doc}
+            handleRequestDocument={handleRequestDocument}
+            handleAlternativeUpload={handleAlternativeUpload}
+          />
+        ))}
       </List.Unordered>
 
       {/* Dialog for confirmation and QR/polling */}
@@ -349,11 +461,30 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
                   <Paragraph>
                     <Lang id='wallet.confirm_claims_description' />
                   </Paragraph>
-                  <List.Unordered className={classes.claimsList}>
-                    {getDocumentClaims(pendingDocument).map((claim, index) => (
-                      <List.Item key={index}>{claim.name}</List.Item>
-                    ))}
-                  </List.Unordered>
+                  {(() => {
+                    const pendingRequestDoc = request?.find((doc) => doc.type === pendingDocument);
+                    const dataFields = pendingRequestDoc?.data;
+
+                    if (dataFields && dataFields.length > 0) {
+                      // Show configured data fields
+                      return (
+                        <List.Unordered className={classes.claimsList}>
+                          {dataFields.map((field, index) => (
+                            <List.Item key={index}>{field.title}</List.Item>
+                          ))}
+                        </List.Unordered>
+                      );
+                    } else {
+                      // Fallback to showing all claims from the credential type
+                      return (
+                        <List.Unordered className={classes.claimsList}>
+                          {getDocumentClaims(pendingDocument).map((claim, index) => (
+                            <List.Item key={index}>{claim.name}</List.Item>
+                          ))}
+                        </List.Unordered>
+                      );
+                    }
+                  })()}
                 </>
               )}
             </Dialog.Block>
@@ -376,6 +507,15 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
           </>
         )}
       </Dialog>
+
+      {/* Hidden file input for PDF upload */}
+      <input
+        ref={fileInputRef}
+        type='file'
+        accept='application/pdf'
+        style={{ display: 'none' }}
+        onChange={handleFileSelected}
+      />
     </div>
   );
 }
