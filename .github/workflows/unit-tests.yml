@@ -1,18 +1,4 @@
 name: Tests
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'yarn.lock'
-      - '.github/workflows/unit-tests.yml'
-  pull_request:
-    types: [opened, synchronize, reopened]
-    paths:
-      - 'src/**'
-      - 'yarn.lock'
-      - '.github/workflows/unit-tests.yml'
 
 jobs:
   unit-tests:

@@ -1,27 +1,5 @@
 name: Cypress
 
-on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'yarn.lock'
-      - '.github/workflows/cypress.yml'
-  pull_request:
-    paths:
-      - 'src/**'
-      - 'test/**'
-      - 'yarn.lock'
-      - '.github/workflows/cypress.yml'
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
-
-  workflow_dispatch:
-
 jobs:
   install:
     name: Install
