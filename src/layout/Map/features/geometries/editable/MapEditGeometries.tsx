@@ -28,10 +28,13 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   const editRef = useRef<L.FeatureGroup>(null);
   const geometryBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometries;
   const geometryDataBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryData;
+  const isEditableBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryIsEditable;
   const geometryDataFieldName = geometryDataBinding?.field.split('.').pop();
+  const isEditableFieldName = isEditableBinding?.field.split('.').pop();
   const initialGeometries = useMapParsedGeometries(baseComponentId)?.filter((g) => g.isEditable);
 
   const appendToList = FD.useAppendToList();
+  const setLeafValue = FD.useSetLeafValue();
 
   const { toolbar } = useItemWhenType(baseComponentId, 'Map');
 
@@ -98,6 +101,10 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
       return;
     }
 
+    if (!isEditableFieldName) {
+      return;
+    }
+
     const geo = e.layer.toGeoJSON();
     const geoString = JSON.stringify(geo);
     const uuid = uuidv4();
@@ -106,11 +113,38 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     console.log('geoString', JSON.stringify(geoString));
     appendToList({
       reference: geometryBinding,
-      newValue: { [ALTINN_ROW_ID]: uuid, [geometryDataFieldName]: geoString, isEditable: true },
+      newValue: { [ALTINN_ROW_ID]: uuid, [geometryDataFieldName]: geoString, [isEditableFieldName]: true },
     });
   };
 
-  const onEditedHandler = () => {};
+  const onEditedHandler = (e: L.DrawEvents.Edited) => {
+    console.log('Edited layers:', e.layers);
+
+    if (!geometryBinding) {
+      return;
+    }
+
+    if (!geometryDataFieldName) {
+      return;
+    }
+
+    if (!geometryDataBinding) {
+      return;
+    }
+
+    const geo = e.layers[0]?.toGeoJSON();
+    console.log('Edited geoJSON object:', geo);
+    const geoString = JSON.stringify(geo);
+    console.log('Edited geoJSON:', geoString);
+    const altinnRowId = geo.properties?.altinnRowId;
+    const geometryDataPath = `${geometryBinding.field}[?(@.${ALTINN_ROW_ID}=='${altinnRowId}')].${geometryDataFieldName}`;
+    if (altinnRowId) {
+      setLeafValue({
+        reference: { dataType: geometryDataBinding?.dataType, field: geometryDataPath },
+        newValue: geoString,
+      });
+    }
+  };
 
   return (
     <FeatureGroup ref={editRef}>
