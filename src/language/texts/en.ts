@@ -144,6 +144,7 @@ export function en() {
     'general.add': 'Add',
     'general.back': 'Back',
     'general.cancel': 'Cancel',
+    'general.or': 'or',
     'general.choose_label': 'Choose label',
     'general.choose_method': 'Choose method',
     'general.choose': 'Choose',
@@ -520,8 +521,8 @@ export function en() {
     'service_task.retry_button': 'Try again',
     'service_task.back_button': 'Go back',
     'wallet.request_button': 'Request Credential',
-    'wallet.request_document': 'Get document from digital wallet',
-    'wallet.upload_document': 'Upload Document',
+    'wallet.request_document': 'Get from digital wallet',
+    'wallet.upload_document': 'Upload file',
     'wallet.upload_not_implemented': 'Alternative document upload is not implemented yet',
     'wallet.document_received': 'Document successfully received',
     'wallet.document_saved': 'Document saved',
@@ -539,6 +540,7 @@ export function en() {
     'wallet.pdf_upload_failed': 'Failed to upload document. Please try again.',
     'wallet.pdf_upload_conflict': 'Maximum number of documents already reached',
     'wallet.pdf_only': 'Only PDF files are allowed',
+    'wallet.remove_data': 'Remove data',
     'wallet.confirm_request_title': 'Confirm Wallet Request',
     'wallet.confirm_request_description':
       'We are about to contact your digital wallet and request the following information. Do you want to proceed?',
@@ -567,5 +569,13 @@ export function en() {
     'wallet.claim_issue_date': 'Issue Date',
     'wallet.claim_expiry_date': 'Expiry Date',
     'wallet.claim_vehicle_categories': 'Vehicle Categories',
+    'wallet.document_request_description':
+      'You can either retrieve this document from your digital wallet or upload a PDF file.',
+    'wallet.option_wallet': 'Option 1: Retrieve from digital wallet',
+    'wallet.option_wallet_description': 'Scan QR code with your wallet app and approve the request.',
+    'wallet.option_upload': 'Option 2: Upload PDF',
+    'wallet.option_upload_description': 'Upload a PDF file of the document if you have it available.',
+    'wallet.request_from_wallet': 'Retrieve from wallet',
+    'wallet.upload_pdf': 'Upload PDF',
   };
 }

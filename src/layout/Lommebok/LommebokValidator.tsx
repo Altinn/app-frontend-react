@@ -23,37 +23,9 @@ export function LommebokValidator(props: NodeValidationProps<'Lommebok'>) {
       // Validate saveToDataType if specified
       if (doc.saveToDataType) {
         const dataType = applicationMetadata.dataTypes.find((dt) => dt.id === doc.saveToDataType);
-
         if (!dataType) {
           const error = langAsString('config_error.lommebok_datatype_not_found', [doc.saveToDataType, doc.type]);
           errors.push(error);
-        } else {
-          // Check data type settings
-          const settingErrors: string[] = [];
-          const autoCreate = dataType.appLogic?.autoCreate ?? false;
-          const disallowUserCreate = dataType.appLogic?.disallowUserCreate ?? false;
-
-          if (autoCreate !== false) {
-            settingErrors.push('autoCreate should be false');
-          }
-          if (disallowUserCreate !== false) {
-            settingErrors.push('allowUserCreate should be true (disallowUserCreate should be false)');
-          }
-          if (dataType.maxCount !== 1) {
-            settingErrors.push('maxCount should be 1');
-          }
-          if (dataType.minCount !== 0) {
-            settingErrors.push('minCount should be 0');
-          }
-
-          if (settingErrors.length > 0) {
-            const error = langAsString('config_error.lommebok_datatype_invalid_settings', [
-              doc.saveToDataType,
-              doc.type,
-              settingErrors.join(', '),
-            ]);
-            errors.push(error);
-          }
         }
       }
 

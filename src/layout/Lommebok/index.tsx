@@ -30,7 +30,7 @@ export class Lommebok extends LommebokDef implements ValidateComponent {
     return useValidateLommebok(baseComponentId);
   }
 
-  renderNodeValidation(props: NodeValidationProps<'Lommebok'>): JSX.Element | null {
+  renderLayoutValidators(props: NodeValidationProps<'Lommebok'>): JSX.Element | null {
     return <LommebokValidator {...props} />;
   }
 }

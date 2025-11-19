@@ -145,6 +145,7 @@ export function nn() {
     'general.add': 'Legg til',
     'general.back': 'Attende',
     'general.cancel': 'Avbryt',
+    'general.or': 'eller',
     'general.choose_label': 'Vel namn',
     'general.choose_method': 'Vel metode',
     'general.choose': 'Vel',
@@ -518,8 +519,8 @@ export function nn() {
     'service_task.retry_button': 'Prøv igjen',
     'service_task.back_button': 'Gå tilbake',
     'wallet.request_button': 'Be om legitimasjon',
-    'wallet.request_document': 'Hent dokument frå digital lommebok',
-    'wallet.upload_document': 'Last opp dokument',
+    'wallet.request_document': 'Hent frå digital lommebok',
+    'wallet.upload_document': 'Last opp fil',
     'wallet.upload_not_implemented': 'Alternativ dokumentopplasting er ikkje implementert enno',
     'wallet.document_received': 'Dokument motteke',
     'wallet.document_saved': 'Dokument lagra',
@@ -537,6 +538,7 @@ export function nn() {
     'wallet.pdf_upload_failed': 'Kunne ikkje laste opp dokument. Prøv igjen.',
     'wallet.pdf_upload_conflict': 'Maksimalt antal dokument er allereie nådd',
     'wallet.pdf_only': 'Berre PDF-filer er tillatne',
+    'wallet.remove_data': 'Fjern data',
     'wallet.confirm_request_title': 'Stadfest førespurnad',
     'wallet.confirm_request_description':
       'Vi er i ferd med å kontakte din digitale lommebok og be om følgjande informasjon. Ønskjer du å fortsette?',
@@ -565,5 +567,13 @@ export function nn() {
     'wallet.claim_issue_date': 'Utferdingsdato',
     'wallet.claim_expiry_date': 'Utløpsdato',
     'wallet.claim_vehicle_categories': 'Køyretøyklassar',
+    'wallet.document_request_description':
+      'Du kan enten hente dette dokumentet frå din digitale lommebok eller laste opp ei PDF-fil.',
+    'wallet.option_wallet': 'Alternativ 1: Hent frå digital lommebok',
+    'wallet.option_wallet_description': 'Skann QR-kode med lommebok-appen din og godkjenn førespurnaden.',
+    'wallet.option_upload': 'Alternativ 2: Last opp PDF',
+    'wallet.option_upload_description': 'Last opp ei PDF-fil av dokumentet dersom du har det tilgjengeleg.',
+    'wallet.request_from_wallet': 'Hent frå lommebok',
+    'wallet.upload_pdf': 'Last opp PDF',
   } satisfies FixedLanguageList;
 }

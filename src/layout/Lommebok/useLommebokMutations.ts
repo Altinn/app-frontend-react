@@ -1,18 +1,20 @@
 import { toast } from 'react-toastify';
 
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import dot from 'dot-object';
 
+import { useAttachmentsRemover } from 'src/features/attachments/hooks';
 import { FD } from 'src/features/formData/FormDataWrite';
 import {
+  useInstanceDataElements,
   useInvalidateInstanceDataCache,
   useOptimisticallyAppendDataElements,
   useStrictInstanceId,
 } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { doLommebokPdfUpload } from 'src/layout/Lommebok/api';
+import { doLommebokPdfUpload, walletQueries } from 'src/layout/Lommebok/api';
 import type { FDLeafValue } from 'src/features/formData/FormDataWrite';
 import type { VerificationResultResponse } from 'src/layout/Lommebok/api';
 import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
@@ -118,6 +120,57 @@ export const useUploadLommebokPdfMutation = (dataType: string) => {
 
       // Re-throw so the component can handle it
       throw error;
+    },
+  });
+};
+
+/**
+ * Hook for resetting/removing saved document data
+ * Handles both wallet data (form data) and uploaded PDF files
+ */
+export const useResetDocumentData = (doc: RequestedDocument, nodeId: string) => {
+  const setMultiLeafValues = FD.useSetMultiLeafValues();
+  const removeAttachment = useAttachmentsRemover();
+  const uploadedElements = useInstanceDataElements(doc.alternativeUploadToDataType);
+  const invalidateInstanceData = useInvalidateInstanceDataCache();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationKey: ['resetLommebokDocument', doc.type, doc.saveToDataType, doc.alternativeUploadToDataType],
+    mutationFn: async () => {
+      // 1. Clear wallet data from form data model if configured
+      if (doc.saveToDataType && doc.data && doc.data.length > 0) {
+        const changes = doc.data.map((mapping) => ({
+          reference: { dataType: doc.saveToDataType!, field: mapping.field },
+          newValue: undefined as FDLeafValue,
+        }));
+        setMultiLeafValues({ changes });
+      }
+
+      // 2. Delete uploaded PDF files if any exist
+      if (doc.alternativeUploadToDataType && uploadedElements.length > 0) {
+        for (const element of uploadedElements) {
+          await removeAttachment({
+            attachment: {
+              uploaded: true,
+              updating: false,
+              deleting: false,
+              data: element,
+            },
+            nodeId,
+            dataModelBindings: undefined,
+          });
+        }
+      }
+
+      // 3. Clear all wallet verification query cache (full reset)
+      queryClient.removeQueries({ queryKey: walletQueries.all() });
+
+      // 4. Invalidate instance data to refresh UI
+      await invalidateInstanceData();
+    },
+    onError: (error) => {
+      window.logError('Failed to reset lommebok document data:', error);
     },
   });
 };
