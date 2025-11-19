@@ -1,0 +1,97 @@
+.container {
+  width: 100%;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 2rem 0;
+}
+
+.qrContainer {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: var(--fds-semantic-surface-neutral-default);
+  border-radius: var(--fds-border_radius-medium);
+}
+
+.qrCode {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.linkContainer {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.authLink {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--fds-semantic-surface-action-default);
+  color: var(--fds-semantic-text-action-on-action);
+  border-radius: var(--fds-border_radius-medium);
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.authLink:hover {
+  background-color: var(--fds-semantic-surface-action-hover);
+}
+
+.authLink:active {
+  background-color: var(--fds-semantic-surface-action-active);
+}
+
+.pollingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: var(--fds-semantic-surface-neutral-subtle);
+  border-radius: var(--fds-border_radius-medium);
+}
+
+.portraitContainer {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+}
+
+.portrait {
+  max-width: 300px;
+  width: 100%;
+  height: auto;
+  border-radius: var(--fds-border_radius-medium);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.claimsContainer {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: var(--fds-semantic-surface-neutral-subtle);
+  border-radius: var(--fds-border_radius-medium);
+}
+
+.claim {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--fds-semantic-border-divider);
+}
+
+.claim:last-child {
+  border-bottom: none;
+}
+
+.claim strong {
+  display: inline-block;
+  min-width: 140px;
+  margin-right: 0.5rem;
+  color: var(--fds-semantic-text-neutral-default);
+}

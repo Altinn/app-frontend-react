@@ -163,6 +163,7 @@
     "marked": "16.4.1",
     "marked-mangle": "1.1.11",
     "node-polyfill-webpack-plugin": "4.1.0",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.0",
     "react-compiler-webpack": "0.2.1",
     "react-content-loader": "7.1.1",

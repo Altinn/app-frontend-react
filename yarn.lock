@@ -5784,6 +5784,7 @@ __metadata:
     mini-css-extract-plugin: "npm:2.9.4"
     node-polyfill-webpack-plugin: "npm:4.1.0"
     prettier: "npm:3.6.2"
+    qrcode.react: "npm:^4.2.0"
     react: "npm:19.2.0"
     react-compiler-webpack: "npm:0.2.1"
     react-content-loader: "npm:7.1.1"
@@ -15193,6 +15194,15 @@ __metadata:
   version: 7.0.1
   resolution: "pure-rand@npm:7.0.1"
   checksum: 10c0/9cade41030f5ec95f5d55a11a71404cd6f46b69becaad892097cd7f58e2c6248cd0a933349ca7d21336ab629f1da42ffe899699b671bc4651600eaf6e57f837e
+  languageName: node
+  linkType: hard
+
+"qrcode.react@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "qrcode.react@npm:4.2.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/68c691d130e5fda2f57cee505ed7aea840e7d02033100687b764601f9595e1116e34c13876628a93e1a5c2b85e4efc27d30b2fda72e2050c02f3e1c4e998d248
   languageName: node
   linkType: hard
 
