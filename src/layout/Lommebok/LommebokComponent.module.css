@@ -27,7 +27,8 @@
 
 .linkContainer {
   margin: 1.5rem 0;
-  text-align: center;
+  display: flex;
+  justify-content: center;
 }
 
 .authLink {
@@ -94,4 +95,65 @@
   min-width: 140px;
   margin-right: 0.5rem;
   color: var(--fds-semantic-text-neutral-default);
+}
+
+.documentList {
+  margin-top: 1.5rem;
+  list-style: none;
+  padding: 0;
+}
+
+.documentListItem {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--fds-semantic-border-divider);
+}
+
+.documentListItem:last-child {
+  border-bottom: none;
+}
+
+.documentItemContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.documentInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.documentName {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.statusSuccess {
+  color: var(--fds-semantic-text-success-default);
+  font-size: 0.875rem;
+}
+
+.statusError {
+  color: var(--fds-semantic-text-danger-default);
+  font-size: 0.875rem;
+}
+
+.claimsList {
+  margin-top: 0.5rem;
+  padding-left: 1.5rem;
+}
+
+.mandatoryIndicator {
+  font-size: 0.875rem;
+  color: var(--fds-semantic-text-neutral-subtle);
+  font-style: italic;
+}
+
+.dialogButtons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }

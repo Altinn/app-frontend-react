@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
-import { Card, Heading } from '@digdir/designsystemet-react';
+import { Dialog, Heading, List, Paragraph, Tag } from '@digdir/designsystemet-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -11,46 +11,89 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import {
   fetchWalletResult,
+  getDocumentClaims,
+  getDocumentDisplayName,
   startWalletVerification,
   type VerificationResultResponse,
   walletQueries,
 } from 'src/layout/Lommebok/api';
 import classes from 'src/layout/Lommebok/LommebokComponent.module.css';
+import { useExternalItem } from 'src/utils/layout/hooks';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
 
-export function LommebokComponent(_props: PropsFromGenericComponent<'Lommebok'>) {
+// State per document type
+interface DocumentState {
+  verificationId: string | null;
+  authorizationUrl: string | null;
+  claims: VerificationResultResponse['claims'] | null;
+  error: boolean;
+}
+
+export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) {
+  const { request } = useExternalItem(props.baseComponentId, 'Lommebok');
   const { langAsString } = useLanguage();
   const queryClient = useQueryClient();
+  const confirmDialogRef = useRef<HTMLDialogElement>(null);
 
-  // Local state
-  const [verificationId, setVerificationId] = useState<string | null>(null);
-  const [authorizationUrl, setAuthorizationUrl] = useState<string | null>(null);
-  const [claims, setClaims] = useState<VerificationResultResponse['claims'] | null>(null);
+  // Track state for each document type
+  const [documentStates, setDocumentStates] = useState<Record<string, DocumentState>>({});
+  const [activeDocument, setActiveDocument] = useState<RequestedDocument['type'] | null>(null);
+  const [pendingDocument, setPendingDocument] = useState<RequestedDocument['type'] | null>(null);
+
+  // Get active document state
+  const activeState = activeDocument ? documentStates[activeDocument] : null;
 
   // Mutation to start verification
   const startMutation = useMutation({
-    mutationKey: ['startWalletVerification'],
-    mutationFn: startWalletVerification,
-    onSuccess: (data) => {
-      setVerificationId(data.verifier_transaction_id);
-      setAuthorizationUrl(data.authorization_request);
+    mutationKey: ['startWalletVerification', activeDocument],
+    mutationFn: (docType: RequestedDocument['type']) => startWalletVerification(docType),
+    onSuccess: (data, docType) => {
+      setDocumentStates((prev) => ({
+        ...prev,
+        [docType]: {
+          verificationId: data.verifier_transaction_id,
+          authorizationUrl: data.authorization_request,
+          claims: null,
+          error: false,
+        },
+      }));
+      setActiveDocument(docType);
     },
-    onError: (error) => {
+    onError: (error, docType) => {
       window.logError('Failed to start wallet verification:', error);
+      setDocumentStates((prev) => ({
+        ...prev,
+        [docType]: {
+          ...prev[docType],
+          error: true,
+        },
+      }));
     },
   });
 
-  // Query to poll status
-  const statusQuery = useQuery(walletQueries.status(verificationId));
+  // Query to poll status for active document
+  const statusQuery = useQuery(walletQueries.status(activeState?.verificationId ?? null));
 
   // Fetch result when status becomes AVAILABLE
   useEffect(() => {
     const fetchResult = async () => {
-      if (statusQuery.data?.status === 'AVAILABLE' && verificationId && !claims) {
+      if (
+        statusQuery.data?.status === 'AVAILABLE' &&
+        activeDocument &&
+        activeState?.verificationId &&
+        !activeState.claims
+      ) {
         try {
-          const result = await fetchWalletResult(verificationId);
+          const result = await fetchWalletResult(activeState.verificationId);
           if (result.claims) {
-            setClaims(result.claims);
+            setDocumentStates((prev) => ({
+              ...prev,
+              [activeDocument]: {
+                ...prev[activeDocument],
+                claims: result.claims,
+              },
+            }));
           }
         } catch (error) {
           window.logError('Failed to fetch wallet result:', error);
@@ -59,212 +102,115 @@ export function LommebokComponent(_props: PropsFromGenericComponent<'Lommebok'>)
     };
 
     void fetchResult();
-  }, [statusQuery.data?.status, verificationId, claims]);
+  }, [statusQuery.data?.status, activeDocument, activeState]);
 
-  // Reset handler
-  const handleReset = () => {
-    setVerificationId(null);
-    setAuthorizationUrl(null);
-    setClaims(null);
-    queryClient.removeQueries({ queryKey: walletQueries.all() });
+  // Handle confirmation dialog
+  const handleRequestDocument = (docType: RequestedDocument['type']) => {
+    setPendingDocument(docType);
+    confirmDialogRef.current?.showModal();
   };
 
-  // Handle start request
-  const handleStart = () => {
-    startMutation.mutate();
+  const handleConfirmRequest = () => {
+    if (pendingDocument) {
+      startMutation.mutate(pendingDocument);
+      setPendingDocument(null);
+      // Don't close dialog - it will transition to QR/polling view
+    }
   };
 
-  // Render loading state for initial request
-  if (startMutation.isPending) {
-    return (
-      <div className={classes.container}>
-        <Card color='neutral'>
-          <Card.Block>
-            <div className={classes.loadingContainer}>
-              <Spinner aria-label={langAsString('general.loading')} />
-              <Lang id='wallet.starting_verification' />
-            </div>
-          </Card.Block>
-        </Card>
-      </div>
-    );
-  }
+  const handleCancelRequest = () => {
+    setPendingDocument(null);
+    confirmDialogRef.current?.close();
+  };
 
-  // Render error state for start mutation
-  if (startMutation.isError) {
-    return (
-      <div className={classes.container}>
-        <Panel
-          variant='error'
-          showIcon
-        >
-          <Lang id='wallet.start_failed' />
-          <Button
-            onClick={handleReset}
-            variant='secondary'
-            size='sm'
-          >
-            <Lang id='wallet.try_again' />
-          </Button>
-        </Panel>
-      </div>
-    );
-  }
+  // Handle cancel active verification
+  const handleCancelVerification = () => {
+    if (activeDocument) {
+      setDocumentStates((prev) => {
+        const newState = { ...prev };
+        delete newState[activeDocument];
+        return newState;
+      });
+      queryClient.removeQueries({ queryKey: walletQueries.statusKey(activeState?.verificationId ?? null) });
+      setActiveDocument(null);
+      confirmDialogRef.current?.close();
+    }
+  };
 
-  // Render success state with claims
-  if (claims) {
-    return (
-      <div className={classes.container}>
-        <Card
-          color='success'
-          variant='tinted'
-        >
-          <Card.Block>
-            <Heading
-              level={2}
-              data-size='md'
-            >
-              <Lang id='wallet.success_title' />
-            </Heading>
-            <div className={classes.claimsContainer}>
-              {claims.norwegian_national_id_number && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_national_id_number' />:
-                  </strong>{' '}
-                  {claims.norwegian_national_id_number}
-                </div>
-              )}
-              {claims.norwegian_national_id_number_type && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_national_id_type' />:
-                  </strong>{' '}
-                  {claims.norwegian_national_id_number_type}
-                </div>
-              )}
-              {/* Legacy driver's license fields for backwards compatibility */}
-              {claims.portrait && (
-                <div className={classes.portraitContainer}>
-                  <img
-                    src={`data:image/jpeg;base64,${claims.portrait}`}
-                    alt={langAsString('wallet.success_title')}
-                    className={classes.portrait}
-                  />
-                </div>
-              )}
-              {claims.given_name && claims.family_name && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_name' />:
-                  </strong>{' '}
-                  {claims.given_name} {claims.family_name}
-                </div>
-              )}
-              {claims.birth_date && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_birth_date' />:
-                  </strong>{' '}
-                  {claims.birth_date}
-                </div>
-              )}
-              {claims.document_number && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_document_number' />:
-                  </strong>{' '}
-                  {claims.document_number}
-                </div>
-              )}
-              {claims.issuing_country && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_issuing_country' />:
-                  </strong>{' '}
-                  {claims.issuing_country}
-                </div>
-              )}
-              {claims.issue_date && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_issue_date' />:
-                  </strong>{' '}
-                  {claims.issue_date}
-                </div>
-              )}
-              {claims.expiry_date && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_expiry_date' />:
-                  </strong>{' '}
-                  {claims.expiry_date}
-                </div>
-              )}
-              {claims.driving_privileges && claims.driving_privileges.length > 0 && (
-                <div className={classes.claim}>
-                  <strong>
-                    <Lang id='wallet.claim_vehicle_categories' />:
-                  </strong>{' '}
-                  {claims.driving_privileges.map((p) => p.vehicle_category_code).join(', ')}
-                </div>
-              )}
-            </div>
-            <Button
-              onClick={handleReset}
-              variant='secondary'
-              size='sm'
-            >
-              <Lang id='wallet.request_new' />
-            </Button>
-          </Card.Block>
-        </Card>
-      </div>
-    );
-  }
+  // Get dialog content based on state
+  const getDialogContent = () => {
+    if (!activeDocument) {
+      return null;
+    }
 
-  // Render pending/polling state
-  if (verificationId && authorizationUrl) {
     const isPolling = statusQuery.isFetching;
     const hasFailed = statusQuery.data?.status === 'FAILED';
 
-    if (hasFailed) {
+    // Show loading while starting
+    if (startMutation.isPending) {
       return (
-        <div className={classes.container}>
-          <Panel
-            variant='error'
-            showIcon
-          >
-            <Lang id='wallet.verification_failed' />
-            <Button
-              onClick={handleReset}
-              variant='secondary'
-              size='sm'
-            >
-              <Lang id='wallet.try_again' />
-            </Button>
-          </Panel>
-        </div>
+        <>
+          <Dialog.Block>
+            <Heading level={2}>
+              <Lang id='wallet.starting_verification' />
+            </Heading>
+          </Dialog.Block>
+          <Dialog.Block>
+            <div className={classes.loadingContainer}>
+              <Spinner aria-label={langAsString('general.loading')} />
+            </div>
+          </Dialog.Block>
+        </>
       );
     }
 
-    return (
-      <div className={classes.container}>
-        <Card
-          color='brand1'
-          variant='tinted'
-        >
-          <Card.Block>
-            <Heading
-              level={2}
-              data-size='md'
+    // Show error state
+    if (hasFailed) {
+      return (
+        <>
+          <Dialog.Block>
+            <Heading level={2}>
+              <Lang id='wallet.verification_failed' />
+            </Heading>
+          </Dialog.Block>
+          <Dialog.Block>
+            <Panel
+              variant='error'
+              showIcon
             >
+              <Lang id='wallet.verification_failed' />
+            </Panel>
+          </Dialog.Block>
+          <Dialog.Block>
+            <div className={classes.dialogButtons}>
+              <Button
+                onClick={handleCancelVerification}
+                variant='secondary'
+              >
+                <Lang id='general.close' />
+              </Button>
+            </div>
+          </Dialog.Block>
+        </>
+      );
+    }
+
+    // Show QR/polling state
+    if (activeState?.authorizationUrl) {
+      return (
+        <>
+          <Dialog.Block>
+            <Heading level={2}>
               <Lang id='wallet.verification_title' />
             </Heading>
-            <Lang id='wallet.verification_description' />
+          </Dialog.Block>
+          <Dialog.Block>
+            <Paragraph>
+              <Lang id='wallet.verification_description' />
+            </Paragraph>
             <div className={classes.qrContainer}>
               <QRCodeSVG
-                value={authorizationUrl}
+                value={activeState.authorizationUrl}
                 size={256}
                 level='M'
                 includeMargin={true}
@@ -272,14 +218,12 @@ export function LommebokComponent(_props: PropsFromGenericComponent<'Lommebok'>)
               />
             </div>
             <div className={classes.linkContainer}>
-              <a
-                href={authorizationUrl}
-                target='_blank'
-                rel='noreferrer'
-                className={classes.authLink}
+              <Button
+                onClick={() => (window.location.href = activeState?.authorizationUrl || '')}
+                variant='primary'
               >
                 <Lang id='wallet.open_wallet' />
-              </a>
+              </Button>
             </div>
             {isPolling && (
               <div className={classes.pollingIndicator}>
@@ -290,32 +234,148 @@ export function LommebokComponent(_props: PropsFromGenericComponent<'Lommebok'>)
                 <Lang id='wallet.waiting_for_verification' />
               </div>
             )}
-          </Card.Block>
-        </Card>
-      </div>
-    );
-  }
+          </Dialog.Block>
+          <Dialog.Block>
+            <div className={classes.dialogButtons}>
+              <Button
+                onClick={handleCancelVerification}
+                variant='secondary'
+              >
+                <Lang id='wallet.cancel_request' />
+              </Button>
+            </div>
+          </Dialog.Block>
+        </>
+      );
+    }
 
-  // Render initial state
+    return null;
+  };
+
+  // Close dialog when claims are successfully retrieved
+  useEffect(() => {
+    if (activeState?.claims && confirmDialogRef.current?.open) {
+      confirmDialogRef.current.close();
+      setActiveDocument(null);
+    }
+  }, [activeState?.claims]);
+
+  // Render document list
   return (
     <div className={classes.container}>
-      <Card color='neutral'>
-        <Card.Block>
-          <Heading
-            level={2}
-            data-size='md'
-          >
-            <Lang id='wallet.request_title' />
-          </Heading>
-          <Lang id='wallet.request_description' />
-          <Button
-            onClick={handleStart}
-            variant='primary'
-          >
-            <Lang id='wallet.request_button' />
-          </Button>
-        </Card.Block>
-      </Card>
+      <Heading
+        level={2}
+        data-size='md'
+      >
+        <Lang id='wallet.request_title' />
+      </Heading>
+      <Paragraph>
+        <Lang id='wallet.request_description' />
+      </Paragraph>
+
+      <List.Unordered className={classes.documentList}>
+        {request?.map((doc) => {
+          const docState = documentStates[doc.type];
+          const hasSuccess = !!docState?.claims;
+          const hasError = !!docState?.error;
+
+          return (
+            <List.Item
+              key={doc.type}
+              className={classes.documentListItem}
+            >
+              <div className={classes.documentItemContent}>
+                <div className={classes.documentInfo}>
+                  <span className={classes.documentName}>{getDocumentDisplayName(doc.type)}</span>
+                </div>
+                {hasSuccess ? (
+                  <Tag
+                    data-color='success'
+                    data-size='sm'
+                  >
+                    <Lang id='wallet.document_received' />
+                  </Tag>
+                ) : hasError ? (
+                  <Tag
+                    data-color='danger'
+                    data-size='sm'
+                  >
+                    <Lang id='wallet.start_failed' />
+                  </Tag>
+                ) : (
+                  <Button
+                    onClick={() => handleRequestDocument(doc.type)}
+                    variant='primary'
+                    size='sm'
+                  >
+                    <Lang id='wallet.request_document' />
+                  </Button>
+                )}
+              </div>
+            </List.Item>
+          );
+        })}
+      </List.Unordered>
+
+      {/* Dialog for confirmation and QR/polling */}
+      <Dialog
+        ref={confirmDialogRef}
+        modal
+        closedby='any'
+      >
+        {activeDocument ? (
+          // Show QR/polling content if verification has started
+          getDialogContent()
+        ) : (
+          // Show confirmation content if no active verification
+          <>
+            <Dialog.Block>
+              <Heading level={2}>
+                <Lang id='wallet.confirm_request_title' />
+              </Heading>
+            </Dialog.Block>
+            <Dialog.Block>
+              <Paragraph>
+                <Lang id='wallet.confirm_request_description' />
+              </Paragraph>
+              {pendingDocument && (
+                <>
+                  <Heading
+                    level={3}
+                    data-size='sm'
+                  >
+                    {getDocumentDisplayName(pendingDocument)}
+                  </Heading>
+                  <Paragraph>
+                    <Lang id='wallet.confirm_claims_description' />
+                  </Paragraph>
+                  <List.Unordered className={classes.claimsList}>
+                    {getDocumentClaims(pendingDocument).map((claim, index) => (
+                      <List.Item key={index}>{claim.name}</List.Item>
+                    ))}
+                  </List.Unordered>
+                </>
+              )}
+            </Dialog.Block>
+            <Dialog.Block>
+              <div className={classes.dialogButtons}>
+                <Button
+                  onClick={handleConfirmRequest}
+                  variant='primary'
+                >
+                  <Lang id='wallet.confirm_proceed' />
+                </Button>
+                <Button
+                  onClick={handleCancelRequest}
+                  variant='secondary'
+                >
+                  <Lang id='general.cancel' />
+                </Button>
+              </div>
+            </Dialog.Block>
+          </>
+        )}
+      </Dialog>
     </div>
   );
 }

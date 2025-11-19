@@ -1,7 +1,11 @@
 import { queryOptions, skipToken } from '@tanstack/react-query';
+import slugify from 'slugify';
 
+import credentialOptions from 'src/layout/Lommebok/options.json';
+import { credentialTypes } from 'src/layout/Lommebok/types';
 import { httpGet, httpPost } from 'src/utils/network/networking';
 import { appPath } from 'src/utils/urls/appUrlHelper';
+import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
 
 // TypeScript interfaces for API responses
 export interface VerificationStartResponse {
@@ -51,17 +55,74 @@ export const getWalletVerificationStatusUrl = (verificationId: string) =>
 export const getWalletVerificationResultUrl = (verificationId: string) =>
   `${appPath}/api/wallet/verify/result/${verificationId}`;
 
+type Keys = RequestedDocument['type'];
+
+// Generate validRequests from options.json
+const validRequests = Object.entries(credentialOptions.credential_configurations_supported).reduce(
+  (acc, [credentialId, config]) => {
+    // Use the first Norwegian locale display name and slugify it
+    const displayName = config.display.find((d) => d.locale === 'no')?.name || credentialId;
+    const key = slugify(displayName, { lower: true, strict: true, locale: 'nb' });
+
+    // Determine type and value based on format
+    let type: 'vct' | 'doctype';
+    let value: string;
+
+    if ('doctype' in config) {
+      type = 'doctype';
+      value = config.doctype;
+    } else if ('vct' in config) {
+      type = 'vct';
+      value = config.vct;
+    } else {
+      // Fallback - shouldn't happen with valid data
+      throw new Error(`Unknown credential format for ${credentialId}`);
+    }
+
+    acc[key] = {
+      name: displayName,
+      type,
+      value,
+    };
+
+    return acc;
+  },
+  {} as Record<Keys, { type: 'vct' | 'doctype'; value: string; name: string }>,
+);
+
+// Helper function to get document display name
+export const getDocumentDisplayName = (docType: Keys): string =>
+  validRequests[docType]?.name || `Not in known types: ${credentialTypes.join(', ')}`;
+
+// Helper function to get claims for a document type
+export const getDocumentClaims = (docType: Keys): Array<{ name: string; mandatory: boolean }> => {
+  const credentialId = Object.entries(credentialOptions.credential_configurations_supported).find(([_, config]) => {
+    const displayName = config.display.find((d) => d.locale === 'no')?.name || '';
+    const key = slugify(displayName, { lower: true, strict: true, locale: 'nb' });
+    return key === docType;
+  });
+
+  if (!credentialId) {
+    return [];
+  }
+
+  const [, config] = credentialId;
+  return (
+    config.claims?.map((claim) => ({
+      name: claim.display.find((d) => d.locale === 'no')?.name || claim.path[claim.path.length - 1],
+      mandatory: claim.mandatory,
+    })) || []
+  );
+};
+
 // API functions
-export const startWalletVerification = async (): Promise<VerificationStartResponse> => {
+export const startWalletVerification = async (request: Keys): Promise<VerificationStartResponse> => {
   const url = getWalletVerificationStartUrl();
 
   const requestBody = {
-    credential_issuer: 'https://utsteder.test.eidas2sandkasse.net',
-    // credential_configuration_id: 'org.iso.18013.5.1.mDL_mso_mdoc', // Førerkort
-    credential_configuration_id: 'no.digdir.eudiw.pid_mso_mdoc', // Norsk identitetsnummer
-    // credential_configuration_id: 'no.minid.mpid_sd_jwt_vc', // Did not work (MinID PID)
-    // vct: 'urn:eudi:pid:1',
-    // doctype: 'eu.europa.ec.eudi.pid.1',
+    credential_issuer: credentialOptions.credential_issuer,
+    vct: validRequests[request].type === 'vct' ? validRequests[request].value : undefined,
+    doctype: validRequests[request].type === 'doctype' ? validRequests[request].value : undefined,
   };
 
   const response = await httpPost<VerificationStartResponse>(url, {}, requestBody);
