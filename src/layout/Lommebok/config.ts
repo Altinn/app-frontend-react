@@ -36,7 +36,7 @@ export const Config = new CG.component({
                     new CG.obj(
                       new CG.prop('field', new CG.str()),
                       new CG.prop('title', new CG.str()),
-                      new CG.prop('displayType', new CG.enum('string', 'date', 'image').optional()),
+                      new CG.prop('displayType', new CG.enum('string', 'date', 'image', 'boolean').optional()),
                     ),
                   ).optional(),
                 ),
@@ -65,7 +65,7 @@ export const Config = new CG.component({
                     new CG.obj(
                       new CG.prop('field', new CG.str()),
                       new CG.prop('title', new CG.str()),
-                      new CG.prop('displayType', new CG.enum('string', 'date', 'image').optional()),
+                      new CG.prop('displayType', new CG.enum('string', 'date', 'image', 'boolean').optional()),
                     ),
                   ).optional(),
                 ),

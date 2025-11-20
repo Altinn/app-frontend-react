@@ -7,7 +7,7 @@ import { PresentationValue } from 'src/layout/Lommebok/PresentationValue';
 interface PresentationField {
   title: string;
   value: unknown;
-  displayType?: 'string' | 'date' | 'image';
+  displayType?: 'string' | 'date' | 'image' | 'boolean';
 }
 
 interface DocumentDataPreviewProps {

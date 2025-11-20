@@ -6,7 +6,7 @@ import { formatDateLocale } from 'src/utils/dateUtils';
 
 interface PresentationValueProps {
   value: unknown;
-  displayType?: 'string' | 'date' | 'image';
+  displayType?: 'string' | 'date' | 'image' | 'boolean';
 }
 
 /**
@@ -15,6 +15,7 @@ interface PresentationValueProps {
 export function PresentationValue({ value, displayType }: PresentationValueProps) {
   const locale = useCurrentLanguage();
   const { langAsString } = useLanguage();
+  const isTrue: unknown[] = ['true', '1', 'J', 'Y', 'True', 'TRUE', 1, true];
 
   if (value === null || value === undefined) {
     return null;
@@ -45,6 +46,9 @@ export function PresentationValue({ value, displayType }: PresentationValueProps
         );
       }
       return null;
+
+    case 'boolean':
+      return isTrue.includes(value) ? langAsString('wallet.yes') : langAsString('wallet.no');
 
     case 'string':
     default:

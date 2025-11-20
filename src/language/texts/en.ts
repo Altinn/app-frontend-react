@@ -578,6 +578,8 @@ export function en() {
     'wallet.request_from_wallet': 'Retrieve from wallet',
     'wallet.upload_pdf': 'Upload PDF',
     'wallet.image_alt': 'Document data',
+    'wallet.yes': 'Yes',
+    'wallet.no': 'No',
     'wallet.download_xsd': 'Download XSD',
     'wallet.help_not_saved_title': 'Data is not saved',
     'wallet.help_not_saved_warning': 'This data is not saved anywhere.',

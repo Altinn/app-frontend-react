@@ -576,6 +576,8 @@ export function nb() {
     'wallet.request_from_wallet': 'Hent fra lommebok',
     'wallet.upload_pdf': 'Last opp PDF',
     'wallet.image_alt': 'Dokumentdata',
+    'wallet.yes': 'Ja',
+    'wallet.no': 'Nei',
     'wallet.download_xsd': 'Last ned XSD',
     'wallet.help_not_saved_title': 'Data blir ikke lagret',
     'wallet.help_not_saved_warning': 'Denne dataen blir ikke lagret noe sted.',
