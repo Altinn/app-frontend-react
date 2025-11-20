@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { formatDateLocale } from 'src/utils/dateUtils';
 
 interface PresentationValueProps {
@@ -13,6 +14,8 @@ interface PresentationValueProps {
  */
 export function PresentationValue({ value, displayType }: PresentationValueProps) {
   const locale = useCurrentLanguage();
+  const { langAsString } = useLanguage();
+
   if (value === null || value === undefined) {
     return null;
   }
@@ -36,7 +39,7 @@ export function PresentationValue({ value, displayType }: PresentationValueProps
         return (
           <img
             src={value.startsWith('data:') ? value : `data:image/png;base64,${value}`}
-            alt='Document data'
+            alt={langAsString('wallet.image_alt')}
             style={{ maxWidth: '200px', maxHeight: '200px', marginTop: '8px' }}
           />
         );

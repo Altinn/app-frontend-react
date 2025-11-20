@@ -295,7 +295,7 @@ export const WalletVerificationDialog = forwardRef<HTMLDialogElement, WalletVeri
                   onClick={handleDownloadXsdFromClaims}
                   variant='primary'
                 >
-                  Download XSD
+                  <Lang id='wallet.download_xsd' />
                 </Button>
                 <Button
                   onClick={onClose}

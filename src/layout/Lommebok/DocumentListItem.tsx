@@ -7,6 +7,7 @@ import { HelpText } from 'src/app-components/HelpText/HelpText';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
+import { useLanguage } from 'src/features/language/useLanguage';
 import { getDocumentDisplayName } from 'src/layout/Lommebok/api';
 import classes from 'src/layout/Lommebok/LommebokComponent.module.css';
 import { PresentationValue } from 'src/layout/Lommebok/PresentationValue';
@@ -52,6 +53,7 @@ export function DocumentListItem({ doc, handleRequestDocument, handleAlternative
   const hasSaved = useDocumentSavedStatus(doc);
   const hasSaveToDataType = !!doc.saveToDataType;
   const hasUploadedFile = uploadedElements.length > 0;
+  const { langAsString } = useLanguage();
 
   // Get presentation field values from data model
   const presentationFields = useMemo(() => {
@@ -84,19 +86,32 @@ export function DocumentListItem({ doc, handleRequestDocument, handleAlternative
           <span className={classes.documentName}>{getDocumentDisplayName(doc.type)}</span>
           {!hasSaveToDataType && (
             <HelpText
-              title='Data is not saved'
+              title={langAsString('wallet.help_not_saved_title')}
               placement='right'
             >
               <Paragraph data-size='sm'>
-                <strong>This data is not saved anywhere.</strong>
+                <strong>
+                  <Lang id='wallet.help_not_saved_warning' />
+                </strong>
               </Paragraph>
-              <Paragraph data-size='sm'>To save the data:</Paragraph>
+              <Paragraph data-size='sm'>
+                <Lang id='wallet.help_save_data_intro' />
+              </Paragraph>
               <List.Ordered data-size='sm'>
-                <List.Item>Request document from wallet to receive data</List.Item>
-                <List.Item>Download the XSD file from the dialog when data is received</List.Item>
-                <List.Item>Upload this as a new data model in Altinn Studio</List.Item>
                 <List.Item>
-                  Set the <code>saveToDataType</code> property to the data type ID
+                  <Lang id='wallet.help_step_1' />
+                </List.Item>
+                <List.Item>
+                  <Lang id='wallet.help_step_2' />
+                </List.Item>
+                <List.Item>
+                  <Lang id='wallet.help_step_3' />
+                </List.Item>
+                <List.Item>
+                  <Lang
+                    id='wallet.help_step_4'
+                    parseHtmlAndMarkdown={false}
+                  />
                 </List.Item>
               </List.Ordered>
             </HelpText>
@@ -150,7 +165,9 @@ export function DocumentListItem({ doc, handleRequestDocument, handleAlternative
               key={index}
               className={classes.presentationField}
             >
-              <strong>{field.title}:</strong>{' '}
+              <strong>
+                <Lang id={field.title} />:
+              </strong>{' '}
               <PresentationValue
                 value={field.value}
                 displayType={field.displayType}

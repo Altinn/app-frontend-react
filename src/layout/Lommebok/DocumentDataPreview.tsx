@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Lang } from 'src/features/language/Lang';
 import classes from 'src/layout/Lommebok/LommebokComponent.module.css';
 import { PresentationValue } from 'src/layout/Lommebok/PresentationValue';
 
@@ -29,7 +30,9 @@ export function DocumentDataPreview({ fields }: DocumentDataPreviewProps) {
           key={index}
           className={classes.dataPreviewItem}
         >
-          <dt className={classes.dataPreviewLabel}>{field.title}</dt>
+          <dt className={classes.dataPreviewLabel}>
+            <Lang id={field.title} />
+          </dt>
           <dd className={classes.dataPreviewValue}>
             <PresentationValue
               value={field.value}

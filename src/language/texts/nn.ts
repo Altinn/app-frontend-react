@@ -575,5 +575,14 @@ export function nn() {
     'wallet.option_upload_description': 'Last opp ei PDF-fil av dokumentet dersom du har det tilgjengeleg.',
     'wallet.request_from_wallet': 'Hent frå lommebok',
     'wallet.upload_pdf': 'Last opp PDF',
+    'wallet.image_alt': 'Dokumentdata',
+    'wallet.download_xsd': 'Last ned XSD',
+    'wallet.help_not_saved_title': 'Data blir ikkje lagra',
+    'wallet.help_not_saved_warning': 'Denne dataen blir ikkje lagra nokon stad.',
+    'wallet.help_save_data_intro': 'For å lagre dataen:',
+    'wallet.help_step_1': 'Be om dokument frå lommebok for å motta data',
+    'wallet.help_step_2': 'Last ned XSD-fila frå dialogen når data er mottatt',
+    'wallet.help_step_3': 'Last opp dette som ein ny datamodell i Altinn Studio',
+    'wallet.help_step_4': 'Set <code>saveToDataType</code>-eigenskapen til datatype-ID-en',
   } satisfies FixedLanguageList;
 }

@@ -577,5 +577,14 @@ export function en() {
     'wallet.option_upload_description': 'Upload a PDF file of the document if you have it available.',
     'wallet.request_from_wallet': 'Retrieve from wallet',
     'wallet.upload_pdf': 'Upload PDF',
+    'wallet.image_alt': 'Document data',
+    'wallet.download_xsd': 'Download XSD',
+    'wallet.help_not_saved_title': 'Data is not saved',
+    'wallet.help_not_saved_warning': 'This data is not saved anywhere.',
+    'wallet.help_save_data_intro': 'To save the data:',
+    'wallet.help_step_1': 'Request document from wallet to receive data',
+    'wallet.help_step_2': 'Download the XSD file from the dialog when data is received',
+    'wallet.help_step_3': 'Upload this as a new data model in Altinn Studio',
+    'wallet.help_step_4': 'Set the <code>saveToDataType</code> property to the data type ID',
   };
 }
