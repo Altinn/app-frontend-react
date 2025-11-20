@@ -584,5 +584,15 @@ export function nn() {
     'wallet.help_step_2': 'Last ned XSD-fila frå dialogen når data er mottatt',
     'wallet.help_step_3': 'Last opp dette som ein ny datamodell i Altinn Studio',
     'wallet.help_step_4': 'Set <code>saveToDataType</code>-eigenskapen til datatype-ID-en',
+    'wallet.issue_to_wallet': 'Utsted til lommebok',
+    'wallet.issue_title': 'Utsted bevis til di lommebok',
+    'wallet.issue_description':
+      'Skann QR-koden med lommebok-appen din for å motta {0}-beviset, eller klikk på knappen for å opne lommeboka di på denne eininga:',
+    'wallet.open_wallet_accept': 'Opne lommebok for å motta bevis',
+    'wallet.issue_no_url':
+      'URL-en for beviset er ikkje tilgjengeleg enno. Ver vennleg og sørg for at påkravd data er fylt ut.',
+    'config_error.lommebok_issue_datatype_not_found':
+      'Datatype "{0}" ikkje funne for utstedelsesmodus på bevis-type "{1}"',
+    'config_error.lommebok_issue_missing_url_field': 'URL-felt er påkravd for utstedelsesmodus på bevis-type "{0}"',
   } satisfies FixedLanguageList;
 }

@@ -587,5 +587,15 @@ export function nb() {
     'wallet.alternative_file_uploaded': 'Fil lastet opp',
     'wallet.no_configured_fields': 'Ingen felt er konfigurert for visning',
     'wallet.no_data_to_save': 'Ingen data å lagre',
+    'wallet.issue_to_wallet': 'Utstede til lommebok',
+    'wallet.issue_title': 'Utstede bevis til din lommebok',
+    'wallet.issue_description':
+      'Skann QR-koden med lommebok-appen din for å motta {0}-beviset, eller klikk på knappen for å åpne lommeboken din på denne enheten:',
+    'wallet.open_wallet_accept': 'Åpne lommebok for å motta bevis',
+    'wallet.issue_no_url':
+      'URL-en for beviset er ikke tilgjengelig ennå. Vennligst sørg for at påkrevd data er fylt ut.',
+    'config_error.lommebok_issue_datatype_not_found':
+      'Datatype "{0}" ikke funnet for utstedelses-modus på bevis-type "{1}"',
+    'config_error.lommebok_issue_missing_url_field': 'URL-felt er påkrevd for utstedelses-modus på bevis-type "{0}"',
   } satisfies FixedLanguageList;
 }

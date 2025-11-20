@@ -45,6 +45,35 @@ export const Config = new CG.component({
         )
           .setUnionType('discriminated')
           .exportAs('RequestedDocument'),
-      ),
+      ).optional(),
+    ),
+  )
+  .addProperty(
+    new CG.prop(
+      'issue',
+      new CG.arr(
+        new CG.union(
+          ...credentialTypes.map(
+            (type) =>
+              new CG.obj(
+                new CG.prop('type', new CG.const(type)),
+                new CG.prop('urlDataType', new CG.str().optional()),
+                new CG.prop('urlField', new CG.str()),
+                new CG.prop(
+                  'data',
+                  new CG.arr(
+                    new CG.obj(
+                      new CG.prop('field', new CG.str()),
+                      new CG.prop('title', new CG.str()),
+                      new CG.prop('displayType', new CG.enum('string', 'date', 'image').optional()),
+                    ),
+                  ).optional(),
+                ),
+              ),
+          ),
+        )
+          .setUnionType('discriminated')
+          .exportAs('IssuableDocument'),
+      ).optional(),
     ),
   );

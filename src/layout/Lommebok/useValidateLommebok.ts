@@ -102,5 +102,38 @@ export function useValidateLommebok(baseComponentId: string): ComponentValidatio
     }
   });
 
+  // Validate each issuable document
+  component.issue?.forEach((doc) => {
+    // Validate urlDataType if specified (defaults to 'default' if not specified)
+    if (doc.urlDataType) {
+      const dataType = applicationMetadata.dataTypes.find((dt) => dt.id === doc.urlDataType);
+
+      if (!dataType) {
+        validations.push({
+          message: {
+            key: 'config_error.lommebok_issue_datatype_not_found',
+            params: [doc.urlDataType, doc.type],
+          },
+          severity: 'error',
+          source: FrontendValidationSource.Component,
+          category: ValidationMask.Required,
+        });
+      }
+    }
+
+    // Validate that urlField is specified
+    if (!doc.urlField || doc.urlField.trim().length === 0) {
+      validations.push({
+        message: {
+          key: 'config_error.lommebok_issue_missing_url_field',
+          params: [doc.type],
+        },
+        severity: 'error',
+        source: FrontendValidationSource.Component,
+        category: ValidationMask.Required,
+      });
+    }
+  });
+
   return validations;
 }

@@ -586,5 +586,14 @@ export function en() {
     'wallet.help_step_2': 'Download the XSD file from the dialog when data is received',
     'wallet.help_step_3': 'Upload this as a new data model in Altinn Studio',
     'wallet.help_step_4': 'Set the <code>saveToDataType</code> property to the data type ID',
+    'wallet.issue_to_wallet': 'Issue to wallet',
+    'wallet.issue_title': 'Issue Credential to Your Wallet',
+    'wallet.issue_description':
+      'Scan the QR code with your wallet app to accept the {0} credential, or click the button to open your wallet on this device:',
+    'wallet.open_wallet_accept': 'Open wallet to accept credential',
+    'wallet.issue_no_url': 'The credential URL is not available yet. Please ensure the required data is filled in.',
+    'config_error.lommebok_issue_datatype_not_found':
+      'Data type "{0}" not found for issue mode on credential type "{1}"',
+    'config_error.lommebok_issue_missing_url_field': 'URL field is required for issue mode on credential type "{0}"',
   };
 }
