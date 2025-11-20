@@ -19,10 +19,9 @@ import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
 
 interface DocumentRequestItemProps {
   doc: RequestedDocument;
-  nodeId: string;
 }
 
-export function DocumentRequestItem({ doc, nodeId }: DocumentRequestItemProps) {
+export function DocumentRequestItem({ doc }: DocumentRequestItemProps) {
   const { langAsString } = useLanguage();
   const queryClient = useQueryClient();
   const confirmDialogRef = useRef<HTMLDialogElement>(null);
@@ -35,7 +34,7 @@ export function DocumentRequestItem({ doc, nodeId }: DocumentRequestItemProps) {
   const hasSaved = useDocumentSavedStatus(doc);
   const saveLommebokData = useSaveLommebokData(doc.saveToDataType || 'default', doc.data);
   const uploadPdfMutation = useUploadLommebokPdfMutation(doc.alternativeUploadToDataType || 'default');
-  const resetDocumentMutation = useResetDocumentData(doc, nodeId);
+  const resetDocumentMutation = useResetDocumentData(doc);
 
   // Start verification mutation
   const startMutation = useMutation({

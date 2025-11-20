@@ -34,7 +34,6 @@ export function LommebokComponent(props: PropsFromGenericComponent<'Lommebok'>) 
         <DocumentRequestItem
           key={doc.type}
           doc={doc}
-          nodeId={indexedId}
         />
       ))}
     </div>

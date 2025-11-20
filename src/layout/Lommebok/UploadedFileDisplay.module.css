@@ -1,0 +1,49 @@
+.container {
+  padding: 1rem;
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+  border-radius: 4px;
+  background-color: var(--ds-color-neutral-background-subtle);
+}
+
+.fileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fileHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  color: var(--ds-color-accent-text-default);
+}
+
+.fileDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.fileName {
+  font-weight: 500;
+  color: var(--ds-color-accent-text-default);
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.fileName:hover {
+  text-decoration: underline;
+}
+
+.fileSize {
+  font-size: 0.875rem;
+  color: var(--ds-color-neutral-text-subtle);
+}

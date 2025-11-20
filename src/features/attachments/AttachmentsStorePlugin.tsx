@@ -721,7 +721,7 @@ function useAttachmentsUploadMutation() {
   return useMutation(options);
 }
 
-function useAttachmentsRemoveMutation() {
+export function useAttachmentsRemoveMutation() {
   const { doAttachmentRemove } = useAppMutations();
   const instanceId = useLaxInstanceId();
   const language = useCurrentLanguage();

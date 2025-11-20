@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
 import { DocumentDataPreview } from 'src/layout/Lommebok/DocumentDataPreview';
+import { UploadedFileDisplay } from 'src/layout/Lommebok/UploadedFileDisplay';
 import type { RequestedDocument } from 'src/layout/Lommebok/config.generated';
 
 interface SavedDocumentFieldsProps {
@@ -42,9 +43,18 @@ export function SavedDocumentFields({ doc }: SavedDocumentFieldsProps) {
       .filter((field): field is NonNullable<typeof field> => field !== null);
   }, [doc, selector]);
 
-  // Don't show presentation fields if a file was uploaded instead
+  // If a file was uploaded instead of wallet data, show the file info
   if (hasUploadedFile) {
-    return null;
+    return (
+      <div>
+        {uploadedElements.map((element) => (
+          <UploadedFileDisplay
+            key={element.id}
+            dataElement={element}
+          />
+        ))}
+      </div>
+    );
   }
 
   return <DocumentDataPreview fields={presentationFields} />;

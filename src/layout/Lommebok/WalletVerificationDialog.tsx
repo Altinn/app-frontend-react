@@ -54,7 +54,6 @@ export const WalletVerificationDialog = forwardRef<HTMLDialogElement, WalletVeri
     // Preserve claims when they arrive
     useEffect(() => {
       if (resultQuery.data?.claims) {
-        window.logInfo('[WalletDialog] Preserving claims:', resultQuery.data.claims);
         setPreservedClaims(resultQuery.data.claims);
       }
     }, [resultQuery.data?.claims]);
@@ -62,7 +61,6 @@ export const WalletVerificationDialog = forwardRef<HTMLDialogElement, WalletVeri
     // Preserve failed status when it arrives
     useEffect(() => {
       if (statusQuery.data?.status === 'FAILED') {
-        window.logInfo('[WalletDialog] Preserving failed status');
         setPreservedFailed(true);
       }
     }, [statusQuery.data?.status]);
@@ -70,34 +68,16 @@ export const WalletVerificationDialog = forwardRef<HTMLDialogElement, WalletVeri
     // Clear verification ID after fetching result when status is no longer PENDING
     useEffect(() => {
       const status = statusQuery.data?.status;
-      window.logInfo(
-        '[WalletDialog] Status:',
-        status,
-        'Has result:',
-        !!resultQuery.data,
-        'VerificationId:',
-        verificationId,
-      );
       if (status && status !== 'PENDING' && (resultQuery.data || status === 'FAILED')) {
         // Verification is complete (either success or failed), clear the ID
-        window.logInfo('[WalletDialog] Clearing verification ID');
         onClearVerification();
       }
     }, [statusQuery.data?.status, resultQuery.data, onClearVerification, verificationId]);
 
     // Reset preserved state when dialog props change (new verification or closed)
     useEffect(() => {
-      window.logInfo(
-        '[WalletDialog] Props changed - verificationId:',
-        verificationId,
-        'authUrl:',
-        !!authorizationUrl,
-        'pending:',
-        pendingConfirmation,
-      );
       if (!verificationId && !authorizationUrl && !pendingConfirmation) {
         // Dialog is being closed/reset, clear preserved data
-        window.logInfo('[WalletDialog] Clearing preserved data');
         setPreservedClaims(null);
         setPreservedFailed(false);
       }
@@ -132,19 +112,6 @@ export const WalletVerificationDialog = forwardRef<HTMLDialogElement, WalletVeri
     };
 
     const getDialogContent = () => {
-      window.logInfo(
-        '[WalletDialog] Rendering - pending:',
-        pendingConfirmation,
-        'hasFailed:',
-        hasFailed,
-        'hasClaims:',
-        hasClaims,
-        'hasAuthUrl:',
-        !!authorizationUrl,
-        'saveToDataType:',
-        doc.saveToDataType,
-      );
-
       // Show confirmation screen before starting verification
       if (pendingConfirmation) {
         const dataFields = doc.data;

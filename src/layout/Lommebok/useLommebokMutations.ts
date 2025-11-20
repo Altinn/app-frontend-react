@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import dot from 'dot-object';
 
-import { useAttachmentsRemover } from 'src/features/attachments/hooks';
+import { useAttachmentsRemoveMutation } from 'src/features/attachments/AttachmentsStorePlugin';
 import { FD } from 'src/features/formData/FormDataWrite';
 import {
   useInstanceDataElements,
@@ -128,9 +128,9 @@ export const useUploadLommebokPdfMutation = (dataType: string) => {
  * Hook for resetting/removing saved document data
  * Handles both wallet data (form data) and uploaded PDF files
  */
-export const useResetDocumentData = (doc: RequestedDocument, nodeId: string) => {
+export const useResetDocumentData = (doc: RequestedDocument) => {
   const setMultiLeafValues = FD.useSetMultiLeafValues();
-  const removeAttachment = useAttachmentsRemover();
+  const { mutateAsync: removeAttachment } = useAttachmentsRemoveMutation();
   const uploadedElements = useInstanceDataElements(doc.alternativeUploadToDataType);
   const invalidateInstanceData = useInvalidateInstanceDataCache();
   const queryClient = useQueryClient();
@@ -150,16 +150,7 @@ export const useResetDocumentData = (doc: RequestedDocument, nodeId: string) => 
       // 2. Delete uploaded PDF files if any exist
       if (doc.alternativeUploadToDataType && uploadedElements.length > 0) {
         for (const element of uploadedElements) {
-          await removeAttachment({
-            attachment: {
-              uploaded: true,
-              updating: false,
-              deleting: false,
-              data: element,
-            },
-            nodeId,
-            dataModelBindings: undefined,
-          });
+          await removeAttachment(element.id);
         }
       }
 
