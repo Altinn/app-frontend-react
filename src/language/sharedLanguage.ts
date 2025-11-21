@@ -43,8 +43,7 @@ export const parseAndCleanText = cachedFunction(
     }
 
     const dirty = marked.parse(text, { async: false });
-    const clean = DOMPurify.sanitize(dirty);
-    return parseHtmlToReact(clean.toString().trim(), parserOptions);
+    return parseHtmlToReact(dirty.toString().trim(), parserOptions);
   },
   { max: 5000 },
   (text) => text ?? null,

@@ -55,6 +55,21 @@ export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType?: s
           }
         }
       }
+
+      // Add data types from Lommebok component configurations
+      if (component.type === 'Lommebok' && 'request' in component && Array.isArray(component.request)) {
+        for (const doc of component.request) {
+          if (
+            typeof doc === 'object' &&
+            doc !== null &&
+            'saveToDataType' in doc &&
+            typeof doc.saveToDataType === 'string'
+          ) {
+            dataTypes.add(doc.saveToDataType);
+          }
+        }
+      }
+
       addDataTypesFromExpressionsRecursive(component, dataTypes);
     }
   }
