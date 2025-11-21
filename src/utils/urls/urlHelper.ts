@@ -25,6 +25,10 @@ function buildArbeidsflateUrl(altinnHost: string): string {
   return `https://af.${altinnHost}/`;
 }
 
+function redirectAndChangeParty(goTo: string, partyId: number): string {
+  return `ui/Reportee/ChangeReporteeAndRedirect?goTo=${encodeURIComponent(goTo)}&R=${partyId}`;
+}
+
 export const returnBaseUrlToAltinn = (host: string): string | undefined => {
   const altinnHost = extractAltinnHost(host);
   if (!altinnHost) {
@@ -33,15 +37,16 @@ export const returnBaseUrlToAltinn = (host: string): string | undefined => {
   return `https://${altinnHost}/`;
 };
 
-/**
- * Returns the URL to the arbeidsflate (workspace) inbox.
- * @param _partyId - Deprecated: Party selection is now handled by arbeidsflate itself
- */
-export const getMessageBoxUrl = (_partyId?: number): string | undefined => {
+export const getMessageBoxUrl = (partyId?: number): string | undefined => {
   const host = window.location.host;
 
   if (isLocalEnvironment(host)) {
     return `http://${host}/`;
+  }
+
+  const baseUrl = returnBaseUrlToAltinn(host);
+  if (!baseUrl) {
+    return undefined;
   }
 
   const altinnHost = extractAltinnHost(host);
@@ -49,7 +54,14 @@ export const getMessageBoxUrl = (_partyId?: number): string | undefined => {
     return undefined;
   }
 
-  return buildArbeidsflateUrl(altinnHost);
+  const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
+
+  if (partyId === undefined) {
+    return arbeidsflateUrl;
+  }
+
+  // Use A2 redirect mechanism with A3 arbeidsflate URL to maintain party context
+  return `${baseUrl}${redirectAndChangeParty(arbeidsflateUrl, partyId)}`;
 };
 
 export const returnUrlToArchive = (host: string): string | undefined => {
@@ -62,7 +74,8 @@ export const returnUrlToArchive = (host: string): string | undefined => {
     return undefined;
   }
 
-  return buildArbeidsflateUrl(altinnHost);
+  const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
+  return `${arbeidsflateUrl.replace(/\/$/, '')}/sent`;
 };
 
 export const returnUrlToProfile = (host: string, _partyId?: number | undefined): string | undefined => {
