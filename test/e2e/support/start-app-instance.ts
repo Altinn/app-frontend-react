@@ -71,9 +71,9 @@ Cypress.Commands.add('startAppInstance', function (appName, options) {
   const targetUrl = new RegExp(`^${escapeRegex(targetUrlRaw)}/?$`);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const ranBefore = (this.test as any).startAppInstanceRanBefore ?? false;
+  const ranBefore = ((this.currentTest ?? this.test) as any).startAppInstanceRanBefore ?? false;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (this.test as any).startAppInstanceRanBefore = true;
+  ((this.currentTest ?? this.test) as any).startAppInstanceRanBefore = true;
 
   if (!ranBefore) {
     // This mechanism lets you override what happens in the @app response, for example in a login handler.
