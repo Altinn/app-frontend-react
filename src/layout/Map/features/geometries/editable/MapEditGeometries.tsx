@@ -120,8 +120,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   };
 
   const onEditedHandler = (e: L.DrawEvents.Edited) => {
-    // console.log('Edited layers:', e);
-
     if (!geometryBinding) {
       return;
     }
