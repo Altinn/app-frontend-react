@@ -439,7 +439,7 @@ function NonEditableCell({
   const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
   const isEditingRow = RepGroupContext.useIsEditingRow(rowUuid);
 
-  if (columnSettings?.hidden) {
+  if (columnSettings?.[baseComponentId]?.hidden) {
     return null;
   }
 
