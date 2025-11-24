@@ -148,17 +148,20 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('getDialogIdFromDataValues() extracts dialog.id correctly', () => {
-    // Test with dialog.id (correct structure)
-    expect(getDialogIdFromDataValues({ dialog: { id: 'abc-123' } })).toBe('abc-123');
+    expect(getDialogIdFromDataValues({ 'dialog.id': 'abc-123' })).toBe('abc-123');
+    expect(getDialogIdFromDataValues({ 'dialog.id': '019aa5f7-ac49-7a56-a824-0381f3603e38' })).toBe(
+      '019aa5f7-ac49-7a56-a824-0381f3603e38',
+    );
+    expect(getDialogIdFromDataValues({ 'dialog.id': 123456 })).toBe('123456');
 
     // Test with invalid data
     expect(getDialogIdFromDataValues(null)).toBe(undefined);
     expect(getDialogIdFromDataValues(undefined)).toBe(undefined);
     expect(getDialogIdFromDataValues({})).toBe(undefined);
     expect(getDialogIdFromDataValues('string')).toBe(undefined);
-    expect(getDialogIdFromDataValues({ dialog: { id: 123 } })).toBe(undefined); // wrong type
-    expect(getDialogIdFromDataValues({ dialog: 'not-an-object' })).toBe(undefined); // dialog not an object
-    expect(getDialogIdFromDataValues({ dialog: {} })).toBe(undefined); // dialog missing id
+    expect(getDialogIdFromDataValues({ 'dialog.id': true })).toBe(undefined);
+    expect(getDialogIdFromDataValues({ 'dialog.id': null })).toBe(undefined);
+    expect(getDialogIdFromDataValues({ dialog: { id: 'nested' } })).toBe(undefined);
   });
 
   test('logoutUrlAltinn() returning correct environments', () => {

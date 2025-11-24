@@ -69,8 +69,14 @@ export const getMessageBoxUrl = (partyId?: number, dialogId?: string): string | 
 
 export function getDialogIdFromDataValues(dataValues: unknown): string | undefined {
   const data = dataValues as Record<string, unknown> | null | undefined;
-  const id = data?.['dialog']?.['id'];
-  return typeof id === 'string' ? id : undefined;
+  const id = data?.['dialog.id'];
+  if (typeof id === 'string') {
+    return id;
+  }
+  if (typeof id === 'number') {
+    return String(id);
+  }
+  return undefined;
 }
 
 export const returnUrlToArchive = (
