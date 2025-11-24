@@ -37,7 +37,7 @@ export const returnBaseUrlToAltinn = (host: string): string | undefined => {
   return `https://${altinnHost}/`;
 };
 
-export const getMessageBoxUrl = (partyId?: number): string | undefined => {
+export const getMessageBoxUrl = (partyId?: number, dialogId?: string): string | undefined => {
   const host = window.location.host;
 
   if (isLocalEnvironment(host)) {
@@ -56,17 +56,35 @@ export const getMessageBoxUrl = (partyId?: number): string | undefined => {
 
   const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
 
+  // If we have a dialog ID, link directly to the dialog in inbox
+  const targetUrl = dialogId ? `${arbeidsflateUrl.replace(/\/$/, '')}/inbox/${dialogId}` : arbeidsflateUrl;
+
   if (partyId === undefined) {
-    return arbeidsflateUrl;
+    return targetUrl;
   }
 
   // Use A2 redirect mechanism with A3 arbeidsflate URL to maintain party context
-  return `${baseUrl}${redirectAndChangeParty(arbeidsflateUrl, partyId)}`;
+  return `${baseUrl}${redirectAndChangeParty(targetUrl, partyId)}`;
 };
 
-export const returnUrlToArchive = (host: string): string | undefined => {
+export function getDialogIdFromDataValues(dataValues: unknown): string | undefined {
+  const data = dataValues as Record<string, unknown> | null | undefined;
+  const id = data?.['dialog']?.['id'];
+  return typeof id === 'string' ? id : undefined;
+}
+
+export const returnUrlToArchive = (
+  host: string,
+  partyId: number | undefined,
+  dialogId?: string,
+): string | undefined => {
   if (isLocalEnvironment(host)) {
     return `http://${host}/`;
+  }
+
+  const baseUrl = returnBaseUrlToAltinn(host);
+  if (!baseUrl) {
+    return undefined;
   }
 
   const altinnHost = extractAltinnHost(host);
@@ -75,7 +93,14 @@ export const returnUrlToArchive = (host: string): string | undefined => {
   }
 
   const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
-  return `${arbeidsflateUrl.replace(/\/$/, '')}/sent`;
+
+  const targetUrl = dialogId ? `${arbeidsflateUrl.replace(/\/$/, '')}/inbox/${dialogId}` : arbeidsflateUrl;
+
+  if (partyId === undefined) {
+    return targetUrl;
+  }
+
+  return `${baseUrl}${redirectAndChangeParty(targetUrl, partyId)}`;
 };
 
 export const returnUrlToProfile = (host: string, _partyId?: number | undefined): string | undefined => {
