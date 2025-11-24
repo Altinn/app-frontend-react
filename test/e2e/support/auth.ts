@@ -218,7 +218,14 @@ function cyUserTt02Login(user: string, pwd: string) {
       UserPassword: pwd,
     }),
   }).as('login');
-  cy.wait('@login');
+  waitForLogin();
+}
+
+function waitForLogin() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  cy.get('@login').should((r: any) => {
+    expect(r?.response?.statusCode ?? r?.status).to.eq(200);
+  });
 }
 
 /************************
