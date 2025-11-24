@@ -9,6 +9,7 @@ import type { Feature } from 'geojson';
 
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
+import { toRelativePath } from 'src/features/saveToGroup/useSaveToGroup';
 import { useLeafletDrawSpritesheetFix } from 'src/layout/Map/features/geometries/editable/useLeafletDrawSpritesheetFix';
 import { useMapParsedGeometries } from 'src/layout/Map/features/geometries/fixed/hooks';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
@@ -25,13 +26,17 @@ interface MapEditGeometriesProps {
 
 export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   const { geometryType } = useItemWhenType(baseComponentId, 'Map');
+
   const editRef = useRef<L.FeatureGroup>(null);
+
   const geometryBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometries;
   const geometryDataBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryData;
   const isEditableBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryIsEditable;
   const geometryDataFieldName = geometryDataBinding?.field.split('.').pop();
   const isEditableFieldName = isEditableBinding?.field.split('.').pop();
   const initialGeometries = useMapParsedGeometries(baseComponentId)?.filter((g) => g.isEditable);
+
+  const geometryDataPath = toRelativePath(geometryBinding, geometryDataBinding);
 
   const appendToList = FD.useAppendToList();
   const setLeafValue = FD.useSetLeafValue();
@@ -46,7 +51,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     if (featureGroup && initialGeometries) {
       // Clear existing layers to prevent duplication if initialData changes
       featureGroup.clearLayers();
-      console.log('initialGeometries', initialGeometries);
 
       // 1. Iterate through the array of data items
       initialGeometries.forEach((item) => {
@@ -108,9 +112,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     const geo = e.layer.toGeoJSON();
     const geoString = JSON.stringify(geo);
     const uuid = uuidv4();
-    console.log('geometryDataFieldName', JSON.stringify(geometryDataFieldName));
 
-    console.log('geoString', JSON.stringify(geoString));
     appendToList({
       reference: geometryBinding,
       newValue: { [ALTINN_ROW_ID]: uuid, [geometryDataFieldName]: geoString, [isEditableFieldName]: true },
@@ -118,7 +120,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   };
 
   const onEditedHandler = (e: L.DrawEvents.Edited) => {
-    console.log('Edited layers:', e.layers);
+    // console.log('Edited layers:', e);
 
     if (!geometryBinding) {
       return;
@@ -132,18 +134,21 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
       return;
     }
 
-    const geo = e.layers[0]?.toGeoJSON();
-    console.log('Edited geoJSON object:', geo);
-    const geoString = JSON.stringify(geo);
-    console.log('Edited geoJSON:', geoString);
-    const altinnRowId = geo.properties?.altinnRowId;
-    const geometryDataPath = `${geometryBinding.field}[?(@.${ALTINN_ROW_ID}=='${altinnRowId}')].${geometryDataFieldName}`;
-    if (altinnRowId) {
-      setLeafValue({
-        reference: { dataType: geometryDataBinding?.dataType, field: geometryDataPath },
-        newValue: geoString,
+    e.layers.eachLayer((layer) => {
+      // @ts-expect-error test
+      const editedGeo = layer.toGeoJSON();
+      const altinnRowId = editedGeo.properties?.altinnRowId;
+      const geoString = JSON.stringify(editedGeo);
+      initialGeometries?.forEach((g, index) => {
+        if (g.altinnRowId === altinnRowId) {
+          const field = `${geometryBinding.field}[${index}].${geometryDataPath}`;
+          setLeafValue({
+            reference: { dataType: geometryDataBinding?.dataType, field },
+            newValue: geoString,
+          });
+        }
       });
-    }
+    });
   };
 
   return (
