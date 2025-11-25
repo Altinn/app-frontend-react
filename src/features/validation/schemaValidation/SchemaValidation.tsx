@@ -41,7 +41,6 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
    */
   useEffect(() => {
     if (validator && rootElementPath !== undefined && schema) {
-      console.log('test', rootElementPath);
       const valid = validator.validate(`schema${rootElementPath}`, structuredClone(formData));
       const validations: FieldValidations = {};
       if (!valid) {
