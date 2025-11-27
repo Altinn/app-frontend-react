@@ -37,26 +37,18 @@ export const returnBaseUrlToAltinn = (host: string): string | undefined => {
   return `https://${altinnHost}/`;
 };
 
-export const getMessageBoxUrl = (partyId?: number, dialogId?: string): string | undefined => {
-  const host = window.location.host;
-
+function buildArbeidsflateRedirectUrl(host: string, partyId?: number, dialogId?: string): string | undefined {
   if (isLocalEnvironment(host)) {
     return `http://${host}/`;
   }
 
   const baseUrl = returnBaseUrlToAltinn(host);
-  if (!baseUrl) {
-    return undefined;
-  }
-
   const altinnHost = extractAltinnHost(host);
-  if (!altinnHost) {
+  if (!baseUrl || !altinnHost) {
     return undefined;
   }
 
   const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
-
-  // If we have a dialog ID, link directly to the dialog in inbox
   const targetUrl = dialogId ? `${arbeidsflateUrl.replace(/\/$/, '')}/inbox/${dialogId}` : arbeidsflateUrl;
 
   if (partyId === undefined) {
@@ -65,7 +57,10 @@ export const getMessageBoxUrl = (partyId?: number, dialogId?: string): string | 
 
   // Use A2 redirect mechanism with A3 arbeidsflate URL to maintain party context
   return `${baseUrl}${redirectAndChangeParty(targetUrl, partyId)}`;
-};
+}
+
+export const getMessageBoxUrl = (partyId?: number, dialogId?: string): string | undefined =>
+  buildArbeidsflateRedirectUrl(window.location.host, partyId, dialogId);
 
 export function getDialogIdFromDataValues(dataValues: unknown): string | undefined {
   const data = dataValues as Record<string, unknown> | null | undefined;
@@ -79,35 +74,8 @@ export function getDialogIdFromDataValues(dataValues: unknown): string | undefin
   return undefined;
 }
 
-export const returnUrlToArchive = (
-  host: string,
-  partyId: number | undefined,
-  dialogId?: string,
-): string | undefined => {
-  if (isLocalEnvironment(host)) {
-    return `http://${host}/`;
-  }
-
-  const baseUrl = returnBaseUrlToAltinn(host);
-  if (!baseUrl) {
-    return undefined;
-  }
-
-  const altinnHost = extractAltinnHost(host);
-  if (!altinnHost) {
-    return undefined;
-  }
-
-  const arbeidsflateUrl = buildArbeidsflateUrl(altinnHost);
-
-  const targetUrl = dialogId ? `${arbeidsflateUrl.replace(/\/$/, '')}/inbox/${dialogId}` : arbeidsflateUrl;
-
-  if (partyId === undefined) {
-    return targetUrl;
-  }
-
-  return `${baseUrl}${redirectAndChangeParty(targetUrl, partyId)}`;
-};
+export const returnUrlToArchive = (host: string, partyId?: number, dialogId?: string): string | undefined =>
+  buildArbeidsflateRedirectUrl(host, partyId, dialogId);
 
 export const returnUrlToProfile = (host: string, _partyId?: number | undefined): string | undefined => {
   if (isLocalEnvironment(host)) {
