@@ -462,13 +462,12 @@
         "shadowFields": {
           "$ref": "#/definitions/shadowFields"
         },
-        "disallowUserCreate":{
+        "disallowUserCreate": {
           "type": "boolean",
           "title": "Disallow user create",
           "description": "A property indicating if users are disallowed from creating this data type through the public http apis."
         },
-        "disallowUserDelete":
-        {
+        "disallowUserDelete": {
           "type": "boolean",
           "title": "Disallow user delete",
           "description": "A property indicating if users are disallowed from deleting this data type through the public http apis."
