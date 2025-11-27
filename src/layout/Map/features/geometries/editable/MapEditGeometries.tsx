@@ -40,6 +40,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
   const appendToList = FD.useAppendToList();
   const setLeafValue = FD.useSetLeafValue();
+  const removeFromList = FD.useRemoveFromListCallback();
 
   const { toolbar } = useItemWhenType(baseComponentId, 'Map');
 
@@ -47,6 +48,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
   // Load initial data into the FeatureGroup on component mount
   useEffect(() => {
+    console.log('Loading initial editable geometries into MapEditGeometries');
     const featureGroup = editRef.current;
     if (featureGroup && initialGeometries) {
       // Clear existing layers to prevent duplication if initialData changes
@@ -120,6 +122,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   };
 
   const onEditedHandler = (e: L.DrawEvents.Edited) => {
+    console.log('onEditedHandler called');
     if (!geometryBinding) {
       return;
     }
@@ -149,12 +152,29 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     });
   };
 
+  const onDeletedHandler = (e: L.DrawEvents.Deleted) => {
+    console.log('onDeletedHandler called');
+    if (!geometryBinding) {
+      return;
+    }
+
+    e.layers.eachLayer((layer) => {
+      // @ts-expect-error test
+      const deletedGeo = layer.toGeoJSON();
+      removeFromList({
+        reference: geometryBinding,
+        callback: (item) => item[ALTINN_ROW_ID] === deletedGeo.properties?.altinnRowId,
+      });
+    });
+  };
+
   return (
     <FeatureGroup ref={editRef}>
       <EditControl
         position='topright'
         onCreated={onCreatedHandler}
         onEdited={onEditedHandler}
+        onDeleted={onDeletedHandler}
         draw={{
           polyline: !!toolbar?.polyline,
           polygon: !!toolbar?.polygon,
