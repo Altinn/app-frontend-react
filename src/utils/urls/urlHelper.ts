@@ -39,7 +39,6 @@ function buildArbeidsflateUrl(host: string): string {
     return `https://af.${env}.${domain}/`;
   }
 
-  // Fallback for other environments
   return `https://af.${host}/`;
 }
 
@@ -59,7 +58,7 @@ export function getDialogIdFromDataValues(dataValues: unknown): string | undefin
   return undefined;
 }
 
-export const returnUrlToMessagebox = (url: string, partyId?: string | number, dialogId?: string): string | null => {
+function buildArbeidsflateRedirectUrl(url: string, partyId?: string | number, dialogId?: string): string | null {
   if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
     return '/';
   }
@@ -82,37 +81,18 @@ export const returnUrlToMessagebox = (url: string, partyId?: string | number, di
   }
 
   return redirectAndChangeParty(baseUrl, targetUrl, partyId);
-};
+}
+
+export const returnUrlToMessagebox = (url: string, partyId?: string | number, dialogId?: string): string | null =>
+  buildArbeidsflateRedirectUrl(url, partyId, dialogId);
 
 export const returnUrlFromQueryParameter = (): string | null => {
   const params = new URLSearchParams(window.location.search);
   return params.get('returnUrl');
 };
 
-export const returnUrlToArchive = (url: string, partyId?: string | number, dialogId?: string): string | null => {
-  if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
-    return '/';
-  }
-
-  const host = extractHostFromUrl(url);
-  if (!host) {
-    return null;
-  }
-
-  const arbeidsflateUrl = buildArbeidsflateUrl(host);
-  const targetUrl = dialogId ? `${arbeidsflateUrl.replace(/\/$/, '')}/inbox/${dialogId}` : arbeidsflateUrl;
-
-  if (partyId === undefined) {
-    return targetUrl;
-  }
-
-  const baseUrl = returnBaseUrlToAltinn(url);
-  if (!baseUrl) {
-    return targetUrl;
-  }
-
-  return redirectAndChangeParty(baseUrl, targetUrl, partyId);
-};
+export const returnUrlToArchive = (url: string, partyId?: string | number, dialogId?: string): string | null =>
+  buildArbeidsflateRedirectUrl(url, partyId, dialogId);
 
 export const returnUrlToProfile = (url: string, _partyId?: string | undefined): string | null => {
   if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
