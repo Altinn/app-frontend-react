@@ -81,11 +81,8 @@ export function login(user: user) {
 export function logout() {
   // Logout in app-localtest is not necessary
   if (Cypress.env('environment') !== 'local') {
-    cy.request({
-      method: 'GET',
-      url: `${Cypress.config('baseUrl')}/ui/authentication/LogOut`,
-      followRedirect: false,
-    });
+    cy.get('#profile-icon-button').click();
+    cy.findByRole('link', { name: 'Logg ut' }).click();
   }
 }
 
@@ -94,9 +91,16 @@ Cypress.Commands.add('assertUser', (user: user) => {
 });
 
 Cypress.Commands.add('switchUser', (user: user) => {
-  logout();
-  login(user);
-  cy.reloadAndWait();
+  cy.window().then((win) => {
+    logout();
+    login(user);
+    if (Cypress.env('environment') === 'local') {
+      cy.reloadAndWait();
+    } else {
+      cy.visit(win.location.href);
+      cy.injectAxe();
+    }
+  });
 });
 
 function getPermissions(format: string): IProcessPermissions {
