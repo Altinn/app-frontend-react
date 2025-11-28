@@ -18,7 +18,11 @@ import { PresentationType, ProcessTaskType } from 'src/types';
 import { getNextView } from 'src/utils/formLayout';
 import { httpGet } from 'src/utils/network/networking';
 import { getRedirectUrl } from 'src/utils/urls/appUrlHelper';
-import { returnUrlFromQueryParameter, returnUrlToMessagebox } from 'src/utils/urls/urlHelper';
+import {
+  getDialogIdFromDataValues,
+  returnUrlFromQueryParameter,
+  returnUrlToMessagebox,
+} from 'src/utils/urls/urlHelper';
 
 export interface IPresentationProvidedProps {
   header?: string | JSX.Element | JSX.Element[];
@@ -64,7 +68,8 @@ export const PresentationComponent = (props: IPresentationProvidedProps) => {
 
   const handleModalCloseButton = () => {
     const queryParameterReturnUrl = returnUrlFromQueryParameter();
-    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId);
+    const dialogId = getDialogIdFromDataValues(instance?.dataValues);
+    const messageBoxUrl = returnUrlToMessagebox(window.location.origin, party?.partyId, dialogId);
     if (!queryParameterReturnUrl && messageBoxUrl) {
       window.location.href = messageBoxUrl;
       return;

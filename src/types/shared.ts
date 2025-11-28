@@ -79,6 +79,7 @@ export interface IInstance {
   appId: string;
   created?: string;
   data: IData[];
+  dataValues?: Record<string, unknown>;
   dueBefore?: string;
   id: string;
   instanceOwner: IInstanceOwner;
