@@ -27,12 +27,12 @@ describe('Shared urlHelper.ts', () => {
 
   test('returnUrlToMessagebox() returning at21 arbeidsflate', () => {
     const origin = 'https://tdd.apps.at21.altinn.cloud/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toBe('https://af.at.altinn.cloud/');
+    expect(returnUrlToMessagebox(origin)).toBe('https://af.at21.altinn.cloud/');
   });
 
   test('returnUrlToMessagebox() returning tt02 arbeidsflate', () => {
     const origin = 'https://tdd.apps.tt02.altinn.no/tdd/myappname';
-    expect(returnUrlToMessagebox(origin)).toBe('https://af.tt.altinn.no/');
+    expect(returnUrlToMessagebox(origin)).toBe('https://af.tt02.altinn.no/');
   });
 
   test('returnUrlToMessagebox() returning null when unknown origin', () => {
@@ -64,9 +64,9 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('returnUrlToProfile() returning correct environments', () => {
-    expect(returnUrlToProfile(originTT)).toBe('https://af.tt.altinn.no/profile');
-    expect(returnUrlToProfile(originAT)).toBe('https://af.at.altinn.cloud/profile');
-    expect(returnUrlToProfile(originYT)).toBe('https://af.yt.altinn.cloud/profile');
+    expect(returnUrlToProfile(originTT)).toBe('https://af.tt02.altinn.no/profile');
+    expect(returnUrlToProfile(originAT)).toBe('https://af.at21.altinn.cloud/profile');
+    expect(returnUrlToProfile(originYT)).toBe('https://af.yt01.altinn.cloud/profile');
     expect(returnUrlToProfile(originProd)).toBe('https://af.altinn.no/profile');
     expect(returnUrlToProfile(originUnknown)).toBe(null);
   });
@@ -101,9 +101,9 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('returnUrlToArchive() returning correct environments without partyId', () => {
-    expect(returnUrlToArchive(originTT, undefined)).toBe('https://af.tt.altinn.no/');
-    expect(returnUrlToArchive(originAT, undefined)).toBe('https://af.at.altinn.cloud/');
-    expect(returnUrlToArchive(originYT, undefined)).toBe('https://af.yt.altinn.cloud/');
+    expect(returnUrlToArchive(originTT, undefined)).toBe('https://af.tt02.altinn.no/');
+    expect(returnUrlToArchive(originAT, undefined)).toBe('https://af.at21.altinn.cloud/');
+    expect(returnUrlToArchive(originYT, undefined)).toBe('https://af.yt01.altinn.cloud/');
     expect(returnUrlToArchive(originProd, undefined)).toBe('https://af.altinn.no/');
     expect(returnUrlToArchive(originUnknown, undefined)).toBe(null);
   });
