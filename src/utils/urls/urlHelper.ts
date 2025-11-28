@@ -10,7 +10,7 @@ const prodRegex = new RegExp(baseHostnameAltinnProd);
 const testRegex = new RegExp(baseHostnameAltinnTest);
 const localRegex = new RegExp(baseHostnameAltinnLocal);
 const localCloudRegex = new RegExp(baseHostnameAltinnLocalCloud);
-const testEnvironmentRegex = /^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/;
+const testEnvironmentRegex = /^((at|tt|yt)\d+)\.(altinn\.(no|cloud))$/;
 
 function extractHostFromUrl(url: string): string | null {
   if (url.search(prodRegex) >= 0) {
@@ -35,7 +35,7 @@ function buildArbeidsflateUrl(host: string): string {
 
   const envMatch = host.match(testEnvironmentRegex);
   if (envMatch) {
-    const [, env, domain] = envMatch;
+    const [, env, , domain] = envMatch;
     return `https://af.${env}.${domain}/`;
   }
 
