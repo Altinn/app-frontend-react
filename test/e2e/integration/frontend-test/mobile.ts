@@ -120,7 +120,9 @@ function testConfirm() {
   cy.get(appFrontend.confirm.sendIn).click();
   cy.get(appFrontend.confirm.sendIn).should('not.exist');
   cy.get(appFrontend.receipt.container).should('be.visible');
-  cy.get(appFrontend.receipt.linkToArchive).should('be.visible');
+  cy.get(
+    Cypress.env('environment') === 'local' ? appFrontend.receipt.linkToArchiveLocal : appFrontend.receipt.linkToArchive,
+  ).should('be.visible');
 }
 
 function sendIn() {
