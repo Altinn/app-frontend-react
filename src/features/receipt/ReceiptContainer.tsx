@@ -15,7 +15,7 @@ import { useInstanceIdParams } from 'src/hooks/useInstanceIdParams';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { getAppReceiver } from 'src/language/sharedLanguage';
 import { getAttachmentGroupings, getInstancePdf, mapInstanceAttachments } from 'src/utils/attachmentsUtils';
-import { returnUrlToArchive } from 'src/utils/urls/urlHelper';
+import { getDialogIdFromDataValues, returnUrlToArchive } from 'src/utils/urls/urlHelper';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/hooks/useLanguage';
 import type { IAltinnOrgs, IAttachment, IParty } from 'src/types/shared';
@@ -145,7 +145,13 @@ export const ReceiptContainer = () => {
                 collapsibleTitle={lang('receipt.attachments')}
                 instanceMetaDataObject={instanceMetaObject}
                 subtitle={lang('receipt.subtitle')}
-                subtitleurl={returnUrlToArchive(origin) || undefined}
+                subtitleurl={
+                  returnUrlToArchive(
+                    origin,
+                    instance.instanceOwner.partyId,
+                    getDialogIdFromDataValues(instance.dataValues),
+                  ) || undefined
+                }
                 title={lang('receipt.title')}
                 titleSubmitted={lang('receipt.title_submitted')}
                 pdf={pdf || undefined}

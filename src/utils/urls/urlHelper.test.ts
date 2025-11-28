@@ -1,12 +1,23 @@
 import {
   customEncodeURI,
+  getDialogIdFromDataValues,
   logoutUrlAltinn,
   makeUrlRelativeIfSameDomain,
   returnBaseUrlToAltinn,
   returnUrlToAllSchemas,
+  returnUrlToArchive,
   returnUrlToMessagebox,
   returnUrlToProfile,
 } from 'src/utils/urls/urlHelper';
+
+const originTT = 'https://ttd.apps.tt02.altinn.no/tdd/tjeneste-20190826-1130';
+const originAT = 'https://ttd.apps.at21.altinn.cloud/tdd/tjeneste-20190826-1130';
+const originYT = 'https://ttd.apps.yt01.altinn.cloud/tdd/tjeneste-20190826-1130';
+const originProd = 'https://ttd.apps.altinn.no/tdd/tjeneste-20190826-1130';
+const originLocalCloud = 'http://local.altinn.cloud/ttd/myapp';
+const originLocalCloudWithPort = 'http://local.altinn.cloud:8000/ttd/myapp';
+const originLocal = 'http://altinn3local.no/ttd/myapp';
+const originUnknown = 'https://www.vg.no';
 
 describe('Shared urlHelper.ts', () => {
   test('returnUrlToMessagebox() returning production arbeidsflate', () => {
@@ -29,12 +40,16 @@ describe('Shared urlHelper.ts', () => {
     expect(returnUrlToMessagebox(origin)).toBe(null);
   });
 
-  test('returnBaseUrlToAltinn() returning correct environemnts', () => {
-    const originTT = 'https://ttd.apps.tt02.altinn.no/tdd/tjeneste-20190826-1130';
-    const originAT = 'https://ttd.apps.at21.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originYT = 'https://ttd.apps.yt01.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originProd = 'https://ttd.apps.altinn.no/tdd/tjeneste-20190826-1130';
-    const originUnknown = 'https://www.vg.no';
+  test('returnUrlToMessagebox() returning / for local.altinn.cloud', () => {
+    expect(returnUrlToMessagebox(originLocalCloud)).toBe('/');
+    expect(returnUrlToMessagebox(originLocalCloudWithPort)).toBe('/');
+  });
+
+  test('returnUrlToMessagebox() returning / for altinn3local.no', () => {
+    expect(returnUrlToMessagebox(originLocal)).toBe('/');
+  });
+
+  test('returnBaseUrlToAltinn() returning correct environments', () => {
     expect(returnBaseUrlToAltinn(originTT)).toContain('tt02.altinn.no');
     expect(returnBaseUrlToAltinn(originAT)).toContain('at21.altinn.cloud');
     expect(returnBaseUrlToAltinn(originYT)).toContain('yt01.altinn.cloud');
@@ -42,12 +57,13 @@ describe('Shared urlHelper.ts', () => {
     expect(returnBaseUrlToAltinn(originUnknown)).toBe(null);
   });
 
-  test('returnUrlTProfile() returning correct environments', () => {
-    const originTT = 'https://ttd.apps.tt02.altinn.no/tdd/tjeneste-20190826-1130';
-    const originAT = 'https://ttd.apps.at21.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originYT = 'https://ttd.apps.yt01.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originProd = 'https://ttd.apps.altinn.no/tdd/tjeneste-20190826-1130';
-    const originUnknown = 'https://www.vg.no';
+  test('returnBaseUrlToAltinn() returning / for local environments', () => {
+    expect(returnBaseUrlToAltinn(originLocalCloud)).toBe('/');
+    expect(returnBaseUrlToAltinn(originLocalCloudWithPort)).toBe('/');
+    expect(returnBaseUrlToAltinn(originLocal)).toBe('/');
+  });
+
+  test('returnUrlToProfile() returning correct environments', () => {
     expect(returnUrlToProfile(originTT)).toBe('https://af.tt.altinn.no/profile');
     expect(returnUrlToProfile(originAT)).toBe('https://af.at.altinn.cloud/profile');
     expect(returnUrlToProfile(originYT)).toBe('https://af.yt.altinn.cloud/profile');
@@ -55,17 +71,59 @@ describe('Shared urlHelper.ts', () => {
     expect(returnUrlToProfile(originUnknown)).toBe(null);
   });
 
+  test('returnUrlToProfile() returning /profile for local environments', () => {
+    expect(returnUrlToProfile(originLocalCloud)).toBe('/profile');
+    expect(returnUrlToProfile(originLocalCloudWithPort)).toBe('/profile');
+    expect(returnUrlToProfile(originLocal)).toBe('/profile');
+  });
+
   test('returnUrlAllSchemas() returning correct environments', () => {
-    const originTT = 'https://ttd.apps.tt02.altinn.no/tdd/tjeneste-20190826-1130';
-    const originAT = 'https://ttd.apps.at21.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originYT = 'https://ttd.apps.yt01.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originProd = 'https://ttd.apps.altinn.no/tdd/tjeneste-20190826-1130';
-    const originUnknown = 'https://www.vg.no';
     expect(returnUrlToAllSchemas(originTT)).toContain('tt02.altinn.no/skjemaoversikt');
     expect(returnUrlToAllSchemas(originAT)).toContain('at21.altinn.cloud/skjemaoversikt');
     expect(returnUrlToAllSchemas(originYT)).toContain('yt01.altinn.cloud/skjemaoversikt');
     expect(returnUrlToAllSchemas(originProd)).toContain('altinn.no/skjemaoversikt');
     expect(returnUrlToAllSchemas(originUnknown)).toBe(null);
+  });
+
+  test('returnUrlToArchive() returning / for local environments', () => {
+    const partyId = 12345;
+    expect(returnUrlToArchive(originLocalCloud, partyId)).toBe('/');
+    expect(returnUrlToArchive(originLocalCloudWithPort, partyId)).toBe('/');
+    expect(returnUrlToArchive(originLocal, partyId)).toBe('/');
+  });
+
+  test('returnUrlToArchive() returning / for local environments with dialogId', () => {
+    const partyId = 12345;
+    const dialogId = '123e4567-e89b-12d3-a456-426614174000';
+    expect(returnUrlToArchive(originLocalCloud, partyId, dialogId)).toBe('/');
+    expect(returnUrlToArchive(originLocalCloudWithPort, partyId, dialogId)).toBe('/');
+    expect(returnUrlToArchive(originLocal, partyId, dialogId)).toBe('/');
+  });
+
+  test('returnUrlToArchive() returning correct environments without partyId', () => {
+    expect(returnUrlToArchive(originTT, undefined)).toBe('https://af.tt.altinn.no/');
+    expect(returnUrlToArchive(originAT, undefined)).toBe('https://af.at.altinn.cloud/');
+    expect(returnUrlToArchive(originYT, undefined)).toBe('https://af.yt.altinn.cloud/');
+    expect(returnUrlToArchive(originProd, undefined)).toBe('https://af.altinn.no/');
+    expect(returnUrlToArchive(originUnknown, undefined)).toBe(null);
+  });
+
+  test('getDialogIdFromDataValues() extracts dialog.id correctly', () => {
+    expect(getDialogIdFromDataValues({ 'dialog.id': 'abc-123' })).toBe('abc-123');
+    expect(getDialogIdFromDataValues({ 'dialog.id': '019aa5f7-ac49-7a56-a824-0381f3603e38' })).toBe(
+      '019aa5f7-ac49-7a56-a824-0381f3603e38',
+    );
+    expect(getDialogIdFromDataValues({ 'dialog.id': 123456 })).toBe('123456');
+  });
+
+  test('getDialogIdFromDataValues() returns undefined for invalid data', () => {
+    expect(getDialogIdFromDataValues(null)).toBe(undefined);
+    expect(getDialogIdFromDataValues(undefined)).toBe(undefined);
+    expect(getDialogIdFromDataValues({})).toBe(undefined);
+    expect(getDialogIdFromDataValues('string')).toBe(undefined);
+    expect(getDialogIdFromDataValues({ 'dialog.id': true })).toBe(undefined);
+    expect(getDialogIdFromDataValues({ 'dialog.id': null })).toBe(undefined);
+    expect(getDialogIdFromDataValues({ dialog: { id: 'nested' } })).toBe(undefined);
   });
 
   test('customEncodeURI() returning correct encoding', () => {

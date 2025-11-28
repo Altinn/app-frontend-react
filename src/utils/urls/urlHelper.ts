@@ -3,11 +3,13 @@ export const orgsListUrl = 'https://altinncdn.no/orgs/altinn-orgs.json';
 export const baseHostnameAltinnProd = 'altinn.no';
 export const baseHostnameAltinnTest = 'altinn.cloud';
 export const baseHostnameAltinnLocal = 'altinn3local.no';
+export const baseHostnameAltinnLocalCloud = 'local.altinn.cloud';
 export const pathToProfile = 'ui/profile';
 export const pathToAllSchemas = 'skjemaoversikt';
 const prodRegex = new RegExp(baseHostnameAltinnProd);
 const testRegex = new RegExp(baseHostnameAltinnTest);
 const localRegex = new RegExp(baseHostnameAltinnLocal);
+const localCloudRegex = new RegExp(baseHostnameAltinnLocalCloud);
 const testEnvironmentRegex = /^(at|tt|yt)\d+\.(altinn\.(no|cloud))$/;
 
 function extractHostFromUrl(url: string): string | null {
@@ -41,8 +43,24 @@ function buildArbeidsflateUrl(host: string): string {
   return `https://af.${host}/`;
 }
 
-export const returnUrlToMessagebox = (url: string, _partyId?: string | undefined): string | null => {
-  if (url.search(localRegex) >= 0) {
+function redirectAndChangeParty(baseUrl: string, goTo: string, partyId: string | number): string {
+  return `${baseUrl}ui/Reportee/ChangeReporteeAndRedirect?goTo=${encodeURIComponent(goTo)}&R=${partyId}`;
+}
+
+export function getDialogIdFromDataValues(dataValues: unknown): string | undefined {
+  const data = dataValues as Record<string, unknown> | null | undefined;
+  const id = data?.['dialog.id'];
+  if (typeof id === 'string') {
+    return id;
+  }
+  if (typeof id === 'number') {
+    return String(id);
+  }
+  return undefined;
+}
+
+export const returnUrlToMessagebox = (url: string, partyId?: string | number, dialogId?: string): string | null => {
+  if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
     return '/';
   }
 
@@ -51,7 +69,19 @@ export const returnUrlToMessagebox = (url: string, _partyId?: string | undefined
     return null;
   }
 
-  return buildArbeidsflateUrl(host);
+  const arbeidsflateUrl = buildArbeidsflateUrl(host);
+  const targetUrl = dialogId ? `${arbeidsflateUrl.replace(/\/$/, '')}/inbox/${dialogId}` : arbeidsflateUrl;
+
+  if (partyId === undefined) {
+    return targetUrl;
+  }
+
+  const baseUrl = returnBaseUrlToAltinn(url);
+  if (!baseUrl) {
+    return targetUrl;
+  }
+
+  return redirectAndChangeParty(baseUrl, targetUrl, partyId);
 };
 
 export const returnUrlFromQueryParameter = (): string | null => {
@@ -59,8 +89,8 @@ export const returnUrlFromQueryParameter = (): string | null => {
   return params.get('returnUrl');
 };
 
-export const returnUrlToArchive = (url: string): string | null => {
-  if (url.search(localRegex) >= 0) {
+export const returnUrlToArchive = (url: string, partyId?: string | number, dialogId?: string): string | null => {
+  if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
     return '/';
   }
 
@@ -69,11 +99,23 @@ export const returnUrlToArchive = (url: string): string | null => {
     return null;
   }
 
-  return buildArbeidsflateUrl(host);
+  const arbeidsflateUrl = buildArbeidsflateUrl(host);
+  const targetUrl = dialogId ? `${arbeidsflateUrl.replace(/\/$/, '')}/inbox/${dialogId}` : arbeidsflateUrl;
+
+  if (partyId === undefined) {
+    return targetUrl;
+  }
+
+  const baseUrl = returnBaseUrlToAltinn(url);
+  if (!baseUrl) {
+    return targetUrl;
+  }
+
+  return redirectAndChangeParty(baseUrl, targetUrl, partyId);
 };
 
 export const returnUrlToProfile = (url: string, _partyId?: string | undefined): string | null => {
-  if (url.search(localRegex) >= 0) {
+  if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
     return '/profile';
   }
 
@@ -96,7 +138,9 @@ export const returnUrlToAllSchemas = (url: string): string | null => {
 
 export const returnBaseUrlToAltinn = (url: string): string | null => {
   let result: string | null;
-  if (url.search(prodRegex) >= 0) {
+  if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
+    result = '/';
+  } else if (url.search(prodRegex) >= 0) {
     const split = url.split('.');
     const env = split[split.length - 3];
     if (env === 'tt02') {
@@ -108,8 +152,6 @@ export const returnBaseUrlToAltinn = (url: string): string | null => {
     const split = url.split('.');
     const env = split[split.length - 3];
     result = `https://${env}.${baseHostnameAltinnTest}/`;
-  } else if (url.search(localRegex) >= 0) {
-    result = '/';
   } else {
     result = null;
   }
