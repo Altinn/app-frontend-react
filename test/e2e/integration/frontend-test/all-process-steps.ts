@@ -145,7 +145,9 @@ function testReceiptPage() {
       cy.wrap(table).should('exist').and('be.visible');
       cy.wrap(table).contains(mui.tableElement, 'Mottaker').siblings().should('contain.text', texts.ttd);
     });
-  cy.get(appFrontend.receipt.linkToArchive).should('be.visible');
+  cy.get(
+    Cypress.env('environment') === 'local' ? appFrontend.receipt.linkToArchiveLocal : appFrontend.receipt.linkToArchive,
+  ).should('be.visible');
   cy.get(appFrontend.receipt.pdf)
     .find('a')
     .should('have.length', 5) // This is the number of process data tasks
