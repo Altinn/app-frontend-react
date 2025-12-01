@@ -126,7 +126,7 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
                 return;
               }
 
-              const input = e.target as HTMLInputElement;
+              const input = e.target;
 
               // Wait for the combobox to be fully defined
               await customElements.whenDefined('u-combobox');
