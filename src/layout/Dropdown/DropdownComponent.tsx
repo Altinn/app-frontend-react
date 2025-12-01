@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 import { EXPERIMENTAL_Suggestion as Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -29,6 +29,8 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
   const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
   const { langAsString, lang } = useLanguage();
+
+  const isPatchingFocus = useRef(false);
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
@@ -116,20 +118,29 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
             id={id}
             aria-invalid={!isValid}
             onFocus={async (e) => {
-              const input = e.target as HTMLInputElement;
               // Workaround for when programmatically focused by repeating group focus management
-              // 1. Wait for the Web Component definition to be loaded
+
+              // If this event was triggered by our code below, reset the flag and exit.
+              if (isPatchingFocus.current) {
+                isPatchingFocus.current = false;
+                return;
+              }
+
+              const input = e.target as HTMLInputElement;
+
+              // Wait for the combobox to be fully defined
               await customElements.whenDefined('u-combobox');
 
-              // 2. Wait a "tick" for the specific instance to hydrate/attach listeners
               setTimeout(() => {
                 // Ensure we are still the active element
                 if (document.activeElement !== input) {
                   return;
                 }
 
-                // If the component missed the original 'focus' event
-                // and thinks it's inactive, we might need to manually 'poke' it.
+                // Tell the next execution of onFocus to ignore the event we are about to fire
+                isPatchingFocus.current = true;
+
+                // Wake up the component
                 input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
               }, 150);
             }}
