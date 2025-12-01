@@ -260,7 +260,7 @@ export function en() {
       receipt: 'Receipt',
       ref_num: 'Reference number',
       sender: 'Sender',
-      subtitle: 'A copy of your receipt has been sent to your archive',
+      subtitle: 'Your receipt has been saved and is available in your inbox',
       title: 'Form is submitted',
       title_submitted: 'The following is submitted:',
     },
