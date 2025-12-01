@@ -115,6 +115,24 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           <Suggestion.Input
             id={id}
             aria-invalid={!isValid}
+            onFocus={async (e) => {
+              const input = e.target as HTMLInputElement;
+              // Workaround for when programmatically focused by repeating group focus management
+              // 1. Wait for the Web Component definition to be loaded
+              await customElements.whenDefined('u-combobox');
+
+              // 2. Wait a "tick" for the specific instance to hydrate/attach listeners
+              setTimeout(() => {
+                // Ensure we are still the active element
+                if (document.activeElement !== input) {
+                  return;
+                }
+
+                // If the component missed the original 'focus' event
+                // and thinks it's inactive, we might need to manually 'poke' it.
+                input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+              }, 150);
+            }}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             aria-describedby={
               overrideDisplay?.renderedInTable !== true &&
