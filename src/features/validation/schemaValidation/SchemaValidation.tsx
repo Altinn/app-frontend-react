@@ -19,7 +19,7 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
 
   const formData = FD.useDebounced(dataType);
-  const { validator, rootElementPath, schema } = DataModels.useDataModelSchema(dataType);
+  const { validator, rootElementPath, schema } = DataModels.useDataModelSchema(dataType) ?? {};
   const dataElementId = DataModels.useDataElementIdForDataType(dataType) ?? dataType; // stateless does not have dataElementId
 
   /**
