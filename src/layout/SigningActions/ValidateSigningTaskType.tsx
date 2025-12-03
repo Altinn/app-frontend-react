@@ -11,23 +11,23 @@ import type { NodeValidationProps } from 'src/layout/layout';
 type Props = NodeValidationProps<'SigningActions' | 'SigningDocumentList' | 'SigneeList'>;
 
 export function ValidateSigningTaskType(props: Props) {
-  const taskType = useTaskTypeFromBackend();
-  const isInProcessTask = useIsInProcessTask();
+  const currentTaskType = useTaskTypeFromBackend();
+  const isInCurrentTask = useIsInCurrentTask();
   const addError = NodesInternal.useAddError();
   const { langAsString } = useLanguage();
   const error = langAsString('signing.wrong_task_error', [props.intermediateItem.type]);
 
   useEffect(() => {
-    if (taskType !== ProcessTaskType.Signing && isInProcessTask) {
+    if (currentTaskType !== ProcessTaskType.Signing && isInCurrentTask) {
       addError(error, props.intermediateItem.id, 'node');
       window.logErrorOnce(`Validation error for '${props.intermediateItem.id}': ${error}`);
     }
-  }, [addError, error, isInProcessTask, props.intermediateItem.id, props.intermediateItem.type, taskType]);
+  }, [addError, error, isInCurrentTask, props.intermediateItem.id, props.intermediateItem.type, currentTaskType]);
 
   return null;
 }
 
-function useIsInProcessTask() {
+function useIsInCurrentTask() {
   const overriddenTaskId = useTaskOverrides()?.taskId;
   const processTaskId = useProcessQuery().data?.currentTask?.elementId;
   const urlTaskId = useNavigationParam('taskId');
