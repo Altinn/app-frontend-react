@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 
-import { skipToken, useIsFetching, useQuery, useQueryClient } from '@tanstack/react-query';
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
 import { type BackendValidationIssue, BackendValidationSeverity } from '..';
@@ -11,6 +11,8 @@ import { useCurrentDataModelDataElementId } from 'src/features/datamodel/useBind
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { useIsFetchingFast } from 'src/hooks/useIsFetchingFast';
+import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { fetchBackendValidationsForDataElement } from 'src/queries/queries';
 import { appSupportsIncrementalValidationFeatures } from 'src/utils/versioning/versions';
 import type { fetchBackendValidations } from 'src/queries/queries';
@@ -21,6 +23,34 @@ import type { fetchBackendValidations } from 'src/queries/queries';
 function useBackendValidationQueryKey() {
   const instanceId = useLaxInstanceId();
   return useMemo(() => ['validation', instanceId], [instanceId]);
+}
+
+function useBackendValidationQueryFunc(onlyIncrementalValidators: boolean) {
+  const { fetchBackendValidations, fetchBackendValidationsForDataElement } = useAppQueries();
+  const currentDataElementId = useCurrentDataModelDataElementId();
+  const instanceId = useLaxInstanceId();
+  const currentLanguage = useAsRef(useCurrentLanguage()).current;
+  const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(
+    useApplicationMetadata().altinnNugetVersion,
+  );
+
+  // should use new endpoint if the app supports incremental validation features or if we specifically want non-incremental validations
+  const shouldUseNewEndpoint = hasIncrementalValidationFeatures || !onlyIncrementalValidators;
+
+  return shouldUseNewEndpoint
+    ? backendValidationQueryFunc({
+        // Only set this parameter if the app supports this option
+        onlyIncrementalValidators: hasIncrementalValidationFeatures ? onlyIncrementalValidators : undefined,
+        instanceId,
+        currentLanguage,
+        fetchBackendValidations,
+      })
+    : backendValidationsForDataElementQueryFunc({
+        instanceId,
+        currentDataElementId,
+        currentLanguage,
+        fetchBackendValidationsForDataElement,
+      });
 }
 
 export function useGetCachedInitialValidations() {
@@ -70,7 +100,7 @@ export function useUpdateInitialValidations() {
 }
 
 export function useIsUpdatingInitialValidations() {
-  return useIsFetching({ queryKey: ['validation'] }) > 0;
+  return useIsFetchingFast(useBackendValidationQueryKey());
 }
 
 type BackendValidationQueryProps = {
@@ -128,31 +158,7 @@ export function useBackendValidationQuery<TResult = BackendValidationIssue[]>(
   onlyIncrementalValidators = true,
 ) {
   const queryKey = useBackendValidationQueryKey();
-  const { fetchBackendValidations, fetchBackendValidationsForDataElement } = useAppQueries();
-  const hasIncrementalValidationFeatures = appSupportsIncrementalValidationFeatures(
-    useApplicationMetadata().altinnNugetVersion,
-  );
-  const currentDataElementId = useCurrentDataModelDataElementId();
-  const instanceId = useLaxInstanceId();
-  const currentLanguage = useAsRef(useCurrentLanguage()).current;
-
-  // should use new endpoint if the app supports incremental validation features or if we specifically want non-incremental validations
-  const shouldUseNewEndpoint = hasIncrementalValidationFeatures || !onlyIncrementalValidators;
-
-  const queryFn = shouldUseNewEndpoint
-    ? backendValidationQueryFunc({
-        // Only set this parameter if the app supports this option
-        onlyIncrementalValidators: hasIncrementalValidationFeatures ? onlyIncrementalValidators : undefined,
-        instanceId,
-        currentLanguage,
-        fetchBackendValidations,
-      })
-    : backendValidationsForDataElementQueryFunc({
-        instanceId,
-        currentDataElementId,
-        currentLanguage,
-        fetchBackendValidationsForDataElement,
-      });
+  const queryFn = useBackendValidationQueryFunc(onlyIncrementalValidators);
 
   const query = useQuery({
     queryFn,
@@ -169,5 +175,19 @@ export function useBackendValidationQuery<TResult = BackendValidationIssue[]>(
 }
 
 export function useRefetchInitialValidations(onlyIncrementalValidators = true) {
-  return useBackendValidationQuery({ throwOnError: false, enabled: false }, onlyIncrementalValidators).refetch;
+  const client = useQueryClient();
+  const queryKey = useBackendValidationQueryKey();
+  const queryFn = useBackendValidationQueryFunc(onlyIncrementalValidators);
+
+  return useOurEffectEvent(async () => {
+    try {
+      await client.fetchQuery({
+        queryKey,
+        queryFn,
+        gcTime: 0,
+      });
+    } catch {
+      /* empty */
+    }
+  });
 }
