@@ -1,17 +1,22 @@
 import React from 'react';
 import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import type { PropsWithChildren } from 'react';
 
 import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { ComponentRouting, NavigateToStartUrl, ProcessWrapper } from 'src/components/wrappers/ProcessWrapper';
 import { Entrypoint } from 'src/features/entrypoint/Entrypoint';
-import { FormProvider } from 'src/features/form/FormContext';
+import { DynamicFormProvider, StaticFormProvider } from 'src/features/form/FormContext';
 import { InstanceProvider } from 'src/features/instance/InstanceContext';
 import { PartySelection } from 'src/features/instantiate/containers/PartySelection';
 import { InstanceSelectionWrapper } from 'src/features/instantiate/selection/InstanceSelection';
+import { OrderDetailsProvider } from 'src/features/payment/OrderDetailsProvider';
+import { PaymentInformationProvider } from 'src/features/payment/PaymentInformationProvider';
+import { PaymentProvider } from 'src/features/payment/PaymentProvider';
 import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
 import { FixWrongReceiptType } from 'src/features/receipt/FixWrongReceiptType';
 import { DefaultReceipt } from 'src/features/receipt/ReceiptContainer';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 
 export const App = () => (
@@ -68,9 +73,17 @@ export const App = () => (
         element={
           <FixWrongReceiptType>
             <ProcessWrapper>
-              <FormProvider>
-                <Outlet />
-              </FormProvider>
+              <PaymentInformationProvider>
+                <OrderDetailsProvider>
+                  <MaybePaymentProvider>
+                    <StaticFormProvider>
+                      <DynamicFormProvider>
+                        <Outlet />
+                      </DynamicFormProvider>
+                    </StaticFormProvider>
+                  </MaybePaymentProvider>
+                </OrderDetailsProvider>
+              </PaymentInformationProvider>
             </ProcessWrapper>
           </FixWrongReceiptType>
         }
@@ -135,3 +148,15 @@ export const App = () => (
     </Route>
   </Routes>
 );
+
+function MaybePaymentProvider({ children }: PropsWithChildren) {
+  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
+  const instanceGuid = useNavigationParam('instanceGuid');
+  const hasProcess = !!(instanceOwnerPartyId && instanceGuid);
+
+  if (hasProcess) {
+    return <PaymentProvider>{children}</PaymentProvider>;
+  }
+
+  return children;
+}

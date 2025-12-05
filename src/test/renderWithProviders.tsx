@@ -23,7 +23,7 @@ import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
 import { RenderStart } from 'src/core/ui/RenderStart';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
-import { FormProvider } from 'src/features/form/FormContext';
+import { DynamicFormProvider, StaticFormProvider } from 'src/features/form/FormContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -370,7 +370,9 @@ function InstanceFormAndLayoutProviders({ children, formDataProxies }: InstanceP
   return (
     <InstanceProvider>
       <FormDataWriteProxyProvider value={formDataProxies}>
-        <FormProvider>{children}</FormProvider>
+        <StaticFormProvider>
+          <DynamicFormProvider>{children}</DynamicFormProvider>
+        </StaticFormProvider>
       </FormDataWriteProxyProvider>
     </InstanceProvider>
   );
@@ -630,7 +632,9 @@ export const renderWithoutInstanceAndLayout = async ({
     Providers: withFormProvider
       ? ({ children, ...props }: ProvidersProps) => (
           <DefaultProviders {...props}>
-            <FormProvider>{children}</FormProvider>
+            <StaticFormProvider>
+              <DynamicFormProvider>{children}</DynamicFormProvider>
+            </StaticFormProvider>
           </DefaultProviders>
         )
       : DefaultProviders,

@@ -3,7 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import { Loader } from 'src/core/loading/Loader';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { FormProvider } from 'src/features/form/FormContext';
+import { DynamicFormProvider, StaticFormProvider } from 'src/features/form/FormContext';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
 import { NoValidPartiesError } from 'src/features/instantiate/containers/NoValidPartiesError';
 import {
@@ -32,9 +32,11 @@ const ShowOrInstantiate: React.FC<{ show: ShowTypes }> = ({ show }) => {
 
   // If the show type is something else, it points to a layout set that describes a stateless form.
   return (
-    <FormProvider>
-      <Outlet />
-    </FormProvider>
+    <StaticFormProvider>
+      <DynamicFormProvider>
+        <Outlet />
+      </DynamicFormProvider>
+    </StaticFormProvider>
   );
 };
 
@@ -56,9 +58,11 @@ export const Entrypoint = () => {
     // The regular stateless mode (where you have to log in) is handled in ShowOrInstantiate, after the party is
     // selected and valid.
     return (
-      <FormProvider>
-        <Outlet />
-      </FormProvider>
+      <StaticFormProvider>
+        <DynamicFormProvider>
+          <Outlet />
+        </DynamicFormProvider>
+      </StaticFormProvider>
     );
   }
 

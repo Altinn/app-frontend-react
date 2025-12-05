@@ -14,17 +14,19 @@ import 'src/features/logging';
 import 'src/features/styleInjection';
 import 'src/features/toggles';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { notifyManager, useQueryClient } from '@tanstack/react-query';
 
 import { App } from 'src/App';
 import { ErrorBoundary } from 'src/components/ErrorBoundary';
 import { ViewportWrapper } from 'src/components/ViewportWrapper';
 import { KeepAliveProvider } from 'src/core/auth/KeepAliveProvider';
 import { AppQueriesProvider } from 'src/core/contexts/AppQueriesProvider';
+import { OverusedHooks } from 'src/core/contexts/OverusedHooksContext';
 import { ProcessingProvider } from 'src/core/contexts/processingContext';
 import { DisplayErrorProvider } from 'src/core/errorHandling/DisplayErrorProvider';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ApplicationSettingsProvider } from 'src/features/applicationSettings/ApplicationSettingsProvider';
+import { LayoutSchemaProvider } from 'src/features/form/layout/LayoutSchemaProvider';
 import { UiConfigProvider } from 'src/features/form/layout/UiConfigContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
@@ -92,40 +94,72 @@ function Root() {
   return (
     <>
       <InstantiationUrlReset />
-      <ApplicationMetadataProvider>
-        <GlobalFormDataReadersProvider>
-          <LayoutSetsProvider>
-            <SetShouldFetchAppLanguages />
-            <ProfileProvider>
-              <TextResourcesProvider>
-                <OrgsProvider>
-                  <ApplicationSettingsProvider>
-                    <PartyProvider>
-                      <KeepAliveProvider>
-                        <DisplayErrorProvider>
-                          <ProcessingProvider>
-                            <App />
-                          </ProcessingProvider>
-                        </DisplayErrorProvider>
-                        <ToastContainer
-                          position='top-center'
-                          theme='colored'
-                          transition={Slide}
-                          draggable={false}
-                        />
-                      </KeepAliveProvider>
-                    </PartyProvider>
-                  </ApplicationSettingsProvider>
-                </OrgsProvider>
-              </TextResourcesProvider>
-            </ProfileProvider>
-            <PartyPrefetcher />
-          </LayoutSetsProvider>
-        </GlobalFormDataReadersProvider>
-      </ApplicationMetadataProvider>
+      <LayoutSchemaProvider>
+        <ApplicationMetadataProvider>
+          <GlobalFormDataReadersProvider>
+            <LayoutSetsProvider>
+              <SetShouldFetchAppLanguages />
+              <ProfileProvider>
+                <TextResourcesProvider>
+                  <OrgsProvider>
+                    <ApplicationSettingsProvider>
+                      <PartyProvider>
+                        <KeepAliveProvider>
+                          <DisplayErrorProvider>
+                            <ProcessingProvider>
+                              <OverusedHooks.Provider>
+                                <App />
+                              </OverusedHooks.Provider>
+                            </ProcessingProvider>
+                          </DisplayErrorProvider>
+                          <ToastContainer
+                            position='top-center'
+                            theme='colored'
+                            transition={Slide}
+                            draggable={false}
+                          />
+                        </KeepAliveProvider>
+                      </PartyProvider>
+                    </ApplicationSettingsProvider>
+                  </OrgsProvider>
+                </TextResourcesProvider>
+              </ProfileProvider>
+              <PartyPrefetcher />
+            </LayoutSetsProvider>
+          </GlobalFormDataReadersProvider>
+        </ApplicationMetadataProvider>
+      </LayoutSchemaProvider>
     </>
   );
 }
+
+/* Reduce the number of scheduled timers by letting multiple callbacks join */
+function createScheduleFn() {
+  type Callback = () => void;
+
+  let queue: Callback[] = [];
+  let scheduled = false;
+
+  function flushQueue() {
+    const originalQueue = queue;
+    queue = [];
+    scheduled = false;
+    for (let i = 0; i < originalQueue.length; i++) {
+      originalQueue[i]();
+    }
+  }
+
+  return (cb: Callback) => {
+    queue.push(cb);
+    if (scheduled) {
+      return;
+    }
+
+    scheduled = true;
+    setTimeout(flushQueue, 0);
+  };
+}
+notifyManager.setScheduler(createScheduleFn());
 
 function InstantiationUrlReset() {
   const location = useLocation();

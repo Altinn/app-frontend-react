@@ -3,12 +3,12 @@ import React from 'react';
 import { AltinnContentLoader } from 'src/app-components/loading/AltinnContentLoader/AltinnContentLoader';
 import { useAppName } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useInstanceData } from 'src/features/instance/InstanceContext';
 import { useInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
 import { ConfirmPage } from 'src/features/process/confirm/containers/ConfirmPage';
 
 export const Confirm = () => {
-  const instance = useInstanceDataQuery().data;
+  const instance = useInstanceData();
   const parties = usePartiesAllowedToInstantiate();
   const instanceOwnerParty = useInstanceOwnerParty();
 

@@ -17,7 +17,7 @@ import { RenderStart } from 'src/core/ui/RenderStart';
 import { Footer } from 'src/features/footer/Footer';
 import { useUiConfigContext } from 'src/features/form/layout/UiConfigContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { SideBarNavigation } from 'src/features/navigation/SidebarNavigation';
 import { useHasGroupedNavigation } from 'src/features/navigation/utils';
@@ -35,9 +35,7 @@ export const PresentationComponent = ({
   showNavbar = true,
   showNavigation: _showNavigation = true,
 }: IPresentationProvidedProps) => {
-  const instanceStatus = useInstanceDataQuery({
-    select: (instance) => instance.status,
-  }).data;
+  const instanceStatus = useInstanceData((instance) => instance.status);
   const { expandedWidth } = useUiConfigContext();
   const hasGroupedNavigation = useHasGroupedNavigation();
   const isReceipt = useIsReceiptPage();

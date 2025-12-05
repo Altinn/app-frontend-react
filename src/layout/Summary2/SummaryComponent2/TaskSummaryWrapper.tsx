@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { TaskOverrides } from 'src/core/contexts/TaskOverrides';
-import { FormProvider } from 'src/features/form/FormContext';
+import { DynamicFormProvider, StaticFormProvider } from 'src/features/form/FormContext';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useNavigationParam } from 'src/hooks/navigation';
 
@@ -22,7 +22,13 @@ export function TaskSummaryWrapper({ taskId, children }: React.PropsWithChildren
       dataModelType={layoutSetForTask?.dataType}
       layoutSetId={layoutSetForTask?.id}
     >
-      {taskId && taskId !== currentTaskId ? <FormProvider readOnly={true}>{children}</FormProvider> : children}
+      {taskId && taskId !== currentTaskId ? (
+        <StaticFormProvider>
+          <DynamicFormProvider readOnly={true}>{children}</DynamicFormProvider>
+        </StaticFormProvider>
+      ) : (
+        children
+      )}
     </TaskOverrides>
   );
 }
