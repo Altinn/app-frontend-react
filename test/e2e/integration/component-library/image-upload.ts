@@ -85,7 +85,7 @@ describe('ImageUpload component', () => {
       }
     });
 
-    cy.findByRole('button', { name: /Neste/i }).click();
+    cy.findByRole('button', { name: /next/i }).click();
     cy.findByText('Du må laste opp et bilde').should('be.visible');
 
     uploadImageAndVerify(fileName1);
