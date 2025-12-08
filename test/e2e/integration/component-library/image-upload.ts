@@ -75,4 +75,21 @@ describe('ImageUpload component', () => {
     cy.findByRole('button', { name: /Lagre/i }).click();
     cy.findByRole('img', { name: /uploadThis2.png/ }).should('be.visible');
   });
+
+  it('shows validation error when required and no image is uploaded, removes validation error on upload', () => {
+    cy.gotoNavPage('BildeopplastingMedValidering');
+
+    cy.changeLayout((component) => {
+      if (component.type === 'ImageUpload') {
+        component.required = true;
+      }
+    });
+
+    cy.findByRole('button', { name: /Neste/i }).click();
+    cy.findByText('Du må laste opp et bilde').should('be.visible');
+
+    uploadImageAndVerify(fileName1);
+
+    cy.findByText('Du må laste opp et bilde').should('not.exist');
+  });
 });
