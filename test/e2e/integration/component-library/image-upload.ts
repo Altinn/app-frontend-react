@@ -79,8 +79,8 @@ describe('ImageUpload component', () => {
   it('shows validation error when required and no image is uploaded, removes validation error on upload', () => {
     cy.gotoNavPage('Bildeopplasting');
 
-    cy.changeLayout((component) => {
-      if (component.type === 'ImageUpload') {
+    cy.interceptLayout('ImageUploadPage', (component) => {
+      if (component.type === 'ImageUpload' && component.id === 'ImageUploadPage-ImageUpload') {
         component.required = true;
       }
     });
