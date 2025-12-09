@@ -77,19 +77,22 @@ describe('ImageUpload component', () => {
   });
 
   it('shows validation error when required and no image is uploaded, removes validation error on upload', () => {
-    cy.gotoNavPage('Bildeopplasting');
-
-    cy.interceptLayout('ImageUploadPage', (component) => {
+    cy.interceptLayout('ComponentLayouts', (component) => {
       if (component.type === 'ImageUpload' && component.id === 'ImageUploadPage-ImageUpload') {
         component.required = true;
       }
+      if (component.type === 'NavigationButtons' && component.id === 'ImageUploadPage-NavigationButtons') {
+        component.validateOnNext = { page: 'currentAndPrevious', show: ['All'] };
+      }
     });
+    cy.gotoNavPage('Bildeopplasting');
 
     cy.findByRole('button', { name: /next/i }).click();
-    cy.findByText('Du må laste opp et bilde').should('be.visible');
+    cy.findAllByText('Du må laste opp et bilde').first().should('be.visible');
 
     uploadImageAndVerify(fileName1);
+    cy.findByRole('button', { name: /Lagre/i }).click();
 
-    cy.findByText('Du må laste opp et bilde').should('not.exist');
+    cy.findAllByText('Du må laste opp et bilde').should('not.exist');
   });
 });
