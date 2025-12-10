@@ -25,8 +25,8 @@ export const AttachmentThumbnail = ({ attachment, mobileView }: IAttachmentThumb
 
   //Check for thumbnail metadata in the attachment
   const thumbnailLink =
-    (attachment as UploadedAttachment)?.data?.metadata?.find(
-      (meta: { key: string; value: string }) => meta.key === 'thumbnailLink',
+    attachment.data.metadata?.find(
+      (meta) => meta.key === 'thumbnailLink'
     )?.value ?? null;
 
   if (!thumbnailLink) {
@@ -45,10 +45,6 @@ export const AttachmentThumbnail = ({ attachment, mobileView }: IAttachmentThumb
   }
 
   const thumbnailUrl = makeUrlRelativeIfSameDomain(getDataElementUrl(instanceId, thumbnailDataElement.id, language));
-
-  if (!thumbnailUrl) {
-    return null;
-  }
 
   return (
     <div

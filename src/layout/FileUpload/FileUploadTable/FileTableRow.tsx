@@ -89,6 +89,7 @@ export function FileTableRow({
         uploadStatus={status}
         tagLabel={tagLabel}
       />
+      {!mobileView && <td>{readableSize}</td>}
       {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
       {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
         <StatusCellContent
@@ -143,46 +144,43 @@ const NameCell = ({
   const { langAsString } = useLanguage();
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
   return (
-    <>
-      <td>
-        <div style={{ minWidth: '0px' }}>
-          <AttachmentFileName
-            attachment={attachment}
-            mobileView={mobileView}
-          />
-          {mobileView && (
-            <div
-              style={{
-                color: AltinnPalette.grey,
-              }}
-            >
-              {attachment.uploaded ? (
-                <div>
-                  {tagLabel && mobileView && (
-                    <div>
-                      <Lang id={tagLabel} />
-                    </div>
-                  )}
-                  {`${readableSize} ${mobileView ? uploadStatus : ''}`}
-                  {hasTag && !mobileView && (
-                    <div data-testid='status-success'>
-                      <Lang id='form_filler.file_uploader_list_status_done' />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <AltinnLoader
-                  id={`attachment-loader-upload-${uniqueId}`}
-                  className={classes.altinnLoader}
-                  srContent={langAsString('general.loading')}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      </td>
-      {!mobileView ? <td>{readableSize}</td> : null}
-    </>
+    <td>
+      <div style={{ minWidth: '0px' }}>
+        <AttachmentFileName
+          attachment={attachment}
+          mobileView={mobileView}
+        />
+        {mobileView && (
+          <div
+            style={{
+              color: AltinnPalette.grey,
+            }}
+          >
+            {attachment.uploaded ? (
+              <div>
+                {tagLabel && mobileView && (
+                  <div>
+                    <Lang id={tagLabel} />
+                  </div>
+                )}
+                {`${readableSize} ${mobileView ? uploadStatus : ''}`}
+                {hasTag && !mobileView && (
+                  <div data-testid='status-success'>
+                    <Lang id='form_filler.file_uploader_list_status_done' />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <AltinnLoader
+                id={`attachment-loader-upload-${uniqueId}`}
+                className={classes.altinnLoader}
+                srContent={langAsString('general.loading')}
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </td>
   );
 };
 

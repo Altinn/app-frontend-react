@@ -56,7 +56,7 @@ export function FileTable({
     if (!isAttachmentUploaded(attachment)) {
       return false;
     }
-    return attachment.data.metadata?.some((meta) => meta.key === 'thumbnailLink');
+    return attachment.data.metadata?.some((meta) => meta.key === 'thumbnailLink' && !!meta.value?.trim());
   });
 
   const calculateColSpan = () => {
