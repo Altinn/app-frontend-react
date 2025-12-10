@@ -7,7 +7,7 @@ export function useValidateRequiredImageUpload(baseComponentId: string): Compone
   const item = useItemWhenType(baseComponentId, 'ImageUpload');
   const attachments = NodesInternal.useAttachments(useIndexedId(baseComponentId));
 
-  if (!item?.required || !attachments) {
+  if (!item?.required || !(attachments?.length === 0)) {
     return [];
   }
 
