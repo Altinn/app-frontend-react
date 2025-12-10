@@ -3,21 +3,22 @@ import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
-export function useValidateRequiredImageUpload(baseComponentId: string) {
-  const validations: ComponentValidation[] = [];
+export function useValidateRequiredImageUpload(baseComponentId: string): ComponentValidation[] {
   const item = useItemWhenType(baseComponentId, 'ImageUpload');
-  const required = item && 'required' in item ? item.required : false;
   const attachments = NodesInternal.useAttachments(useIndexedId(baseComponentId));
-  if (required && attachments.length === 0) {
-    // Add validation logic for required ImageUpload
-    validations.push({
+
+  if (!item?.required || !attachments) {
+    return [];
+  }
+
+  return [
+    {
       message: {
         key: 'image_upload_component.error_required',
       },
       severity: 'error',
       source: FrontendValidationSource.Component,
       category: ValidationMask.Required,
-    });
-  }
-  return validations;
+    },
+  ];
 }
