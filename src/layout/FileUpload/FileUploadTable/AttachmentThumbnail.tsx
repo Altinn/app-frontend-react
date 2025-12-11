@@ -6,7 +6,7 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import classes from 'src/layout/FileUpload/FileUploadTable/AttachmentThumbnail.module.css';
 import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
 import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
-import type { IAttachment, UploadedAttachment } from 'src/features/attachments';
+import type { IAttachment } from 'src/features/attachments';
 interface IAttachmentThumbnailProps {
   attachment: IAttachment;
   mobileView: boolean;
@@ -24,10 +24,7 @@ export const AttachmentThumbnail = ({ attachment, mobileView }: IAttachmentThumb
   }
 
   //Check for thumbnail metadata in the attachment
-  const thumbnailLink =
-    attachment.data.metadata?.find(
-      (meta) => meta.key === 'thumbnailLink'
-    )?.value ?? null;
+  const thumbnailLink = attachment.data.metadata?.find((meta) => meta.key === 'thumbnailLink')?.value ?? null;
 
   if (!thumbnailLink) {
     return null;
