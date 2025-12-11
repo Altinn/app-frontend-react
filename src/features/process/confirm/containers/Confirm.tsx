@@ -1,12 +1,11 @@
 import React from 'react';
 
-import { AltinnContentIconReceipt } from 'src/components/atoms/AltinnContentIconReceipt';
-import { AltinnContentLoader } from 'src/components/molecules/AltinnContentLoader';
+import { AltinnContentLoader } from 'src/app-components/loading/AltinnContentLoader/AltinnContentLoader';
 import { useAppName } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { useInstanceOwnerParty, usePartiesAllowedToInstantiate } from 'src/features/party/PartiesProvider';
-import { ConfirmPage } from 'src/features/processEnd/confirm/containers/ConfirmPage';
+import { ConfirmPage } from 'src/features/process/confirm/containers/ConfirmPage';
 
 export const Confirm = () => {
   const instance = useInstanceDataQuery().data;
@@ -22,12 +21,11 @@ export const Confirm = () => {
     <div id='confirmcontainer'>
       {missingRequirement ? (
         <AltinnContentLoader
+          variant='receipt'
           width={705}
           height={561}
           reason={`confirm-missing-${missingRequirement}`}
-        >
-          <AltinnContentIconReceipt />
-        </AltinnContentLoader>
+        />
       ) : (
         <ConfirmPage
           applicationMetadata={applicationMetadata}

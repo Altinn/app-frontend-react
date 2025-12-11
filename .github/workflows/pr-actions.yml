@@ -28,14 +28,14 @@ jobs:
             exit 1
           fi
 
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
         with:
           ref: ${{ format('refs/pull/{0}/head', github.event.issue.number) }}
           path: app-frontend
           fetch-depth: 0
 
       - name: install node
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        uses: actions/setup-node@395ad3262231945c25e8478fd5baf05154b1d79f # v6
         with:
           node-version: '22'
 
@@ -62,7 +62,7 @@ jobs:
           echo $version
 
       - name: Create PR comment
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         id: pr-comment
         with:
           issue-number: ${{ github.event.issue.number }}
@@ -122,7 +122,7 @@ jobs:
            --azure-sa-name "${{ secrets.PRODUCTION_STORAGEACCOUNT_NAME }}" \
 
       - name: Update PR comment - failure
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         if: failure()
         with:
           issue-number: ${{ github.event.issue.number }}
@@ -132,7 +132,7 @@ jobs:
             > ❌ Failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
       - name: Update PR comment - success
-        uses: peter-evans/create-or-update-comment@71345be0265236311c031f5c7866368bd1eff043 # v4
+        uses: peter-evans/create-or-update-comment@e8674b075228eee787fea43ef493e45ece1004c9 # v5
         if: success()
         with:
           issue-number: ${{ github.event.issue.number }}
