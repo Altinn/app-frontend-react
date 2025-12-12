@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PdfWrapper';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
+import { AttachmentThumbnail } from 'src/layout/FileUpload/FileUploadTable/AttachmentThumbnail';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
@@ -25,6 +26,7 @@ interface IFileUploadTableRowProps {
   baseComponentId: string;
   tagLabel: string | undefined;
   isSummary?: boolean;
+  hasImages?: boolean;
 }
 
 export function FileTableRow({
@@ -33,6 +35,7 @@ export function FileTableRow({
   mobileView,
   tagLabel,
   isSummary,
+  hasImages,
 }: IFileUploadTableRowProps) {
   const { langAsString } = useLanguage();
   const component = useExternalItem(baseComponentId);
@@ -86,6 +89,7 @@ export function FileTableRow({
         uploadStatus={status}
         tagLabel={tagLabel}
       />
+      {!mobileView && <td>{readableSize}</td>}
       {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
       {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
         <StatusCellContent
@@ -94,7 +98,14 @@ export function FileTableRow({
           scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
         />
       )}
-
+      {hasImages && (
+        <td>
+          <AttachmentThumbnail
+            attachment={attachment}
+            mobileView={mobileView}
+          />
+        </td>
+      )}
       {!isSummary && (
         <ButtonCellContent
           baseComponentId={baseComponentId}
@@ -133,46 +144,43 @@ const NameCell = ({
   const { langAsString } = useLanguage();
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
   return (
-    <>
-      <td>
-        <div style={{ minWidth: '0px' }}>
-          <AttachmentFileName
-            attachment={attachment}
-            mobileView={mobileView}
-          />
-          {mobileView && (
-            <div
-              style={{
-                color: AltinnPalette.grey,
-              }}
-            >
-              {attachment.uploaded ? (
-                <div>
-                  {tagLabel && mobileView && (
-                    <div>
-                      <Lang id={tagLabel} />
-                    </div>
-                  )}
-                  {`${readableSize} ${mobileView ? uploadStatus : ''}`}
-                  {hasTag && !mobileView && (
-                    <div data-testid='status-success'>
-                      <Lang id='form_filler.file_uploader_list_status_done' />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <AltinnLoader
-                  id={`attachment-loader-upload-${uniqueId}`}
-                  className={classes.altinnLoader}
-                  srContent={langAsString('general.loading')}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      </td>
-      {!mobileView ? <td>{readableSize}</td> : null}
-    </>
+    <td>
+      <div style={{ minWidth: '0px' }}>
+        <AttachmentFileName
+          attachment={attachment}
+          mobileView={mobileView}
+        />
+        {mobileView && (
+          <div
+            style={{
+              color: AltinnPalette.grey,
+            }}
+          >
+            {attachment.uploaded ? (
+              <div>
+                {tagLabel && mobileView && (
+                  <div>
+                    <Lang id={tagLabel} />
+                  </div>
+                )}
+                {`${readableSize} ${mobileView ? uploadStatus : ''}`}
+                {hasTag && !mobileView && (
+                  <div data-testid='status-success'>
+                    <Lang id='form_filler.file_uploader_list_status_done' />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <AltinnLoader
+                id={`attachment-loader-upload-${uniqueId}`}
+                className={classes.altinnLoader}
+                srContent={langAsString('general.loading')}
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </td>
   );
 };
 
