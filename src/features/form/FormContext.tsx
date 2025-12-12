@@ -3,7 +3,11 @@ import type { PropsWithChildren } from 'react';
 
 import { ContextNotProvided, createContext } from 'src/core/contexts/context';
 import { BlockUntilAllLoaded, LoadingRegistryProvider } from 'src/core/loading/LoadingRegistry';
-import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
+import {
+  AllDataModelsContext,
+  DataModelsMetadataContext,
+  InitialDataContext,
+} from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { PageNavigationProvider } from 'src/features/form/layout/PageNavigationContext';
@@ -11,11 +15,8 @@ import { LayoutSettingsProvider } from 'src/features/form/layoutSettings/LayoutS
 import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { CodeListsProvider } from 'src/features/options/CodeListsProvider';
-import { OrderDetailsProvider } from 'src/features/payment/OrderDetailsProvider';
-import { PaymentInformationProvider } from 'src/features/payment/PaymentInformationProvider';
-import { PaymentProvider } from 'src/features/payment/PaymentProvider';
 import { ValidationProvider } from 'src/features/validation/validationContext';
-import { useNavigationParam } from 'src/hooks/navigation';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { FormPrefetcher } from 'src/queries/formPrefetcher';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
@@ -37,60 +38,55 @@ export function useIsInFormContext() {
   return useLaxCtx() !== ContextNotProvided;
 }
 
-/**
- * This helper-context provider is used to provide all the contexts needed for forms to work
- */
-export function FormProvider({ children, readOnly = false }: React.PropsWithChildren<FormContext>) {
+export function StaticFormProvider({ children }: React.PropsWithChildren) {
   const isEmbedded = useIsInFormContext();
-  const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
-  const instanceGuid = useNavigationParam('instanceGuid');
-  const hasProcess = !!(instanceOwnerPartyId && instanceGuid);
 
   return (
     <LoadingRegistryProvider>
       <FormPrefetcher />
       <LayoutsProvider>
-        <CodeListsProvider>
-          <DataModelsProvider>
-            <LayoutSettingsProvider>
-              <PageNavigationProvider>
+        <AllDataModelsContext>
+          <DataModelsMetadataContext>
+            <CodeListsProvider>
+              <LayoutSettingsProvider>
                 <DynamicsProvider>
-                  <MaybeRulesProvider isEmbedded={isEmbedded}>
-                    <FormDataWriteProvider>
-                      <ValidationProvider>
-                        <NodesProvider
-                          readOnly={readOnly}
-                          isEmbedded={isEmbedded}
-                        >
-                          <PaymentInformationProvider>
-                            <OrderDetailsProvider>
-                              <MaybePaymentProvider hasProcess={hasProcess}>
-                                <Provider value={{ readOnly }}>
-                                  <BlockUntilAllLoaded>{children}</BlockUntilAllLoaded>
-                                </Provider>
-                              </MaybePaymentProvider>
-                            </OrderDetailsProvider>
-                          </PaymentInformationProvider>
-                        </NodesProvider>
-                      </ValidationProvider>
-                    </FormDataWriteProvider>
-                  </MaybeRulesProvider>
+                  <MaybeRulesProvider isEmbedded={isEmbedded}>{children}</MaybeRulesProvider>
                 </DynamicsProvider>
-              </PageNavigationProvider>
-            </LayoutSettingsProvider>
-          </DataModelsProvider>
-        </CodeListsProvider>
+              </LayoutSettingsProvider>
+            </CodeListsProvider>
+          </DataModelsMetadataContext>
+        </AllDataModelsContext>
       </LayoutsProvider>
     </LoadingRegistryProvider>
   );
 }
 
-function MaybePaymentProvider({ children, hasProcess }: PropsWithChildren<{ hasProcess: boolean }>) {
-  if (hasProcess) {
-    return <PaymentProvider>{children}</PaymentProvider>;
-  }
+/**
+ * This helper-context provider is used to provide all the contexts needed for forms to work
+ */
+export function DynamicFormProvider({ children, readOnly = false }: React.PropsWithChildren<FormContext>) {
+  const isEmbedded = useIsInFormContext();
+  const isPdf = useIsPdf();
+  const _readOnly = readOnly || isPdf;
 
-  return children;
+  return (
+    <InitialDataContext>
+      <PageNavigationProvider>
+        <FormDataWriteProvider>
+          <ValidationProvider enabled={!_readOnly}>
+            <NodesProvider
+              readOnly={_readOnly}
+              isEmbedded={isEmbedded}
+            >
+              <Provider value={{ readOnly: _readOnly }}>
+                <BlockUntilAllLoaded>{children}</BlockUntilAllLoaded>
+              </Provider>
+            </NodesProvider>
+          </ValidationProvider>
+        </FormDataWriteProvider>
+      </PageNavigationProvider>
+    </InitialDataContext>
+  );
 }
 
 function MaybeRulesProvider({ children, isEmbedded }: PropsWithChildren<{ isEmbedded: boolean }>) {

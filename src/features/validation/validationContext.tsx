@@ -11,7 +11,7 @@ import { Loader } from 'src/core/loading/Loader';
 import { useHasPendingAttachments } from 'src/features/attachments/hooks';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useInstanceData } from 'src/features/instance/InstanceContext';
 import {
   type BaseValidation,
   type DataModelValidations,
@@ -157,8 +157,13 @@ const {
   initialCreateStore,
 });
 
-export function ValidationProvider({ children }: PropsWithChildren) {
+export function ValidationProvider({ enabled, children }: PropsWithChildren<{ enabled: boolean }>) {
   const writableDataTypes = DataModels.useWritableDataTypes();
+
+  if (!enabled) {
+    return <Provider>{children}</Provider>;
+  }
+
   return (
     <Provider>
       {writableDataTypes.map((dataType) => (
@@ -269,9 +274,9 @@ function UpdateShowAllErrors() {
    * also check useLastSaveValidationIssues which will change on each patch.
    */
   const lastSaved = FD.useLastSaveValidationIssues();
-  const instanceDataChanges = useInstanceDataQuery({
-    select: (instance) => instance.data.map(({ id, lastChanged }) => ({ id, lastChanged })),
-  }).data;
+  const instanceDataChanges = useInstanceData((instance) =>
+    instance.data.map(({ id, lastChanged }) => ({ id, lastChanged })),
+  );
 
   // Since process/next returns non-incremental validations, we need to also check these to see when they are removed
   const refetchInitialValidations = useRefetchInitialValidations(false);

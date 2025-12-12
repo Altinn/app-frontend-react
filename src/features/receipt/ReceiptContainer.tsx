@@ -10,7 +10,7 @@ import { PresentationComponent } from 'src/components/presentation/Presentation'
 import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useAppName, useAppOwner, useAppReceiver } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
@@ -90,15 +90,13 @@ export const ReceiptContainer = () => {
     instanceOwner,
     dataElements = [],
     dataValues,
-  } = useInstanceDataQuery({
-    select: (instance) => ({
-      lastChanged: instance.lastChanged,
-      instanceOrg: instance.org,
-      instanceOwner: instance.instanceOwner,
-      dataElements: instance.data,
-      dataValues: instance.dataValues,
-    }),
-  }).data ?? {};
+  } = useInstanceData((instance) => ({
+    lastChanged: instance.lastChanged,
+    instanceOrg: instance.org,
+    instanceOwner: instance.instanceOwner,
+    dataElements: instance.data,
+    dataValues: instance.dataValues,
+  })) ?? {};
   const langTools = useLanguage();
   const receiver = useAppReceiver();
   const instanceOwnerParty = useInstanceOwnerParty();
