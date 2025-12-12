@@ -3816,6 +3816,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@terraformer/wkt@npm:2.2.1":
+  version: 2.2.1
+  resolution: "@terraformer/wkt@npm:2.2.1"
+  checksum: 10c0/02a64b1a447ee5b602484501eada0871a6c2bad3bce650d1c86430c37fe42c8418be8c35eaef77df83545958a7a7a97fa97ac41f29e1c0e92a06c1db54cfe286
+  languageName: node
+  linkType: hard
+
 "@testing-library/cypress@npm:10.1.0":
   version: 10.1.0
   resolution: "@testing-library/cypress@npm:10.1.0"
@@ -4107,17 +4114,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/geojson@npm:*, @types/geojson@npm:^7946.0.0 || ^1.0.0":
+"@types/geojson@npm:*":
   version: 7946.0.16
   resolution: "@types/geojson@npm:7946.0.16"
   checksum: 10c0/1ff24a288bd5860b766b073ead337d31d73bdc715e5b50a2cee5cb0af57a1ed02cc04ef295f5fa68dc40fe3e4f104dd31282b2b818a5ba3231bc1001ba084e3c
-  languageName: node
-  linkType: hard
-
-"@types/geojson@npm:^1.0.0":
-  version: 1.0.6
-  resolution: "@types/geojson@npm:1.0.6"
-  checksum: 10c0/a8da051dda87226eb4a239a3238956ddb22806bd1faaed7d3ba12cbac031eae622aaec07b65c700093881956d47db1fdc2dd59674db0479c630a3095b3f21720
   languageName: node
   linkType: hard
 
@@ -5464,6 +5464,7 @@ __metadata:
     "@pmmmwh/react-refresh-webpack-plugin": "npm:0.6.1"
     "@tanstack/react-query": "npm:5.90.6"
     "@tanstack/react-query-devtools": "npm:5.90.2"
+    "@terraformer/wkt": "npm:2.2.1"
     "@testing-library/cypress": "npm:10.1.0"
     "@testing-library/dom": "npm:10.4.1"
     "@testing-library/jest-dom": "npm:6.9.1"
@@ -5574,7 +5575,6 @@ __metadata:
     resize-observer-polyfill: "npm:1.5.1"
     source-map-loader: "npm:5.0.0"
     style-loader: "npm:4.0.0"
-    terraformer-wkt-parser: "npm:1.2.1"
     terser-webpack-plugin: "npm:5.3.14"
     tinybench: "npm:5.1.0"
     ts-jest: "npm:29.4.5"
@@ -16511,28 +16511,6 @@ __metadata:
     minizlib: "npm:^3.1.0"
     yallist: "npm:^5.0.0"
   checksum: 10c0/0dad0596a61586180981133b20c32cfd93c5863c5b7140d646714e6ea8ec84583b879e5dc3928a4d683be6e6109ad7ea3de1cf71986d5194f81b3a016c8858c9
-  languageName: node
-  linkType: hard
-
-"terraformer-wkt-parser@npm:1.2.1":
-  version: 1.2.1
-  resolution: "terraformer-wkt-parser@npm:1.2.1"
-  dependencies:
-    "@types/geojson": "npm:^1.0.0"
-    terraformer: "npm:~1.0.5"
-  checksum: 10c0/dd7c42fc04e1e3a3c288f19a93c54e8926ba42d62b0a168c6ebae814497a90d3d6d81e1b37bba09b226838152d67ee808f3105008c6076e0654c6d53b5ed9661
-  languageName: node
-  linkType: hard
-
-"terraformer@npm:~1.0.5":
-  version: 1.0.12
-  resolution: "terraformer@npm:1.0.12"
-  dependencies:
-    "@types/geojson": "npm:^7946.0.0 || ^1.0.0"
-  dependenciesMeta:
-    "@types/geojson":
-      optional: true
-  checksum: 10c0/bb6cb5aa853f5f8edf0a4805a03b7698fcf04f50c99c36f1ff3436a80b7e9225aaabe0c7f27dcdd255826fc03ad3da09cad30ebd80e13b7915a9642317c17234
   languageName: node
   linkType: hard
 

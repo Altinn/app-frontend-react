@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 
+import { geojsonToWKT } from '@terraformer/wkt';
 // Import GeoJSON type
 import L from 'leaflet';
 import { v4 as uuidv4 } from 'uuid';
@@ -54,9 +55,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
       // 1. Iterate through the array of data items
       initialGeometries.forEach((item) => {
-        // if (geometryType == 'WKT') {
-
-        // }
         if (item.data && item.data.type === 'FeatureCollection') {
           // 2. Iterate through the features within each item's FeatureCollection
           item.data.features.forEach((feature: Feature) => {
@@ -75,17 +73,28 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
               featureGroup.addLayer(layer);
             });
           });
-        }
+        } else {
+          // Handle case where item.data is a single Feature / PolyLine / Polygon, etc.
+          const geoData = item.data;
 
-        if (item.data && item.data.type === 'Feature') {
-          const feature = item.data as Feature;
-          const newFeature: FeatureWithId = {
-            ...feature,
-            properties: {
-              ...feature.properties,
-              altinnRowId: item.altinnRowId,
-            },
-          };
+          // 1. Check if it's already a Feature, otherwise wrap it in one
+          const isFeature = 'type' in geoData && geoData.type === 'Feature';
+
+          const newFeature: FeatureWithId = isFeature
+            ? {
+                ...(geoData as Feature),
+                properties: {
+                  ...(geoData as Feature).properties,
+                  altinnRowId: item.altinnRowId,
+                },
+              }
+            : {
+                type: 'Feature',
+                geometry: geoData, // It's a Geometry (Point, Polyline, etc)
+                properties: {
+                  altinnRowId: item.altinnRowId,
+                },
+              };
 
           const leafletLayer = L.geoJSON(newFeature);
           leafletLayer.eachLayer((layer) => {
@@ -110,7 +119,12 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     }
 
     const geo = e.layer.toGeoJSON();
-    const geoString = JSON.stringify(geo);
+    let geoString = JSON.stringify(geo);
+
+    if (geometryType == 'WKT') {
+      geoString = geojsonToWKT(geo.geometry);
+    }
+
     const uuid = uuidv4();
 
     appendToList({
@@ -136,7 +150,13 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
       // @ts-expect-error test
       const editedGeo = layer.toGeoJSON();
       const altinnRowId = editedGeo.properties?.altinnRowId;
-      const geoString = JSON.stringify(editedGeo);
+
+      let geoString = JSON.stringify(editedGeo);
+
+      if (geometryType == 'WKT') {
+        geoString = geojsonToWKT(editedGeo.geometry);
+      }
+
       initialGeometries?.forEach((g, index) => {
         if (g.altinnRowId === altinnRowId) {
           const field = `${geometryBinding.field}[${index}].${geometryDataPath}`;
