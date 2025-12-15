@@ -5799,7 +5799,7 @@ __metadata:
     react-dom: "npm:19.2.0"
     react-dropzone: "npm:14.3.8"
     react-leaflet: "npm:5.0.0"
-    react-leaflet-draw: "npm:^0.21.0"
+    react-leaflet-draw: "npm:0.21.0"
     react-number-format: "npm:5.4.4"
     react-refresh: "npm:0.18.0"
     react-router-dom: "npm:6.30.2"
@@ -15432,7 +15432,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-leaflet-draw@npm:^0.21.0":
+"react-leaflet-draw@npm:0.21.0":
   version: 0.21.0
   resolution: "react-leaflet-draw@npm:0.21.0"
   dependencies:
