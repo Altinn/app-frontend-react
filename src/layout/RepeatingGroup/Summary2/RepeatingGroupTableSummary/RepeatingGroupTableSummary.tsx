@@ -134,6 +134,9 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
   const layoutLookups = useLayoutLookups();
   const ids = useTableComponentIds(baseComponentId);
   const children = RepGroupHooks.useChildIds(baseComponentId);
+  const rowWithExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid: row?.uuid ?? '' });
+  const editRow = rowWithExpressions?.edit;
+  const hiddenEditButton = editRow?.editButton === false;
 
   if (!row) {
     return null;
@@ -154,7 +157,7 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
           />
         ),
       )}
-      {!pdfModeActive && (
+      {!pdfModeActive && !hiddenEditButton && (
         <Table.Cell
           align='right'
           className={tableClasses.buttonCell}
