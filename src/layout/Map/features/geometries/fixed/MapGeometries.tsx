@@ -24,15 +24,15 @@ type MapGeometriesProps = {
 
 export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps) {
   const { toolbar } = useItemWhenType(baseComponentId, 'Map');
-  const geometries = useMapParsedGeometries(baseComponentId);
-
-  // if toolbar is defined, we want to render editable geometries separately
-  if (toolbar) {
-    geometries?.filter((g) => !g.isEditable);
-  }
+  let geometries = useMapParsedGeometries(baseComponentId);
 
   if (!geometries || geometries.length === 0) {
     return null;
+  }
+
+  // if toolbar is defined, we want to render editable geometries separately
+  if (toolbar) {
+    geometries = geometries?.filter((g) => !g.isEditable);
   }
 
   return (
