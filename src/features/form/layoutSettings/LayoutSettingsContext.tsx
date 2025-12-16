@@ -1,24 +1,39 @@
 import { useEffect } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { skipToken, useQuery } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxGlobalUISettings } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLayoutSet';
+import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
+import { fetchLayoutSettingsForInstance } from 'src/queries/queries';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ProcessedLayoutSettings> {
   const { fetchLayoutSettings } = useAppQueries();
+  const instanceId = useLaxInstanceId();
+  const features = useApplicationMetadata().features ?? {};
+
   return {
     queryKey: ['layoutSettings', layoutSetId],
-    queryFn: async () => processData(layoutSetId ? await fetchLayoutSettings(layoutSetId) : null),
+    queryFn: layoutSetId
+      ? async () => {
+          const shouldUseInstanceEndpoint = features.addInstanceIdentifierToLayoutRequests && instanceId;
+          const layoutSettings = shouldUseInstanceEndpoint
+            ? await fetchLayoutSettingsForInstance(layoutSetId, instanceId)
+            : await fetchLayoutSettings(layoutSetId);
+
+          return processData(layoutSettings);
+        }
+      : skipToken,
   };
 }
 
