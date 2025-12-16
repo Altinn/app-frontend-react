@@ -1,6 +1,6 @@
 import React from 'react';
 
-import classes from 'src/layout/FileUpload/FileUploadTable/attachmentThumbnail.module.css';
+import classes from 'src/layout/FileUpload/FileUploadTable/AttachmentThumbnail.module.css';
 import { useThumbnailLink } from 'src/layout/FileUpload/FileUploadTable/useThumbnailLink';
 import type { IAttachment } from 'src/features/attachments';
 
