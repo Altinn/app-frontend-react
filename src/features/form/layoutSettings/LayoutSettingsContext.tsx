@@ -12,13 +12,12 @@ import { useLaxGlobalUISettings } from 'src/features/form/layoutSets/LayoutSetsP
 import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
-import { fetchLayoutSettingsForInstance } from 'src/queries/queries';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ProcessedLayoutSettings> {
-  const { fetchLayoutSettings } = useAppQueries();
+  const { fetchLayoutSettings, fetchLayoutSettingsForInstance } = useAppQueries();
   const instanceId = useLaxInstanceId();
   const features = useApplicationMetadata().features ?? {};
 
