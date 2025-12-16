@@ -38,9 +38,7 @@ describe('Group summary test', () => {
               hidden: ['equals', ['component', 'RepeatingGroupPage-RadioButtons'], 'moped'],
             },
           };
-        }
-        if (component.type === 'RepeatingGroup' && component.id !== 'RepeatingGroup') {
-          component.hidden = true;
+          component.rowsAfter = [{ header: true, cells: [{ text: 'Kol1' }, { text: 'Kol2' }, { text: 'Kol3' }] }];
         }
       },
       (layout) => {
@@ -81,12 +79,15 @@ describe('Group summary test', () => {
 
     cy.get('div[data-testid="group-RepeatingGroup"] > table').within(() => {
       cy.findByRole('columnheader', { name: /Navn/ }).should('be.visible');
+      cy.findByRole('columnheader', { name: /Kol1/ }).should('be.visible');
     });
 
     cy.findByRole('radio', { name: 'Moped' }).check();
 
     cy.get('div[data-testid="group-RepeatingGroup"] > table').within(() => {
+      cy.findByRole('columnheader', { name: /Kol2/ }).should('be.visible');
       cy.findByRole('columnheader', { name: /Navn/ }).should('not.exist');
+      cy.findByRole('columnheader', { name: /Kol1/ }).should('not.exist');
     });
   });
 
