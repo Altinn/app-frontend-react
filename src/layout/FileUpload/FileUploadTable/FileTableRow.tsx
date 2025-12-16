@@ -14,6 +14,7 @@ import { AttachmentThumbnail } from 'src/layout/FileUpload/FileUploadTable/Attac
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { ThumbnailPreviewModal } from 'src/layout/FileUpload/FileUploadTable/ThumbnailPreviewModal';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
@@ -42,6 +43,7 @@ export function FileTableRow({
   const hasTag = component?.type === 'FileUploadWithTag';
   const pdfModeActive = usePdfModeActive();
   const readableSize = getSizeWithUnit(attachment.data.size, 2);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
 
   const hasOverriddenTaskId = Boolean(useTaskOverrides()?.taskId);
 
@@ -66,6 +68,15 @@ export function FileTableRow({
     }
   };
 
+  const handleThumbnailClick = () => {
+    if (isAttachmentUploaded(attachment)) {
+      const link = attachment.data.metadata?.find((meta) => meta.key === 'thumbnailLink')?.value;
+      if (link) {
+        setIsPreviewOpen(true);
+      }
+    }
+  };
+
   const status = getStatusFromScanResult();
 
   const rowStyle =
@@ -74,55 +85,64 @@ export function FileTableRow({
       : classes.blueUnderlineDotted;
 
   return (
-    <tr
-      key={uniqueId}
-      className={rowStyle}
-      id={`altinn-file-list-row-${uniqueId}`}
-      tabIndex={0}
-      style={hasOverriddenTaskId ? { padding: '8px 0' } : {}}
-    >
-      <NameCell
-        attachment={attachment}
-        mobileView={mobileView}
-        readableSize={readableSize}
-        hasTag={hasTag}
-        uploadStatus={status}
-        tagLabel={tagLabel}
-      />
-      {!mobileView && <td>{readableSize}</td>}
-      {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
-      {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
-        <StatusCellContent
-          status={status}
-          uploaded={attachment.uploaded}
-          scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
+    <>
+      <tr
+        key={uniqueId}
+        className={rowStyle}
+        id={`altinn-file-list-row-${uniqueId}`}
+        tabIndex={0}
+        style={hasOverriddenTaskId ? { padding: '8px 0' } : {}}
+      >
+        <NameCell
+          attachment={attachment}
+          mobileView={mobileView}
+          readableSize={readableSize}
+          hasTag={hasTag}
+          uploadStatus={status}
+          tagLabel={tagLabel}
         />
-      )}
-      {hasImages && (
-        <td>
-          <AttachmentThumbnail
+        {!mobileView && <td>{readableSize}</td>}
+        {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
+        {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
+          <StatusCellContent
+            status={status}
+            uploaded={attachment.uploaded}
+            scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
+          />
+        )}
+        {hasImages && (
+          <td>
+            <AttachmentThumbnail
+              attachment={attachment}
+              mobileView={mobileView}
+              onThumbnailClick={handleThumbnailClick}
+            />
+          </td>
+        )}
+        {!isSummary && (
+          <ButtonCellContent
+            baseComponentId={baseComponentId}
             attachment={attachment}
+            deleting={attachment.deleting}
             mobileView={mobileView}
           />
-        </td>
-      )}
-      {!isSummary && (
-        <ButtonCellContent
-          baseComponentId={baseComponentId}
-          attachment={attachment}
-          deleting={attachment.deleting}
-          mobileView={mobileView}
-        />
-      )}
-      {isSummary && !pdfModeActive && (
-        <td>
-          <EditButton
-            className={classes.marginLeftAuto}
-            targetBaseComponentId={baseComponentId}
-          />
-        </td>
-      )}
-    </tr>
+        )}
+        {isSummary && !pdfModeActive && (
+          <td>
+            <EditButton
+              className={classes.marginLeftAuto}
+              targetBaseComponentId={baseComponentId}
+            />
+          </td>
+        )}
+      </tr>
+      <ThumbnailPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        attachment={attachment}
+        fileName={isAttachmentUploaded(attachment) ? (attachment.data.filename ?? '') : ''}
+      />
+    </>
   );
 }
 
