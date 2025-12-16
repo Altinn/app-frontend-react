@@ -46,10 +46,10 @@ export function FileTable({
     if (!isAttachmentUploaded(attachment)) {
       return undefined;
     }
-
     const firstTag = attachment.data.tags && attachment.data.tags[0];
     return options?.find((option) => option.value === firstTag)?.label;
   };
+  const thumbnailTitle = !mobileView ? 'form_filler.file_uploader_list_header_thumbnail' : undefined;
 
   //Check if any uploaded attachment has thumbnails
   const hasImages = attachments.some((attachment) => {
@@ -98,7 +98,7 @@ export function FileTable({
             )}
             {hasImages && (
               <th>
-                <Lang id='form_filler.file_uploader_list_header_thumbnail' />
+                <Lang id={thumbnailTitle} />
               </th>
             )}
             {!pdfModeActive && (
