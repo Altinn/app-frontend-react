@@ -57,7 +57,7 @@
 .subform-link {
   display: block;
   font-family: var(--font-family);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: normal;
   color: var(--ds-color-accent-text-subtle);
   background-color: transparent;
