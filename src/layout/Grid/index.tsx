@@ -6,12 +6,13 @@ import type { ErrorObject } from 'ajv';
 import { claimGridRowsChildren } from 'src/layout/Grid/claimGridRowsChildren';
 import { GridDef } from 'src/layout/Grid/config.def.generated';
 import { RenderGrid } from 'src/layout/Grid/GridComponent';
+import { GridLayoutValidator } from 'src/layout/Grid/GridLayoutValidator';
 import { GridSummary } from 'src/layout/Grid/GridSummary';
 import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { CompExternalExact } from 'src/layout/layout';
-import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { CompExternalExact, NodeValidationProps } from 'src/layout/layout';
+import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Grid extends GridDef {
@@ -39,6 +40,25 @@ export class Grid extends GridDef {
 
   claimChildren(props: ChildClaimerProps<'Grid'>): void {
     claimGridRowsChildren(props, props.item.rows);
+  }
+
+  evalExpressions(props: ExprResolver<'Grid'>) {
+    const { item, evalBool } = props;
+
+    if (item.columns) {
+      for (const column in item.columns) {
+        item.columns[column].hidden = evalBool(item.columns[column].hidden, false);
+      }
+    }
+
+    return {
+      ...this.evalDefaultExpressions(props),
+      columns: item.columns ? item.columns : undefined,
+    };
+  }
+
+  renderLayoutValidators(props: NodeValidationProps<'Grid'>): JSX.Element | null {
+    return <GridLayoutValidator {...props} />;
   }
 
   /**

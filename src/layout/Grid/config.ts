@@ -29,6 +29,7 @@ export const Config = new CG.component({
       ),
     );
   })
+  .addProperty(new CG.prop('columns', new CG.arr(CG.common('ITableColumnPropertiesWithHidden')).optional()))
   .addProperty(new CG.prop('rows', CG.common('GridRows')))
   .extends(CG.common('LabeledComponentProps'))
   .extendTextResources(CG.common('TRBLabel'));

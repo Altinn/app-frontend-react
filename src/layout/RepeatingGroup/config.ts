@@ -288,7 +288,7 @@ export const Config = new CG.component({
                 ),
             ),
           )
-            .extends(CG.common('ITableColumnProperties'))
+            .extends(CG.common('ITableColumnPropertiesWithHidden'))
             .exportAs('IGroupColumnFormatting'),
         )
         .addExample({

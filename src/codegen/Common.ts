@@ -457,6 +457,29 @@ const common = {
       ),
       new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
       new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
+    )
+      .setTitle('Column options')
+      .setDescription('Options for the row/column')
+      .addExample({
+        width: 'auto',
+        alignText: 'left',
+        textOverflow: {
+          lineWrap: true,
+          maxHeight: 2,
+        },
+      }),
+  ITableColumnPropertiesWithHidden: () =>
+    new CG.obj(
+      new CG.prop(
+        'width',
+        new CG.str()
+          .optional({ default: 'auto' })
+          .setTitle('Width')
+          .setDescription("Width of cell in % or 'auto'. Defaults to 'auto'")
+          .setPattern(/^([0-9]{1,2}%|100%|auto)$/),
+      ),
+      new CG.prop('alignText', CG.common('ITableColumnsAlignText').optional()),
+      new CG.prop('textOverflow', CG.common('ITableColumnsTextOverflow').optional()),
       new CG.prop(
         'hidden',
         new CG.expr(ExprVal.Boolean)
