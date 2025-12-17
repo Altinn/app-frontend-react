@@ -311,7 +311,7 @@ describe('RepeatingGroupContainer', () => {
       numRows: 4,
     });
 
-    const openButtons = screen.getAllByRole('button', { name: /New open text/ });
+    const openButtons = screen.getAllByText('New open text');
     expect(openButtons).toHaveLength(4);
   });
 
@@ -346,33 +346,6 @@ describe('RepeatingGroupContainer', () => {
 
     const saveButton = screen.getByText('New save text');
     expect(saveButton).toBeInTheDocument();
-  });
-
-  it('should not show edit and delete buttons texts in view mode', async () => {
-    await render({ numRows: 3 });
-    const editButtons = screen.getAllByRole('button', { name: /Rediger/i });
-    expect(editButtons).toHaveLength(3);
-    editButtons.forEach((button) => {
-      expect(button).not.toHaveTextContent('Rediger');
-    });
-    const deleteButtons = screen.getAllByRole('button', { name: /Slett/i });
-    expect(deleteButtons).toHaveLength(3);
-    deleteButtons.forEach((button) => {
-      expect(button).not.toHaveTextContent('Slett');
-    });
-  });
-
-  it('should show edit and delete buttons texts only in edit mode', async () => {
-    await render({ numRows: 3 });
-    await userEvent.click(screen.getAllByRole('button', { name: /Rediger/i })[0]);
-    const deleteButtonsAfterEdit = screen.getAllByRole('button', { name: /Slett/i });
-    const deleteButtonWithText = deleteButtonsAfterEdit.find((button) => button.textContent?.includes('Slett'));
-    expect(deleteButtonWithText).toBeDefined();
-    expect(deleteButtonWithText).toHaveTextContent('Slett');
-    const editButtonsAfterEdit = screen.getAllByRole('button', { name: /Lagre og lukk/i });
-    const editButtonWithText = editButtonsAfterEdit.find((button) => button.textContent?.includes('Lagre og lukk'));
-    expect(editButtonWithText).toBeDefined();
-    expect(editButtonWithText).toHaveTextContent('Lagre og lukk');
   });
 });
 
