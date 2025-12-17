@@ -10,6 +10,7 @@ interface ThumbnailPreviewModalProps {
   onClose: () => void;
   attachment: IAttachment;
   fileName: string;
+  mobileView?: boolean;
 }
 
 export function ThumbnailPreviewModal({
@@ -17,6 +18,7 @@ export function ThumbnailPreviewModal({
   onClose,
   attachment,
   fileName,
+  mobileView,
 }: ThumbnailPreviewModalProps): React.JSX.Element | null {
   const thumbnailUrl = useThumbnailLink(attachment);
   const [isImageLoading, setIsImageLoading] = React.useState(true);
@@ -48,7 +50,7 @@ export function ThumbnailPreviewModal({
       tabIndex={0}
     >
       <div className={classes.previewModal}>
-        <div className={classes.previewHeader}>
+        <div className={mobileView ? classes.previewHeaderMobile : classes.previewHeader}>
           <span className={classes.fileName}>{fileName}</span>
           <button
             className={classes.closeButton}
@@ -69,7 +71,7 @@ export function ThumbnailPreviewModal({
         <img
           src={thumbnailUrl}
           alt={fileName}
-          className={classes.previewImage}
+          className={mobileView ? classes.previewImageMobile : classes.previewImage}
           onLoad={handleImageLoad}
           style={{ display: isImageLoading ? 'none' : 'block' }}
         />

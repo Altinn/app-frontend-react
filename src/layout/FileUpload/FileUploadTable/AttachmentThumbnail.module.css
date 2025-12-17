@@ -9,7 +9,6 @@
   max-width: 80px;
   max-height: 56px;
   object-fit: contain;
-  border-radius: 1px;
 }
 
 .thumbnailMobile {
@@ -56,6 +55,17 @@
   gap: 16px;
 }
 
+.previewHeaderMobile {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  background-color: #fff;
+  border-radius: 8px 8px 0 0;
+  gap: 8px;
+}
+
 .fileName {
   font-weight: 500;
   color: #333;
@@ -70,6 +80,15 @@
   object-fit: contain;
   display: block;
   padding: 0 20px 20px 20px;
+  background-color: #fff;
+}
+
+.previewImageMobile {
+  max-width: 100%;
+  max-height: calc(90vh - 100px);
+  object-fit: contain;
+  display: block;
+  padding: 0 10px 10px 10px;
   background-color: #fff;
 }
 

@@ -141,6 +141,7 @@ export function FileTableRow({
         onClose={() => setIsPreviewOpen(false)}
         attachment={attachment}
         fileName={isAttachmentUploaded(attachment) ? (attachment.data.filename ?? '') : ''}
+        mobileView={mobileView}
       />
     </>
   );
