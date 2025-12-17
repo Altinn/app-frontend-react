@@ -96,7 +96,7 @@ export function FileTable({
                 <Lang id='form_filler.file_uploader_list_header_status' />
               </th>
             )}
-            {hasImages && (
+            {hasImages && !pdfModeActive && (
               <th>
                 <Lang id={thumbnailTitle} />
               </th>

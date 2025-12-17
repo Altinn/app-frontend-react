@@ -6,14 +6,15 @@
 }
 
 .thumbnail {
-  max-width: 100px;
-  max-height: 70px;
+  max-width: 80px;
+  max-height: 56px;
   object-fit: contain;
+  border-radius: 1px;
 }
 
 .thumbnailMobile {
-  max-width: 80px;
-  max-height: 60px;
+  max-width: 64px;
+  max-height: 48px;
   object-fit: contain;
 }
 
@@ -93,6 +94,13 @@
 .closeButton:hover {
   color: var(--ds-color-text-default);
   background-color: var(--ds-color-surface-tinted);
+}
+
+.imageLoading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
 }
 
 @keyframes fadeIn {

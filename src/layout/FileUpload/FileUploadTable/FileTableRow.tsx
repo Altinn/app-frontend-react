@@ -110,7 +110,7 @@ export function FileTableRow({
             scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
           />
         )}
-        {hasImages && (
+        {hasImages && !pdfModeActive && (
           <td>
             <AttachmentThumbnail
               attachment={attachment}

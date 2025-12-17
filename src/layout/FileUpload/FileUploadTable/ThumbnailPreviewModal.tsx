@@ -1,5 +1,6 @@
 import React from 'react';
 
+import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import classes from 'src/layout/FileUpload/FileUploadTable/AttachmentThumbnail.module.css';
 import { useThumbnailLink } from 'src/layout/FileUpload/FileUploadTable/useThumbnailLink';
 import type { IAttachment } from 'src/features/attachments';
@@ -18,6 +19,11 @@ export function ThumbnailPreviewModal({
   fileName,
 }: ThumbnailPreviewModalProps): React.JSX.Element | null {
   const thumbnailUrl = useThumbnailLink(attachment);
+  const [isImageLoading, setIsImageLoading] = React.useState(true);
+
+  const handleImageLoad = () => {
+    setIsImageLoading(false);
+  };
 
   if (!isOpen) {
     return null;
@@ -52,10 +58,20 @@ export function ThumbnailPreviewModal({
             ×
           </button>
         </div>
+        {isImageLoading && (
+          <div className={classes.imageLoading}>
+            <Spinner
+              aria-label='Loading'
+              data-size='md'
+            />
+          </div>
+        )}
         <img
           src={thumbnailUrl}
           alt={fileName}
           className={classes.previewImage}
+          onLoad={handleImageLoad}
+          style={{ display: isImageLoading ? 'none' : 'block' }}
         />
       </div>
     </div>
