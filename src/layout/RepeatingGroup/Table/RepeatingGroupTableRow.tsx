@@ -258,7 +258,7 @@ export function RepeatingGroupTableRow({
                   alertOnDeleteProps={alertOnDelete}
                   langAsString={langAsString}
                 >
-                  {deleteButtonText}
+                  {isEditingRow ? deleteButtonText : null}
                 </DeleteElement>
               </div>
             </Table.Cell>
@@ -352,7 +352,7 @@ function EditElement({
       aria-label={ariaLabel}
       className={classes.tableButton}
     >
-      {(ariaExpanded || !mobileViewSmall) && editButtonText}
+      {ariaExpanded && editButtonText}
       {rowHasErrors ? (
         <span style={{ color: '#C30000' }}>
           <XMarkOctagonFillIcon
