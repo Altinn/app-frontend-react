@@ -1,9 +1,12 @@
 import React from 'react';
 
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
+import { type IAttachment, isAttachmentUploaded } from 'src/features/attachments';
+import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import classes from 'src/layout/FileUpload/FileUploadTable/AttachmentThumbnail.module.css';
-import { useThumbnailLink } from 'src/layout/FileUpload/FileUploadTable/useThumbnailLink';
-import type { IAttachment } from 'src/features/attachments';
+import { getDataElementUrl } from 'src/utils/urls/appUrlHelper';
+import { makeUrlRelativeIfSameDomain } from 'src/utils/urls/urlHelper';
 
 interface ThumbnailPreviewModalProps {
   isOpen: boolean;
@@ -20,8 +23,13 @@ export function ThumbnailPreviewModal({
   fileName,
   mobileView,
 }: ThumbnailPreviewModalProps): React.JSX.Element | null {
-  const thumbnailUrl = useThumbnailLink(attachment);
+  const language = useCurrentLanguage();
+  const instanceId = useLaxInstanceId();
   const [isImageLoading, setIsImageLoading] = React.useState(true);
+  const url =
+    isAttachmentUploaded(attachment) && instanceId
+      ? makeUrlRelativeIfSameDomain(getDataElementUrl(instanceId, attachment.data.id, language))
+      : undefined;
 
   const handleImageLoad = () => {
     setIsImageLoading(false);
@@ -69,7 +77,7 @@ export function ThumbnailPreviewModal({
           </div>
         )}
         <img
-          src={thumbnailUrl}
+          src={url}
           alt={fileName}
           className={mobileView ? classes.previewImageMobile : classes.previewImage}
           onLoad={handleImageLoad}
