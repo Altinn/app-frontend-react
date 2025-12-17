@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
+import { wktToGeoJSON } from '@terraformer/wkt';
 import dot from 'dot-object';
 import { geoJson, LatLngBounds } from 'leaflet';
-import WKT from 'terraformer-wkt-parser';
 import type { GeoJSON } from 'geojson';
 
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -77,7 +77,7 @@ function parseGeometries(geometries: RawGeometry[] | undefined, geometryType?: I
   const out: Geometry[] = [];
   for (const { altinnRowId, data: rawData, label, isEditable } of geometries) {
     if (geometryType === 'WKT') {
-      const data = WKT.parse(rawData);
+      const data = wktToGeoJSON(rawData);
       out.push({ altinnRowId, data, label, isEditable });
     } else {
       const data = JSON.parse(rawData) as GeoJSON;
