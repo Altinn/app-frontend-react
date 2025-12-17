@@ -49,7 +49,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
   // Load initial data into the FeatureGroup on component mount
   useEffect(() => {
-    console.log('Loading initial editable geometries into MapEditGeometries');
+    console.log('Loading initial editable geometries into MapEditGeometries', initialGeometries);
     const featureGroup = editRef.current;
     if (featureGroup && initialGeometries) {
       // Clear existing layers to prevent duplication if initialData changes
@@ -136,7 +136,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   };
 
   const onEditedHandler = (e: L.DrawEvents.Edited) => {
-    console.log('onEditedHandler called');
+    console.log('onEditedHandler called', e);
     if (!geometryBinding) {
       return;
     }
@@ -162,6 +162,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
       initialGeometries?.forEach((g, index) => {
         if (g.altinnRowId === altinnRowId) {
+          console.log('Updating geometry with altinnRowId:', altinnRowId);
           const field = `${geometryBinding.field}[${index}].${geometryDataPath}`;
           setLeafValue({
             reference: { dataType: geometryDataBinding?.dataType, field },
@@ -173,7 +174,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   };
 
   const onDeletedHandler = (e: L.DrawEvents.Deleted) => {
-    console.log('onDeletedHandler called');
+    console.log('onDeletedHandler called', e);
     if (!geometryBinding) {
       return;
     }
@@ -181,6 +182,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     e.layers.eachLayer((layer) => {
       // @ts-expect-error test
       const deletedGeo = layer.toGeoJSON();
+      console.log('Deleted geometry:', deletedGeo);
       removeFromList({
         reference: geometryBinding,
         callback: (item) => item[ALTINN_ROW_ID] === deletedGeo.properties?.altinnRowId,
