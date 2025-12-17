@@ -61,8 +61,8 @@ describe('Group summary test', () => {
     cy.gotoNavPage('Repeterende gruppe');
 
     const rowsToAdd = [
-      { navn: 'Test navn', poeng: '10', dato: '24.11.2025' },
-      { navn: 'Test2 navn', poeng: '20', dato: '25.11.2025' },
+      { navn: 'Testnavn1', poeng: '10', dato: '24.11.2025' },
+      { navn: 'Testnavn2', poeng: '20', dato: '25.11.2025' },
     ];
 
     for (const row of rowsToAdd) {
@@ -81,6 +81,11 @@ describe('Group summary test', () => {
       cy.findByRole('columnheader', { name: /Navn/ }).should('be.visible');
       cy.findByRole('columnheader', { name: /Kol1/ }).should('be.visible');
     });
+    cy.get('[data-componentid="RepeatingGroup-Summary"]')
+      .find('[data-testid="summary-item-compact"]')
+      .should('have.length', rowsToAdd.length * 3);
+    cy.get('[data-testid="summary-repeating-group-component"] > table').should('contain.text', 'Testnavn1');
+    cy.get('[data-testid="summary-repeating-group-component"] > table').should('contain.text', 'Testnavn2');
 
     cy.findByRole('radio', { name: 'Moped' }).check();
 
@@ -89,6 +94,14 @@ describe('Group summary test', () => {
       cy.findByRole('columnheader', { name: /Navn/ }).should('not.exist');
       cy.findByRole('columnheader', { name: /Kol1/ }).should('not.exist');
     });
+
+    cy.get('[data-componentid="RepeatingGroup-Summary"]')
+      .find('[data-testid="summary-item-compact"]')
+      .should('have.length', rowsToAdd.length * 2);
+
+    cy.get('[data-testid="summary-repeating-group-component"] > table').should('contain.text', '24.11.2025');
+    cy.get('[data-testid="summary-repeating-group-component"] > table').should('not.contain.text', 'Testnavn1');
+    cy.get('[data-testid="summary-repeating-group-component"] > table').should('not.contain.text', 'Testnavn2');
   });
 
   it('Displays a summary for a filled repeating group in table', () => {
