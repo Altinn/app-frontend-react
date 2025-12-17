@@ -416,6 +416,10 @@ export function en() {
     'config_error.group_no_deletion_strategy': 'When you have set group, you must also set deletionStrategy.',
     'config_error.soft_delete_no_checked': 'When you have set deletionStrategy to soft, you must also set "checked".',
     'config_error.hard_delete_with_checked': 'When you have set deletionStrategy to hard, you cannot set "checked".',
+    'config_error.grid_diff_cell_columns':
+      'There is a difference in number of cells({0}) on row {1} and the number of columns({2}). Make sure the rows have correct number of cells({2}).',
+    'config_error.grid_column_option_cell':
+      'You have a columnOption configuration on both cell and columns property. Please use the column property instead.',
     'version_error.version_mismatch': 'Version mismatch',
     'version_error.version_mismatch_message':
       'This version of the app frontend is not compatible with the version of the backend libraries you are using. Update to the latest version of the packages and try again.',

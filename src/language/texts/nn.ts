@@ -417,6 +417,10 @@ export function nn() {
     'config_error.group_no_deletion_strategy': 'Når du har sett group, må du også setje deletionStrategy.',
     'config_error.soft_delete_no_checked': 'Når du har sett deletionStrategy til soft, må du også setje checked.',
     'config_error.hard_delete_with_checked': 'Når du har sett deletionStrategy til hard, kan du ikkje setje checked.',
+    'config_error.grid_diff_cell_columns':
+      'Det er forskjell i talet på celler({0}) på rad {1} og talet på kolonnar({2}). Sørg for at alle rader har korrekt tal på celler({2}).',
+    'config_error.grid_column_option_cell':
+      '"columnOption"-konfigurasjon er spesifisert både på "cell" og på "columns" eigenskapane. Ver vennleg og bruk "columns" eigenskapen.',
     'version_error.version_mismatch': 'Versjonsfeil',
     'version_error.version_mismatch_message':
       'Denne versjonen av app frontend er ikkje kompatibel med den versjonen av backend-biblioteka du brukar. Oppdater til nyaste versjon av pakkane og prøv igjen.',

@@ -29,11 +29,17 @@ import { useIsHidden } from 'src/utils/layout/hidden';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridCell, GridRow, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type {
+  GridCell,
+  GridRow,
+  ITableColumnFormatting,
+  ITableColumnProperties,
+  ITableColumnPropertiesWithHidden,
+} from 'src/layout/common.generated';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { baseComponentId } = props;
-  const { rows, textResourceBindings, labelSettings } = useItemWhenType(baseComponentId, 'Grid');
+  const { rows, textResourceBindings, labelSettings, columns } = useItemWhenType(baseComponentId, 'Grid');
   const { title, description, help } = textResourceBindings ?? {};
   const columnSettings: ITableColumnFormatting = {};
   const isMobile = useIsMobile();
@@ -68,6 +74,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
         )}
         <GridRowsRenderer
           rows={rows}
+          columns={columns}
           isNested={isNested}
           mutableColumnSettings={columnSettings}
         />
@@ -78,12 +85,13 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
 
 interface GridRowsProps {
   rows: GridRow[];
+  columns?: ITableColumnProperties[] | undefined;
   extraCells?: GridCell[];
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
 }
 
-export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColumnSettings }: GridRowsProps) {
+export function GridRowsRenderer({ rows, columns, extraCells = [], isNested, mutableColumnSettings }: GridRowsProps) {
   const batches: { type: 'header' | 'body'; rows: GridRow[] }[] = [];
 
   for (const row of rows) {
@@ -106,6 +114,7 @@ export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColum
             {batch.rows.map((row, rowIdx) => (
               <GridRowRenderer
                 key={rowIdx}
+                columns={columns}
                 row={{ ...row, cells: [...row.cells, ...extraCells] }}
                 isNested={isNested}
                 mutableColumnSettings={mutableColumnSettings}
@@ -120,9 +129,10 @@ export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColum
 
 interface GridRowProps extends Omit<GridRowsProps, 'rows'> {
   row: GridRow;
+  columns?: ITableColumnProperties[] | undefined;
 }
 
-function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
+function GridRowRenderer({ row, columns, isNested, mutableColumnSettings }: GridRowProps) {
   const rowHidden = useIsGridRowHidden(row);
   if (rowHidden) {
     return null;
@@ -137,14 +147,17 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
           [css.fullWidthCellFirst]: isFirst && !isNested,
           [css.fullWidthCellLast]: isLast && !isNested,
         });
-
         if (row.header && cell && 'columnOptions' in cell && cell.columnOptions) {
           // eslint-disable-next-line react-compiler/react-compiler
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
 
+        if (cell && columns && columns[cellIdx]) {
+          mutableColumnSettings[cellIdx] = { ...mutableColumnSettings[cellIdx], ...columns[cellIdx] }; //TODO: På sikt fjerne muligheten til å konfigurere på celle nivå.
+        }
+
         if (isGridCellText(cell) || isGridCellLabelFrom(cell)) {
-          let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
+          let textCellSettings: ITableColumnPropertiesWithHidden = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
             : {};
           textCellSettings = { ...textCellSettings, ...cell };
@@ -202,7 +215,7 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
 
 interface CellProps {
   className?: string;
-  columnStyleOptions?: ITableColumnProperties;
+  columnStyleOptions?: ITableColumnPropertiesWithHidden;
   isHeader?: boolean;
   rowReadOnly?: boolean;
 }
@@ -228,6 +241,10 @@ function CellWithComponent({
 }: CellWithComponentProps) {
   const isHidden = useIsHidden(baseComponentId);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+
+  if (columnStyleOptions?.hidden === true) {
+    return;
+  }
 
   if (!isHidden) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -256,6 +273,10 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { elementAsString } = useLanguage();
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+
+  if (columnStyleOptions?.hidden === true) {
+    return;
+  }
 
   return (
     <CellComponent
@@ -290,6 +311,10 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb && typeof trb.description === 'string' ? trb.description : undefined;
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+  const labelId = useIndexedId(labelFrom);
+  if (columnStyleOptions?.hidden === true) {
+    return;
+  }
 
   return (
     <CellComponent
@@ -297,7 +322,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
       style={columnStyles}
     >
       <LabelContent
-        id={useIndexedId(labelFrom)}
+        id={labelId}
         label={title}
         required={required}
         help={help}
