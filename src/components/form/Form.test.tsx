@@ -231,14 +231,14 @@ describe('Form', () => {
 
   it('should not throw warning in console when page id and value are the same', async () => {
     const logWarnOnceSpy = jest.spyOn(window, 'logWarnOnce').mockImplementation(() => {});
-    await render({ layoutId: mockLayoutId });
+    await render({ layoutTextValue: mockLayoutId });
     expect(logWarnOnceSpy).not.toHaveBeenCalled();
     logWarnOnceSpy.mockRestore();
   });
 
   it('should warn when layout does not have a text resource for the page id', async () => {
     const logWarnOnceSpy = jest.spyOn(window, 'logWarnOnce').mockImplementation(() => {});
-    await render({ layoutId: 'SomeOtherPageId' });
+    await render({ layoutTextId: 'otherId' });
     expect(logWarnOnceSpy).toHaveBeenCalledWith(expect.stringContaining('You have not set a page title for this page'));
     logWarnOnceSpy.mockRestore();
   });
@@ -246,17 +246,19 @@ describe('Form', () => {
   type RenderOptions = {
     layout?: ILayout;
     validationIssues?: BackendValidationIssue[];
-    layoutId?: string;
+    layoutTextId?: string;
+    layoutTextValue?: string;
   };
 
   async function render({
     layout = mockComponents,
     validationIssues = [],
-    layoutId = mockLayoutId,
+    layoutTextId = mockLayoutId,
+    layoutTextValue = mockLayoutName,
   }: RenderOptions = {}) {
     await renderWithInstanceAndLayout({
       renderer: () => <Form />,
-      initialPage: layoutId,
+      initialPage: mockLayoutId,
       queries: {
         fetchFormData: async () => ({
           Group: [
@@ -275,14 +277,14 @@ describe('Form', () => {
               },
             },
           }),
-        fetchLayoutSettings: () => Promise.resolve({ pages: { order: [layoutId, '2', '3'] } }),
+        fetchLayoutSettings: () => Promise.resolve({ pages: { order: [mockLayoutId, '2', '3'] } }),
         fetchBackendValidations: () => Promise.resolve(validationIssues),
         fetchTextResources: async () => ({
           language: 'nb',
           resources: [
             {
-              id: mockLayoutId,
-              value: mockLayoutName,
+              id: layoutTextId,
+              value: layoutTextValue,
             },
           ],
         }),
