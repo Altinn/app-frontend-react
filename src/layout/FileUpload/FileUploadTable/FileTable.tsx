@@ -78,7 +78,7 @@ export function FileTable({
             className={pdfModeActive ? classes.grayUnderline : classes.blueUnderline}
             id='altinn-file-list-row-header'
           >
-            <th style={{ width: mobileView ? (hasImages ? '60%' : '80%') : '40%' }}>
+            <th style={{ width: mobileView ? (hasImages ? '60%' : '80%') : hasImages ? '30%' : '40%' }}>
               <Lang id='form_filler.file_uploader_list_header_name' />
             </th>
             {!mobileView && (
