@@ -7,13 +7,14 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 
 export function PaymentSummary({ targetBaseComponentId }: Summary2Props) {
   const title = useItemWhenType(targetBaseComponentId, 'Payment').textResourceBindings?.title;
+  const summaryTitle = useItemWhenType(targetBaseComponentId, 'Payment').textResourceBindings?.summaryTitle;
 
   return (
     <SummaryFlex
       targetBaseId={targetBaseComponentId}
       content={SummaryContains.Presentational}
     >
-      <PaymentReceiptDetails title={title} />
+      <PaymentReceiptDetails title={summaryTitle || title} />
     </SummaryFlex>
   );
 }
