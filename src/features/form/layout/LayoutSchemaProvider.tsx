@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
+import type { PropsWithChildren } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
 import type { ErrorObject } from 'ajv';
@@ -13,45 +14,16 @@ import {
   LAYOUT_SCHEMA_NAME,
 } from 'src/features/devtools/utils/layoutSchemaValidation';
 import { isDev } from 'src/utils/isDev';
-import { NodesInternal } from 'src/utils/layout/NodesContext';
 
-interface Context {
-  schemaValidator: ValidateFunc | undefined;
-}
+type ValidateFunc = ReturnType<typeof makeValidateFunc>;
 
-const { Provider, useCtx } = createContext<Context>({
-  name: 'GenerationValidation',
-  required: true,
-});
+const { Provider, useCtx } = createContext<ValidateFunc | null>({ name: 'LayoutSchemaProvider', required: true });
 
-export const GeneratorValidation = {
-  useValidate: () => useCtx().schemaValidator,
-};
-
-export function GeneratorValidationProvider({ children }) {
-  const [schemaValidator, setSchemaValidator] = React.useState<ValidateFunc | undefined>(undefined);
-
-  return (
-    <Provider
-      value={{
-        schemaValidator,
-      }}
-    >
-      <FetchLayoutSchema setSchemaValidator={setSchemaValidator} />
-      {children}
-    </Provider>
-  );
-}
-
-function FetchLayoutSchema({
-  setSchemaValidator,
-}: {
-  setSchemaValidator: React.Dispatch<React.SetStateAction<ValidateFunc | undefined>>;
-}) {
+export function LayoutSchemaProvider({ children }: PropsWithChildren) {
   const enabled = useIsLayoutValidationEnabled();
 
   const { fetchLayoutSchema } = useAppQueries();
-  const { data: validate, isSuccess } = useQuery({
+  const { data } = useQuery({
     enabled,
     queryKey: ['fetchLayoutSchema'],
     queryFn: async () => {
@@ -63,20 +35,15 @@ function FetchLayoutSchema({
     },
   });
 
-  useEffect(() => {
-    if (isSuccess && validate) {
-      setSchemaValidator(validate);
-    }
-  }, [isSuccess, validate, setSchemaValidator]);
-
-  return null;
+  return <Provider value={data ?? null}>{children}</Provider>;
 }
+
+export const useLayoutSchemaValidator = useCtx;
 
 function useIsLayoutValidationEnabled() {
   const hasBeenEnabledBefore = useRef(false);
   const panelOpen = useDevToolsStore((s) => s.isOpen);
-  const hasErrors = NodesInternal.useHasErrors();
-  const enabled = isDev() || hasErrors || panelOpen || hasBeenEnabledBefore.current;
+  const enabled = isDev() || panelOpen || hasBeenEnabledBefore.current;
   hasBeenEnabledBefore.current = enabled;
 
   if (window.forceNodePropertiesValidation === 'on') {
@@ -111,5 +78,3 @@ function makeValidateFunc(validator: Ajv) {
 
   return validate;
 }
-
-type ValidateFunc = ReturnType<typeof makeValidateFunc>;

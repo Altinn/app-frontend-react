@@ -7,7 +7,7 @@ import { userEvent } from '@testing-library/user-event';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
-import { FormProvider } from 'src/features/form/FormContext';
+import { DynamicFormProvider, StaticFormProvider } from 'src/features/form/FormContext';
 import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
@@ -48,9 +48,11 @@ const render = async () => {
       </MemoryRouter>
     ),
     renderer: (props) => (
-      <FormProvider>
-        <InstantiationButtonComponent {...props} />
-      </FormProvider>
+      <StaticFormProvider>
+        <DynamicFormProvider>
+          <InstantiationButtonComponent {...props} />
+        </DynamicFormProvider>
+      </StaticFormProvider>
     ),
   });
 };
