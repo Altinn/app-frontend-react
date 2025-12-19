@@ -421,6 +421,53 @@ describe('Group', () => {
     cy.get(appFrontend.group.mainGroupTableBody).find(appFrontend.group.saveMainGroup).should('not.exist');
   });
 
+  it('openByDefault should not prevent navigation via linkToComponent', () => {
+    cy.interceptLayout('group', (c) => {
+      if (c.type === 'RepeatingGroup' && c.edit && c.id === 'mainGroup') {
+        c.edit.openByDefault = 'first';
+      }
+    });
+    init();
+
+    cy.findByRole('button', { name: 'Forrige' }).click();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.liten }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.middels }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.stor }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.svaer }).check();
+    cy.findByRole('checkbox', { name: appFrontend.group.prefill.enorm }).check();
+    cy.findByRole('button', { name: /Neste/ }).click();
+
+    cy.get(appFrontend.group.showGroupToContinue).findByRole('checkbox', { name: 'Ja' }).check();
+
+    // Assert that the first row was opened by openByDefault
+    cy.get(appFrontend.group.editContainer).should('be.visible');
+    cy.get(appFrontend.group.editContainer)
+      .find(appFrontend.group.currentValue)
+      .should('be.visible')
+      .and('have.value', 'NOK 1');
+
+    cy.findByRole('button', { name: 'Lukk NOK 1' }).click();
+    cy.get(appFrontend.group.editContainer).should('not.exist');
+
+    cy.get('#useBothRepGroups').findByRole('radio', { name: 'Ja' }).click();
+
+    cy.get(appFrontend.group.addNewItem).click();
+    cy.get(appFrontend.group.currentValue).type('88889');
+    cy.get(appFrontend.group.newValue).type('1');
+
+    cy.get(appFrontend.errorReport).should('contain.text', 'Det er teit å endre fra 88889');
+    cy.get(appFrontend.errorReport).findAllByRole('listitem').should('have.length', 2);
+
+    cy.gotoNavPage('repeating (store endringer)');
+
+    cy.findByRole('heading', { name: 'Endringer med fra-verdi over 99999999 NOK' }).should('be.visible');
+    cy.get('[data-validation="currentValue2-5"]').should('contain.text', 'Det er teit å endre fra 88889');
+    cy.get('[data-validation="currentValue2-5"]').findByRole('link', { name: 'Trykk for å endre det' }).click();
+
+    cy.get(appFrontend.group.currentValue).should('be.focused');
+    cy.get('[data-validation="currentValue-5"]').should('contain.text', 'Det er teit å endre fra 88889');
+  });
+
   it('Opens delete warning popup when alertOnDelete is true and deletes on confirm', () => {
     cy.interceptLayout('group', (c) => {
       if (c.type === 'RepeatingGroup' && c.edit && typeof c.edit.openByDefault !== 'undefined') {

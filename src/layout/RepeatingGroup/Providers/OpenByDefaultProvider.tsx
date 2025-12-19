@@ -1,6 +1,8 @@
 import { useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
+import { SearchParams } from 'src/core/routing/types';
 import { useAsRef } from 'src/hooks/useAsRef';
 import {
   RepGroupContext,
@@ -39,6 +41,10 @@ export function OpenByDefaultProvider({ baseComponentId, children }: PropsWithCh
   // when the component is unmounted and mounted again, i.e. when the user navigates away and back to the page.
   const hasAddedRow = useRef(false);
 
+  // Ref containing the component ID we should be focusing on. If this is present, we should not
+  // be opening anything by default, as we're about to focus on the component instead.
+  const focusComponentId = useAsRef(useSearchParams()[0].get(SearchParams.FocusComponentId));
+
   useEffect((): void => {
     (async () => {
       if (hasAddedRow.current) {
@@ -70,7 +76,8 @@ export function OpenByDefaultProvider({ baseComponentId, children }: PropsWithCh
         openByDefault &&
         typeof openByDefault === 'string' &&
         ['first', 'last'].includes(openByDefault) &&
-        editingId === undefined
+        editingId === undefined &&
+        !focusComponentId.current
       ) {
         const row = openByDefault === 'last' ? lastRow : firstRow;
         row !== undefined && openForEditing(row);
@@ -80,7 +87,7 @@ export function OpenByDefaultProvider({ baseComponentId, children }: PropsWithCh
         isFirstRender.current = false;
       }
     })();
-  }, [openByDefault, stateRef, addRow, baseComponentId, hasNoRows]);
+  }, [openByDefault, stateRef, addRow, baseComponentId, hasNoRows, focusComponentId]);
 
   return children;
 }
