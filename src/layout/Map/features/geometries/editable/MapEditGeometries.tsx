@@ -55,12 +55,10 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
       // Clear existing layers to prevent duplication if initialData changes
       featureGroup.clearLayers();
 
-      // 1. Iterate through the array of data items
       initialGeometries.forEach((item) => {
         if (item.data && item.data.type === 'FeatureCollection') {
-          // 2. Iterate through the features within each item's FeatureCollection
           item.data.features.forEach((feature: Feature) => {
-            // 3. IMPORTANT: Attach the unique ID to the feature's properties
+            // Attach the unique ID to the feature's properties
             const newFeature: FeatureWithId = {
               ...feature, // Copy type, geometry, etc.
               properties: {
@@ -69,7 +67,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
               },
             };
 
-            // 4. Create a GeoJSON layer for the single feature and add it to the group
+            // Create a GeoJSON layer for the single feature and add it to the group
             const leafletLayer = L.geoJSON(newFeature);
             leafletLayer.eachLayer((layer) => {
               featureGroup.addLayer(layer);
@@ -92,7 +90,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
               }
             : {
                 type: 'Feature',
-                geometry: geoData, // It's a Geometry (Point, Polyline, etc)
+                geometry: geoData,
                 properties: {
                   altinnRowId: item.altinnRowId,
                 },
@@ -105,38 +103,42 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
         }
       });
     }
-  }, [initialGeometries]); // Dependency array ensures this runs if initialData changes
+  }, [initialGeometries]);
 
   const onCreatedHandler = (e: L.DrawEvents.Created) => {
-    if (!geometryBinding) {
+    if (!geometryBinding || !geometryDataFieldName || !isEditableFieldName) {
       return;
-    }
-
-    if (!geometryDataFieldName) {
-      return;
-    }
-
-    if (!isEditableFieldName) {
-      return;
-    }
-
-    const geo = e.layer.toGeoJSON();
-    let geoString = JSON.stringify(geo);
-
-    if (geometryType == 'WKT') {
-      geoString = geojsonToWKT(geo.geometry);
     }
 
     const uuid = uuidv4();
+    const layer = e.layer;
+    const geo = layer.toGeoJSON();
+
+    // Ensure the Leaflet layer object itself knows its ID for future edits
+    if (!layer.feature) {
+      layer.feature = { type: 'Feature', geometry: geo.geometry, properties: {} };
+    }
+    layer.feature.properties = {
+      ...layer.feature.properties,
+      altinnRowId: uuid,
+    };
+
+    let geoString = JSON.stringify(geo);
+    if (geometryType === 'WKT') {
+      geoString = geojsonToWKT(geo.geometry);
+    }
 
     appendToList({
       reference: geometryBinding,
-      newValue: { [ALTINN_ROW_ID]: uuid, [geometryDataFieldName]: geoString, [isEditableFieldName]: true },
+      newValue: {
+        [ALTINN_ROW_ID]: uuid,
+        [geometryDataFieldName]: geoString,
+        [isEditableFieldName]: true,
+      },
     });
   };
 
   const onEditedHandler = (e: L.DrawEvents.Edited) => {
-    console.log('onEditedHandler called', e);
     if (!geometryBinding) {
       return;
     }
@@ -162,7 +164,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
       initialGeometries?.forEach((g, index) => {
         if (g.altinnRowId === altinnRowId) {
-          console.log('Updating geometry with altinnRowId:', altinnRowId);
           const field = `${geometryBinding.field}[${index}].${geometryDataPath}`;
           setLeafValue({
             reference: { dataType: geometryDataBinding?.dataType, field },
@@ -174,7 +175,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   };
 
   const onDeletedHandler = (e: L.DrawEvents.Deleted) => {
-    console.log('onDeletedHandler called', e);
     if (!geometryBinding) {
       return;
     }
@@ -182,7 +182,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     e.layers.eachLayer((layer) => {
       // @ts-expect-error test
       const deletedGeo = layer.toGeoJSON();
-      console.log('Deleted geometry:', deletedGeo);
       removeFromList({
         reference: geometryBinding,
         callback: (item) => item[ALTINN_ROW_ID] === deletedGeo.properties?.altinnRowId,
