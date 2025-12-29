@@ -90,7 +90,12 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   const [ssnErrors, setSsnErrors] = useState<string[]>();
   const [nameError, setNameError] = useState<string>();
 
-  const bindingValidations = useBindingValidationsFor<'PersonLookup'>(baseComponentId);
+  // Filter out middle name validations since it's optional
+  const bindingValidations = {
+    ...useBindingValidationsFor<'PersonLookup'>(baseComponentId),
+    person_lookup_middle_name: undefined,
+  };
+
   const { langAsString } = useLanguage();
   const {
     formData: { person_lookup_ssn, person_lookup_name },
