@@ -140,8 +140,8 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
       setValue('person_lookup_name', getFullName(data.person));
       setValue('person_lookup_ssn', data.person.ssn);
       setValue('person_lookup_first_name', data.person.firstName);
-      setValue('person_lookup_last_name', data.person.lastName);
       setValue('person_lookup_middle_name', data.person.middleName);
+      setValue('person_lookup_last_name', data.person.lastName);
     }
   }
 
