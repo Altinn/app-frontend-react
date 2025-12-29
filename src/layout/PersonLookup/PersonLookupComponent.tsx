@@ -134,6 +134,9 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
     if (data?.person) {
       setValue('person_lookup_name', getFullName(data.person));
       setValue('person_lookup_ssn', data.person.ssn);
+      setValue('person_lookup_first_name', data.person.firstName);
+      setValue('person_lookup_last_name', data.person.lastName);
+      setValue('person_lookup_middle_name', data.person.middleName);
     }
   }
 
@@ -144,6 +147,9 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   function handleClear() {
     setValue('person_lookup_name', '');
     setValue('person_lookup_ssn', '');
+    setValue('person_lookup_first_name', '');
+    setValue('person_lookup_last_name', '');
+    setValue('person_lookup_middle_name', '');
     setTempName('');
     setTempSsn('');
     setSsnErrors(undefined);
