@@ -90,11 +90,7 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   const [ssnErrors, setSsnErrors] = useState<string[]>();
   const [nameError, setNameError] = useState<string>();
 
-  // Filter out middle name validations since it's optional
-  const bindingValidations = {
-    ...useBindingValidationsFor<'PersonLookup'>(baseComponentId),
-    person_lookup_middle_name: undefined,
-  };
+  const bindingValidations = useBindingValidationsFor<'PersonLookup'>(baseComponentId);
 
   const { langAsString } = useLanguage();
   const {
@@ -140,7 +136,6 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
       setValue('person_lookup_name', getFullName(data.person));
       setValue('person_lookup_ssn', data.person.ssn);
       setValue('person_lookup_first_name', data.person.firstName);
-      setValue('person_lookup_middle_name', data.person.middleName);
       setValue('person_lookup_last_name', data.person.lastName);
     }
   }
@@ -154,7 +149,6 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
     setValue('person_lookup_ssn', '');
     setValue('person_lookup_first_name', '');
     setValue('person_lookup_last_name', '');
-    setValue('person_lookup_middle_name', '');
     setTempName('');
     setTempSsn('');
     setSsnErrors(undefined);
