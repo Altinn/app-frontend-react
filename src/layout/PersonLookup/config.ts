@@ -30,7 +30,6 @@ export const Config = new CG.component({
       new CG.prop(
         'person_lookup_name',
         new CG.dataModelBinding()
-          .optional()
           .setTitle('Data model binding for the full name of a person')
           .setDescription(
             'Describes the location in the data model where the component should store the name of the person to look up.',
