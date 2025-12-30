@@ -17,8 +17,36 @@ import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types'
 
 export class PersonLookup extends PersonLookupDef {
   useDisplayData(baseComponentId: string): string {
-    const formData = useNodeFormDataWhenType(baseComponentId, 'PersonLookup');
-    return Object.values(formData ?? {}).join(', ');
+    const formData = useNodeFormDataWhenType(baseComponentId, 'PersonLookup') as Record<string, string | undefined>;
+    const data = formData ?? {};
+
+    const parts: string[] = [];
+
+    if (data.person_lookup_ssn) {
+      parts.push(String(data.person_lookup_ssn));
+    }
+
+    // Build full name from individual parts or use the Name binding
+    if (data.person_lookup_name) {
+      parts.push(String(data.person_lookup_name));
+    } else {
+      const nameParts: string[] = [];
+      if (data.person_lookup_first_name) {
+        nameParts.push(String(data.person_lookup_first_name));
+      }
+      if (data.person_lookup_middle_name) {
+        nameParts.push(String(data.person_lookup_middle_name));
+      }
+      if (data.person_lookup_last_name) {
+        nameParts.push(String(data.person_lookup_last_name));
+      }
+
+      if (nameParts.length > 0) {
+        parts.push(nameParts.join(' '));
+      }
+    }
+
+    return parts.join(', ');
   }
 
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'PersonLookup'>>(

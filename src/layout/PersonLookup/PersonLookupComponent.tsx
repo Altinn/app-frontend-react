@@ -90,7 +90,12 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   const [ssnErrors, setSsnErrors] = useState<string[]>();
   const [nameError, setNameError] = useState<string>();
 
-  const bindingValidations = useBindingValidationsFor<'PersonLookup'>(baseComponentId);
+  // Filter out middle name validations since it's optional
+  const bindingValidations = {
+    ...useBindingValidationsFor<'PersonLookup'>(baseComponentId),
+    person_lookup_middle_name: undefined,
+  };
+
   const { langAsString } = useLanguage();
   const {
     formData: { person_lookup_ssn, person_lookup_name },
@@ -134,6 +139,9 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
     if (data?.person) {
       setValue('person_lookup_name', getFullName(data.person));
       setValue('person_lookup_ssn', data.person.ssn);
+      setValue('person_lookup_first_name', data.person.firstName);
+      setValue('person_lookup_middle_name', data.person.middleName);
+      setValue('person_lookup_last_name', data.person.lastName);
     }
   }
 
@@ -144,6 +152,9 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   function handleClear() {
     setValue('person_lookup_name', '');
     setValue('person_lookup_ssn', '');
+    setValue('person_lookup_first_name', '');
+    setValue('person_lookup_last_name', '');
+    setValue('person_lookup_middle_name', '');
     setTempName('');
     setTempSsn('');
     setSsnErrors(undefined);
