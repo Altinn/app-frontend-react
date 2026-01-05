@@ -30,6 +30,7 @@ export const Config = new CG.component({
       new CG.prop(
         'person_lookup_name',
         new CG.dataModelBinding()
+          .optional()
           .setTitle('Data model binding for the full name of a person')
           .setDescription(
             'Describes the location in the data model where the component should store the name of the person to look up.',
@@ -42,6 +43,15 @@ export const Config = new CG.component({
           .setTitle('Data model binding for the last name of a person')
           .setDescription(
             'Describes the location in the data model where the component should store the last name of the person to look up.',
+          ),
+      ),
+      new CG.prop(
+        'person_lookup_middle_name',
+        new CG.dataModelBinding()
+          .optional()
+          .setTitle('Data model binding for the middle name of a person')
+          .setDescription(
+            'Describes the location in the data model where the component should store the middle name of the person to look up.',
           ),
       ),
       new CG.prop(

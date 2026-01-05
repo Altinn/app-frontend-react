@@ -68,7 +68,10 @@ export class PersonLookup extends PersonLookupDef {
   }
 
   useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
-    return useEmptyFieldValidationAllBindings(baseComponentId, 'person_lookup.error_required');
+    const validations = useEmptyFieldValidationAllBindings(baseComponentId, 'person_lookup.error_required');
+
+    // Only validate SSN binding - all name bindings are optional
+    return validations.filter((validation) => validation.bindingKey === 'person_lookup_ssn');
   }
 
   useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'PersonLookup'>): string[] {
