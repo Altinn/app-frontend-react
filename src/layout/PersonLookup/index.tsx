@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { useEmptyFieldValidationAllBindings } from 'src/features/validation/nodeValidation/emptyFieldValidation';
+import { useEmptyFieldValidationOnlyOneBinding } from 'src/features/validation/nodeValidation/emptyFieldValidation';
 import { PersonLookupDef } from 'src/layout/PersonLookup/config.def.generated';
 import { PersonLookupComponent } from 'src/layout/PersonLookup/PersonLookupComponent';
 import { PersonLookupSummary } from 'src/layout/PersonLookup/PersonLookupSummary';
@@ -71,10 +71,7 @@ export class PersonLookup extends PersonLookupDef {
   }
 
   useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
-    const validations = useEmptyFieldValidationAllBindings(baseComponentId, 'person_lookup.error_required');
-
-    // Only validate SSN binding - all name bindings are optional
-    return validations.filter((validation) => validation.bindingKey === 'person_lookup_ssn');
+    return useEmptyFieldValidationOnlyOneBinding(baseComponentId, 'person_lookup_ssn');
   }
 
   useDataModelBindingValidation(baseComponentId: string, bindings: IDataModelBindings<'PersonLookup'>): string[] {
