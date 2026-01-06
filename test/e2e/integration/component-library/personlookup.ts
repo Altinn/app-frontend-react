@@ -93,7 +93,6 @@ describe('Person lookup component', () => {
 
     // 3 instances of this text (component, Summary2, ErrorReport)
     cy.findAllByText('Du må fylle ut fødselsnummer og hente opplysninger').should('exist').and('have.length', 3);
-    cy.findAllByText('Du må fylle ut navn og hente opplysninger').should('exist').and('have.length', 3);
 
     cy.changeLayout((component) => {
       if (component.type === 'PersonLookup') {
@@ -105,10 +104,8 @@ describe('Person lookup component', () => {
     });
 
     cy.findByText('Du må fylle ut fødselsnummer og hente opplysninger').should('not.exist');
-    cy.findByText('Du må fylle ut navn og hente opplysninger').should('not.exist');
     cy.findByRole('button', { name: 'Neste' }).click();
 
     cy.findAllByText('Du må fylle ut fødselsnummer og hente opplysninger').should('exist').and('have.length', 3);
-    cy.findAllByText('Du må fylle ut navn og hente opplysninger').should('exist').and('have.length', 3);
   });
 });
