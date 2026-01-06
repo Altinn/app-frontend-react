@@ -14,31 +14,34 @@ import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindings } from 'src/layout/layout';
 import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
+import type { IComponentFormData } from 'src/utils/formComponentUtils';
 
 export class PersonLookup extends PersonLookupDef {
   useDisplayData(baseComponentId: string): string {
-    const formData = useNodeFormDataWhenType(baseComponentId, 'PersonLookup') as Record<string, string | undefined>;
-    const data = formData ?? {};
-
+    const formData = useNodeFormDataWhenType(baseComponentId, 'PersonLookup');
+    if (!formData) {
+      return '';
+    }
+    const data: IComponentFormData<'PersonLookup'> = formData;
     const parts: string[] = [];
 
     if (data.person_lookup_ssn) {
-      parts.push(String(data.person_lookup_ssn));
+      parts.push(data.person_lookup_ssn);
     }
 
     // Build full name from individual parts or use the Name binding
     if (data.person_lookup_name) {
-      parts.push(String(data.person_lookup_name));
+      parts.push(data.person_lookup_name);
     } else {
       const nameParts: string[] = [];
       if (data.person_lookup_first_name) {
-        nameParts.push(String(data.person_lookup_first_name));
+        nameParts.push(data.person_lookup_first_name);
       }
       if (data.person_lookup_middle_name) {
-        nameParts.push(String(data.person_lookup_middle_name));
+        nameParts.push(data.person_lookup_middle_name);
       }
       if (data.person_lookup_last_name) {
-        nameParts.push(String(data.person_lookup_last_name));
+        nameParts.push(data.person_lookup_last_name);
       }
 
       if (nameParts.length > 0) {
