@@ -164,17 +164,20 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
           />
         ),
       )}
-      {!pdfModeActive && !hiddenEditButton && (
-        <Table.Cell
-          align='right'
-          className={tableClasses.buttonCell}
-        >
-          <EditButtonFirstVisible
-            ids={[...ids, ...children]}
-            fallback={baseComponentId}
-          />
-        </Table.Cell>
-      )}
+      {!pdfModeActive &&
+        (hiddenEditButton ? (
+          <Table.Cell className={tableClasses.buttonCell} />
+        ) : (
+          <Table.Cell
+            align='right'
+            className={tableClasses.buttonCell}
+          >
+            <EditButtonFirstVisible
+              ids={[...ids, ...children]}
+              fallback={baseComponentId}
+            />
+          </Table.Cell>
+        ))}
     </Table.Row>
   );
 }
