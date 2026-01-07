@@ -41,6 +41,8 @@ export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAre
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
 
+  const textAreaDescribedBy = `${getDescriptionId(id)} ${baseComponentId}-validations`;
+
   return (
     <Label
       htmlFor={id}
@@ -66,7 +68,7 @@ export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAre
             overrideDisplay?.renderedInTable !== true &&
             textResourceBindings?.title &&
             textResourceBindings?.description
-              ? getDescriptionId(id)
+              ? textAreaDescribedBy
               : undefined
           }
           ariaLabel={overrideDisplay?.renderedInTable === true ? langAsString(textResourceBindings?.title) : undefined}

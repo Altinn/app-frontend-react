@@ -128,13 +128,14 @@ export const InputVariant = ({
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
   const { inputMode, pattern } = getMobileKeyboardProps(variant, autocomplete);
   const debounce = FD.useDebounceImmediately();
+  const inputDescribedBy = `${getDescriptionId(id)} ${baseComponentId}-validations`;
 
   const inputProps: InputProps = {
     id,
     'aria-label': langAsString(textResourceBindings?.title),
     'aria-describedby':
       overrideDisplay?.renderedInTable !== true && textResourceBindings?.title && textResourceBindings?.description
-        ? getDescriptionId(id)
+        ? inputDescribedBy
         : undefined,
     autoComplete: autocomplete,
     className: formatting?.align ? classes[`text-align-${formatting.align}`] : '',

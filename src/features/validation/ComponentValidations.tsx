@@ -65,6 +65,7 @@ export function ComponentValidations({ validations, baseComponentId }: Props) {
 
   return (
     <div
+      id={`${baseId}-validations`}
       data-validation={indexedId}
       aria-live='assertive'
     >
