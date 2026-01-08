@@ -128,7 +128,9 @@ export const InputVariant = ({
   const variant = getVariantWithFormat(inputVariant, reactNumberFormatConfig?.number);
   const { inputMode, pattern } = getMobileKeyboardProps(variant, autocomplete);
   const debounce = FD.useDebounceImmediately();
-  const inputDescribedBy = `${getDescriptionId(id)} ${baseComponentId}-validations`;
+  const descriptionId = getDescriptionId(id);
+  const validationsId = `${baseComponentId}-validations`;
+  const inputDescribedBy = descriptionId ? `${descriptionId} ${validationsId}` : validationsId;
 
   const inputProps: InputProps = {
     id,
