@@ -16,7 +16,6 @@ import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLa
 import { useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId';
-import { fetchLayoutsForInstance } from 'src/queries/queries';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
@@ -33,7 +32,7 @@ export function useLayoutQueryDef(
   defaultDataModelType: string,
   layoutSetId?: string,
 ): QueryDefinition<LayoutContextValue> {
-  const { fetchLayouts } = useAppQueries();
+  const { fetchLayouts, fetchLayoutsForInstance } = useAppQueries();
   const instanceId = useLaxInstanceId();
   const features = useApplicationMetadata().features ?? {};
 
