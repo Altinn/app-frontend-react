@@ -19,7 +19,7 @@ import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTable
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
-import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
+import { EditButtonFirstVisibleAndEditable } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummary, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import utilClasses from 'src/styles/utils.module.css';
@@ -138,12 +138,12 @@ type DataRowProps = {
 
 function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRowProps) {
   const layoutLookups = useLayoutLookups();
-  const ids = useTableComponentIds(baseComponentId);
   const children = RepGroupHooks.useChildIds(baseComponentId);
-  const rowWithExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid: row?.uuid ?? '' });
-  const editRow = rowWithExpressions?.edit;
-  const hiddenEditButton = editRow?.editButton === false;
+  const ids = useTableComponentIds(baseComponentId);
   const visibleIds = ids.filter((id) => columnSettings[id]?.hidden !== true);
+  const rowWithExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid: row?.uuid ?? '' });
+  const editableChildren = RepGroupHooks.useEditableChildren(baseComponentId, rowWithExpressions);
+  const editableIds = [...ids, ...children].filter((id) => editableChildren.includes(id));
 
   if (!row) {
     return null;
@@ -164,20 +164,18 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
           />
         ),
       )}
-      {!pdfModeActive &&
-        (hiddenEditButton ? (
-          <Table.Cell className={tableClasses.buttonCell} />
-        ) : (
-          <Table.Cell
-            align='right'
-            className={tableClasses.buttonCell}
-          >
-            <EditButtonFirstVisible
-              ids={[...ids, ...children]}
-              fallback={baseComponentId}
-            />
-          </Table.Cell>
-        ))}
+      {!pdfModeActive && (
+        <Table.Cell
+          align='right'
+          className={tableClasses.buttonCell}
+        >
+          <EditButtonFirstVisibleAndEditable
+            key={editableIds.join(',')}
+            ids={editableIds}
+            fallback={rowWithExpressions?.edit?.editButton !== false ? baseComponentId : undefined}
+          />
+        </Table.Cell>
+      )}
     </Table.Row>
   );
 }
