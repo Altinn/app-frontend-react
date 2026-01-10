@@ -35,9 +35,17 @@ function paramFrom(matches: Matches, key: keyof PathParams): string | undefined 
   return decode && param ? decodeURIComponent(param) : param;
 }
 
+// matchPath causes a lot of memory allocations (and therefore GC)
+const paramCache = new Map<string, PathParams>();
+
 function matchParams(path: string): PathParams {
+  const cachedResult = paramCache.get(path);
+  if (cachedResult) {
+    return cachedResult;
+  }
+
   const matches = matchers.map((matcher) => matchPath(matcher, path));
-  return {
+  const result = {
     instanceOwnerPartyId: paramFrom(matches, 'instanceOwnerPartyId'),
     instanceGuid: paramFrom(matches, 'instanceGuid'),
     taskId: paramFrom(matches, 'taskId'),
@@ -46,13 +54,12 @@ function matchParams(path: string): PathParams {
     dataElementId: paramFrom(matches, 'dataElementId'),
     mainPageKey: paramFrom(matches, 'mainPageKey'),
   };
+
+  paramCache.set(path, result);
+  return result;
 }
 
-export const useNavigationParam = <T extends keyof PathParams>(key: T) => {
-  const location = useLocation();
-  const matches = matchers.map((matcher) => matchPath(matcher, location.pathname));
-  return paramFrom(matches, key) as PathParams[T];
-};
+export const useNavigationParam = <T extends keyof PathParams>(key: T) => matchParams(useLocation().pathname)[key];
 
 export const useAllNavigationParams = () => matchParams(useLocation().pathname);
 export const useAllNavigationParamsAsRef = () => useAsRef(useAllNavigationParams());
