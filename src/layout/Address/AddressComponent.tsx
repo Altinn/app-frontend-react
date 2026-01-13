@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { Flex } from 'src/app-components/Flex/Flex';
 import { Input } from 'src/app-components/Input/Input';
@@ -14,8 +14,6 @@ import { ComponentValidations } from 'src/features/validation/ComponentValidatio
 import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
 import { useComponentValidationsFor } from 'src/features/validation/selectors/componentValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
-import { usePostPlaceQuery } from 'src/hooks/queries/usePostPlaceQuery';
-import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import classes from 'src/layout/Address/AddressComponent.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -47,17 +45,6 @@ export function AddressComponent({ baseComponentId }: PropsFromGenericComponent<
   const { formData, setValue } = useDataModelBindings(dataModelBindings, saveWhileTyping);
   const debounce = FD.useDebounceImmediately();
   const { address, careOf, postPlace, zipCode, houseNumber } = formData;
-
-  const updatePostPlace = useOurEffectEvent((newPostPlace) => {
-    if (newPostPlace != null && newPostPlace != postPlace) {
-      setValue('postPlace', newPostPlace);
-    }
-  });
-
-  const zipCodeDebounced = FD.useDebouncedPick(dataModelBindings.zipCode);
-  const slowZip = typeof zipCodeDebounced === 'string' ? zipCodeDebounced : undefined;
-  const postPlaceQueryData = usePostPlaceQuery(slowZip, !hasValidationErrors(bindingValidations?.zipCode));
-  useEffect(() => updatePostPlace(postPlaceQueryData), [postPlaceQueryData, updatePostPlace]);
 
   return (
     <div
@@ -219,10 +206,17 @@ export function AddressComponent({ baseComponentId }: PropsFromGenericComponent<
                 id={`address_post_place_${id}`}
                 data-bindingkey={bindingKeys.postPlace}
                 aria-labelledby={`address_post_place_label_${id}`}
+                error={hasValidationErrors(bindingValidations?.postPlace)}
                 value={postPlace}
-                readOnly={true}
+                onChange={(ev) => setValue('postPlace', ev.target.value)}
+                onBlur={() => debounce('blur')}
+                readOnly={readOnly}
                 required={required}
                 autoComplete='address-level1'
+              />
+              <ComponentValidations
+                validations={bindingValidations?.postPlace}
+                baseComponentId={baseComponentId}
               />
             </Flex>
           </Label>

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
@@ -27,18 +27,6 @@ const render = async ({ component, ...rest }: Partial<RenderGenericComponentTest
       ...component,
     },
     ...rest,
-    queries: {
-      fetchPostPlace: async (input) => {
-        if (input === '0001') {
-          return { valid: true, result: 'OSLO' };
-        }
-        if (input === '0002') {
-          return { valid: true, result: 'BERGEN' };
-        }
-        return { valid: false, result: '' };
-      },
-      ...rest.queries,
-    },
   });
 
 describe('AddressComponent', () => {
@@ -113,10 +101,6 @@ describe('AddressComponent', () => {
       },
       queries: {
         fetchFormData: async () => ({ address: 'initial address', zipCode: '0001' }),
-        fetchPostPlace: (zipCode: string) =>
-          zipCode === '0001'
-            ? Promise.resolve({ valid: true, result: 'OSLO' })
-            : Promise.resolve({ valid: false, result: '' }),
       },
     });
 
@@ -126,25 +110,6 @@ describe('AddressComponent', () => {
     await userEvent.tab();
 
     expect(screen.getByText(/postnummer er ugyldig/i)).toBeInTheDocument();
-  });
-
-  it('should update postplace on mount', async () => {
-    const { formDataMethods } = await render({
-      component: {
-        required: true,
-        simplified: false,
-      },
-      queries: {
-        fetchFormData: async () => ({ address: 'initial address', zipCode: '0001' }),
-      },
-    });
-
-    await screen.findByDisplayValue('OSLO');
-
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { field: 'postPlace', dataType: defaultDataTypeMock },
-      newValue: 'OSLO',
-    });
   });
 
   it('should call change event when zipcode is valid', async () => {
@@ -166,45 +131,24 @@ describe('AddressComponent', () => {
     });
   });
 
-  it('should call dispatch for post place when zip code is cleared', async () => {
-    const { formDataMethods, queries } = await render({
-      queries: {
-        fetchFormData: async () => ({ address: 'a', zipCode: '0001', postPlace: 'Oslo' }),
+  it('should allow editing post place field', async () => {
+    const { formDataMethods } = await render({
+      component: {
+        required: true,
+        simplified: false,
       },
     });
 
-    expect(screen.getByDisplayValue('0001')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('OSLO')).toBeInTheDocument();
+    const postPlaceField = screen.getByRole('textbox', { name: 'Poststed *' });
+    expect(postPlaceField).not.toHaveAttribute('readonly');
 
-    await userEvent.clear(screen.getByRole('textbox', { name: 'Postnr' }));
+    await userEvent.type(postPlaceField, 'OSLO');
     await userEvent.tab();
 
     expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
-      reference: { field: 'zipCode', dataType: defaultDataTypeMock },
-      newValue: '',
-    });
-    expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
       reference: { field: 'postPlace', dataType: defaultDataTypeMock },
-      newValue: '',
+      newValue: 'OSLO',
     });
-
-    expect(queries.fetchPostPlace).toHaveBeenCalledTimes(1);
-  });
-
-  it('should only call fetchPostPlace once at the end, when debouncing', async () => {
-    const { queries } = await render({
-      queries: {
-        fetchFormData: async () => ({ address: 'a', zipCode: '', postPlace: '' }),
-      },
-    });
-
-    await userEvent.type(screen.getByRole('textbox', { name: 'Postnr' }), '0001{backspace}2');
-    await waitFor(() => expect(screen.getByRole('textbox', { name: 'Poststed' })).toHaveDisplayValue('BERGEN'), {
-      timeout: 15000,
-    });
-
-    expect(queries.fetchPostPlace).toHaveBeenCalledTimes(1);
-    expect(queries.fetchPostPlace).toHaveBeenCalledWith('0002');
   });
 
   it('should display no extra markings when required is false, and labelSettings.optionalIndicator is not true', async () => {

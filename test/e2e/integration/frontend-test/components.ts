@@ -267,28 +267,15 @@ describe('UI Components', () => {
     cy.get('[data-testid="NavigationBar"]').find('button:contains("summary")').should('be.visible');
   });
 
-  it('address component fetches post place from zip code', () => {
+  it('address component allows manual entry of post place', () => {
     cy.goto('changename');
-
-    // Mock zip code API, so that we don't rely on external services for our tests
-    cy.intercept('GET', 'https://api.bring.com/shippingguide/api/postalCode.json**', (req) => {
-      req.reply((res) => {
-        res.send({
-          body: {
-            postalCodeType: 'NORMAL',
-            result: 'KARDEMOMME BY', // Intentionally wrong, to test that our mock is used
-            valid: true,
-          },
-        });
-      });
-    }).as('zipCodeApi');
 
     cy.get(appFrontend.changeOfName.address.street_name).type('Sesame Street 1A');
     cy.get(appFrontend.changeOfName.address.street_name).blur();
     cy.get(appFrontend.changeOfName.address.zip_code).type('0123');
     cy.get(appFrontend.changeOfName.address.zip_code).blur();
-    cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'KARDEMOMME BY');
-    cy.get('@zipCodeApi').its('request.url').should('include', '0123');
+    cy.get(appFrontend.changeOfName.address.post_place).type('OSLO');
+    cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'OSLO');
   });
 
   it('should not be possible to check a readonly checkbox', () => {
