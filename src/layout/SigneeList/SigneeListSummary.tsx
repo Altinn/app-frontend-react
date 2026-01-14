@@ -24,7 +24,8 @@ interface SigneeListSummaryProps extends Summary2Props {
 
 export function SigneeListSummary({ targetBaseComponentId, titleOverride }: SigneeListSummaryProps) {
   const { instanceOwnerPartyId, instanceGuid, taskId: taskIdFromQuery } = useParams();
-  const { taskId: taskIdFromTaskOverrides } = useTaskOverrides();
+  const taskOverrides = useTaskOverrides();
+  const taskIdFromTaskOverrides = taskOverrides?.taskId;
   const { data, isLoading, error } = useSigneeList(
     instanceOwnerPartyId,
     instanceGuid,
