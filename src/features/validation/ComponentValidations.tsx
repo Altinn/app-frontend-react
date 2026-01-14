@@ -125,12 +125,13 @@ function SoftValidations({
   severity: AlertSeverity;
 }) {
   const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
+  const alertRole = severity === 'info' || severity === 'success' ? 'status' : 'alert';
 
   return (
     <Alert
       className={classes.softValidation}
       data-color={severity}
-      role='alert'
+      role={alertRole}
     >
       <ul className={classes.softValidationListItem}>
         {validations.map((validation) => (
