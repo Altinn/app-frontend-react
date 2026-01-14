@@ -151,7 +151,7 @@ describe('fetchSigneeList', () => {
   });
 
   it('should append taskId as query parameter when provided', async () => {
-    const taskId = 'Task_2';
+    const taskId = 'MyTask';
     mockedGet.mockResolvedValue({ signeeStates: [] });
 
     await fetchSigneeList(partyId, instanceGuid, taskId);
