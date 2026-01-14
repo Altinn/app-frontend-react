@@ -49,7 +49,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
   // Load initial data into the FeatureGroup on component mount
   useEffect(() => {
-    console.log('Loading initial editable geometries into MapEditGeometries', initialGeometries);
     const featureGroup = editRef.current;
     if (featureGroup && initialGeometries) {
       // Clear existing layers to prevent duplication if initialData changes

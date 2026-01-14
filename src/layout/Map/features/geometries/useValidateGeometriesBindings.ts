@@ -10,7 +10,7 @@ export function useValidateGeometriesBindings(baseComponentId: string, bindings:
   const { geometries, geometryLabel, geometryData, geometryIsEditable } = bindings ?? {};
   const lookupBinding = DataModels.useLookupBinding();
   const layoutLookups = useLayoutLookups();
-  const toolbar = useExternalItem(baseComponentId, 'Map').toolbar;
+  const toolbar = useExternalItem(baseComponentId, 'Map')?.toolbar;
 
   const errors: string[] = [];
   if (!geometries) {
