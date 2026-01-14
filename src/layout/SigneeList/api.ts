@@ -36,7 +36,7 @@ export const signingQueries = {
   signeeList: (partyId: string | undefined, instanceGuid: string | undefined, taskId: string | undefined) =>
     queryOptions({
       queryKey: [...signingQueries.all, 'signeeList', partyId, instanceGuid, taskId],
-      queryFn: partyId && instanceGuid && taskId ? () => fetchSigneeList(partyId, instanceGuid, taskId) : skipToken,
+      queryFn: partyId && instanceGuid ? () => fetchSigneeList(partyId, instanceGuid, taskId) : skipToken,
       refetchInterval: 1000 * 60, // 1 minute
       refetchOnMount: 'always',
     }),
