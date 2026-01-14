@@ -14,6 +14,7 @@ export const selectedPartyUrl = `${appPath}/api/authorization/parties/current?re
 export const instancesControllerUrl = `${appPath}/instances`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
 export const applicationLanguagesUrl = `${appPath}/api/v1/applicationlanguages`;
+export const postalCodesUrl = 'https://olemartin.org/postnummerregister/';
 
 export const getInstantiateUrl = (language?: string) => {
   const queryString = getQueryStringFromObject({ language });
