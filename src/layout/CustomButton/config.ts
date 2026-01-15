@@ -85,4 +85,11 @@ export const Config = new CG.component({
         .exportAs('CustomButtonSize'),
     ),
   )
-  .addTextResource(new CG.trb({ name: 'title', title: 'Title', description: 'The title/text on the button' }));
+  .addTextResource(new CG.trb({ name: 'title', title: 'Title', description: 'The title/text on the button' }))
+  .addTextResource(
+    new CG.trb({
+      name: 'tableTitle',
+      title: 'Table title',
+      description: 'The title/text for the button when rendered in a table',
+    }),
+  );
