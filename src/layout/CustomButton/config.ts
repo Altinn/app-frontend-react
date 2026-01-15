@@ -58,7 +58,7 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'buttonStyle',
-      new CG.enum('primary', 'secondary')
+      new CG.enum('primary', 'secondary', 'tertiary')
         .setTitle('Button style')
         .setDescription('The style/color scheme of the button.')
         .optional({ default: 'secondary' })
