@@ -278,3 +278,8 @@ export type IAuthContext = {
   read: boolean;
   write: boolean;
 } & { [action in IActionType]: boolean };
+
+export interface PostalCodesRegistry {
+  places: (string | null)[];
+  mapping: number[];
+}

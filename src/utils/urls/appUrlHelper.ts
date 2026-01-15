@@ -17,6 +17,7 @@ export const validPartiesUrl = `${appPath}/api/v1/parties?allowedtoinstantiatefi
 export const currentPartyUrl = `${appPath}/api/authorization/parties/current?returnPartyObject=true`;
 export const instancesControllerUrl = `${appPath}/instances`;
 export const refreshJwtTokenUrl = `${appPath}/api/authentication/keepAlive`;
+export const postalCodesUrl = 'https://olemartin.org/postnummerregister/';
 
 export const updateCookieUrl = (partyId: string) => `${appPath}/api/v1/parties/${partyId}`;
 

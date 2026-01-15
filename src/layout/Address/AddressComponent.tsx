@@ -1,14 +1,13 @@
 import React from 'react';
 
 import { LegacyTextField } from '@digdir/design-system-react';
-import axios from 'axios';
 
 import { Label } from 'src/components/form/Label';
 import { useDelayedSavedState } from 'src/hooks/useDelayedSavedState';
 import { useLanguage } from 'src/hooks/useLanguage';
 import { useStateDeepEqual } from 'src/hooks/useStateDeepEqual';
 import classes from 'src/layout/Address/AddressComponent.module.css';
-import { httpGet } from 'src/utils/network/sharedNetworking';
+import { usePostPlace } from 'src/layout/Address/usePostPlace';
 import { renderValidationMessagesForComponent } from 'src/utils/render';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IComponentValidations } from 'src/utils/validation/types';
@@ -31,9 +30,6 @@ export enum AddressKeys {
 }
 
 export function AddressComponent({ formData, handleDataChange, componentValidations, node }: IAddressComponentProps) {
-  // eslint-disable-next-line import/no-named-as-default-member
-  const cancelToken = axios.CancelToken;
-  const source = cancelToken.source();
   const { id, required, readOnly, labelSettings, simplified, saveWhileTyping } = node.item;
   const { lang, langAsString } = useLanguage();
 
@@ -73,8 +69,9 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
   );
 
   const [validations, setValidations] = useStateDeepEqual<IAddressValidationErrors>({});
-  const prevZipCode = React.useRef<string | undefined>(undefined);
-  const hasFetchedPostPlace = React.useRef<boolean>(false);
+  const isValidZipCode = formData.zipCode?.match(/^\d{4}$/);
+  const postPlaceFromHook = usePostPlace(isValidZipCode ? formData.zipCode : undefined, true);
+  const hasLookedUp = React.useRef<boolean>(false);
 
   const validate = React.useCallback(() => {
     const validationErrors: IAddressValidationErrors = {};
@@ -108,54 +105,39 @@ export function AddressComponent({ formData, handleDataChange, componentValidati
   );
 
   React.useEffect(() => {
-    if (!formData.zipCode || !formData.zipCode.match(/^\d{4}$/)) {
-      setPostPlace('');
-      return;
-    }
-
-    if (prevZipCode.current === formData.zipCode && hasFetchedPostPlace.current === true) {
-      return;
-    }
-
-    const fetchPostPlace = async (pnr: string, cancellationToken: any) => {
-      hasFetchedPostPlace.current = false;
-      try {
-        prevZipCode.current = formData.zipCode;
-        const response = await httpGet('https://api.bring.com/shippingguide/api/postalCode.json', {
-          params: {
-            clientUrl: window.location.href,
-            pnr,
-          },
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          cancelToken: cancellationToken,
-        });
-        if (response.valid) {
-          setPostPlace(response.result);
-          setValidations({ ...validations, zipCode: undefined });
-          onSaveField(AddressKeys.postPlace, response.result);
-        } else {
-          const errorMessage = langAsString('address_component.validation_error_zipcode');
-          setPostPlace('');
-          setValidations({ ...validations, zipCode: errorMessage });
-        }
-        hasFetchedPostPlace.current = true;
-      } catch (err) {
-        // eslint-disable-next-line import/no-named-as-default-member
-        if (axios.isCancel(err)) {
-          // Intentionally ignored
-        } else {
-          window.logError(`AddressComponent (${id}):\n`, err);
-        }
+    if (!formData.zipCode || !isValidZipCode) {
+      if (postPlace !== '') {
+        setPostPlace('');
       }
-    };
+      hasLookedUp.current = false;
+      return;
+    }
 
-    fetchPostPlace(formData.zipCode, source.token);
-    return function cleanup() {
-      source.cancel('ComponentWillUnmount');
-    };
-  }, [formData.zipCode, langAsString, source, onSaveField, validations, setPostPlace, id, setValidations]);
+    if (postPlaceFromHook) {
+      setPostPlace(postPlaceFromHook);
+      setValidations({ ...validations, zipCode: undefined });
+      handleDataChange(postPlaceFromHook, { key: AddressKeys.postPlace });
+      hasLookedUp.current = true;
+    } else if (hasLookedUp.current || postPlaceFromHook === '') {
+      // If we've looked up before and got empty result, or hook returned empty string for valid format
+      // This means the zip code format is valid but doesn't exist in the registry
+      if (postPlaceFromHook === '' && hasLookedUp.current) {
+        const errorMessage = langAsString('address_component.validation_error_zipcode');
+        setPostPlace('');
+        setValidations({ ...validations, zipCode: errorMessage });
+      }
+    }
+  }, [
+    formData.zipCode,
+    isValidZipCode,
+    postPlaceFromHook,
+    postPlace,
+    setPostPlace,
+    handleDataChange,
+    langAsString,
+    setValidations,
+    validations,
+  ]);
 
   const updateField = (key: AddressKeys, saveImmediately: boolean, event: any): void => {
     const changedFieldValue: string = event.target.value;

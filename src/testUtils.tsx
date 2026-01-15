@@ -50,6 +50,16 @@ export const renderWithProviders = (
       fetchParties: () => Promise.resolve({}),
       fetchRefreshJwtToken: () => Promise.resolve({}),
       fetchFormData: () => Promise.resolve({}),
+      fetchPostalCodes: () =>
+        Promise.resolve({
+          places: [null, 'OSLO', 'BERGEN'],
+          mapping: (() => {
+            const m = new Array(10000).fill(0);
+            m[1] = 1; // 0001 -> OSLO
+            m[2] = 2; // 0002 -> BERGEN
+            return m;
+          })(),
+        }),
     } as AppQueriesContext;
     const mockedQueries = { ...allMockedQueries, ...queries };
 
