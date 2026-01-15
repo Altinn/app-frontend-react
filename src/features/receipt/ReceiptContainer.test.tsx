@@ -247,7 +247,7 @@ describe('ReceiptContainer', () => {
 
     expect(
       screen.getByRole('link', {
-        name: /Kopi av din kvittering er sendt til ditt arkiv/i,
+        name: /Din kvittering er lagret og tilgjengelig i din innboks/i,
       }),
     ).toBeInTheDocument();
 
@@ -271,7 +271,7 @@ describe('ReceiptContainer', () => {
 
     expect(
       screen.getByRole('link', {
-        name: /Kopi av din kvittering er sendt til ditt arkiv/i,
+        name: /Din kvittering er lagret og tilgjengelig i din innboks/i,
       }),
     ).toBeInTheDocument();
 
