@@ -54,4 +54,5 @@ export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7>
 
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);
 
-export const fetchPostalCodes = (): Promise<PostalCodesRegistry> => httpGet(postalCodesUrl);
+export const fetchPostalCodes = async (): Promise<PostalCodesRegistry> =>
+  (await fetch(postalCodesUrl, { referrerPolicy: 'no-referrer' })).json();

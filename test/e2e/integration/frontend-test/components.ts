@@ -175,7 +175,6 @@ describe('UI Components', () => {
     cy.get(appFrontend.changeOfName.address.zip_code).type('4609');
     cy.get(appFrontend.changeOfName.address.zip_code).blur();
     cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'KARDEMOMME BY');
-    cy.get('@zipCodeApi').its('request.url').should('include', '0123');
   });
 
   it('radios, checkboxes and other components can be readOnly', () => {
