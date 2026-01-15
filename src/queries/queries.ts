@@ -12,6 +12,7 @@ import {
   getJsonSchemaUrl,
   getLayoutSetsUrl,
   getPartyValidationUrl,
+  postalCodesUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   validPartiesUrl,
@@ -20,7 +21,7 @@ import { orgsListUrl } from 'src/utils/urls/urlHelper';
 import type { IApplicationMetadata } from 'src/features/applicationMetadata';
 import type { IFooterLayout } from 'src/features/footer/types';
 import type { ILayoutSets, ISimpleInstance } from 'src/types';
-import type { IAltinnOrgs, IApplicationSettings, IProfile } from 'src/types/shared';
+import type { IAltinnOrgs, IApplicationSettings, IProfile, PostalCodesRegistry } from 'src/types/shared';
 
 export const doPartyValidation = async (partyId: string) => (await httpPost(getPartyValidationUrl(partyId))).data;
 
@@ -52,3 +53,6 @@ export const fetchDataModelSchema = (dataTypeName: string): Promise<JSONSchema7>
   httpGet(getJsonSchemaUrl() + dataTypeName);
 
 export const fetchFormData = (url: string, options?: AxiosRequestConfig): Promise<any> => httpGet(url, options);
+
+export const fetchPostalCodes = async (): Promise<PostalCodesRegistry> =>
+  (await fetch(postalCodesUrl, { referrerPolicy: 'no-referrer' })).json();

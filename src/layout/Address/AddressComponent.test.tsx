@@ -2,7 +2,6 @@ import React from 'react';
 
 import { act, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import mockAxios from 'jest-mock-axios';
 
 import { AddressComponent } from 'src/layout/Address/AddressComponent';
 import { renderGenericComponentTest } from 'src/testUtils';
@@ -229,16 +228,7 @@ describe('AddressComponent', () => {
       },
     });
 
-    mockAxios.mockResponseFor(
-      { url: 'https://api.bring.com/shippingguide/api/postalCode.json' },
-      {
-        data: {
-          valid: true,
-          result: 'OSLO',
-        },
-      },
-    );
-
+    // The postal codes mock from testUtils.tsx has 0001 -> OSLO
     await screen.findByDisplayValue('OSLO');
 
     expect(handleDataChange).toHaveBeenCalledWith('OSLO', { key: 'postPlace' });
