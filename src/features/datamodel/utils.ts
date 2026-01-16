@@ -2,6 +2,14 @@ import { isDataModelReference } from 'src/utils/databindings';
 import type { ApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { ILayouts } from 'src/layout/layout';
 
+export class MissingDefaultDataTypeException extends Error {
+  constructor() {
+    super(
+      'Could not find a default data type for the current layout set, verify it is correctly defined in `layout-sets.json` and `applicationmetadata.json`.',
+    );
+  }
+}
+
 export class MissingDataTypeException extends Error {
   public readonly dataType: string;
 
@@ -39,12 +47,10 @@ export class MissingDataElementException extends Error {
  * Looks through all layouts and returns a list of unique data types that are referenced in dataModelBindings,
  * it will also include the default data type, which is necessary in case there are string bindings
  */
-export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType?: string) {
+export function getAllReferencedDataTypes(layouts: ILayouts, defaultDataType: string) {
   const dataTypes = new Set<string>();
 
-  if (defaultDataType) {
-    dataTypes.add(defaultDataType);
-  }
+  dataTypes.add(defaultDataType);
 
   for (const layout of Object.values(layouts)) {
     for (const component of layout ?? []) {
