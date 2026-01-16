@@ -10,9 +10,11 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PdfWrapper';
 import { AttachmentFileName } from 'src/layout/FileUpload/FileUploadTable/AttachmentFileName';
+import { AttachmentThumbnail } from 'src/layout/FileUpload/FileUploadTable/AttachmentThumbnail';
 import { FileTableButtons } from 'src/layout/FileUpload/FileUploadTable/FileTableButtons';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableRow.module.css';
 import { useFileTableRow } from 'src/layout/FileUpload/FileUploadTable/FileTableRowContext';
+import { ThumbnailPreviewModal } from 'src/layout/FileUpload/FileUploadTable/ThumbnailPreviewModal';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
@@ -25,6 +27,7 @@ interface IFileUploadTableRowProps {
   baseComponentId: string;
   tagLabel: string | undefined;
   isSummary?: boolean;
+  hasImages?: boolean;
 }
 
 export function FileTableRow({
@@ -33,12 +36,14 @@ export function FileTableRow({
   mobileView,
   tagLabel,
   isSummary,
+  hasImages,
 }: IFileUploadTableRowProps) {
   const { langAsString } = useLanguage();
   const component = useExternalItem(baseComponentId);
   const hasTag = component?.type === 'FileUploadWithTag';
   const pdfModeActive = usePdfModeActive();
   const readableSize = getSizeWithUnit(attachment.data.size, 2);
+  const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
 
   const hasOverriddenTaskId = Boolean(useTaskOverrides()?.taskId);
 
@@ -63,6 +68,15 @@ export function FileTableRow({
     }
   };
 
+  const handleThumbnailClick = () => {
+    if (isAttachmentUploaded(attachment)) {
+      const link = attachment.data.metadata?.find((meta) => meta.key === 'thumbnailLink')?.value;
+      if (link) {
+        setIsPreviewOpen(true);
+      }
+    }
+  };
+
   const status = getStatusFromScanResult();
 
   const rowStyle =
@@ -71,47 +85,65 @@ export function FileTableRow({
       : classes.blueUnderlineDotted;
 
   return (
-    <tr
-      key={uniqueId}
-      className={rowStyle}
-      id={`altinn-file-list-row-${uniqueId}`}
-      tabIndex={0}
-      style={hasOverriddenTaskId ? { padding: '8px 0' } : {}}
-    >
-      <NameCell
-        attachment={attachment}
-        mobileView={mobileView}
-        readableSize={readableSize}
-        hasTag={hasTag}
-        uploadStatus={status}
-        tagLabel={tagLabel}
-      />
-      {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
-      {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
-        <StatusCellContent
-          status={status}
-          uploaded={attachment.uploaded}
-          scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
-        />
-      )}
-
-      {!isSummary && (
-        <ButtonCellContent
-          baseComponentId={baseComponentId}
+    <>
+      <tr
+        key={uniqueId}
+        className={rowStyle}
+        id={`altinn-file-list-row-${uniqueId}`}
+        tabIndex={0}
+        style={hasOverriddenTaskId ? { padding: '8px 0' } : {}}
+      >
+        <NameCell
           attachment={attachment}
-          deleting={attachment.deleting}
           mobileView={mobileView}
+          readableSize={readableSize}
+          hasTag={hasTag}
+          uploadStatus={status}
+          tagLabel={tagLabel}
         />
-      )}
-      {isSummary && !pdfModeActive && (
-        <td>
-          <EditButton
-            className={classes.marginLeftAuto}
-            targetBaseComponentId={baseComponentId}
+        {!mobileView && <td>{readableSize}</td>}
+        {hasTag && !mobileView && <FileTypeCell tagLabel={tagLabel} />}
+        {!(hasTag && mobileView) && !pdfModeActive && !mobileView && (
+          <StatusCellContent
+            status={status}
+            uploaded={attachment.uploaded}
+            scanResult={attachment.uploaded ? attachment.data.fileScanResult : undefined}
           />
-        </td>
-      )}
-    </tr>
+        )}
+        {hasImages && !pdfModeActive && (
+          <td>
+            <AttachmentThumbnail
+              attachment={attachment}
+              mobileView={mobileView}
+              onThumbnailClick={handleThumbnailClick}
+            />
+          </td>
+        )}
+        {!isSummary && (
+          <ButtonCellContent
+            baseComponentId={baseComponentId}
+            attachment={attachment}
+            deleting={attachment.deleting}
+            mobileView={mobileView}
+          />
+        )}
+        {isSummary && !pdfModeActive && (
+          <td>
+            <EditButton
+              className={classes.marginLeftAuto}
+              targetBaseComponentId={baseComponentId}
+            />
+          </td>
+        )}
+      </tr>
+      <ThumbnailPreviewModal
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
+        attachment={attachment}
+        fileName={isAttachmentUploaded(attachment) ? (attachment.data.filename ?? '') : ''}
+        mobileView={mobileView}
+      />
+    </>
   );
 }
 
@@ -133,46 +165,43 @@ const NameCell = ({
   const { langAsString } = useLanguage();
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
   return (
-    <>
-      <td>
-        <div style={{ minWidth: '0px' }}>
-          <AttachmentFileName
-            attachment={attachment}
-            mobileView={mobileView}
-          />
-          {mobileView && (
-            <div
-              style={{
-                color: AltinnPalette.grey,
-              }}
-            >
-              {attachment.uploaded ? (
-                <div>
-                  {tagLabel && mobileView && (
-                    <div>
-                      <Lang id={tagLabel} />
-                    </div>
-                  )}
-                  {`${readableSize} ${mobileView ? uploadStatus : ''}`}
-                  {hasTag && !mobileView && (
-                    <div data-testid='status-success'>
-                      <Lang id='form_filler.file_uploader_list_status_done' />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <AltinnLoader
-                  id={`attachment-loader-upload-${uniqueId}`}
-                  className={classes.altinnLoader}
-                  srContent={langAsString('general.loading')}
-                />
-              )}
-            </div>
-          )}
-        </div>
-      </td>
-      {!mobileView ? <td>{readableSize}</td> : null}
-    </>
+    <td>
+      <div style={{ minWidth: '0px' }}>
+        <AttachmentFileName
+          attachment={attachment}
+          mobileView={mobileView}
+        />
+        {mobileView && (
+          <div
+            style={{
+              color: AltinnPalette.grey,
+            }}
+          >
+            {attachment.uploaded ? (
+              <div>
+                {tagLabel && mobileView && (
+                  <div>
+                    <Lang id={tagLabel} />
+                  </div>
+                )}
+                {`${readableSize} ${mobileView ? uploadStatus : ''}`}
+                {hasTag && !mobileView && (
+                  <div data-testid='status-success'>
+                    <Lang id='form_filler.file_uploader_list_status_done' />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <AltinnLoader
+                id={`attachment-loader-upload-${uniqueId}`}
+                className={classes.altinnLoader}
+                srContent={langAsString('general.loading')}
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </td>
   );
 };
 
