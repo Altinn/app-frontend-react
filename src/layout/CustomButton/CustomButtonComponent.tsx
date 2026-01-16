@@ -175,6 +175,7 @@ function useHandleServerActionMutationFn(acquireLock: FormDataLocking) {
 export const buttonStyles: { [style in CBTypes.ButtonStyle]: { color: ButtonColor; variant: ButtonVariant } } = {
   primary: { variant: 'primary', color: 'success' },
   secondary: { variant: 'secondary', color: 'first' },
+  tertiary: { variant: 'tertiary', color: 'second' },
 };
 
 function toShorthandSize(size?: CBTypes.CustomButtonSize): 'sm' | 'md' | 'lg' {
@@ -193,7 +194,10 @@ function toShorthandSize(size?: CBTypes.CustomButtonSize): 'sm' | 'md' | 'lg' {
   }
 }
 
-export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericComponent<'CustomButton'>) => {
+export const CustomButtonComponent = ({
+  baseComponentId,
+  overrideDisplay,
+}: PropsFromGenericComponent<'CustomButton'>) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useItemWhenType(
     baseComponentId,
     'CustomButton',
@@ -228,7 +232,11 @@ export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericCompo
     interceptedButtonStyle = 'primary';
   }
 
-  let buttonText = textResourceBindings?.title;
+  const isInTable = overrideDisplay?.renderedInTable === true;
+
+  let buttonText = isInTable
+    ? (textResourceBindings?.tableTitle ?? textResourceBindings?.title)
+    : textResourceBindings?.title;
   if (isSubformCloseButton && !buttonText) {
     buttonText = 'general.done';
   }
