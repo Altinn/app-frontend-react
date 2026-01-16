@@ -343,15 +343,14 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
  */
 function useIsInTaskTransition() {
   const currentTask = useProcessQuery().data?.currentTask?.elementId;
-  const taskIdFromUrl = useNavigationParam('taskId') ?? '';
-  const taskId = currentTask;
+  const taskIdFromUrl = useNavigationParam('taskId');
 
   if ([TaskKeys.ProcessEnd, TaskKeys.CustomReceipt].includes(taskIdFromUrl as TaskKeys) && !currentTask) {
     // Receipt indicates that the process ended - it cannot be compared directly with the taskId
     return false;
   }
 
-  return taskId !== taskIdFromUrl;
+  return currentTask !== taskIdFromUrl;
 }
 
 function AutoCommit({ registry }: { registry: RefObject<Registry> }) {
