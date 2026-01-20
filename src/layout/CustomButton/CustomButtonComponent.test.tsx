@@ -6,7 +6,6 @@ import { screen } from '@testing-library/react';
 import { CustomButtonComponent } from 'src/layout/CustomButton/CustomButtonComponent';
 import { fetchProcessState } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
-import type { PropsFromGenericComponent } from 'src/layout';
 import type { CustomAction } from 'src/layout/CustomButton/config.generated';
 import type { IUserAction } from 'src/types/shared';
 
@@ -118,46 +117,14 @@ describe('CustomButtonComponent', () => {
 
     expect(screen.getByRole('button')).not.toBeDisabled();
   });
-
-  it('uses tableTitle when rendered in a table', async () => {
-    await render({
-      actions: [{ id: 'nextPage', type: 'ClientAction' }],
-      textResourceBindingsOverride: {
-        title: 'Custom button',
-        tableTitle: 'Custom table button',
-      },
-      overrideDisplay: { renderedInTable: true },
-    });
-    expect(screen.getByRole('button', { name: 'Custom table button' })).toBeInTheDocument();
-  });
-
-  it('falls back to title when tableTitle is missing in a table', async () => {
-    await render({
-      actions: [{ id: 'nextPage', type: 'ClientAction' }],
-      textResourceBindingsOverride: {
-        title: 'Custom button',
-      },
-      overrideDisplay: { renderedInTable: true },
-    });
-    expect(screen.getByRole('button', { name: 'Custom button' })).toBeInTheDocument();
-  });
 });
 
 type RenderProps = {
   actions?: CustomAction[];
   actionAuthorization?: IUserAction[];
-  textResourceBindingsOverride?: {
-    title?: string;
-    tableTitle?: string;
-  };
-  overrideDisplay?: PropsFromGenericComponent<'CustomButton'>['overrideDisplay'];
 };
 
-async function render(
-  { actions, actionAuthorization, textResourceBindingsOverride, overrideDisplay }: RenderProps = {
-    actionAuthorization: [],
-  },
-) {
+async function render({ actions, actionAuthorization }: RenderProps = { actionAuthorization: [] }) {
   jest.mocked(fetchProcessState).mockImplementation(async () => ({
     started: '2024-01-03T06:52:49.716640678Z',
     ended: null,
@@ -202,12 +169,8 @@ async function render(
     component: {
       textResourceBindings: {
         title: 'Custom button',
-        ...textResourceBindingsOverride,
       },
-      actions: actions ?? [],
-    },
-    genericProps: {
-      overrideDisplay,
+      actions,
     },
   });
 }

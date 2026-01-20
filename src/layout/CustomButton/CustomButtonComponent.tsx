@@ -194,10 +194,7 @@ function toShorthandSize(size?: CBTypes.CustomButtonSize): 'sm' | 'md' | 'lg' {
   }
 }
 
-export const CustomButtonComponent = ({
-  baseComponentId,
-  overrideDisplay,
-}: PropsFromGenericComponent<'CustomButton'>) => {
+export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericComponent<'CustomButton'>) => {
   const { textResourceBindings, actions, id, buttonColor, buttonSize, buttonStyle } = useItemWhenType(
     baseComponentId,
     'CustomButton',
@@ -232,11 +229,7 @@ export const CustomButtonComponent = ({
     interceptedButtonStyle = 'primary';
   }
 
-  const isInTable = overrideDisplay?.renderedInTable === true;
-
-  let buttonText = isInTable
-    ? (textResourceBindings?.tableTitle ?? textResourceBindings?.title)
-    : textResourceBindings?.title;
+  let buttonText = textResourceBindings?.title;
   if (isSubformCloseButton && !buttonText) {
     buttonText = 'general.done';
   }
