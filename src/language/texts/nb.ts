@@ -346,7 +346,7 @@ export function nb() {
     'person_lookup.validation_error_not_found':
       'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og navn. Vennligst kontroller feltene og prøv igjen. <br> Merk: Etter 3 feilforsøk blir søkemuligheten midlertidig sperret.',
     'person_lookup.validation_error_too_many_requests':
-      'Du har nådd grensen for antall søk. Vennligst prøv igjen senere.',
+      'Du har nådd grensen for antall søk. Du har blitt utestengt fra søkefunksjonaliteten i en time. Vennligst prøv igjen senere.',
     'person_lookup.validation_error_forbidden':
       'Du har ikke tilgang til å søke på denne personen. Sikkerhetsnivå 2 eller høyere kreves.',
     'person_lookup.validation_invalid_response_from_server': 'Det oppstod en feil. Vennligst prøv igjen senere.',
