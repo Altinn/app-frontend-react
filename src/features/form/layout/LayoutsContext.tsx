@@ -25,6 +25,7 @@ export interface LayoutContextValue {
   layouts: ILayouts;
   hiddenLayoutsExpressions: IHiddenLayoutsExternal;
   expandedWidthLayouts: IExpandedWidthLayouts;
+  layoutCollection: ILayoutCollection;
 }
 
 // Also used for prefetching @see formPrefetcher.ts
@@ -113,6 +114,8 @@ export const useHiddenLayoutsExpressions = () => {
 
 export const useExpandedWidthLayouts = () => useCtx().expandedWidthLayouts;
 
+export const useLayoutCollection = () => useCtx().layoutCollection;
+
 function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModelType: string): LayoutContextValue {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
@@ -132,6 +135,7 @@ function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModel
     layouts: withQuirksFixed,
     hiddenLayoutsExpressions,
     expandedWidthLayouts,
+    layoutCollection: input,
   };
 }
 
