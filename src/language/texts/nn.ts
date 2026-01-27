@@ -342,7 +342,7 @@ export function nn() {
     'person_lookup.validation_error_name_too_short': 'Etternamn kan ikkje vere tomt.',
     'person_lookup.validation_error_ssn': 'Fødselsnummeret/D-nummeret er ugyldig.',
     'person_lookup.validation_error_not_found':
-      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. <br> Merk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
+      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. <br> Merk: Etter 3 feilforsøk blir søkemoglegheita mellombels sperra.',
     'person_lookup.validation_error_too_many_requests': 'Du har gjort for mange søk. Ver venleg, prøv igjen seinare.',
     'person_lookup.validation_error_forbidden':
       'Du har ikkje tilgang til å gjere dette søket. Sikkerheitsnivå 2 eller høgare er påkravd.',

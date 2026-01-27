@@ -344,7 +344,7 @@ export function nb() {
     'person_lookup.validation_error_name_too_short': 'Etternavn kan ikke være tomt.',
     'person_lookup.validation_error_ssn': 'Fødselsnummeret/D-nummeret er ugyldig.',
     'person_lookup.validation_error_not_found':
-      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og navn. Vennligst kontroller feltene og prøv igjen. <br> Merk: Etter 5 feilforsøk blir søkemuligheten midlertidig sperret.',
+      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og navn. Vennligst kontroller feltene og prøv igjen. <br> Merk: Etter 3 feilforsøk blir søkemuligheten midlertidig sperret.',
     'person_lookup.validation_error_too_many_requests':
       'Du har nådd grensen for antall søk. Vennligst prøv igjen senere.',
     'person_lookup.validation_error_forbidden':
