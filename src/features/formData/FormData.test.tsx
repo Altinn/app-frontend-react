@@ -12,7 +12,11 @@ import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplication
 import { defaultMockDataElementId } from 'src/__mocks__/getInstanceDataMock';
 import { defaultDataTypeMock, statelessDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { ApplicationMetadataProvider } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { DataModelsProvider } from 'src/features/datamodel/DataModelsProvider';
+import {
+  AllDataModelsContext,
+  DataModelsMetadataContext,
+  InitialDataContext,
+} from 'src/features/datamodel/DataModelsProvider';
 import { DynamicsProvider } from 'src/features/form/dynamics/DynamicsContext';
 import { LayoutsProvider } from 'src/features/form/layout/LayoutsContext';
 import { LayoutSetsProvider } from 'src/features/form/layoutSets/LayoutSetsProvider';
@@ -140,17 +144,21 @@ async function statelessRender(props: RenderProps) {
           <GlobalFormDataReadersProvider>
             <LayoutSetsProvider>
               <LayoutsProvider>
-                <DataModelsProvider>
-                  <LayoutSettingsProvider>
-                    <DynamicsProvider>
-                      <RulesProvider>
-                        <FormDataWriteProxyProvider value={formDataProxies}>
-                          <FormDataWriteProvider>{props.renderer}</FormDataWriteProvider>
-                        </FormDataWriteProxyProvider>
-                      </RulesProvider>
-                    </DynamicsProvider>
-                  </LayoutSettingsProvider>
-                </DataModelsProvider>
+                <AllDataModelsContext>
+                  <DataModelsMetadataContext>
+                    <InitialDataContext>
+                      <LayoutSettingsProvider>
+                        <DynamicsProvider>
+                          <RulesProvider>
+                            <FormDataWriteProxyProvider value={formDataProxies}>
+                              <FormDataWriteProvider>{props.renderer}</FormDataWriteProvider>
+                            </FormDataWriteProxyProvider>
+                          </RulesProvider>
+                        </DynamicsProvider>
+                      </LayoutSettingsProvider>
+                    </InitialDataContext>
+                  </DataModelsMetadataContext>
+                </AllDataModelsContext>
               </LayoutsProvider>
             </LayoutSetsProvider>
           </GlobalFormDataReadersProvider>
