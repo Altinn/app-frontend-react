@@ -35,9 +35,11 @@ export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps)
     geometries = geometries?.filter((g) => !g.isEditable);
   }
 
+  geometries = geometries?.filter((g) => !g.isHidden);
+
   return (
     <>
-      {geometries.map(({ altinnRowId, data, label }) => (
+      {geometries.map(({ altinnRowId, data, label, style }) => (
         <GeoJSON
           key={altinnRowId}
           data={data}
@@ -45,6 +47,7 @@ export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps)
           pointToLayer={(_, position) =>
             marker(position, { icon: markerIcon, interactive: false, draggable: false, keyboard: false })
           }
+          style={style ? JSON.parse(style) : undefined}
         >
           {label && (
             <Tooltip

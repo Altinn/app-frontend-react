@@ -48,6 +48,22 @@ export const Config = new CG.component({
             'Should point to a boolean indicating if this geometry is editable. This has no default value, geometries will not be editable if this is not specified.',
           ),
       ),
+      new CG.prop(
+        'geometryIsHidden',
+        new CG.dataModelBinding()
+          .optional()
+          .setDescription(
+            'Should point to a boolean indicating if this geometry is hidden. Geometries will be visible by default if this is not specified.',
+          ),
+      ),
+      new CG.prop(
+        'geometryStyle',
+        new CG.dataModelBinding()
+          .optional()
+          .setDescription(
+            'Should point to a string indicating the style of this geometry. Overrides the default style of the geometry.',
+          ),
+      ),
     ).exportAs('IDataModelBindingsForMap'),
   )
   .addProperty(
