@@ -41,10 +41,7 @@ export function useDocumentList(
 
       const response = await httpGet(url);
 
-      return z
-        .object({ dataElements: z.array(signingDocumentSchema) })
-        .parse(response)
-        .dataElements.toSorted((a, b) => (a.filename ?? '').localeCompare(b.filename ?? ''));
+      return z.object({ dataElements: z.array(signingDocumentSchema) }).parse(response).dataElements;
     },
     staleTime: 1000 * 60 * 30, // 30 minutes
     refetchOnMount: 'always',
