@@ -1,5 +1,7 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import type { IRawDataModelBinding } from 'src/layout/common.generated';
+
 const appFrontend = new AppFrontend();
 
 describe('fetching new data from models', () => {
@@ -26,6 +28,17 @@ describe('fetching new data from models', () => {
     cy.findAllByRole('button', { name: /lagre og lukk/i })
       .first()
       .click();
+
+    cy.changeLayout((component) => {
+      for (const _dmb of Object.values(component.dataModelBindings ?? {})) {
+        const binding = _dmb as IRawDataModelBinding;
+        if (typeof binding === 'object' && binding.dataType === 'sharedperson') {
+          // If any component starts referencing this data model, the reproduction breaks. This bug specifically relied
+          // on this data model only being references via a text resource in Task_1.
+          throw new Error('Found sharedperson data model binding in Task_1');
+        }
+      }
+    });
 
     cy.gotoNavPage('Side6');
     cy.findByRole('radio', { name: /kåre/i }).dsCheck();
