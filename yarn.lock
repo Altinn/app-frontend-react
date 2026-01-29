@@ -3346,10 +3346,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@navikt/aksel-icons@npm:7.38.0":
-  version: 7.38.0
-  resolution: "@navikt/aksel-icons@npm:7.38.0"
-  checksum: 10c0/96251a5e2921c4261aa5565a72322bdba5d69563e8886dfddc1064a18120e102f621396948338940b96c1915c6905a076ab52782de3e4f51a2f1b7cb04e8a165
+"@navikt/aksel-icons@npm:8.1.0":
+  version: 8.1.0
+  resolution: "@navikt/aksel-icons@npm:8.1.0"
+  checksum: 10c0/9715c82aa3dfbabfd2f6cea71b5ba7ebe53296a2422a7672121132a10767ad37936bc147d093d394b57d96b1477fdca123297b22b4827c0f3f56afd1994a4e06
   languageName: node
   linkType: hard
 
@@ -5677,7 +5677,7 @@ __metadata:
     "@digdir/designsystemet-theme": "npm:1.9.0"
     "@eslint/compat": "npm:2.0.1"
     "@faker-js/faker": "npm:10.2.0"
-    "@navikt/aksel-icons": "npm:7.38.0"
+    "@navikt/aksel-icons": "npm:8.1.0"
     "@percy/cli": "npm:1.31.7"
     "@percy/cypress": "npm:3.1.7"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:0.6.2"
