@@ -108,7 +108,7 @@ export const getCurrentTaskDataElementId = (props: GetCurrentTaskDataElementIdPr
   return currentTaskDataElement?.id;
 };
 
-export function getFirstDataElementId(dataElements: IData[], dataType: string) {
+export function getFirstDataElement(dataElements: IData[], dataType: string) {
   const elements = dataElements.filter((element) => element.dataType === dataType);
   if (elements.length > 1) {
     window.logWarnOnce(
@@ -117,5 +117,9 @@ export function getFirstDataElementId(dataElements: IData[], dataType: string) {
     return undefined;
   }
 
-  return elements.length > 0 ? elements[0].id : undefined;
+  return elements.length > 0 ? elements[0] : undefined;
+}
+
+export function getFirstDataElementId(dataElements: IData[], dataType: string) {
+  return getFirstDataElement(dataElements, dataType)?.id;
 }
