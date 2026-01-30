@@ -63,6 +63,7 @@ const common = {
               }),
             ),
           ),
+          new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
           new CG.prop(
             'hidden',
             new CG.expr(ExprVal.Boolean)
@@ -682,6 +683,17 @@ const common = {
           .setDescription('Which pages should be validated when the next button is clicked.'),
       ),
       new CG.prop('show', CG.common('AllowedValidationMasks')),
+      new CG.prop('preventNavigation', CG.common('PreventNavigation').optional()),
+    ),
+
+  PreventNavigation: () =>
+    new CG.obj(
+      new CG.prop(
+        'preventNavigation',
+        new CG.enum('all', 'forward')
+          .setTitle('Prevent navigation')
+          .setDescription('Which pages should be blocked from navigation when there are validation errors.'),
+      ),
     ),
 
   // Layout settings:
