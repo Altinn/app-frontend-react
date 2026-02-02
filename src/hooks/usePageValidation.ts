@@ -4,8 +4,8 @@ import { useLayoutCollection, useLayoutLookups } from 'src/features/form/layout/
 import type { ILayoutFile, PageValidation } from 'src/layout/common.generated';
 
 export function usePageValidationConfig(componentId: string): {
-  getValidationForward: () => PageValidation | undefined;
-  getValidationBackward: () => PageValidation | undefined;
+  getValidationOnNext: () => PageValidation | undefined;
+  getValidationOnPrevious: () => PageValidation | undefined;
 } {
   const layoutLookups = useLayoutLookups();
   const layoutCollection = useLayoutCollection();
@@ -13,7 +13,7 @@ export function usePageValidationConfig(componentId: string): {
   return useMemo(() => {
     const pageKey = layoutLookups.componentToPage[componentId];
     if (!pageKey) {
-      return { getValidationForward: () => undefined, getValidationBackward: () => undefined };
+      return { getValidationOnNext: () => undefined, getValidationOnPrevious: () => undefined };
     }
 
     const currentPageLayout = pageKey ? layoutCollection[pageKey] : undefined;
@@ -21,8 +21,8 @@ export function usePageValidationConfig(componentId: string): {
       ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
 
     return {
-      getValidationForward: () => validationOnNavigation,
-      getValidationBackward: () => validationOnNavigation,
+      getValidationOnNext: () => validationOnNavigation,
+      getValidationOnPrevious: () => validationOnNavigation,
     };
   }, [componentId, layoutLookups, layoutCollection]);
 }

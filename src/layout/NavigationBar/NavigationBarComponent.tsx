@@ -13,6 +13,7 @@ import { useOnPageNavigationValidation } from 'src/features/validation/callbacks
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { usePageValidationConfig } from 'src/hooks/usePageValidation';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationBar/NavigationBarComponent.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -59,6 +60,11 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
   const { performProcess, isAnyProcessing, process } = useIsProcessing<string>();
   const layoutLookups = useLayoutLookups();
 
+  const { getValidationOnNext, getValidationOnPrevious } = usePageValidationConfig(baseComponentId);
+  // Use component-level validation if set, otherwise fall back to page-level
+  const overrideValidateOnNext = validateOnForward ?? getValidationOnNext();
+  const overrideValidateOnPrevious = validateOnBackward ?? getValidationOnPrevious();
+
   const firstPageLink = React.useRef<HTMLButtonElement>(undefined);
 
   const handleNavigationClick = (pageId: string) =>
@@ -77,12 +83,16 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
 
       await maybeSaveOnPageChange();
 
-      if (isForward && validateOnForward && (await onPageNavigationValidation(pageKey, validateOnForward))) {
+      if (isForward && overrideValidateOnNext && (await onPageNavigationValidation(pageKey, overrideValidateOnNext))) {
         // Block navigation if validation fails
         return;
       }
 
-      if (isBackward && validateOnBackward && (await onPageNavigationValidation(pageKey, validateOnBackward))) {
+      if (
+        isBackward &&
+        overrideValidateOnPrevious &&
+        (await onPageNavigationValidation(pageKey, overrideValidateOnPrevious))
+      ) {
         // Block navigation if validation fails
         return;
       }

@@ -71,11 +71,11 @@ function NavigationButtonsComponentInner({
     'NavigationButtons',
   );
 
-  const { getValidationForward, getValidationBackward } = usePageValidationConfig(baseComponentId);
-
+  const { getValidationOnNext, getValidationOnPrevious } = usePageValidationConfig(baseComponentId);
   // Use component-level validation if set, otherwise fall back to page-level
-  const overrideValidateOnNext = validateOnNext ?? getValidationForward();
-  const overrideValidateOnPrevious = validateOnPrevious ?? getValidationBackward();
+  const overrideValidateOnNext = validateOnNext ?? getValidationOnNext();
+  const overrideValidateOnPrevious = validateOnPrevious ?? getValidationOnPrevious();
+
   const { navigateToNextPage, navigateToPreviousPage, navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
   const hasNext = !!useNextPageKey();
   const hasPrevious = !!usePreviousPageKey();
