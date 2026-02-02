@@ -16,7 +16,7 @@ interface RenderProps extends Omit<Partial<RenderGenericComponentTestProps<'Navi
   pageValidation?: PageValidation;
   formDataOverride?: () => Promise<Record<string, unknown>>;
   schemaOverride?: () => Promise<Record<string, unknown>>;
-  inputRequired?: boolean; // Add this to check validation scenarios on navigation
+  inputRequired?: boolean;
 }
 
 describe('NavigationButtons', () => {

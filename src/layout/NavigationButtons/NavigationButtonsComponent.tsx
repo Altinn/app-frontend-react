@@ -71,12 +71,11 @@ function NavigationButtonsComponentInner({
     'NavigationButtons',
   );
 
-  //  NEW: Get page-level validation config
   const { getValidationForward, getValidationBackward } = usePageValidationConfig(baseComponentId);
 
   // Use component-level validation if set, otherwise fall back to page-level
-  const effectiveValidateOnNext = validateOnNext ?? getValidationForward();
-  const effectiveValidateOnPrevious = validateOnPrevious ?? getValidationBackward();
+  const overrideValidateOnNext = validateOnNext ?? getValidationForward();
+  const overrideValidateOnPrevious = validateOnPrevious ?? getValidationBackward();
   const { navigateToNextPage, navigateToPreviousPage, navigateToPage, maybeSaveOnPageChange } = useNavigatePage();
   const hasNext = !!useNextPageKey();
   const hasPrevious = !!usePreviousPageKey();
@@ -120,14 +119,13 @@ function NavigationButtonsComponentInner({
       await maybeSaveOnPageChange();
 
       const prevScrollPosition = getScrollPosition();
-      if (effectiveValidateOnPrevious) {
-        // Changed from validateOnPrevious
+      if (overrideValidateOnPrevious) {
         const pageKey = layoutLookups.componentToPage[baseComponentId];
         if (!pageKey) {
           throw new Error(`Could not find page key for component ${baseComponentId}`);
         }
 
-        const hasErrors = await onPageNavigationValidation(pageKey, effectiveValidateOnPrevious);
+        const hasErrors = await onPageNavigationValidation(pageKey, overrideValidateOnPrevious);
         if (hasErrors) {
           // Block navigation if validation fails
           resetScrollPosition(prevScrollPosition);
@@ -144,13 +142,12 @@ function NavigationButtonsComponentInner({
 
       const prevScrollPosition = getScrollPosition();
 
-      if (effectiveValidateOnNext && !returnToView) {
-        // Changed from validateOnNext
+      if (overrideValidateOnNext && !returnToView) {
         const pageKey = layoutLookups.componentToPage[baseComponentId];
         if (!pageKey) {
           throw new Error(`Could not find page key for component ${baseComponentId}`);
         }
-        const hasErrors = await onPageNavigationValidation(pageKey, effectiveValidateOnNext);
+        const hasErrors = await onPageNavigationValidation(pageKey, overrideValidateOnNext);
         if (hasErrors) {
           // Block navigation if validation fails, unless returnToView is set (Back to summary)
           resetScrollPosition(prevScrollPosition);
