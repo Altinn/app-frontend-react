@@ -9,8 +9,8 @@ import { useLayoutCollection } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
-import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
+import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type { ILayoutFile } from 'src/layout/common.generated';
@@ -41,22 +41,18 @@ export function Page({
         return;
       }
 
-      const currentIndex = order.indexOf(currentPageId ?? '');
-      const newIndex = order.indexOf(page);
-
-      //Her vil vi og kunne hindre bakover hvis vi setter "all" på preventNavigation
-      const isForward = newIndex > currentIndex && currentIndex !== -1;
-
-      // Get the layout data for the current page to check for validationOnNavigation
       const currentPageLayout = currentPageId ? layoutCollection[currentPageId] : undefined;
       const validationOnNavigation = currentPageLayout?.data
         ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
 
       await maybeSaveOnPageChange();
 
-      // Check validation if navigating forward and validationOnNavigation is configured
-      if (isForward && validationOnNavigation && currentPageId) {
-        const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation);
+      if (validationOnNavigation && currentPageId) {
+        const currentIndex = order.indexOf(currentPageId);
+        const targetIndex = order.indexOf(page);
+        const direction = targetIndex > currentIndex ? 'forward' : 'previous';
+
+        const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation, direction);
         if (hasValidationErrors) {
           // Block navigation if validation fails
           return;

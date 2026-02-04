@@ -16,13 +16,15 @@ import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsSubformPage, useNavigationParam } from 'src/hooks/navigation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useNavigatePage, usePageOrder } from 'src/hooks/useNavigatePage';
+import { usePageValidationConfig } from 'src/hooks/usePageValidation';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import { isSpecificClientAction } from 'src/layout/CustomButton/typeHelpers';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { ButtonColor, ButtonVariant } from 'src/app-components/Button/Button';
 import type { BackendValidationIssueGroups } from 'src/features/validation';
 import type { PropsFromGenericComponent } from 'src/layout';
+import type { PageValidation } from 'src/layout/common.generated';
 import type * as CBTypes from 'src/layout/CustomButton/config.generated';
 import type { ClientActionHandlers } from 'src/layout/CustomButton/typeHelpers';
 import type { IInstance } from 'src/types/shared';
@@ -209,6 +211,9 @@ export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericCompo
   const onPageNavigationValidation = useOnPageNavigationValidation();
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
   const layoutLookups = useLayoutLookups();
+  const pageOrder = usePageOrder();
+  const currentPageId = useNavigationParam('pageKey');
+  const { getValidationOnNext, getValidationOnPrevious } = usePageValidationConfig(baseComponentId);
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -246,17 +251,35 @@ export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericCompo
   const onClick = () =>
     performProcess(async () => {
       for (const action of actions) {
-        if (action.validation) {
-          const prevScrollPosition = getScrollPosition();
-          const page = layoutLookups.componentToPage[baseComponentId];
-          if (!page) {
-            throw new Error('Could not find page for component');
+        let validation: PageValidation | undefined;
+        let direction: string | undefined;
+        if (isClientAction(action)) {
+          if (action.id === 'previousPage') {
+            direction = 'previous';
+            validation = action.validation ?? getValidationOnPrevious();
+          } else if (action.id === 'nextPage') {
+            direction = 'forward';
+            validation = action.validation ?? getValidationOnNext();
+          } else if (action.id === 'navigateToPage' && action.metadata?.page && currentPageId) {
+            const currentIndex = pageOrder.indexOf(currentPageId);
+            const targetIndex = pageOrder.indexOf(action.metadata.page);
+            direction = currentIndex > targetIndex ? 'previous' : 'forward';
+            validation =
+              action.validation ?? (direction === 'forward' ? getValidationOnNext() : getValidationOnPrevious());
           }
 
-          const hasErrors = await onPageNavigationValidation(page, action.validation);
-          if (hasErrors) {
-            resetScrollPosition(prevScrollPosition);
-            return;
+          if (validation && direction) {
+            const prevScrollPosition = getScrollPosition();
+            const page = layoutLookups.componentToPage[baseComponentId];
+            if (!page) {
+              throw new Error('Could not find page for component');
+            }
+
+            const hasErrors = await onPageNavigationValidation(page, validation, direction);
+            if (hasErrors) {
+              resetScrollPosition(prevScrollPosition);
+              return;
+            }
           }
         }
 

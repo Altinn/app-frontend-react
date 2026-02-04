@@ -20,9 +20,17 @@ export function usePageValidationConfig(componentId: string): {
     const validationOnNavigation = currentPageLayout?.data
       ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
 
+    const getValidation = (direction: string) => {
+      const prevent = validationOnNavigation?.preventNavigation;
+      if (!prevent || prevent === 'all' || prevent === direction) {
+        return validationOnNavigation;
+      }
+      return undefined;
+    };
+
     return {
-      getValidationOnNext: () => validationOnNavigation,
-      getValidationOnPrevious: () => validationOnNavigation,
+      getValidationOnNext: () => getValidation('forward'),
+      getValidationOnPrevious: () => getValidation('previous'),
     };
   }, [componentId, layoutLookups, layoutCollection]);
 }

@@ -62,8 +62,8 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
 
   const { getValidationOnNext, getValidationOnPrevious } = usePageValidationConfig(baseComponentId);
   // Use component-level validation if set, otherwise fall back to page-level
-  const overrideValidateOnNext = validateOnForward ?? getValidationOnNext();
-  const overrideValidateOnPrevious = validateOnBackward ?? getValidationOnPrevious();
+  const validationOnForward = validateOnForward ?? getValidationOnNext();
+  const validationOnBackward = validateOnBackward ?? getValidationOnPrevious();
 
   const firstPageLink = React.useRef<HTMLButtonElement>(undefined);
 
@@ -83,15 +83,19 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
 
       await maybeSaveOnPageChange();
 
-      if (isForward && overrideValidateOnNext && (await onPageNavigationValidation(pageKey, overrideValidateOnNext))) {
+      if (
+        isForward &&
+        validationOnForward &&
+        (await onPageNavigationValidation(pageKey, validationOnForward, 'forward'))
+      ) {
         // Block navigation if validation fails
         return;
       }
 
       if (
         isBackward &&
-        overrideValidateOnPrevious &&
-        (await onPageNavigationValidation(pageKey, overrideValidateOnPrevious))
+        validationOnBackward &&
+        (await onPageNavigationValidation(pageKey, validationOnBackward, 'previous'))
       ) {
         // Block navigation if validation fails
         return;
