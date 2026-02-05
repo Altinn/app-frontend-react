@@ -63,7 +63,6 @@ const common = {
               }),
             ),
           ),
-          new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
           new CG.prop(
             'hidden',
             new CG.expr(ExprVal.Boolean)
@@ -78,6 +77,7 @@ const common = {
               .setTitle('Expanded width')
               .setDescription('Sets expanded width for pages'),
           ),
+          new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
         ),
       ),
     )
