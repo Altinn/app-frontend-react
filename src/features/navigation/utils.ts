@@ -154,7 +154,7 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
 }
 
 // Prevents navigation to a page if there are pages between the current page and the target page that have configuration
-// to prevent navigation while there are validation errors.
+// to prevent navigation while there are potential validation errors.
 export function useNavigationIsPrevented(targetPageKey: string) {
   const currentPageId = useNavigationParam('pageKey') ?? '';
   const preventNavigationIds = usePreventNavigationLayouts();
