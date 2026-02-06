@@ -503,10 +503,11 @@ describe('PDF', () => {
 
     // Wait for page to load
     cy.get('#finishedLoading').should('exist');
-    cy.waitForNetworkIdle(500);
 
-    // This should provoke an unknown error
-    cy.intercept({ method: 'GET', url: '**/data/**includeRowId=true*', times: 1 }, (req) =>
+    // This should provoke an unknown error. It used to intercept form data, but failures in loading form data from
+    // FormDataReaders (used from text resources) do not lead to errors, so this test could become flaky when that
+    // was the first request out of the gate.
+    cy.intercept({ method: 'GET', url: '**/process', times: 1 }, (req) =>
       req.reply({ statusCode: 404, body: 'Not Found' }),
     );
 
@@ -519,10 +520,6 @@ describe('PDF', () => {
       cy.visit(visitUrl);
     });
     cy.reload();
-
-    // Wait for page to load
-    cy.get('#finishedLoading').should('exist');
-    cy.waitForNetworkIdle(500);
 
     // Check that we are on the error page and that #readyForPrint is not present
     cy.findByRole('heading', { name: 'Ukjent feil' }).should('exist');
