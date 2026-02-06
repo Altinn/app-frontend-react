@@ -41,7 +41,7 @@ describe('Service task', () => {
         // a service task, so we can remove the custom layout-set here to simulate what happens in the PDF generator
         // for a PDF-generating service-task.
         const layoutSets: ILayoutSets = JSON.parse(res.body);
-        layoutSets.sets = layoutSets.sets.filter((set) => set.id !== 'Fail');
+        layoutSets.sets = layoutSets.sets.filter((set) => set.id !== 'SimulatedFailure');
         res.send(layoutSets);
       });
     }).as('LayoutSets');
@@ -86,7 +86,7 @@ function startAppAndFillToFailure() {
 
   cy.get('#subform-Subform-z8we7d-add-button').click();
   cy.get('#finishedLoading').should('exist');
-  cy.findByRole('textbox', { name: 'Subform tekstfelt' }).type('Lykkeønsker fra et underskjema');
+  cy.findByRole('textbox', { name: 'Test 1' }).type('Lykkeønsker fra et underskjema');
   cy.findByRole('button', { name: 'Ferdig' }).click();
 
   cy.findByRole('textbox', { name: 'En tekst i Task_Utfylling1' }).should(
@@ -135,7 +135,8 @@ function goBackAndAchieveSuccess() {
   cy.findByRole('button', { name: 'Neste' }).click();
 
   cy.findByText('Skjemaet er sendt inn').should('be.visible');
-  cy.findAllByRole('link', { name: /\.pdf$/ }).should('have.length', 2);
+  cy.findAllByRole('link', { name: /\.pdf$/ }).should('have.length', 3);
   cy.findByRole('link', { name: /Autogenerert PDF av Task_Utfylling1 og Task_Utfylling2\.pdf$/ }).should('be.visible');
   cy.findByRole('link', { name: /PDF basert på layout-set\.pdf$/ }).should('be.visible');
+  cy.findByRole('link', { name: /Subform pdf Lykkeønsker fra et underskjema\.pdf$/ }).should('be.visible');
 }
