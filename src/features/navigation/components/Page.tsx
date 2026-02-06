@@ -10,6 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
+import { useNavigationIsPrevented } from 'src/features/navigation/utils';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -34,6 +35,8 @@ export function Page({
   const onPageNavigationValidation = useOnPageNavigationValidation();
   const layoutCollection = useLayoutCollection();
   const { order, maybeSaveOnPageChange } = useNavigatePage();
+
+  const navigationIsPrevented = useNavigationIsPrevented(page);
 
   const handleNavigationClick = () =>
     performProcess(async () => {
@@ -66,7 +69,7 @@ export function Page({
   return (
     <li className={classes.pageListItem}>
       <button
-        disabled={isAnyProcessing}
+        disabled={isAnyProcessing || navigationIsPrevented}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
         onClick={handleNavigationClick}

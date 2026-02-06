@@ -11,10 +11,12 @@ import {
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useIsReceiptPage } from 'src/core/routing/useIsReceiptPage';
+import { usePreventNavigationLayouts } from 'src/features/form/layout/LayoutsContext';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/useProcessQuery';
 import { ValidationMask } from 'src/features/validation';
-import { useVisitedPages } from 'src/hooks/useNavigatePage';
+import { useNavigationParam } from 'src/hooks/navigation';
+import { useNavigatePage, useVisitedPages } from 'src/hooks/useNavigatePage';
 import { useHiddenPages } from 'src/utils/layout/hidden';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
@@ -149,4 +151,42 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
   }
 
   return { isCompleted, hasErrors };
+}
+
+// Prevents navigation to a page if there are pages between the current page and the target page that have configuration
+// to prevent navigation while there are potential validation errors.
+export function useNavigationIsPrevented(targetPageKey: string) {
+  const currentPageId = useNavigationParam('pageKey') ?? '';
+  const preventNavigationIds = usePreventNavigationLayouts();
+  const { order } = useNavigatePage();
+
+  const currentIndex = order.indexOf(currentPageId);
+  const targetIndex = order.indexOf(targetPageKey);
+
+  if (currentIndex === -1 || targetIndex === -1) {
+    return false;
+  }
+
+  const direction = targetIndex > currentIndex ? 'forward' : 'previous';
+
+  const [start, end] = currentIndex < targetIndex ? [currentIndex + 1, targetIndex] : [targetIndex + 1, currentIndex];
+
+  const pagesBetween = order.slice(start, end);
+
+  return pagesBetween.some((pageId) => {
+    const setting = preventNavigationIds[pageId];
+    return blocksDirection(setting, direction);
+  });
+}
+
+function blocksDirection(setting, direction) {
+  if (!setting) {
+    return false;
+  }
+
+  return (
+    setting === 'all' ||
+    (setting === 'forward' && direction === 'forward') ||
+    (setting === 'previous' && direction === 'previous')
+  );
 }
