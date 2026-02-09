@@ -1,17 +1,3 @@
-/**
- * Fast expression test harness that builds ExpressionDataSources directly and calls evalExpr()
- * without React rendering overhead.
- *
- * This test file passes ~96% of the shared function tests (605/629). The failing tests are:
- * - Display value tests: These require `displayValues` to be pre-computed from component state
- *
- * The `hiddenComponents` data source is computed by evaluating hidden expressions for each
- * referenced component, following the same logic as src/utils/layout/hidden.ts.
- *
- * For full coverage, use the React-based tests in shared-functions.test.tsx.
- *
- * Run with: yarn test shared-functions-direct
- */
 import { jest } from '@jest/globals';
 import dot from 'dot-object';
 
@@ -41,106 +27,35 @@ import type { FormDataSelectorLax } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings, ILayoutCollection, ILayouts } from 'src/layout/layout';
 import type { IHiddenLayoutsExternal } from 'src/types';
-import type { IData, IInstanceDataSources, IProcess } from 'src/types/shared';
+import type { IData, IProcess } from 'src/types/shared';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
-/**
- * Convert ILayoutCollection to ILayouts and clean the layouts (rewrite string bindings to object format)
- */
-function convertAndCleanLayouts(layouts: ILayoutCollection | undefined, defaultDataType: string): ILayouts {
-  if (!layouts) {
-    return {};
-  }
+const DEFAULT_DATA_TYPE = 'default';
+
+const DEFAULT_LAYOUTS: ILayoutCollection = {
+  default: {
+    data: {
+      layout: [
+        {
+          id: 'default',
+          type: 'Input',
+          dataModelBindings: {
+            simpleBinding: { dataType: DEFAULT_DATA_TYPE, field: 'mockField' },
+          },
+        },
+      ],
+    },
+  },
+};
+
+function convertAndCleanLayouts(layouts: ILayoutCollection): ILayouts {
   const result: ILayouts = {};
   for (const [pageKey, pageData] of Object.entries(layouts)) {
-    result[pageKey] = cleanLayout(pageData.data.layout, defaultDataType);
+    result[pageKey] = cleanLayout(pageData.data.layout, DEFAULT_DATA_TYPE);
   }
   return result;
 }
 
-/**
- * Get the default layouts if none provided
- */
-function getDefaultLayouts(): ILayoutCollection {
-  return {
-    default: {
-      data: {
-        layout: [
-          {
-            id: 'default',
-            type: 'Input',
-            dataModelBindings: {
-              simpleBinding: { dataType: 'default', field: 'mockField' },
-            },
-          },
-        ],
-      },
-    },
-  };
-}
-
-/**
- * Compute the currentDataModelPath based on row indices and layout hierarchy.
- * This replicates the logic from ExpressionRunner in the React-based tests.
- */
-function computeCurrentDataModelPath(
-  context: FunctionTest['context'],
-  layoutLookups: LayoutLookups,
-): IDataModelReference | undefined {
-  if (!context?.rowIndices || context.rowIndices.length === 0) {
-    return undefined;
-  }
-
-  // Find all repeating parent components
-  const parentIds: string[] = [];
-  let currentParent = layoutLookups.componentToParent[context.component];
-  while (currentParent && currentParent.type === 'node') {
-    const parentComponent = layoutLookups.getComponent(currentParent.id);
-    if (isRepeatingComponent(parentComponent)) {
-      parentIds.push(parentComponent.id);
-    }
-    currentParent = layoutLookups.componentToParent[currentParent.id];
-  }
-
-  if (parentIds.length !== context.rowIndices.length) {
-    throw new Error(
-      `Component '${context.component}' has ${parentIds.length} repeating parent components, ` +
-        `but rowIndices contains ${context.rowIndices.length} indices.`,
-    );
-  }
-
-  const fieldSegments: string[] = [];
-  for (let level = 0; level < parentIds.length; level++) {
-    const parentId = parentIds[parentIds.length - 1 - level]; // Get outermost parent first
-    const rowIndex = context.rowIndices[level];
-    const component = layoutLookups.getComponent(parentId);
-    const bindings = component.dataModelBindings as IDataModelBindings<RepeatingComponents>;
-    const groupBinding = getRepeatingBinding(component.type as RepeatingComponents, bindings);
-    if (!groupBinding) {
-      throw new Error(`No group binding found for ${parentId}`);
-    }
-
-    const currentPath = fieldSegments.join('.');
-    let segmentName = groupBinding.field;
-    if (currentPath) {
-      const currentFieldPath = currentPath.replace(/\[\d+]/g, ''); // Remove all [index] parts
-      if (segmentName.startsWith(`${currentFieldPath}.`)) {
-        segmentName = segmentName.substring(currentFieldPath.length + 1);
-      }
-    }
-
-    fieldSegments.push(`${segmentName}[${rowIndex}]`);
-  }
-
-  return {
-    dataType: 'default',
-    field: fieldSegments.join('.'),
-  };
-}
-
-/**
- * Extract hidden page expressions from layouts
- */
 function extractHiddenPages(layouts: ILayoutCollection): IHiddenLayoutsExternal {
   const hiddenPages: IHiddenLayoutsExternal = {};
   for (const [pageKey, pageData] of Object.entries(layouts)) {
@@ -152,44 +67,11 @@ function extractHiddenPages(layouts: ILayoutCollection): IHiddenLayoutsExternal 
 }
 
 /**
- * Find all component references in an expression (recursively)
+ * Find IDs of repeating parent components for a given component
  */
-function findComponentReferences(expr: unknown): string[] {
-  const refs: string[] = [];
-  findComponentRefsRecursive(expr, refs);
-  return refs;
-}
-
-function findComponentRefsRecursive(expr: unknown, refs: string[]): void {
-  if (!Array.isArray(expr)) {
-    return;
-  }
-  if (expr[0] === 'component' && typeof expr[1] === 'string') {
-    refs.push(expr[1]);
-  }
-  if (expr[0] === 'displayValue' && typeof expr[1] === 'string') {
-    refs.push(expr[1]);
-  }
-  for (const item of expr) {
-    findComponentRefsRecursive(item, refs);
-  }
-}
-
-/**
- * Build the currentDataModelPath for a target component using the context's row indices
- */
-function buildDataModelPathForTarget(
-  targetComponentId: string,
-  contextRowIndices: number[] | undefined,
-  layoutLookups: LayoutLookups,
-): IDataModelReference | undefined {
-  if (!contextRowIndices || contextRowIndices.length === 0) {
-    return undefined;
-  }
-
-  // Find all repeating parent components of the target
+function findRepeatingParentIds(componentId: string, layoutLookups: LayoutLookups): string[] {
   const parentIds: string[] = [];
-  let currentParent = layoutLookups.componentToParent[targetComponentId];
+  let currentParent = layoutLookups.componentToParent[componentId];
   while (currentParent && currentParent.type === 'node') {
     const parentComponent = layoutLookups.getComponent(currentParent.id);
     if (isRepeatingComponent(parentComponent)) {
@@ -197,22 +79,17 @@ function buildDataModelPathForTarget(
     }
     currentParent = layoutLookups.componentToParent[currentParent.id];
   }
+  return parentIds;
+}
 
-  // If the target has no repeating parents, no data model path needed
-  if (parentIds.length === 0) {
-    return undefined;
-  }
-
-  // Use as many indices as there are repeating parents (limited by available indices)
-  const indicesToUse = contextRowIndices.slice(0, parentIds.length);
-  if (indicesToUse.length === 0) {
-    return undefined;
-  }
-
+/**
+ * Build data model field path from repeating parent bindings and row indices
+ */
+function buildFieldPath(parentIds: string[], rowIndices: number[], layoutLookups: LayoutLookups): string | undefined {
   const fieldSegments: string[] = [];
-  for (let level = 0; level < indicesToUse.length; level++) {
-    const parentId = parentIds[parentIds.length - 1 - level]; // Get outermost parent first
-    const rowIndex = indicesToUse[level];
+
+  for (let level = 0; level < rowIndices.length; level++) {
+    const parentId = parentIds[parentIds.length - 1 - level]; // Outermost parent first
     const component = layoutLookups.getComponent(parentId);
     const bindings = component.dataModelBindings as IDataModelBindings<RepeatingComponents>;
     const groupBinding = getRepeatingBinding(component.type as RepeatingComponents, bindings);
@@ -223,38 +100,88 @@ function buildDataModelPathForTarget(
     const currentPath = fieldSegments.join('.');
     let segmentName = groupBinding.field;
     if (currentPath) {
-      const currentFieldPath = currentPath.replace(/\[\d+]/g, ''); // Remove all [index] parts
+      const currentFieldPath = currentPath.replace(/\[\d+]/g, '');
       if (segmentName.startsWith(`${currentFieldPath}.`)) {
         segmentName = segmentName.substring(currentFieldPath.length + 1);
       }
     }
 
-    fieldSegments.push(`${segmentName}[${rowIndex}]`);
+    fieldSegments.push(`${segmentName}[${rowIndices[level]}]`);
   }
 
-  return {
-    dataType: 'default',
-    field: fieldSegments.join('.'),
-  };
+  return fieldSegments.join('.');
 }
 
 /**
- * Compute the hiddenComponents map for all referenced components
+ * Build data model path for a component given row indices.
+ * When requireExactMatch is true, throws if the number of indices doesn't match the number of repeating parents.
  */
+function buildDataModelPath(
+  componentId: string,
+  rowIndices: number[] | undefined,
+  layoutLookups: LayoutLookups,
+  requireExactMatch: boolean,
+): IDataModelReference | undefined {
+  if (!rowIndices || rowIndices.length === 0) {
+    return undefined;
+  }
+
+  const parentIds = findRepeatingParentIds(componentId, layoutLookups);
+  if (parentIds.length === 0) {
+    return undefined;
+  }
+
+  if (requireExactMatch && parentIds.length !== rowIndices.length) {
+    throw new Error(
+      `Component '${componentId}' has ${parentIds.length} repeating parents, but rowIndices has ${rowIndices.length} indices.`,
+    );
+  }
+
+  const indicesToUse = rowIndices.slice(0, parentIds.length);
+  const field = buildFieldPath(parentIds, indicesToUse, layoutLookups);
+  if (!field) {
+    return undefined;
+  }
+
+  return { dataType: DEFAULT_DATA_TYPE, field };
+}
+
+/**
+ * Find all component IDs referenced by 'component' or 'displayValue' functions in expressions
+ */
+function findComponentReferences(expressions: unknown[]): string[] {
+  const refs = new Set<string>();
+
+  function traverse(expr: unknown): void {
+    if (!Array.isArray(expr)) {
+      return;
+    }
+    const [fn, arg] = expr;
+    if ((fn === 'component' || fn === 'displayValue') && typeof arg === 'string') {
+      refs.add(arg);
+    }
+    for (const item of expr) {
+      traverse(item);
+    }
+  }
+
+  for (const expr of expressions) {
+    traverse(expr);
+  }
+  return [...refs];
+}
+
 function computeHiddenComponents(
   componentIds: string[],
   layoutLookups: LayoutLookups,
   hiddenPages: IHiddenLayoutsExternal,
-  contextRowIndices: number[] | undefined,
+  rowIndices: number[] | undefined,
   partialDataSources: Omit<ExpressionDataSources, 'hiddenComponents'>,
 ): Record<string, boolean | undefined> {
+  const baseDataSources: ExpressionDataSources = { ...partialDataSources, hiddenComponents: {} };
   const result: Record<string, boolean | undefined> = {};
 
-  // Use empty hiddenComponents to avoid circular dependency
-  const evalDataSources: ExpressionDataSources = { ...partialDataSources, hiddenComponents: {} };
-
   for (const componentId of componentIds) {
-    // Check if the component exists
     if (!layoutLookups.allComponents[componentId]) {
       continue;
     }
@@ -265,170 +192,144 @@ function computeHiddenComponents(
       continue;
     }
 
-    // Build the data model path for evaluating hidden expressions
-    const targetDataModelPath = buildDataModelPathForTarget(componentId, contextRowIndices, layoutLookups);
-
-    // Create data sources with the target's data model path
-    const targetDataSources: ExpressionDataSources = {
-      ...evalDataSources,
-      currentDataModelPath: targetDataModelPath,
+    const dataSources: ExpressionDataSources = {
+      ...baseDataSources,
+      currentDataModelPath: buildDataModelPath(componentId, rowIndices, layoutLookups, false),
     };
 
-    // Use the real isHidden function - pass hiddenByRules=false since tests don't use rules
-    const hiddenResult = isHidden({
+    const { hidden } = isHidden({
       hiddenSources: sources.reverse(),
-      dataSources: targetDataSources,
+      dataSources,
       hiddenByRules: false,
       pageOrder: [],
       pageKey: layoutLookups.componentToPage[componentId],
     });
 
-    result[componentId] = hiddenResult.hidden;
+    result[componentId] = hidden;
   }
 
   return result;
 }
 
-/**
- * Build an ExpressionDataSources object directly from test data,
- * without requiring React rendering.
- */
-function buildExpressionDataSources(test: FunctionTest): ExpressionDataSources {
-  const defaultDataType = 'default';
-
-  // Convert layouts to the correct format
-  const rawLayouts: ILayoutCollection = test.layouts ?? getDefaultLayouts();
-  const layouts = convertAndCleanLayouts(rawLayouts, defaultDataType);
-  const layoutLookups = makeLayoutLookups(layouts);
-
-  // Build process data
-  const process: IProcess | undefined = test.process
-    ? test.process
-    : test.permissions
-      ? getProcessDataMock((p) => {
-          for (const key of Object.keys(test.permissions!)) {
-            p.currentTask![key] = test.permissions![key];
-          }
-        })
-      : undefined;
-
-  // Build instance data sources using the same function as production code
-  const instanceDataSources: IInstanceDataSources | null = test.instance
-    ? buildInstanceDataSources(test.instance, test.instance.instanceOwner?.party)
-    : null;
-
-  // Build form data selector
-  const formDataSelector: FormDataSelectorLax = (reference: IDataModelReference) => {
-    if (test.dataModels) {
-      const model = test.dataModels.find((dm) => dm.dataElement.dataType === reference.dataType);
-      if (model) {
-        return dot.pick(reference.field, model.data);
+function buildProcess(test: FunctionTest): IProcess | undefined {
+  if (test.process) {
+    return test.process;
+  }
+  if (test.permissions) {
+    return getProcessDataMock((p) => {
+      for (const key of Object.keys(test.permissions!)) {
+        p.currentTask![key] = test.permissions![key];
       }
+    });
+  }
+  return undefined;
+}
+
+function buildFormDataSelector(test: FunctionTest): FormDataSelectorLax {
+  return (reference: IDataModelReference) => {
+    const model = test.dataModels?.find((dm) => dm.dataElement.dataType === reference.dataType);
+    if (model) {
+      return dot.pick(reference.field, model.data);
     }
-    if (test.dataModel && reference.dataType === defaultDataType) {
+    if (test.dataModel && reference.dataType === DEFAULT_DATA_TYPE) {
       return dot.pick(reference.field, test.dataModel);
     }
     return ContextNotProvided;
   };
+}
 
-  // Build data model names
-  const dataModelNames: string[] = test.dataModels ? test.dataModels.map((dm) => dm.dataElement.dataType) : ['default'];
-  if (!dataModelNames.includes('default')) {
-    dataModelNames.push('default');
+function buildDataModelNames(test: FunctionTest): string[] {
+  const names = test.dataModels?.map((dm) => dm.dataElement.dataType) ?? [];
+  if (!names.includes(DEFAULT_DATA_TYPE)) {
+    names.push(DEFAULT_DATA_TYPE);
   }
+  return names;
+}
 
-  // Build text resources map
-  const textResourcesMap: TextResourceMap = {};
-  if (test.textResources) {
-    for (const resource of test.textResources) {
-      textResourcesMap[resource.id] = {
-        value: resource.value,
-        variables: resource.variables,
-      };
-    }
+function buildTextResourcesMap(test: FunctionTest): TextResourceMap {
+  const map: TextResourceMap = {};
+  for (const resource of test.textResources ?? []) {
+    map[resource.id] = { value: resource.value, variables: resource.variables };
   }
+  return map;
+}
 
-  // Build data model readers for text resource variable resolution
+function buildDataModelReaders(test: FunctionTest): DataModelReaders {
   const readerMap: Record<string, DataModelReader> = {};
-  if (test.dataModels) {
-    for (const dm of test.dataModels) {
-      readerMap[dm.dataElement.dataType] = new DataModelReader(dm.dataElement.dataType, dm.data as object, 'loaded');
-    }
+  for (const dm of test.dataModels ?? []) {
+    readerMap[dm.dataElement.dataType] = new DataModelReader(dm.dataElement.dataType, dm.data as object, 'loaded');
   }
   if (test.dataModel) {
-    readerMap['default'] = new DataModelReader('default', test.dataModel as object, 'loaded');
+    readerMap[DEFAULT_DATA_TYPE] = new DataModelReader(DEFAULT_DATA_TYPE, test.dataModel as object, 'loaded');
   }
+  return new DataModelReaders(readerMap);
+}
 
-  const dataModelReaders = new DataModelReaders(readerMap);
+function buildDataElementSelector(test: FunctionTest): <U>(select: (data: IData[]) => U) => U | undefined {
+  return <U>(select: (data: IData[]) => U): U | undefined => {
+    const elements: IData[] = [
+      ...(test.instanceDataElements ?? []),
+      ...(test.dataModels?.map((dm) => dm.dataElement) ?? []),
+    ];
+    return elements.length > 0 ? select(elements) : undefined;
+  };
+}
 
-  // Build the text resource variable data sources
+function collectExpressions(test: FunctionTest): unknown[] {
+  const expressions: unknown[] = [test.expression];
+  for (const tc of test.testCases ?? []) {
+    expressions.push(tc.expression);
+  }
+  return expressions;
+}
+
+function buildExpressionDataSources(test: FunctionTest): ExpressionDataSources {
+  const rawLayouts = test.layouts ?? DEFAULT_LAYOUTS;
+  const layouts = convertAndCleanLayouts(rawLayouts);
+  const layoutLookups = makeLayoutLookups(layouts);
+
+  const instanceDataSources = test.instance
+    ? buildInstanceDataSources(test.instance, test.instance.instanceOwner?.party)
+    : null;
+
+  const formDataSelector = buildFormDataSelector(test);
+  const dataModelNames = buildDataModelNames(test);
+  const textResourcesMap = buildTextResourcesMap(test);
+  const dataModelReaders = buildDataModelReaders(test);
+
   const textResourceDataSources: TextResourceVariablesDataSources = {
     applicationSettings: test.frontendSettings ?? null,
     instanceDataSources,
     customTextParameters: null,
     dataModelPath: undefined,
     dataModels: dataModelReaders,
-    defaultDataType,
+    defaultDataType: DEFAULT_DATA_TYPE,
     formDataTypes: dataModelNames,
     formDataSelector: formDataSelector as unknown as TextResourceVariablesDataSources['formDataSelector'],
   };
 
-  // Build lang tools selector
   const currentLanguage = test.profileSettings?.language ?? 'nb';
   const langToolsSelector = (dataModelPath: IDataModelReference | undefined): IUseLanguage =>
-    staticUseLanguage(textResourcesMap, null, currentLanguage, {
-      ...textResourceDataSources,
-      dataModelPath,
-    });
+    staticUseLanguage(textResourcesMap, null, currentLanguage, { ...textResourceDataSources, dataModelPath });
 
-  // Build data element selector
-  const dataElementSelector = <U>(selectDataElements: (data: IData[]) => U): U | undefined => {
-    const dataElements: IData[] = [];
-    if (test.instanceDataElements) {
-      dataElements.push(...test.instanceDataElements);
-    }
-    if (test.dataModels) {
-      dataElements.push(...test.dataModels.map((dm) => dm.dataElement));
-    }
-    return dataElements.length > 0 ? selectDataElements(dataElements) : undefined;
-  };
+  const codeListSelector = (codeListId: string) =>
+    test.codeLists?.[codeListId] ? castOptionsToStrings(test.codeLists[codeListId]) : undefined;
 
-  // Build code list selector
-  const codeListSelector = (codeListId: string) => {
-    if (!test.codeLists || !test.codeLists[codeListId]) {
-      return undefined;
-    }
-    return castOptionsToStrings(test.codeLists[codeListId]);
-  };
+  const currentDataModelPath = test.context
+    ? buildDataModelPath(test.context.component, test.context.rowIndices, layoutLookups, true)
+    : undefined;
 
-  // Compute current data model path based on row indices
-  const currentDataModelPath = computeCurrentDataModelPath(test.context, layoutLookups);
-
-  // Extract hidden pages from layouts
-  const hiddenPages = extractHiddenPages(rawLayouts);
-
-  // Find component references in expressions
-  const componentRefs: string[] = [];
-  componentRefs.push(...findComponentReferences(test.expression));
-  if (test.testCases) {
-    for (const tc of test.testCases) {
-      componentRefs.push(...findComponentReferences(tc.expression));
-    }
-  }
-  const uniqueComponentRefs = [...new Set(componentRefs)];
-
-  // Build partial data sources (without hiddenComponents)
   const partialDataSources: Omit<ExpressionDataSources, 'hiddenComponents'> = {
-    process,
+    process: buildProcess(test),
     instanceDataSources,
     applicationSettings: test.frontendSettings ?? null,
-    dataElementSelector,
+    dataElementSelector: buildDataElementSelector(test),
     dataModelNames,
     formDataSelector,
     attachmentsSelector: () => [],
     langToolsSelector,
     currentLanguage,
-    defaultDataType,
+    defaultDataType: DEFAULT_DATA_TYPE,
     externalApis: test.externalApis ?? { data: {}, errors: {} },
     currentDataModelPath,
     codeListSelector,
@@ -437,19 +338,17 @@ function buildExpressionDataSources(test: FunctionTest): ExpressionDataSources {
     currentPage: test.context?.currentLayout ?? 'FormLayout',
   };
 
-  // Compute hidden components
+  const componentRefs = findComponentReferences(collectExpressions(test));
+  const hiddenPages = extractHiddenPages(rawLayouts);
   const hiddenComponents = computeHiddenComponents(
-    uniqueComponentRefs,
+    componentRefs,
     layoutLookups,
     hiddenPages,
     test.context?.rowIndices,
     partialDataSources,
   );
 
-  return {
-    ...partialDataSources,
-    hiddenComponents,
-  };
+  return { ...partialDataSources, hiddenComponents };
 }
 
 describe('Expressions shared function tests (direct)', () => {
