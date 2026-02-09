@@ -488,22 +488,22 @@ describe('UI Components', () => {
     cy.findByRole('option', { name: /gul/i }).click();
     cy.findByRole('option', { name: /gul/i }).should('have.attr', 'aria-selected', 'true');
 
-    cy.findByRole('button', {
-      name: /Grønn, Press to remove, 3 of 4/i,
+    cy.findByRole('option', {
+      name: /Grønn, Press to remove/i,
     }).click('right', { force: true });
     cy.get(appFrontend.deleteWarningPopover).should('contain.text', 'Er du sikker på at du vil slette Grønn?');
     cy.findByRole('button', { name: /Avbryt/ }).click();
-    cy.findByRole('button', {
-      name: /Grønn, Press to remove, 3 of 4/i,
+    cy.findByRole('option', {
+      name: /Grønn, Press to remove/i,
     }).should('exist');
 
-    cy.findByRole('button', {
-      name: /Gul, Press to remove, 4 of 4/i,
+    cy.findByRole('option', {
+      name: /Gul, Press to remove/i,
     }).click('right', { force: true });
     cy.get(appFrontend.deleteWarningPopover).should('contain.text', 'Er du sikker på at du vil slette Gul?');
     cy.findByRole('button', { name: /Bekreft/ }).click();
-    cy.findByRole('button', {
-      name: /Gul, Press to remove, 4 of 4/i,
+    cy.findByRole('option', {
+      name: /Gul, Press to remove/i,
     }).should('not.exist');
   });
 
