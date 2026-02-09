@@ -196,7 +196,7 @@ export type HiddenWithReason =
       reason: HiddenSource['type'] | 'rules' | 'pageOrder';
     };
 
-function isHidden({
+export function isHidden({
   hiddenSources,
   dataSources,
   hiddenByRules,
@@ -255,9 +255,9 @@ interface Callback {
   id: string;
 }
 
-type HiddenSource = Expr | Callback;
+export type HiddenSource = Expr | Callback;
 
-function findHiddenSources(
+export function findHiddenSources(
   baseComponentId: string | undefined,
   layoutLookups: LayoutLookups,
   hiddenPages: IHiddenLayoutsExternal,

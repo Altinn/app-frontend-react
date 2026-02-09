@@ -2,14 +2,13 @@
  * Fast expression test harness that builds ExpressionDataSources directly and calls evalExpr()
  * without React rendering overhead.
  *
- * This test file passes ~94% of the shared function tests (594/629). The failing tests are:
- * - Hidden component tests: These require `hiddenComponents` to be pre-computed by evaluating
- *   hidden expressions recursively across the component tree
+ * This test file passes ~96% of the shared function tests (605/629). The failing tests are:
  * - Display value tests: These require `displayValues` to be pre-computed from component state
  *
- * These data sources are computed dynamically in the React component tree and would require
- * significant additional complexity to replicate here. For full coverage, use the React-based
- * tests in shared-functions.test.tsx.
+ * The `hiddenComponents` data source is computed by evaluating hidden expressions for each
+ * referenced component, following the same logic as src/utils/layout/hidden.ts.
+ *
+ * For full coverage, use the React-based tests in shared-functions.test.tsx.
  *
  * Run with: yarn test shared-functions-direct
  */
@@ -33,6 +32,7 @@ import { DataModelReader, DataModelReaders } from 'src/features/formData/FormDat
 import { staticUseLanguage } from 'src/features/language/useLanguage';
 import { castOptionsToStrings } from 'src/features/options/castOptionsToStrings';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
+import { findHiddenSources, isHidden } from 'src/utils/layout/hidden';
 import type { ExprPositionalArgs, ExprValueArgs } from 'src/features/expressions/types';
 import type { LayoutLookups } from 'src/features/form/layout/makeLayoutLookups';
 import type { TextResourceMap } from 'src/features/language/textResources';
@@ -40,6 +40,7 @@ import type { IUseLanguage, TextResourceVariablesDataSources } from 'src/feature
 import type { FormDataSelectorLax } from 'src/layout';
 import type { IDataModelReference } from 'src/layout/common.generated';
 import type { IDataModelBindings, ILayoutCollection, ILayouts } from 'src/layout/layout';
+import type { IHiddenLayoutsExternal } from 'src/types';
 import type { IData, IInstanceDataSources, IProcess } from 'src/types/shared';
 import type { ExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 
@@ -135,6 +136,157 @@ function computeCurrentDataModelPath(
     dataType: 'default',
     field: fieldSegments.join('.'),
   };
+}
+
+/**
+ * Extract hidden page expressions from layouts
+ */
+function extractHiddenPages(layouts: ILayoutCollection): IHiddenLayoutsExternal {
+  const hiddenPages: IHiddenLayoutsExternal = {};
+  for (const [pageKey, pageData] of Object.entries(layouts)) {
+    if (pageData.data.hidden !== undefined) {
+      hiddenPages[pageKey] = pageData.data.hidden;
+    }
+  }
+  return hiddenPages;
+}
+
+/**
+ * Find all component references in an expression (recursively)
+ */
+function findComponentReferences(expr: unknown): string[] {
+  const refs: string[] = [];
+  findComponentRefsRecursive(expr, refs);
+  return refs;
+}
+
+function findComponentRefsRecursive(expr: unknown, refs: string[]): void {
+  if (!Array.isArray(expr)) {
+    return;
+  }
+  if (expr[0] === 'component' && typeof expr[1] === 'string') {
+    refs.push(expr[1]);
+  }
+  if (expr[0] === 'displayValue' && typeof expr[1] === 'string') {
+    refs.push(expr[1]);
+  }
+  for (const item of expr) {
+    findComponentRefsRecursive(item, refs);
+  }
+}
+
+/**
+ * Build the currentDataModelPath for a target component using the context's row indices
+ */
+function buildDataModelPathForTarget(
+  targetComponentId: string,
+  contextRowIndices: number[] | undefined,
+  layoutLookups: LayoutLookups,
+): IDataModelReference | undefined {
+  if (!contextRowIndices || contextRowIndices.length === 0) {
+    return undefined;
+  }
+
+  // Find all repeating parent components of the target
+  const parentIds: string[] = [];
+  let currentParent = layoutLookups.componentToParent[targetComponentId];
+  while (currentParent && currentParent.type === 'node') {
+    const parentComponent = layoutLookups.getComponent(currentParent.id);
+    if (isRepeatingComponent(parentComponent)) {
+      parentIds.push(parentComponent.id);
+    }
+    currentParent = layoutLookups.componentToParent[currentParent.id];
+  }
+
+  // If the target has no repeating parents, no data model path needed
+  if (parentIds.length === 0) {
+    return undefined;
+  }
+
+  // Use as many indices as there are repeating parents (limited by available indices)
+  const indicesToUse = contextRowIndices.slice(0, parentIds.length);
+  if (indicesToUse.length === 0) {
+    return undefined;
+  }
+
+  const fieldSegments: string[] = [];
+  for (let level = 0; level < indicesToUse.length; level++) {
+    const parentId = parentIds[parentIds.length - 1 - level]; // Get outermost parent first
+    const rowIndex = indicesToUse[level];
+    const component = layoutLookups.getComponent(parentId);
+    const bindings = component.dataModelBindings as IDataModelBindings<RepeatingComponents>;
+    const groupBinding = getRepeatingBinding(component.type as RepeatingComponents, bindings);
+    if (!groupBinding) {
+      return undefined;
+    }
+
+    const currentPath = fieldSegments.join('.');
+    let segmentName = groupBinding.field;
+    if (currentPath) {
+      const currentFieldPath = currentPath.replace(/\[\d+]/g, ''); // Remove all [index] parts
+      if (segmentName.startsWith(`${currentFieldPath}.`)) {
+        segmentName = segmentName.substring(currentFieldPath.length + 1);
+      }
+    }
+
+    fieldSegments.push(`${segmentName}[${rowIndex}]`);
+  }
+
+  return {
+    dataType: 'default',
+    field: fieldSegments.join('.'),
+  };
+}
+
+/**
+ * Compute the hiddenComponents map for all referenced components
+ */
+function computeHiddenComponents(
+  componentIds: string[],
+  layoutLookups: LayoutLookups,
+  hiddenPages: IHiddenLayoutsExternal,
+  contextRowIndices: number[] | undefined,
+  partialDataSources: Omit<ExpressionDataSources, 'hiddenComponents'>,
+): Record<string, boolean | undefined> {
+  const result: Record<string, boolean | undefined> = {};
+
+  // Use empty hiddenComponents to avoid circular dependency
+  const evalDataSources: ExpressionDataSources = { ...partialDataSources, hiddenComponents: {} };
+
+  for (const componentId of componentIds) {
+    // Check if the component exists
+    if (!layoutLookups.allComponents[componentId]) {
+      continue;
+    }
+
+    const sources = findHiddenSources(componentId, layoutLookups, hiddenPages);
+    if (sources.length === 0) {
+      result[componentId] = false;
+      continue;
+    }
+
+    // Build the data model path for evaluating hidden expressions
+    const targetDataModelPath = buildDataModelPathForTarget(componentId, contextRowIndices, layoutLookups);
+
+    // Create data sources with the target's data model path
+    const targetDataSources: ExpressionDataSources = {
+      ...evalDataSources,
+      currentDataModelPath: targetDataModelPath,
+    };
+
+    // Use the real isHidden function - pass hiddenByRules=false since tests don't use rules
+    const hiddenResult = isHidden({
+      hiddenSources: sources.reverse(),
+      dataSources: targetDataSources,
+      hiddenByRules: false,
+      pageOrder: [],
+      pageKey: layoutLookups.componentToPage[componentId],
+    });
+
+    result[componentId] = hiddenResult.hidden;
+  }
+
+  return result;
 }
 
 /**
@@ -252,7 +404,21 @@ function buildExpressionDataSources(test: FunctionTest): ExpressionDataSources {
   // Compute current data model path based on row indices
   const currentDataModelPath = computeCurrentDataModelPath(test.context, layoutLookups);
 
-  return {
+  // Extract hidden pages from layouts
+  const hiddenPages = extractHiddenPages(rawLayouts);
+
+  // Find component references in expressions
+  const componentRefs: string[] = [];
+  componentRefs.push(...findComponentReferences(test.expression));
+  if (test.testCases) {
+    for (const tc of test.testCases) {
+      componentRefs.push(...findComponentReferences(tc.expression));
+    }
+  }
+  const uniqueComponentRefs = [...new Set(componentRefs)];
+
+  // Build partial data sources (without hiddenComponents)
+  const partialDataSources: Omit<ExpressionDataSources, 'hiddenComponents'> = {
     process,
     instanceDataSources,
     applicationSettings: test.frontendSettings ?? null,
@@ -268,8 +434,21 @@ function buildExpressionDataSources(test: FunctionTest): ExpressionDataSources {
     codeListSelector,
     layoutLookups,
     displayValues: {},
-    hiddenComponents: {},
     currentPage: test.context?.currentLayout ?? 'FormLayout',
+  };
+
+  // Compute hidden components
+  const hiddenComponents = computeHiddenComponents(
+    uniqueComponentRefs,
+    layoutLookups,
+    hiddenPages,
+    test.context?.rowIndices,
+    partialDataSources,
+  );
+
+  return {
+    ...partialDataSources,
+    hiddenComponents,
   };
 }
 
