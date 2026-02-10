@@ -1,4 +1,5 @@
 import type { ExprVal, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type { PreventNavigation } from 'src/layout/common.generated';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type RuleFunc<T extends Record<string, any>> = (argObject: T) => T;
@@ -20,6 +21,10 @@ export interface IHiddenLayoutsExternal {
 
 export interface IExpandedWidthLayouts {
   [layoutKey: string]: boolean | undefined;
+}
+
+export interface IPreventNavigationLayouts {
+  [layoutKey: string]: PreventNavigation | undefined;
 }
 
 export enum ProcessTaskType {
