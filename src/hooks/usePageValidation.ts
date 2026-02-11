@@ -11,7 +11,7 @@ type PageValidationConfig = {
 
 export function usePageValidationConfigForPage(pageKey: string | undefined): PageValidationConfig {
   const layoutCollection = useLayoutCollection();
-  const layoutSettingsValidation = useValidationOnNavigation();
+  const effectivePageValidation = useValidationOnNavigation();
 
   return useMemo(() => {
     if (!pageKey) {
@@ -22,7 +22,7 @@ export function usePageValidationConfigForPage(pageKey: string | undefined): Pag
     const pageValidation = currentPageLayout?.data
       ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
 
-    const validationOnNavigation = pageValidation ?? layoutSettingsValidation;
+    const validationOnNavigation = pageValidation ?? effectivePageValidation;
 
     const getValidation = (direction: string) => {
       const prevent = validationOnNavigation?.preventNavigation;
@@ -36,7 +36,7 @@ export function usePageValidationConfigForPage(pageKey: string | undefined): Pag
       getValidationOnNext: () => getValidation('forward'),
       getValidationOnPrevious: () => getValidation('previous'),
     };
-  }, [pageKey, layoutCollection, layoutSettingsValidation]);
+  }, [pageKey, layoutCollection, effectivePageValidation]);
 }
 
 export function usePageValidationConfig(componentId: string): PageValidationConfig {
