@@ -14,6 +14,7 @@ import { MapSingleMarker } from 'src/layout/Map/features/singleMarker/MapSingleM
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { DefaultBoundsPadding, DefaultFlyToZoomLevel, getMapStartingView, isLocationValid } from 'src/layout/Map/utils';
 import { useExternalItem } from 'src/utils/layout/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
 type MapProps = {
   baseComponentId: string;
@@ -64,7 +65,8 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
 
 function useAutoViewport(baseComponentId: string, map: RefObject<LeafletMap | null>, animate: boolean) {
   const markerLocation = useSingleMarker(baseComponentId);
-  const { centerLocation: customCenterLocation, zoom: customZoom } = useExternalItem(baseComponentId, 'Map');
+  const { centerLocation: customCenterLocation } = useItemWhenType(baseComponentId, 'Map');
+  const { zoom: customZoom } = useExternalItem(baseComponentId, 'Map');
   const geometryBounds = useMapGeometryBounds(baseComponentId);
   const { center, zoom, bounds } = getMapStartingView(markerLocation, customCenterLocation, customZoom, geometryBounds);
 

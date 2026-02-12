@@ -1,4 +1,5 @@
 import { CG } from 'src/codegen/CG';
+import { ExprVal } from 'src/features/expressions/types';
 import { CompCategory } from 'src/layout/common';
 
 export const Config = new CG.component({
@@ -13,7 +14,7 @@ export const Config = new CG.component({
     renderInTabs: true,
   },
   functionality: {
-    customExpressions: false,
+    customExpressions: true,
   },
 })
   .addDataModelBinding(
@@ -150,7 +151,10 @@ export const Config = new CG.component({
   .addProperty(
     new CG.prop(
       'centerLocation',
-      new CG.obj(new CG.prop('latitude', new CG.num()), new CG.prop('longitude', new CG.num()))
+      new CG.obj(
+        new CG.prop('latitude', new CG.expr(ExprVal.Number)),
+        new CG.prop('longitude', new CG.expr(ExprVal.Number)),
+      )
         .optional()
         .exportAs('Location')
         .setTitle('Center location')

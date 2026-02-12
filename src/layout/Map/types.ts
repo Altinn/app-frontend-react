@@ -11,3 +11,8 @@ export type Geometry = {
   data: GeoJSON;
   label?: string;
 };
+
+export type Location = {
+  latitude: number;
+  longitude: number;
+};
