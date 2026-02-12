@@ -683,13 +683,7 @@ const common = {
           .setDescription('Which pages should be validated when the next button is clicked.'),
       ),
       new CG.prop('show', CG.common('AllowedValidationMasks')),
-      new CG.prop('preventNavigation', CG.common('PreventNavigation').optional()),
     ),
-
-  PreventNavigation: () =>
-    new CG.enum('all', 'forward', 'previous')
-      .setTitle('Prevent navigation')
-      .setDescription('Which pages should be blocked from navigation when there are validation errors.'),
 
   // Layout settings:
   IComponentsSettings: () =>
