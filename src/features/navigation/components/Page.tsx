@@ -5,7 +5,6 @@ import cn from 'classnames';
 
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { useLayoutCollection } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
@@ -14,7 +13,7 @@ import { useNavigationIsPrevented } from 'src/features/navigation/utils';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import type { ILayoutFile } from 'src/layout/common.generated';
+import { usePageValidationConfigForPage } from 'src/hooks/usePageValidation';
 
 export function Page({
   page,
@@ -33,7 +32,7 @@ export function Page({
   const { navigateToPage } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
   const onPageNavigationValidation = useOnPageNavigationValidation();
-  const layoutCollection = useLayoutCollection();
+  const { getValidationOnNext, getValidationOnPrevious } = usePageValidationConfigForPage(currentPageId);
   const { order, maybeSaveOnPageChange } = useNavigatePage();
 
   const navigationIsPrevented = useNavigationIsPrevented(page);
@@ -44,21 +43,30 @@ export function Page({
         return;
       }
 
-      const currentPageLayout = currentPageId ? layoutCollection[currentPageId] : undefined;
-      const validationOnNavigation = currentPageLayout?.data
-        ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
-
       await maybeSaveOnPageChange();
 
-      if (validationOnNavigation && currentPageId) {
+      if (currentPageId) {
         const currentIndex = order.indexOf(currentPageId);
         const targetIndex = order.indexOf(page);
-        const direction = targetIndex > currentIndex ? 'forward' : 'previous';
 
-        const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation, direction);
-        if (hasValidationErrors) {
-          // Block navigation if validation fails
-          return;
+        if (currentIndex === -1 || targetIndex === -1) {
+          return false;
+        }
+
+        const isForward = targetIndex > currentIndex;
+        const validationOnNavigation = isForward ? getValidationOnNext() : getValidationOnPrevious();
+
+        if (validationOnNavigation) {
+          const direction = isForward ? 'forward' : 'previous';
+          const hasValidationErrors = await onPageNavigationValidation(
+            currentPageId,
+            validationOnNavigation,
+            direction,
+          );
+          if (hasValidationErrors) {
+            // Block navigation if validation fails
+            return;
+          }
         }
       }
 

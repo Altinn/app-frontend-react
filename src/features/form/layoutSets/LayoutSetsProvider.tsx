@@ -64,3 +64,8 @@ export const useLaxGlobalUISettings = () => {
   const layoutSets = useLaxCtx();
   return layoutSets !== ContextNotProvided ? layoutSets.uiSettings : ContextNotProvided;
 };
+
+export const useLaxLayoutSetsPageValidation = () => {
+  const layoutSets = useLaxCtx();
+  return layoutSets !== ContextNotProvided ? layoutSets.validationOnNavigation : ContextNotProvided;
+};

@@ -1,24 +1,28 @@
 import { useMemo } from 'react';
 
 import { useLayoutCollection, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { useValidationOnNavigation } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import type { ILayoutFile, PageValidation } from 'src/layout/common.generated';
 
-export function usePageValidationConfig(componentId: string): {
+type PageValidationConfig = {
   getValidationOnNext: () => PageValidation | undefined;
   getValidationOnPrevious: () => PageValidation | undefined;
-} {
-  const layoutLookups = useLayoutLookups();
+};
+
+export function usePageValidationConfigForPage(pageKey: string | undefined): PageValidationConfig {
   const layoutCollection = useLayoutCollection();
+  const effectivePageValidation = useValidationOnNavigation();
 
   return useMemo(() => {
-    const pageKey = layoutLookups.componentToPage[componentId];
     if (!pageKey) {
       return { getValidationOnNext: () => undefined, getValidationOnPrevious: () => undefined };
     }
 
-    const currentPageLayout = pageKey ? layoutCollection[pageKey] : undefined;
-    const validationOnNavigation = currentPageLayout?.data
+    const currentPageLayout = layoutCollection[pageKey];
+    const pageValidation = currentPageLayout?.data
       ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
+
+    const validationOnNavigation = pageValidation ?? effectivePageValidation;
 
     const getValidation = (direction: string) => {
       const prevent = validationOnNavigation?.preventNavigation;
@@ -32,5 +36,11 @@ export function usePageValidationConfig(componentId: string): {
       getValidationOnNext: () => getValidation('forward'),
       getValidationOnPrevious: () => getValidation('previous'),
     };
-  }, [componentId, layoutLookups, layoutCollection]);
+  }, [pageKey, layoutCollection, effectivePageValidation]);
+}
+
+export function usePageValidationConfig(componentId: string): PageValidationConfig {
+  const layoutLookups = useLayoutLookups();
+  const pageKey = layoutLookups.componentToPage[componentId];
+  return usePageValidationConfigForPage(pageKey);
 }
