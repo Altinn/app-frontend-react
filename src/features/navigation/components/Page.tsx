@@ -67,7 +67,7 @@ export function Page({
   return (
     <li className={classes.pageListItem}>
       <button
-        disabled={isAnyProcessing} //
+        disabled={isAnyProcessing || navigationIsPrevented}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
         onClick={handleNavigationClick}
