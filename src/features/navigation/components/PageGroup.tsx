@@ -132,8 +132,11 @@ function PageGroupMultiple({
   const buttonId = `navigation-button-${group.id}`;
   const listId = `navigation-page-list-${group.id}`;
 
-  const [isOpen, setIsOpen] = useState(containsCurrentPage);
-  useLayoutEffect(() => setIsOpen(containsCurrentPage), [containsCurrentPage]);
+  const [isOpen, setIsOpen] = useState(containsCurrentPage || !!group.expandedByDefault);
+  useLayoutEffect(
+    () => setIsOpen(containsCurrentPage || !!group.expandedByDefault),
+    [containsCurrentPage, group.expandedByDefault],
+  );
 
   const pageGroupHasErrors = validations !== ContextNotProvided && validations.hasErrors.group;
   const pageGroupIsComplete = validations !== ContextNotProvided && validations.isCompleted.group;
