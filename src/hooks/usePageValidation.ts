@@ -4,43 +4,31 @@ import { useLayoutCollection, useLayoutLookups } from 'src/features/form/layout/
 import { useValidationOnNavigation } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import type { ILayoutFile, PageValidation } from 'src/layout/common.generated';
 
-type PageValidationConfig = {
-  getValidationOnNext: () => PageValidation | undefined;
-  getValidationOnPrevious: () => PageValidation | undefined;
-};
-
-export function usePageValidationConfigForPage(pageKey: string | undefined): PageValidationConfig {
+export function useEffectivePageValidation(pageKey: string): {
+  getPageValidation: () => PageValidation | undefined;
+} {
   const layoutCollection = useLayoutCollection();
   const effectivePageValidation = useValidationOnNavigation();
 
   return useMemo(() => {
     if (!pageKey) {
-      return { getValidationOnNext: () => undefined, getValidationOnPrevious: () => undefined };
+      return { getPageValidation: () => undefined };
     }
-
     const currentPageLayout = layoutCollection[pageKey];
     const pageValidation = currentPageLayout?.data
       ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
 
     const validationOnNavigation = pageValidation ?? effectivePageValidation;
 
-    const getValidation = (direction: string) => {
-      const prevent = validationOnNavigation?.preventNavigation;
-      if (!prevent || prevent === 'all' || prevent === direction) {
-        return validationOnNavigation;
-      }
-      return undefined;
-    };
-
     return {
-      getValidationOnNext: () => getValidation('forward'),
-      getValidationOnPrevious: () => getValidation('previous'),
+      getPageValidation: () => validationOnNavigation,
     };
   }, [pageKey, layoutCollection, effectivePageValidation]);
 }
 
-export function usePageValidationConfig(componentId: string): PageValidationConfig {
+export function usePageValidation(componentId: string) {
   const layoutLookups = useLayoutLookups();
   const pageKey = layoutLookups.componentToPage[componentId];
-  return usePageValidationConfigForPage(pageKey);
+
+  return useEffectivePageValidation(pageKey ?? '');
 }

@@ -167,26 +167,9 @@ export function useNavigationIsPrevented(targetPageKey: string) {
     return false;
   }
 
-  const direction = targetIndex > currentIndex ? 'forward' : 'previous';
-
   const [start, end] = currentIndex < targetIndex ? [currentIndex + 1, targetIndex] : [targetIndex + 1, currentIndex];
 
   const pagesBetween = order.slice(start, end);
 
-  return pagesBetween.some((pageId) => {
-    const setting = preventNavigationIds[pageId];
-    return blocksDirection(setting, direction);
-  });
-}
-
-function blocksDirection(setting, direction) {
-  if (!setting) {
-    return false;
-  }
-
-  return (
-    setting === 'all' ||
-    (setting === 'forward' && direction === 'forward') ||
-    (setting === 'previous' && direction === 'previous')
-  );
+  return pagesBetween.some((pageId) => preventNavigationIds[pageId]);
 }

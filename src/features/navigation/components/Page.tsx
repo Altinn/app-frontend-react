@@ -13,7 +13,7 @@ import { useNavigationIsPrevented } from 'src/features/navigation/utils';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { usePageValidationConfigForPage } from 'src/hooks/usePageValidation';
+import { useEffectivePageValidation } from 'src/hooks/usePageValidation';
 
 export function Page({
   page,
@@ -29,44 +29,34 @@ export function Page({
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
-  const { navigateToPage } = useNavigatePage();
+  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
   const onPageNavigationValidation = useOnPageNavigationValidation();
-  const { getValidationOnNext, getValidationOnPrevious } = usePageValidationConfigForPage(currentPageId);
-  const { order, maybeSaveOnPageChange } = useNavigatePage();
+  const { getPageValidation } = useEffectivePageValidation(currentPageId ?? '');
 
   const navigationIsPrevented = useNavigationIsPrevented(page);
 
   const handleNavigationClick = () =>
     performProcess(async () => {
-      if (isCurrentPage) {
+      if (isCurrentPage || !currentPageId) {
+        return;
+      }
+      const currentIndex = order.indexOf(currentPageId);
+      const targetIndex = order.indexOf(page);
+      if (currentIndex === -1 || targetIndex === -1) {
         return;
       }
 
+      const isForward = targetIndex > currentIndex;
+      const validationOnNavigation = getPageValidation();
+
       await maybeSaveOnPageChange();
 
-      if (currentPageId) {
-        const currentIndex = order.indexOf(currentPageId);
-        const targetIndex = order.indexOf(page);
-
-        if (currentIndex === -1 || targetIndex === -1) {
-          return false;
-        }
-
-        const isForward = targetIndex > currentIndex;
-        const validationOnNavigation = isForward ? getValidationOnNext() : getValidationOnPrevious();
-
-        if (validationOnNavigation) {
-          const direction = isForward ? 'forward' : 'previous';
-          const hasValidationErrors = await onPageNavigationValidation(
-            currentPageId,
-            validationOnNavigation,
-            direction,
-          );
-          if (hasValidationErrors) {
-            // Block navigation if validation fails
-            return;
-          }
+      if (isForward && validationOnNavigation) {
+        const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation);
+        if (hasValidationErrors) {
+          // Block navigation if validation fails
+          return;
         }
       }
 

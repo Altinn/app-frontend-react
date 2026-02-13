@@ -13,7 +13,7 @@ import { useOnPageNavigationValidation } from 'src/features/validation/callbacks
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { usePageValidationConfig } from 'src/hooks/usePageValidation';
+import { usePageValidation } from 'src/hooks/usePageValidation';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/NavigationBar/NavigationBarComponent.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -60,10 +60,11 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
   const { performProcess, isAnyProcessing, process } = useIsProcessing<string>();
   const layoutLookups = useLayoutLookups();
 
-  const { getValidationOnNext, getValidationOnPrevious } = usePageValidationConfig(baseComponentId);
+  const { getPageValidation } = usePageValidation(baseComponentId);
   // Use component-level validation if set, otherwise fall back to page-level
-  const validationOnForward = validateOnForward ?? getValidationOnNext();
-  const validationOnBackward = validateOnBackward ?? getValidationOnPrevious();
+  // When page-level validation is set, only validate forward navigation
+  const validationOnForward = getPageValidation() ?? validateOnForward;
+  const validationOnBackward = getPageValidation() ? undefined : validateOnBackward;
 
   const firstPageLink = React.useRef<HTMLButtonElement>(undefined);
 
@@ -83,20 +84,12 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
 
       await maybeSaveOnPageChange();
 
-      if (
-        isForward &&
-        validationOnForward &&
-        (await onPageNavigationValidation(pageKey, validationOnForward, 'forward'))
-      ) {
+      if (isForward && validationOnForward && (await onPageNavigationValidation(pageKey, validationOnForward))) {
         // Block navigation if validation fails
         return;
       }
 
-      if (
-        isBackward &&
-        validationOnBackward &&
-        (await onPageNavigationValidation(pageKey, validationOnBackward, 'previous'))
-      ) {
+      if (isBackward && validationOnBackward && (await onPageNavigationValidation(pageKey, validationOnBackward))) {
         // Block navigation if validation fails
         return;
       }

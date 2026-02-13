@@ -130,7 +130,7 @@ function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModel
     layouts[key] = cleanLayout(file.data.layout, dataModelType);
     hiddenLayoutsExpressions[key] = file.data.hidden;
     expandedWidthLayouts[key] = file.data.expandedWidth;
-    preventNavigationLayouts[key] = file.data.validationOnNavigation?.preventNavigation;
+    preventNavigationLayouts[key] = !!file.data.validationOnNavigation;
   }
 
   const withQuirksFixed = applyLayoutQuirks(layouts, layoutSetId);
