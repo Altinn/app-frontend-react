@@ -117,7 +117,10 @@ function PageGroupSingle({
           )}
         </span>
       </button>
-      <SubformsForPage pageKey={page} />
+      <SubformsForPage
+        pageKey={page}
+        expandedByDefault={group.expandedByDefault}
+      />
     </li>
   );
 }
@@ -189,6 +192,7 @@ function PageGroupMultiple({
             onNavigate={onNavigate}
             hasErrors={validations !== ContextNotProvided && validations.hasErrors.pages[page]}
             isComplete={validations !== ContextNotProvided && validations.isCompleted.pages[page]}
+            expandedByDefault={group.expandedByDefault}
           />
         ))}
       </ul>
