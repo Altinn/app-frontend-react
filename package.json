@@ -172,7 +172,7 @@
     "react-dropzone": "14.3.8",
     "react-leaflet": "5.0.0",
     "react-number-format": "5.4.4",
-    "react-router-dom": "6.30.3",
+    "react-router-dom": "7.13.0",
     "react-toastify": "11.0.5",
     "terraformer-wkt-parser": "1.2.1",
     "typescript": "5.9.3",
