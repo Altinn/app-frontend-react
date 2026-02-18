@@ -148,7 +148,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
 
       let geoString = JSON.stringify(editedGeo);
 
-      if (geometryType == 'WKT') {
+      if (geometryType === 'WKT') {
         geoString = geojsonToWKT(editedGeo.geometry);
       }
 
