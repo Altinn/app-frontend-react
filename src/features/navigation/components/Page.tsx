@@ -20,11 +20,13 @@ export function Page({
   onNavigate,
   hasErrors,
   isComplete,
+  expandedByDefault,
 }: {
   page: string;
   onNavigate?: () => void;
   hasErrors: boolean;
   isComplete: boolean;
+  expandedByDefault?: boolean;
 }) {
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
@@ -92,7 +94,10 @@ export function Page({
           )}
         </span>
       </button>
-      <SubformsForPage pageKey={page} />
+      <SubformsForPage
+        pageKey={page}
+        expandedByDefault={expandedByDefault}
+      />
     </li>
   );
 }

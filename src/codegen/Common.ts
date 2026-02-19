@@ -794,6 +794,12 @@ const common = {
           .optional({ default: false })
           .setDescription('Whether this group should mark pages as completed when the user finishes'),
       ),
+      new CG.prop(
+        'expandedByDefault',
+        new CG.bool()
+          .optional({ default: false })
+          .setDescription('Whether the sidebar group should be expanded by default'),
+      ),
     ),
   IPagesSettingsWithGroups: () =>
     new CG.obj(
