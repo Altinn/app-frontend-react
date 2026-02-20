@@ -39,6 +39,9 @@ describe('Map component', () => {
     cy.get('#form-content-MapPage-MapComponent-Geometries').click(400, 400);
     // complete polygon by clicking last point twice
     cy.get('#form-content-MapPage-MapComponent-Geometries').click(400, 400);
+    // wait for map to adjust to new geometry
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(200);
 
     cy.get('g>path').should('to.be.visible');
 
