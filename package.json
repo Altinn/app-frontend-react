@@ -142,7 +142,7 @@
     "@navikt/aksel-icons": "7.38.0",
     "@tanstack/react-query": "5.90.16",
     "@types/cypress": "^1.1.6",
-    "ajv": "8.17.1",
+    "ajv": "8.18.0",
     "ajv-errors": "3.0.0",
     "ajv-formats": "3.0.1",
     "ajv-formats-draft2019": "1.6.1",
