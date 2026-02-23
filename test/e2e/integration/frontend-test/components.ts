@@ -480,13 +480,21 @@ describe('UI Components', () => {
 
     cy.get('#form-content-colorsCheckboxes').click();
     cy.findByRole('option', { name: /blå/i }).click();
-    cy.findByRole('option', { name: /added blå, blå/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added blå, blå/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
     cy.findByRole('option', { name: /cyan/i }).click();
-    cy.findByRole('option', { name: /added cyan, cyan/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added cyan, cyan/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
     cy.findByRole('option', { name: /grønn/i }).click();
-    cy.findByRole('option', { name: /added grønn, grønn/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added grønn, grønn/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
     cy.findByRole('option', { name: /gul/i }).click();
-    cy.findByRole('option', { name: /added gul, gul/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added gul, gul/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
 
     cy.findByRole('option', {
       name: /Grønn, Press to remove/i,
