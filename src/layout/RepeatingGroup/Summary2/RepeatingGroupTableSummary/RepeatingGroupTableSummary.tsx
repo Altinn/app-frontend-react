@@ -43,9 +43,6 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
   const title = textResourceBindings?.summaryTitle || textResourceBindings?.title;
   const tableIds = useTableComponentIds(baseComponentId);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
-  const hiddenColumnIndices = tableIds
-    .map((id, index) => (columnSettings[id]?.hidden === true ? index : -1))
-    .filter((index) => index !== -1);
 
   return (
     <div
@@ -94,18 +91,14 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
           ))}
           {rowsAfter?.map((row, rowIdx) => (
             <Table.Row key={`row-after-${rowIdx}`}>
-              {row.cells
-                .map((cell, cellIdx) => ({ cell, cellIdx }))
-                .filter(({ cellIdx }) => !hiddenColumnIndices.includes(cellIdx))
-                .map(({ cell, cellIdx }) => (
-                  <Table.Cell key={cellIdx}>
-                    {cell && 'text' in cell && cell.text !== undefined && <Lang id={cell.text} />}
-                    {cell && 'component' in cell && cell.component && (
-                      <ComponentSummary targetBaseComponentId={cell.component} />
-                    )}
-                  </Table.Cell>
-                ))}
-              {!pdfModeActive && !isSmall && <Table.Cell />}
+              {row.cells.map((cell, cellIdx) => (
+                <Table.Cell key={cellIdx}>
+                  {cell && 'text' in cell && cell.text !== undefined && <Lang id={cell.text} />}
+                  {cell && 'component' in cell && cell.component && (
+                    <ComponentSummary targetBaseComponentId={cell.component} />
+                  )}
+                </Table.Cell>
+              ))}
             </Table.Row>
           ))}
         </Table.Body>
