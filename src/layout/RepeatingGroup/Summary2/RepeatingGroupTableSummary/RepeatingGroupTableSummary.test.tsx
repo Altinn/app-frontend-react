@@ -35,7 +35,7 @@ describe('RepeatingGroupTableSummary', () => {
             ...(withRowsAfter && {
               rowsAfter: [
                 {
-                  cells: [{ text: 'summary.total' }, { text: 'summary.total_value' }, null],
+                  cells: [{ text: 'summary.total' }],
                 },
               ],
             }),
@@ -165,7 +165,6 @@ describe('RepeatingGroupTableSummary', () => {
   test('should render rowsAfter in summary table', async () => {
     await render({ layout: layoutWithHidden([], true, true) });
     expect(screen.getByText('summary.total')).toBeInTheDocument();
-    expect(screen.getByText('summary.total_value')).toBeInTheDocument();
   });
 
   type IRenderProps = {

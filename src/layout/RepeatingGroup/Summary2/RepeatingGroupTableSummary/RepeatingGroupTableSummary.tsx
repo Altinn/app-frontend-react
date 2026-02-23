@@ -99,6 +99,7 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
                   )}
                 </Table.Cell>
               ))}
+              {!pdfModeActive && <Table.Cell />}
             </Table.Row>
           ))}
         </Table.Body>
