@@ -6,6 +6,7 @@ import cn from 'classnames';
 import { type Map as LeafletMap } from 'leaflet';
 
 import { useIsPdf } from 'src/hooks/useIsPdf';
+import { MapEditGeometries } from 'src/layout/Map/features/geometries/editable/MapEditGeometries';
 import { useMapGeometryBounds } from 'src/layout/Map/features/geometries/fixed/hooks';
 import { MapGeometries } from 'src/layout/Map/features/geometries/fixed/MapGeometries';
 import { MapLayers } from 'src/layout/Map/features/layers/MapLayers';
@@ -27,6 +28,8 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
   const map = useRef<LeafletMap | null>(null);
   const isPdf = useIsPdf();
   const { center, zoom, bounds } = useAutoViewport(baseComponentId, map, animate);
+  const { toolbar, dataModelBindings } = useItemWhenType(baseComponentId, 'Map');
+  const simpleBinding = dataModelBindings?.simpleBinding;
 
   return (
     <MapContainer
@@ -49,15 +52,18 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
       scrollWheelZoom={!readOnly}
       attributionControl={false}
     >
+      {toolbar !== undefined && <MapEditGeometries baseComponentId={baseComponentId} />}
       <MapLayers baseComponentId={baseComponentId} />
       <MapGeometries
         baseComponentId={baseComponentId}
         readOnly={readOnly}
       />
-      <MapSingleMarker
-        baseComponentId={baseComponentId}
-        readOnly={readOnly}
-      />
+      {toolbar === undefined && simpleBinding && (
+        <MapSingleMarker
+          baseComponentId={baseComponentId}
+          readOnly={readOnly}
+        />
+      )}
       <AttributionControl prefix={false} />
     </MapContainer>
   );
