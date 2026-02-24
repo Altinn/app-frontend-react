@@ -139,7 +139,7 @@
     "@digdir/designsystemet-css": "1.11.1",
     "@digdir/designsystemet-react": "1.11.1",
     "@digdir/designsystemet-theme": "1.11.0",
-    "@navikt/aksel-icons": "7.38.0",
+    "@navikt/aksel-icons": "8.5.2",
     "@tanstack/react-query": "5.90.16",
     "@types/cypress": "^1.1.6",
     "ajv": "8.18.0",
