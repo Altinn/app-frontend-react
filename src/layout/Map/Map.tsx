@@ -71,7 +71,8 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
 
 function useAutoViewport(baseComponentId: string, map: RefObject<LeafletMap | null>, animate: boolean) {
   const markerLocation = useSingleMarker(baseComponentId);
-  const { centerLocation: customCenterLocation, zoom: customZoom } = useExternalItem(baseComponentId, 'Map');
+  const { centerLocation: customCenterLocation } = useItemWhenType(baseComponentId, 'Map');
+  const { zoom: customZoom } = useExternalItem(baseComponentId, 'Map');
   const geometryBounds = useMapGeometryBounds(baseComponentId);
   const { center, zoom, bounds } = getMapStartingView(markerLocation, customCenterLocation, customZoom, geometryBounds);
 

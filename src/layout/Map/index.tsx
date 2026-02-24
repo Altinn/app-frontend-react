@@ -14,7 +14,7 @@ import { useExternalItem } from 'src/utils/layout/hooks';
 import { useNodeFormDataWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { IDataModelBindings } from 'src/layout/layout';
-import type { SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export class Map extends MapDef {
@@ -73,5 +73,15 @@ export class Map extends MapDef {
     errors.push(...geometriesBindingErrors);
 
     return errors;
+  }
+
+  evalExpressions(props: ExprResolver<'Map'>) {
+    return {
+      ...this.evalDefaultExpressions(props),
+      centerLocation: {
+        latitude: props.evalNum(props.item.centerLocation?.latitude, 0),
+        longitude: props.evalNum(props.item.centerLocation?.longitude, 0),
+      },
+    };
   }
 }

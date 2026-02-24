@@ -13,3 +13,8 @@ export type Geometry = {
   label?: string;
   isEditable?: boolean;
 };
+
+export type Location = {
+  latitude: number;
+  longitude: number;
+};
