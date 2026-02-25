@@ -123,9 +123,7 @@ describe('Signing', () => {
       });
 
       cy.findByRole('table', { name: /dokumenter som skal signeres/i }).within(() => {
-        cy.findByRole('row', {
-          name: /stiftelse av aksjeselskap.pdf Skjema/i,
-        });
+        cy.findByRole('row', { name: /stiftelse av aksjeselskap\s*\.pdf\s*Skjema/i });
       });
 
       cy.findByRole('radio', {
