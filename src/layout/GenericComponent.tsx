@@ -272,7 +272,11 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
     return undefined;
   }
   const targetElements = Array.from(
-    div.querySelectorAll<HTMLElement>(['input', 'textarea', 'select', 'button'].join(',')),
+    div.querySelectorAll<HTMLElement>(
+      ['input', 'textarea', 'select', 'button', '[tabindex]:not([tabindex="-1"])', '[contenteditable="true"]'].join(
+        ',',
+      ),
+    ),
   );
 
   if (targetElements.length === 0) {
