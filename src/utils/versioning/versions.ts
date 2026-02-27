@@ -9,6 +9,7 @@ export const FEATURE_VERSION_MAP = {
   PDF_PREVIEW_BUTTON: '8.5.0.157',
   APP_LANGUAGES_IN_ANONYMOUS: '8.5.6.180',
   SET_TAGS_ENDPOINT: '8.8.0.215',
+  PAYMENT_WEBHOOK: '8.9.2',
 } as const;
 
 type AppFeature = keyof typeof FEATURE_VERSION_MAP;
@@ -66,4 +67,8 @@ export function appSupportsIncrementalValidationFeatures(currentNugetVersion: st
 
 export function appSupportsSetTagsEndpoint(currentNugetVersion: string | undefined) {
   return isFeatureSupported({ feature: 'SET_TAGS_ENDPOINT', currentNugetVersion });
+}
+
+export function appSupportsPaymentWebhook(currentNugetVersion: string | undefined) {
+  return isFeatureSupported({ feature: 'PAYMENT_WEBHOOK', currentNugetVersion });
 }
