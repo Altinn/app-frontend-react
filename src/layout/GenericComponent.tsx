@@ -271,6 +271,7 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
   if (!div) {
     return undefined;
   }
+
   const targetElements = Array.from(
     div.querySelectorAll<HTMLElement>(
       ['input', 'textarea', 'select', 'button', '[tabindex]:not([tabindex="-1"])', '[contenteditable="true"]'].join(
@@ -283,8 +284,27 @@ function findElementToFocus(div: HTMLDivElement | null, binding: string | null) 
     return undefined;
   }
 
-  const elementWithBinding =
-    binding !== null ? targetElements.find((htmlElement) => htmlElement.dataset.bindingkey === binding) : undefined;
+  const hasBinding = binding !== null;
+  const matchesBinding = (element: HTMLElement) => hasBinding && element.dataset.bindingkey === binding;
 
-  return elementWithBinding ?? targetElements[0];
+  if (hasBinding) {
+    const bindingInput = targetElements.find(
+      (element) => matchesBinding(element) && element.matches('input,textarea,select'),
+    );
+    if (bindingInput) {
+      return bindingInput;
+    }
+
+    const anyBinding = targetElements.find(matchesBinding);
+    if (anyBinding) {
+      return anyBinding;
+    }
+  }
+
+  const firstInputLike = targetElements.find((element) => element.matches('input,textarea,select'));
+  if (firstInputLike) {
+    return firstInputLike;
+  }
+
+  return targetElements[0];
 }
