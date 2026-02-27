@@ -9,40 +9,70 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
+import { useNavigationIsPrevented } from 'src/features/navigation/utils';
+import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useEffectivePageValidation } from 'src/hooks/usePageValidation';
 
 export function Page({
   page,
   onNavigate,
   hasErrors,
   isComplete,
+  expandedByDefault,
 }: {
   page: string;
   onNavigate?: () => void;
   hasErrors: boolean;
   isComplete: boolean;
+  expandedByDefault?: boolean;
 }) {
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
-  const { navigateToPage } = useNavigatePage();
+  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
+  const onPageNavigationValidation = useOnPageNavigationValidation();
+  const { getPageValidation } = useEffectivePageValidation(currentPageId ?? '');
+
+  const navigationIsPrevented = useNavigationIsPrevented(page);
+
+  const handleNavigationClick = () =>
+    performProcess(async () => {
+      if (isCurrentPage || !currentPageId) {
+        return;
+      }
+      const currentIndex = order.indexOf(currentPageId);
+      const targetIndex = order.indexOf(page);
+      if (currentIndex === -1 || targetIndex === -1) {
+        return;
+      }
+
+      const isForward = targetIndex > currentIndex;
+      const validationOnNavigation = getPageValidation();
+
+      await maybeSaveOnPageChange();
+
+      if (isForward && validationOnNavigation) {
+        const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation);
+        if (hasValidationErrors) {
+          // Block navigation if validation fails
+          return;
+        }
+      }
+
+      await navigateToPage(page);
+      onNavigate?.();
+    });
 
   return (
     <li className={classes.pageListItem}>
       <button
-        disabled={isAnyProcessing}
+        disabled={isAnyProcessing || navigationIsPrevented}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
-        onClick={() =>
-          performProcess(async () => {
-            if (!isCurrentPage) {
-              await navigateToPage(page);
-              onNavigate?.();
-            }
-          })
-        }
+        onClick={handleNavigationClick}
       >
         <PageSymbol
           error={hasErrors}
@@ -64,7 +94,10 @@ export function Page({
           )}
         </span>
       </button>
-      <SubformsForPage pageKey={page} />
+      <SubformsForPage
+        pageKey={page}
+        expandedByDefault={expandedByDefault}
+      />
     </li>
   );
 }

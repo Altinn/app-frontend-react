@@ -19,12 +19,14 @@ import { makeLikertChildId } from 'src/layout/Likert/Generator/makeLikertChildId
 import { fetchLayoutsForInstance } from 'src/queries/queries';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { CompExternal, ILayoutCollection, ILayouts } from 'src/layout/layout';
-import type { IExpandedWidthLayouts, IHiddenLayoutsExternal } from 'src/types';
+import type { IExpandedWidthLayouts, IHiddenLayoutsExternal, IPreventNavigationLayouts } from 'src/types';
 
 export interface LayoutContextValue {
   layouts: ILayouts;
   hiddenLayoutsExpressions: IHiddenLayoutsExternal;
   expandedWidthLayouts: IExpandedWidthLayouts;
+  layoutCollection: ILayoutCollection;
+  preventNavigationLayouts: IPreventNavigationLayouts;
 }
 
 // Also used for prefetching @see formPrefetcher.ts
@@ -113,15 +115,22 @@ export const useHiddenLayoutsExpressions = () => {
 
 export const useExpandedWidthLayouts = () => useCtx().expandedWidthLayouts;
 
+export const useLayoutCollection = () => useCtx().layoutCollection;
+
+export const usePreventNavigationLayouts = () => useCtx().preventNavigationLayouts;
+
 function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModelType: string): LayoutContextValue {
   const layouts: ILayouts = {};
   const hiddenLayoutsExpressions: IHiddenLayoutsExternal = {};
   const expandedWidthLayouts: IExpandedWidthLayouts = {};
+  const preventNavigationLayouts: IPreventNavigationLayouts = {};
+
   for (const key of Object.keys(input)) {
     const file = input[key];
     layouts[key] = cleanLayout(file.data.layout, dataModelType);
     hiddenLayoutsExpressions[key] = file.data.hidden;
     expandedWidthLayouts[key] = file.data.expandedWidth;
+    preventNavigationLayouts[key] = !!file.data.validationOnNavigation;
   }
 
   const withQuirksFixed = applyLayoutQuirks(layouts, layoutSetId);
@@ -132,6 +141,8 @@ function processLayouts(input: ILayoutCollection, layoutSetId: string, dataModel
     layouts: withQuirksFixed,
     hiddenLayoutsExpressions,
     expandedWidthLayouts,
+    layoutCollection: input,
+    preventNavigationLayouts,
   };
 }
 
