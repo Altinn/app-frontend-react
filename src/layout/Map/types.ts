@@ -17,3 +17,8 @@ export type Geometry = {
   isHidden?: boolean;
   style?: string;
 };
+
+export type Location = {
+  latitude: number;
+  longitude: number;
+};

@@ -270,25 +270,11 @@ describe('UI Components', () => {
   it('address component fetches post place from zip code', () => {
     cy.goto('changename');
 
-    // Mock zip code API, so that we don't rely on external services for our tests
-    cy.intercept('GET', 'https://api.bring.com/shippingguide/api/postalCode.json**', (req) => {
-      req.reply((res) => {
-        res.send({
-          body: {
-            postalCodeType: 'NORMAL',
-            result: 'KARDEMOMME BY', // Intentionally wrong, to test that our mock is used
-            valid: true,
-          },
-        });
-      });
-    }).as('zipCodeApi');
-
     cy.get(appFrontend.changeOfName.address.street_name).type('Sesame Street 1A');
     cy.get(appFrontend.changeOfName.address.street_name).blur();
-    cy.get(appFrontend.changeOfName.address.zip_code).type('0123');
+    cy.get(appFrontend.changeOfName.address.zip_code).type('4609');
     cy.get(appFrontend.changeOfName.address.zip_code).blur();
     cy.get(appFrontend.changeOfName.address.post_place).should('have.value', 'KARDEMOMME BY');
-    cy.get('@zipCodeApi').its('request.url').should('include', '0123');
   });
 
   it('should not be possible to check a readonly checkbox', () => {
@@ -494,30 +480,38 @@ describe('UI Components', () => {
 
     cy.get('#form-content-colorsCheckboxes').click();
     cy.findByRole('option', { name: /blå/i }).click();
-    cy.findByRole('option', { name: /blå/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added blå, blå/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
     cy.findByRole('option', { name: /cyan/i }).click();
-    cy.findByRole('option', { name: /cyan/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added cyan, cyan/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
     cy.findByRole('option', { name: /grønn/i }).click();
-    cy.findByRole('option', { name: /grønn/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added grønn, grønn/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
     cy.findByRole('option', { name: /gul/i }).click();
-    cy.findByRole('option', { name: /gul/i }).should('have.attr', 'aria-selected', 'true');
+    cy.findAllByRole('option', { name: /added gul, gul/i })
+      .last()
+      .should('have.attr', 'aria-selected', 'true');
 
-    cy.findByRole('button', {
-      name: /Grønn, Press to remove, 3 of 4/i,
+    cy.findByRole('option', {
+      name: /Grønn, Press to remove/i,
     }).click('right', { force: true });
     cy.get(appFrontend.deleteWarningPopover).should('contain.text', 'Er du sikker på at du vil slette Grønn?');
     cy.findByRole('button', { name: /Avbryt/ }).click();
-    cy.findByRole('button', {
-      name: /Grønn, Press to remove, 3 of 4/i,
+    cy.findByRole('option', {
+      name: /Grønn, Press to remove/i,
     }).should('exist');
 
-    cy.findByRole('button', {
-      name: /Gul, Press to remove, 4 of 4/i,
+    cy.findByRole('option', {
+      name: /Gul, Press to remove/i,
     }).click('right', { force: true });
     cy.get(appFrontend.deleteWarningPopover).should('contain.text', 'Er du sikker på at du vil slette Gul?');
     cy.findByRole('button', { name: /Bekreft/ }).click();
-    cy.findByRole('button', {
-      name: /Gul, Press to remove, 4 of 4/i,
+    cy.findByRole('option', {
+      name: /Gul, Press to remove/i,
     }).should('not.exist');
   });
 

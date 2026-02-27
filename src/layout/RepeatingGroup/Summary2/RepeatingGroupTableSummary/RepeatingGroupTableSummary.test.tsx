@@ -18,7 +18,7 @@ describe('RepeatingGroupTableSummary', () => {
     jest.restoreAllMocks();
   });
 
-  const layoutWithHidden = (hidden: NodeId[]): ILayoutCollection => ({
+  const layoutWithHidden = (hidden: NodeId[], editButton?: boolean, withRowsAfter?: boolean): ILayoutCollection => ({
     FormPage1: {
       data: {
         layout: [
@@ -32,6 +32,18 @@ describe('RepeatingGroupTableSummary', () => {
             children: ['input1', 'input2', 'input3'],
             maxCount: 3,
             hidden: hidden.includes('repeating-group'),
+            ...(withRowsAfter && {
+              rowsAfter: [
+                {
+                  cells: [{ text: 'summary.total' }],
+                },
+              ],
+            }),
+            ...(editButton !== undefined && {
+              edit: {
+                editButton,
+              },
+            }),
           },
           {
             id: 'input1',
@@ -138,6 +150,21 @@ describe('RepeatingGroupTableSummary', () => {
     await waitFor(() =>
       expect(navigate).toHaveBeenCalledWith('repeating-group', 'repeating-group', expect.any(Object)),
     );
+  });
+
+  test('should not render edit button when edit.editButton is false', async () => {
+    await render({ layout: layoutWithHidden([], false) });
+    expect(screen.queryByRole('button', { name: /endre/i })).not.toBeInTheDocument();
+  });
+
+  test('should render edit button when edit.editButton is true', async () => {
+    await render({ layout: layoutWithHidden([], true) });
+    expect(screen.getByRole('button', { name: /endre/i })).toBeInTheDocument();
+  });
+
+  test('should render rowsAfter in summary table', async () => {
+    await render({ layout: layoutWithHidden([], true, true) });
+    expect(screen.getByText('summary.total')).toBeInTheDocument();
   });
 
   type IRenderProps = {

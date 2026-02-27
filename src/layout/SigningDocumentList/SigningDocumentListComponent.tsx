@@ -8,6 +8,7 @@ import { AppTable } from 'src/app-components/Table/Table';
 import { Caption } from 'src/components/form/caption/Caption';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { getFileEnding, removeFileEnding } from 'src/layout/FileUpload/utils/fileEndings';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { useDocumentList } from 'src/layout/SigningDocumentList/api';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
@@ -54,8 +55,12 @@ export function SigningDocumentListComponent({
             <Link
               href={rowData.url}
               rel='noopener noreferrer'
+              title={rowData.filename}
             >
-              {rowData.filename}
+              <span className={classes.nameWrapper}>
+                <span className={classes.truncate}>{removeFileEnding(rowData.filename)}</span>
+                <span className={classes.extension}>{getFileEnding(rowData.filename)}</span>
+              </span>
             </Link>
           ),
         },

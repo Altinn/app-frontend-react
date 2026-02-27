@@ -59,10 +59,10 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
           item.data.features.forEach((feature: Feature) => {
             // Attach the unique ID to the feature's properties
             const newFeature: FeatureWithId = {
-              ...feature, // Copy type, geometry, etc.
+              ...feature,
               properties: {
-                ...feature.properties, // Copy any existing properties
-                altinnRowId: item.altinnRowId, // Add our ID
+                ...feature.properties,
+                altinnRowId: item.altinnRowId,
               },
             };
 
@@ -76,7 +76,6 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
           // Handle case where item.data is a single Feature / PolyLine / Polygon, etc.
           const geoData = item.data;
 
-          // 1. Check if it's already a Feature, otherwise wrap it in one
           const isFeature = 'type' in geoData && geoData.type === 'Feature';
 
           const newFeature: FeatureWithId = isFeature
@@ -138,26 +137,18 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   };
 
   const onEditedHandler = (e: L.DrawEvents.Edited) => {
-    if (!geometryBinding) {
-      return;
-    }
-
-    if (!geometryDataFieldName) {
-      return;
-    }
-
-    if (!geometryDataBinding) {
+    if (!geometryBinding || !geometryDataBinding || !isEditableBinding) {
       return;
     }
 
     e.layers.eachLayer((layer) => {
-      // @ts-expect-error test
+      // @ts-expect-error - Leaflet's typings don't guarantee feature or properties exist, but we ensure they do in onCreatedHandler
       const editedGeo = layer.toGeoJSON();
       const altinnRowId = editedGeo.properties?.altinnRowId;
 
       let geoString = JSON.stringify(editedGeo);
 
-      if (geometryType == 'WKT') {
+      if (geometryType === 'WKT') {
         geoString = geojsonToWKT(editedGeo.geometry);
       }
 
@@ -179,7 +170,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     }
 
     e.layers.eachLayer((layer) => {
-      // @ts-expect-error test
+      // @ts-expect-error - Leaflet's typings don't guarantee feature or properties exist, but we ensure they do in onCreatedHandler
       const deletedGeo = layer.toGeoJSON();
       removeFromList({
         reference: geometryBinding,
