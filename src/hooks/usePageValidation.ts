@@ -18,7 +18,7 @@ export function useEffectivePageValidation(pageKey: string): {
     const pageValidation = currentPageLayout?.data
       ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
 
-    const validationOnNavigation = pageValidation ?? effectivePageValidation;
+    const validationOnNavigation = effectivePageValidation ?? pageValidation;
 
     return {
       getPageValidation: () => validationOnNavigation,

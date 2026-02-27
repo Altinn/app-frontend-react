@@ -148,7 +148,7 @@ export const useValidationOnNavigation = (): PageValidation | undefined => {
   const settingsValidation = layoutSettings !== ContextNotProvided ? layoutSettings.validationOnNavigation : undefined;
   const layoutSetsValidation = layoutSetsPageValidation !== ContextNotProvided ? layoutSetsPageValidation : undefined;
 
-  return settingsValidation ?? layoutSetsValidation;
+  return layoutSetsValidation ?? settingsValidation;
 };
 
 export const usePageSettings = (): Required<GlobalPageSettings> => {
