@@ -268,18 +268,43 @@ function cleanupQuery(searchParams: URLSearchParams, setSearchParams: SetURLSear
 }
 
 function findElementToFocus(div: HTMLDivElement | null, binding: string | null) {
-  const targetElements = div?.querySelectorAll('input,textarea,select,p');
-  const targetHtmlElements = targetElements
-    ? Array.from(targetElements).filter((node) => node instanceof HTMLElement)
-    : [];
-
-  if (targetHtmlElements?.length > 0) {
-    const elementWithBinding = binding
-      ? Array.from(targetHtmlElements).find((htmlElement) => htmlElement && htmlElement.dataset.bindingkey === binding)
-      : undefined;
-
-    return elementWithBinding ?? targetHtmlElements[0];
+  if (!div) {
+    return undefined;
   }
 
-  return undefined;
+  const targetElements = Array.from(
+    div.querySelectorAll<HTMLElement>(
+      ['input', 'textarea', 'select', 'button', '[tabindex]:not([tabindex="-1"])', '[contenteditable="true"]'].join(
+        ',',
+      ),
+    ),
+  );
+
+  if (targetElements.length === 0) {
+    return undefined;
+  }
+
+  const hasBinding = binding !== null;
+  const matchesBinding = (element: HTMLElement) => hasBinding && element.dataset.bindingkey === binding;
+
+  if (hasBinding) {
+    const bindingInput = targetElements.find(
+      (element) => matchesBinding(element) && element.matches('input,textarea,select'),
+    );
+    if (bindingInput) {
+      return bindingInput;
+    }
+
+    const anyBinding = targetElements.find(matchesBinding);
+    if (anyBinding) {
+      return anyBinding;
+    }
+  }
+
+  const firstInputLike = targetElements.find((element) => element.matches('input,textarea,select'));
+  if (firstInputLike) {
+    return firstInputLike;
+  }
+
+  return targetElements[0];
 }
