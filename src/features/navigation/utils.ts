@@ -171,5 +171,5 @@ export function useNavigationIsPrevented(targetPageKey: string) {
 
   const pagesBetween = order.slice(start, end);
 
-  return pagesBetween.some((pageId) => preventNavigationIds[pageId]);
+  return pagesBetween.some((pageId) => preventNavigationIds[pageId] && targetIndex > currentIndex);
 }
