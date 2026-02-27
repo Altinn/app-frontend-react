@@ -5,7 +5,7 @@ import { Form } from 'src/components/form/Form';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
 import { TaskOverrides } from 'src/core/contexts/TaskOverrides';
 import { Loader } from 'src/core/loading/Loader';
-import { FormProvider } from 'src/features/form/FormContext';
+import { DynamicFormProvider, StaticFormProvider } from 'src/features/form/FormContext';
 import { useDataTypeFromLayoutSet } from 'src/features/form/layout/LayoutsContext';
 import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
 import { useNavigationParam } from 'src/hooks/navigation';
@@ -15,7 +15,9 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 export function SubformWrapper({ baseComponentId, children }: PropsWithChildren<{ baseComponentId: string }>) {
   return (
     <SubformOverrideWrapper baseComponentId={baseComponentId}>
-      <FormProvider>{children}</FormProvider>
+      <StaticFormProvider>
+        <DynamicFormProvider>{children}</DynamicFormProvider>
+      </StaticFormProvider>
     </SubformOverrideWrapper>
   );
 }

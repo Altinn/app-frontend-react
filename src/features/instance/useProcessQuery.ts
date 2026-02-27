@@ -1,5 +1,6 @@
 import { queryOptions, skipToken, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { OverusedHooks } from 'src/core/contexts/OverusedHooksContext';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
@@ -20,10 +21,12 @@ export const processQueries = {
     }),
 } as const;
 
-export function useProcessQuery() {
+export function useProcessQueryActual() {
   const instanceId = useLaxInstanceId();
   return useQuery(processQueries.processState(instanceId));
 }
+
+export const useProcessQuery = OverusedHooks.useProcessQuery;
 
 export const useIsAuthorized = () => {
   const { data } = useProcessQuery();

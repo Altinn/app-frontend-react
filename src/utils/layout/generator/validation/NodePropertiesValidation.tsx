@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import type { FC } from 'react';
 
 import { formatLayoutSchemaValidationError } from 'src/features/devtools/utils/layoutSchemaValidation';
+import { useLayoutSchemaValidator } from 'src/features/form/layout/LayoutSchemaProvider';
 import { getComponentDef, implementsDataModelBindingValidation } from 'src/layout';
-import { GeneratorValidation } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import { duplicateStringFilter } from 'src/utils/stringHelper';
 import type { CompDef } from 'src/layout';
@@ -52,7 +52,7 @@ function DataModelValidation<T extends CompTypes>({ externalItem, intermediateIt
 }
 
 function SchemaValidation<T extends CompTypes>({ intermediateItem, externalItem }: NodeValidationProps<T>) {
-  const validate = GeneratorValidation.useValidate();
+  const validate = useLayoutSchemaValidator();
   const addError = NodesInternal.useAddError();
 
   useEffect(() => {

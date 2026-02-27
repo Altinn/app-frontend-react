@@ -9,7 +9,7 @@ import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import classes from 'src/components/presentation/BackNavigationButton.module.css';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
-import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
+import { useInstanceData } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -28,7 +28,7 @@ export function BackNavigationButton(props: { className?: string }) {
   const { exitSubform } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isExitingSubform } = useIsProcessing();
 
-  const dataValues = useInstanceDataQuery({ select: (instance) => instance.dataValues }).data;
+  const dataValues = useInstanceData((instance) => instance.dataValues);
   const dialogId = getDialogIdFromDataValues(dataValues);
   const messageBoxUrl = getMessageBoxUrl(party?.partyId, dialogId);
 

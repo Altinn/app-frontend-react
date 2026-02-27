@@ -838,7 +838,7 @@ export const FD = {
 
       // When lookupTool is available and doesn't report a missing repeating group error, we know there's no
       // repeating group structure in this path, so we can return the field as-is.
-      const foundInDataModel = lookupTool && (!lookupErr || lookupErr.error !== 'missingProperty');
+      const foundInDataModel = !lookupErr || lookupErr.error !== 'missingProperty';
       if (foundInDataModel && lookupErr?.error !== 'missingRepeatingGroup') {
         return [reference?.field];
       }

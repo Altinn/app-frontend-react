@@ -1,4 +1,4 @@
-import { useCallback, useInsertionEffect, useRef } from 'react';
+import { useInsertionEffect, useRef } from 'react';
 
 /**
  * This is a polyfill for the not yet released useEffectEvent hook,
@@ -11,5 +11,5 @@ export function useOurEffectEvent<T extends (...args: any[]) => any>(event: T) {
   useInsertionEffect(() => {
     ref.current = event;
   }, [event]);
-  return useCallback((...args: Parameters<T>): ReturnType<T> => ref.current(...args), []);
+  return useRef((...args: Parameters<T>): ReturnType<T> => ref.current(...args)).current;
 }

@@ -1,19 +1,19 @@
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useLaxApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { getDataTypeByLayoutSetId } from 'src/features/applicationMetadata/appMetadataUtils';
-import { useLayoutSetsQuery } from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useLaxLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
 
 export const useAllowAnonymous = () => {
   const application = useLaxApplicationMetadata();
-  const { data: layoutSets } = useLayoutSetsQuery();
+  const layoutSets = useLaxLayoutSets();
 
-  if (!layoutSets || application === ContextNotProvided || !application.isStatelessApp) {
+  if (layoutSets === ContextNotProvided || application === ContextNotProvided || !application.isStatelessApp) {
     return false;
   }
 
   const dataTypeId = getDataTypeByLayoutSetId({
     layoutSetId: application.onEntry.show,
-    layoutSets: layoutSets.sets,
+    layoutSets,
     appMetaData: application,
   });
   const dataType = application.dataTypes.find((d) => d.id === dataTypeId);

@@ -7,9 +7,6 @@ import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLa
 import { useLayoutSettingsQueryDef } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useRulesQueryDef } from 'src/features/form/rules/RulesContext';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useOrderDetailsQueryDef } from 'src/features/payment/OrderDetailsProvider';
-import { usePaymentInformationQueryDef } from 'src/features/payment/PaymentInformationProvider';
-import { useHasPayment, useIsPayment } from 'src/features/payment/utils';
 import { usePdfFormatQueryDef } from 'src/features/pdf/usePdfFormatQuery';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 
@@ -29,10 +26,6 @@ export function FormPrefetcher() {
   usePrefetchQuery(useLayoutSettingsQueryDef(layoutSetId));
   usePrefetchQuery(useDynamicsQueryDef(layoutSetId));
   usePrefetchQuery(useRulesQueryDef(layoutSetId));
-
-  // Prefetch payment data if applicable
-  usePrefetchQuery(usePaymentInformationQueryDef(useIsPayment(), instanceId));
-  usePrefetchQuery(useOrderDetailsQueryDef(useHasPayment(), instanceId));
 
   // Prefetch PDF format only if we are in PDF mode and loading the main form
   const dataElementId = useCurrentDataModelDataElementId();

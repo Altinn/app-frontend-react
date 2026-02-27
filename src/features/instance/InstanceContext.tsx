@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useNavigation } from 'react-router-dom';
 import type { PropsWithChildren } from 'react';
 
@@ -14,6 +14,8 @@ import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useInstanceOwnerParty } from 'src/features/party/PartiesProvider';
 import { useNavigationParam } from 'src/hooks/navigation';
+import { useIsFetchingFast } from 'src/hooks/useIsFetchingFast';
+import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { fetchInstanceData } from 'src/queries/queries';
 import { buildInstanceDataSources } from 'src/utils/instanceDataSources';
 import type { IData, IInstance, IInstanceDataSources } from 'src/types/shared';
@@ -54,6 +56,11 @@ export const InstanceProvider = ({ children }: PropsWithChildren) => {
 
   return <InstanceContext.Provider value={data}>{children}</InstanceContext.Provider>;
 };
+
+export function useInstanceData<T = IInstance>(select: (instance: IInstance) => T = (i) => i as T): T | null {
+  const data = useContext(InstanceContext);
+  return data !== null ? select(data) : null;
+}
 
 export const useLaxInstanceId = () => {
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
@@ -118,17 +125,30 @@ export function useInstanceDataQuery<R = IInstance>(
   });
 }
 
+export function useIsFetchingInstanceData() {
+  return useIsFetchingFast([...instanceQueries.all(), useInstanceDataQueryArgs()]);
+}
+
+export function useRefetchInstanceData() {
+  const client = useQueryClient();
+  const query = instanceQueries.instanceData(useInstanceDataQueryArgs());
+
+  return useOurEffectEvent(async () => {
+    try {
+      await client.fetchQuery(query);
+    } catch {
+      /* empty */
+    }
+  });
+}
+
 export function useInstanceDataSources(): IInstanceDataSources | null {
   const instanceOwnerParty = useInstanceOwnerParty();
-  return (
-    useInstanceDataQuery({
-      select: (instance) => buildInstanceDataSources(instance, instanceOwnerParty),
-    }).data ?? null
-  );
+  return useInstanceData((instance) => buildInstanceDataSources(instance, instanceOwnerParty));
 }
 
 export const useDataElementsSelectorProps = () => {
-  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data;
+  const dataElements = useInstanceData((instance) => instance.data);
 
   return <U,>(selectDataElements: (data: IData[]) => U) =>
     dataElements ? selectDataElements(dataElements) : undefined;
@@ -136,14 +156,13 @@ export const useDataElementsSelectorProps = () => {
 
 /** Beware that in later versions, this will re-render your component after every save, as
  * the backend sends us updated instance data */
-export const useInstanceDataElements = (dataType: string | undefined) =>
-  useInstanceDataQuery({
-    select: (instance) =>
-      dataType ? instance.data.filter((dataElement) => dataElement.dataType === dataType) : instance.data,
-  }).data ?? emptyArray;
+export const useInstanceDataElements = (dataType?: string) =>
+  useInstanceData((instance) =>
+    dataType ? instance.data.filter((dataElement) => dataElement.dataType === dataType) : instance.data,
+  ) ?? emptyArray;
 
 export function useHasPendingScans(): boolean {
-  const dataElements = useInstanceDataQuery({ select: (instance) => instance.data }).data ?? [];
+  const dataElements = useInstanceData((instance) => instance.data) ?? [];
   if (dataElements.length === 0) {
     return false;
   }

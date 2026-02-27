@@ -10,7 +10,7 @@ import {
 } from 'src/features/applicationMetadata/appMetadataUtils';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { useLayoutSets } from 'src/features/form/layoutSets/LayoutSetsProvider';
-import { useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useInstanceData, useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
@@ -38,15 +38,15 @@ export function useCurrentDataModelDataElementId() {
 
   // Instance data elements will update often (after each save), so we have to use a selector to make
   // sure components don't re-render too often.
-  return useInstanceDataQuery({
-    select: (data) => {
+  return (
+    useInstanceData((data) => {
       if (overriddenDataElementId) {
         return overriddenDataElementId;
       }
 
       return getCurrentTaskDataElementId({ application, dataElements: data.data, taskId, layoutSets });
-    },
-  }).data;
+    }) ?? undefined
+  );
 }
 
 type DataModelDeps = {
@@ -63,7 +63,7 @@ type DataModelProps = {
   prefillFromQueryParams?: string;
 };
 
-function getDataModelUrl({
+export function getDataModelUrl({
   dataType,
   dataElementId,
   language,

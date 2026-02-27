@@ -28,7 +28,6 @@ import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/gen
 import { GeneratorData } from 'src/utils/layout/generator/GeneratorDataSources';
 import { useRegistry } from 'src/utils/layout/generator/GeneratorStages';
 import { LayoutSetGenerator } from 'src/utils/layout/generator/LayoutSetGenerator';
-import { GeneratorValidationProvider } from 'src/utils/layout/generator/validation/GenerationValidationContext';
 import type { AttachmentsStorePluginConfig } from 'src/features/attachments/AttachmentsStorePlugin';
 import type { ValidationsProcessedLast } from 'src/features/validation';
 import type { ValidationStorePluginConfig } from 'src/features/validation/ValidationStorePlugin';
@@ -264,11 +263,9 @@ export const NodesProvider = ({ children, ...props }: NodesProviderProps) => {
       validationsProcessedLast={getProcessedLast()}
     >
       <ProvideGlobalContext registry={registry}>
-        <GeneratorValidationProvider>
-          <GeneratorData.Provider>
-            <LayoutSetGenerator />
-          </GeneratorData.Provider>
-        </GeneratorValidationProvider>
+        <GeneratorData.Provider>
+          <LayoutSetGenerator />
+        </GeneratorData.Provider>
         {window.Cypress && <UpdateAttachmentsForCypress />}
         <HiddenComponentsProvider />
         <BlockUntilRulesRan>

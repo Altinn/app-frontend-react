@@ -20,7 +20,7 @@ import type { ApplicationMetadata } from 'src/features/applicationMetadata/types
 import type { IInstance, IParty } from 'src/types/shared';
 
 export interface IConfirmPageProps {
-  instance: IInstance | undefined;
+  instance: IInstance | null;
   instanceOwnerParty?: IParty;
   appName: string;
   applicationMetadata: ApplicationMetadata | null;
