@@ -267,7 +267,7 @@ function cleanupQuery(searchParams: URLSearchParams, setSearchParams: SetURLSear
   }
 }
 
-function findElementToFocus(div: HTMLDivElement | null, binding: string | null) {
+export function findElementToFocus(div: HTMLDivElement | null, binding: string | null) {
   if (!div) {
     return undefined;
   }
