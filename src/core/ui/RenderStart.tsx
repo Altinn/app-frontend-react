@@ -46,8 +46,11 @@ function RunNavigationEffect() {
 
   useEffect(() => {
     if (shouldRun && navigationEffect) {
-      navigationEffect.callback();
-      setNavigationEffect(null);
+      try {
+        navigationEffect.callback();
+      } finally {
+        setNavigationEffect(null);
+      }
     }
   }, [navigationEffect, shouldRun, setNavigationEffect]);
 
