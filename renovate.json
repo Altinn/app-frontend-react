@@ -6,7 +6,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["//^snapshots\\.js$//"],
+      "managerFilePatterns": ["/^snapshots\\.js$/"],
       "matchStrings": ["\"__version\": \"(?<currentValue>[^\"]+)\""],
       "datasourceTemplate": "npm",
       "depNameTemplate": "cypress",
@@ -26,7 +26,7 @@
     },
     {
       "matchPackageNames": ["cypress"],
-      "matchManagers": ["npm", "regex"],
+      "matchManagers": ["npm", "custom.regex"],
       "groupName": "cypress"
     }
   ]
