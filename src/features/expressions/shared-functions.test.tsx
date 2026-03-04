@@ -162,7 +162,7 @@ function getAllTestCases(test: FunctionTest): FunctionTestBase[] {
 }
 
 function extractMainTestCase({ expression, expects, expectsFailure }: FunctionTest): FunctionTestBase | null {
-  return expression ? { expression, expects, expectsFailure } : null;
+  return expression === undefined ? null : { expression, expects, expectsFailure };
 }
 
 function clearGlobals(): void {
