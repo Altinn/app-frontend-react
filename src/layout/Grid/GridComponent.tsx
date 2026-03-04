@@ -30,6 +30,8 @@ import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { GridCell, GridRow, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
+import { ExprVal } from 'src/features/expressions/types';
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { baseComponentId } = props;
@@ -268,6 +270,12 @@ function CellWithComponent({
 }
 
 function CellWithText({ children, className, columnStyleOptions, help, isHeader = false }: CellWithTextProps) {
+  // const colSpanValue = useEvalExpression(columnStyleOptions?.colSpan, {
+  //   returnType: ExprVal.Number,
+  //   defaultValue: 1,
+  //   errorIntroText: `Invalid expression for colSpan in Grid cell with text "${children}"`,
+  // });
+
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { elementAsString } = useLanguage();
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
