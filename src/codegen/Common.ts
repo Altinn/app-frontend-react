@@ -425,6 +425,19 @@ const common = {
       ),
     ).extends(CG.common('ISelectionComponent')),
 
+  IGridColumnProperties: () =>
+    new CG.obj(
+      new CG.prop(
+        'colSpan',
+        new CG.expr(ExprVal.Number)
+          .optional()
+          .setTitle('Column span')
+          .setDescription('Number of columns this cell should span. Defaults to 1 if not set.'),
+      ),
+    )
+      .setTitle('Grid column properties')
+      .setDescription('Additional properties for columns in the Grid component'),
+
   // Table configuration:
   ITableColumnsAlignText: () =>
     new CG.enum('left', 'center', 'right')
@@ -474,13 +487,6 @@ const common = {
             'Expression or boolean indicating whether each column should be hidden. An expression will be evaluated per ' +
               'column, and if it evaluates to true, the column will be hidden.',
           ),
-      ),
-      new CG.prop(
-        'colSpan',
-        new CG.expr(ExprVal.Number)
-          .optional()
-          .setTitle('Column span')
-          .setDescription('Number of columns this cell should span. Defaults to 1 if not set.'),
       ),
     )
       .setTitle('Column options')
@@ -595,7 +601,8 @@ const common = {
     new CG.obj(
       new CG.prop('component', new CG.str().optional().setTitle('Component ID').setDescription('ID of the component')),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-    ).extends(CG.common('ITableColumnProperties')),
+      new CG.prop('gridColumnOptions', CG.common('IGridColumnProperties').optional()),
+    ),
   GridCellLabelFrom: () =>
     new CG.obj(
       new CG.prop(
@@ -605,7 +612,8 @@ const common = {
           .setDescription('Set this to a component id to display the label from that component'),
       ),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-    ).extends(CG.common('ITableColumnProperties')),
+      new CG.prop('gridColumnOptions', CG.common('IGridColumnProperties').optional()),
+    ),
   GridCellText: () =>
     new CG.obj(
       new CG.prop(
@@ -614,7 +622,8 @@ const common = {
       ),
       new CG.prop('help', new CG.str().optional().setTitle('Help').setDescription('Help text to display')),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-    ).extends(CG.common('ITableColumnProperties')),
+      new CG.prop('gridColumnOptions', CG.common('IGridColumnProperties').optional()),
+    ),
   GridCell: () =>
     new CG.union(CG.common('GridComponentRef'), CG.null, CG.common('GridCellText'), CG.common('GridCellLabelFrom')),
   GridRow: () =>

@@ -29,7 +29,13 @@ import { useIsHidden } from 'src/utils/layout/hidden';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridCell, GridRow, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type {
+  GridCell,
+  GridRow,
+  IGridColumnProperties,
+  ITableColumnFormatting,
+  ITableColumnProperties,
+} from 'src/layout/common.generated';
 import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import { ExprVal } from 'src/features/expressions/types';
 
@@ -158,12 +164,15 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
           mutableColumnSettings[cellIdx] = cell.columnOptions;
         }
 
+        const gridColumnOptions = cell && 'gridColumnOptions' in cell ? cell.gridColumnOptions : undefined;
+
         if (isGridCellText(cell) || isGridCellLabelFrom(cell)) {
           let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
             : {};
           textCellSettings = { ...textCellSettings, ...cell };
 
+          console.log(cell, textCellSettings);
           if (isGridCellText(cell)) {
             return (
               <CellWithText
@@ -172,6 +181,7 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
                 help={cell?.help}
                 isHeader={row.header}
                 columnStyleOptions={textCellSettings}
+                gridColumnOptions={gridColumnOptions}
               >
                 <Lang id={cell.text} />
               </CellWithText>
@@ -185,6 +195,7 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
               isHeader={row.header}
               columnStyleOptions={textCellSettings}
               labelFrom={cell.labelFrom}
+              gridColumnOptions={gridColumnOptions}
             />
           );
         }
@@ -208,6 +219,7 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
             isHeader={row.header}
             className={className}
             columnStyleOptions={mutableColumnSettings[cellIdx]}
+            gridColumnOptions={gridColumnOptions}
           />
         );
       })}
@@ -218,6 +230,7 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
 interface CellProps {
   className?: string;
   columnStyleOptions?: ITableColumnProperties;
+  gridColumnOptions?: IGridColumnProperties;
   isHeader?: boolean;
   rowReadOnly?: boolean;
 }
@@ -238,12 +251,18 @@ function CellWithComponent({
   baseComponentId,
   className,
   columnStyleOptions,
+  gridColumnOptions,
   isHeader = false,
   rowReadOnly,
 }: CellWithComponentProps) {
   const isHidden = useIsHidden(baseComponentId);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-  const colSpanValue = columnStyleOptions?.colSpan as number | undefined;
+  const colSpanValue = useEvalExpression(gridColumnOptions?.colSpan, {
+    returnType: ExprVal.Number,
+    defaultValue: 1,
+    errorIntroText: `Invalid expression for colSpan in Grid cell with component "${baseComponentId}"`,
+  });
+  // const colSpanValue = columnStyleOptions?.colSpan as number | undefined;
 
   if (!isHidden) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -269,17 +288,23 @@ function CellWithComponent({
   return <CellComponent className={className} />;
 }
 
-function CellWithText({ children, className, columnStyleOptions, help, isHeader = false }: CellWithTextProps) {
-  // const colSpanValue = useEvalExpression(columnStyleOptions?.colSpan, {
-  //   returnType: ExprVal.Number,
-  //   defaultValue: 1,
-  //   errorIntroText: `Invalid expression for colSpan in Grid cell with text "${children}"`,
-  // });
+function CellWithText({
+  children,
+  className,
+  columnStyleOptions,
+  gridColumnOptions,
+  help,
+  isHeader = false,
+}: CellWithTextProps) {
+  const colSpanValue = useEvalExpression(gridColumnOptions?.colSpan, {
+    returnType: ExprVal.Number,
+    defaultValue: 1,
+    errorIntroText: `Invalid expression for colSpan in Grid cell with text "${children}"`,
+  });
 
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { elementAsString } = useLanguage();
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
-  const colSpanValue = columnStyleOptions?.colSpan as number | undefined;
 
   return (
     <CellComponent
@@ -305,12 +330,22 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
   );
 }
 
-function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = false }: CellWithLabelProps) {
+function CellWithLabel({
+  className,
+  columnStyleOptions,
+  gridColumnOptions,
+  labelFrom,
+  isHeader = false,
+}: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const item = useItemFor(labelFrom);
   const trb = item.textResourceBindings;
   const required = 'required' in item && item.required;
-  const colSpanValue = columnStyleOptions?.colSpan as number | undefined;
+  const colSpanValue = useEvalExpression(gridColumnOptions?.colSpan, {
+    returnType: ExprVal.Number,
+    defaultValue: 1,
+    errorIntroText: `Invalid expression for colSpan in Grid cell with label from "${labelFrom}"`,
+  });
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb && typeof trb.description === 'string' ? trb.description : undefined;
