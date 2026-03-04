@@ -475,6 +475,13 @@ const common = {
               'column, and if it evaluates to true, the column will be hidden.',
           ),
       ),
+      new CG.prop(
+        'colSpan',
+        new CG.expr(ExprVal.Number)
+          .optional()
+          .setTitle('Column span')
+          .setDescription('Number of columns this cell should span. Defaults to 1 if not set.'),
+      ),
     )
       .setTitle('Column options')
       .setDescription('Options for the row/column')

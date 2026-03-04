@@ -241,6 +241,7 @@ function CellWithComponent({
 }: CellWithComponentProps) {
   const isHidden = useIsHidden(baseComponentId);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+  const colSpanValue = columnStyleOptions?.colSpan as number | undefined;
 
   if (!isHidden) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -248,6 +249,7 @@ function CellWithComponent({
       <CellComponent
         className={cn(css.tableCellFormatting, className)}
         style={columnStyles}
+        colSpan={colSpanValue}
       >
         <GenericComponent
           baseComponentId={baseComponentId}
@@ -269,11 +271,13 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { elementAsString } = useLanguage();
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+  const colSpanValue = columnStyleOptions?.colSpan as number | undefined;
 
   return (
     <CellComponent
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
+      colSpan={colSpanValue}
     >
       <span className={help && css.textCell}>
         <span
@@ -298,7 +302,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
   const item = useItemFor(labelFrom);
   const trb = item.textResourceBindings;
   const required = 'required' in item && item.required;
-
+  const colSpanValue = columnStyleOptions?.colSpan as number | undefined;
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb && typeof trb.description === 'string' ? trb.description : undefined;
@@ -308,6 +312,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
     <CellComponent
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
+      colSpan={colSpanValue}
     >
       <LabelContent
         id={useIndexedId(labelFrom)}
