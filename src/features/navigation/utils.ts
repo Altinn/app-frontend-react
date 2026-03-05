@@ -158,6 +158,7 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
   return { isCompleted, hasErrors };
 }
 
+//Prevents navigation to a page if there are pages between the current page and the target page that have validateOnNavigation enabled and contain validation errors.
 export function useGetNavigationIsPrevented() {
   const currentPageId = useNavigationParam('pageKey') ?? '';
   const layoutCollection = useLayoutCollection();
@@ -191,6 +192,7 @@ export function useGetNavigationIsPrevented() {
         return false;
       }
 
+      //TODO: check page configuration
       const mask = getVisibilityMask(config.show);
       return (allNodeIds[pageId] ?? []).some((nodeId) => {
         const validations = validationsSelector(nodeId, mask, 'error');
