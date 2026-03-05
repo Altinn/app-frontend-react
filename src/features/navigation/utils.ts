@@ -199,9 +199,3 @@ export function useGetNavigationIsPrevented() {
     });
   };
 }
-
-// Prevents navigation to a page if there are pages between the current page and the target page
-// that have validationOnNavigation configured AND have actual validation errors matching that config.
-export function useNavigationIsPrevented(targetPageKey: string) {
-  return useGetNavigationIsPrevented()(targetPageKey);
-}
