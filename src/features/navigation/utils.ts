@@ -192,7 +192,6 @@ export function useGetNavigationIsPrevented() {
         return false;
       }
 
-      //TODO: check page configuration
       const mask = getVisibilityMask(config.show);
       return (allNodeIds[pageId] ?? []).some((nodeId) => {
         const validations = validationsSelector(nodeId, mask, 'error');
