@@ -31,7 +31,27 @@ export function ComponentStructureWrapper({
   const showValidationMessages = layoutComponent.renderDefaultValidations();
   const indexedId = useIndexedId(baseComponentId);
 
-  const componentWithValidations = (
+  const componentWithValidations = !grid?.labelGrid ? (
+    <>
+      <Flex
+        id={`form-content-${indexedId}`}
+        className={className}
+        size={{ xs: 12, ...grid?.innerGrid }}
+        style={style}
+        item
+      >
+        {children}
+      </Flex>
+      {showValidationMessages && (
+        <Flex
+          item
+          size={{ xs: 12, md: 12 }}
+        >
+          <AllComponentValidations baseComponentId={baseComponentId} />
+        </Flex>
+      )}
+    </>
+  ) : (
     <Flex
       id={`form-content-${indexedId}`}
       className={className}
