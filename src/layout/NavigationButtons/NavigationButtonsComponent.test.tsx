@@ -143,10 +143,24 @@ describe('NavigationButtons', () => {
     expect(screen.getByText('next')).toBeInTheDocument();
   });
 
-  test('button validation overrides page validation', async () => {
+  test('page validation overrides button validation', async () => {
     await render({
       component: navButton3,
       pageValidation: { page: 'current', show: ['Required'] },
+      formDataOverride: async () => ({}),
+      inputRequired: true,
+    });
+
+    await userEvent.click(screen.getByText('next'));
+
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(screen.getByText('next')).toBeInTheDocument();
+  });
+
+  test('button validation is used when page has no validation config', async () => {
+    await render({
+      component: navButton3,
       formDataOverride: async () => ({}),
       inputRequired: true,
     });
