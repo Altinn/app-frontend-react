@@ -14,6 +14,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { useGetNavigationIsPrevented } from 'src/features/navigation/utils';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useIsSubformPage, useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -213,6 +214,7 @@ export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericCompo
   const { performProcess, isAnyProcessing, isThisProcessing } = useIsProcessing();
   const layoutLookups = useLayoutLookups();
   const { getPageValidation } = usePageValidation(baseComponentId);
+  const getNavigationIsPrevented = useGetNavigationIsPrevented();
 
   const getScrollPosition = React.useCallback(
     () => document.querySelector(`[data-componentid="${id}"]`)?.getClientRects().item(0)?.y,
@@ -223,7 +225,10 @@ export const CustomButtonComponent = ({ baseComponentId }: PropsFromGenericCompo
   const isPermittedToPerformActions = actions
     .filter((action) => action.type === 'ServerAction')
     .reduce((acc, action) => acc && isAuthorized(action.id), true);
-  const disabled = !isPermittedToPerformActions || isAnyProcessing;
+  const isPreventedByIntermediatePage = actions.some(
+    (action) => isSpecificClientAction('navigateToPage', action) && getNavigationIsPrevented(action.metadata.page),
+  );
+  const disabled = !isPermittedToPerformActions || isAnyProcessing || isPreventedByIntermediatePage;
 
   const isSubformCloseButton = actions.filter((action) => action.id === 'closeSubform').length > 0;
   let interceptedButtonStyle = buttonStyle ?? 'secondary';

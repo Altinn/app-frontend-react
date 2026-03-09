@@ -9,6 +9,7 @@ import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useGetNavigationIsPrevented } from 'src/features/navigation/utils';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -65,6 +66,8 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
   // When page-level validation is set, only validate forward navigation
   const validationOnForward = getPageValidation() ?? validateOnForward;
   const validationOnBackward = getPageValidation() ? undefined : validateOnBackward;
+
+  const getNavigationIsPrevented = useGetNavigationIsPrevented();
 
   const firstPageLink = React.useRef<HTMLButtonElement>(undefined);
 
@@ -160,7 +163,7 @@ export const NavigationBarComponent = ({ baseComponentId }: PropsFromGenericComp
                   className={classes.containerBase}
                 >
                   <NavigationButton
-                    disabled={isAnyProcessing}
+                    disabled={isAnyProcessing || getNavigationIsPrevented(pageId)}
                     current={currentPageId === pageId}
                     onClick={() => handleNavigationClick(pageId)}
                     ref={index === 0 ? firstPageLink : null}

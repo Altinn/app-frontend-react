@@ -11,15 +11,20 @@ import {
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useIsReceiptPage } from 'src/core/routing/useIsReceiptPage';
-import { usePreventNavigationLayouts } from 'src/features/form/layout/LayoutsContext';
-import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { useLayoutCollection } from 'src/features/form/layout/LayoutsContext';
+import {
+  usePageGroups,
+  usePageSettings,
+  useValidationOnNavigation,
+} from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/useProcessQuery';
 import { ValidationMask } from 'src/features/validation';
+import { getVisibilityMask } from 'src/features/validation/utils';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage, useVisitedPages } from 'src/hooks/useNavigatePage';
 import { useHiddenPages } from 'src/utils/layout/hidden';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
+import type { NavigationReceipt, NavigationTask, PageValidation } from 'src/layout/common.generated';
 
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
@@ -153,23 +158,45 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
   return { isCompleted, hasErrors };
 }
 
-// Prevents navigation to a page if there are pages between the current page and the target page that have configuration
-// to prevent navigation while there are potential validation errors.
-export function useNavigationIsPrevented(targetPageKey: string) {
+//Prevents navigation to a page if there are pages between the current page and the target page that have validateOnNavigation enabled and contain validation errors.
+export function useGetNavigationIsPrevented() {
   const currentPageId = useNavigationParam('pageKey') ?? '';
-  const preventNavigationIds = usePreventNavigationLayouts();
+  const layoutCollection = useLayoutCollection();
+  const globalValidationOnNavigation = useValidationOnNavigation();
   const { order } = useNavigatePage();
+  const validationsSelector = NodesInternal.useLaxValidationsSelector();
+  const allNodeIds = NodesInternal.useLaxMemoSelector((state) => {
+    const result = Object.fromEntries<string[]>(order.map((page) => [page, []]));
+    Object.values(state.nodeData).forEach((node) => result[node.pageKey]?.push(node.id));
+    return result;
+  });
 
-  const currentIndex = order.indexOf(currentPageId);
-  const targetIndex = order.indexOf(targetPageKey);
+  return (targetPageKey: string): boolean => {
+    if (allNodeIds === ContextNotProvided) {
+      return false;
+    }
 
-  if (currentIndex === -1 || targetIndex === -1) {
-    return false;
-  }
+    const currentIndex = order.indexOf(currentPageId);
+    const targetIndex = order.indexOf(targetPageKey);
 
-  const [start, end] = currentIndex < targetIndex ? [currentIndex + 1, targetIndex] : [targetIndex + 1, currentIndex];
+    if (currentIndex === -1 || targetIndex === -1 || targetIndex <= currentIndex) {
+      return false;
+    }
 
-  const pagesBetween = order.slice(start, end);
+    return order.slice(currentIndex + 1, targetIndex).some((pageId) => {
+      const config =
+        globalValidationOnNavigation ??
+        (layoutCollection[pageId]?.data?.validationOnNavigation as PageValidation | undefined);
 
-  return pagesBetween.some((pageId) => preventNavigationIds[pageId] && targetIndex > currentIndex);
+      if (!config) {
+        return false;
+      }
+
+      const mask = getVisibilityMask(config.show);
+      return (allNodeIds[pageId] ?? []).some((nodeId) => {
+        const validations = validationsSelector(nodeId, mask, 'error');
+        return validations !== ContextNotProvided && validations.length > 0;
+      });
+    });
+  };
 }

@@ -9,7 +9,7 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
-import { useNavigationIsPrevented } from 'src/features/navigation/utils';
+import { useGetNavigationIsPrevented } from 'src/features/navigation/utils';
 import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
@@ -36,7 +36,7 @@ export function Page({
   const onPageNavigationValidation = useOnPageNavigationValidation();
   const { getPageValidation } = useEffectivePageValidation(currentPageId ?? '');
 
-  const navigationIsPrevented = useNavigationIsPrevented(page);
+  const navigationIsPrevented = useGetNavigationIsPrevented()(page);
 
   const handleNavigationClick = () =>
     performProcess(async () => {
