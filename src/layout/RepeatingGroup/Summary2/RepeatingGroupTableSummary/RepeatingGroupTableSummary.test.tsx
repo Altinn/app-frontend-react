@@ -9,7 +9,7 @@ import * as useNavigatePageModule from 'src/hooks/useNavigatePage';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { ILayoutCollection } from 'src/layout/layout';
+import type { CompInternal, ILayoutCollection } from 'src/layout/layout';
 
 type NodeId = 'input1' | 'input2' | 'input3' | 'repeating-group';
 
@@ -98,6 +98,58 @@ describe('RepeatingGroupTableSummary', () => {
     },
   });
 
+  const layoutWithNestedGroupChild = (): ILayoutCollection => ({
+    FormPage1: {
+      data: {
+        layout: [
+          {
+            id: 'repeating-group',
+            type: 'RepeatingGroup',
+            dataModelBindings: {
+              group: { dataType: defaultDataTypeMock, field: 'group' },
+            },
+            children: ['inner-group'],
+            tableHeaders: ['nested-input'],
+            maxCount: 3,
+            edit: {
+              editButton: true,
+            },
+          },
+          {
+            id: 'inner-group',
+            type: 'Group',
+            children: ['nested-input'],
+          } as unknown as CompInternal,
+          {
+            id: 'nested-input',
+            type: 'Input',
+            dataModelBindings: {
+              simpleBinding: { dataType: defaultDataTypeMock, field: 'group.nestedField' },
+            },
+            textResourceBindings: {
+              title: 'Nested input',
+            },
+          },
+        ],
+      },
+    },
+    FormPage2: {
+      data: {
+        layout: [
+          {
+            id: 'summary2',
+            type: 'Summary2',
+            target: {
+              type: 'component',
+              id: 'repeating-group',
+            },
+            overrides: [{ componentType: 'RepeatingGroup', display: 'table' }],
+          },
+        ],
+      },
+    },
+  });
+
   test('should focus the first input when clicking the edit button', async () => {
     const user = userEvent.setup();
     const navigate = jest.fn();
@@ -165,6 +217,19 @@ describe('RepeatingGroupTableSummary', () => {
   test('should render rowsAfter in summary table', async () => {
     await render({ layout: layoutWithHidden([], true, true) });
     expect(screen.getByText('summary.total')).toBeInTheDocument();
+  });
+
+  test('should handle nested child component inside group when editing', async () => {
+    const user = userEvent.setup();
+    const navigate = jest.fn();
+    await render({ navigate, layout: layoutWithNestedGroupChild() });
+
+    const editButton = screen.getByRole('button', { name: /endre/i });
+    await user.click(editButton);
+
+    await waitFor(() =>
+      expect(navigate).toHaveBeenCalledWith('repeating-group', 'repeating-group', expect.any(Object)),
+    );
   });
 
   type IRenderProps = {
