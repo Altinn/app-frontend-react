@@ -9,7 +9,7 @@ import * as useNavigatePageModule from 'src/hooks/useNavigatePage';
 import { RepeatingGroupProvider } from 'src/layout/RepeatingGroup/Providers/RepeatingGroupContext';
 import { RepeatingGroupTableSummary } from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTableSummary/RepeatingGroupTableSummary';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
-import type { CompInternal, ILayoutCollection } from 'src/layout/layout';
+import type { ILayoutCollection } from 'src/layout/layout';
 
 type NodeId = 'input1' | 'input2' | 'input3' | 'repeating-group';
 
@@ -119,7 +119,7 @@ describe('RepeatingGroupTableSummary', () => {
             id: 'inner-group',
             type: 'Group',
             children: ['nested-input'],
-          } as unknown as CompInternal,
+          },
           {
             id: 'nested-input',
             type: 'Input',
