@@ -269,7 +269,7 @@ export function useNavigatePage() {
       setVisitedPages((prev) => {
         const currentPage = navParams.current.pageKey;
         const updated = [...prev];
-        if (currentPage && orderRef.current.includes(currentPage) && !updated.includes(currentPage)) {
+        if (currentPage && !updated.includes(currentPage)) {
           updated.push(currentPage);
         }
         if (orderRef.current.includes(page) && !updated.includes(page)) {
