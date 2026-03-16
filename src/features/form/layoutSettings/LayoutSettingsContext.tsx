@@ -7,19 +7,11 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import {
-  useLaxGlobalUISettings,
-  useLaxLayoutSetsPageValidation,
-} from 'src/features/form/layoutSets/LayoutSetsProvider';
+import { useLaxGlobalUISettings } from 'src/features/form/layoutSets/LayoutSetsProvider';
 import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type {
-  GlobalPageSettings,
-  ILayoutSettings,
-  NavigationPageGroup,
-  PageValidation,
-} from 'src/layout/common.generated';
+import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ProcessedLayoutSettings> {
@@ -78,8 +70,8 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       showLanguageSelector: settings.pages.showLanguageSelector,
       showProgress: settings.pages.showProgress,
       taskNavigation: settings.pages.taskNavigation?.map((g) => ({ ...g, id: uuidv4() })),
+      validationOnNavigation: settings.pages.validationOnNavigation,
     }),
-    validationOnNavigation: settings.pages.validationOnNavigation,
     pdfLayoutName: settings.pages.pdfLayoutName,
   };
 }
@@ -105,7 +97,6 @@ interface ProcessedLayoutSettings {
   order: string[];
   groups?: NavigationPageGroup[];
   pageSettings: GlobalPageSettings;
-  validationOnNavigation?: PageValidation;
   pdfLayoutName?: string;
 }
 
@@ -131,7 +122,7 @@ export const usePageGroups = () => {
 
 const emptyArray = [];
 
-const defaults: Required<GlobalPageSettings> = {
+const defaults: Omit<Required<GlobalPageSettings>, 'validationOnNavigation'> = {
   hideCloseButton: false,
   showLanguageSelector: false,
   showProgress: false,
@@ -141,17 +132,8 @@ const defaults: Required<GlobalPageSettings> = {
   taskNavigation: [],
 };
 
-export const useValidationOnNavigation = (): PageValidation | undefined => {
-  const layoutSettings = useLaxCtx();
-  const layoutSetsPageValidation = useLaxLayoutSetsPageValidation();
-
-  const settingsValidation = layoutSettings !== ContextNotProvided ? layoutSettings.validationOnNavigation : undefined;
-  const layoutSetsValidation = layoutSetsPageValidation !== ContextNotProvided ? layoutSetsPageValidation : undefined;
-
-  return layoutSetsValidation ?? settingsValidation;
-};
-
-export const usePageSettings = (): Required<GlobalPageSettings> => {
+export const usePageSettings = (): Required<Omit<GlobalPageSettings, 'validationOnNavigation'>> &
+  Pick<GlobalPageSettings, 'validationOnNavigation'> => {
   const globalUISettings = useLaxGlobalUISettings();
   const layoutSettings = useLaxCtx();
 
