@@ -9,6 +9,28 @@ import { getComponentDef } from 'src/layout/index';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useExternalItem } from 'src/utils/layout/hooks';
 import type { LabelProps } from 'src/components/label/Label';
+import type { IGridStyling } from 'src/layout/common.generated';
+
+const MIN_INPUT_COLUMNS = 7;
+const GRID_BREAKPOINT_KEYS = ['xs', 'sm', 'md', 'lg', 'xl'];
+
+function getInnerGridWithMinInputColumns(inner: IGridStyling | undefined): IGridStyling {
+  if (!inner) {
+    return { xs: 12 };
+  }
+  return {
+    xs: 12,
+    ...Object.fromEntries(
+      GRID_BREAKPOINT_KEYS.map((key): [typeof key, number] | undefined => {
+        const value = inner[key];
+        if (typeof value === 'number') {
+          return [key, Math.max(MIN_INPUT_COLUMNS, Math.min(12, value))];
+        }
+        return undefined;
+      }).filter((entry): entry is [(typeof GRID_BREAKPOINT_KEYS)[number], number] => !!entry),
+    ),
+  };
+}
 
 type ComponentStructureWrapperProps = {
   baseComponentId: string;
@@ -31,31 +53,39 @@ export function ComponentStructureWrapper({
   const showValidationMessages = layoutComponent.renderDefaultValidations();
   const indexedId = useIndexedId(baseComponentId);
 
-  const componentWithValidations = !grid?.labelGrid ? (
-    <>
-      <Flex
-        id={`form-content-${indexedId}`}
-        className={className}
-        size={{ xs: 12, ...grid?.innerGrid }}
-        style={style}
-        item
-      >
-        {children}
-      </Flex>
-      {showValidationMessages && (
-        <Flex
-          item
-          size={{ xs: 12, md: 12 }}
-        >
-          <AllComponentValidations baseComponentId={baseComponentId} />
-        </Flex>
-      )}
-    </>
-  ) : (
+  const labelGrid = grid?.labelGrid;
+  const innerGrid = grid?.innerGrid;
+
+  const usesSideBySideLabelAndInput =
+    !!labelGrid &&
+    !!innerGrid &&
+    GRID_BREAKPOINT_KEYS.some((breakpointKey) => {
+      const labelGridValue = labelGrid[breakpointKey];
+      const innerGridValue = innerGrid[breakpointKey];
+      return (
+        typeof labelGridValue === 'number' &&
+        typeof innerGridValue === 'number' &&
+        labelGridValue + innerGridValue <= 12
+      );
+    });
+
+  const isInputTooNarrow =
+    !!innerGrid &&
+    GRID_BREAKPOINT_KEYS.some((breakpointKey) => {
+      const innerGridValue = innerGrid[breakpointKey];
+      return typeof innerGridValue === 'number' && innerGridValue < MIN_INPUT_COLUMNS;
+    });
+
+  const contentGridSize: IGridStyling =
+    (!usesSideBySideLabelAndInput || isInputTooNarrow) && innerGrid
+      ? getInnerGridWithMinInputColumns(innerGrid)
+      : { xs: 12, ...innerGrid };
+
+  const componentWithValidations = (
     <Flex
       id={`form-content-${indexedId}`}
       className={className}
-      size={{ xs: 12, ...grid?.innerGrid }}
+      size={contentGridSize}
       style={style}
       item
     >
