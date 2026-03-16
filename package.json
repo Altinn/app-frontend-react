@@ -120,6 +120,7 @@
     "webpack-dev-server": "5.2.3"
   },
   "dependencies": {
+    "@altinn/altinn-components": "^0.56.33",
     "@date-fns/tz": "1.4.1",
     "@digdir/designsystemet-css": "1.11.1",
     "@digdir/designsystemet-react": "1.11.1",
