@@ -195,18 +195,16 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
             mutableColumnSettings[cellIdx] && structuredClone(mutableColumnSettings[cellIdx]);
 
           if (cell && 'gridColumnOptions' in cell && cell.gridColumnOptions) {
-            textCellSettings = {
-              ...(textCellSettings ?? {}),
-              ...cell.gridColumnOptions,
-            };
+            textCellSettings = textCellSettings
+              ? { ...textCellSettings, ...cell.gridColumnOptions }
+              : { ...cell.gridColumnOptions };
           }
 
           const cellWithColSpan = cell as { colSpan?: number } | null;
-          if (cellWithColSpan && typeof cellWithColSpan.colSpan !== 'undefined') {
-            textCellSettings = {
-              ...(textCellSettings ?? {}),
-              colSpan: cellWithColSpan.colSpan,
-            };
+          if (cellWithColSpan && cellWithColSpan.colSpan !== undefined) {
+            textCellSettings = textCellSettings
+              ? { ...textCellSettings, colSpan: cellWithColSpan.colSpan }
+              : { colSpan: cellWithColSpan.colSpan };
           }
 
           if (isGridCellText(cell)) {
@@ -249,18 +247,16 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
           mutableColumnSettings[cellIdx] && structuredClone(mutableColumnSettings[cellIdx]);
 
         if (cell && 'gridColumnOptions' in cell && cell.gridColumnOptions) {
-          componentCellSettings = {
-            ...(componentCellSettings ?? {}),
-            ...cell.gridColumnOptions,
-          };
+          componentCellSettings = componentCellSettings
+            ? { ...componentCellSettings, ...cell.gridColumnOptions }
+            : { ...cell.gridColumnOptions };
         }
 
-        const cellWithColSpan = cell as { colSpan?: number } | null;
-        if (cellWithColSpan && typeof cellWithColSpan.colSpan !== 'undefined') {
-          componentCellSettings = {
-            ...(componentCellSettings ?? {}),
-            colSpan: cellWithColSpan.colSpan,
-          };
+        const cellColSpan = (cell as { colSpan?: number } | null)?.colSpan;
+        if (cellColSpan !== undefined) {
+          componentCellSettings = componentCellSettings
+            ? { ...componentCellSettings, colSpan: cellColSpan }
+            : { colSpan: cellColSpan };
         }
 
         return (
@@ -342,7 +338,7 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
   const colSpanValue = useEvalExpression(columnStyleOptions?.colSpan, {
     returnType: ExprVal.Number,
     defaultValue: 1,
-    errorIntroText: `Invalid expression for colSpan in Grid cell with text "${children}"`,
+    errorIntroText: 'Invalid expression for colSpan in Grid text cell',
   });
 
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
