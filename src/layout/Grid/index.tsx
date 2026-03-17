@@ -11,10 +11,8 @@ import { GridSummaryComponent } from 'src/layout/Grid/GridSummaryComponent';
 import { EmptyChildrenBoundary } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type { CompExternalExact } from 'src/layout/layout';
-import type { ChildClaimerProps, ExprResolver, SummaryRendererProps } from 'src/layout/LayoutComponent';
+import type { ChildClaimerProps, SummaryRendererProps } from 'src/layout/LayoutComponent';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
-import { ExprResolved } from 'src/features/expressions/types';
-import { ITableColumnProperties } from '../common.generated';
 
 export class Grid extends GridDef {
   render = forwardRef<HTMLElement, PropsFromGenericComponent<'Grid'>>(
