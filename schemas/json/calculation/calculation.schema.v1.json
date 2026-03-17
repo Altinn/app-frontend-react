@@ -17,15 +17,17 @@
         "^.+$": {
           "type": "array",
           "items": {
-            "oneOf": [
-              {
-                "$ref": "#/definitions/calculation"
-              },
-              {
-                "type": "string",
-                "title": "Reference to another calculation",
-                "description": "A reference to another calculation to extend from. The referenced calculation must be defined in the same calculation configuration file."
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "condition": {
+                "title": "Expression returning any value",
+                "description": "The expression can return any value. The expression can contain references to other fields in the form.",
+                "$ref": "../layout/expression.schema.v1.json#/definitions/any"
               }
+            },
+            "required": [
+              "condition"
             ]
           }
         }
@@ -34,18 +36,5 @@
   },
   "required": [
     "calculations"
-  ],
-  "definitions": {
-    "calculation": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "condition": {
-          "title": "Expression returning any value",
-          "description": "The expression can return any value. The expression can contain references to other fields in the form.",
-          "$ref": "../layout/expression.schema.v1.json#/definitions/any"
-        }
-      }
-    }
-  }
+  ]
 }
