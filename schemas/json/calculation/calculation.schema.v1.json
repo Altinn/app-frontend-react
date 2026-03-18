@@ -23,7 +23,11 @@
               "condition": {
                 "title": "Expression returning any value",
                 "description": "The expression can return any value. The expression can contain references to other fields in the form.",
-                "$ref": "../layout/expression.schema.v1.json#/definitions/any"
+                "anyOf": [
+                  { "$ref": "../layout/expression.schema.v1.json#/definitions/string" },
+                  { "$ref": "../layout/expression.schema.v1.json#/definitions/number" },
+                  { "$ref": "../layout/expression.schema.v1.json#/definitions/boolean" }
+                ]
               }
             },
             "required": [
