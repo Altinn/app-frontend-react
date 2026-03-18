@@ -31,7 +31,7 @@
               }
             },
             "required": [
-              "condition"
+              "expression"
             ]
           }
         }
