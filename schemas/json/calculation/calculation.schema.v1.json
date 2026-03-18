@@ -20,7 +20,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "condition": {
+              "expression": {
                 "title": "Expression returning any value",
                 "description": "The expression can return any value. The expression can contain references to other fields in the form.",
                 "anyOf": [
