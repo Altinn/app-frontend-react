@@ -14,6 +14,7 @@ import 'src/features/logging';
 import 'src/features/styleInjection';
 import 'src/features/toggles';
 
+import { RootProvider } from '@altinn/altinn-components';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { App } from 'src/App';
@@ -91,7 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function Root() {
   return (
-    <>
+    <RootProvider>
       <InstantiationUrlReset />
       <ApplicationMetadataProvider>
         <GlobalFormDataReadersProvider>
@@ -124,7 +125,7 @@ function Root() {
           </LayoutSetsProvider>
         </GlobalFormDataReadersProvider>
       </ApplicationMetadataProvider>
-    </>
+    </RootProvider>
   );
 }
 

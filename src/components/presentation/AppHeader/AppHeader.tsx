@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { GlobalHeader } from '@altinn/altinn-components';
+
 import { LandmarkShortcuts } from 'src/components/LandmarkShortcuts';
 import { AltinnLogo } from 'src/components/logo/AltinnLogo';
 import classes from 'src/components/presentation/AppHeader/AppHeader.module.css';
@@ -19,30 +21,50 @@ export interface AppHeaderProps {
 
 export const AppHeader = ({ logoColor, headerBackgroundColor }: AppHeaderProps) => {
   const { showLanguageSelector } = usePageSettings();
+  const globalMenu = {
+    menuLabel: 'Global menu',
+    menu: {
+      items: [
+        {
+          label: 'Altinn',
+          href: 'https://www.altinn.no',
+        },
+      ],
+    },
+  };
 
   return (
-    <header
-      data-testid='AppHeader'
-      style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
-    >
-      <LandmarkShortcuts
-        shortcuts={[
-          {
-            id: 'main-content',
-            text: <Lang id='navigation.to_main_content' />,
-          },
-        ]}
+    <>
+      <GlobalHeader
+        globalMenu={globalMenu}
+        locale={{ title: 'Velg språk', options: [{ label: 'Norsk', value: 'nb' }] }}
+        data-testid='AppHeader'
+        currentEndUserLabel='fefefe'
       />
-      <div className={classes.container}>
-        <Logo color={logoColor} />
-        <div className={classes.wrapper}>
-          {showLanguageSelector && <LanguageSelector />}
+      <header
+        data-testid='AppHeader'
+        style={{ backgroundColor: headerBackgroundColor, color: logoColor }}
+      >
+        <LandmarkShortcuts
+          shortcuts={[
+            {
+              id: 'main-content',
+              text: <Lang id='navigation.to_main_content' />,
+            },
+          ]}
+        />
+        <div className={classes.container}>
+          <Logo color={logoColor} />
+          fff sa S
           <div className={classes.wrapper}>
-            <AppHeaderMenu logoColor={logoColor} />
+            {showLanguageSelector && <LanguageSelector />}
+            <div className={classes.wrapper}>
+              <AppHeaderMenu logoColor={logoColor} />
+            </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </>
   );
 };
 
