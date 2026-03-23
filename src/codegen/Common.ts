@@ -763,6 +763,7 @@ const common = {
           .setTitle('Task navigation settings')
           .setDescription('Shows the listed tasks in the sidebar navigation menu'),
       ),
+      new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
     ),
   IPagesBaseSettings: () =>
     new CG.obj(
@@ -853,7 +854,6 @@ const common = {
           .setTitle('Layout sets')
           .setDescription('List of layout sets for different data types'),
       ),
-      new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
       new CG.prop('uiSettings', CG.common('GlobalPageSettings').optional()),
     )
       .setTitle('Layout sets')

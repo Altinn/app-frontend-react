@@ -12,11 +12,7 @@ import {
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useIsReceiptPage } from 'src/core/routing/useIsReceiptPage';
 import { useLayoutCollection } from 'src/features/form/layout/LayoutsContext';
-import {
-  usePageGroups,
-  usePageSettings,
-  useValidationOnNavigation,
-} from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/useProcessQuery';
 import { ValidationMask } from 'src/features/validation';
 import { getVisibilityMask } from 'src/features/validation/utils';
@@ -24,7 +20,7 @@ import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage, useVisitedPages } from 'src/hooks/useNavigatePage';
 import { useHiddenPages } from 'src/utils/layout/hidden';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
-import type { NavigationReceipt, NavigationTask, PageValidation } from 'src/layout/common.generated';
+import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 
 export function useHasGroupedNavigation() {
   const pageGroups = usePageGroups();
@@ -162,7 +158,7 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
 export function useGetNavigationIsPrevented() {
   const currentPageId = useNavigationParam('pageKey') ?? '';
   const layoutCollection = useLayoutCollection();
-  const globalValidationOnNavigation = useValidationOnNavigation();
+  const globalValidationOnNavigation = usePageSettings().validationOnNavigation;
   const { order } = useNavigatePage();
   const validationsSelector = NodesInternal.useLaxValidationsSelector();
   const allNodeIds = NodesInternal.useLaxMemoSelector((state) => {
@@ -184,15 +180,14 @@ export function useGetNavigationIsPrevented() {
     }
 
     return order.slice(currentIndex + 1, targetIndex).some((pageId) => {
-      const config =
-        globalValidationOnNavigation ??
-        (layoutCollection[pageId]?.data?.validationOnNavigation as PageValidation | undefined);
+      const validationOnNavigation =
+        layoutCollection[pageId]?.data?.validationOnNavigation ?? globalValidationOnNavigation;
 
-      if (!config) {
+      if (!validationOnNavigation) {
         return false;
       }
 
-      const mask = getVisibilityMask(config.show);
+      const mask = getVisibilityMask(validationOnNavigation.show);
       return (allNodeIds[pageId] ?? []).some((nodeId) => {
         const validations = validationsSelector(nodeId, mask, 'error');
         return validations !== ContextNotProvided && validations.length > 0;
