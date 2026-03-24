@@ -80,6 +80,10 @@ function isEditableFormComponent(
     return false; // Must be a form component
   }
 
+  if ('readOnly' in childComponent && childComponent.readOnly === true) {
+    return false;
+  }
+
   const columnSettings = parentComponent.tableColumns?.[childBaseComponentId];
   const hiddenInTable = columnSettings?.hidden === true;
   const editInTable = columnSettings?.editInTable ?? false;
