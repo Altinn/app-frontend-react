@@ -266,16 +266,12 @@ export function useNavigatePage() {
         await refetchInitialValidations();
       }
 
-      setVisitedPages((prev) => {
+      setVisitedPages((visitedPages) => {
         const currentPage = navParams.current.pageKey;
-        const updated = [...prev];
-        if (currentPage && !updated.includes(currentPage)) {
-          updated.push(currentPage);
+        if (!currentPage || visitedPages.includes(currentPage)) {
+          return visitedPages;
         }
-        if (orderRef.current.includes(page) && !updated.includes(page)) {
-          updated.push(page);
-        }
-        return updated.length === prev.length ? prev : updated;
+        return [...visitedPages, currentPage];
       });
 
       const searchParams = options?.searchParams ? `?${options.searchParams.toString()}` : '';
