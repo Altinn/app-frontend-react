@@ -66,6 +66,7 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       autoSaveBehavior: settings.pages.autoSaveBehavior,
       expandedWidth: settings.pages.expandedWidth,
       hideCloseButton: settings.pages.hideCloseButton,
+      navigationTitle: settings.pages.navigationTitle,
       showExpandWidthButton: settings.pages.showExpandWidthButton,
       showLanguageSelector: settings.pages.showLanguageSelector,
       showProgress: settings.pages.showProgress,
@@ -121,7 +122,7 @@ export const usePageGroups = () => {
 
 const emptyArray = [];
 
-const defaults: Required<GlobalPageSettings> = {
+const defaults: Omit<Required<GlobalPageSettings>, 'navigationTitle'> = {
   hideCloseButton: false,
   showLanguageSelector: false,
   showProgress: false,
@@ -131,7 +132,8 @@ const defaults: Required<GlobalPageSettings> = {
   taskNavigation: [],
 };
 
-export const usePageSettings = (): Required<GlobalPageSettings> => {
+export const usePageSettings = (): Omit<Required<GlobalPageSettings>, 'navigationTitle'> &
+  Pick<GlobalPageSettings, 'navigationTitle'> => {
   const globalUISettings = useLaxGlobalUISettings();
   const layoutSettings = useLaxCtx();
 
