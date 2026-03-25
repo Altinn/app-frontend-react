@@ -1,10 +1,10 @@
-import { Decimal } from 'decimal.js';
 import dot from 'dot-object';
 import escapeStringRegexp from 'escape-string-regexp';
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { SearchParams } from 'src/core/routing/types';
 import { exprCastValue } from 'src/features/expressions';
+import { Decimal } from 'src/features/expressions/Decimal';
 import { ExprRuntimeError, NodeRelationNotFound } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
@@ -399,21 +399,21 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     if (term1 === null || term2 === null) {
       return null;
     } else {
-      return Decimal.add(term1, term2).toNumber();
+      return Decimal.add(term1, term2);
     }
   },
   minus(minuend, subtrahend) {
     if (minuend === null || subtrahend === null) {
       return null;
     } else {
-      return Decimal.sub(minuend, subtrahend).toNumber();
+      return Decimal.subtract(minuend, subtrahend);
     }
   },
   multiply(factor1, factor2) {
     if (factor1 === null || factor2 === null) {
       return null;
     } else {
-      return Decimal.mul(factor1, factor2).toNumber();
+      return Decimal.multiply(factor1, factor2);
     }
   },
   divide(dividend, divisor) {
@@ -422,7 +422,7 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     } else if (divisor === 0) {
       throw new ExprRuntimeError(this.expr, this.path, 'The second argument is 0, cannot divide by 0');
     } else {
-      return Decimal.div(dividend, divisor).toNumber();
+      return Decimal.divide(dividend, divisor);
     }
   },
   concat: (...args) => args.join(''),
