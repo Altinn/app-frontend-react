@@ -1,3 +1,4 @@
+import { Decimal } from 'decimal.js';
 import dot from 'dot-object';
 import escapeStringRegexp from 'escape-string-regexp';
 
@@ -126,6 +127,26 @@ export const ExprFunctionDefinitions = {
   lessThanEq: {
     args: args(required(ExprVal.Number), required(ExprVal.Number)),
     returns: ExprVal.Boolean,
+    needs: noSources,
+  },
+  plus: {
+    args: args(required(ExprVal.Number), required(ExprVal.Number)),
+    returns: ExprVal.Number,
+    needs: noSources,
+  },
+  minus: {
+    args: args(required(ExprVal.Number), required(ExprVal.Number)),
+    returns: ExprVal.Number,
+    needs: noSources,
+  },
+  multiply: {
+    args: args(required(ExprVal.Number), required(ExprVal.Number)),
+    returns: ExprVal.Number,
+    needs: noSources,
+  },
+  divide: {
+    args: args(required(ExprVal.Number), required(ExprVal.Number)),
+    returns: ExprVal.Number,
     needs: noSources,
   },
   concat: {
@@ -373,6 +394,36 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
   },
   lessThanEq(arg1, arg2) {
     return compare(this, 'lessThanEq', arg1, arg2);
+  },
+  plus(term1, term2) {
+    if (term1 === null || term2 === null) {
+      return null;
+    } else {
+      return Decimal.add(term1, term2).toNumber();
+    }
+  },
+  minus(minuend, subtrahend) {
+    if (minuend === null || subtrahend === null) {
+      return null;
+    } else {
+      return Decimal.sub(minuend, subtrahend).toNumber();
+    }
+  },
+  multiply(factor1, factor2) {
+    if (factor1 === null || factor2 === null) {
+      return null;
+    } else {
+      return Decimal.mul(factor1, factor2).toNumber();
+    }
+  },
+  divide(dividend, divisor) {
+    if (dividend === null || divisor === null) {
+      return null;
+    } else if (divisor === 0) {
+      throw new ExprRuntimeError(this.expr, this.path, 'The second argument is 0, cannot divide by 0');
+    } else {
+      return Decimal.div(dividend, divisor).toNumber();
+    }
   },
   concat: (...args) => args.join(''),
   and: (...args) => args.reduce((prev, cur) => prev && !!cur, true),

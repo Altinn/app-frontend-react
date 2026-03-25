@@ -218,7 +218,7 @@ function asNumber(arg: string) {
   if (arg.match(/^-?\d+$/)) {
     return parseInt(arg, 10);
   }
-  if (arg.match(/^-?\d+\.\d+$/)) {
+  if (arg.match(/^-?\d+\.\d+$/) || arg.match(/^[-+]?([0-9]+(\.[0-9]+)?|\.[0-9]+)([eE][-+]?[0-9]+)$/)) {
     return parseFloat(arg);
   }
 
