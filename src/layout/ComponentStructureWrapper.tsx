@@ -62,7 +62,7 @@ function mergeMaxGridStyling(
 function inputGridSizeAndExactWidth(
   inner: IGridStyling | undefined,
   outer: IGridStyling,
-): { size: IGridStyling; exactPctStyle: React.CSSProperties; exactClassName: string | undefined } {
+): { size: IGridStyling; exactPercentWidthStyle: React.CSSProperties; exactClassName: string | undefined } {
   const base: IGridStyling = { xs: 12, ...inner };
   const result: IGridStyling = { ...base };
   const cssVars: Record<string, string> = {};
@@ -97,7 +97,7 @@ function inputGridSizeAndExactWidth(
 
   return {
     size: result,
-    exactPctStyle: cssVars as React.CSSProperties,
+    exactPercentWidthStyle: cssVars as React.CSSProperties,
     exactClassName,
   };
 }
@@ -126,7 +126,16 @@ export function ComponentStructureWrapper({
   const innerGrid = grid?.innerGrid;
   const validationGrid = grid?.validationGrid ?? innerGrid;
   const contentGridSize: IGridStyling = mergeMaxGridStyling(innerGrid, validationGrid);
-  const { size: inputGridSize, exactPctStyle, exactClassName } = inputGridSizeAndExactWidth(innerGrid, contentGridSize);
+  const {
+    size: inputGridSize,
+    exactPercentWidthStyle,
+    exactClassName,
+  } = inputGridSizeAndExactWidth(innerGrid, contentGridSize);
+  const {
+    size: validationGridSize,
+    exactPercentWidthStyle: validationExactPercentWidthStyle,
+    exactClassName: validationExactClassName,
+  } = inputGridSizeAndExactWidth(validationGrid, contentGridSize);
 
   const componentWithValidations = (
     <Flex
@@ -143,14 +152,16 @@ export function ComponentStructureWrapper({
         item
         className={exactClassName}
         size={inputGridSize}
-        style={exactPctStyle}
+        style={exactPercentWidthStyle}
       >
         {children}
       </Flex>
       {showValidationMessages && (
         <Flex
           item
-          size={{ xs: 12, ...validationGrid }}
+          className={validationExactClassName}
+          size={validationGridSize}
+          style={validationExactPercentWidthStyle}
         >
           <AllComponentValidations baseComponentId={baseComponentId} />
         </Flex>
