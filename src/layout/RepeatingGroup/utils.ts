@@ -332,15 +332,11 @@ export const RepGroupHooks = {
     const layoutLookups = useLayoutLookups();
     const component = layoutLookups.getComponent(baseComponentId, 'RepeatingGroup');
     const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
-    const childReadOnlyExpressions = useMemo(
-      () =>
-        childrenBaseIds
-          .map((id) => layoutLookups.getComponent(id))
-          .filter((c) => 'readOnly' in c)
-          .map((c) => (c as { readOnly?: unknown }).readOnly),
+    const childComponents = useMemo(
+      () => childrenBaseIds.map((id) => layoutLookups.getComponent(id)),
       [childrenBaseIds, layoutLookups],
     );
-    const dataSources = useExpressionDataSources(childReadOnlyExpressions);
+    const dataSources = useExpressionDataSources(childComponents);
 
     const editableChildIds: string[] = [];
     for (const childId of childrenBaseIds) {
