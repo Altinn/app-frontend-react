@@ -4,7 +4,7 @@ import type { MonthCaptionProps } from 'react-day-picker';
 
 import { Select } from '@digdir/designsystemet-react';
 import { ArrowLeftIcon, ArrowRightIcon } from '@navikt/aksel-icons';
-import { addYears, max, min, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
+import { addYears, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
 
 import { Button } from 'src/app-components/Button/Button';
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
@@ -14,7 +14,12 @@ import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import comboboxClasses from 'src/styles/combobox.module.css';
 
-export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
+type DropdownCaptionProps = MonthCaptionProps & {
+  minDate?: Date;
+  maxDate?: Date;
+};
+
+export const DropdownCaption = ({ calendarMonth, id, minDate, maxDate }: DropdownCaptionProps) => {
   const { goToMonth, nextMonth, previousMonth } = useDayPicker();
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
@@ -22,16 +27,23 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
 
   const handleYearChange = (year: string) => {
     const newMonth = setYear(startOfMonth(calendarMonth.date), Number(year));
-    goToMonth(startOfMonth(min([max([newMonth])])));
+    if (minDate && newMonth < startOfMonth(minDate)) {
+      goToMonth(startOfMonth(minDate));
+    } else if (maxDate && newMonth > startOfMonth(maxDate)) {
+      goToMonth(startOfMonth(maxDate));
+    } else {
+      goToMonth(newMonth);
+    }
   };
 
   const handleMonthChange = (month: string) => {
     goToMonth(setMonth(startOfMonth(calendarMonth.date), Number(month)));
   };
+  const fromDate = minDate ?? subYears(calendarMonth.date, 100);
+  const toDate = maxDate ?? addYears(calendarMonth.date, 100);
 
-  const fromDate = subYears(calendarMonth.date, 100);
-  const toDate = addYears(calendarMonth.date, 100);
-
+  const isPrevMonthDisabled = !previousMonth || (minDate && startOfMonth(previousMonth) < startOfMonth(minDate));
+  const isNextMonthDisabled = !nextMonth || (maxDate && startOfMonth(nextMonth) > startOfMonth(maxDate));
   const years = getYears(fromDate, toDate, calendarMonth.date.getFullYear()).reverse();
   const months = getMonths(fromDate, toDate, calendarMonth.date);
 
@@ -42,7 +54,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
         color='second'
         variant='tertiary'
         aria-label={langAsString('date_picker.aria_label_left_arrow')}
-        disabled={!previousMonth}
+        disabled={isPrevMonthDisabled}
         onClick={() => previousMonth && goToMonth(previousMonth)}
       >
         <ArrowLeftIcon />
@@ -89,7 +101,7 @@ export const DropdownCaption = ({ calendarMonth, id }: MonthCaptionProps) => {
         color='second'
         variant='tertiary'
         aria-label={langAsString('date_picker.aria_label_right_arrow')}
-        disabled={!nextMonth}
+        disabled={isNextMonthDisabled}
         onClick={() => nextMonth && goToMonth(nextMonth)}
       >
         <ArrowRightIcon />
