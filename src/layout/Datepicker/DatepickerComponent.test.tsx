@@ -3,6 +3,7 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { endOfYear, startOfYear } from 'date-fns';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
@@ -197,5 +198,57 @@ describe('DatepickerComponent', () => {
     await render({ component: { textResourceBindings: {}, id: 'test-id' } });
     const inputField = screen.getByRole('textbox');
     expect(inputField).not.toHaveAttribute('aria-describedby');
+  });
+
+  it('should not display years outside of min and max date range in year dropdown', async () => {
+    const user = userEvent.setup();
+    const currentYear = new Date().getFullYear();
+    const minDate = startOfYear(new Date(currentYear - 1, 0, 1));
+    const maxDate = endOfYear(new Date(currentYear + 1, 11, 31));
+
+    await render({
+      component: {
+        minDate: minDate.toISOString(),
+        maxDate: maxDate.toISOString(),
+      },
+    });
+    await user.click(screen.getByRole('button', { name: /Åpne datovelger/i }));
+    await user.click(screen.getByRole('combobox', { name: /Velg år/i }));
+
+    expect(screen.queryByRole('option', { name: (currentYear - 2).toString() })).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: (currentYear + 2).toString() })).not.toBeInTheDocument();
+    expect(screen.getByRole('option', { name: currentYear.toString() })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: (currentYear - 1).toString() })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: (currentYear + 1).toString() })).toBeInTheDocument();
+  });
+
+  it('should disable previous month button if previous month is before minDate', async () => {
+    const user = userEvent.setup();
+    const today = new Date();
+    const minDate = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    await render({
+      component: {
+        minDate: minDate.toISOString(),
+      },
+    });
+    await user.click(screen.getByRole('button', { name: /Åpne datovelger/i }));
+    const prevButton = screen.getByRole('button', { name: /forrige måned/i });
+    expect(prevButton).toBeDisabled();
+  });
+
+  it('should disable next month button if next month is after maxDate', async () => {
+    const user = userEvent.setup();
+    const today = new Date();
+    const maxDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+    await render({
+      component: {
+        maxDate: maxDate.toISOString(),
+      },
+    });
+    await user.click(screen.getByRole('button', { name: /Åpne datovelger/i }));
+    const nextButton = screen.getByRole('button', { name: /neste måned/i });
+    expect(nextButton).toBeDisabled();
   });
 });
