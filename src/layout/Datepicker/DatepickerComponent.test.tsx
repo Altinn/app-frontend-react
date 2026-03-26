@@ -3,7 +3,6 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { endOfYear, startOfYear } from 'date-fns';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
 import { DatepickerComponent } from 'src/layout/Datepicker/DatepickerComponent';
@@ -203,9 +202,8 @@ describe('DatepickerComponent', () => {
   it('should not display years outside of min and max date range in year dropdown', async () => {
     const user = userEvent.setup();
     const currentYear = new Date().getFullYear();
-    const minDate = startOfYear(new Date(currentYear - 1, 0, 1));
-    const maxDate = endOfYear(new Date(currentYear + 1, 11, 31));
-
+    const minDate = new Date(Date.UTC(currentYear - 1, 0, 1));
+    const maxDate = new Date(Date.UTC(currentYear + 1, 11, 31));
     await render({
       component: {
         minDate: minDate.toISOString(),
