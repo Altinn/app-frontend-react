@@ -96,8 +96,8 @@ function isEditableFormComponent(
   const childComponent = layoutLookups.getComponent(childBaseComponentId);
   const componentDef = getComponentDef(childComponent.type);
 
-  const isFormComponent: boolean = componentDef.category !== CompCategory.Form;
-  if (isFormComponent) {
+  const isNotFormComponent: boolean = componentDef.category !== CompCategory.Form;
+  if (isNotFormComponent) {
     return false;
   }
 
