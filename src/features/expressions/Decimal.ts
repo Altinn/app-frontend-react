@@ -8,19 +8,19 @@ interface DecimalFacade {
 }
 
 export const Decimal: DecimalFacade = class {
-  static add(term1, term2) {
+  static add(term1: number, term2: number): number {
     return Decimaljs.add(term1, term2).toNumber();
   }
 
-  static subtract(term1, term2) {
-    return Decimaljs.sub(term1, term2).toNumber();
+  static subtract(minuend: number, subtrahend: number): number {
+    return Decimaljs.sub(minuend, subtrahend).toNumber();
   }
 
-  static multiply(factor1, factor2) {
+  static multiply(factor1: number, factor2: number): number {
     return Decimaljs.mul(factor1, factor2).toNumber();
   }
 
-  static divide(factor1, factor2) {
+  static divide(factor1: number, factor2: number): number {
     return Decimaljs.div(factor1, factor2).toNumber();
   }
 };
