@@ -75,7 +75,7 @@ function isReadOnlyComponent(
     return false;
   }
   return evalBool({
-    expr: childComponent.readOnly as ExprValToActualOrExpr<ExprVal.Boolean>,
+    expr: childComponent.readOnly,
     dataSources,
     groupBinding,
     rowIndex,
