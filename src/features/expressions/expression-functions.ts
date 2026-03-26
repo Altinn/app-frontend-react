@@ -396,25 +396,13 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     return compare(this, 'lessThanEq', arg1, arg2);
   },
   plus(term1, term2) {
-    if (term1 === null || term2 === null) {
-      return null;
-    } else {
-      return Decimal.add(term1, term2);
-    }
+    return applyNullableBinaryOperation(Decimal.add, [term1, term2]);
   },
   minus(minuend, subtrahend) {
-    if (minuend === null || subtrahend === null) {
-      return null;
-    } else {
-      return Decimal.subtract(minuend, subtrahend);
-    }
+    return applyNullableBinaryOperation(Decimal.subtract, [minuend, subtrahend]);
   },
   multiply(factor1, factor2) {
-    if (factor1 === null || factor2 === null) {
-      return null;
-    } else {
-      return Decimal.multiply(factor1, factor2);
-    }
+    return applyNullableBinaryOperation(Decimal.multiply, [factor1, factor2]);
   },
   divide(dividend, divisor) {
     if (dividend === null || divisor === null) {
@@ -1041,6 +1029,13 @@ function compare(
   }
 
   return def.impl.call(ctx, a, b);
+}
+
+function applyNullableBinaryOperation(
+  operation: (a: number, b: number) => number,
+  [a, b]: [number | null, number | null],
+): number | null {
+  return a === null || b === null ? null : operation(a, b);
 }
 
 function validateDatesForSameDay(this: EvaluateExpressionParams, a: ExprDate, b: ExprDate) {
