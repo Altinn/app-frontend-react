@@ -65,6 +65,10 @@ function evalBool({ expr, defaultValue = false, dataSources, groupBinding, rowIn
   return evalExpr(expr, { ...dataSources, currentDataModelPath }, { returnType: ExprVal.Boolean, defaultValue });
 }
 
+function getReadOnlyExpression(component: CompExternal): ExprValToActualOrExpr<ExprVal.Boolean> | undefined {
+  return 'readOnly' in component ? component.readOnly : undefined;
+}
+
 function isReadOnlyComponent(
   childComponent: CompExternal,
   dataSources: ExpressionDataSources,
@@ -334,11 +338,15 @@ export const RepGroupHooks = {
     const layoutLookups = useLayoutLookups();
     const component = layoutLookups.getComponent(baseComponentId, 'RepeatingGroup');
     const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
-    const childComponents = useMemo(
-      () => childrenBaseIds.map((id) => layoutLookups.getComponent(id)),
+    const readOnlyExpressions = useMemo(
+      () =>
+        childrenBaseIds
+          .map((id) => layoutLookups.getComponent(id))
+          .map(getReadOnlyExpression)
+          .filter((value) => value !== undefined),
       [childrenBaseIds, layoutLookups],
     );
-    const dataSources = useExpressionDataSources(childComponents);
+    const dataSources = useExpressionDataSources(readOnlyExpressions);
 
     const editableChildIds: string[] = [];
     for (const childId of childrenBaseIds) {
