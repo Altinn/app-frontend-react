@@ -20,16 +20,7 @@ function mergeMaxGridSizePair(
   if (typeof innerSize === 'number' && typeof validationSize === 'number') {
     return Math.max(innerSize, validationSize) as IGridSize;
   }
-  if (typeof innerSize === 'number') {
-    return innerSize;
-  }
-  if (typeof validationSize === 'number') {
-    return validationSize;
-  }
-  if (innerSize !== undefined) {
-    return innerSize;
-  }
-  return validationSize;
+  return innerSize ?? validationSize;
 }
 
 function mergeMaxGridStyling(
@@ -81,9 +72,6 @@ export function ComponentStructureWrapper({
       size={contentGridSize}
       style={style}
       item
-      container
-      direction='column'
-      flexWrap='nowrap'
     >
       <Flex
         item
