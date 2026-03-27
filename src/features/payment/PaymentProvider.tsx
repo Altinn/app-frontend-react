@@ -82,15 +82,6 @@ function PaymentNavigation() {
     }
   }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, instanceGuid, paymentInfo?.status]);
 
-  const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
-
-  // If when landing on payment task, PaymentStatus is Paid or Skipped, go to next task
-  useEffect(() => {
-    if (isPaymentProcess && paymentCompleted && !isPdf) {
-      skipPayment();
-    }
-  }, [isPaymentProcess, paymentCompleted, skipPayment, isPdf]);
-
   return null;
 }
 
