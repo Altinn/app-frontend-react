@@ -22,7 +22,7 @@ import { useExternalItem } from 'src/utils/layout/hooks';
 import type { ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { IData } from 'src/types/shared';
 
-export function SubformsForPage({ pageKey }: { pageKey: string }) {
+export function SubformsForPage({ pageKey, expandedByDefault }: { pageKey: string; expandedByDefault?: boolean }) {
   const lookups = useLayoutLookups();
   const subformIds = lookups.topLevelComponents[pageKey]?.filter((id) => lookups.allComponents[id]?.type === 'Subform');
   if (!subformIds?.length) {
@@ -33,12 +33,13 @@ export function SubformsForPage({ pageKey }: { pageKey: string }) {
     <SubformGroup
       key={baseId}
       baseId={baseId}
+      expandedByDefault={expandedByDefault}
     />
   ));
 }
 
-function SubformGroup({ baseId }: { baseId: string }) {
-  const [isOpen, setIsOpen] = useState(false);
+function SubformGroup({ baseId, expandedByDefault }: { baseId: string; expandedByDefault?: boolean }) {
+  const [isOpen, setIsOpen] = useState(!!expandedByDefault);
   const pageKey = useLayoutLookups().componentToPage[baseId];
   if (!pageKey) {
     throw new Error(`Unable to find page for subform with id ${baseId}`);
@@ -66,22 +67,24 @@ function SubformGroup({ baseId }: { baseId: string }) {
 
   return (
     <div className={classes.subformContainer}>
-      <button
-        id={buttonId}
-        aria-expanded={isOpen}
-        aria-owns={listId}
-        onClick={() => setIsOpen((o) => !o)}
-        className={cn(classes.subformExpandButton, 'fds-focus')}
-      >
-        <span className={classes.subformGroupName}>
-          <Lang id={title} />
-          &nbsp;({dataElements.length})
-        </span>
-        <ChevronDownIcon
-          aria-hidden
-          className={cn(classes.subformExpandChevron, { [classes.subformExpandChevronOpen]: isOpen })}
-        />
-      </button>
+      {!expandedByDefault && (
+        <button
+          id={buttonId}
+          aria-expanded={isOpen}
+          aria-owns={listId}
+          onClick={() => setIsOpen((o) => !o)}
+          className={cn(classes.subformExpandButton, 'fds-focus')}
+        >
+          <span className={classes.subformGroupName}>
+            <Lang id={title} />
+            &nbsp;({dataElements.length})
+          </span>
+          <ChevronDownIcon
+            aria-hidden
+            className={cn(classes.subformExpandChevron, { [classes.subformExpandChevronOpen]: isOpen })}
+          />
+        </button>
+      )}
       <ul
         id={listId}
         aria-labelledby={buttonId}
