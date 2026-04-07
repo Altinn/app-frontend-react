@@ -19,8 +19,10 @@ import {
   useValidationsForPages,
   useVisiblePages,
 } from 'src/features/navigation/utils';
+import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
+import { useEffectivePageValidation } from 'src/hooks/usePageValidation';
 import type {
   NavigationPageGroup,
   NavigationPageGroupMultiple,
@@ -78,8 +80,11 @@ function PageGroupSingle({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
-  const { navigateToPage } = useNavigatePage();
+  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
+  const onPageNavigationValidation = useOnPageNavigationValidation();
+  const currentPageId = useNavigationParam('pageKey');
+  const { getPageValidation } = useEffectivePageValidation(currentPageId ?? '');
   const page = group.order[0];
   const navigationIsPrevented = useGetNavigationIsPrevented()(page);
 
@@ -94,10 +99,30 @@ function PageGroupSingle({
         className={cn(classes.groupButton, classes.groupButtonSingle, 'fds-focus')}
         onClick={() =>
           performProcess(async () => {
-            if (!isCurrentPage) {
-              await navigateToPage(page);
-              onNavigate?.();
+            if (isCurrentPage || !currentPageId) {
+              return;
             }
+
+            const currentIndex = order.indexOf(currentPageId);
+            const targetIndex = order.indexOf(page);
+            if (currentIndex === -1 || targetIndex === -1) {
+              return;
+            }
+
+            const isForward = targetIndex > currentIndex;
+            const validationOnNavigation = getPageValidation();
+
+            await maybeSaveOnPageChange();
+
+            if (isForward && validationOnNavigation) {
+              const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation);
+              if (hasValidationErrors) {
+                return;
+              }
+            }
+
+            await navigateToPage(page);
+            onNavigate?.();
           })
         }
       >

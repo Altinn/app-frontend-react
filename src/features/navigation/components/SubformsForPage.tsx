@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 
 import { ChevronDownIcon } from '@navikt/aksel-icons';
 import cn from 'classnames';
@@ -11,6 +11,7 @@ import { Lang } from 'src/features/language/Lang';
 import classes from 'src/features/navigation/components/SubformsForPage.module.css';
 import { isSubformValidation } from 'src/features/validation';
 import { useComponentValidationsFor } from 'src/features/validation/selectors/componentValidationsForNode';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import {
   getSubformEntryDisplayName,
@@ -39,11 +40,15 @@ export function SubformsForPage({ pageKey, expandedByDefault }: { pageKey: strin
 }
 
 function SubformGroup({ baseId, expandedByDefault }: { baseId: string; expandedByDefault?: boolean }) {
-  const [isOpen, setIsOpen] = useState(!!expandedByDefault);
+  const currentPageId = useNavigationParam('pageKey');
   const pageKey = useLayoutLookups().componentToPage[baseId];
   if (!pageKey) {
     throw new Error(`Unable to find page for subform with id ${baseId}`);
   }
+
+  const isCurrentPage = pageKey === currentPageId;
+  const [isOpen, setIsOpen] = useState(isCurrentPage || !!expandedByDefault);
+  useLayoutEffect(() => setIsOpen(isCurrentPage || !!expandedByDefault), [isCurrentPage, expandedByDefault]);
 
   const subformIdsWithError = useComponentValidationsFor(baseId).find(isSubformValidation)?.subformDataElementIds;
   const { layoutSet, textResourceBindings, entryDisplayName } = useExternalItem(baseId, 'Subform');
@@ -67,24 +72,22 @@ function SubformGroup({ baseId, expandedByDefault }: { baseId: string; expandedB
 
   return (
     <div className={classes.subformContainer}>
-      {!expandedByDefault && (
-        <button
-          id={buttonId}
-          aria-expanded={isOpen}
-          aria-owns={listId}
-          onClick={() => setIsOpen((o) => !o)}
-          className={cn(classes.subformExpandButton, 'fds-focus')}
-        >
-          <span className={classes.subformGroupName}>
-            <Lang id={title} />
-            &nbsp;({dataElements.length})
-          </span>
-          <ChevronDownIcon
-            aria-hidden
-            className={cn(classes.subformExpandChevron, { [classes.subformExpandChevronOpen]: isOpen })}
-          />
-        </button>
-      )}
+      <button
+        id={buttonId}
+        aria-expanded={isOpen}
+        aria-owns={listId}
+        onClick={() => setIsOpen((o) => !o)}
+        className={cn(classes.subformExpandButton, 'fds-focus')}
+      >
+        <span className={classes.subformGroupName}>
+          <Lang id={title} />
+          &nbsp;({dataElements.length})
+        </span>
+        <ChevronDownIcon
+          aria-hidden
+          className={cn(classes.subformExpandChevron, { [classes.subformExpandChevronOpen]: isOpen })}
+        />
+      </button>
       <ul
         id={listId}
         aria-labelledby={buttonId}
