@@ -13,16 +13,14 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { Page } from 'src/features/navigation/components/Page';
 import classes from 'src/features/navigation/components/PageGroup.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
+import { useNavigateToPageWithValidation } from 'src/features/navigation/useNavigateToPageWithValidation';
 import {
   getTaskIcon,
   useGetNavigationIsPrevented,
   useValidationsForPages,
   useVisiblePages,
 } from 'src/features/navigation/utils';
-import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useEffectivePageValidation } from 'src/hooks/usePageValidation';
 import type {
   NavigationPageGroup,
   NavigationPageGroupMultiple,
@@ -80,11 +78,8 @@ function PageGroupSingle({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
-  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
-  const onPageNavigationValidation = useOnPageNavigationValidation();
-  const currentPageId = useNavigationParam('pageKey');
-  const { getPageValidation } = useEffectivePageValidation(currentPageId ?? '');
+  const navigateToPageWithValidation = useNavigateToPageWithValidation();
   const page = group.order[0];
   const navigationIsPrevented = useGetNavigationIsPrevented()(page);
 
@@ -97,34 +92,7 @@ function PageGroupSingle({
         disabled={isAnyProcessing || navigationIsPrevented}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.groupButton, classes.groupButtonSingle, 'fds-focus')}
-        onClick={() =>
-          performProcess(async () => {
-            if (isCurrentPage || !currentPageId) {
-              return;
-            }
-
-            const currentIndex = order.indexOf(currentPageId);
-            const targetIndex = order.indexOf(page);
-            if (currentIndex === -1 || targetIndex === -1) {
-              return;
-            }
-
-            const isForward = targetIndex > currentIndex;
-            const validationOnNavigation = getPageValidation();
-
-            await maybeSaveOnPageChange();
-
-            if (isForward && validationOnNavigation) {
-              const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation);
-              if (hasValidationErrors) {
-                return;
-              }
-            }
-
-            await navigateToPage(page);
-            onNavigate?.();
-          })
-        }
+        onClick={() => performProcess(() => navigateToPageWithValidation(page, onNavigate))}
       >
         <PageGroupSymbol
           single

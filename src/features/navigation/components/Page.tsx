@@ -9,11 +9,9 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
+import { useNavigateToPageWithValidation } from 'src/features/navigation/useNavigateToPageWithValidation';
 import { useGetNavigationIsPrevented } from 'src/features/navigation/utils';
-import { useOnPageNavigationValidation } from 'src/features/validation/callbacks/onPageNavigationValidation';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
-import { useEffectivePageValidation } from 'src/hooks/usePageValidation';
 
 export function Page({
   page,
@@ -31,40 +29,12 @@ export function Page({
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
-  const { navigateToPage, order, maybeSaveOnPageChange } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
-  const onPageNavigationValidation = useOnPageNavigationValidation();
-  const { getPageValidation } = useEffectivePageValidation(currentPageId ?? '');
+  const navigateToPageWithValidation = useNavigateToPageWithValidation();
 
   const navigationIsPrevented = useGetNavigationIsPrevented()(page);
 
-  const handleNavigationClick = () =>
-    performProcess(async () => {
-      if (isCurrentPage || !currentPageId) {
-        return;
-      }
-      const currentIndex = order.indexOf(currentPageId);
-      const targetIndex = order.indexOf(page);
-      if (currentIndex === -1 || targetIndex === -1) {
-        return;
-      }
-
-      const isForward = targetIndex > currentIndex;
-      const validationOnNavigation = getPageValidation();
-
-      await maybeSaveOnPageChange();
-
-      if (isForward && validationOnNavigation) {
-        const hasValidationErrors = await onPageNavigationValidation(currentPageId, validationOnNavigation);
-        if (hasValidationErrors) {
-          // Block navigation if validation fails
-          return;
-        }
-      }
-
-      await navigateToPage(page);
-      onNavigate?.();
-    });
+  const handleNavigationClick = () => performProcess(() => navigateToPageWithValidation(page, onNavigate));
 
   return (
     <li className={classes.pageListItem}>
