@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+MONOREPO_PATHS_URL="https://raw.githubusercontent.com/Altinn/altinn-studio/refs/heads/main/src/App/frontend/monorepo-changed-paths.txt"
+
+# Try to fetch the file (5 second timeout, fail silently if unavailable)
+if command -v curl > /dev/null 2>&1; then
+  MONOREPO_PATHS=$(curl -sf --max-time 5 "$MONOREPO_PATHS_URL" 2>/dev/null)
+elif command -v wget > /dev/null 2>&1; then
+  MONOREPO_PATHS=$(wget -qO- --timeout=5 "$MONOREPO_PATHS_URL" 2>/dev/null)
+else
+  exit 0
+fi
+
+[ -z "$MONOREPO_PATHS" ] && exit 0
+
+# Get staged files
+STAGED_FILES=$(git diff --cached --name-only)
+[ -z "$STAGED_FILES" ] && exit 0
+
+# Check staged files against each monorepo path (substring match)
+MATCHING_FILE=""
+
+while IFS= read -r monorepo_path; do
+  [ -z "$monorepo_path" ] && continue
+
+  match=$(printf '%s\n' "$STAGED_FILES" | grep -F "$monorepo_path" | head -1)
+  if [ -n "$match" ]; then
+    MATCHING_FILE="$match"
+    break
+  fi
+done << EOF
+$MONOREPO_PATHS
+EOF
+
+if [ -n "$MATCHING_FILE" ]; then
+  echo ""
+  echo "ERROR: You're changing a file ($MATCHING_FILE) that has been significantly changed/refactored in the monorepo (our next major version). Make sure you have a plan for how to integrate these changes in the next major version, always add tests for the functionality you are changing, and ask in #task-force-frontend-next on Slack if unsure. Try committing again without running git hooks to skip this error message."
+  echo ""
+  exit 1
+fi
+
+exit 0
