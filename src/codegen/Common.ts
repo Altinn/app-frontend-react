@@ -140,6 +140,13 @@ const common = {
     new CG.obj(
       new CG.prop('labelGrid', CG.common('IGridStyling').optional()),
       new CG.prop('innerGrid', CG.common('IGridStyling').optional()),
+      new CG.prop(
+        'validationGrid',
+        CG.common('IGridStyling')
+          .optional()
+          .setTitle('Validation grid')
+          .setDescription('Column span for validation messages; defaults to innerGrid when omitted'),
+      ),
     )
       .extends(CG.common('IGridStyling'))
       .setTitle('Grid')
