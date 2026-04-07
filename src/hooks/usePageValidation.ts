@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 
 import { useLayoutCollection, useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import type { ILayoutFile, PageValidation } from 'src/layout/common.generated';
+import type { PageValidation } from 'src/layout/common.generated';
 
 export function useEffectivePageValidation(pageKey: string): {
   getPageValidation: () => PageValidation | undefined;
@@ -15,8 +15,7 @@ export function useEffectivePageValidation(pageKey: string): {
       return { getPageValidation: () => undefined };
     }
     const currentPageLayout = layoutCollection[pageKey];
-    const pageValidation = currentPageLayout?.data
-      ?.validationOnNavigation as ILayoutFile['data']['validationOnNavigation'];
+    const pageValidation = currentPageLayout?.data?.validationOnNavigation;
 
     const validationOnNavigation = pageValidation ?? effectivePageValidation;
 

@@ -13,6 +13,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { Page } from 'src/features/navigation/components/Page';
 import classes from 'src/features/navigation/components/PageGroup.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
+import { useNavigateToPageWithValidation } from 'src/features/navigation/useNavigateToPageWithValidation';
 import {
   getTaskIcon,
   useGetNavigationIsPrevented,
@@ -20,7 +21,6 @@ import {
   useVisiblePages,
 } from 'src/features/navigation/utils';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import type {
   NavigationPageGroup,
   NavigationPageGroupMultiple,
@@ -78,8 +78,8 @@ function PageGroupSingle({
   validations,
   onNavigate,
 }: PageGroupProps<NavigationPageGroupSingle>) {
-  const { navigateToPage } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
+  const navigateToPageWithValidation = useNavigateToPageWithValidation();
   const page = group.order[0];
   const navigationIsPrevented = useGetNavigationIsPrevented()(page);
 
@@ -92,14 +92,7 @@ function PageGroupSingle({
         disabled={isAnyProcessing || navigationIsPrevented}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.groupButton, classes.groupButtonSingle, 'fds-focus')}
-        onClick={() =>
-          performProcess(async () => {
-            if (!isCurrentPage) {
-              await navigateToPage(page);
-              onNavigate?.();
-            }
-          })
-        }
+        onClick={() => performProcess(() => navigateToPageWithValidation(page, onNavigate))}
       >
         <PageGroupSymbol
           single
