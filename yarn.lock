@@ -5710,7 +5710,6 @@ __metadata:
     cypress-multi-reporters: "npm:2.0.5"
     cypress-network-idle: "npm:1.15.0"
     cypress-parallel: "npm:0.15.0"
-    cypress-plugin-tab: "npm:2.0.0"
     cypress-terminal-report: "npm:^7.2.1"
     cypress-wait-until: "npm:3.0.2"
     date-fns: "npm:4.1.0"
@@ -7490,15 +7489,6 @@ __metadata:
   bin:
     cypress-parallel: cli.js
   checksum: 10c0/06dd4f6202a2d82721a773314cb551f775c19cdfaade1a2ccc4bd9d3b5233abe49574b975517a3ffdedec4a1f74998ea42eb3324f712f78f56b9ec9d8b020dec
-  languageName: node
-  linkType: hard
-
-"cypress-plugin-tab@npm:2.0.0":
-  version: 2.0.0
-  resolution: "cypress-plugin-tab@npm:2.0.0"
-  peerDependencies:
-    cypress: ">=10"
-  checksum: 10c0/2001dccdb5cbde5ea98605457ee822cba4e565fbcdd7675f382c40a2733b04c43650a7d8d463c9e2cb7f440a14c8f3960b5d3b2a4d1b87999d78da0160c11a22
   languageName: node
   linkType: hard
 
