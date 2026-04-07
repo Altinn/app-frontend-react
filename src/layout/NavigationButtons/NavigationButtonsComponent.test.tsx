@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
@@ -138,7 +138,7 @@ describe('NavigationButtons', () => {
 
     await userEvent.click(screen.getByText('next'));
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await waitFor(() => expect(screen.getByText('next').closest('button')).not.toBeDisabled());
 
     expect(screen.getByText('next')).toBeInTheDocument();
   });
@@ -153,7 +153,7 @@ describe('NavigationButtons', () => {
 
     await userEvent.click(screen.getByText('next'));
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await waitFor(() => expect(screen.getByText('next').closest('button')).not.toBeDisabled());
 
     expect(screen.getByText('next')).toBeInTheDocument();
   });
@@ -167,7 +167,7 @@ describe('NavigationButtons', () => {
 
     await userEvent.click(screen.getByText('next'));
 
-    await new Promise((resolve) => setTimeout(resolve, 100));
+    await waitForElementToBeRemoved(() => screen.queryByText('next'));
 
     expect(screen.queryByText('next')).not.toBeInTheDocument();
   });
