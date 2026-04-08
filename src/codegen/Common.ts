@@ -77,6 +77,7 @@ const common = {
               .setTitle('Expanded width')
               .setDescription('Sets expanded width for pages'),
           ),
+          new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
         ),
       ),
     )
@@ -139,6 +140,13 @@ const common = {
     new CG.obj(
       new CG.prop('labelGrid', CG.common('IGridStyling').optional()),
       new CG.prop('innerGrid', CG.common('IGridStyling').optional()),
+      new CG.prop(
+        'validationGrid',
+        CG.common('IGridStyling')
+          .optional()
+          .setTitle('Validation grid')
+          .setDescription('Column span for validation messages; defaults to innerGrid when omitted'),
+      ),
     )
       .extends(CG.common('IGridStyling'))
       .setTitle('Grid')
@@ -762,6 +770,7 @@ const common = {
           .setTitle('Task navigation settings')
           .setDescription('Shows the listed tasks in the sidebar navigation menu'),
       ),
+      new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
     ),
   IPagesBaseSettings: () =>
     new CG.obj(
@@ -781,6 +790,7 @@ const common = {
             'Name of a custom layout file to use for PDF creation instead of the automatically generated PDF.',
           ),
       ),
+      new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
     ),
   INavigationBasePageGroup: () =>
     new CG.obj(
@@ -791,6 +801,12 @@ const common = {
         new CG.bool()
           .optional({ default: false })
           .setDescription('Whether this group should mark pages as completed when the user finishes'),
+      ),
+      new CG.prop(
+        'expandedByDefault',
+        new CG.bool()
+          .optional({ default: false })
+          .setDescription('Whether the sidebar group should be expanded by default'),
       ),
     ),
   IPagesSettingsWithGroups: () =>
@@ -836,7 +852,6 @@ const common = {
       .setTitle('Layout settings')
       .setDescription('Settings regarding layout pages and components'),
 
-  // Layout sets:
   ILayoutSets: () =>
     new CG.obj(
       new CG.prop('$schema', new CG.str().optional()),

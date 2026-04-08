@@ -43,7 +43,7 @@ jobs:
           build: yarn run build
 
       - name: Save build folder
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         with:
           name: dist
           if-no-files-found: error
@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: cypress/browsers:node-22.13.1-chrome-133.0.6943.53-1-ff-135.0-edge-132.0.2957.140-1@sha256:914c9814a9567f32660203db7ecd610b8f8fede6e9103885728b3bd3f6dca4ff
-    timeout-minutes: 60
+    timeout-minutes: 120
     needs: install
     strategy:
       fail-fast: false
@@ -69,7 +69,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Download the build folder
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: dist
           path: dist
@@ -107,7 +107,7 @@ jobs:
           spec: test/e2e/integration
           env: environment=tt02
 
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: failure()
         with:
           name: logs
@@ -122,6 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: cypress/browsers:node-22.13.1-chrome-133.0.6943.53-1-ff-135.0-edge-132.0.2957.140-1@sha256:914c9814a9567f32660203db7ecd610b8f8fede6e9103885728b3bd3f6dca4ff
+    timeout-minutes: 120
     needs: install
 
     steps:
@@ -129,7 +130,7 @@ jobs:
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
       - name: Download the build folder
-        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: dist
           path: dist
@@ -142,7 +143,7 @@ jobs:
           spec: test/e2e/integration
           env: environment=tt02
 
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
         if: failure()
         with:
           name: external-logs

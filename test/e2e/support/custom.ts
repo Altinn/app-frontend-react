@@ -18,6 +18,25 @@ import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 const appFrontend = new AppFrontend();
 
+Cypress.Commands.add('tab', { prevSubject: 'optional' }, (_subject, options) => {
+  const shift = options?.shift ?? false;
+  const params = { key: 'Tab', code: 'Tab', keyCode: 9, modifiers: shift ? 8 : 0 };
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Input.dispatchKeyEvent',
+      params: { type: 'keyDown', ...params },
+    }),
+    { log: false },
+  );
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Input.dispatchKeyEvent',
+      params: { type: 'keyUp', ...params },
+    }),
+    { log: false },
+  );
+});
+
 Cypress.Commands.add('assertTextWithoutWhiteSpaces', { prevSubject: true }, (subject, expectedText) => {
   const normalWhiteSpace = (subject[0].value || ' ').replace(/\u00a0/g, ' ');
   expect(normalWhiteSpace).to.equal(expectedText || ' ');
