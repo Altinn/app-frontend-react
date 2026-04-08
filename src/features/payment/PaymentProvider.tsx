@@ -16,7 +16,6 @@ import { useShallowMemo } from 'src/hooks/useShallowMemo';
 
 type PaymentContextProps = {
   performPayment: () => void;
-  skipPayment: () => void;
   paymentError: AxiosError | null;
 };
 
@@ -37,14 +36,13 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
     error: paymentError,
     isPending: isPaymentPending,
   } = usePerformPayActionMutation(instanceOwnerPartyId, instanceGuid);
-  const { mutateAsync: processConfirm, isPending: isConfirmPending } = useProcessNext({ action: 'confirm' });
+  const { isPending: isConfirmPending } = useProcessNext({ action: 'confirm' });
 
   const isLoading = isPaymentPending || isConfirmPending;
 
   const performPayment = useOurEffectEvent(() => mutateAsync());
-  const skipPayment = useOurEffectEvent(() => processConfirm());
 
-  const contextValue = useShallowMemo({ performPayment, skipPayment, paymentError });
+  const contextValue = useShallowMemo({ performPayment, paymentError });
 
   return (
     <PaymentContext.Provider value={contextValue}>
@@ -57,7 +55,7 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
 function PaymentNavigation() {
   const paymentInfo = usePaymentInformation();
   const isPdf = useIsPdf();
-  const { performPayment, skipPayment } = usePayment();
+  const { performPayment } = usePayment();
   const instanceGuid = useNavigationParam('instanceGuid');
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
