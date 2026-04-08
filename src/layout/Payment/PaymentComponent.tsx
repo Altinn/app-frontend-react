@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { Alert } from '@digdir/designsystemet-react';
 
@@ -35,6 +35,26 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
 
   const [isChecking, setIsChecking] = React.useState(false);
   const disabled = isAnyProcessing || isConfirming || isRejecting || isChecking;
+
+  useEffect(() => {
+    if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
+      const handleFreshProcess = async () => {
+        setIsChecking(true);
+        try {
+          const { data: freshProcess } = await processQuery.refetch();
+          const freshTaskId = freshProcess?.currentTask?.elementId;
+
+          if (freshTaskId && freshTaskId !== currentTaskId) {
+            // backend has moved the process, navigate there
+            navigateToTask(freshTaskId);
+          }
+        } finally {
+          setIsChecking(false);
+        }
+      };
+      handleFreshProcess();
+    }
+  }, [paymentInfo?.status, paymentError, processConfirm, processQuery, navigateToTask, currentTaskId]);
 
   const handleNextClick = async () => {
     if (paymentInfo?.status !== PaymentStatus.Paid) {
