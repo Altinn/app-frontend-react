@@ -5,12 +5,14 @@ import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsPayment } from 'src/features/payment/utils';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
+import { useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 
@@ -55,11 +57,15 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
 function PaymentNavigation() {
   const paymentInfo = usePaymentInformation();
   const isPdf = useIsPdf();
-  const { performPayment } = usePayment();
+  const { performPayment, paymentError } = usePayment();
   const instanceGuid = useNavigationParam('instanceGuid');
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const isPaymentProcess = useIsPayment();
+
+  const processQuery = useProcessQuery();
+  const currentTaskId = processQuery.data?.currentTask?.elementId;
+  const navigateToTask = useNavigateToTask();
 
   // If when landing on payment task, PaymentStatus is Uninitialized, initiate it by calling the pay action and
   // go to payment provider
@@ -79,6 +85,33 @@ function PaymentNavigation() {
       paymentInitiatedForInstance.delete(instanceGuid);
     }
   }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, instanceGuid, paymentInfo?.status]);
+
+  useEffect(() => {
+    console.log('PaymentComponent useEffect - checking payment status', {
+      paymentStatus: paymentInfo?.status,
+      paymentError,
+    });
+    if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
+      console.log('PaymentComponent useEffect - payment is marked as paid, verifying process status');
+      const handleFreshProcess = async () => {
+        try {
+          console.log('PaymentComponent useEffect - refetching process to check for task updates');
+          const { data: freshProcess } = await processQuery.refetch();
+          const freshTaskId = freshProcess?.currentTask?.elementId;
+
+          if (freshTaskId && freshTaskId !== currentTaskId) {
+            // backend has moved the process, navigate there
+            console.log('PaymentComponent useEffect - process has moved to a new task, navigating', { freshTaskId });
+            navigateToTask(freshTaskId);
+          }
+          console.log('PaymentComponent useEffect - process is still on the same task after payment');
+        } finally {
+          console.log('PaymentComponent useEffect - finished checking process status');
+        }
+      };
+      handleFreshProcess();
+    }
+  }, [paymentInfo?.status, paymentError, processQuery, navigateToTask, currentTaskId]);
 
   return null;
 }

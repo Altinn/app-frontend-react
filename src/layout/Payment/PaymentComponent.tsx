@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { Alert } from '@digdir/designsystemet-react';
 
@@ -35,35 +35,6 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
 
   const [isChecking, setIsChecking] = React.useState(false);
   const disabled = isAnyProcessing || isConfirming || isRejecting || isChecking;
-
-  useEffect(() => {
-    console.log('PaymentComponent useEffect - checking payment status', {
-      paymentStatus: paymentInfo?.status,
-      paymentError,
-    });
-    if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
-      console.log('PaymentComponent useEffect - payment is marked as paid, verifying process status');
-      const handleFreshProcess = async () => {
-        setIsChecking(true);
-        try {
-          console.log('PaymentComponent useEffect - refetching process to check for task updates');
-          const { data: freshProcess } = await processQuery.refetch();
-          const freshTaskId = freshProcess?.currentTask?.elementId;
-
-          if (freshTaskId && freshTaskId !== currentTaskId) {
-            // backend has moved the process, navigate there
-            console.log('PaymentComponent useEffect - process has moved to a new task, navigating', { freshTaskId });
-            navigateToTask(freshTaskId);
-          }
-          console.log('PaymentComponent useEffect - process is still on the same task after payment');
-        } finally {
-          console.log('PaymentComponent useEffect - finished checking process status');
-          setIsChecking(false);
-        }
-      };
-      handleFreshProcess();
-    }
-  }, [paymentInfo?.status, paymentError, processConfirm, processQuery, navigateToTask, currentTaskId]);
 
   const handleNextClick = async () => {
     if (paymentInfo?.status !== PaymentStatus.Paid) {
