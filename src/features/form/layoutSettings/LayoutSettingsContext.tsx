@@ -122,7 +122,7 @@ export const usePageGroups = () => {
 
 const emptyArray = [];
 
-const defaults: Omit<Required<GlobalPageSettings>, 'navigationTitle'> = {
+const defaults: Required<GlobalPageSettings> = {
   hideCloseButton: false,
   showLanguageSelector: false,
   showProgress: false,
@@ -130,10 +130,10 @@ const defaults: Omit<Required<GlobalPageSettings>, 'navigationTitle'> = {
   autoSaveBehavior: 'onChangeFormData',
   expandedWidth: false,
   taskNavigation: [],
+  navigationTitle: 'navigation.form_pages',
 };
 
-export const usePageSettings = (): Omit<Required<GlobalPageSettings>, 'navigationTitle'> &
-  Pick<GlobalPageSettings, 'navigationTitle'> => {
+export const usePageSettings = (): Required<GlobalPageSettings> => {
   const globalUISettings = useLaxGlobalUISettings();
   const layoutSettings = useLaxCtx();
 
