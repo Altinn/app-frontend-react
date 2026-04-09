@@ -10,7 +10,7 @@ import { Lang } from 'src/features/language/Lang';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { usePayment } from 'src/features/payment/PaymentProvider';
 import { PaymentStatus } from 'src/features/payment/types';
-import { useIsSubformPage } from 'src/hooks/navigation';
+import { useIsSubformPage, useNavigationParam } from 'src/hooks/navigation';
 import { useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
@@ -25,8 +25,9 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   const paymentInfo = usePaymentInformation();
   const { performPayment, paymentError } = usePayment();
   const { title, description } = useItemWhenType(baseComponentId, 'Payment').textResourceBindings ?? {};
-  const { data, refetch } = useProcessQuery();
-  const currentTaskId = data?.currentTask?.elementId;
+  const { data: process } = useProcessQuery();
+  const currentTaskId = process?.currentTask?.elementId;
+  const taskId = useNavigationParam('taskId');
   const navigateToTask = useNavigateToTask();
 
   if (useIsSubformPage()) {
@@ -43,12 +44,9 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
 
     setIsChecking(true);
     try {
-      const { data: freshProcess } = await refetch();
-      const freshTaskId = freshProcess?.currentTask?.elementId;
-
-      if (freshTaskId && freshTaskId !== currentTaskId) {
+      if (currentTaskId && currentTaskId !== taskId) {
         // backend has moved the process, navigate there
-        navigateToTask(freshTaskId);
+        navigateToTask(currentTaskId);
         return;
       }
 
@@ -61,23 +59,17 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
 
   useEffect(() => {
     if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
-      const handleFreshProcess = async () => {
-        setIsChecking(true);
-        try {
-          const { data: freshProcess } = await refetch();
-          const freshTaskId = freshProcess?.currentTask?.elementId;
-
-          if (freshTaskId && freshTaskId !== currentTaskId) {
-            // backend has moved the process, navigate there
-            navigateToTask(freshTaskId);
-          }
-        } finally {
-          setIsChecking(false);
+      setIsChecking(true);
+      try {
+        if (currentTaskId && currentTaskId !== taskId) {
+          // backend has moved the process, navigate there
+          navigateToTask(currentTaskId);
         }
-      };
-      handleFreshProcess();
+      } finally {
+        setIsChecking(false);
+      }
     }
-  }, [paymentInfo?.status, paymentError, processConfirm, navigateToTask, currentTaskId, refetch]);
+  }, [paymentInfo?.status, paymentError, processConfirm, navigateToTask, currentTaskId, taskId]);
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
