@@ -25,8 +25,8 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   const paymentInfo = usePaymentInformation();
   const { performPayment, paymentError } = usePayment();
   const { title, description } = useItemWhenType(baseComponentId, 'Payment').textResourceBindings ?? {};
-  const processQuery = useProcessQuery();
-  const currentTaskId = processQuery.data?.currentTask?.elementId;
+  const { data, refetch } = useProcessQuery();
+  const currentTaskId = data?.currentTask?.elementId;
   const navigateToTask = useNavigateToTask();
 
   if (useIsSubformPage()) {
@@ -43,7 +43,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
 
     setIsChecking(true);
     try {
-      const { data: freshProcess } = await processQuery.refetch();
+      const { data: freshProcess } = await refetch();
       const freshTaskId = freshProcess?.currentTask?.elementId;
 
       if (freshTaskId && freshTaskId !== currentTaskId) {
@@ -60,33 +60,24 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   };
 
   useEffect(() => {
-    console.log('PaymentComponent useEffect - checking payment status', {
-      paymentStatus: paymentInfo?.status,
-      paymentError,
-    });
     if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
-      console.log('PaymentComponent useEffect - payment is marked as paid, verifying process status');
       const handleFreshProcess = async () => {
         setIsChecking(true);
         try {
-          console.log('PaymentComponent useEffect - refetching process to check for task updates');
-          const { data: freshProcess } = await processQuery.refetch();
+          const { data: freshProcess } = await refetch();
           const freshTaskId = freshProcess?.currentTask?.elementId;
 
           if (freshTaskId && freshTaskId !== currentTaskId) {
             // backend has moved the process, navigate there
-            console.log('PaymentComponent useEffect - process has moved to a new task, navigating', { freshTaskId });
             navigateToTask(freshTaskId);
           }
-          console.log('PaymentComponent useEffect - process is still on the same task after payment');
         } finally {
-          console.log('PaymentComponent useEffect - finished checking process status');
           setIsChecking(false);
         }
       };
       handleFreshProcess();
     }
-  }, [paymentInfo?.status, paymentError, processConfirm, processQuery, navigateToTask, currentTaskId]);
+  }, [paymentInfo?.status, paymentError, processConfirm, navigateToTask, currentTaskId, refetch]);
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
