@@ -39,12 +39,12 @@ export function ComponentStructureWrapper({
       id={`form-content-${indexedId}`}
       className={className}
       size={{ xs: 12 }}
-      style={style}
       item
     >
       <Flex
         item
         size={{ xs: 12, ...innerGrid }}
+        style={style}
       >
         {children}
       </Flex>
