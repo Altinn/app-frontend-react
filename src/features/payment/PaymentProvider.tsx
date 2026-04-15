@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
-import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
@@ -38,17 +37,23 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
     error: paymentError,
     isPending: isPaymentPending,
   } = usePerformPayActionMutation(instanceOwnerPartyId, instanceGuid);
-  const { isPending: isConfirmPending } = useProcessNext({ action: 'confirm' });
-
-  const isLoading = isPaymentPending || isConfirmPending;
 
   const performPayment = useOurEffectEvent(() => mutateAsync());
-
   const contextValue = useShallowMemo({ performPayment, paymentError });
+
+  const { data: process } = useProcessQuery();
+  const currentTaskId = process?.currentTask?.elementId;
+  const taskId = useNavigationParam('taskId');
+  const navigateToTask = useNavigateToTask();
+
+  if (currentTaskId && currentTaskId !== taskId) {
+    // backend has moved the process, navigate there
+    navigateToTask(currentTaskId);
+  }
 
   return (
     <PaymentContext.Provider value={contextValue}>
-      {isLoading ? <Loader reason='Navigating to external payment solution' /> : children}
+      {isPaymentPending ? <Loader reason='Navigating to external payment solution' /> : children}
       {!paymentError && <PaymentNavigation />}
     </PaymentContext.Provider>
   );
@@ -59,13 +64,10 @@ function PaymentNavigation() {
   const isPdf = useIsPdf();
   const { performPayment } = usePayment();
   const instanceGuid = useNavigationParam('instanceGuid');
-  const { data: process } = useProcessQuery();
-  const currentTaskId = process?.currentTask?.elementId;
-  const taskId = useNavigationParam('taskId');
-  const navigateToTask = useNavigateToTask();
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const isPaymentProcess = useIsPayment();
+
   // If when landing on payment task, PaymentStatus is Uninitialized, initiate it by calling the pay action and
   // go to payment provider
   useEffect(() => {
@@ -84,13 +86,6 @@ function PaymentNavigation() {
       paymentInitiatedForInstance.delete(instanceGuid);
     }
   }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, instanceGuid, paymentInfo?.status]);
-
-  useEffect(() => {
-    if (currentTaskId && currentTaskId !== taskId) {
-      // backend has moved the process, navigate there
-      navigateToTask(currentTaskId);
-    }
-  }, [paymentInfo?.status, navigateToTask, currentTaskId, taskId]);
 
   return null;
 }
