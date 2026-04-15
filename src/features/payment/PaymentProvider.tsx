@@ -5,12 +5,14 @@ import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsPayment } from 'src/features/payment/utils';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
+import { useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 
@@ -57,6 +59,10 @@ function PaymentNavigation() {
   const isPdf = useIsPdf();
   const { performPayment } = usePayment();
   const instanceGuid = useNavigationParam('instanceGuid');
+  const { data: process } = useProcessQuery();
+  const currentTaskId = process?.currentTask?.elementId;
+  const taskId = useNavigationParam('taskId');
+  const navigateToTask = useNavigateToTask();
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const isPaymentProcess = useIsPayment();
@@ -78,6 +84,13 @@ function PaymentNavigation() {
       paymentInitiatedForInstance.delete(instanceGuid);
     }
   }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, instanceGuid, paymentInfo?.status]);
+
+  useEffect(() => {
+    if (currentTaskId && currentTaskId !== taskId) {
+      // backend has moved the process, navigate there
+      navigateToTask(currentTaskId);
+    }
+  }, [paymentInfo?.status, navigateToTask, currentTaskId, taskId]);
 
   return null;
 }

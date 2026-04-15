@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
 import { Alert } from '@digdir/designsystemet-react';
 
@@ -57,19 +57,19 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
     }
   };
 
-  useEffect(() => {
-    if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
-      setIsChecking(true);
-      try {
-        if (currentTaskId && currentTaskId !== taskId) {
-          // backend has moved the process, navigate there
-          navigateToTask(currentTaskId);
-        }
-      } finally {
-        setIsChecking(false);
-      }
-    }
-  }, [paymentInfo?.status, paymentError, processConfirm, navigateToTask, currentTaskId, taskId]);
+  // useEffect(() => {
+  //   if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
+  //     setIsChecking(true);
+  //     try {
+  //       if (currentTaskId && currentTaskId !== taskId) {
+  //         // backend has moved the process, navigate there
+  //         navigateToTask(currentTaskId);
+  //       }
+  //     } finally {
+  //       setIsChecking(false);
+  //     }
+  //   }
+  // }, [paymentInfo?.status, paymentError, processConfirm, navigateToTask, currentTaskId, taskId]);
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
