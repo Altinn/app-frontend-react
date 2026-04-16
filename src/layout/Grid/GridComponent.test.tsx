@@ -20,7 +20,7 @@ describe('GridComponent', () => {
               { text: 'accordion.title' },
               {
                 text: 'FormLayout',
-                gridColumnOptions: { hidden: hiddenValue },
+                columnOptions: { hidden: hiddenValue },
               },
             ],
           },

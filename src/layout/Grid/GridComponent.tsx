@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
@@ -42,6 +42,58 @@ import type {
   ITableColumnFormatting,
   ITableColumnProperties,
 } from 'src/layout/common.generated';
+
+interface ColSpanHiddenOverlapWarningParams {
+  colSpan: number;
+  cellIdx: number;
+  hiddenColumnIndices?: number[];
+  cellDescription: string;
+}
+
+function warnForColSpanHiddenOverlap({
+  colSpan,
+  cellIdx,
+  hiddenColumnIndices,
+  cellDescription,
+}: ColSpanHiddenOverlapWarningParams): void {
+  const normalizedHiddenColumnIndices = hiddenColumnIndices ?? [];
+  if (colSpan <= 1 || normalizedHiddenColumnIndices.length === 0) {
+    return;
+  }
+
+  const overlappingHiddenColumns = normalizedHiddenColumnIndices.filter(
+    (hiddenIdx) => hiddenIdx > cellIdx && hiddenIdx < cellIdx + colSpan,
+  );
+  if (overlappingHiddenColumns.length === 0) {
+    return;
+  }
+
+  const warningMessage =
+    `Grid: colSpan overlaps hidden column(s). Cell ${cellDescription} at index ${cellIdx} has colSpan=${colSpan}, ` +
+    `overlapping hidden column indices [${overlappingHiddenColumns.join(', ')}]. This may cause unexpected layout.`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(warningMessage);
+  }
+
+  if (window.logWarnOnce) {
+    window.logWarnOnce(warningMessage);
+    return;
+  }
+
+  window.logWarn?.(warningMessage);
+}
+
+function useWarnIfColSpanOverlapsHiddenColumns({
+  colSpan,
+  cellIdx,
+  hiddenColumnIndices = [],
+  cellDescription,
+}: ColSpanHiddenOverlapWarningParams) {
+  useEffect(() => {
+    warnForColSpanHiddenOverlap({ colSpan, cellIdx, hiddenColumnIndices, cellDescription });
+  }, [cellDescription, cellIdx, colSpan, hiddenColumnIndices]);
+}
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { baseComponentId } = props;
@@ -215,6 +267,8 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
                 help={cell?.help}
                 isHeader={row.header}
                 columnStyleOptions={textCellSettings}
+                cellIdx={cellIdx}
+                hiddenColumnIndices={hiddenColumnIndices}
               >
                 <Lang id={cell.text} />
               </CellWithText>
@@ -228,6 +282,8 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
               isHeader={row.header}
               columnStyleOptions={textCellSettings}
               labelFrom={cell.labelFrom}
+              cellIdx={cellIdx}
+              hiddenColumnIndices={hiddenColumnIndices}
             />
           );
         }
@@ -267,6 +323,8 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
             isHeader={row.header}
             className={className}
             columnStyleOptions={componentCellSettings}
+            cellIdx={cellIdx}
+            hiddenColumnIndices={hiddenColumnIndices}
           />
         );
       })}
@@ -279,6 +337,8 @@ interface CellProps {
   columnStyleOptions?: GridColumnOptions;
   isHeader?: boolean;
   rowReadOnly?: boolean;
+  cellIdx?: number;
+  hiddenColumnIndices?: number[];
 }
 
 type GridColumnOptions = ITableColumnProperties & IGridColumnProperties;
@@ -301,6 +361,8 @@ function CellWithComponent({
   columnStyleOptions,
   isHeader = false,
   rowReadOnly,
+  cellIdx,
+  hiddenColumnIndices,
 }: CellWithComponentProps) {
   const isHidden = useIsHidden(baseComponentId);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
@@ -308,6 +370,12 @@ function CellWithComponent({
     returnType: ExprVal.Number,
     defaultValue: 1,
     errorIntroText: `Invalid expression for colSpan in Grid cell with component "${baseComponentId}"`,
+  });
+  useWarnIfColSpanOverlapsHiddenColumns({
+    colSpan: colSpanValue,
+    cellIdx: cellIdx ?? -1,
+    hiddenColumnIndices,
+    cellDescription: `with component "${baseComponentId}"`,
   });
 
   if (!isHidden) {
@@ -334,11 +402,25 @@ function CellWithComponent({
   return <CellComponent className={className} />;
 }
 
-function CellWithText({ children, className, columnStyleOptions, help, isHeader = false }: CellWithTextProps) {
+function CellWithText({
+  children,
+  className,
+  columnStyleOptions,
+  help,
+  isHeader = false,
+  cellIdx,
+  hiddenColumnIndices,
+}: CellWithTextProps) {
   const colSpanValue = useEvalExpression(columnStyleOptions?.colSpan, {
     returnType: ExprVal.Number,
     defaultValue: 1,
     errorIntroText: 'Invalid expression for colSpan in Grid text cell',
+  });
+  useWarnIfColSpanOverlapsHiddenColumns({
+    colSpan: colSpanValue,
+    cellIdx: cellIdx ?? -1,
+    hiddenColumnIndices,
+    cellDescription: 'text',
   });
 
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -369,7 +451,14 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
   );
 }
 
-function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = false }: CellWithLabelProps) {
+function CellWithLabel({
+  className,
+  columnStyleOptions,
+  labelFrom,
+  isHeader = false,
+  cellIdx,
+  hiddenColumnIndices,
+}: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const item = useItemFor(labelFrom);
   const trb = item.textResourceBindings;
@@ -378,6 +467,12 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
     returnType: ExprVal.Number,
     defaultValue: 1,
     errorIntroText: `Invalid expression for colSpan in Grid cell with label from "${labelFrom}"`,
+  });
+  useWarnIfColSpanOverlapsHiddenColumns({
+    colSpan: colSpanValue,
+    cellIdx: cellIdx ?? -1,
+    hiddenColumnIndices,
+    cellDescription: `with label from "${labelFrom}"`,
   });
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;

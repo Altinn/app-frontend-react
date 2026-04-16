@@ -434,15 +434,6 @@ const common = {
           .setTitle('Column span')
           .setDescription('Number of columns this cell should span. Defaults to 1 if not set.'),
       ),
-      new CG.prop(
-        'hidden',
-        new CG.expr(ExprVal.Boolean)
-          .optional()
-          .setTitle('Hidden column')
-          .setDescription(
-            'Expression or boolean indicating whether this column should be hidden. Defaults to false if not set.',
-          ),
-      ),
     )
       .setTitle('Grid column properties')
       .setDescription('Additional properties for columns in the Grid component'),

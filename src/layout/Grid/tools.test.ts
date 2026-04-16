@@ -13,10 +13,17 @@ describe('getGridCellHiddenExpr', () => {
     expect(getGridCellHiddenExpr(cell)).toBe(true);
   });
 
-  it('reads hidden from gridColumnOptions and prefers it over columnOptions', () => {
+  it('returns undefined when hidden is only set in gridColumnOptions', () => {
     const cell = {
-      columnOptions: { hidden: false },
       gridColumnOptions: { hidden: true },
+    } as GridCell;
+    expect(getGridCellHiddenExpr(cell)).toBeUndefined();
+  });
+
+  it('reads hidden from columnOptions when both are set', () => {
+    const cell = {
+      columnOptions: { hidden: true },
+      gridColumnOptions: { hidden: false },
     } as GridCell;
     expect(getGridCellHiddenExpr(cell)).toBe(true);
   });

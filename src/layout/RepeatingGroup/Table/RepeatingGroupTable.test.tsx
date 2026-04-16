@@ -97,7 +97,7 @@ describe('RepeatingGroupTable', () => {
     readOnly: false,
     cells: [
       { text: 'extra.row.hdr0' },
-      { text: 'extra.row.hdr1', gridColumnOptions: { hidden: true } },
+      { text: 'extra.row.hdr1', columnOptions: { hidden: true } },
       { text: 'extra.row.hdr2' },
       { text: 'extra.row.hdr3' },
     ],
@@ -212,7 +212,7 @@ describe('RepeatingGroupTable', () => {
     it.each([
       ['rowsAfter', { rowsAfter: [extraRowHeaderCells] }],
       ['rowsBefore', { rowsBefore: [extraRowHeaderCells] }],
-    ])('hides column from %s when header cell has gridColumnOptions.hidden', async (_label, extraRowsProp) => {
+    ])('hides column from %s when header cell has columnOptions.hidden', async (_label, extraRowsProp) => {
       await renderExtraRowsWithHiddenSecondColumn(extraRowsProp);
     });
   });
