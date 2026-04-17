@@ -47,7 +47,7 @@ describe('GridComponent', () => {
     expect(screen.getAllByText('This is a title')[0]).toBeInTheDocument();
   });
 
-  it('does not hide a column when hidden expression is invalid for boolean', async () => {
+  it('does not hide a column when hidden evaluates to false', async () => {
     await render(false);
 
     const headers = screen.getAllByRole('columnheader');

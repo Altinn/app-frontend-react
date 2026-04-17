@@ -57,7 +57,7 @@ function warnForColSpanHiddenOverlap({
   cellDescription,
 }: ColSpanHiddenOverlapWarningParams): void {
   const normalizedHiddenColumnIndices = hiddenColumnIndices ?? [];
-  if (colSpan <= 1 || normalizedHiddenColumnIndices.length === 0) {
+  if (colSpan <= 1 || cellIdx < 0 || normalizedHiddenColumnIndices.length === 0) {
     return;
   }
 
