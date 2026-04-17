@@ -753,6 +753,15 @@ const common = {
           ),
       ),
       new CG.prop(
+        'navigationTitle',
+        new CG.expr(ExprVal.String)
+          .optional()
+          .setTitle('Navigation title')
+          .setDescription(
+            'Overrides the default "Skjemasider" heading shown in the navigation panel. Can be a text resource key or a dynamic expression that reads from the data model.',
+          ),
+      ),
+      new CG.prop(
         'taskNavigation',
         new CG.arr(
           new CG.union(

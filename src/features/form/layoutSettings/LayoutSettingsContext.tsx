@@ -66,6 +66,7 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       autoSaveBehavior: settings.pages.autoSaveBehavior,
       expandedWidth: settings.pages.expandedWidth,
       hideCloseButton: settings.pages.hideCloseButton,
+      navigationTitle: settings.pages.navigationTitle,
       showExpandWidthButton: settings.pages.showExpandWidthButton,
       showLanguageSelector: settings.pages.showLanguageSelector,
       showProgress: settings.pages.showProgress,
@@ -130,6 +131,7 @@ const defaults: Omit<Required<GlobalPageSettings>, 'validationOnNavigation'> = {
   autoSaveBehavior: 'onChangeFormData',
   expandedWidth: false,
   taskNavigation: [],
+  navigationTitle: 'navigation.form_pages',
 };
 
 export const usePageSettings = (): Required<Omit<GlobalPageSettings, 'validationOnNavigation'>> &
