@@ -59,7 +59,7 @@ describe('GridComponent', () => {
     expect(pageTitleOccurrences.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('applies colSpan from text cell settings', async () => {
+  it('applies colSpan from gridColumnOptions in text cells', async () => {
     await renderGenericComponentTest({
       type: 'Grid',
       renderer: (props) => <RenderGrid {...props} />,
@@ -71,7 +71,7 @@ describe('GridComponent', () => {
             cells: [
               {
                 text: 'accordion.title',
-                colSpan: 2,
+                gridColumnOptions: { colSpan: 2 },
               },
               { text: 'FormLayout' },
             ],

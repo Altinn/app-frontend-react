@@ -252,13 +252,6 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
               : { ...cell.gridColumnOptions };
           }
 
-          const cellWithColSpan = cell as { colSpan?: number } | null;
-          if (cellWithColSpan && cellWithColSpan.colSpan !== undefined) {
-            textCellSettings = textCellSettings
-              ? { ...textCellSettings, colSpan: cellWithColSpan.colSpan }
-              : { colSpan: cellWithColSpan.colSpan };
-          }
-
           if (isGridCellText(cell)) {
             return (
               <CellWithText
@@ -306,13 +299,6 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
           componentCellSettings = componentCellSettings
             ? { ...componentCellSettings, ...cell.gridColumnOptions }
             : { ...cell.gridColumnOptions };
-        }
-
-        const cellColSpan = (cell as { colSpan?: number } | null)?.colSpan;
-        if (cellColSpan !== undefined) {
-          componentCellSettings = componentCellSettings
-            ? { ...componentCellSettings, colSpan: cellColSpan }
-            : { colSpan: cellColSpan };
         }
 
         return (
