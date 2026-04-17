@@ -285,9 +285,9 @@ export function findElementToFocus(div: HTMLDivElement | null, binding: string |
   }
 
   const hasBinding = binding !== null;
-  const matchesBinding = (element: HTMLElement) => hasBinding && element.dataset.bindingkey === binding;
 
   if (hasBinding) {
+    const matchesBinding = (element: HTMLElement) => element.dataset.bindingkey === binding;
     const bindingInput = targetElements.find(
       (element) => matchesBinding(element) && element.matches('input,textarea,select'),
     );
