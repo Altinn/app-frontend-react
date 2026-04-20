@@ -10,6 +10,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PdfWrapper';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useCurrentView, useNavigateToComponent } from 'src/hooks/useNavigatePage';
+import { getComponentBehaviors } from 'src/layout';
 import { useIsEditableInRepGroup } from 'src/layout/RepeatingGroup/Summary2/RepGroupSummaryEditableContext';
 import { useSummaryProp } from 'src/layout/Summary2/summaryStoreContext';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
@@ -82,6 +83,13 @@ export function EditButton({
   }
 
   if (isReadOnly) {
+    return null;
+  }
+
+  const hasDataModelBindings = 'dataModelBindings' in componentConfig && componentConfig.dataModelBindings != null;
+  const canHaveAttachments = getComponentBehaviors(componentConfig.type)?.canHaveAttachments;
+  // Subform has no dataModelBindings but is always editable via its own layoutSet
+  if (!hasDataModelBindings && !canHaveAttachments && componentConfig.type !== 'Subform') {
     return null;
   }
 
