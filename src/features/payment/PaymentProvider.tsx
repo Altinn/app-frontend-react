@@ -4,14 +4,12 @@ import type { ReactNode } from 'react';
 import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
-import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
 import { useIsPayment } from 'src/features/payment/utils';
 import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
-import { useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 
@@ -40,16 +38,6 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
 
   const performPayment = useOurEffectEvent(() => mutateAsync());
   const contextValue = useShallowMemo({ performPayment, paymentError });
-
-  const { data: process } = useProcessQuery();
-  const currentTaskId = process?.currentTask?.elementId;
-  const taskId = useNavigationParam('taskId');
-  const navigateToTask = useNavigateToTask();
-
-  if (currentTaskId && currentTaskId !== taskId) {
-    // backend has moved the process, navigate there
-    navigateToTask(currentTaskId);
-  }
 
   return (
     <PaymentContext.Provider value={contextValue}>
