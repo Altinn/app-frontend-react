@@ -145,7 +145,9 @@ const common = {
         CG.common('IGridStyling')
           .optional()
           .setTitle('Validation grid')
-          .setDescription('Column span for validation messages; defaults to innerGrid when omitted'),
+          .setDescription(
+            'Column span for validation messages. Same container as innerGrid. If larger than innerGrid, the container expands to fit. Defaults to innerGrid when omitted.',
+          ),
       ),
     )
       .extends(CG.common('IGridStyling'))
