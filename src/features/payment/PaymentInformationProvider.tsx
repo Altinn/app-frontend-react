@@ -5,12 +5,9 @@ import { skipToken, useQuery } from '@tanstack/react-query';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { delayedContext } from 'src/core/contexts/delayedContext';
 import { createQueryContext } from 'src/core/contexts/queryContext';
-import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
-import { useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useIsPayment } from 'src/features/payment/utils';
-import { appSupportsPaymentWebhooks } from 'src/utils/versioning/versions';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import type { PaymentResponsePayload } from 'src/features/payment/types';
 
@@ -19,27 +16,14 @@ export function usePaymentInformationQueryDef(
   enabled: boolean,
   instanceId?: string,
 ): QueryDefinition<PaymentResponsePayload> {
-  const { fetchPaymentInformation, fetchPaymentInformationForTask } = useAppQueries();
-  const altinnNugetVersion = useApplicationMetadata().altinnNugetVersion;
-  const { data: process } = useProcessQuery();
-  const taskId = process?.currentTask?.elementId;
-
+  const { fetchPaymentInformation } = useAppQueries();
   const selectedLanguage = useCurrentLanguage();
-
-  if (appSupportsPaymentWebhooks(altinnNugetVersion)) {
-    return {
-      queryKey: ['fetchPaymentInfoForTask', instanceId, selectedLanguage],
-      queryFn: instanceId ? () => fetchPaymentInformationForTask(instanceId, selectedLanguage, taskId) : skipToken,
-      enabled: enabled && !!instanceId,
-    };
-  } else {
-    return {
-      queryKey: ['fetchPaymentInfo'],
-      queryFn: instanceId ? () => fetchPaymentInformation(instanceId, selectedLanguage) : skipToken,
-      enabled: enabled && !!instanceId,
-      gcTime: 0,
-    };
-  }
+  return {
+    queryKey: ['fetchPaymentInfo'],
+    queryFn: instanceId ? () => fetchPaymentInformation(instanceId, selectedLanguage) : skipToken,
+    enabled: enabled && !!instanceId,
+    gcTime: 0,
+  };
 }
 
 const usePaymentInformationQuery = () => {
