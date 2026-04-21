@@ -30,6 +30,11 @@ export const getPaymentInformationUrl = (instanceId: string, language?: string) 
   return `${origin}/${org}/${app}/instances/${instanceId}/payment${queryString}`;
 };
 
+export const getPaymentInformationForTaskUrl = (instanceId: string, language?: string, taskId?: string) => {
+  const queryString = getQueryStringFromObject({ language, taskId });
+  return `${origin}/${org}/${app}/instances/${instanceId}/payment/task${queryString}`;
+};
+
 export const getOrderDetailsUrl = (instanceId: string, language?: string) => {
   const queryString = getQueryStringFromObject({ language });
   return `${origin}/${org}/${app}/instances/${instanceId}/payment/order-details${queryString}`;
