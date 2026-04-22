@@ -34,40 +34,34 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
     throw new Error('Cannot use PaymentComponent in a subform');
   }
 
-  const [isChecking, setIsChecking] = React.useState(false);
-  const disabled = isAnyProcessing || isConfirming || isRejecting || isChecking;
+  // const [isChecking, setIsChecking] = React.useState(false);
+  // const disabled = isAnyProcessing || isConfirming || isRejecting || isChecking;
+  const disabled = isAnyProcessing || isConfirming || isRejecting;
 
-  const handleNextClick = async () => {
-    if (paymentInfo?.status !== PaymentStatus.Paid) {
-      return;
-    }
+  // const handleNextClick = async () => {
+  //   setIsChecking(true);
+  //   try {
+  //     if (currentTaskId && currentTaskId !== taskId) {
+  //       // backend has moved the process, navigate there
+  //       navigateToTask(currentTaskId);
+  //       return;
+  //     }
 
-    setIsChecking(true);
-    try {
-      if (currentTaskId && currentTaskId !== taskId) {
-        // backend has moved the process, navigate there
-        navigateToTask(currentTaskId);
-        return;
-      }
+  //     // still on the same task, attempt to move to the next task
+  //     processConfirm();
+  //   } finally {
+  //     setIsChecking(false);
+  //   }
+  // };
 
-      // still on the same task, attempt to move to the next task
-      processConfirm();
-    } finally {
-      setIsChecking(false);
-    }
+  const handleNextClick2 = async () => {
+    currentTaskId && navigateToTask(currentTaskId);
   };
 
   useEffect(() => {
-    if (paymentInfo?.status === PaymentStatus.Paid && !paymentError) {
-      setIsChecking(true);
-      try {
-        if (currentTaskId && currentTaskId !== taskId) {
-          // backend has moved the process, navigate there
-          navigateToTask(currentTaskId);
-        }
-      } finally {
-        setIsChecking(false);
-      }
+    if (paymentInfo?.status === PaymentStatus.Paid && !paymentError && currentTaskId && currentTaskId !== taskId) {
+      // backend has moved the process, navigate there
+      navigateToTask(currentTaskId);
     }
   }, [paymentInfo?.status, paymentError, processConfirm, navigateToTask, currentTaskId, taskId]);
 
@@ -115,7 +109,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
               variant='secondary'
               disabled={disabled}
               isLoading={isConfirming}
-              onClick={handleNextClick}
+              onClick={handleNextClick2}
             >
               <Lang id='general.next' />
             </Button>
