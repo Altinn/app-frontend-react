@@ -57,11 +57,9 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
     .filter((index) => index !== -1);
 
   const numRows = rowsToDisplay.length;
-  const firstRowId = numRows >= 1 ? rowsToDisplay[0].uuid : undefined;
 
   const isEmpty = numRows === 0;
-  const isEditingFirstRow = RepGroupContext.useIsEditingRow(firstRowId);
-  const showTableHeader = numRows > 0 && !(numRows == 1 && firstRowId !== undefined && isEditingFirstRow);
+  const showTableHeader = numRows > 0;
 
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
