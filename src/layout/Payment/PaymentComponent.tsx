@@ -25,7 +25,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   const paymentInfo = usePaymentInformation();
   const { performPayment, paymentError } = usePayment();
   const { title, description } = useItemWhenType(baseComponentId, 'Payment').textResourceBindings ?? {};
-  const { data: process } = useProcessQuery();
+  const { data: process, refetch } = useProcessQuery();
   const currentTaskId = process?.currentTask?.elementId;
   const taskId = useNavigationParam('taskId');
   const navigateToTask = useNavigateToTask();
@@ -55,7 +55,9 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   // };
 
   const handleNextClick2 = async () => {
+    const currentTask = await refetch().then((res) => res.data?.currentTask);
     console.log('currentTaskId', currentTaskId);
+    console.log('refetched currentTask?.elementId', currentTask?.elementId);
     currentTaskId && navigateToTask(currentTaskId);
   };
 
