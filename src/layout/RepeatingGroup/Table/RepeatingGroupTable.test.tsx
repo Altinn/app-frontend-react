@@ -149,7 +149,13 @@ describe('RepeatingGroupTable', () => {
     });
 
     it('should keep table header visible when editing a single row', async () => {
-      await render(undefined, {
+      const groupWithEditInTableAndStickyHeader = getFormLayoutRepeatingGroupMock({
+        id: 'mock-container-id',
+        stickyHeader: true,
+        tableColumns: { field1: { editInTable: true } },
+      });
+
+      await render(getLayout(groupWithEditInTableAndStickyHeader, components), {
         'some-group': [{ [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 0' }],
       });
       expect(document.getElementById('group-mock-container-id-table-header')).toBeInTheDocument();
