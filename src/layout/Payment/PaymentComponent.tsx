@@ -55,6 +55,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   // };
 
   const handleNextClick2 = async () => {
+    console.log('currentTaskId', currentTaskId);
     currentTaskId && navigateToTask(currentTaskId);
   };
 
