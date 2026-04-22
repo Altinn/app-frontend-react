@@ -148,6 +148,22 @@ describe('RepeatingGroupTable', () => {
       expect(screen.getByTestId('editIndex')).toHaveTextContent('0');
     });
 
+    it('should keep table header visible when editing a single row', async () => {
+      const groupWithEditInTableAndStickyHeader = getFormLayoutRepeatingGroupMock({
+        id: 'mock-container-id',
+        stickyHeader: true,
+        tableColumns: { field1: { editInTable: true } },
+      });
+
+      await render(getLayout(groupWithEditInTableAndStickyHeader, components), {
+        'some-group': [{ [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 0' }],
+      });
+      expect(document.getElementById('group-mock-container-id-table-header')).toBeInTheDocument();
+      await userEvent.click(screen.getAllByRole('button', { name: /rediger/i })[0]);
+      expect(screen.getByTestId('editIndex')).toHaveTextContent('0');
+      expect(document.getElementById('group-mock-container-id-table-header')).toBeInTheDocument();
+    });
+
     it('should render EditableCell when editInTable is enabled for a column', async () => {
       const groupWithEditInTable = getFormLayoutRepeatingGroupMock({
         id: 'mock-container-id',
@@ -242,7 +258,17 @@ describe('RepeatingGroupTable', () => {
     });
   });
 
-  const render = async (layout = getLayout(group, components)) =>
+  const render = async (
+    layout = getLayout(group, components),
+    formData: Record<string, unknown> = {
+      'some-group': [
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 0' },
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 1' },
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 2' },
+        { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 3' },
+      ],
+    },
+  ) =>
     await renderWithInstanceAndLayout({
       renderer: (
         <RepeatingGroupProvider baseComponentId={group.id}>
@@ -273,14 +299,7 @@ describe('RepeatingGroupTable', () => {
             },
           ],
         }),
-        fetchFormData: async () => ({
-          'some-group': [
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 0' },
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 1' },
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 2' },
-            { [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 3' },
-          ],
-        }),
+        fetchFormData: async () => formData,
       },
     });
 });
