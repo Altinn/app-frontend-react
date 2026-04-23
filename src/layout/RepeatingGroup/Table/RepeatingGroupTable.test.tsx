@@ -174,6 +174,24 @@ describe('RepeatingGroupTable', () => {
       const field1Inputs = inputs.filter((input) => input.getAttribute('id')?.includes('field1'));
       expect(field1Inputs.length).toBeGreaterThan(0);
     });
+
+    it('should align numeric editInTable header to left', async () => {
+      const groupWithNumericColumn = getFormLayoutRepeatingGroupMock({
+        id: 'mock-container-id',
+        tableColumns: { field1: { editInTable: true } },
+      });
+      const componentsWithNumericInput: CompExternal[] = components.map((component) =>
+        component.id === 'field1'
+          ? {
+              ...component,
+              formatting: { number: { thousandSeparator: ' ' } },
+            }
+          : component,
+      );
+      const layout = getLayout(groupWithNumericColumn, componentsWithNumericInput);
+      await render(layout);
+      expect(screen.getByRole('columnheader', { name: 'Title1' })).toHaveStyle({ '--cell-text-alignment': 'left' });
+    });
   });
 
   describe('mobile view', () => {
