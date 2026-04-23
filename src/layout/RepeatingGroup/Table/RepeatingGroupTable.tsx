@@ -300,12 +300,16 @@ function TitleCell({
   baseComponentId: string;
   columnSettings: IGroupColumnFormatting;
 }) {
-  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
+  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings, { deriveAlignmentText: false });
+  const headerStyle = {
+    ...style,
+    '--cell-text-alignment': columnSettings[baseComponentId]?.alignText ?? 'left',
+  } as React.CSSProperties;
 
   return (
     <Table.HeaderCell
       className={classes.tableCellFormatting}
-      style={style}
+      style={headerStyle}
     >
       <RepeatingGroupTableTitle
         baseComponentId={baseComponentId}
