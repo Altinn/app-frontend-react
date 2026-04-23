@@ -137,6 +137,7 @@ function useTextAlignment(baseComponentId: string): 'left' | 'center' | 'right' 
 export function useColumnStylesRepeatingGroups(
   baseComponentId: string,
   columnSettings: IGroupColumnFormatting | undefined,
+  options?: { deriveAlignmentText?: boolean },
 ) {
   const textAlignment = useTextAlignment(baseComponentId);
   const column = columnSettings && columnSettings[baseComponentId];
@@ -145,8 +146,9 @@ export function useColumnStylesRepeatingGroups(
   }
 
   const columnCopy = { ...column };
-  columnCopy.alignText = columnCopy.alignText ?? textAlignment;
-
+  if (options?.deriveAlignmentText !== false) {
+    columnCopy.alignText = columnCopy.alignText ?? textAlignment;
+  }
   return getColumnStyles(columnCopy);
 }
 

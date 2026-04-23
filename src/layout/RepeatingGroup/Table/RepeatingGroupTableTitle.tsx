@@ -17,6 +17,10 @@ interface IProps {
 
 export const RepeatingGroupTableTitle = ({ baseComponentId, columnSettings }: IProps) => {
   const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
+  const titleStyle = {
+    ...style,
+    '--cell-text-alignment': columnSettings[baseComponentId]?.alignText ?? 'left',
+  } as React.CSSProperties;
   const tableTitle = useTableTitle(baseComponentId);
   const { getRequiredComponent, getOptionalComponent } = useLabel({
     baseComponentId,
@@ -26,7 +30,7 @@ export const RepeatingGroupTableTitle = ({ baseComponentId, columnSettings }: IP
   return (
     <span
       className={classes.contentFormatting}
-      style={style}
+      style={titleStyle}
     >
       <Lang id={tableTitle} />
       {editInTable && getRequiredComponent()}
