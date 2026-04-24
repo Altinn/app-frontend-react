@@ -26,6 +26,7 @@ describe('Payment', () => {
   describe('Successful payment', () => {
     beforeEach(() => {
       cy.findByRole('button', { name: /Til betaling/ }).click();
+      cy.findByRole('button', { name: /Neste/ }).click();
       cy.intercept({
         method: 'GET',
         url: '**/ttd/payment-test/instances/**/**/payment*',
