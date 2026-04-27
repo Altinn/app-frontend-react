@@ -13,9 +13,9 @@ describe('getGridCellHiddenExpr', () => {
     expect(getGridCellHiddenExpr(cell)).toBe(true);
   });
 
-  it('returns undefined when hidden is only set in gridColumnOptions', () => {
+  it('returns undefined when hidden is only set in cellStyle', () => {
     const cell = {
-      gridColumnOptions: { hidden: true },
+      cellStyle: { hidden: true },
     } as GridCell;
     expect(getGridCellHiddenExpr(cell)).toBeUndefined();
   });
@@ -23,7 +23,7 @@ describe('getGridCellHiddenExpr', () => {
   it('reads hidden from columnOptions when both are set', () => {
     const cell = {
       columnOptions: { hidden: true },
-      gridColumnOptions: { hidden: false },
+      cellStyle: { hidden: false },
     } as GridCell;
     expect(getGridCellHiddenExpr(cell)).toBe(true);
   });

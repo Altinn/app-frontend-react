@@ -601,7 +601,7 @@ const common = {
     new CG.obj(
       new CG.prop('component', new CG.str().optional().setTitle('Component ID').setDescription('ID of the component')),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-      new CG.prop('gridColumnOptions', CG.common('IGridColumnProperties').optional()),
+      new CG.prop('cellStyle', CG.common('IGridColumnProperties').optional()),
     ),
   GridCellLabelFrom: () =>
     new CG.obj(
@@ -612,7 +612,7 @@ const common = {
           .setDescription('Set this to a component id to display the label from that component'),
       ),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-      new CG.prop('gridColumnOptions', CG.common('IGridColumnProperties').optional()),
+      new CG.prop('cellStyle', CG.common('IGridColumnProperties').optional()),
     ),
   GridCellText: () =>
     new CG.obj(
@@ -622,7 +622,7 @@ const common = {
       ),
       new CG.prop('help', new CG.str().optional().setTitle('Help').setDescription('Help text to display')),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-      new CG.prop('gridColumnOptions', CG.common('IGridColumnProperties').optional()),
+      new CG.prop('cellStyle', CG.common('IGridColumnProperties').optional()),
     ),
   GridCell: () =>
     new CG.union(CG.common('GridComponentRef'), CG.null, CG.common('GridCellText'), CG.common('GridCellLabelFrom')),

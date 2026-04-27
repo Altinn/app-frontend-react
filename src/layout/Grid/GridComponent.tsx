@@ -246,10 +246,8 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
           let textCellSettings: GridColumnOptions | undefined =
             mutableColumnSettings[cellIdx] && structuredClone(mutableColumnSettings[cellIdx]);
 
-          if (cell && 'gridColumnOptions' in cell && cell.gridColumnOptions) {
-            textCellSettings = textCellSettings
-              ? { ...textCellSettings, ...cell.gridColumnOptions }
-              : { ...cell.gridColumnOptions };
+          if (cell && 'cellStyle' in cell && cell.cellStyle) {
+            textCellSettings = textCellSettings ? { ...textCellSettings, ...cell.cellStyle } : { ...cell.cellStyle };
           }
 
           if (isGridCellText(cell)) {
@@ -295,10 +293,10 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
         let componentCellSettings: GridColumnOptions | undefined =
           mutableColumnSettings[cellIdx] && structuredClone(mutableColumnSettings[cellIdx]);
 
-        if (cell && 'gridColumnOptions' in cell && cell.gridColumnOptions) {
+        if (cell && 'cellStyle' in cell && cell.cellStyle) {
           componentCellSettings = componentCellSettings
-            ? { ...componentCellSettings, ...cell.gridColumnOptions }
-            : { ...cell.gridColumnOptions };
+            ? { ...componentCellSettings, ...cell.cellStyle }
+            : { ...cell.cellStyle };
         }
 
         return (
