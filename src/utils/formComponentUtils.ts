@@ -122,10 +122,10 @@ export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined)
   };
 };
 
-function useTextAlignment(baseComponentId: string): 'left' | 'center' | 'right' {
+function useTextAlignment(baseComponentId: string, isTitle?: boolean): 'left' | 'center' | 'right' {
   const component = useLayoutLookups().getComponent(baseComponentId);
   const formatting = component.type === 'Input' ? component.formatting : undefined;
-  if (!formatting) {
+  if (!formatting || isTitle) {
     return 'left';
   }
   if (formatting.align) {
@@ -137,18 +137,17 @@ function useTextAlignment(baseComponentId: string): 'left' | 'center' | 'right' 
 export function useColumnStylesRepeatingGroups(
   baseComponentId: string,
   columnSettings: IGroupColumnFormatting | undefined,
-  options?: { deriveAlignmentText?: boolean },
+  options?: { isTitle?: boolean },
 ) {
-  const textAlignment = useTextAlignment(baseComponentId);
+  const isTitle = options?.isTitle ?? false;
+  const textAlignment = useTextAlignment(baseComponentId, isTitle);
   const column = columnSettings && columnSettings[baseComponentId];
   if (!column) {
     return;
   }
 
   const columnCopy = { ...column };
-  if (options?.deriveAlignmentText !== false) {
-    columnCopy.alignText = columnCopy.alignText ?? textAlignment;
-  }
+  columnCopy.alignText = columnCopy.alignText ?? textAlignment;
   return getColumnStyles(columnCopy);
 }
 
