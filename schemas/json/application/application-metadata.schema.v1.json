@@ -134,9 +134,103 @@
     },
     "apiScopes": {
       "$ref": "#/definitions/apiScopesConfiguration"
+    },
+    "access": {
+      "$ref": "#/definitions/access"
+    },
+    "contactPoints": {
+      "$ref": "#/definitions/contactPoints",
+      "title": "Contact points"
+    },
+    "description": {
+      "$ref": "#/definitions/translatedText",
+      "title": "Description"
+    },
+    "keywords": {
+      "type": "array",
+      "title": "Keywords",
+      "items": {
+        "$ref": "#/definitions/keyword"
+      }
+    },
+    "homepage": {
+      "type": "string",
+      "title": "Homepage"
     }
   },
   "definitions": {
+    "keyword": {
+      "type": "object",
+      "properties": {
+        "word": {
+          "type": "string"
+        },
+        "language": {
+          "type": "string"
+        }
+      }
+    },
+    "access": {
+      "type": "object",
+      "properties": {
+        "rightDescription": {
+          "$ref": "#/definitions/translatedText"
+        },
+        "visible": {
+          "type": "boolean",
+          "title": "Visible"
+        },
+        "delegable": {
+          "type": "boolean",
+          "title": "Delegable"
+        }
+      }
+    },
+    "contactPoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "email": {
+            "type": "string",
+            "title": "Email"
+          },
+          "telephone": {
+            "type": "string",
+            "title": "Telephone"
+          },
+          "contactPage": {
+            "type": "string",
+            "title": "Contact page"
+          }
+        }
+      }
+    },
+    "translatedText": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Translated text",
+      "properties": {
+        "nb": {
+          "type": "string",
+          "title": "Norwegian"
+        },
+        "en": {
+          "type": "string",
+          "title": "English"
+        },
+        "nn": {
+          "type": "string",
+          "title": "Nynorsk"
+        }
+      }
+    },
     "onEntry": {
       "type": "object",
       "title": "On entry",
