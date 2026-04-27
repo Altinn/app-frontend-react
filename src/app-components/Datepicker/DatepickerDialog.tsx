@@ -1,10 +1,16 @@
-import React, { useEffect, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import type { PropsWithChildren, ReactNode } from 'react';
 
 import { Dialog, Popover } from '@digdir/designsystemet-react';
 
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
+
+const DatePickerCloseContext = createContext<(() => void) | null>(null);
+
+export function useDatePickerClose() {
+  return useContext(DatePickerCloseContext);
+}
 
 type DatePickerDialogProps = {
   id: string;
@@ -46,17 +52,20 @@ export function DatePickerDialog({
         >
           {trigger}
         </Dialog.Trigger>
-        <Dialog
-          ref={modalRef}
-          role='dialog'
-          aria-hidden={!isDialogOpen}
-          closedby='any'
-          modal
-          style={{ width: 'fit-content', minWidth: 'fit-content' }}
-          onClose={() => setIsDialogOpen(false)}
-        >
-          {children}
-        </Dialog>
+        <DatePickerCloseContext.Provider value={() => setIsDialogOpen(false)}>
+          <Dialog
+            ref={modalRef}
+            role='dialog'
+            aria-hidden={!isDialogOpen}
+            closedby='any'
+            modal
+            closeButton={false}
+            className={styles.datepickerModal}
+            onClose={() => setIsDialogOpen(false)}
+          >
+            <div className={styles.datepickerModalContent}>{children}</div>
+          </Dialog>
+        </DatePickerCloseContext.Provider>
       </Dialog.TriggerContext>
     );
   }
