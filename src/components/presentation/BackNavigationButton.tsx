@@ -9,6 +9,8 @@ import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import classes from 'src/components/presentation/BackNavigationButton.module.css';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { MessageBoxConfigEvaluator } from 'src/features/applicationMetadata/messageBoxConfig';
 import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -28,9 +30,11 @@ export function BackNavigationButton(props: { className?: string }) {
   const { exitSubform } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isExitingSubform } = useIsProcessing();
 
+  const applicationMetadata = useApplicationMetadata();
   const dataValues = useInstanceDataQuery({ select: (instance) => instance.dataValues }).data;
   const dialogId = getDialogIdFromDataValues(dataValues);
   const messageBoxUrl = getMessageBoxUrl(party?.partyId, dialogId);
+  const hiddenFromInbox = MessageBoxConfigEvaluator.isHiddenFromInbox(applicationMetadata.messageBoxConfig);
 
   if (isFetchingReturnUrl) {
     return (
@@ -85,7 +89,7 @@ export function BackNavigationButton(props: { className?: string }) {
     );
   }
 
-  if (messageBoxUrl) {
+  if (messageBoxUrl && !hiddenFromInbox) {
     return (
       <Button
         asChild
