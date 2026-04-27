@@ -122,7 +122,7 @@ export const pageBreakStyles = (pageBreak: ExprResolved<IPageBreak> | undefined)
   };
 };
 
-function useTextAlignment(baseComponentId: string, isTitle?: boolean): 'left' | 'center' | 'right' {
+function useTextAlignment(baseComponentId: string, isTitle: boolean): 'left' | 'center' | 'right' {
   const component = useLayoutLookups().getComponent(baseComponentId);
   const formatting = component.type === 'Input' ? component.formatting : undefined;
   if (!formatting || isTitle) {
@@ -137,9 +137,8 @@ function useTextAlignment(baseComponentId: string, isTitle?: boolean): 'left' | 
 export function useColumnStylesRepeatingGroups(
   baseComponentId: string,
   columnSettings: IGroupColumnFormatting | undefined,
-  options?: { isTitle?: boolean },
+  isTitle = false,
 ) {
-  const isTitle = options?.isTitle ?? false;
   const textAlignment = useTextAlignment(baseComponentId, isTitle);
   const column = columnSettings && columnSettings[baseComponentId];
   if (!column) {

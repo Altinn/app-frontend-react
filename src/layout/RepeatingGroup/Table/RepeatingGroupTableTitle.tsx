@@ -16,7 +16,7 @@ interface IProps {
 }
 
 export const RepeatingGroupTableTitle = ({ baseComponentId, columnSettings }: IProps) => {
-  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings, { isTitle: true });
+  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings, true);
   const tableTitle = useTableTitle(baseComponentId);
   const { getRequiredComponent, getOptionalComponent } = useLabel({
     baseComponentId,

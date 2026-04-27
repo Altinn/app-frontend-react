@@ -300,7 +300,7 @@ function TitleCell({
   baseComponentId: string;
   columnSettings: IGroupColumnFormatting;
 }) {
-  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings, { isTitle: true });
+  const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings, true);
 
   return (
     <Table.HeaderCell
