@@ -21,6 +21,10 @@ import type {
 const user = userEvent.setup({ delay: 100 });
 
 describe('AppNavigation', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   async function render({
     initialPage,
     hiddenPages,
@@ -230,8 +234,8 @@ describe('AppNavigation', () => {
 
     await user.click(screen.getByRole('button', { name: 'second' }));
 
-    await waitFor(() => expect(screen.getByRole('button', { name: 'first' })).not.toHaveAttribute('aria-current'));
-    expect(screen.getByRole('button', { name: 'second' })).toHaveAttribute('aria-current', 'page');
+    await waitFor(() => expect(screen.getByRole('button', { name: /^first/ })).not.toHaveAttribute('aria-current'));
+    expect(screen.getByRole('button', { name: /^second/ })).toHaveAttribute('aria-current', 'page');
   });
 
   it('navigating to page inside different group should close current group', async () => {
@@ -256,7 +260,7 @@ describe('AppNavigation', () => {
     expect(screen.queryByRole('button', { name: 'first' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'second' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'part2' })).toHaveAttribute('aria-current', 'step');
-    expect(screen.getByRole('button', { name: 'third' })).toHaveAttribute('aria-current', 'page');
+    expect(screen.getByRole('button', { name: /^third/ })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('button', { name: 'fourth' })).not.toHaveAttribute('aria-current');
   });
 
@@ -300,6 +304,28 @@ describe('AppNavigation', () => {
     await user.click(screen.getByRole('button', { name: 'fourth' }));
     await waitFor(() => expect(screen.getByRole('button', { name: 'fourth' })).toHaveAttribute('aria-current', 'page'));
     expect(screen.getByRole('button', { name: 'form' })).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('should mark page as complete after navigating away through the navigation sidebar', async () => {
+    await render({
+      groups: [
+        { name: 'form', order: ['first', 'second'], markWhenCompleted: true },
+        { order: ['third'], type: 'info' },
+      ],
+    });
+
+    expect(
+      within(screen.getByRole('button', { name: 'first' })).queryByTestId('state-complete'),
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'second' }));
+
+    await waitFor(() =>
+      expect(within(screen.getByRole('button', { name: /^first/ })).getByTestId('state-complete')).toBeInTheDocument(),
+    );
+    expect(
+      within(screen.getByRole('button', { name: /^second/ })).queryByTestId('state-complete'),
+    ).not.toBeInTheDocument(); // active
   });
 
   it('should show page as completed (if not active)', async () => {
