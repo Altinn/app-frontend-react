@@ -9,15 +9,8 @@ interface TextProps {
   labelId?: string;
 }
 
-export const DisplayText = ({ value, iconUrl, iconAltText, labelId }: TextProps) => (
+export const DisplayText = ({ value, labelId }: Pick<TextProps, 'value' | 'labelId'>) => (
   <>
-    {iconUrl && (
-      <img
-        src={iconUrl}
-        className={classes.icon}
-        alt={iconAltText}
-      />
-    )}
     {labelId && <span aria-labelledby={labelId}>{value}</span>}
     {!labelId && <span>{value}</span>}
   </>

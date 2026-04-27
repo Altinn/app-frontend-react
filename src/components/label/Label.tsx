@@ -24,6 +24,7 @@ export type LabelProps = PropsWithChildren<{
   className?: string;
   overrideId?: string;
   textResourceBindings?: ExprResolved<TRBLabel>;
+  labelPrefix?: React.ReactNode;
 }> &
   DesignsystemetLabelProps;
 
@@ -47,6 +48,7 @@ export function LabelInner(props: LabelInnerProps) {
     renderLabelAs,
     className,
     textResourceBindings: overriddenTrb,
+    labelPrefix,
     ...designsystemetLabelProps
   } = props;
 
@@ -67,7 +69,12 @@ export function LabelInner(props: LabelInnerProps) {
   const labelId = getLabelId(id);
   const labelContentProps: LabelContentProps = {
     id,
-    label: textResourceBindings.title,
+    label: (
+      <>
+        {labelPrefix}
+        {textResourceBindings.title}
+      </>
+    ),
     description: textResourceBindings.description,
     help: textResourceBindings.help,
     required,
