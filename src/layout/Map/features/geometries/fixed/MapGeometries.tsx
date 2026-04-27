@@ -5,6 +5,7 @@ import { icon, marker } from 'leaflet';
 import Icon from 'leaflet/dist/images/marker-icon.png';
 import RetinaIcon from 'leaflet/dist/images/marker-icon-2x.png';
 import IconShadow from 'leaflet/dist/images/marker-shadow.png';
+import type { PathOptions } from 'leaflet';
 
 import { useMapParsedGeometries } from 'src/layout/Map/features/geometries/fixed/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -47,7 +48,7 @@ export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps)
           pointToLayer={(_, position) =>
             marker(position, { icon: markerIcon, interactive: false, draggable: false, keyboard: false })
           }
-          style={style ? JSON.parse(style) : undefined}
+          style={parseStyle(style)}
         >
           {label && (
             <Tooltip
@@ -62,4 +63,16 @@ export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps)
       ))}
     </>
   );
+}
+
+function parseStyle(style: string | undefined): PathOptions | undefined {
+  if (!style) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(style);
+    return parsed as PathOptions;
+  } catch {
+    return undefined;
+  }
 }

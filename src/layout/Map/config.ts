@@ -61,7 +61,7 @@ export const Config = new CG.component({
         new CG.dataModelBinding()
           .optional()
           .setDescription(
-            'Should point to a string indicating the style of this geometry. Overrides the default style of the geometry.',
+            'Should point to a JSON-serialized Leaflet PathOptions object (e.g. \'{"color":"#ff0000","weight":2,"fillOpacity":0.3}\') used as the style for this geometry. Overrides the default style. Invalid JSON is ignored.',
           ),
       ),
     ).exportAs('IDataModelBindingsForMap'),
