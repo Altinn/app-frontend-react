@@ -4,7 +4,7 @@ import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
-import { AppNavigation } from 'src/features/navigation/AppNavigation';
+import { AppNavigation, AppNavigationHeading } from 'src/features/navigation/AppNavigation';
 import { BackendValidationSeverity } from 'src/features/validation';
 import * as UseNavigatePage from 'src/hooks/useNavigatePage';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
@@ -415,6 +415,37 @@ describe('AppNavigation', () => {
     expect(screen.queryByRole('button', { name: /Utfylling/ })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Kvittering/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Kvittering/ })).not.toHaveAttribute('aria-current');
+  });
+
+  describe('navigationTitle', () => {
+    async function renderHeading({ navigationTitle }: { navigationTitle?: string } = {}) {
+      return renderWithInstanceAndLayout({
+        renderer: () => <AppNavigationHeading />,
+        initialPage: 'page1',
+        queries: {
+          fetchLayoutSettings: async () =>
+            ({
+              pages: {
+                order: ['page1'],
+                ...(navigationTitle ? { navigationTitle } : {}),
+              },
+            }) as ILayoutSettings,
+          fetchLayouts: async () => ({
+            page1: { data: { layout: [] } } as ILayoutFile,
+          }),
+        },
+      });
+    }
+
+    it('should use the default title when navigationTitle is not set', async () => {
+      await renderHeading();
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Skjemasider');
+    });
+
+    it('should use navigationTitle as the heading when it is set', async () => {
+      await renderHeading({ navigationTitle: 'My custom navigation title' });
+      expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('My custom navigation title');
+    });
   });
 
   it('should override task groups', async () => {
