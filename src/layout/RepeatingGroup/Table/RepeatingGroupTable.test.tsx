@@ -17,7 +17,7 @@ import { RepeatingGroupTable } from 'src/layout/RepeatingGroup/Table/RepeatingGr
 import { mockMediaQuery } from 'src/test/mockMediaQuery';
 import { renderWithInstanceAndLayout } from 'src/test/renderWithProviders';
 import type { CompCheckboxesExternal } from 'src/layout/Checkboxes/config.generated';
-import type { IRawOption } from 'src/layout/common.generated';
+import type { GridRow, IRawOption } from 'src/layout/common.generated';
 import type { CompExternal, ILayoutCollection } from 'src/layout/layout';
 import type { CompRepeatingGroupExternal } from 'src/layout/RepeatingGroup/config.generated';
 
@@ -90,6 +90,24 @@ describe('RepeatingGroupTable', () => {
       required: false,
       options,
     } as CompCheckboxesExternal,
+  ];
+
+  const extraRowHeaderCells: GridRow = {
+    header: true,
+    readOnly: false,
+    cells: [
+      { text: 'extra.row.hdr0' },
+      { text: 'extra.row.hdr1', columnOptions: { hidden: true } },
+      { text: 'extra.row.hdr2' },
+      { text: 'extra.row.hdr3' },
+    ],
+  };
+
+  const extraRowTextResources = [
+    { id: 'extra.row.hdr0', value: 'Extra0' },
+    { id: 'extra.row.hdr1', value: 'Extra1Hidden' },
+    { id: 'extra.row.hdr2', value: 'Extra2' },
+    { id: 'extra.row.hdr3', value: 'Extra3' },
   ];
 
   describe('popOver warning', () => {
@@ -191,6 +209,27 @@ describe('RepeatingGroupTable', () => {
       const layout = getLayout(groupWithNumericColumn, componentsWithNumericInput);
       await render(layout);
       expect(screen.getByRole('columnheader', { name: 'Title1' })).toHaveStyle({ '--cell-text-alignment': 'left' });
+    async function renderExtraRowsWithHiddenSecondColumn(
+      extra: Pick<Partial<CompRepeatingGroupExternal>, 'rowsBefore' | 'rowsAfter'>,
+    ) {
+      const groupWithExtraRows = getFormLayoutRepeatingGroupMock({
+        id: 'mock-container-id',
+        tableHeaders: ['field1', 'field2', 'field3', 'field4'],
+        ...extra,
+      });
+      await render(getLayout(groupWithExtraRows, components), extraRowTextResources);
+
+      expect(screen.getByText('Extra0')).toBeInTheDocument();
+      expect(screen.queryByText('Extra1Hidden')).not.toBeInTheDocument();
+      expect(screen.getByText('Extra2')).toBeInTheDocument();
+      expect(screen.getByText('Extra3')).toBeInTheDocument();
+    }
+
+    it.each([
+      ['rowsAfter', { rowsAfter: [extraRowHeaderCells] }],
+      ['rowsBefore', { rowsBefore: [extraRowHeaderCells] }],
+    ])('hides column from %s when header cell has columnOptions.hidden', async (_label, extraRowsProp) => {
+      await renderExtraRowsWithHiddenSecondColumn(extraRowsProp);
     });
   });
 
@@ -260,7 +299,10 @@ describe('RepeatingGroupTable', () => {
     });
   });
 
-  const render = async (layout = getLayout(group, components)) =>
+  const render = async (
+    layout = getLayout(group, components),
+    extraTextResources: { id: string; value: string }[] = [],
+  ) =>
     await renderWithInstanceAndLayout({
       renderer: (
         <RepeatingGroupProvider baseComponentId={group.id}>
@@ -289,6 +331,7 @@ describe('RepeatingGroupTable', () => {
               id: 'general.save_and_close',
               value: 'Lagre og lukk',
             },
+            ...extraTextResources,
           ],
         }),
         fetchFormData: async () => ({
