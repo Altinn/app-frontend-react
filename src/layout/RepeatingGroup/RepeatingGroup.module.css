@@ -47,7 +47,7 @@ Altinn, and making sure they are consistent. */
 
 .repeatingGroupTable > tbody > tr > td {
   border-bottom-color: #dde3e5;
-  padding-top: 12px;
+  padding-top: 16px;
   padding-bottom: 12px;
   vertical-align: top;
 }
