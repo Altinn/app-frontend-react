@@ -193,6 +193,24 @@ describe('RepeatingGroupTable', () => {
       expect(field1Inputs.length).toBeGreaterThan(0);
     });
 
+    it('should align numeric editInTable header to left', async () => {
+      const groupWithNumericColumn = getFormLayoutRepeatingGroupMock({
+        id: 'mock-container-id',
+        tableColumns: { field1: { editInTable: true } },
+      });
+      const componentsWithNumericInput: CompExternal[] = components.map((component) =>
+        component.id === 'field1'
+          ? {
+              ...component,
+              formatting: { number: { thousandSeparator: ' ' } },
+            }
+          : component,
+      );
+      const layout = getLayout(groupWithNumericColumn, componentsWithNumericInput);
+      await render(layout);
+      expect(screen.getByRole('columnheader', { name: 'Title1' })).toHaveStyle({ '--cell-text-alignment': 'left' });
+    });
+
     async function renderExtraRowsWithHiddenSecondColumn(
       extra: Pick<Partial<CompRepeatingGroupExternal>, 'rowsBefore' | 'rowsAfter'>,
     ) {
