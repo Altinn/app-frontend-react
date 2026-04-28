@@ -220,6 +220,39 @@ describe('DatepickerComponent', () => {
     expect(screen.getByRole('option', { name: (currentYear + 1).toString() })).toBeInTheDocument();
   });
 
+  it('should show close button in mobile screen and close modal when clicked', async () => {
+    //Workaround since there is no support for dialog element functions yet in jest.
+    HTMLDialogElement.prototype.show = jest.fn(function mock(this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.showModal = jest.fn(function mock(this: HTMLDialogElement) {
+      this.open = true;
+    });
+    HTMLDialogElement.prototype.close = jest.fn(function mock(this: HTMLDialogElement) {
+      this.open = false;
+    });
+
+    setScreenWidth(400);
+    await render();
+
+    await userEvent.click(screen.getByRole('button', { name: /Åpne datovelger/i }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /Lukk/i }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('close button is not shown on desktop at normal zoom', async () => {
+    setScreenWidth(1280);
+    await render();
+
+    await userEvent.click(screen.getByRole('button', { name: /Åpne datovelger/i }));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+
+    expect(screen.queryByRole('button', { name: /Lukk/i })).not.toBeInTheDocument();
+  });
+
   it('should disable previous month button if previous month is before minDate', async () => {
     const user = userEvent.setup();
     const today = new Date();
