@@ -209,6 +209,8 @@ describe('RepeatingGroupTable', () => {
       const layout = getLayout(groupWithNumericColumn, componentsWithNumericInput);
       await render(layout);
       expect(screen.getByRole('columnheader', { name: 'Title1' })).toHaveStyle({ '--cell-text-alignment': 'left' });
+    });
+
     async function renderExtraRowsWithHiddenSecondColumn(
       extra: Pick<Partial<CompRepeatingGroupExternal>, 'rowsBefore' | 'rowsAfter'>,
     ) {
