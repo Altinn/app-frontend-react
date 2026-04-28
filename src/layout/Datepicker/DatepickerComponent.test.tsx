@@ -44,9 +44,33 @@ const currentMonthNumeric = new Date().toLocaleDateString(navigator.language, {
 
 const { setScreenWidth } = mockMediaQuery(600);
 
+// Workaround since there is no support for dialog element functions yet in jest.
+const originalDialogShow = HTMLDialogElement.prototype.show;
+const originalDialogShowModal = HTMLDialogElement.prototype.showModal;
+const originalDialogClose = HTMLDialogElement.prototype.close;
+
+function mockHTMLDialogElement() {
+  HTMLDialogElement.prototype.show = jest.fn(function (this: HTMLDialogElement) {
+    this.open = true;
+  }) as unknown as typeof HTMLDialogElement.prototype.show;
+  HTMLDialogElement.prototype.showModal = jest.fn(function (this: HTMLDialogElement) {
+    this.open = true;
+  }) as unknown as typeof HTMLDialogElement.prototype.showModal;
+  HTMLDialogElement.prototype.close = jest.fn(function (this: HTMLDialogElement) {
+    this.open = false;
+  }) as unknown as typeof HTMLDialogElement.prototype.close;
+}
+
 describe('DatepickerComponent', () => {
   beforeEach(() => {
     setScreenWidth(1366);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    HTMLDialogElement.prototype.show = originalDialogShow;
+    HTMLDialogElement.prototype.showModal = originalDialogShowModal;
+    HTMLDialogElement.prototype.close = originalDialogClose;
   });
 
   it('should not show calendar initially, and show calendar when clicking calendar button', async () => {
@@ -68,19 +92,7 @@ describe('DatepickerComponent', () => {
   });
 
   it('should not show calendar initially, and show calendar in a dialog when clicking calendar button, and screen size is mobile sized', async () => {
-    //Workaround since there is no support for dialog element functions yet in jest.
-    HTMLDialogElement.prototype.show = jest.fn(function mock(this: HTMLDialogElement) {
-      this.open = true;
-    });
-
-    HTMLDialogElement.prototype.showModal = jest.fn(function mock(this: HTMLDialogElement) {
-      this.open = true;
-    });
-
-    HTMLDialogElement.prototype.close = jest.fn(function mock(this: HTMLDialogElement) {
-      this.open = false;
-    });
-
+    mockHTMLDialogElement();
     setScreenWidth(400);
     await render();
 
@@ -221,17 +233,7 @@ describe('DatepickerComponent', () => {
   });
 
   it('should show close button in mobile screen and close modal when clicked', async () => {
-    //Workaround since there is no support for dialog element functions yet in jest.
-    HTMLDialogElement.prototype.show = jest.fn(function mock(this: HTMLDialogElement) {
-      this.open = true;
-    });
-    HTMLDialogElement.prototype.showModal = jest.fn(function mock(this: HTMLDialogElement) {
-      this.open = true;
-    });
-    HTMLDialogElement.prototype.close = jest.fn(function mock(this: HTMLDialogElement) {
-      this.open = false;
-    });
-
+    mockHTMLDialogElement();
     setScreenWidth(400);
     await render();
 
@@ -244,7 +246,6 @@ describe('DatepickerComponent', () => {
   });
 
   it('close button is not shown on desktop at normal zoom', async () => {
-    setScreenWidth(1280);
     await render();
 
     await userEvent.click(screen.getByRole('button', { name: /Åpne datovelger/i }));
