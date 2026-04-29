@@ -14,6 +14,7 @@ import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/RadioButtons/ControlledRadioGroup.module.css';
 import { useRadioButtons } from 'src/layout/RadioButtons/radioButtonsUtils';
+import utilClasses from 'src/styles/utils.module.css';
 import { shouldUseRowLayout } from 'src/utils/layout';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -76,7 +77,6 @@ export const ControlledRadioGroup = (props: PropsFromGenericComponent<'RadioButt
   );
 
   const hideLabel = overrideDisplay?.renderedInTable === true && calculatedOptions.length === 1 && !showLabelsInTable;
-  const isRenderedInTable = overrideDisplay?.renderedInTable === true;
   const renderLegend = overrideDisplay?.renderLegend !== false;
   const fieldsetAriaLabel = !renderLegend ? langAsString(textResourceBindings?.title) : undefined;
   const shouldDisplayHorizontally = shouldUseRowLayout({
@@ -97,28 +97,19 @@ export const ControlledRadioGroup = (props: PropsFromGenericComponent<'RadioButt
       <div id={id}>
         <Fieldset
           role='radiogroup'
-          className={cn({
-            [classes.columnRadioGroupInTable]: isRenderedInTable && !shouldDisplayHorizontally,
-          })}
           aria-label={fieldsetAriaLabel}
         >
           {renderLegend && <Fieldset.Legend className={classes.legend}>{labelText}</Fieldset.Legend>}
-          {renderLegend && textResourceBindings?.description && (
-            <Fieldset.Description>
+          {textResourceBindings?.description && (
+            <Fieldset.Description
+              className={cn({ [utilClasses.visuallyHidden]: overrideDisplay?.renderLegend === false })}
+            >
               <Lang id={textResourceBindings?.description} />
             </Fieldset.Description>
           )}
           <ConditionalWrapper
             condition={shouldDisplayHorizontally}
-            wrapper={(children) => (
-              <div
-                className={cn(classes.inlineRadioGroup, {
-                  [classes.inlineRadioGroupInTable]: isRenderedInTable,
-                })}
-              >
-                {children}
-              </div>
-            )}
+            wrapper={(children) => <div className={cn(classes.inlineRadioGroup)}>{children}</div>}
           >
             {calculatedOptions.map((option) => {
               const radioProps = getRadioProps({ value: option.value });
