@@ -1,15 +1,19 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 import { Alert } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
+import { useOptimisticallyUpdateProcess, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { usePayment } from 'src/features/payment/PaymentProvider';
 import { PaymentStatus } from 'src/features/payment/types';
+import { useBackoff } from 'src/features/process/feedback/Feedback';
 import { useIsSubformPage } from 'src/hooks/navigation';
+import { TaskKeys, useNavigateToTask } from 'src/hooks/useNavigatePage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Payment/PaymentComponent.module.css';
 import { PaymentDetailsTable } from 'src/layout/PaymentDetails/PaymentDetailsTable';
@@ -23,12 +27,68 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   const paymentInfo = usePaymentInformation();
   const { performPayment, paymentError } = usePayment();
   const { title, description } = useItemWhenType(baseComponentId, 'Payment').textResourceBindings ?? {};
+  const { data: process, refetch: reFetchProcessData } = useProcessQuery();
+  const navigateToTask = useNavigateToTask();
+  const optimisticallyUpdateProcess = useOptimisticallyUpdateProcess();
+  const reFetchInstanceData = useInstanceDataQuery({ enabled: false }).refetch;
 
   if (useIsSubformPage()) {
     throw new Error('Cannot use PaymentComponent in a subform');
   }
 
-  const disabled = isAnyProcessing || isConfirming || isRejecting;
+  const [isChecking, setIsChecking] = React.useState(false);
+  const disabled = isAnyProcessing || isConfirming || isRejecting || isChecking;
+
+  const navigateBasedOnProcess = useCallback(
+    async (shouldConfirmIfNoNavigate: boolean) => {
+      if (!(paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped)) {
+        return;
+      }
+      const result = await reFetchProcessData();
+      if (!result.data) {
+        return;
+      }
+
+      let navigateTo: undefined | string;
+      if (result.data.ended) {
+        navigateTo = TaskKeys.ProcessEnd;
+      } else if (
+        result.data.currentTask?.elementId &&
+        result.data.currentTask.elementId !== process?.currentTask?.elementId
+      ) {
+        navigateTo = result.data.currentTask.elementId;
+      }
+
+      if (navigateTo) {
+        optimisticallyUpdateProcess(result.data);
+        await reFetchInstanceData();
+        navigateToTask(navigateTo);
+      } else if (shouldConfirmIfNoNavigate) {
+        processConfirm();
+      }
+    },
+    [
+      reFetchProcessData,
+      paymentInfo?.status,
+      process?.currentTask?.elementId,
+      optimisticallyUpdateProcess,
+      reFetchInstanceData,
+      navigateToTask,
+      processConfirm,
+    ],
+  );
+
+  const handleNextClick = async () => {
+    setIsChecking(true);
+    await navigateBasedOnProcess(true);
+    setIsChecking(false);
+  };
+
+  const goToCurrentTask = useCallback(async () => {
+    await navigateBasedOnProcess(false);
+  }, [navigateBasedOnProcess]);
+
+  useBackoff(goToCurrentTask);
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
@@ -74,7 +134,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
               variant='secondary'
               disabled={disabled}
               isLoading={isConfirming}
-              onClick={() => processConfirm()}
+              onClick={handleNextClick}
             >
               <Lang id='general.next' />
             </Button>
