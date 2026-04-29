@@ -6,7 +6,7 @@ import { generateAllCommonTypes, generateCommonTypeScript } from 'src/codegen/Co
 import { LayoutSchemaV1 } from 'src/codegen/schemas/layout.schema.v1';
 import { LayoutSetsSchemaV1 } from 'src/codegen/schemas/layout-sets.schema.v1';
 import { LayoutSettingsSchemaV1 } from 'src/codegen/schemas/layoutSettings.schema.v1';
-import { saveFile, saveTsFile } from 'src/codegen/tools';
+import { getWrittenPaths, saveFile, saveTsFile } from 'src/codegen/tools';
 import type { ComponentConfig } from 'src/codegen/ComponentConfig';
 import type { SchemaFileProps } from 'src/codegen/SchemaFile';
 
@@ -30,17 +30,6 @@ async function findGeneratedFiles(root: string): Promise<string[]> {
     }
   }
   return found;
-}
-
-function expectedGeneratedPaths(sortedKeys: string[]): Set<string> {
-  return new Set<string>([
-    'src/layout/components.generated.ts',
-    'src/layout/common.generated.ts',
-    ...sortedKeys.flatMap((key) => [
-      `src/layout/${key}/config.generated.ts`,
-      `src/layout/${key}/config.def.generated.tsx`,
-    ]),
-  ]);
 }
 
 async function deleteOrphans(orphans: string[]): Promise<void> {
@@ -165,7 +154,7 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
 
   await Promise.all(promises);
 
-  const expected = expectedGeneratedPaths(sortedKeys);
-  const orphans = (await findGeneratedFiles('src/layout')).filter((file) => !expected.has(file));
+  const written = getWrittenPaths();
+  const orphans = (await findGeneratedFiles('src/layout')).filter((file) => !written.has(file));
   await deleteOrphans(orphans);
 })();
