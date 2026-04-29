@@ -435,6 +435,19 @@ const common = {
       ),
     ).extends(CG.common('ISelectionComponent')),
 
+  IGridColumnProperties: () =>
+    new CG.obj(
+      new CG.prop(
+        'colSpan',
+        new CG.expr(ExprVal.Number)
+          .optional()
+          .setTitle('Column span')
+          .setDescription('Number of columns this cell should span. Defaults to 1 if not set.'),
+      ),
+    )
+      .setTitle('Grid column properties')
+      .setDescription('Additional properties for columns in the Grid component'),
+
   // Table configuration:
   ITableColumnsAlignText: () =>
     new CG.enum('left', 'center', 'right')
@@ -598,7 +611,8 @@ const common = {
     new CG.obj(
       new CG.prop('component', new CG.str().optional().setTitle('Component ID').setDescription('ID of the component')),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-    ).extends(CG.common('ITableColumnProperties')),
+      new CG.prop('cellStyle', CG.common('IGridColumnProperties').optional()),
+    ),
   GridCellLabelFrom: () =>
     new CG.obj(
       new CG.prop(
@@ -608,7 +622,8 @@ const common = {
           .setDescription('Set this to a component id to display the label from that component'),
       ),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-    ).extends(CG.common('ITableColumnProperties')),
+      new CG.prop('cellStyle', CG.common('IGridColumnProperties').optional()),
+    ),
   GridCellText: () =>
     new CG.obj(
       new CG.prop(
@@ -617,7 +632,8 @@ const common = {
       ),
       new CG.prop('help', new CG.str().optional().setTitle('Help').setDescription('Help text to display')),
       new CG.prop('columnOptions', CG.common('ITableColumnProperties').optional()),
-    ).extends(CG.common('ITableColumnProperties')),
+      new CG.prop('cellStyle', CG.common('IGridColumnProperties').optional()),
+    ),
   GridCell: () =>
     new CG.union(CG.common('GridComponentRef'), CG.null, CG.common('GridCellText'), CG.common('GridCellLabelFrom')),
   GridRow: () =>
@@ -750,6 +766,15 @@ const common = {
           .setTitle('Auto save behavior')
           .setDescription(
             'An attribute specifying when the application will save form data. onChangeFormData saves on every interaction with form elements. onChangePage saves on every page change.',
+          ),
+      ),
+      new CG.prop(
+        'navigationTitle',
+        new CG.expr(ExprVal.String)
+          .optional()
+          .setTitle('Navigation title')
+          .setDescription(
+            'Overrides the default "Skjemasider" heading shown in the navigation panel. Can be a text resource key or a dynamic expression that reads from the data model.',
           ),
       ),
       new CG.prop(
