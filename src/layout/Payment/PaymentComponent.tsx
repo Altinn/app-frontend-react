@@ -88,9 +88,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
     await navigateBasedOnProcess(false);
   }, [navigateBasedOnProcess]);
 
-  const noOp = useCallback(() => Promise.resolve(), []);
-
-  useBackoff(paymentInfo?.status === PaymentStatus.Paid ? goToCurrentTask : noOp);
+  useBackoff(goToCurrentTask);
 
   return (
     <ComponentStructureWrapper baseComponentId={baseComponentId}>
