@@ -109,7 +109,7 @@ export const ControlledRadioGroup = (props: PropsFromGenericComponent<'RadioButt
           )}
           <ConditionalWrapper
             condition={shouldDisplayHorizontally}
-            wrapper={(children) => <div className={cn(classes.inlineRadioGroup)}>{children}</div>}
+            wrapper={(children) => <div className={classes.inlineRadioGroup}>{children}</div>}
           >
             {calculatedOptions.map((option) => {
               const radioProps = getRadioProps({ value: option.value });
