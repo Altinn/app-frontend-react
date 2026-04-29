@@ -12,6 +12,46 @@ import type { SchemaFileProps } from 'src/codegen/SchemaFile';
 
 type ComponentList = { [folder: string]: string };
 
+const GENERATED_FILE_PATTERN = /\.generated\.(ts|tsx)$/;
+
+function toPosixPath(p: string): string {
+  return p.split(path.sep).join('/');
+}
+
+async function findGeneratedFiles(root: string): Promise<string[]> {
+  const found: string[] = [];
+  const entries = await fs.readdir(root, { withFileTypes: true });
+  for (const entry of entries) {
+    const full = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      found.push(...(await findGeneratedFiles(full)));
+    } else if (entry.isFile() && GENERATED_FILE_PATTERN.test(entry.name)) {
+      found.push(toPosixPath(full));
+    }
+  }
+  return found;
+}
+
+function expectedGeneratedPaths(sortedKeys: string[]): Set<string> {
+  return new Set<string>([
+    'src/layout/components.generated.ts',
+    'src/layout/common.generated.ts',
+    ...sortedKeys.flatMap((key) => [
+      `src/layout/${key}/config.generated.ts`,
+      `src/layout/${key}/config.def.generated.tsx`,
+    ]),
+  ]);
+}
+
+async function deleteOrphans(orphans: string[]): Promise<void> {
+  await Promise.all(
+    orphans.map(async (file) => {
+      console.log(`Removing orphaned ${file}`);
+      await fs.rm(file);
+    }),
+  );
+}
+
 async function getComponentList(): Promise<[ComponentList, string[]]> {
   const toDelete: string[] = [];
   const out: ComponentList = {};
@@ -124,4 +164,8 @@ async function getComponentList(): Promise<[ComponentList, string[]]> {
   );
 
   await Promise.all(promises);
+
+  const expected = expectedGeneratedPaths(sortedKeys);
+  const orphans = (await findGeneratedFiles('src/layout')).filter((file) => !expected.has(file));
+  await deleteOrphans(orphans);
 })();
