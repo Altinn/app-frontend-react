@@ -32,6 +32,7 @@ export function DatePickerDialog({
 }: PropsWithChildren<DatePickerDialogProps>) {
   const isMobile = useIsMobile();
   const modalRef = useRef<HTMLDialogElement>(null);
+  const closeDatepicker = () => setIsDialogOpen(false);
 
   useEffect(() => {
     isDialogOpen && modalRef.current?.showModal();
@@ -52,7 +53,7 @@ export function DatePickerDialog({
         >
           {trigger}
         </Dialog.Trigger>
-        <DatePickerCloseContext.Provider value={() => setIsDialogOpen(false)}>
+        <DatePickerCloseContext.Provider value={closeDatepicker}>
           <Dialog
             ref={modalRef}
             role='dialog'
@@ -61,7 +62,7 @@ export function DatePickerDialog({
             modal
             closeButton={false}
             className={styles.datepickerModal}
-            onClose={() => setIsDialogOpen(false)}
+            onClose={closeDatepicker}
           >
             <div className={styles.datepickerModalContent}>{children}</div>
           </Dialog>
@@ -91,7 +92,7 @@ export function DatePickerDialog({
         data-size='lg'
         placement='top'
         autoFocus={true}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={closeDatepicker}
       >
         {children}
       </Popover>
