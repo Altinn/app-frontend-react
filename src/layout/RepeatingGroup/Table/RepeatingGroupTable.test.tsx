@@ -166,7 +166,7 @@ describe('RepeatingGroupTable', () => {
       expect(screen.getByTestId('editIndex')).toHaveTextContent('0');
     });
 
-    it('should keep table header visible when editing a single row', async () => {
+    it('should keep table header visible when editing a single row with editInTable', async () => {
       const groupWithEditInTableAndStickyHeader = getFormLayoutRepeatingGroupMock({
         id: 'mock-container-id',
         stickyHeader: true,
@@ -180,6 +180,22 @@ describe('RepeatingGroupTable', () => {
       await userEvent.click(screen.getAllByRole('button', { name: /rediger/i })[0]);
       expect(screen.getByTestId('editIndex')).toHaveTextContent('0');
       expect(document.getElementById('group-mock-container-id-table-header')).toBeInTheDocument();
+    });
+
+    it('should hide table header when editing a single row without editInTable', async () => {
+      const groupWithoutEditInTable = getFormLayoutRepeatingGroupMock({
+        id: 'mock-container-id',
+        stickyHeader: true,
+      });
+
+      await render(getLayout(groupWithoutEditInTable, components), {
+        'some-group': [{ [ALTINN_ROW_ID]: uuidv4(), checkBoxBinding: 'option.value', prop1: 'test row 0' }],
+      });
+
+      expect(document.getElementById('group-mock-container-id-table-header')).toBeInTheDocument();
+      await userEvent.click(screen.getAllByRole('button', { name: /rediger/i })[0]);
+      expect(screen.getByTestId('editIndex')).toHaveTextContent('0');
+      expect(document.getElementById('group-mock-container-id-table-header')).not.toBeInTheDocument();
     });
 
     it('should render EditableCell when editInTable is enabled for a column', async () => {
@@ -235,7 +251,7 @@ describe('RepeatingGroupTable', () => {
         tableHeaders: ['field1', 'field2', 'field3', 'field4'],
         ...extra,
       });
-      await render(getLayout(groupWithExtraRows, components), extraRowTextResources);
+      await render(getLayout(groupWithExtraRows, components), undefined, extraRowTextResources);
 
       expect(screen.getByText('Extra0')).toBeInTheDocument();
       expect(screen.queryByText('Extra1Hidden')).not.toBeInTheDocument();
