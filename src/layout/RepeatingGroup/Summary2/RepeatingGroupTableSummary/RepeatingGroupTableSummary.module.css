@@ -72,8 +72,20 @@
   vertical-align: top;
 }
 
-.cellValue,
+.cellValue {
+  white-space: nowrap;
+}
+
 .cellValidationMessage {
   margin-top: var(--ds-size-1);
   white-space: nowrap;
+}
+
+.cellValidationMessage * {
+  white-space: inherit;
+}
+
+.mobileTable .cellValue,
+.mobileTable .cellValidationMessage {
+  white-space: normal;
 }

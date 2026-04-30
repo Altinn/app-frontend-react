@@ -163,10 +163,13 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
   const rowErrors = useDeepValidationsForNode(baseComponentId, false, row?.index, true).filter(
     (validation) => validation.severity === 'error',
   );
+  const visibleIdSet = new Set(visibleIds);
   const errorsByColumnId: Record<string, typeof rowErrors> = {};
+  const unmappedRowErrors: typeof rowErrors = [];
   for (const validation of rowErrors) {
     const key = validation.baseComponentId;
-    if (!key) {
+    if (!key || !visibleIdSet.has(key)) {
+      unmappedRowErrors.push(validation);
       continue;
     }
     errorsByColumnId[key] = errorsByColumnId[key] ?? [];
@@ -176,8 +179,6 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
   if (!row) {
     return null;
   }
-
-  const unmappedRowErrors = rowErrors.filter((validation) => !errorsByColumnId[validation.baseComponentId]);
 
   return (
     <Table.Row>
