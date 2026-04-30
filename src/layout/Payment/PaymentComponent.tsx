@@ -36,7 +36,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
     throw new Error('Cannot use PaymentComponent in a subform');
   }
 
-  const [isChecking, setIsChecking] = React.useState(false);
+  const [isChecking] = React.useState(false);
   const disabled = isAnyProcessing || isConfirming || isRejecting || isChecking;
 
   const navigateBasedOnProcess = useCallback(
@@ -79,9 +79,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
   );
 
   const handleNextClick = async () => {
-    setIsChecking(true);
     await navigateBasedOnProcess(true);
-    setIsChecking(false);
   };
 
   const goToCurrentTask = useCallback(async () => {
@@ -129,7 +127,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
               </Button>
             </>
           )}
-          {paymentInfo?.status === PaymentStatus.Paid && (
+          {(paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped) && (
             <Button
               variant='secondary'
               disabled={disabled}

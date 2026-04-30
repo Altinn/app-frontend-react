@@ -4,6 +4,8 @@ import type { ReactNode } from 'react';
 import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
 import { usePerformPayActionMutation } from 'src/features/payment/usePerformPaymentMutation';
@@ -12,9 +14,11 @@ import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
+import { appSupportsPaymentWebhooks } from 'src/utils/versioning/versions';
 
 type PaymentContextProps = {
   performPayment: () => void;
+  skipPayment: () => void;
   paymentError: AxiosError | null;
 };
 
@@ -35,13 +39,18 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
     error: paymentError,
     isPending: isPaymentPending,
   } = usePerformPayActionMutation(instanceOwnerPartyId, instanceGuid);
+  const { mutateAsync: processConfirm, isPending: isConfirmPending } = useProcessNext({ action: 'confirm' });
+
+  const isLoading = isPaymentPending || isConfirmPending;
 
   const performPayment = useOurEffectEvent(() => mutateAsync());
-  const contextValue = useShallowMemo({ performPayment, paymentError });
+  const skipPayment = useOurEffectEvent(() => processConfirm());
+
+  const contextValue = useShallowMemo({ performPayment, skipPayment, paymentError });
 
   return (
     <PaymentContext.Provider value={contextValue}>
-      {isPaymentPending ? <Loader reason='Navigating to external payment solution' /> : children}
+      {isLoading ? <Loader reason='Navigating to external payment solution' /> : children}
       {!paymentError && <PaymentNavigation />}
     </PaymentContext.Provider>
   );
@@ -50,8 +59,9 @@ export const PaymentProvider: React.FC<PaymentContextProvider> = ({ children }) 
 function PaymentNavigation() {
   const paymentInfo = usePaymentInformation();
   const isPdf = useIsPdf();
-  const { performPayment } = usePayment();
+  const { performPayment, skipPayment } = usePayment();
   const instanceGuid = useNavigationParam('instanceGuid');
+  const altinnNugetVersion = useApplicationMetadata().altinnNugetVersion;
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const isPaymentProcess = useIsPayment();
@@ -74,6 +84,16 @@ function PaymentNavigation() {
       paymentInitiatedForInstance.delete(instanceGuid);
     }
   }, [isPaymentProcess, paymentDoesNotExist, performPayment, isPdf, instanceGuid, paymentInfo?.status]);
+
+  const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
+
+  // If when landing on payment task, PaymentStatus is Paid or Skipped while using backend-version
+  //  without webhook support, go to next task
+  useEffect(() => {
+    if (isPaymentProcess && paymentCompleted && !isPdf && !appSupportsPaymentWebhooks(altinnNugetVersion)) {
+      skipPayment();
+    }
+  }, [isPaymentProcess, paymentCompleted, skipPayment, isPdf, altinnNugetVersion]);
 
   return null;
 }
