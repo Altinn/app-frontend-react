@@ -67,3 +67,13 @@
 .narrowLastColumn {
   width: 1%;
 }
+
+.dataCell {
+  vertical-align: top;
+}
+
+.cellValue,
+.cellValidationMessage {
+  margin-top: var(--ds-size-1);
+  white-space: nowrap;
+}

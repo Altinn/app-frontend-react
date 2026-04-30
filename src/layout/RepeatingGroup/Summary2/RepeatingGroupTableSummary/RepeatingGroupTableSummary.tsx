@@ -10,6 +10,7 @@ import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PdfWrapper';
+import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -159,10 +160,24 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
   const rowWithExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid: row?.uuid ?? '' });
   const editableChildren = RepGroupHooks.useEditableChildren(baseComponentId, rowWithExpressions);
   const editableIds = [...ids, ...children].filter((id) => editableChildren.includes(id));
+  const rowErrors = useDeepValidationsForNode(baseComponentId, false, row?.index, true).filter(
+    (validation) => validation.severity === 'error',
+  );
+  const errorsByColumnId: Record<string, typeof rowErrors> = {};
+  for (const validation of rowErrors) {
+    const key = validation.baseComponentId;
+    if (!key) {
+      continue;
+    }
+    errorsByColumnId[key] = errorsByColumnId[key] ?? [];
+    errorsByColumnId[key].push(validation);
+  }
 
   if (!row) {
     return null;
   }
+
+  const unmappedRowErrors = rowErrors.filter((validation) => !errorsByColumnId[validation.baseComponentId]);
 
   return (
     <Table.Row>
@@ -176,6 +191,7 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
             key={id}
             baseComponentId={id}
             columnSettings={columnSettings}
+            errors={errorsByColumnId[id] ?? (id === visibleIds[0] ? unmappedRowErrors : [])}
           />
         ),
       )}
@@ -198,9 +214,10 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
 type DataCellProps = {
   baseComponentId: string;
   columnSettings: ITableColumnFormatting;
+  errors: ReturnType<typeof useDeepValidationsForNode>;
 };
 
-function DataCell({ baseComponentId, columnSettings }: DataCellProps) {
+function DataCell({ baseComponentId, columnSettings, errors }: DataCellProps) {
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(baseComponentId));
   const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
@@ -217,13 +234,28 @@ function DataCell({ baseComponentId, columnSettings }: DataCellProps) {
   );
 
   return (
-    <Table.Cell data-header-title={headerTitle}>
+    <Table.Cell
+      data-header-title={headerTitle}
+      className={tableClasses.dataCell}
+    >
       <span
-        className={repeatingGroupClasses.contentFormatting}
+        className={cn(repeatingGroupClasses.contentFormatting, tableClasses.cellValue)}
         style={style}
       >
         {displayData}
       </span>
+      {errors.map((validation, index) => (
+        <ValidationMessage
+          key={`${baseComponentId}-${validation.message.key}-${index}`}
+          data-size='sm'
+          className={cn(classes.errorMessage, tableClasses.cellValidationMessage)}
+        >
+          <Lang
+            id={validation.message.key}
+            params={validation.message.params}
+          />
+        </ValidationMessage>
+      ))}
     </Table.Cell>
   );
 }
