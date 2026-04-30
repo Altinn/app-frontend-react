@@ -65,7 +65,10 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
 
   const isEmpty = numRows === 0;
   const isEditingFirstRow = RepGroupContext.useIsEditingRow(firstRowId);
-  const showTableHeader = numRows > 0 && !(numRows == 1 && firstRowId !== undefined && isEditingFirstRow);
+  const hasColumnsWithEditInTable =
+    tableColumns && Object.keys(tableColumns).some((colId) => tableColumns[colId].editInTable);
+  const showTableHeader =
+    numRows > 0 && (hasColumnsWithEditInTable || !(numRows == 1 && firstRowId !== undefined && isEditingFirstRow));
 
   const showDeleteButtonColumns = new Set<boolean>();
   const showEditButtonColumns = new Set<boolean>();
