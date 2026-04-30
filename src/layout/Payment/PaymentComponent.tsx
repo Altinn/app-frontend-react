@@ -36,8 +36,7 @@ export const PaymentComponent = ({ baseComponentId }: PropsFromGenericComponent<
     throw new Error('Cannot use PaymentComponent in a subform');
   }
 
-  const [isChecking] = React.useState(false);
-  const disabled = isAnyProcessing || isConfirming || isRejecting || isChecking;
+  const disabled = isAnyProcessing || isConfirming || isRejecting;
 
   const navigateBasedOnProcess = useCallback(
     async (shouldConfirmIfNoNavigate: boolean) => {
