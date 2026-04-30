@@ -243,12 +243,18 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnInd
         }
 
         if (isGridCellText(cell) || isGridCellLabelFrom(cell)) {
-          let textCellSettings: GridColumnOptions | undefined =
-            mutableColumnSettings[cellIdx] && structuredClone(mutableColumnSettings[cellIdx]);
+          // let textCellSettings: GridColumnOptions | undefined =
+          //   mutableColumnSettings[cellIdx] && structuredClone(mutableColumnSettings[cellIdx]);
 
-          if (cell && 'cellStyle' in cell && cell.cellStyle) {
-            textCellSettings = textCellSettings ? { ...textCellSettings, ...cell.cellStyle } : { ...cell.cellStyle };
-          }
+          let textCellSettings: GridColumnOptions = mutableColumnSettings[cellIdx]
+            ? structuredClone(mutableColumnSettings[cellIdx])
+            : {};
+
+          // console.log('textCellSettings before merge:', textCellSettings);
+          // textCellSettings = { ...textCellSettings, ...cell };
+          // console.log('textCellSettings after merge:', textCellSettings);
+
+          textCellSettings = { ...textCellSettings, ...cell.cellStyle, ...cell };
 
           if (isGridCellText(cell)) {
             return (
