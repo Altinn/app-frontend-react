@@ -68,7 +68,7 @@ export function OrganisationLookupComponent({
   baseComponentId,
   overrideDisplay,
 }: PropsFromGenericComponent<'OrganisationLookup'>) {
-  const { id, dataModelBindings, required } = useItemWhenType(baseComponentId, 'OrganisationLookup');
+  const { id, dataModelBindings, required, readOnly } = useItemWhenType(baseComponentId, 'OrganisationLookup');
   const { labelText, getHelpTextComponent, getDescriptionComponent } = useLabel({
     baseComponentId,
     overrideDisplay,
@@ -156,7 +156,7 @@ export function OrganisationLookupComponent({
               aria-label={langAsString('organisation_lookup.orgnr_label')}
               value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
               required={required}
-              readOnly={hasSuccessfullyFetched || isFetching}
+              readOnly={hasSuccessfullyFetched || isFetching || readOnly}
               error={isValid}
               onValueChange={(e) => {
                 setTempOrgNr(e.value);
@@ -177,7 +177,7 @@ export function OrganisationLookupComponent({
               </ValidationMessage>
             )}
           </Field>
-          <div className={classes.submit}>
+          {!readOnly && <div className={classes.submit}>
             {!hasSuccessfullyFetched ? (
               <Button
                 onClick={handleSubmit}
@@ -195,7 +195,7 @@ export function OrganisationLookupComponent({
                 <Lang id='organisation_lookup.clear_button' />
               </Button>
             )}
-          </div>
+          </div>}
           {data?.error && (
             <ValidationMessage
               data-size='sm'
