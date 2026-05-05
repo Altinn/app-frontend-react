@@ -25,6 +25,10 @@ function buildArbeidsflateUrl(altinnHost: string): string {
   return `https://af.${altinnHost}/`;
 }
 
+function buildAccessManagementBaseUrl(altinnHost: string): string {
+  return `https://am.ui.${altinnHost}/`;
+}
+
 function redirectAndChangeParty(goTo: string, partyId: number): string {
   return `accessmanagement/api/v1/reportee/changeandredirect?partyId=${partyId}&goTo=${encodeURIComponent(goTo)}`;
 }
@@ -42,9 +46,8 @@ function buildArbeidsflateRedirectUrl(host: string, partyId?: number, dialogId?:
     return `http://${host}/`;
   }
 
-  const baseUrl = returnBaseUrlToAltinn(host);
   const altinnHost = extractAltinnHost(host);
-  if (!baseUrl || !altinnHost) {
+  if (!altinnHost) {
     return undefined;
   }
 
@@ -56,7 +59,8 @@ function buildArbeidsflateRedirectUrl(host: string, partyId?: number, dialogId?:
   }
 
   // Use access management changeandredirect endpoint to switch party and redirect to A3 arbeidsflate
-  return `${baseUrl}${redirectAndChangeParty(targetUrl, partyId)}`;
+  const amBaseUrl = buildAccessManagementBaseUrl(altinnHost);
+  return `${amBaseUrl}${redirectAndChangeParty(targetUrl, partyId)}`;
 }
 
 export const getMessageBoxUrl = (partyId?: number, dialogId?: string): string | undefined =>
