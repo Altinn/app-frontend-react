@@ -40,6 +40,7 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       groups: [],
       pageSettings: {},
       pdfLayoutName: undefined,
+      showAppNameInPdf: 'all',
     };
   }
 
@@ -74,6 +75,7 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       validationOnNavigation: settings.pages.validationOnNavigation,
     }),
     pdfLayoutName: settings.pages.pdfLayoutName,
+    showAppNameInPdf: settings.pages.showAppNameInPdf ?? 'all',
   };
 }
 
@@ -99,6 +101,7 @@ interface ProcessedLayoutSettings {
   groups?: NavigationPageGroup[];
   pageSettings: GlobalPageSettings;
   pdfLayoutName?: string;
+  showAppNameInPdf: 'all' | 'header' | 'footer' | 'none';
 }
 
 export const LayoutSettingsProvider = Provider;
@@ -113,6 +116,7 @@ export const useRawPageOrder = (): string[] => {
 };
 
 export const usePdfLayoutName = () => useCtx().pdfLayoutName;
+export const useShowAppNameInPdf = () => useCtx().showAppNameInPdf;
 export const usePageGroups = () => {
   const settings = useLaxCtx();
   if (settings === ContextNotProvided) {

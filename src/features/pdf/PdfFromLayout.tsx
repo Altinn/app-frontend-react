@@ -13,7 +13,7 @@ import { SearchParams } from 'src/core/routing/types';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePdfLayoutName, useShowAppNameInPdf } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
@@ -134,6 +134,8 @@ function PdfWrapping({ children }: PropsWithChildren) {
   const appName = useAppName();
   const { langAsString } = useLanguage();
   const isPayment = useIsPayment();
+  const showAppNameInPdf = useShowAppNameInPdf();
+  const showAppName = showAppNameInPdf === 'all' || showAppNameInPdf === 'header';
 
   return (
     <div
@@ -149,12 +151,14 @@ function PdfWrapping({ children }: PropsWithChildren) {
         </div>
       )}
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
-      <Heading
-        level={1}
-        data-size='lg'
-      >
-        {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
-      </Heading>
+      {showAppName && (
+        <Heading
+          level={1}
+          data-size='lg'
+        >
+          {isPayment ? `${appName} - ${langAsString('payment.receipt.title')}` : appName}
+        </Heading>
+      )}
       {children}
       <ReadyForPrint type='print' />
     </div>

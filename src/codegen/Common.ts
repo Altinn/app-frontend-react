@@ -817,6 +817,13 @@ const common = {
             'Name of a custom layout file to use for PDF creation instead of the automatically generated PDF.',
           ),
       ),
+      new CG.prop(
+        'showAppNameInPdf',
+        new CG.enum('all', 'header', 'footer', 'none')
+          .optional({ default: 'all' })
+          .setTitle('Show app name in PDF')
+          .setDescription('Controls where the app name is displayed in the PDF.'),
+      ),
       new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
     ),
   INavigationBasePageGroup: () =>
