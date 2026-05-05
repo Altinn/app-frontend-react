@@ -108,6 +108,40 @@ describe('Shared urlHelper.ts', () => {
     expect(returnUrlToArchive(originUnknown, undefined)).toBe(null);
   });
 
+  test('returnUrlToArchive() returning correct environments with partyId', () => {
+    const partyId = 12345;
+    expect(returnUrlToArchive(originTT, partyId)).toBe(
+      'https://am.ui.tt02.altinn.no/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.tt02.altinn.no%2F',
+    );
+    expect(returnUrlToArchive(originAT, partyId)).toBe(
+      'https://am.ui.at21.altinn.cloud/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.at21.altinn.cloud%2F',
+    );
+    expect(returnUrlToArchive(originYT, partyId)).toBe(
+      'https://am.ui.yt01.altinn.cloud/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.yt01.altinn.cloud%2F',
+    );
+    expect(returnUrlToArchive(originProd, partyId)).toBe(
+      'https://am.ui.altinn.no/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.altinn.no%2F',
+    );
+    expect(returnUrlToArchive(originUnknown, partyId)).toBe(null);
+  });
+
+  test('returnUrlToArchive() returning correct environments with partyId and dialogId', () => {
+    const partyId = 12345;
+    const dialogId = '123e4567-e89b-12d3-a456-426614174000';
+    expect(returnUrlToArchive(originTT, partyId, dialogId)).toBe(
+      'https://am.ui.tt02.altinn.no/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.tt02.altinn.no%2Finbox%2F123e4567-e89b-12d3-a456-426614174000',
+    );
+    expect(returnUrlToArchive(originAT, partyId, dialogId)).toBe(
+      'https://am.ui.at21.altinn.cloud/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.at21.altinn.cloud%2Finbox%2F123e4567-e89b-12d3-a456-426614174000',
+    );
+    expect(returnUrlToArchive(originYT, partyId, dialogId)).toBe(
+      'https://am.ui.yt01.altinn.cloud/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.yt01.altinn.cloud%2Finbox%2F123e4567-e89b-12d3-a456-426614174000',
+    );
+    expect(returnUrlToArchive(originProd, partyId, dialogId)).toBe(
+      'https://am.ui.altinn.no/accessmanagement/api/v1/reportee/changeandredirect?partyId=12345&goTo=https%3A%2F%2Faf.altinn.no%2Finbox%2F123e4567-e89b-12d3-a456-426614174000',
+    );
+  });
+
   test('getDialogIdFromDataValues() extracts dialog.id correctly', () => {
     expect(getDialogIdFromDataValues({ 'dialog.id': 'abc-123' })).toBe('abc-123');
     expect(getDialogIdFromDataValues({ 'dialog.id': '019aa5f7-ac49-7a56-a824-0381f3603e38' })).toBe(
