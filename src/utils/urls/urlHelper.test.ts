@@ -138,14 +138,14 @@ describe('Shared urlHelper.ts', () => {
   });
 
   test('logoutUrlAltinn() should return correct url for each env.', () => {
-    const originTT = 'https://ttd.apps.tt02.altinn.no/tdd/tjeneste-20190826-1130';
-    const originAT = 'https://ttd.apps.at21.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originYT = 'https://ttd.apps.yt01.altinn.cloud/tdd/tjeneste-20190826-1130';
-    const originProd = 'https://ttd.apps.altinn.no/tdd/tjeneste-20190826-1130';
-    expect(logoutUrlAltinn(originTT)).toContain('tt02.altinn.no/ui/authentication/LogOut');
-    expect(logoutUrlAltinn(originAT)).toContain('at21.altinn.cloud/ui/authentication/LogOut');
-    expect(logoutUrlAltinn(originYT)).toContain('yt01.altinn.cloud/ui/authentication/LogOut');
-    expect(logoutUrlAltinn(originProd)).toContain('altinn.no/ui/authentication/LogOut');
+    expect(logoutUrlAltinn(originTT)).toBe('https://platform.tt02.altinn.no/authentication/api/v1/logout');
+    expect(logoutUrlAltinn(originAT)).toBe('https://platform.at21.altinn.cloud/authentication/api/v1/logout');
+    expect(logoutUrlAltinn(originYT)).toBe('https://platform.yt01.altinn.cloud/authentication/api/v1/logout');
+    expect(logoutUrlAltinn(originProd)).toBe('https://platform.altinn.no/authentication/api/v1/logout');
+    expect(logoutUrlAltinn(originLocalCloud)).toBe('/');
+    expect(logoutUrlAltinn(originLocalCloudWithPort)).toBe('/');
+    expect(logoutUrlAltinn(originLocal)).toBe('/');
+    expect(logoutUrlAltinn(originUnknown)).toBe('/');
   });
 
   test('makeUrlRelativeIfSameDomain()', () => {
