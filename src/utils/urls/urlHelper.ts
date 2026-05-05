@@ -26,7 +26,7 @@ function buildArbeidsflateUrl(altinnHost: string): string {
 }
 
 function redirectAndChangeParty(goTo: string, partyId: number): string {
-  return `ui/Reportee/ChangeReporteeAndRedirect?goTo=${encodeURIComponent(goTo)}&R=${partyId}`;
+  return `accessmanagement/api/v1/reportee/changeandredirect?partyId=${partyId}&goTo=${encodeURIComponent(goTo)}`;
 }
 
 export const returnBaseUrlToAltinn = (host: string): string | undefined => {
@@ -55,7 +55,7 @@ function buildArbeidsflateRedirectUrl(host: string, partyId?: number, dialogId?:
     return targetUrl;
   }
 
-  // Use A2 redirect mechanism with A3 arbeidsflate URL to maintain party context
+  // Use access management changeandredirect endpoint to switch party and redirect to A3 arbeidsflate
   return `${baseUrl}${redirectAndChangeParty(targetUrl, partyId)}`;
 }
 
