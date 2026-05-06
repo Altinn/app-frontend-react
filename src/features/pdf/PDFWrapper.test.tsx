@@ -6,6 +6,7 @@ import { screen, waitFor } from '@testing-library/react';
 
 import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { getInstanceDataMock } from 'src/__mocks__/getInstanceDataMock';
+import { getLayoutSetsMock } from 'src/__mocks__/getLayoutSetsMock';
 import { getPartyMock, getServiceOwnerPartyMock } from 'src/__mocks__/getPartyMock';
 import { getProcessDataMock } from 'src/__mocks__/getProcessDataMock';
 import { PresentationComponent } from 'src/components/presentation/Presentation';
@@ -95,5 +96,55 @@ describe('PDFWrapper', () => {
     expect(screen.queryByText('Avsender:')).not.toBeNull();
     expect(screen.queryByText('01017512345-Ola Privatperson')).toBeNull();
     expect(screen.queryByText('974760673-Brønnøysundregistrene')).not.toBeNull();
+  });
+
+  describe('showAppNameInPdf', () => {
+    it('should show app name by default', async () => {
+      const result = await render(RenderAs.User);
+
+      await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
+
+      expect(screen.queryByRole('heading', { name: 'Test App' })).not.toBeNull();
+    });
+
+    it('should show app name when set to "all"', async () => {
+      const result = await render(RenderAs.User, {
+        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'all' } }),
+      });
+
+      await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
+
+      expect(screen.queryByRole('heading', { name: 'Test App' })).not.toBeNull();
+    });
+
+    it('should show app name when set to "header"', async () => {
+      const result = await render(RenderAs.User, {
+        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'header' } }),
+      });
+
+      await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
+
+      expect(screen.queryByRole('heading', { name: 'Test App' })).not.toBeNull();
+    });
+
+    it('should hide app name when set to "footer"', async () => {
+      const result = await render(RenderAs.User, {
+        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'footer' } }),
+      });
+
+      await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
+
+      expect(screen.queryByRole('heading', { name: 'Test App' })).toBeNull();
+    });
+
+    it('should hide app name when set to "none"', async () => {
+      const result = await render(RenderAs.User, {
+        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'none' } }),
+      });
+
+      await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
+
+      expect(screen.queryByRole('heading', { name: 'Test App' })).toBeNull();
+    });
   });
 });
