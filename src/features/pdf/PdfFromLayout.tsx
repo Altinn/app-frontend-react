@@ -13,7 +13,7 @@ import { SearchParams } from 'src/core/routing/types';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { usePdfLayoutName, useShowAppNameInPdf } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import { usePageSettings, usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
@@ -134,7 +134,7 @@ function PdfWrapping({ children }: PropsWithChildren) {
   const appName = useAppName();
   const { langAsString } = useLanguage();
   const isPayment = useIsPayment();
-  const showAppNameInPdf = useShowAppNameInPdf();
+  const { showAppNameInPdf } = usePageSettings();
   const showAppName = showAppNameInPdf === 'all' || showAppNameInPdf === 'header';
 
   return (

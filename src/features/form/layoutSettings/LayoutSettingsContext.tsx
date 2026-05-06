@@ -40,7 +40,6 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       groups: [],
       pageSettings: {},
       pdfLayoutName: undefined,
-      showAppNameInPdf: 'all',
     };
   }
 
@@ -68,6 +67,7 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       expandedWidth: settings.pages.expandedWidth,
       hideCloseButton: settings.pages.hideCloseButton,
       navigationTitle: settings.pages.navigationTitle,
+      showAppNameInPdf: settings.pages.showAppNameInPdf,
       showExpandWidthButton: settings.pages.showExpandWidthButton,
       showLanguageSelector: settings.pages.showLanguageSelector,
       showProgress: settings.pages.showProgress,
@@ -75,7 +75,6 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       validationOnNavigation: settings.pages.validationOnNavigation,
     }),
     pdfLayoutName: settings.pages.pdfLayoutName,
-    showAppNameInPdf: settings.pages.showAppNameInPdf ?? 'all',
   };
 }
 
@@ -101,7 +100,6 @@ interface ProcessedLayoutSettings {
   groups?: NavigationPageGroup[];
   pageSettings: GlobalPageSettings;
   pdfLayoutName?: string;
-  showAppNameInPdf: 'all' | 'header' | 'footer' | 'none';
 }
 
 export const LayoutSettingsProvider = Provider;
@@ -116,7 +114,6 @@ export const useRawPageOrder = (): string[] => {
 };
 
 export const usePdfLayoutName = () => useCtx().pdfLayoutName;
-export const useShowAppNameInPdf = () => useCtx().showAppNameInPdf;
 export const usePageGroups = () => {
   const settings = useLaxCtx();
   if (settings === ContextNotProvided) {
@@ -134,6 +131,7 @@ const defaults: Omit<Required<GlobalPageSettings>, 'validationOnNavigation'> = {
   showExpandWidthButton: false,
   autoSaveBehavior: 'onChangeFormData',
   expandedWidth: false,
+  showAppNameInPdf: 'all',
   taskNavigation: [],
   navigationTitle: 'navigation.form_pages',
 };
