@@ -11,7 +11,12 @@ import { useLaxGlobalUISettings } from 'src/features/form/layoutSets/LayoutSetsP
 import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
+import type {
+  GlobalPageSettings,
+  IGlobalSettings,
+  ILayoutSettings,
+  NavigationPageGroup,
+} from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ProcessedLayoutSettings> {
@@ -67,7 +72,6 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       expandedWidth: settings.pages.expandedWidth,
       hideCloseButton: settings.pages.hideCloseButton,
       navigationTitle: settings.pages.navigationTitle,
-      showAppNameInPdf: settings.pages.showAppNameInPdf,
       showExpandWidthButton: settings.pages.showExpandWidthButton,
       showLanguageSelector: settings.pages.showLanguageSelector,
       showProgress: settings.pages.showProgress,
@@ -124,7 +128,7 @@ export const usePageGroups = () => {
 
 const emptyArray = [];
 
-const defaults: Omit<Required<GlobalPageSettings>, 'validationOnNavigation'> = {
+const defaults: Omit<Required<IGlobalSettings>, 'validationOnNavigation'> = {
   hideCloseButton: false,
   showLanguageSelector: false,
   showProgress: false,
@@ -136,8 +140,8 @@ const defaults: Omit<Required<GlobalPageSettings>, 'validationOnNavigation'> = {
   navigationTitle: 'navigation.form_pages',
 };
 
-export const usePageSettings = (): Required<Omit<GlobalPageSettings, 'validationOnNavigation'>> &
-  Pick<GlobalPageSettings, 'validationOnNavigation'> => {
+export const usePageSettings = (): Required<Omit<IGlobalSettings, 'validationOnNavigation'>> &
+  Pick<IGlobalSettings, 'validationOnNavigation'> => {
   const globalUISettings = useLaxGlobalUISettings();
   const layoutSettings = useLaxCtx();
 

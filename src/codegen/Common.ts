@@ -798,6 +798,9 @@ const common = {
           .setDescription('Shows the listed tasks in the sidebar navigation menu'),
       ),
       new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
+    ),
+  IGlobalSettings: () =>
+    new CG.obj(
       new CG.prop(
         'showAppNameInPdf',
         new CG.enum('all', 'header', 'footer', 'none')
@@ -805,7 +808,7 @@ const common = {
           .setTitle('Show app name in PDF')
           .setDescription('Controls where the app name is displayed in the PDF.'),
       ),
-    ),
+    ).extends(CG.common('GlobalPageSettings')),
   IPagesBaseSettings: () =>
     new CG.obj(
       new CG.prop(
@@ -824,7 +827,6 @@ const common = {
             'Name of a custom layout file to use for PDF creation instead of the automatically generated PDF.',
           ),
       ),
-      new CG.prop('validationOnNavigation', CG.common('PageValidation').optional()),
     ),
   INavigationBasePageGroup: () =>
     new CG.obj(
@@ -895,7 +897,7 @@ const common = {
           .setTitle('Layout sets')
           .setDescription('List of layout sets for different data types'),
       ),
-      new CG.prop('uiSettings', CG.common('GlobalPageSettings').optional()),
+      new CG.prop('uiSettings', CG.common('IGlobalSettings').optional()),
     )
       .setTitle('Layout sets')
       .setDescription('Settings regarding layout pages and components'),
