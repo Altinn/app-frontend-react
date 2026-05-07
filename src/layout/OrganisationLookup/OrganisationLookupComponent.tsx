@@ -163,7 +163,7 @@ export function OrganisationLookupComponent({
                 setOrgNrErrors(undefined);
               }}
               onKeyDown={async (ev) => {
-                if (ev.key === 'Enter') {
+                if (ev.key === 'Enter' && !readOnly) {
                   await handleSubmit();
                 }
               }}
