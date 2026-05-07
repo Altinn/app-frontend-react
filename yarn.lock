@@ -5812,7 +5812,7 @@ __metadata:
     ajv-formats: "npm:3.0.1"
     ajv-formats-draft2019: "npm:1.6.1"
     axe-core: "npm:4.11.2"
-    axios: "npm:1.14.0"
+    axios: "npm:1.15.2"
     babel-jest: "npm:30.3.0"
     babel-plugin-react-compiler: "npm:^19.1.0-rc.2"
     chokidar-cli: "npm:3.0.0"
@@ -5897,7 +5897,7 @@ __metadata:
     typescript-eslint: "npm:8.58.0"
     typescript-plugin-css-modules: "npm:5.2.0"
     utility-types: "npm:3.11.0"
-    uuid: "npm:13.0.0"
+    uuid: "npm:14.0.0"
     webpack: "npm:5.105.4"
     webpack-cli: "npm:6.0.1"
     webpack-dev-server: "npm:5.2.3"
@@ -6212,14 +6212,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:1.14.0":
-  version: 1.14.0
-  resolution: "axios@npm:1.14.0"
+"axios@npm:1.15.2":
+  version: 1.15.2
+  resolution: "axios@npm:1.15.2"
   dependencies:
     follow-redirects: "npm:^1.15.11"
     form-data: "npm:^4.0.5"
     proxy-from-env: "npm:^2.1.0"
-  checksum: 10c0/2541f4aa215a7d1842429dad006fc682d82bc0e74bd14500823f7d8cce3bbae0e0a8c328c8538946718f366ab8ce5a4c12e9ad40e5a0f3482ff8bff0cd115d45
+  checksum: 10c0/4eeae0feeaa7fdc1ef24f81f8b378fdadedf4aebdd6bf224484675160f8744cf17b9b0d1c215279979940f7e8ce463beffa2f713099612e428eac238515c81d5
   languageName: node
   linkType: hard
 
@@ -17306,12 +17306,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"uuid@npm:13.0.0":
-  version: 13.0.0
-  resolution: "uuid@npm:13.0.0"
+"uuid@npm:14.0.0":
+  version: 14.0.0
+  resolution: "uuid@npm:14.0.0"
   bin:
     uuid: dist-node/bin/uuid
-  checksum: 10c0/950e4c18d57fef6c69675344f5700a08af21e26b9eff2bf2180427564297368c538ea11ac9fb2e6528b17fc3966a9fd2c5049361b0b63c7d654f3c550c9b3d67
+  checksum: 10c0/a57ae7794c45005c1a9208989196c5baf79a7679c30f43c1bee9033a2c4d113a2cea216fa6fcc9663b08b0d55635df1a7c6eb7e7f3d21c3e50688c698fa39a50
   languageName: node
   linkType: hard
 

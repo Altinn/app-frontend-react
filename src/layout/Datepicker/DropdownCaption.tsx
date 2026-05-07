@@ -3,11 +3,12 @@ import { formatMonthDropdown, useDayPicker } from 'react-day-picker';
 import type { MonthCaptionProps } from 'react-day-picker';
 
 import { Select } from '@digdir/designsystemet-react';
-import { ArrowLeftIcon, ArrowRightIcon } from '@navikt/aksel-icons';
+import { ArrowLeftIcon, ArrowRightIcon, XMarkIcon } from '@navikt/aksel-icons';
 import { addYears, setMonth, setYear, startOfMonth, subYears } from 'date-fns';
 
 import { Button } from 'src/app-components/Button/Button';
 import styles from 'src/app-components/Datepicker/Calendar.module.css';
+import { useDatePickerClose } from 'src/app-components/Datepicker/DatepickerDialog';
 import { getMonths, getYears } from 'src/app-components/Datepicker/DatePickerHelpers';
 import { getDateLib } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
@@ -24,6 +25,7 @@ export const DropdownCaption = ({ calendarMonth, id, minDate, maxDate }: Dropdow
   const { langAsString } = useLanguage();
   const languageLocale = useCurrentLanguage();
   const dateLib = getDateLib(languageLocale ?? 'nb');
+  const onClose = useDatePickerClose();
 
   const handleYearChange = (year: string) => {
     const newMonth = setYear(startOfMonth(calendarMonth.date), Number(year));
@@ -48,7 +50,7 @@ export const DropdownCaption = ({ calendarMonth, id, minDate, maxDate }: Dropdow
   const months = getMonths(fromDate, toDate, calendarMonth.date);
 
   return (
-    <div className={styles.dropdownCaption}>
+    <div className={styles.datepickerCaption}>
       <Button
         icon={true}
         color='second'
@@ -59,7 +61,7 @@ export const DropdownCaption = ({ calendarMonth, id, minDate, maxDate }: Dropdow
       >
         <ArrowLeftIcon />
       </Button>
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div className={styles.datepickerDropdowns}>
         <Select
           style={{ width: '150px' }}
           id={id}
@@ -106,6 +108,19 @@ export const DropdownCaption = ({ calendarMonth, id, minDate, maxDate }: Dropdow
       >
         <ArrowRightIcon />
       </Button>
+      {onClose && (
+        <div className={styles.datepickerCloseButton}>
+          <Button
+            icon={true}
+            color='second'
+            variant='tertiary'
+            aria-label={langAsString('general.close')}
+            onClick={onClose}
+          >
+            <XMarkIcon />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
