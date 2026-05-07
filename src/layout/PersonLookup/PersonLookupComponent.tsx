@@ -305,25 +305,27 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
                 />
               ))}
           </Field>
-          {!readOnly && <div className={classes.submit}>
-            {!hasSuccessfullyFetched ? (
-              <Button
-                onClick={handleSubmit}
-                variant='secondary'
-                isLoading={isFetching}
-              >
-                <Lang id='person_lookup.submit_button' />
-              </Button>
-            ) : (
-              <Button
-                variant='secondary'
-                color='danger'
-                onClick={handleClear}
-              >
-                <Lang id='person_lookup.clear_button' />
-              </Button>
-            )}
-          </div>}
+          {!readOnly && (
+            <div className={classes.submit}>
+              {!hasSuccessfullyFetched ? (
+                <Button
+                  onClick={handleSubmit}
+                  variant='secondary'
+                  isLoading={isFetching}
+                >
+                  <Lang id='person_lookup.submit_button' />
+                </Button>
+              ) : (
+                <Button
+                  variant='secondary'
+                  color='danger'
+                  onClick={handleClear}
+                >
+                  <Lang id='person_lookup.clear_button' />
+                </Button>
+              )}
+            </div>
+          )}
           {data?.error && (
             <ValidationMessage
               data-size='sm'
