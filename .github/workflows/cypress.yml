@@ -35,6 +35,12 @@ jobs:
       - name: Install dependencies
         run: yarn --immutable
 
+      - name: Cache node_modules
+        uses: actions/cache/save@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('yarn.lock') }}
+
       - name: Cypress install
         uses: cypress-io/github-action@v6
         with:
@@ -73,6 +79,12 @@ jobs:
         with:
           name: dist
           path: dist
+
+      - name: Restore node_modules
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: Set Percy command based on PR draft status or main branch
         shell: bash
@@ -134,6 +146,12 @@ jobs:
         with:
           name: dist
           path: dist
+
+      - name: Restore node_modules
+        uses: actions/cache/restore@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ hashFiles('yarn.lock') }}
 
       - name: Cypress run
         uses: cypress-io/github-action@v6
