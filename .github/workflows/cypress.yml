@@ -35,6 +35,9 @@ jobs:
       - name: Install dependencies
         run: yarn --immutable
 
+      - name: Install Cypress binary
+        run: yarn cypress install
+
       - name: Cypress install
         uses: cypress-io/github-action@v6
         with:
