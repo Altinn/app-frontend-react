@@ -385,7 +385,7 @@ function EditElement({
       aria-controls={ariaExpanded ? `group-edit-container-${indexedId}-${uuid}` : undefined}
       variant='tertiary'
       color='second'
-      icon={!ariaExpanded && mobileViewSmall}
+      icon={!ariaExpanded && (compactButtons || mobileViewSmall)}
       onClick={onClick}
       aria-label={ariaLabel}
       className={classes.tableButton}
