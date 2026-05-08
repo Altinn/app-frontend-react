@@ -149,14 +149,18 @@ export function RepeatingGroupTable(): React.JSX.Element | null {
                 ))}
               </DataModelLocationProvider>
               {useVerticalButtonLayout ? (
-                columnCount > 0 && (
+                (displayEditColumn || displayDeleteColumn) && (
                   <Table.HeaderCell style={{ padding: 0 }}>
-                    <span className={utilClasses.visuallyHidden}>
-                      <Lang id='general.edit' />
-                    </span>
-                    <span className={utilClasses.visuallyHidden}>
-                      <Lang id='general.delete' />
-                    </span>
+                    {displayEditColumn && (
+                      <span className={utilClasses.visuallyHidden}>
+                        <Lang id='general.edit' />
+                      </span>
+                    )}
+                    {displayDeleteColumn && (
+                      <span className={utilClasses.visuallyHidden}>
+                        <Lang id='general.delete' />
+                      </span>
+                    )}
                   </Table.HeaderCell>
                 )
               ) : (
