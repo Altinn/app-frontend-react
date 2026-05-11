@@ -204,7 +204,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
           polygon: !!toolbar?.polygon,
           rectangle: !!toolbar?.rectangle,
           circle: !!toolbar?.circle,
-          marker: !!toolbar?.marker,
+          marker: toolbar?.marker ? { icon: markerIcon } : false,
           circlemarker: false,
         }}
       />
