@@ -2,8 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "types": ["node", "cypress", "@testing-library/cypress", "cypress-wait-until"],
-    "sourceMap": false,
-    "rootDir": ".."
+    "sourceMap": false
   },
   "include": ["./**/*.ts"],
   "exclude": ["../node_modules"]
