@@ -149,6 +149,9 @@ export function customEncodeURI(uri: string): string {
 }
 
 export const logoutUrlAltinn = (url: string): string => {
+  if (url.search(localCloudRegex) >= 0 || url.search(localRegex) >= 0) {
+    return '/';
+  }
   const host = extractHostFromUrl(url);
   return host ? `https://platform.${host}/authentication/api/v1/logout` : '/';
 };
