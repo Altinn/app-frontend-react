@@ -97,7 +97,7 @@ export class AppFrontend {
   //Receipt
   public receipt = {
     container: '#ReceiptContainer',
-    linkToArchive: 'a[href*="ui/Reportee/ChangeReporteeAndRedirect"][href*="af."]',
+    linkToArchive: 'a[href*="accessmanagement/api/v1/reportee/changeandredirect"][href*="af."]',
     linkToArchiveLocal: 'a[href="/"]',
     pdf: '#attachment-list-pdf',
     uploadedAttachments: '[data-testid=attachment-list]',
