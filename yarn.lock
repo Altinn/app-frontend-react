@@ -2115,10 +2115,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@digdir/designsystemet-types@npm:^1.11.1":
-  version: 1.12.1
-  resolution: "@digdir/designsystemet-types@npm:1.12.1"
-  checksum: 10c0/91f349e666a2d2f7471d3fd03c66489ea5e47754c04d58e810a154f1b949f3c82c05fefd9a715f6ddb90bb5ef277fe2a4f935c5bf434cd76791cc6de08b5fd8c
+"@digdir/designsystemet-types@npm:^1.12.1":
+  version: 1.14.0
+  resolution: "@digdir/designsystemet-types@npm:1.14.0"
+  checksum: 10c0/7d746dac24f9878b737a14a711cc9e041b79e83d7035547600c70a8b5fee722bbc4d4dc97693bea92fcc4200b4d3128d0ac786cfdfcabdb7b640264b26b269ab
+  languageName: node
+  linkType: hard
+
+"@digdir/designsystemet-web@npm:^1.12.1":
+  version: 1.14.0
+  resolution: "@digdir/designsystemet-web@npm:1.14.0"
+  dependencies:
+    "@floating-ui/dom": "npm:^1.7.6"
+    "@u-elements/u-combobox": "npm:^2.0.4"
+    "@u-elements/u-datalist": "npm:^2.0.1"
+    "@u-elements/u-details": "npm:^1.0.0"
+    "@u-elements/u-tabs": "npm:^1.0.3"
+  checksum: 10c0/0ad51ff2c5e3e8fc155b93d9f5720614e658304665b8d629f572d63f8f30e217e25658b80aff39eeba81f67c278ddc110e7baf6d5c8fdffdddaf7ae7b1213dd7
   languageName: node
   linkType: hard
 
@@ -2472,6 +2485,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@floating-ui/core@npm:^1.7.5":
+  version: 1.7.5
+  resolution: "@floating-ui/core@npm:1.7.5"
+  dependencies:
+    "@floating-ui/utils": "npm:^0.2.11"
+  checksum: 10c0/f9c52205e198b231d63a387b09c659aab08c46a1899e0b0bbe147b8b4f048b546f15ba17cb5d2a471da9534f1883d979425e13e5c4ceee67be63e4b0abd4db5d
+  languageName: node
+  linkType: hard
+
 "@floating-ui/dom@npm:^1.0.0":
   version: 1.7.0
   resolution: "@floating-ui/dom@npm:1.7.0"
@@ -2489,6 +2511,16 @@ __metadata:
     "@floating-ui/core": "npm:^1.7.4"
     "@floating-ui/utils": "npm:^0.2.10"
   checksum: 10c0/94bd262127fbf1177e542f4908cb07c17392782b1ca0ab9f2dfd7e102cabcc77b4de807847304dcb4c864d4b48e8ba292b27cdcfaca3ad4e3525ab397b766a3a
+  languageName: node
+  linkType: hard
+
+"@floating-ui/dom@npm:^1.7.6":
+  version: 1.7.6
+  resolution: "@floating-ui/dom@npm:1.7.6"
+  dependencies:
+    "@floating-ui/core": "npm:^1.7.5"
+    "@floating-ui/utils": "npm:^0.2.11"
+  checksum: 10c0/5c098e0d7b58c9bc769f276cca1766994c2c9c70c92d091a61bba8b3e9be53c011e0a79a8457fc2fb2f3d91697a26eb52e0a4962ef936dc963b45f58613c212f
   languageName: node
   linkType: hard
 
@@ -2522,6 +2554,13 @@ __metadata:
   version: 0.2.10
   resolution: "@floating-ui/utils@npm:0.2.10"
   checksum: 10c0/e9bc2a1730ede1ee25843937e911ab6e846a733a4488623cd353f94721b05ec2c9ec6437613a2ac9379a94c2fd40c797a2ba6fa1df2716f5ce4aa6ddb1cf9ea4
+  languageName: node
+  linkType: hard
+
+"@floating-ui/utils@npm:^0.2.11":
+  version: 0.2.11
+  resolution: "@floating-ui/utils@npm:0.2.11"
+  checksum: 10c0/f4bcea1559bdbb721ecc8e8ead423ac58d6a5b6e70b602cf0810ba6ad4ed1c77211b207faa88b278a9042f0c743133de08a203ed6741c1b6443423332884d5b3
   languageName: node
   linkType: hard
 
@@ -5149,38 +5188,31 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@u-elements/u-combobox@npm:^1.0.7":
-  version: 1.0.7
-  resolution: "@u-elements/u-combobox@npm:1.0.7"
-  checksum: 10c0/4a6d5c02946db27827a18ab4d6703820e11ef46dc66abed287cbf0a2c945db241d00731c64b828dbf3ebb9f33827d900561e09c8b1ceeacbc6f47ef0c2acd4c8
+"@u-elements/u-combobox@npm:^2.0.4":
+  version: 2.0.4
+  resolution: "@u-elements/u-combobox@npm:2.0.4"
+  checksum: 10c0/e88030f2f7993e52a4d50d9f48c4240a29a2164ca24fa99ea562c6cdb8620dc7101c771649fab4d8ae2ecf4f7b8ededa3cbb1db389b48d18ae2d254bcc34a710
   languageName: node
   linkType: hard
 
-"@u-elements/u-datalist@npm:^1.1.0":
-  version: 1.1.0
-  resolution: "@u-elements/u-datalist@npm:1.1.0"
-  checksum: 10c0/7aa76ad961bc11ea87be7b8589b990fc4066aae53a82691131d1afeb9511f261541fc0760e624c203f50ceb72796caa8204660f0add2c57508125ad918b935ca
+"@u-elements/u-datalist@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@u-elements/u-datalist@npm:2.0.1"
+  checksum: 10c0/77fec73e0afd07486dd70b12ddb14877349015e8a4d015c4b5523c38ebc2bf9015014e2775d54c67682f5c14820ecd357404b3de939372957457113d29a2d211
   languageName: node
   linkType: hard
 
-"@u-elements/u-details@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "@u-elements/u-details@npm:0.2.2"
-  checksum: 10c0/f71c71bf4fe34d69fe1508682ae9c125328b0efcda690e6e4a84c90dad3d85b9ef014d9daf156fab4817046cb53ceb4b866b2031d8319810be26c2cc5ce9f8aa
+"@u-elements/u-details@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "@u-elements/u-details@npm:1.0.0"
+  checksum: 10c0/688df3e9657139bf506c81d70bd6aedf06a1619b1bbb78dd02f1b65a20765fa727fc7d577f513184f9cf563b658057ca44004a2703d1f14d71301a706849f1a2
   languageName: node
   linkType: hard
 
-"@u-elements/u-progress@npm:^0.0.7":
-  version: 0.0.7
-  resolution: "@u-elements/u-progress@npm:0.0.7"
-  checksum: 10c0/e693783a348cb57fca4f1baac708c586aa7e834b137496bc32b2da2181e0fbd31e1a268961b58f9317441d180b4d3a3c953440693b20d7c53d8188859e2a397c
-  languageName: node
-  linkType: hard
-
-"@u-elements/u-tabs@npm:^0.1.2":
-  version: 0.1.2
-  resolution: "@u-elements/u-tabs@npm:0.1.2"
-  checksum: 10c0/2c7e0f00268e49f48f8ecc00f83060b0c8f69dd498761d20f8a9cfdc80d05f099e448202f9407df8123d6845e065d2e282c9ef574dc6b9386055d0eef21aeca0
+"@u-elements/u-tabs@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "@u-elements/u-tabs@npm:1.0.3"
+  checksum: 10c0/edaaabbaaa36afe7f7e2658e3fb3d87150dfbc69b6c6975f46eee839fce6f21f03d9f4840e6935d0523c5aa1436a56c6672033029d0fa53e6f8131a536b60260
   languageName: node
   linkType: hard
 
@@ -10721,13 +10753,6 @@ __metadata:
   version: 3.1.1
   resolution: "interpret@npm:3.1.1"
   checksum: 10c0/6f3c4d0aa6ec1b43a8862375588a249e3c917739895cbe67fe12f0a76260ea632af51e8e2431b50fbcd0145356dc28ca147be08dbe6a523739fd55c0f91dc2a5
-  languageName: node
-  linkType: hard
-
-"invokers-polyfill@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "invokers-polyfill@npm:0.6.1"
-  checksum: 10c0/c16ca6efbdd178b1fd15707105c9833e7f40c6dc91700f6872a2bb62de4306c6e8c83d45a9c4550f5d9e23d4bd325ce1957576013bf2194aa37233fbb409843b
   languageName: node
   linkType: hard
 
