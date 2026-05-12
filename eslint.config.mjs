@@ -3,7 +3,7 @@ import js from '@eslint/js';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import { defineConfig, globalIgnores } from 'eslint/config';
-import pluginCypress from 'eslint-plugin-cypress/flat';
+import pluginCypress from 'eslint-plugin-cypress';
 import pluginImport from 'eslint-plugin-import';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths';
@@ -32,7 +32,6 @@ export default defineConfig([
     'schemas/**/*.json',
     'webpack*.js', // FIXME: should this be included?
     '.yarn/*',
-    'snapshots.js',
   ]),
   js.configs.recommended,
   ...fixupConfigRules(pluginImport.flatConfigs.recommended),
