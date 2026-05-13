@@ -98,7 +98,7 @@ describe('PDFWrapper', () => {
     expect(screen.queryByText('974760673-Brønnøysundregistrene')).not.toBeNull();
   });
 
-  describe('showAppNameInPdf', () => {
+  describe('hideAppNameInPdf', () => {
     it('should show app name by default', async () => {
       const result = await render(RenderAs.User);
 
@@ -107,9 +107,9 @@ describe('PDFWrapper', () => {
       expect(screen.queryByRole('heading', { name: 'Test App' })).not.toBeNull();
     });
 
-    it('should show app name when set to "all"', async () => {
+    it('should show app name when hideAppNameInPdf is set to false', async () => {
       const result = await render(RenderAs.User, {
-        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'all' } }),
+        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { hideAppNameInPdf: false } }),
       });
 
       await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
@@ -117,29 +117,9 @@ describe('PDFWrapper', () => {
       expect(screen.queryByRole('heading', { name: 'Test App' })).not.toBeNull();
     });
 
-    it('should show app name when set to "header"', async () => {
+    it('should hide app name when hideAppNameInPdf is set to true', async () => {
       const result = await render(RenderAs.User, {
-        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'header' } }),
-      });
-
-      await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
-
-      expect(screen.queryByRole('heading', { name: 'Test App' })).not.toBeNull();
-    });
-
-    it('should hide app name when set to "footer"', async () => {
-      const result = await render(RenderAs.User, {
-        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'footer' } }),
-      });
-
-      await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });
-
-      expect(screen.queryByRole('heading', { name: 'Test App' })).toBeNull();
-    });
-
-    it('should hide app name when set to "none"', async () => {
-      const result = await render(RenderAs.User, {
-        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { showAppNameInPdf: 'none' } }),
+        fetchLayoutSets: async () => ({ ...getLayoutSetsMock(), uiSettings: { hideAppNameInPdf: true } }),
       });
 
       await waitFor(() => expect(result.container.querySelector('#readyForPrint')).not.toBeNull(), { timeout: 5000 });

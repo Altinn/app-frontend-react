@@ -11,12 +11,7 @@ import { useLaxGlobalUISettings } from 'src/features/form/layoutSets/LayoutSetsP
 import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLayoutSet';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
-import type {
-  GlobalPageSettings,
-  IGlobalSettings,
-  ILayoutSettings,
-  NavigationPageGroup,
-} from 'src/layout/common.generated';
+import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ProcessedLayoutSettings> {
@@ -128,20 +123,20 @@ export const usePageGroups = () => {
 
 const emptyArray = [];
 
-const defaults: Omit<Required<IGlobalSettings>, 'validationOnNavigation'> = {
+const defaults: Omit<Required<GlobalPageSettings>, 'validationOnNavigation'> = {
   hideCloseButton: false,
   showLanguageSelector: false,
   showProgress: false,
   showExpandWidthButton: false,
   autoSaveBehavior: 'onChangeFormData',
   expandedWidth: false,
-  showAppNameInPdf: 'all',
+  hideAppNameInPdf: false,
   taskNavigation: [],
   navigationTitle: 'navigation.form_pages',
 };
 
-export const usePageSettings = (): Required<Omit<IGlobalSettings, 'validationOnNavigation'>> &
-  Pick<IGlobalSettings, 'validationOnNavigation'> => {
+export const usePageSettings = (): Required<Omit<GlobalPageSettings, 'validationOnNavigation'>> &
+  Pick<GlobalPageSettings, 'validationOnNavigation'> => {
   const globalUISettings = useLaxGlobalUISettings();
   const layoutSettings = useLaxCtx();
 

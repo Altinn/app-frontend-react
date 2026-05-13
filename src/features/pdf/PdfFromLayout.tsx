@@ -14,8 +14,10 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { usePageSettings, usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
-import { useLanguage } from 'src/features/language/useLanguage';
+import { ExprVal } from 'src/features/expressions/types';
 import { useIsPayment } from 'src/features/payment/utils';
+import { useLanguage } from 'src/features/language/useLanguage';
+import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import classes from 'src/features/pdf/PDFView.module.css';
 import { usePdfFormatQuery } from 'src/features/pdf/usePdfFormatQuery';
 import { getFeature } from 'src/features/toggles';
@@ -134,8 +136,12 @@ function PdfWrapping({ children }: PropsWithChildren) {
   const appName = useAppName();
   const { langAsString } = useLanguage();
   const isPayment = useIsPayment();
-  const { showAppNameInPdf } = usePageSettings();
-  const showAppName = showAppNameInPdf === 'all' || showAppNameInPdf === 'header';
+  const { hideAppNameInPdf: hideAppNameInPdfExpr } = usePageSettings();
+  const hideAppNameInPdf = useEvalExpression(hideAppNameInPdfExpr, {
+    returnType: ExprVal.Boolean,
+    defaultValue: false,
+    errorIntroText: 'Invalid expression for hideAppNameInPdf in Settings.json',
+  });
 
   return (
     <div
@@ -151,7 +157,7 @@ function PdfWrapping({ children }: PropsWithChildren) {
         </div>
       )}
       {appOwner && <span role='doc-subtitle'>{appOwner}</span>}
-      {showAppName && (
+      {!hideAppNameInPdf && (
         <Heading
           level={1}
           data-size='lg'
