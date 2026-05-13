@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { CheckmarkCircleIcon } from '@navikt/aksel-icons';
 import { isAxiosError } from 'axios';
 import type { AxiosError } from 'axios';
 
@@ -15,6 +16,7 @@ interface UnknownErrorDetailsProps {
 
 export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsProps) {
   const [now] = useState(new Date());
+  const [copied, setCopied] = useState(false);
   const [axiosError] = useState(() => {
     if (isAxiosError(error)) {
       return {
@@ -36,7 +38,10 @@ export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsPro
       time: now.toISOString(),
       ...axiosError,
     };
-    navigator.clipboard?.writeText(JSON.stringify(errorInfo, null, 2));
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2));
+      setCopied(true);
+    }
   }
 
   return (
@@ -59,7 +64,13 @@ export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsPro
             variant='secondary'
             onClick={handleCopyErrorClicked}
           >
-            Kopier
+            {copied ? 'Kopiert' : 'Kopier'}
+            {copied && (
+              <CheckmarkCircleIcon
+                fontSize='1rem'
+                aria-hidden={true}
+              />
+            )}
           </Button>
         </Flex>
 
