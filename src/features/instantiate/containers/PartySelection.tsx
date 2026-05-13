@@ -17,6 +17,7 @@ import { AltinnAppTheme } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 import { capitalizeName } from 'src/utils/stringHelper';
+import { getHostname } from 'src/utils/urls/appUrlHelper';
 import type { IParty } from 'src/types/shared';
 
 const useStyles = makeStyles((theme) => ({
@@ -202,7 +203,10 @@ export const PartySelection = () => {
           {langAsString('party_selection.why_seeing_this')}
         </Typography>
         <Typography variant='body1'>
-          {lang(appOverride ? 'party_selection.seeing_this_override' : 'party_selection.seeing_this_preference')}
+          {lang(
+            appOverride ? 'party_selection.seeing_this_override' : 'party_selection.seeing_this_preference',
+            appOverride ? undefined : [getHostname()],
+          )}
         </Typography>
       </Grid>
     );

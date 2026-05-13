@@ -199,7 +199,7 @@ export function nn(): FixedLanguageList {
       authorization_error_ask:
         'Om du representerer ein person, er det den du representerer som kan gi deg dei naudsynte rettane til å starte tenesta. Representerer du ein organisasjon er det personar som har rolla tilgangsstyring innad i organisasjonen som kan gi deg dei naudsynte rettane.',
       authorization_error_check_rights:
-        '<a href="https://{0}/ui/Profile/" target="_blank">Sjå kven som har rolla tilgangsstyring under "Andre med rettar til verksemda"</a>.',
+        '<a href="https://am.ui.{0}/accessmanagement/ui" target="_blank">Sjå kven som har rolla tilgangsstyring under "Andre med rettar til verksemda"</a>.',
       authorization_error_info_rights:
         '<a href="https://{0}/hjelp/profil/roller-og-rettigheter/" target="_blank">Her finn du meir informasjon om roller og rettar</a>.',
       authorization_error_info_customer_service: 'Du kan også kontakte oss på brukarservice {0}.',
@@ -246,7 +246,7 @@ export function nn(): FixedLanguageList {
       show_sub_unit: 'Vis undereiningar',
       why_seeing_this: 'Kvifor ser eg dette?',
       seeing_this_preference:
-        'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
+        'Du kan endra [profilinnstillingane](https://af.{0}/profile/parties) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Aktørar**.',
       seeing_this_override: 'Denne appen er sett opp til å alltid spørja om aktør.',
     },
     helptext: {
