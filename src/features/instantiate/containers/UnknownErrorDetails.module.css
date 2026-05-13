@@ -1,7 +1,5 @@
-.errorTitle {
-  margin-bottom: 0.5rem;
-}
-.errorItem {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+.detailsContainer {
+  display: flex;
+  gap: 16px;
+  flex-direction: column;
 }

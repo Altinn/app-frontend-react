@@ -13,7 +13,7 @@ interface UnknownErrorDetailsProps {
   className?: string;
 }
 
-export function UnknownErrorDetails({ error }: UnknownErrorDetailsProps) {
+export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsProps) {
   const [now] = useState(new Date());
   const [axiosError] = useState(() => {
     if (isAxiosError(error)) {
@@ -42,15 +42,14 @@ export function UnknownErrorDetails({ error }: UnknownErrorDetailsProps) {
   return (
     <AccordionItem
       title='Vis detaljer om feilen'
-      className={classes.errorSummary}
+      className={className}
     >
-      <Flex>
+      <div className={classes.detailsContainer}>
         <Flex
           container
           justifyContent='space-between'
           alignItems='center'
           direction='row'
-          className={classes.errorTitle}
         >
           <DetailItem
             name={error.name}
@@ -86,14 +85,14 @@ export function UnknownErrorDetails({ error }: UnknownErrorDetailsProps) {
             value={error.stack}
           />
         )}
-      </Flex>
+      </div>
     </AccordionItem>
   );
 }
 
 function DetailItem({ name, value }: { name: string; value: string }) {
   return (
-    <div className={classes.errorItem}>
+    <div>
       <div>
         <strong>{name}:</strong>
       </div>
