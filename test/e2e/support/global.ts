@@ -109,10 +109,9 @@ declare global {
       addItemToGroup(oldValue: number, newValue: number, comment: string, openByDefault?: boolean): Chainable<Element>;
 
       /**
-       * Typings for tab plugin
+       * Press the Tab key (or Shift+Tab) from the current subject or focused element.
        */
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      tab(...args: any[]): Chainable<null>;
+      tab(options?: { shift?: boolean }): Chainable<null>;
 
       /**
        * Missing typings in Cypress, added here for proper TypeScript support
@@ -245,10 +244,8 @@ declare global {
 
       /**
        * Runs a snapshot test on something, to compare it with a known good value
-       * @see https://www.cypress.io/blog/end-to-end-snapshot-testing
        */
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      snapshot(options?: any): Chainable<null>;
+      toMatchSnapshot(): Chainable<unknown>;
 
       /**
        * Useful when taking snapshots; clear all selections and wait for the app to finish loading and stabilizing.
