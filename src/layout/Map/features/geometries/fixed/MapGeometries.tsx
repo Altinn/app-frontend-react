@@ -30,8 +30,8 @@ export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps)
     return null;
   }
 
-  // if toolbar is defined, we want to render editable geometries separately
-  if (toolbar) {
+  // if toolbar is defined and editing is enabled, we want to render editable geometries separately
+  if (toolbar && !readOnly) {
     geometries = geometries?.filter((g) => !g.isEditable);
   }
 
