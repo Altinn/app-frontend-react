@@ -70,8 +70,12 @@ export function Fieldset({
         <DesignsystemetFieldset
           className={cn(className)}
           data-size={size}
+          aria-labelledby={`${id}-legend ${id}-description`}
         >
-          <DesignsystemetFieldset.Legend className={labelClasses.legend}>
+          <DesignsystemetFieldset.Legend
+            id={`${id}-legend`}
+            className={labelClasses.legend}
+          >
             <span className={cn(labelClasses.labelAndHelpWrapper)}>
               <DesignsystemetLabel
                 weight='medium'
@@ -88,7 +92,9 @@ export function Fieldset({
               {help}
             </span>
           </DesignsystemetFieldset.Legend>
-          <DesignsystemetFieldset.Description>{description}</DesignsystemetFieldset.Description>
+          <DesignsystemetFieldset.Description id={`${id}-description`}>
+            {description}
+          </DesignsystemetFieldset.Description>
           {children}
         </DesignsystemetFieldset>
       </Flex>
