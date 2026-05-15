@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { renderWithMinimalProviders } from 'src/test/renderWithProviders';
 
+// Need to unmock axios to get actual implementation of isAxiosError
 jest.unmock('axios');
 
 describe('Unknown error', () => {
