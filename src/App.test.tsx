@@ -7,6 +7,9 @@ import { App } from 'src/App';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithInstanceAndLayout, renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 
+// Need to unmock axios to get actual implementation of isAxiosError
+jest.unmock('axios');
+
 describe('App', () => {
   beforeEach(() => {
     jest.spyOn(window, 'logError').mockImplementation(() => {});
