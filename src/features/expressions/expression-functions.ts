@@ -1035,7 +1035,7 @@ function compare(
 function applyNullableBinaryOperation(
   operation: (a: number, b: number) => number,
   [a, b]: [number | null, number | null],
-): number | null {
+): number {
   return operation(a || 0, b || 0);
 }
 
