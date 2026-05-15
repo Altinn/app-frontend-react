@@ -8,6 +8,7 @@ import { AccordionItem } from 'src/app-components/Accordion/AccordionItem';
 import { Button } from 'src/app-components/Button/Button';
 import { Flex } from 'src/app-components/Flex/Flex';
 import classes from 'src/features/instantiate/containers/UnknownErrorDetails.module.css';
+import { Lang } from 'src/features/language/Lang';
 
 interface UnknownErrorDetailsProps {
   error: Error | AxiosError;
@@ -46,7 +47,7 @@ export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsPro
 
   return (
     <AccordionItem
-      title='Vis detaljer om feilen'
+      title={<Lang id='instantiate.unknown_error_show_details' />}
       className={className}
     >
       <div className={classes.detailsContainer}>
@@ -64,7 +65,7 @@ export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsPro
             variant='secondary'
             onClick={handleCopyErrorClicked}
           >
-            {copied ? 'Kopiert' : 'Kopier'}
+            {copied ? <Lang id='general.copied' /> : <Lang id='general.copy' />}
             {copied && (
               <CheckmarkCircleIcon
                 fontSize='1rem'
