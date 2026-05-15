@@ -12,10 +12,10 @@ import { Lang } from 'src/features/language/Lang';
 import { isDev } from 'src/utils/isDev';
 
 interface Props {
-  error?: Error | AxiosError;
+  error: Error | AxiosError;
 }
 
-export function UnknownError({ error = new Error('Unknown error') }: Props) {
+export function UnknownError({ error }: Props) {
   const open = useDevToolsStore((s) => s.actions.open);
   const setActiveTab = useDevToolsStore((s) => s.actions.setActiveTab);
 

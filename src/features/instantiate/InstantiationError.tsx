@@ -20,5 +20,5 @@ export function InstantiationError() {
     return <MissingRolesError />;
   }
 
-  return <UnknownError />;
+  return <UnknownError error={new Error(`Unknown error ${error} on Instantiation`)} />;
 }
