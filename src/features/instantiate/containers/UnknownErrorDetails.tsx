@@ -39,6 +39,7 @@ export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsPro
       ...axiosError,
     };
     if (navigator.clipboard) {
+      // clipboard is only available in secure contexts (https)
       navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2));
       setCopied(true);
     }
