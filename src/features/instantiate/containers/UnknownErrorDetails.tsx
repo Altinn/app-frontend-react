@@ -28,7 +28,7 @@ export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsPro
   });
   const [location] = useState(window?.location.href);
 
-  function handleCopyErrorClicked() {
+  async function handleCopyErrorClicked() {
     const errorInfo = {
       name: error.name,
       message: error.message,
@@ -40,8 +40,12 @@ export function UnknownErrorDetails({ error, className }: UnknownErrorDetailsPro
     };
     if (navigator.clipboard) {
       // clipboard is only available in secure contexts (https)
-      navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2));
-      setCopied(true);
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(errorInfo, null, 2));
+        setCopied(true);
+      } catch (err) {
+        window.logError('Failed to copy error info to clipboard', err);
+      }
     }
   }
 
