@@ -76,10 +76,16 @@ describe('HelpText', () => {
       await user.click(helpTextTrigger);
     });
     expect(helpTextTrigger).toHaveAttribute('aria-expanded', 'true');
+    const popover = screen.getByTestId('helptext');
+    const realMatches = Element.prototype.matches.bind(popover);
+    const matchesSpy = jest
+      .spyOn(popover, 'matches')
+      .mockImplementation((selectors) => (selectors.trim() === ':popover-open' ? true : realMatches(selectors)));
     await act(async () => {
       await user.keyboard('[Escape]');
     });
     expect(helpTextTrigger).toHaveAttribute('aria-expanded', 'false');
+    matchesSpy.mockRestore();
   });
 
   it('should have `aria-expanded` set to `false` when closed', () => {
