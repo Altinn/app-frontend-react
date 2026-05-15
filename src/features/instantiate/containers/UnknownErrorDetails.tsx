@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 
 import { CheckmarkCircleIcon } from '@navikt/aksel-icons';
-import { isAxiosError } from 'axios';
-import type { AxiosError } from 'axios';
+import { type AxiosError, isAxiosError } from 'axios';
 
 import { AccordionItem } from 'src/app-components/Accordion/AccordionItem';
 import { Button } from 'src/app-components/Button/Button';
