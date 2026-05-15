@@ -30,7 +30,7 @@ export const InstantiateContainer = () => {
     }
     return <MissingRolesError />;
   } else if (instantiation.error) {
-    return <UnknownError />;
+    return <UnknownError error={instantiation.error} />;
   }
 
   return <Loader reason='instantiating' />;
