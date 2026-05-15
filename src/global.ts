@@ -42,6 +42,8 @@ declare global {
     conditionalRuleHandlerObject: IRuleObject;
     ruleHandlerObject: IRuleObject;
 
+    listPrefetchingEnabled: boolean | undefined;
+
     /**
      * In React components, hierarchy generators, or other places that are run continuously, use window.logErrorOnce() instead
      * @see window.logErrorOnce

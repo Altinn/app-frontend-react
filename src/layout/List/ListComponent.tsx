@@ -13,6 +13,7 @@ import {
 import cn from 'classnames';
 
 import { Pagination as CustomPagination } from 'src/app-components/Pagination/Pagination';
+import { AltinnSpinner } from 'src/components/AltinnSpinner';
 import { Description } from 'src/components/form/Description';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
@@ -74,7 +75,7 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
     sortDirection,
   };
 
-  const { data } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
+  const { data, isFetching } = useDataListQuery(filter, dataListId, secure, mapping, queryParameters);
   const bindings = item.dataModelBindings ?? ({} as IDataModelBindingsForList);
 
   // Determine selection mode based on bindings
@@ -170,6 +171,10 @@ export const ListComponent = ({ baseComponentId }: PropsFromGenericComponent<'Li
     name: indexedId,
     required,
   });
+
+  if (isFetching) {
+    return <AltinnSpinner />;
+  }
 
   if (isMobile && !readOnly) {
     return (
