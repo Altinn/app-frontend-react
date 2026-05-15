@@ -405,13 +405,14 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
     return applyNullableBinaryOperation(Decimal.multiply, [factor1, factor2]);
   },
   divide(dividend, divisor) {
-    if (dividend === null || divisor === null) {
-      return null;
-    } else if (divisor === 0) {
-      throw new ExprRuntimeError(this.expr, this.path, 'The second argument is 0, cannot divide by 0');
-    } else {
-      return Decimal.divide(dividend, divisor);
-    }
+    const divideNumbers = (dividendNumber: number, divisorNumber: number): number => {
+      if (divisorNumber === 0) {
+        throw new ExprRuntimeError(this.expr, this.path, 'The second argument is 0, cannot divide by 0');
+      } else {
+        return Decimal.divide(dividendNumber, divisorNumber);
+      }
+    };
+    return applyNullableBinaryOperation(divideNumbers, [dividend, divisor]);
   },
   concat: (...args) => args.join(''),
   and: (...args) => args.reduce((prev, cur) => prev && !!cur, true),
@@ -1035,7 +1036,7 @@ function applyNullableBinaryOperation(
   operation: (a: number, b: number) => number,
   [a, b]: [number | null, number | null],
 ): number | null {
-  return a === null || b === null ? null : operation(a, b);
+  return operation(a || 0, b || 0);
 }
 
 function validateDatesForSameDay(this: EvaluateExpressionParams, a: ExprDate, b: ExprDate) {
