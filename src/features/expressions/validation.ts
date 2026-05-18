@@ -5,7 +5,13 @@ import {
 } from 'src/features/expressions/expression-functions';
 import { prettyErrors } from 'src/features/expressions/prettyErrors';
 import { ExprVal } from 'src/features/expressions/types';
-import type { AnyExprArg, Expression, ExprFunctionName, ExprValToActualOrExpr } from 'src/features/expressions/types';
+import type {
+  AnyExprArg,
+  Expression,
+  ExprFunctionName,
+  ExprValToActualOrExpr,
+  ValidValue,
+} from 'src/features/expressions/types';
 
 export enum ValidationErrorMessage {
   InvalidType = 'Invalid type "%s"',
@@ -322,3 +328,17 @@ export const ExprValidation = {
    */
   throwIfInvalid,
 };
+
+export function isValidValue(value: unknown): value is ValidValue {
+  return (
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean' ||
+    value === null ||
+    isValidArray(value)
+  );
+}
+
+export function isValidArray(value: unknown): value is ValidValue[] {
+  return Array.isArray(value) && value.every(isValidValue);
+}

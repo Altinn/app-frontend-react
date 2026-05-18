@@ -1,5 +1,5 @@
 {
-  "name": "Looking up an array returns null",
+  "name": "Looking up an array with objects returns null",
   "expression": ["dataModel", "a"],
   "expects": null,
   "dataModels": [
