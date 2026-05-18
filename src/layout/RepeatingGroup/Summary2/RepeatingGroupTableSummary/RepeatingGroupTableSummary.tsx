@@ -44,6 +44,7 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
   const title = textResourceBindings?.summaryTitle || textResourceBindings?.title;
   const tableIds = useTableComponentIds(baseComponentId);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
+  const showEditColumn = !pdfModeActive && !isSmall;
 
   return (
     <div
@@ -52,7 +53,8 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
     >
       <Table className={cn({ [tableClasses.mobileTable]: isSmall })}>
         <Caption title={<Lang id={title} />} />
-        <Table.Head>
+        <Table.Body>
+          {renderExtraRows(rowsBefore, 'before', showEditColumn)}
           <Table.Row>
             <DataModelLocationProvider
               groupBinding={dataModelBindings.group}
@@ -66,7 +68,7 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
                 />
               ))}
             </DataModelLocationProvider>
-            {!pdfModeActive && !isSmall && (
+            {showEditColumn && (
               <Table.HeaderCell className={tableClasses.narrowLastColumn}>
                 <span className={utilClasses.visuallyHidden}>
                   <Lang id='general.edit' />
@@ -74,9 +76,6 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
               </Table.HeaderCell>
             )}
           </Table.Row>
-        </Table.Head>
-        <Table.Body>
-          {renderExtraRows(rowsBefore, 'before')}
           {rows.map((row, index) => (
             <DataModelLocationProvider
               groupBinding={dataModelBindings.group}
@@ -91,7 +90,7 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
               />
             </DataModelLocationProvider>
           ))}
-          {renderExtraRows(rowsAfter, 'after')}
+          {renderExtraRows(rowsAfter, 'after', showEditColumn)}
         </Table.Body>
       </Table>
       {errors?.map(({ message }) => (
@@ -111,15 +110,20 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
   );
 };
 
-function renderExtraRows(rows: GridRows | undefined, keyPrefix: 'before' | 'after') {
+function renderExtraRows(rows: GridRows | undefined, keyPrefix: 'before' | 'after', showEditColumn: boolean) {
   return rows?.map((row, rowIdx) => (
     <Table.Row key={`row-${keyPrefix}-${rowIdx}`}>
       {row.cells.map((cell, cellIdx) => (
         <Table.Cell key={cellIdx}>
-          {cell && 'text' in cell && cell.text !== undefined && <Lang id={cell.text} />}
+          {cell && 'text' in cell && cell.text !== undefined && (
+            <span className={tableClasses.cellValue}>
+              <Lang id={cell.text} />
+            </span>
+          )}
           {cell && 'component' in cell && cell.component && <ComponentSummary targetBaseComponentId={cell.component} />}
         </Table.Cell>
       ))}
+      {showEditColumn && <Table.Cell className={tableClasses.narrowLastColumn} />}
     </Table.Row>
   ));
 }
