@@ -32,7 +32,7 @@ export class AppFrontend {
   public instanceErrorCode = '[data-testid="StatusCode"]';
   public profileIconButton = '#profile-icon-button';
   public logOut = '#logout-menu-item';
-  public logOutLink = 'a[href$="/ui/authentication/LogOut"]';
+  public logOutLink = 'a[href$="/authentication/api/v1/logout"]';
   public printButton = 'button:contains("Print / Lagre PDF")';
 
   public helpText = {
