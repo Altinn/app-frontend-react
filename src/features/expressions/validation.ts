@@ -10,6 +10,8 @@ import type {
   Expression,
   ExprFunctionName,
   ExprValToActualOrExpr,
+  ValidArray,
+  ValidObject,
   ValidValue,
 } from 'src/features/expressions/types';
 
@@ -335,10 +337,15 @@ export function isValidValue(value: unknown): value is ValidValue {
     typeof value === 'number' ||
     typeof value === 'boolean' ||
     value === null ||
-    isValidArray(value)
+    isValidArray(value) ||
+    isValidObject(value)
   );
 }
 
-export function isValidArray(value: unknown): value is ValidValue[] {
+export function isValidArray(value: unknown): value is ValidArray {
   return Array.isArray(value) && value.every(isValidValue);
+}
+
+export function isValidObject(value: unknown): value is ValidObject {
+  return typeof value === 'object' && value !== null && Object.values(value).every(isValidValue);
 }

@@ -15,6 +15,7 @@ export enum ExprVal {
   Number = '__number__',
   Date = '__date__', // Actually just a string, but must be parsable as a date (ane lets us work with Date internally)
   List = '__list__',
+  Object = '__object__',
   Any = '__any__',
 }
 
@@ -136,4 +137,6 @@ export interface ExprDateExtensions {
 
 export type ExprDate = Date & { exprDateExtensions: ExprDateExtensions };
 
-export type ValidValue = string | number | boolean | null | ValidValue[];
+export type ValidValue = string | number | boolean | null | ValidArray | ValidObject;
+export type ValidArray = ValidValue[];
+export type ValidObject = { [key: string]: ValidValue };

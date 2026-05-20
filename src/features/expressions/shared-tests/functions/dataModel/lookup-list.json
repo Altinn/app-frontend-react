@@ -12,6 +12,7 @@
         "booleanList": [true, false],
         "nullList": [null, null],
         "multidimensionalList": [[[1, 2], [3, 4]], [[5, 6], [7, 8]]],
+        "objectList": [{ "a": 1 }, { "a": 2 }],
         "emptyList": [],
         "differentTypesList": [1, "string", true, null, []]
       }
@@ -42,6 +43,11 @@
       "name": "Multi-dimensional list lookup",
       "expression": ["dataModel", "multidimensionalList"],
       "expects": [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
+    },
+    {
+      "name": "Object list lookup",
+      "expression": ["dataModel", "objectList"],
+      "expects": [{ "a": 1 }, { "a": 2 }]
     },
     {
       "name": "Empty list lookup",
