@@ -113,17 +113,28 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
 function renderExtraRows(rows: GridRows | undefined, keyPrefix: 'before' | 'after', showEditColumn: boolean) {
   return rows?.map((row, rowIdx) => (
     <Table.Row key={`row-${keyPrefix}-${rowIdx}`}>
-      {row.cells.map((cell, cellIdx) => (
-        <Table.Cell key={cellIdx}>
-          {cell && 'text' in cell && cell.text !== undefined && (
-            <span className={tableClasses.cellValue}>
-              <Lang id={cell.text} />
-            </span>
-          )}
-          {cell && 'component' in cell && cell.component && <ComponentSummary targetBaseComponentId={cell.component} />}
-        </Table.Cell>
-      ))}
-      {showEditColumn && <Table.Cell className={tableClasses.narrowLastColumn} />}
+      {row.cells.map((cell, cellIdx) => {
+        const CellComponent = row.header ? Table.HeaderCell : Table.Cell;
+
+        return (
+          <CellComponent key={cellIdx}>
+            {cell && 'text' in cell && cell.text !== undefined && (
+              <span className={tableClasses.cellValue}>
+                <Lang id={cell.text} />
+              </span>
+            )}
+            {cell && 'component' in cell && cell.component && (
+              <ComponentSummary targetBaseComponentId={cell.component} />
+            )}
+          </CellComponent>
+        );
+      })}
+      {showEditColumn &&
+        (row.header ? (
+          <Table.HeaderCell className={tableClasses.narrowLastColumn} />
+        ) : (
+          <Table.Cell className={tableClasses.narrowLastColumn} />
+        ))}
     </Table.Row>
   ));
 }
