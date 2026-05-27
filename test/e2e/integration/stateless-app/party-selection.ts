@@ -22,7 +22,9 @@ describe('Stateless party selection', () => {
 
     cy.startAppInstance(appFrontend.apps.stateless, { cyUser: 'accountant' });
     cy.get(appFrontend.partySelection.appHeader).should('be.visible');
-    cy.findByText(/ikke bli spurt om aktør hver gang/).should('be.visible');
+    cy.findByText(/for å ikke bli spurt om aktør hver gang du starter utfylling av et nytt skjema/).should(
+      'be.visible',
+    );
 
     cy.findAllByText(/personnr\. \d+/)
       .first()
