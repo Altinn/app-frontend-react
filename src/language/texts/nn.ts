@@ -151,6 +151,8 @@ export function nn() {
     'general.close': 'Lukk',
     'general.contains': 'Inneheld',
     'general.control_submit': 'Kontroller og send inn',
+    'general.copy': 'Kopier',
+    'general.copied': 'Kopiert',
     'general.create_new': 'Opprett ny',
     'general.create': 'Opprett',
     'general.customer_service_phone_number': '+47 75 00 60 00',
@@ -238,6 +240,7 @@ export function nn() {
     'instantiate.unknown_error_text': 'Det har skjedd ein ukjent feil, ver venleg prøv igjen seinare.',
     'instantiate.unknown_error_status': 'Ukjent feil',
     'instantiate.unknown_error_customer_support': 'Om problemet hald fram, ta kontakt med oss på brukarservice {0}.',
+    'instantiate.unknown_error_show_details': 'Vis detaljar om feilen',
     'instantiate.forbidden_action_error_title': 'Du manglar rett til å utføre denne handlinga',
     'instantiate.forbidden_action_error_text': 'Det ser ut til at du ikkje har rett til å utføre denne handlinga.',
     'instantiate.forbidden_action_error_status': '403 - Forbidden',
@@ -249,7 +252,7 @@ export function nn() {
     'instantiate.authorization_error_ask':
       'Om du representerer ein person, er det den du representerer som kan gi deg dei naudsynte rettane til å starte tenesta. Representerer du ein organisasjon er det personar som har rolla tilgangsstyring innad i organisasjonen som kan gi deg dei naudsynte rettane.',
     'instantiate.authorization_error_check_rights':
-      '<a href="https://{0}/ui/Profile/" target="_blank">Sjå kven som har rolla tilgangsstyring under "Andre med rettar til verksemda"</a>.',
+      '<a href="https://am.ui.{0}/accessmanagement/ui" target="_blank">Sjå kven som har rolla tilgangsstyring under "Andre med rettar til verksemda"</a>.',
     'instantiate.authorization_error_info_rights':
       '<a href="https://{0}/hjelp/profil/enkelttjenester-og-roller/" target="_blank">Her finn du meir informasjon om roller og rettar</a>.',
     'instantiate.authorization_error_info_customer_service': 'Du kan også kontakte oss på brukarservice {0}.',
@@ -291,7 +294,7 @@ export function nn() {
     'party_selection.show_sub_unit': 'Vis undereiningar',
     'party_selection.why_seeing_this': 'Kvifor ser eg dette?',
     'party_selection.seeing_this_preference':
-      'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
+      'Du kan endra [profilinnstillingane](https://af.{0}/profile/parties) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Aktørar**.',
     'party_selection.seeing_this_override': 'Denne appen er sett opp til å alltid spørja om aktør.',
     'payment.pay': 'Betal',
     'payment.summary': 'Oppsummering',

@@ -150,6 +150,8 @@ export function en() {
     'general.close': 'Close',
     'general.contains': 'Contains{0}',
     'general.control_submit': 'Control and submit',
+    'general.copy': 'Copy',
+    'general.copied': 'Copied',
     'general.create_new': 'Create new',
     'general.create': 'Create',
     'general.customer_service_phone_number': '+47 75 00 60 00',
@@ -233,10 +235,11 @@ export function en() {
     'instantiate.all_forms': 'all forms',
     'instantiate.inbox': 'inbox',
     'instantiate.profile': 'profile',
-    'instantiate.unknown_error_title': 'Unknow error',
+    'instantiate.unknown_error_title': 'Unknown error',
     'instantiate.unknown_error_text': 'An unknown error occcurred, please try again later.',
-    'instantiate.unknown_error_status': 'Unknow error',
+    'instantiate.unknown_error_status': 'Unknown error',
     'instantiate.unknown_error_customer_support': 'If the problem persists, contact us at customer service at {0}.',
+    'instantiate.unknown_error_show_details': 'Show error details',
     'instantiate.forbidden_action_error_title': 'You do not have permission to perform this action.',
     'instantiate.forbidden_action_error_text': 'It looks like you do not have permission to perform this action.',
     'instantiate.forbidden_action_error_status': '403 - Forbidden',
@@ -248,7 +251,7 @@ export function en() {
     'instantiate.authorization_error_ask':
       'If you are representing a person it is the one you are representing that can give you the required rights to start this service. If you are you representing an organization you have to ask for the required rights from persons with access delegation rights within your organization.',
     'instantiate.authorization_error_check_rights':
-      '<a href="https://{0}/ui/Profile/" target="_blank">See who has rights to delegate access under "Others with rights within the organization"</a>.',
+      '<a href="https://am.ui.{0}/accessmanagement/ui" target="_blank">See who has rights to delegate access under "Others with rights within the organization"</a>.',
     'instantiate.authorization_error_info_rights':
       '<a href="https://{0}/hjelp/profil/enkelttjenester-og-roller/" target="_blank">Learn more about roles and rights</a>.',
     'instantiate.authorization_error_info_customer_service': 'You can also contact customer service at {0}.',
@@ -289,7 +292,7 @@ export function en() {
     'party_selection.show_sub_unit': 'Show sub units',
     'party_selection.why_seeing_this': 'Why am I seeing this?',
     'party_selection.seeing_this_preference':
-      'You can change your [profile settings](https://altinn.no/ui/Profile) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Advanced settings** > **Do not ask what party I represent each time I start to fill in a new form**.',
+      'You can change your [profile settings](https://af.{0}/profile/parties) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Parties**.',
     'party_selection.seeing_this_override': 'This app has been configured to always prompt you for party selection.',
     'payment.pay': 'Pay',
     'payment.summary': 'Summary',
