@@ -29,6 +29,7 @@
     "tsc:watch": "yarn gen && tsc --watch",
     "tsc:watch:cypress": "yarn gen && tsc --watch --project test/tsconfig.json",
     "lint": "yarn gen && eslint .",
+    "lint:fix": "yarn run lint --fix",
     "bench": "tsx --expose_gc --tsconfig benchmarks/tsconfig.json benchmarks/${0}"
   },
   "devDependencies": {
@@ -87,7 +88,7 @@
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-compiler": "19.1.0-rc.2",
     "eslint-plugin-react-hooks": "7.1.1",
-    "eslint-plugin-simple-import-sort": "12.1.1",
+    "eslint-plugin-simple-import-sort": "13.0.0",
     "eslint-plugin-sonarjs": "4.0.3",
     "eslint-plugin-testing-library": "7.16.2",
     "eslint-plugin-unused-imports": "4.4.1",
@@ -104,7 +105,7 @@
     "jest-preview": "0.3.3",
     "js-levenshtein": "1.1.6",
     "jsdom": "patch:jsdom@npm%3A26.1.0#~/.yarn/patches/jsdom-npm-26.1.0-3857255f02.patch",
-    "lint-staged": "16.4.0",
+    "lint-staged": "17.0.5",
     "mime": "4.1.0",
     "mini-css-extract-plugin": "2.10.2",
     "prettier": "3.8.3",
