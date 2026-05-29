@@ -60,6 +60,11 @@ Element.prototype.getClientRects = () => ({
   [Symbol.iterator]: jest.fn(),
 });
 
+// jsdom doesn't implement elementFromPoint, which Designsystemet's Popover uses
+// in its `isTopLayer` check when handling Escape keydown. Returning the open
+// popover element makes the check pass so ESC actually closes the popover in tests.
+document.elementFromPoint = () => document.querySelector('[popover]');
+
 // Forcing a low timeout for useDelayedSaveState()
 global.delayedSaveState = 50;
 
