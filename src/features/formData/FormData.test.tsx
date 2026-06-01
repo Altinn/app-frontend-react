@@ -781,7 +781,7 @@ describe('FormData', () => {
         DEFAULT_DEBOUNCE_TIMEOUT,
         'raw',
       );
-      const list = formData.list ?? [];
+      const list = (formData.list ?? []) as string[];
 
       return (
         <>
