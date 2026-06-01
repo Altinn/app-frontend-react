@@ -21,6 +21,7 @@ import { RulesProvider } from 'src/features/form/rules/RulesContext';
 import { GlobalFormDataReadersProvider } from 'src/features/formData/FormDataReaders';
 import { FD, FormDataWriteProvider } from 'src/features/formData/FormDataWrite';
 import { FormDataWriteProxyProvider } from 'src/features/formData/FormDataWriteProxies';
+import { DEFAULT_DEBOUNCE_TIMEOUT } from 'src/features/formData/types';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import {
@@ -751,6 +752,74 @@ describe('FormData', () => {
       await user.clear(screen.getByTestId('obj3.prop1'));
       await waitFor(() => expect(screen.getByTestId('invalid-obj3.prop1')).toHaveValue(''));
       expect(screen.getByTestId('valid-obj3.prop1')).toHaveValue('');
+    });
+  });
+
+  // Regression test for https://github.com/Altinn/app-frontend-react/issues/4053
+  //
+  // A FileUpload with `dataModelBindings.list` inside a RepeatingGroup writes the whole list of
+  // attachment IDs back into the data model (see MaintainListDataModelBinding) by calling
+  // `setValue('list', [...])`, which routes through `setLeafValue`. When that list field is already
+  // pre-populated with 2+ values, the underlying `dot.str` call tries to redefine the existing
+  // non-empty array and throws `Trying to redefine non-empty obj['attachmentId']`, which crashes
+  // node generation for that component. This test reproduces that write through the same public hook.
+  describe('List data model bindings (issue #4053)', () => {
+    const listSchema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        designs: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              attachmentId: {
+                type: 'array',
+                items: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    function ListWriter() {
+      const { formData, setValue } = useDataModelBindings(
+        { list: { field: 'designs[0].attachmentId', dataType: defaultDataTypeMock } },
+        DEFAULT_DEBOUNCE_TIMEOUT,
+        'raw',
+      );
+      const list = (formData.list ?? []) as string[];
+
+      return (
+        <>
+          <div data-testid='list-value'>{list.join(',')}</div>
+          <button onClick={() => setValue('list', [...list].reverse())}>Update list</button>
+        </>
+      );
+    }
+
+    async function render() {
+      return statefulRender({
+        renderer: <ListWriter />,
+        queries: {
+          fetchDataModelSchema: async () => listSchema,
+          fetchFormData: async () => ({ designs: [{ attachmentId: ['id-1', 'id-2'] }] }),
+        },
+      });
+    }
+
+    it('writing a list binding that is already pre-populated with 2+ values should not throw', async () => {
+      const user = userEvent.setup();
+      await render();
+
+      expect(screen.getByTestId('list-value')).toHaveTextContent('id-1,id-2');
+
+      // This is what MaintainListDataModelBinding does on load when the order of the mapped
+      // attachments differs from the order stored in the data model. Before the fix this throws
+      // "Trying to redefine non-empty obj['attachmentId']".
+      await user.click(screen.getByRole('button', { name: 'Update list' }));
+
+      await waitFor(() => expect(screen.getByTestId('list-value')).toHaveTextContent('id-2,id-1'));
     });
   });
 });

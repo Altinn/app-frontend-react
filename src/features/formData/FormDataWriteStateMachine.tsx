@@ -367,6 +367,11 @@ function makeActions(
         dot.str(reference.field, newValue, state.dataModels[reference.dataType].invalidCurrentData);
       } else {
         dot.delete(reference.field, state.dataModels[reference.dataType].invalidCurrentData);
+        // Delete any existing value before writing. `dot.str` (with override disabled) throws
+        // "Trying to redefine non-empty obj[...]" when the target path already holds a non-empty
+        // array/object, which happens e.g. when a FileUpload `list` binding is pre-populated with
+        // 2+ attachment IDs and we write the reconciled list back. See issue #4053.
+        dot.delete(reference.field, state.dataModels[reference.dataType].currentData);
         dot.str(reference.field, convertedValue, state.dataModels[reference.dataType].currentData);
       }
       return { newValue, convertedValue, error, hadError };
