@@ -756,14 +756,7 @@ describe('FormData', () => {
   });
 
   // Regression test for https://github.com/Altinn/app-frontend-react/issues/4053
-  //
-  // A FileUpload with `dataModelBindings.list` inside a RepeatingGroup writes the whole list of
-  // attachment IDs back into the data model (see MaintainListDataModelBinding) by calling
-  // `setValue('list', [...])`, which routes through `setLeafValue`. When that list field is already
-  // pre-populated with 2+ values, the underlying `dot.str` call tries to redefine the existing
-  // non-empty array and throws `Trying to redefine non-empty obj['attachmentId']`, which crashes
-  // node generation for that component. This test reproduces that write through the same public hook.
-  describe('List data model bindings (issue #4053)', () => {
+  describe('List data model bindings regression, issue #4053', () => {
     const listSchema: JSONSchema7 = {
       type: 'object',
       properties: {
