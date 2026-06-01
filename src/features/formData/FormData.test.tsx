@@ -804,9 +804,7 @@ describe('FormData', () => {
     it('writing a list binding that is already pre-populated with 2+ values should not throw', async () => {
       const user = userEvent.setup();
       await render();
-
       expect(screen.getByTestId('list-value')).toHaveTextContent('id-1,id-2');
-
       // This is what MaintainListDataModelBinding does on load when the order of the mapped
       // attachments differs from the order stored in the data model. Before the fix this throws
       // "Trying to redefine non-empty obj['attachmentId']".
