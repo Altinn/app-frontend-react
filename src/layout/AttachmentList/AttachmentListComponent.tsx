@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { AltinnAttachments } from 'src/components/atoms/AltinnAttachments';
+import { MainAttachmentHeader } from 'src/components/atoms/AttachmentHeader';
 import { AttachmentGroupings } from 'src/components/organisms/AttachmentGroupings';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useInstanceDataElements } from 'src/features/instance/InstanceContext';
@@ -82,7 +83,7 @@ export function AttachmentListComponent({ baseComponentId }: PropsFromGenericCom
       ) : (
         <AltinnAttachments
           attachments={displayAttachments}
-          title={title}
+          title={title ? <MainAttachmentHeader title={title} /> : undefined}
           showLinks={showLinks}
           showDescription={showDescription}
         />
