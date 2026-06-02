@@ -1,9 +1,18 @@
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import type { FrontendTestTask } from 'test/e2e/support/global';
 
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
+
 const appFrontend = new AppFrontend();
 
 function initAndGoto(nextTask?: string) {
+  cy.intercept<object, IncomingApplicationMetadata>('**/api/v1/applicationmetadata', (req) => {
+    req.reply((res) => {
+      const body = res.body as IncomingApplicationMetadata;
+      body.promptForParty = 'never';
+    });
+  });
+
   cy.intercept('**/active', []).as('noActiveInstances');
   cy.startAppInstance(appFrontend.apps.frontendTest);
   cy.findByRole('link', { name: /tilbake til innboks/i }).should('be.visible');
