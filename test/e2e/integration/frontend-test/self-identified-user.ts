@@ -6,12 +6,14 @@ import type { IncomingApplicationMetadata } from 'src/features/applicationMetada
 
 const appFrontend = new AppFrontend();
 
+// TODO: We should enable these tests again when we find out how to log in to tt02 with a self-identified user. It broke when sunsetting A2.
+
 describe('Self identified user', () => {
-  it('should be able to log in and create an instance', () => {
+  it.skip('should be able to log in and create an instance', () => {
     testSelfIdentifiedUser();
   });
 
-  it('should be able to log in and create an instance when only persons are allowed', () => {
+  it.skip('should be able to log in and create an instance when only persons are allowed', () => {
     cy.intercept('GET', '**/api/v1/applicationmetadata', (req) => {
       req.on('response', (res: IncomingHttpResponse<IncomingApplicationMetadata>) => {
         res.body.partyTypesAllowed = {
