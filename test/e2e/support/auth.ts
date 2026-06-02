@@ -2,7 +2,6 @@ import type { CyHttpMessages, RouteHandler } from 'cypress/types/net-stubbing';
 
 import type { TenorLoginParams } from 'test/e2e/support/users';
 
-import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IProcess, ITask } from 'src/types/shared';
 
 export type CyUser = 'default' | 'manager' | 'accountant' | 'auditor' | 'selfIdentified';
@@ -223,14 +222,6 @@ export type AppResponseRef = { current: ((res: CyHttpMessages.IncomingHttpRespon
 
 export function tenorUserLogin(props: TenorLoginParams) {
   cy.log(`Logging in as Tenor user: ${props.tenorUser.name}`);
-  cy.intercept<object, IncomingApplicationMetadata>('**/api/v1/applicationmetadata', (req) => {
-    req.reply((res) => {
-      const body = res.body as IncomingApplicationMetadata;
-
-      res.headers['cache-control'] = 'no-store';
-      body.promptForParty = 'never';
-    });
-  });
 
   if (Cypress.env('type') === 'localtest') {
     return localLogin({ displayName: props.tenorUser.name, ...props });
