@@ -7,7 +7,7 @@ import type { AppResponseRef } from 'test/e2e/support/auth';
 
 Cypress.Commands.add('startAppInstance', function (appName, options) {
   const {
-    cyUser = null,
+    cyUser = 'default',
     tenorUser = Tenor.users.humanAndrefiolin,
     urlSuffix = '',
     authenticationLevel = '1',
@@ -119,7 +119,9 @@ Cypress.Commands.add('startAppInstance', function (appName, options) {
     cy.clearCookies({ domain: 'platform.tt02.altinn.no' });
   }
 
-  if (tenorUser) {
+  if (tenorUser && cyUser && Cypress.env('type') === 'localtest') {
+    cyUserLogin({ cyUser, authenticationLevel });
+  } else if (tenorUser) {
     tenorUserLogin({ appName, tenorUser, authenticationLevel });
   } else if (cyUser) {
     cyUserLogin({ cyUser, authenticationLevel });

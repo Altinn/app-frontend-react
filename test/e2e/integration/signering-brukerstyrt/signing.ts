@@ -19,6 +19,7 @@ describe('Signing', () => {
 
     // Step 1: Log in as the initial user
     cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, {
+      cyUser: null,
       tenorUser: Tenor.users.humanAndrefiolin,
       authenticationLevel: '2',
     });
