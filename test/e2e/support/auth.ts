@@ -1,5 +1,7 @@
 import type { CyHttpMessages, RouteHandler } from 'cypress/types/net-stubbing';
 
+import type { TenorLoginParams } from 'test/e2e/support/users';
+
 import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { IProcess, ITask } from 'src/types/shared';
 
@@ -129,7 +131,7 @@ export function cyUserLogin({ cyUser, authenticationLevel }: CyUserLoginParams) 
     return loginSelfIdentifiedTt02Login(userName, userPassword);
   }
 
-  return cyUserTt02Login(userName, userPassword);
+  throw new Error(`Login not implemented for user: ${cyUser}`);
 }
 
 type LocalLoginParams =
@@ -183,6 +185,7 @@ function localLogin({ authenticationLevel, ...rest }: LocalLoginParams) {
 }
 
 function loginSelfIdentifiedTt02Login(user: string, pwd: string) {
+  // TODO: This does not work after A2 sunset, we'll need to find another way to login with a self-identified user in tests
   const loginUrl = 'https://tt02.altinn.no/ui/Authentication/SelfIdentified';
   cy.visit(loginUrl);
   cy.findByRole('textbox', { name: /Brukernavn/i }).type(user);
@@ -206,28 +209,6 @@ function loginSelfIdentifiedTt02Login(user: string, pwd: string) {
   cy.findByRole('heading', { name: 'Empty page loaded, proceeding to app' }).should('exist');
 }
 
-function cyUserTt02Login(user: string, pwd: string) {
-  cy.request({
-    method: 'POST',
-    url: `${Cypress.config('baseUrl')}/api/authentication/authenticatewithpassword`,
-    headers: {
-      'Content-Type': 'application/hal+json',
-    },
-    body: JSON.stringify({
-      UserName: user,
-      UserPassword: pwd,
-    }),
-  }).as('login');
-  waitForLogin();
-}
-
-function waitForLogin() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cy.get('@login').should((r: any) => {
-    expect(r?.response?.statusCode ?? r?.status).to.eq(200);
-  });
-}
-
 /************************
  *
  * TENOR AUTHENTICATION
@@ -238,25 +219,7 @@ function waitForLogin() {
  *
  ************************/
 
-export type TenorOrg = {
-  name: string;
-  orgNr: string;
-};
-
-export type TenorUser = {
-  name: string;
-  ssn: string;
-  role?: string;
-  orgs?: string[];
-};
-
 export type AppResponseRef = { current: ((res: CyHttpMessages.IncomingHttpResponse) => void) | undefined };
-
-type TenorLoginParams = {
-  appName: string;
-  tenorUser: TenorUser;
-  authenticationLevel: string;
-};
 
 export function tenorUserLogin(props: TenorLoginParams) {
   cy.log(`Logging in as Tenor user: ${props.tenorUser.name}`);
