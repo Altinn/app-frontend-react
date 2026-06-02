@@ -7,11 +7,15 @@ function initAndGoto(nextTask?: string) {
   cy.intercept('**/active', []).as('noActiveInstances');
   cy.startAppInstance(appFrontend.apps.frontendTest);
   cy.findByRole('link', { name: /tilbake til innboks/i }).should('be.visible');
+  cy.get('#finishedLoading').should('exist');
+  cy.waitUntilSaved();
 
   if (nextTask) {
     cy.findByRole('button', { name: 'Velg neste steg' }).click();
     cy.findByRole('radio', { name: nextTask }).click();
     cy.findByRole('button', { name: 'Gå til' }).click();
+    cy.get('#finishedLoading').should('exist');
+    cy.waitUntilSaved();
   }
 }
 
