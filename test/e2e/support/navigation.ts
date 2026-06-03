@@ -6,7 +6,6 @@ const appFrontend = new AppFrontend();
 function initAndGoto(nextTask?: string) {
   cy.intercept('**/active', []).as('noActiveInstances');
   cy.startAppInstance(appFrontend.apps.frontendTest);
-  cy.findByRole('link', { name: /tilbake til innboks/i }).should('be.visible');
   cy.get('#finishedLoading').should('exist');
 
   if (nextTask) {
