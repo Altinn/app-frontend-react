@@ -231,7 +231,15 @@ export function tenorUserLogin(props: TenorLoginParams) {
 }
 
 function tenorTt02Login({ appName, tenorUser }: Omit<TenorLoginParams, 'authenticationLevel'>) {
-  cy.visit(`https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}`);
+  // This page was made to have an endpoint serving text/html for Cypress to set the correct origin before logging in
+  // via Tenor (as that happens on another origin). If we just visited the app directly, Cypress would notice the
+  // redirect and think the login page was the app itself, and some things would break (like accessing window.Cypress).
+  const appOrigin = `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}`;
+  const appUrl = `${appOrigin}/ttd/${appName}`;
+  cy.visit(`${appUrl}/login.html`);
+  cy.location('origin').should('eq', appOrigin);
+  cy.get('h2').should('have.text', 'Placeholder page for Cypress to set origin before logging in via Tenor');
+  cy.get('a').click();
 
   cy.findByRole('link', { name: /testid lag din egen testbruker/i }).click();
   cy.findByRole('textbox', { name: /personidentifikator \(syntetisk\)/i }).clear();
