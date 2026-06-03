@@ -2,20 +2,11 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 import { Tenor } from 'test/e2e/support/users';
 import { reverseName } from 'test/e2e/support/utils';
 
-import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
-
 const appFrontend = new AppFrontend();
 
 describe('Signing', () => {
   it('should allow signing by a specified signee and on behalf of a company', () => {
-    cy.intercept<object, IncomingApplicationMetadata>('**/api/v1/applicationmetadata', (req) => {
-      req.reply((res) => {
-        const body = res.body as IncomingApplicationMetadata;
-
-        res.headers['cache-control'] = 'no-store';
-        body.promptForParty = 'never';
-      });
-    });
+    cy.preventPartySelection();
 
     // Step 1: Log in as the initial user
     cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, {

@@ -93,6 +93,11 @@ declare global {
       waitForLoad(): Chainable<null>;
 
       /**
+       * Intercept application metadata and prevent party selection
+       */
+      preventPartySelection(): Chainable<null>;
+
+      /**
        * Start an app instance based on the environment selected
        * @example cy.startAppInstance('appName')
        */

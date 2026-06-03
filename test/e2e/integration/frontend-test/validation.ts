@@ -245,6 +245,7 @@ describe('Validation', () => {
   });
 
   it('Task validation', () => {
+    cy.preventPartySelection();
     cy.intercept('**/active', []).as('noActiveInstances');
 
     cy.intercept(
@@ -967,6 +968,7 @@ describe('Validation', () => {
   });
 
   it('should display backend validation message with customTextKey and customTextParameters correctly', () => {
+    cy.preventPartySelection();
     cy.intercept('GET', '**/texts/nb', (req) => {
       req.on('response', (res) => {
         const body = res.body as ITextResourceResult;

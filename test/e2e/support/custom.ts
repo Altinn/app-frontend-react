@@ -15,6 +15,7 @@ import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext
 import type { IFeatureToggles } from 'src/features/toggles';
 import type { ILayoutFile } from 'src/layout/common.generated';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 
 const appFrontend = new AppFrontend();
 
@@ -1040,4 +1041,13 @@ Cypress.Commands.add('expectPageBreaks', (expectedCount: number) => {
 
 Cypress.Commands.add('setFeatureToggle', (toggleName: IFeatureToggles, value: boolean) => {
   cy.setCookie(`FEATURE_${toggleName}`, value.toString());
+});
+
+Cypress.Commands.add('preventPartySelection', () => {
+  cy.intercept('**/api/v1/applicationmetadata', (req) => {
+    req.reply((res) => {
+      const body = res.body as IncomingApplicationMetadata;
+      body.promptForParty = 'never';
+    });
+  }).as('preventPartySelection');
 });
