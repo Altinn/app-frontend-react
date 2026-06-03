@@ -169,7 +169,7 @@ declare global {
 
       iframeCustom(): Chainable<null>;
 
-      assertUser(user: CyUser): Chainable<null>;
+      assertUser(user: CyUser, tenorUser: TenorUser): Chainable<null>;
       interceptPermissions(): Chainable<null>;
       setPermissions(permissionFormat: string): void;
 

@@ -1,6 +1,6 @@
 import type { CyHttpMessages, RouteHandler } from 'cypress/types/net-stubbing';
 
-import type { TenorLoginParams } from 'test/e2e/support/users';
+import type { TenorLoginParams, TenorUser } from 'test/e2e/support/users';
 
 import type { IProcess, ITask } from 'src/types/shared';
 
@@ -55,9 +55,29 @@ export const cyUserCredentials: { [K in CyUser]: UserInfo } = {
 export const getDisplayName = (user: CyUser) => cyUserCredentials[user].displayName;
 export const getLocalPartyId = (user: CyUser) => cyUserCredentials[user].localPartyId;
 
-Cypress.Commands.add('assertUser', (user: CyUser) => {
-  cy.get('[data-testid=AppHeader]').should('contain.text', getDisplayName(user));
+Cypress.Commands.add('assertUser', (user: CyUser, tenorUser: TenorUser) => {
+  if (Cypress.env('type') === 'localtest') {
+    cy.get('[data-testid=AppHeader]').should('contain.text', getDisplayName(user));
+  } else {
+    cy.get('[data-testid=AppHeader]').should('contain.text', tenorUser.reverseName.toUpperCase());
+  }
 });
+
+const emptyPageHtml = `
+<h3>Empty page loaded, proceeding to app</h3>
+<script>
+  (() => {
+    const reloadOnHashChange = () => {
+      if (window.location.hash) {
+        window.location.reload();
+      }
+    };
+
+    window.addEventListener('hashchange', reloadOnHashChange);
+    reloadOnHashChange();
+  })();
+</script>
+`;
 
 type MinimalTask = Pick<ITask, 'read' | 'write' | 'actions'>;
 function getPermissions(format: string): MinimalTask {
@@ -175,7 +195,7 @@ function localLogin({ authenticationLevel, ...rest }: LocalLoginParams) {
   cy.intercept({ method: 'POST', url: '/Home/LogInTestUser', times: 1 }, (req) => {
     req.on('response', (res) => {
       expect(res.statusCode).to.eq(302);
-      res.send(200, '<h3>Empty page loaded, proceeding to app</h3>');
+      res.send(200, emptyPageHtml);
     });
   }).as('login');
 
@@ -199,7 +219,7 @@ function loginSelfIdentifiedTt02Login(user: string, pwd: string) {
     (req) => {
       req.on('response', (res) => {
         expect(res.statusCode).to.eq(302);
-        res.send(200, '<h3>Empty page loaded, proceeding to app</h3>');
+        res.send(200, emptyPageHtml);
       });
     },
   ).as('login');
@@ -280,7 +300,7 @@ function tenorTt02Login({ appName, tenorUser }: Omit<TenorLoginParams, 'authenti
         });
       }
 
-      res.send(200, '<h3>Empty page loaded, proceeding to app</h3>');
+      res.send(200, emptyPageHtml);
     };
   });
 

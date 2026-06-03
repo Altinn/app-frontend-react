@@ -3,11 +3,18 @@ export type TenorOrg = {
   orgNr: string;
 };
 
+export type TenorRoleType = 'Manager' | 'Chairman' | 'Accountant' | 'Auditor';
+
+export type TenorRole = {
+  type: TenorRoleType;
+  forOrg: keyof typeof tenorOrgs;
+};
+
 export type TenorUser = {
   name: string;
+  reverseName: string;
   ssn: string;
-  role?: string;
-  orgs?: string[];
+  role?: TenorRole;
 };
 
 export type TenorLoginParams = {
@@ -21,30 +28,76 @@ const tenorOrgs = {
     name: 'Sivilisert Avansert Isbjørn SA',
     orgNr: '312405091',
   },
+  overflodigSlemTigerAS: {
+    name: 'Overflødig Slem Tiger AS',
+    orgNr: '310926833',
+  },
 } as const;
+
+function name(first: string, last: string): { name: string; reverseName: string } {
+  return { name: `${first} ${last}`, reverseName: `${last} ${first}` };
+}
 
 const tenorUsers = {
   saligBlomsterplante: {
-    name: 'Salig Blomsterplante',
+    ...name('Salig', 'Blomsterplante'),
     ssn: '20920448276',
   },
   humanAndrefiolin: {
-    name: 'Human Andrefiolin',
+    ...name('Human', 'Andrefiolin'),
     ssn: '09876298713',
-    role: 'CEO',
+    role: {
+      type: 'Manager',
+      forOrg: 'sivilisertAvansertIsbjoernSA',
+    },
   },
   varsomDiameter: {
-    name: 'Varsom Diameter',
+    ...name('Varsom', 'Diameter'),
     ssn: '03835698199',
-    role: 'Chairman',
+    role: {
+      type: 'Chairman',
+      forOrg: 'sivilisertAvansertIsbjoernSA',
+    },
   },
   standhaftigBjornunge: {
-    name: 'Standhaftig Bjørnunge',
+    ...name('Standhaftig', 'Bjørnunge'),
     ssn: '23849199013',
   },
   snaalDugnad: {
-    name: 'Snål Dugnad',
+    ...name('Snål', 'Dugnad'),
     ssn: '10928198958',
+  },
+  raffinertFilm: {
+    ...name('Raffinert', 'Film'),
+    ssn: '28826898781',
+    role: {
+      type: 'Manager',
+      forOrg: 'overflodigSlemTigerAS',
+    },
+  },
+  akustiskGaranti: {
+    ...name('Akustisk', 'Garanti'),
+    ssn: '04845698703',
+    role: {
+      type: 'Chairman',
+      forOrg: 'overflodigSlemTigerAS',
+    },
+  },
+  beskjedenGitar: {
+    ...name('Beskjeden', 'Gitar'),
+    ssn: '15893148970',
+    role: {
+      type: 'Accountant',
+      forOrg: 'overflodigSlemTigerAS',
+    },
+  },
+  dypsindigLoddsnor: {
+    ...name('Dypsindig', 'Loddsnor'),
+    ssn: '12887498871',
+    role: {
+      type: 'Auditor',
+      forOrg: 'overflodigSlemTigerAS',
+    },
   },
 } as const;
 
