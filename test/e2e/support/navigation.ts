@@ -4,7 +4,6 @@ import type { FrontendTestTask } from 'test/e2e/support/global';
 const appFrontend = new AppFrontend();
 
 function initAndGoto(nextTask?: string) {
-  cy.preventPartySelection();
   cy.intercept('**/active', []).as('noActiveInstances');
   cy.startAppInstance(appFrontend.apps.frontendTest);
   cy.findByRole('link', { name: /tilbake til innboks/i }).should('be.visible');

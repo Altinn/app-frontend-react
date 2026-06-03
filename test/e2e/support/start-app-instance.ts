@@ -8,7 +8,7 @@ import type { AppResponseRef } from 'test/e2e/support/auth';
 Cypress.Commands.add('startAppInstance', function (appName, options) {
   const {
     cyUser = 'default',
-    tenorUser = Tenor.users.humanAndrefiolin,
+    tenorUser = Tenor.users.saligBlomsterplante,
     urlSuffix = '',
     authenticationLevel = '1',
   } = options || {};

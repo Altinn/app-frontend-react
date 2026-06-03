@@ -24,6 +24,10 @@ const tenorOrgs = {
 } as const;
 
 const tenorUsers = {
+  saligBlomsterplante: {
+    name: 'Salig Blomsterplante',
+    ssn: '20920448276',
+  },
   humanAndrefiolin: {
     name: 'Human Andrefiolin',
     ssn: '09876298713',

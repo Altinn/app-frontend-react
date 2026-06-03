@@ -25,7 +25,7 @@ describe('Stateless party selection', () => {
       doNotPromptForParty: false,
     });
 
-    cy.startAppInstance(appFrontend.apps.stateless, { cyUser: 'accountant' });
+    cy.startAppInstance(appFrontend.apps.stateless, { cyUser: 'accountant', tenorUser: Tenor.users.humanAndrefiolin });
     cy.get(appFrontend.partySelection.appHeader).should('be.visible');
     cy.findByText(/ikke bli spurt om aktør hver gang/).should('be.visible');
 

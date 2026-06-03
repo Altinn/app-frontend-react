@@ -131,7 +131,7 @@ describe('Party selection', () => {
       allowedToInstantiate: (parties) => [...parties, CyPartyMocks.ExamplePerson1],
       doNotPromptForParty: false,
     });
-    cy.startAppInstance(appFrontend.apps.frontendTest);
+    cy.startAppInstance(appFrontend.apps.frontendTest, { tenorUser: Tenor.users.humanAndrefiolin });
 
     cy.get(appFrontend.partySelection.appHeader).should('be.visible');
     cy.get('[id^="party-"]').should('be.visible');
@@ -213,7 +213,10 @@ describe('Party selection', () => {
         },
       );
 
-      cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'default' });
+      cy.startAppInstance(appFrontend.apps.frontendTest, {
+        cyUser: 'default',
+        tenorUser: Tenor.users.humanAndrefiolin,
+      });
       cy.get(appFrontend.appHeader).should('be.visible');
       cy.get('[id^="party-"]').should('not.exist');
 
@@ -231,7 +234,10 @@ describe('Party selection', () => {
         appPromptForPartyOverride,
         allowedToInstantiate: (parties) => [...parties, CyPartyMocks.ExamplePerson1],
       });
-      cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'default' });
+      cy.startAppInstance(appFrontend.apps.frontendTest, {
+        cyUser: 'default',
+        tenorUser: Tenor.users.humanAndrefiolin,
+      });
 
       if (appPromptForPartyOverride === 'always') {
         cy.get(appFrontend.partySelection.appHeader).should('be.visible');
@@ -274,7 +280,10 @@ describe('Party selection', () => {
       },
       doNotPromptForParty: false,
     });
-    cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'accountant' });
+    cy.startAppInstance(appFrontend.apps.frontendTest, {
+      cyUser: 'accountant',
+      tenorUser: Tenor.users.humanAndrefiolin,
+    });
 
     // Select the organisation. This is not allowed to instantiate in this app, so it will throw an error.
     cy.findAllByText(/org\.nr\. \d+/)
