@@ -241,9 +241,12 @@ function tenorTt02Login({ appName, tenorUser }: Omit<TenorLoginParams, 'authenti
   cy.get('h2').should('have.text', 'Placeholder page for Cypress to set origin before logging in via Tenor');
   cy.get('a').click();
 
-  cy.findByRole('link', { name: /testid lag din egen testbruker/i }).click();
-  cy.findByRole('textbox', { name: /personidentifikator \(syntetisk\)/i }).clear();
-  cy.findByRole('textbox', { name: /personidentifikator \(syntetisk\)/i }).type(tenorUser.ssn);
+  cy.origin('https://login.test.idporten.no', () => {
+    cy.get('a[href="/authorize/testid1"]').click();
+  });
+  cy.origin('https://testid.test.idporten.no', { args: tenorUser }, (tenorUser) => {
+    cy.get('input[name=pid]').type(tenorUser.ssn);
+  });
 
   cy.get<AppResponseRef>('@appResponse').then((ref) => {
     ref.current = (res) => {
@@ -281,6 +284,9 @@ function tenorTt02Login({ appName, tenorUser }: Omit<TenorLoginParams, 'authenti
     };
   });
 
-  cy.findByRole('button', { name: /autentiser/i }).click();
+  cy.origin('https://testid.test.idporten.no', () => {
+    cy.get('button[type=submit]').click();
+  });
+
   cy.findByRole('heading', { name: 'Empty page loaded, proceeding to app' }).should('exist');
 }
