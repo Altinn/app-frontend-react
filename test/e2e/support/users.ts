@@ -11,6 +11,8 @@ export type TenorRole = {
 };
 
 export type TenorUser = {
+  firstName: string;
+  lastName: string;
   name: string;
   reverseName: string;
   ssn: string;
@@ -34,8 +36,8 @@ const tenorOrgs = {
   },
 } as const;
 
-function name(first: string, last: string): { name: string; reverseName: string } {
-  return { name: `${first} ${last}`, reverseName: `${last} ${first}` };
+function name(first: string, last: string): { name: string; reverseName: string; firstName: string; lastName: string } {
+  return { name: `${first} ${last}`, reverseName: `${last} ${first}`, firstName: first, lastName: last };
 }
 
 const tenorUsers = {
