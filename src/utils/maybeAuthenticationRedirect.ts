@@ -8,7 +8,7 @@ export async function maybeAuthenticationRedirect(error: AxiosError): Promise<bo
     const reqAuthLevel = error.response.data['RequiredAuthenticationLevel'];
     if (reqAuthLevel) {
       await putWithoutConfig(invalidateCookieUrl);
-      redirectToUpgrade(reqAuthLevel);
+      redirectToUpgrade();
 
       return true;
     }
