@@ -7,7 +7,6 @@ import type { AxiosError } from 'axios';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { instanceQueries } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
-import { isAxiosError } from 'src/utils/isAxiosError';
 import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
@@ -44,9 +43,7 @@ export function useInstantiation() {
       // If the instantiation failed because the user is authenticated with a too low security level, the backend
       // responds with 403 and a RequiredAuthenticationLevel. We then redirect to step-up authentication instead of
       // falling through to a generic "missing roles" error page. No-op for any other error.
-      if (isAxiosError(error)) {
-        await maybeAuthenticationRedirect(error);
-      }
+      await maybeAuthenticationRedirect(error);
     },
     onSuccess: async (data) => {
       const [instanceOwnerPartyId, instanceGuid] = data.id.split('/');
