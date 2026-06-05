@@ -38,12 +38,14 @@ export function useInstantiation() {
     mutationKey: ['instantiate'],
     mutationFn: (args: InstantiationArgs) =>
       typeof args === 'number' ? doInstantiate(args, currentLanguage) : doInstantiateWithPrefill(args, currentLanguage),
-    onError: (error: HttpClientError) => {
+    onError: async (error: HttpClientError) => {
       window.logError(`Instantiation failed:\n`, error);
+
+      // If the instantiation failed because the user is authenticated with a too low security level, the backend
+      // responds with 403 and a RequiredAuthenticationLevel. We then redirect to step-up authentication instead of
+      // falling through to a generic "missing roles" error page. No-op for any other error.
       if (isAxiosError(error)) {
-        // If the instantiation failed because the user is authenticated with a too low security level, redirect to
-        // step-up authentication instead of falling through to a generic "missing roles" error page.
-        maybeAuthenticationRedirect(error).then();
+        await maybeAuthenticationRedirect(error);
       }
     },
     onSuccess: async (data) => {
