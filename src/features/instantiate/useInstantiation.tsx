@@ -7,6 +7,8 @@ import type { AxiosError } from 'axios';
 import { useAppMutations } from 'src/core/contexts/AppQueriesProvider';
 import { instanceQueries } from 'src/features/instance/InstanceContext';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
+import { isAxiosError } from 'src/utils/isAxiosError';
+import { maybeAuthenticationRedirect } from 'src/utils/maybeAuthenticationRedirect';
 import type { IInstance } from 'src/types/shared';
 import type { HttpClientError } from 'src/utils/network/sharedNetworking';
 
@@ -38,6 +40,11 @@ export function useInstantiation() {
       typeof args === 'number' ? doInstantiate(args, currentLanguage) : doInstantiateWithPrefill(args, currentLanguage),
     onError: (error: HttpClientError) => {
       window.logError(`Instantiation failed:\n`, error);
+      if (isAxiosError(error)) {
+        // If the instantiation failed because the user is authenticated with a too low security level, redirect to
+        // step-up authentication instead of falling through to a generic "missing roles" error page.
+        maybeAuthenticationRedirect(error).then();
+      }
     },
     onSuccess: async (data) => {
       const [instanceOwnerPartyId, instanceGuid] = data.id.split('/');
