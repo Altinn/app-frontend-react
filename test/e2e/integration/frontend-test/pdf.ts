@@ -52,6 +52,13 @@ describe('PDF', () => {
         cy.get('@allRequests.all').then((_intercepts) => {
           const intercepts = _intercepts as unknown as Interception[];
           expect(intercepts.length).to.be.greaterThan(10);
+
+          // We explicitly do not want keepAlive requests, since those should be disabled in PDF mode
+          expect(
+            intercepts.map((intercept) => intercept.request.url),
+            'PDF mode requests',
+          ).not.to.satisfy((urls: string[]) => urls.some((url) => url.includes('/api/authentication/keepAlive')));
+
           for (const intercept of intercepts) {
             const { request } = intercept;
             const reqInfo = `${intercept.browserRequestId} ${intercept.routeId} ${request.method} ${request.url.split(domain)[1]}`;
@@ -459,7 +466,7 @@ describe('PDF', () => {
 
   // Used to cause a crash, @see https://github.com/Altinn/app-frontend-react/pull/2019
   it('Grid in Group should display correctly', { retries: 0 }, () => {
-    cy.intercept('GET', '**/layouts/**', (req) => {
+    cy.intercept('GET', '**/layouts/changename', (req) => {
       req.on('response', (res) => {
         const body: ILayoutCollection = JSON.parse(res.body);
         res.send({
