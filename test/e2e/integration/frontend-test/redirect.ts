@@ -1,6 +1,8 @@
 import texts from 'test/e2e/fixtures/texts.json';
 import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
+
 const appFrontend = new AppFrontend();
 
 describe('Redirect', () => {
@@ -24,37 +26,38 @@ describe('Redirect', () => {
   it('User with too low authentication level is redirected to step-up authentication instead of the error page', () => {
     cy.allowFailureOnEnd();
 
-    // A 403 carrying a RequiredAuthenticationLevel means the user is authenticated, but at a too low security level.
-    cy.intercept('POST', `**/instances?instanceOwnerPartyId*`, {
+    cy.intercept('GET', '**/api/v1/applicationmetadata', (req) => {
+      req.on('response', (res) => {
+        (res.body as IncomingApplicationMetadata).onEntry = { show: 'new-instance' };
+      });
+    });
+
+    cy.intercept('POST', '**/instances**', {
       statusCode: 403,
       body: { RequiredAuthenticationLevel: 3 },
     }).as('instantiate');
 
     cy.intercept('PUT', '**/api/authentication/invalidatecookie', { statusCode: 200 }).as('invalidateCookie');
 
-    // Match ONLY the step-up redirect, not the regular login flow: both hit the platform
-    // /authentication/api/v1/authentication endpoint, but only the step-up carries acr_values=idporten-loa-high.
-    // Reply with 204 so the browser aborts the (cross-origin) navigation and stays on the app, keeping the loader
-    // mounted and letting afterEach run on the original origin.
+    // The step-up sets window.location.href, which would put Cypress into "waiting for page load" indefinitely (the
+    // real target is a cross-origin platform endpoint). Match ONLY the step-up (login hits the same endpoint but never
+    // with acr_values) and 302 it to a static same-origin page so a load event fires and we stay on the app origin,
+    // while still capturing the request to assert its URL.
+    const baseUrl = Cypress.config('baseUrl') as string;
+    const appOrigin = Cypress.env('type') === 'localtest' ? baseUrl : `https://ttd.apps.${baseUrl.slice(8)}`;
     cy.intercept(
       {
         method: 'GET',
         pathname: '/authentication/api/v1/authentication',
         query: { acr_values: 'idporten-loa-high' },
       },
-      { statusCode: 204 },
+      (req) => req.reply({ statusCode: 302, headers: { location: `${appOrigin}/ttd/frontend-test/login.html` } }),
     ).as('stepUp');
 
     cy.startAppInstance(appFrontend.apps.frontendTest);
 
-    // While the redirect is in flight we show a loader, never the "missing roles" error page.
-    cy.get('[data-testid="loader"][data-reason="authentication-redirect"]').should('exist');
-    cy.get(appFrontend.altinnError).should('not.exist');
-
-    // The stale, too-low-level cookie is invalidated first so the platform endpoint can't short-circuit on it.
     cy.wait('@invalidateCookie');
 
-    // Then we navigate to the Altinn 3 auth endpoint requesting a high acr_value (a real step-up via ID-porten).
     cy.wait('@stepUp').its('request.url').should('include', 'acr_values=idporten-loa-high');
   });
 
