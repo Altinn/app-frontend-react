@@ -30,20 +30,31 @@ describe('Redirect', () => {
       body: { RequiredAuthenticationLevel: 3 },
     }).as('instantiate');
 
-    cy.intercept('PUT', '**/api/authentication/invalidatecookie', { statusCode: 200, delay: 1000 }).as(
-      'invalidateCookie',
-    );
+    cy.intercept('PUT', '**/api/authentication/invalidatecookie', { statusCode: 200 }).as('invalidateCookie');
 
-    cy.intercept('GET', '**/authentication/api/v1/authentication*', { statusCode: 200, body: 'redirected' }).as(
-      'stepUp',
-    );
+    // Match ONLY the step-up redirect, not the regular login flow: both hit the platform
+    // /authentication/api/v1/authentication endpoint, but only the step-up carries acr_values=idporten-loa-high.
+    // Reply with 204 so the browser aborts the (cross-origin) navigation and stays on the app, keeping the loader
+    // mounted and letting afterEach run on the original origin.
+    cy.intercept(
+      {
+        method: 'GET',
+        pathname: '/authentication/api/v1/authentication',
+        query: { acr_values: 'idporten-loa-high' },
+      },
+      { statusCode: 204 },
+    ).as('stepUp');
 
     cy.startAppInstance(appFrontend.apps.frontendTest);
 
+    // While the redirect is in flight we show a loader, never the "missing roles" error page.
     cy.get('[data-testid="loader"][data-reason="authentication-redirect"]').should('exist');
     cy.get(appFrontend.altinnError).should('not.exist');
 
+    // The stale, too-low-level cookie is invalidated first so the platform endpoint can't short-circuit on it.
     cy.wait('@invalidateCookie');
+
+    // Then we navigate to the Altinn 3 auth endpoint requesting a high acr_value (a real step-up via ID-porten).
     cy.wait('@stepUp').its('request.url').should('include', 'acr_values=idporten-loa-high');
   });
 
