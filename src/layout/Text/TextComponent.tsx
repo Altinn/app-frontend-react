@@ -32,12 +32,17 @@ export const TextComponent = ({ baseComponentId }: PropsFromGenericComponent<'Te
         ),
       }}
     >
-      <DisplayText
-        value={value}
-        iconUrl={icon}
-        iconAltText={langAsString(textResourceBindings.title)}
-        labelId={getLabelId(id)}
-      />
+      <div
+        role='group'
+        aria-labelledby={getLabelId(id)}
+      >
+        <DisplayText
+          value={value}
+          iconUrl={icon}
+          iconAltText={langAsString(textResourceBindings.title)}
+          labelId={getLabelId(id)}
+        />
+      </div>
     </ComponentStructureWrapper>
   );
 };
