@@ -36,6 +36,8 @@ const orgLookupQueries = {
     }),
 };
 
+const LIVE_REGION_RESET_DELAY_MS = 100;
+
 export type Organisation = {
   orgNr: string;
   name: string;
@@ -123,8 +125,7 @@ export function OrganisationLookupComponent({
     setStatusMessage('');
     window.setTimeout(() => {
       setStatusMessage(parts.join(', '));
-      statusRef.current?.focus();
-    }, 100);
+    }, LIVE_REGION_RESET_DELAY_MS);
   }
 
   function handleValidateOrgnr(orgNr: string) {
