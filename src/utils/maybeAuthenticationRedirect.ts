@@ -29,7 +29,6 @@ async function invalidateExistingAuthCookie(): Promise<void> {
     window.logError('Failed to invalidate auth cookie before step-up redirect:\n', e);
   }
 }
-
 export async function maybeAuthenticationRedirect(error: unknown): Promise<boolean> {
   if (isAuthenticationRedirectError(error)) {
     await invalidateExistingAuthCookie();
