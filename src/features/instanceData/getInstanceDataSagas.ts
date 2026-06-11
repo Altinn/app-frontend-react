@@ -17,7 +17,7 @@ export function* getInstanceDataSaga({ payload: { instanceId } }: PayloadAction<
       const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
       if (reqAuthLevel) {
         putWithoutConfig(invalidateCookieUrl).then();
-        yield call(redirectToUpgrade, reqAuthLevel);
+        yield call(redirectToUpgrade);
       } else {
         yield put(InstanceDataActions.getRejected({ error }));
       }

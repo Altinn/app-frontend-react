@@ -24,7 +24,7 @@ export function* instantiationSaga(): SagaIterator {
         const reqAuthLevel = error.response.data.RequiredAuthenticationLevel;
         if (reqAuthLevel) {
           yield call(putWithoutConfig, invalidateCookieUrl);
-          yield call(redirectToUpgrade, reqAuthLevel);
+          yield call(redirectToUpgrade);
         }
       }
       throw error;
