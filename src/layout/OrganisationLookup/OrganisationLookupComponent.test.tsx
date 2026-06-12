@@ -110,6 +110,11 @@ describe('OrganisationLookupComponent', () => {
 
     expect(screen.getByText(/Organisasjonsnummeret er ugyldig/i)).toBeInTheDocument();
     expect(mockedHttpGet).not.toHaveBeenCalled();
+
+    const statusRegion = screen.getByTestId('organisation-lookup-status');
+    await waitFor(() => {
+      expect(statusRegion).toHaveTextContent(/Organisasjonsnummeret er ugyldig/i);
+    });
   });
 
   it('fetches organisation, announces details, and allows clearing', async () => {
@@ -139,7 +144,7 @@ describe('OrganisationLookupComponent', () => {
 
     expect(screen.getByLabelText('Organisasjonsnavn')).toHaveTextContent(orgName);
 
-    const statusRegion = screen.getByRole('status', { hidden: true });
+    const statusRegion = screen.getByTestId('organisation-lookup-status');
     await waitFor(() => {
       expect(statusRegion).toHaveTextContent(`Organisasjonsnummer ${validOrgNr}`);
       expect(statusRegion).toHaveTextContent('Sibling Name');

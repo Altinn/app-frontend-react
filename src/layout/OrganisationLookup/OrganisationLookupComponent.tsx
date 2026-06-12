@@ -16,6 +16,7 @@ import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
+import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupComponent.module.css';
@@ -89,11 +90,20 @@ export function OrganisationLookupComponent({
   } = useDataModelBindings(dataModelBindings);
 
   const { langAsString } = useLanguage();
+  const currentLanguage = useCurrentLanguage();
   const layoutLookups = useLayoutLookups();
   const pickFormValue = FD.useCurrentSelector();
   const waitForSave = FD.useWaitForSave();
 
   const { data, refetch: performLookup, isFetching } = useQuery(orgLookupQueries.lookup(tempOrgNr));
+
+  function announceStatusMessage(message: string) {
+    setStatusMessage('');
+    window.setTimeout(() => {
+      setStatusMessage(message);
+      statusRef.current?.focus();
+    }, LIVE_REGION_RESET_DELAY_MS);
+  }
 
   function announceOrgDetails(orgNr: string) {
     const parts = [`${langAsString('organisation_lookup.orgnr_label')} ${orgNr}`];
@@ -122,29 +132,27 @@ export function OrganisationLookupComponent({
       parts.push(typeof titleKey === 'string' ? `${langAsString(titleKey)} ${textValue}` : textValue);
     }
 
-    setStatusMessage('');
-    window.setTimeout(() => {
-      setStatusMessage(parts.join(', '));
-    }, LIVE_REGION_RESET_DELAY_MS);
+    announceStatusMessage(parts.join(', '));
   }
 
-  function handleValidateOrgnr(orgNr: string) {
+  function handleValidateOrgnr(orgNr: string): string[] | undefined {
     if (!validateOrgnr({ orgNr })) {
       const errors = validateOrgnr.errors
         ?.filter((error) => error.instancePath === '/orgNr')
         .map((error) => error.message)
         .filter((it) => it != null);
       setOrgNrErrors(errors);
-      return false;
+      return errors;
     }
     setOrgNrErrors(undefined);
-    return true;
+    return undefined;
   }
 
   async function handleSubmit() {
-    const isValid = handleValidateOrgnr(tempOrgNr);
+    const validationErrors = handleValidateOrgnr(tempOrgNr);
 
-    if (!isValid) {
+    if (validationErrors?.length) {
+      announceStatusMessage(langAsString(validationErrors.join(' ')));
       return;
     }
 
@@ -154,6 +162,8 @@ export function OrganisationLookupComponent({
       dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', data.org.name);
       await waitForSave(true);
       announceOrgDetails(data.org.orgNr);
+    } else if (data?.error) {
+      announceStatusMessage(langAsString(data.error));
     }
   }
 
@@ -203,10 +213,11 @@ export function OrganisationLookupComponent({
               value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
               required={required}
               readOnly={hasSuccessfullyFetched || isFetching || readOnly}
-              error={isValid}
+              error={!!isValid}
               onValueChange={(e) => {
                 setTempOrgNr(e.value);
                 setOrgNrErrors(undefined);
+                setStatusMessage('');
               }}
               onKeyDown={async (ev) => {
                 if (ev.key === 'Enter' && !readOnly) {
@@ -264,10 +275,9 @@ export function OrganisationLookupComponent({
         </div>
         <div
           ref={statusRef}
-          role='status'
-          aria-live='polite'
-          aria-atomic='true'
           tabIndex={-1}
+          lang={currentLanguage}
+          data-testid='organisation-lookup-status'
           className={utilClasses.visuallyHidden}
         >
           {statusMessage}
