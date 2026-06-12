@@ -93,7 +93,7 @@ export function useFormDataQuery(): UseQueryResult<IFormData> {
         const reqAuthLevel = (error.response.data as any).RequiredAuthenticationLevel;
         if (reqAuthLevel) {
           await putWithoutConfig(invalidateCookieUrl);
-          redirectToUpgrade(reqAuthLevel);
+          redirectToUpgrade();
         } else {
           throw error;
         }
