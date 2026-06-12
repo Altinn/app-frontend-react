@@ -40,7 +40,6 @@ export const TextComponent = ({ baseComponentId }: PropsFromGenericComponent<'Te
           value={value}
           iconUrl={icon}
           iconAltText={langAsString(textResourceBindings.title)}
-          labelId={getLabelId(id)}
         />
       </div>
     </ComponentStructureWrapper>
