@@ -146,7 +146,7 @@ Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQuer
   // react-number-format messes with our cursor position here as well.
   const moveToStart = new Array(5).fill('{moveToStart}').join('');
 
-  cy.get(subject.selector!).type(`${moveToStart}${del}`);
+  cy.wrap(subject).type(`${moveToStart}${del}`);
 });
 
 interface KnownViolation extends Pick<axe.Result, 'id'> {
