@@ -60,7 +60,7 @@ function useIsHiddenInRow(row: GridRow) {
   return useIsHiddenMulti(baseIds);
 }
 
-function useHiddenInRows(rows: GridRows | undefined) {
+export function useHiddenInRows(rows: GridRows | undefined) {
   const baseIds =
     rows
       ?.map((row) => row.cells.map((cell) => (isGridCellNode(cell) && cell.component ? cell.component : undefined)))

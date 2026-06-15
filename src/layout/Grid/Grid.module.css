@@ -90,3 +90,19 @@ Altinn, and making sure they are consistent. */
   gap: 24px;
   flex-direction: column;
 }
+
+.mobileRow {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobileRowHeading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobileRowHeadingText {
+  font-weight: 500;
+}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useId, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
@@ -21,10 +21,12 @@ import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import {
   getGridCellHiddenExpr,
+  isGridCellEmpty,
   isGridCellLabelFrom,
   isGridCellNode,
   isGridCellText,
-  useBaseIdsFromGrid,
+  isGridRowHidden,
+  useHiddenInRows,
   useIsGridRowHidden,
 } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
@@ -37,6 +39,7 @@ import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 import type {
   GridCell,
+  GridCellText,
   GridRow,
   IGridColumnProperties,
   ITableColumnFormatting,
@@ -130,7 +133,12 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   );
 
   if (isMobile) {
-    return <MobileGrid {...props} />;
+    return (
+      <MobileGrid
+        {...props}
+        hiddenColumnIndices={hiddenColumnIndices}
+      />
+    );
   }
 
   return (
@@ -484,13 +492,21 @@ function CellWithLabel({
   );
 }
 
-function MobileGrid({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'Grid'>) {
-  const baseIds = useBaseIdsFromGrid(baseComponentId);
+interface MobileGridProps extends PropsFromGenericComponent<'Grid'> {
+  hiddenColumnIndices: number[];
+}
+
+function MobileGrid({ baseComponentId, overrideDisplay, hiddenColumnIndices }: MobileGridProps) {
+  const { rows } = useItemWhenType(baseComponentId, 'Grid');
+  const hiddenInRows = useHiddenInRows(rows);
 
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
     baseComponentId,
     overrideDisplay,
   });
+
+  // Header rows only carry column titles, which are redundant in the stacked mobile view. Hidden rows must stay hidden.
+  const visibleRows = (rows ?? []).filter((row) => !row.header && !isGridRowHidden(row, hiddenInRows));
 
   return (
     <Fieldset
@@ -501,12 +517,142 @@ function MobileGrid({ baseComponentId, overrideDisplay }: PropsFromGenericCompon
       help={getHelpTextComponent()}
       className={css.mobileFieldset}
     >
-      {baseIds.map((childId) => (
-        <GenericComponent
-          key={childId}
-          baseComponentId={childId}
+      {visibleRows.map((row, rowIdx) => (
+        <MobileGridRow
+          key={rowIdx}
+          row={row}
+          hiddenColumnIndices={hiddenColumnIndices}
         />
       ))}
     </Fieldset>
+  );
+}
+
+interface MobileGridRowProps {
+  row: GridRow;
+  hiddenColumnIndices: number[];
+}
+
+/**
+ * Renders a single grid row stacked for mobile/high-zoom. Any leading text/labelFrom cells become the row's
+ * heading/context, and the row's component cell(s) are grouped beneath it and programmatically associated with that
+ * context via `aria-labelledby` so the category is announced together with each field.
+ */
+function MobileGridRow({ row, hiddenColumnIndices }: MobileGridRowProps) {
+  const rowId = useId();
+
+  const visibleCells = row.cells
+    .map((cell, cellIdx) => ({ cell, cellIdx }))
+    .filter(({ cell, cellIdx }) => !hiddenColumnIndices.includes(cellIdx) && !isGridCellEmpty(cell));
+
+  const contextCells = visibleCells.filter(({ cell }) => isGridCellText(cell) || isGridCellLabelFrom(cell));
+  const componentCells = visibleCells.filter(({ cell }) => isGridCellNode(cell));
+
+  const labelledBy = contextCells.map(({ cellIdx }) => `${rowId}-ctx-${cellIdx}`).join(' ') || undefined;
+
+  const context = contextCells.map(({ cell, cellIdx }) => (
+    <MobileContextCell
+      key={cellIdx}
+      id={`${rowId}-ctx-${cellIdx}`}
+      cell={cell}
+    />
+  ));
+
+  const components = componentCells.map(({ cell, cellIdx }) => {
+    const componentId = isGridCellNode(cell) ? cell.component : undefined;
+    return componentId ? (
+      <GenericComponent
+        key={cellIdx}
+        baseComponentId={componentId}
+        overrideDisplay={{ rowReadOnly: row.readOnly }}
+      />
+    ) : null;
+  });
+
+  // No interactive cells: just the (descriptive) text, nothing to group or associate.
+  if (!componentCells.length) {
+    return contextCells.length ? <div className={css.mobileRow}>{context}</div> : null;
+  }
+
+  // No context: the component(s) keep their own labels; no extra grouping needed.
+  if (!contextCells.length) {
+    return <div className={css.mobileRow}>{components}</div>;
+  }
+
+  return (
+    <div
+      className={css.mobileRow}
+      role='group'
+      aria-labelledby={labelledBy}
+    >
+      {context}
+      {components}
+    </div>
+  );
+}
+
+function MobileContextCell({ id, cell }: { id: string; cell: GridCell }) {
+  if (isGridCellLabelFrom(cell)) {
+    return (
+      <MobileLabelContext
+        id={id}
+        labelFrom={cell.labelFrom}
+      />
+    );
+  }
+
+  if (isGridCellText(cell)) {
+    return (
+      <MobileTextContext
+        id={id}
+        cell={cell}
+      />
+    );
+  }
+
+  return null;
+}
+
+function MobileTextContext({ id, cell }: { id: string; cell: GridCellText }) {
+  const { elementAsString } = useLanguage();
+  return (
+    <div
+      id={id}
+      className={css.mobileRowHeading}
+    >
+      <span className={css.mobileRowHeadingText}>
+        <Lang id={cell.text} />
+      </span>
+      {cell.help && (
+        <HelpTextContainer
+          title={elementAsString(<Lang id={cell.text} />)}
+          helpText={<Lang id={cell.help} />}
+        />
+      )}
+    </div>
+  );
+}
+
+function MobileLabelContext({ id, labelFrom }: { id: string; labelFrom: string }) {
+  const item = useItemFor(labelFrom);
+  const trb = item.textResourceBindings;
+  const required = 'required' in item && item.required;
+  const title = trb && 'title' in trb ? trb.title : undefined;
+  const help = trb && 'help' in trb ? trb.help : undefined;
+  const description = trb && 'description' in trb && typeof trb.description === 'string' ? trb.description : undefined;
+
+  return (
+    <div
+      id={id}
+      className={css.mobileRowHeading}
+    >
+      <LabelContent
+        id={useIndexedId(labelFrom)}
+        label={title}
+        required={required}
+        help={help}
+        description={description}
+      />
+    </div>
   );
 }

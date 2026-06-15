@@ -49,4 +49,23 @@ describe('Grid summary test', () => {
         .should('have.length', 5);
     }
   });
+
+  it('keeps row category text visible and associated with the field on mobile/400% zoom', () => {
+    cy.gotoNavPage('GridLabelBugPage');
+    cy.viewport('samsung-s10');
+
+    // The desktop table should collapse into the stacked mobile view
+    cy.get('#grid-label-bug-textarea').should('be.visible');
+    cy.get('#grid-label-bug-textarea table').should('not.exist');
+
+    // Each "Krav" category text must remain visible (it used to be dropped on mobile)
+    cy.contains('Setter brukeren i sentrum for tjenesteutviklingen').should('be.visible');
+    cy.contains('Sikrer personvern og informasjonssikkerhet').should('be.visible');
+
+    // The category text is programmatically associated with its answer field: the field lives inside a group
+    // labelled by the category text (this text is unique to the textarea grid).
+    cy.findByRole('group', { name: 'Sikrer personvern og informasjonssikkerhet' })
+      .findByRole('textbox')
+      .should('exist');
+  });
 });
