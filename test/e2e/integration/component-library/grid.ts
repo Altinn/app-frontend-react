@@ -63,8 +63,8 @@ describe('Grid summary test', () => {
     cy.contains('Sikrer personvern og informasjonssikkerhet').should('be.visible');
 
     // The category text is programmatically associated with its answer field: the field lives inside a group
-    // labelled by the category text (this text is unique to the textarea grid).
-    cy.findByRole('group', { name: 'Sikrer personvern og informasjonssikkerhet' })
+    // labelled by the column title + row text (this text is unique to the textarea grid).
+    cy.findByRole('group', { name: 'Krav Sikrer personvern og informasjonssikkerhet' })
       .findByRole('textbox')
       .should('exist');
   });

@@ -94,15 +94,26 @@ Altinn, and making sure they are consistent. */
 .mobileRow {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 16px;
 }
 
-.mobileRowHeading {
+/* Read-only "column title / value" pair (e.g. "Krav" + requirement text), rendered as a description list.
+   The explicit margin/padding resets override the global `ol, ul, dl { padding-left: 1.5rem }` rule in index.css
+   and the user-agent `dd { margin-inline-start: 40px }`, so the label and value line up flush-left with the field. */
+.mobileCell {
   display: flex;
-  align-items: center;
-  gap: 4px;
+  flex-direction: column;
+  gap: var(--ds-size-1, 4px);
+  margin: 0;
+  padding: 0;
 }
 
-.mobileRowHeadingText {
-  font-weight: 500;
+.mobileCellLabel {
+  margin: 0;
+  padding: 0;
+}
+
+.mobileCellText {
+  margin: 0;
+  padding: 0;
 }

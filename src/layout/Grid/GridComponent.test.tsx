@@ -206,25 +206,53 @@ describe('GridComponent', () => {
       expect(screen.queryByRole('columnheader')).not.toBeInTheDocument();
     });
 
-    it('keeps each row category text visible and associates it with the field', async () => {
+    it('renders the column title as a label and the row text as a description-list value', async () => {
       await renderMobile(kravSvarRows);
 
-      // The category text from each body row must remain visible
-      expect(screen.getByText('Setter brukeren i sentrum')).toBeInTheDocument();
-      expect(screen.getByText('Tilrettelegger for gjenbruk')).toBeInTheDocument();
+      // The category text from each body row must remain visible inside a <dd> value
+      const firstValue = screen.getByText('Setter brukeren i sentrum');
+      const secondValue = screen.getByText('Tilrettelegger for gjenbruk');
+      expect(firstValue.closest('dd')).toBeInTheDocument();
+      expect(secondValue.closest('dd')).toBeInTheDocument();
 
-      // Each field is wrapped in a group labelled by its row's category text
-      const firstGroup = screen.getByRole('group', { name: 'Setter brukeren i sentrum' });
+      // The column title "Krav" is rendered as the term (<dt>) inside the same description list
+      const terms = screen.getAllByText('Krav');
+      expect(terms).toHaveLength(2);
+      terms.forEach((term) => expect(term.closest('dt')).toBeInTheDocument());
+      expect(firstValue.closest('dl')).toContainElement(terms[0]);
+      expect(secondValue.closest('dl')).toContainElement(terms[1]);
+    });
+
+    it('associates the read-only requirement text with its answer field via a labelled group', async () => {
+      await renderMobile(kravSvarRows);
+
+      // Each field is wrapped in a group whose accessible name carries the column title + requirement text,
+      // so a screen reader announces the category together with the field.
+      const firstGroup = screen.getByRole('group', { name: 'Krav Setter brukeren i sentrum' });
       expect(within(firstGroup).getByRole('textbox')).toBeInTheDocument();
 
-      const secondGroup = screen.getByRole('group', { name: 'Tilrettelegger for gjenbruk' });
+      const secondGroup = screen.getByRole('group', { name: 'Krav Tilrettelegger for gjenbruk' });
       expect(within(secondGroup).getByRole('textbox')).toBeInTheDocument();
     });
 
-    it('does not render the redundant column-title header row as repeated context', async () => {
+    it('does not render the header row as its own standalone stacked row', async () => {
       await renderMobile(kravSvarRows);
-      // 'Krav' is only present in the header row, which should not be rendered on mobile
+      // The header titles only appear as per-row labels, never as a separate group/row of bare column titles
+      expect(screen.queryByRole('group', { name: 'Krav' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: 'Svar' })).not.toBeInTheDocument();
+    });
+
+    it('renders category text without a column-title label when there is no header row', async () => {
+      await renderMobile([
+        {
+          cells: [{ text: 'Setter brukeren i sentrum' }, { component: 'answer-1' }],
+        },
+      ]);
+
+      // No header row -> no <dt> label; the text is still associated with the field via the group
       expect(screen.queryByText('Krav')).not.toBeInTheDocument();
+      const group = screen.getByRole('group', { name: 'Setter brukeren i sentrum' });
+      expect(within(group).getByRole('textbox')).toBeInTheDocument();
     });
 
     it('hides rows whose only component is hidden', async () => {
