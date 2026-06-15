@@ -207,6 +207,7 @@ export function en() {
       'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
     'group.row_popover_delete_message': 'Are you sure you want to delete this row?',
     'group.row_popover_delete_button_confirm': 'Yes, delete the row',
+    'group.row_deleted_sr': 'Row deleted, {0} remaining',
     'iframe_component.unsupported_browser_title': 'Your browser is unsupported',
     'iframe_component.unsupported_browser':
       'Your browser does not support iframes that use srcdoc. This may result in not being able to see all the content intended to be displayed here. We recommend trying a different browser.',

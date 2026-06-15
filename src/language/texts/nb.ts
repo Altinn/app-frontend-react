@@ -208,6 +208,7 @@ export function nb() {
     'group.row_error': 'En av radene er ikke fylt ut riktig, dette må fikses før skjema kan sendes inn',
     'group.row_popover_delete_message': 'Er du sikker på at du vil slette denne raden?',
     'group.row_popover_delete_button_confirm': 'Ja, slett raden',
+    'group.row_deleted_sr': 'Rad slettet, {0} gjenstår',
     'iframe_component.unsupported_browser_title': 'Nettleseren din støttes ikke',
     'iframe_component.unsupported_browser':
       'Nettleseren du bruker støtter ikke iframes som benytter seg av srcdoc. Dette kan føre til at du ikke ser all innholdet som er ment å vises her. Vi anbefaler deg å prøve en annen nettleser.',

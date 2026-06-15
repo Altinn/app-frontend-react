@@ -208,6 +208,7 @@ export function nn() {
     'group.row_error': 'Ei av radene er ikkje fylt ut riktig. Dette må bli retta før skjema kan sendast inn.',
     'group.row_popover_delete_message': 'Er du sikker på at du vil sletta denne rada?',
     'group.row_popover_delete_button_confirm': 'Ja, slett rada',
+    'group.row_deleted_sr': 'Rad sletta, {0} står att',
     'iframe_component.unsupported_browser_title': 'Nettlesaren din støttas ikkje',
     'iframe_component.unsupported_browser':
       'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
