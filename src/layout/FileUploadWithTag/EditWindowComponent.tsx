@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import { EXPERIMENTAL_Suggestion as Suggestion } from '@digdir/designsystemet-react';
 import deepEqual from 'fast-deep-equal';
@@ -91,8 +91,20 @@ export function EditWindowComponent({
   const isLoading = attachment.updating || !attachment.uploaded || isFetching || options?.length === 0;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
+  // Focus on the container when the edit window opens so screen reader users are taken to the new content. This is especially important for users to be aware of the upload status of the attachment, which is announced in the aria-label of the container.
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    containerRef.current?.focus();
+  }, []);
+
   return (
     <div
+      ref={containerRef}
+      tabIndex={-1}
+      role='group'
+      aria-label={langAsString('form_filler.file_uploader_attachment_uploaded_sr', [
+        uploadedAttachment?.data.filename ?? '',
+      ])}
       id={`attachment-edit-window-${uniqueId}`}
       className={classes.editContainer}
     >
