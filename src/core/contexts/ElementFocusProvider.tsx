@@ -46,8 +46,11 @@ export function useFocusOnRequest() {
         return;
       }
 
-      node.setAttribute('tabindex', '-1');
-      node.addEventListener('blur', () => node.removeAttribute('tabindex'), { once: true });
+      // A non-focusable element needs a tabindex to receive focus.
+      if (!node.hasAttribute('tabindex')) {
+        node.setAttribute('tabindex', '-1');
+        node.addEventListener('blur', () => node.removeAttribute('tabindex'), { once: true });
+      }
       node.focus();
     },
     [context],

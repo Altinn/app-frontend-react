@@ -15,8 +15,6 @@ describe('LiveValidationMessage', () => {
       </LiveValidationMessage>,
     );
 
-    // The live region is always present (with the id, so it can be referenced by aria-describedby),
-    // but the message is not rendered while show is false.
     const region = container.querySelector('#my-error');
     expect(region).toBeInTheDocument();
     expect(region).toHaveAttribute('aria-live', 'polite');
