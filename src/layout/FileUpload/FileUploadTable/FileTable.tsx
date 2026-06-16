@@ -84,9 +84,17 @@ export function FileTable({
 
             {!pdfModeActive && (
               <th>
-                <p className='sr-only'>
-                  <Lang id='form_filler.file_uploader_list_header_delete_sr' />
-                </p>
+                <span className='sr-only'>
+                  <Lang
+                    id={
+                      isSummary
+                        ? 'general.edit'
+                        : hasTag && !readOnly
+                          ? 'general.edit_alt'
+                          : 'form_filler.file_uploader_list_header_delete_sr'
+                    }
+                  />
+                </span>
               </th>
             )}
           </tr>
