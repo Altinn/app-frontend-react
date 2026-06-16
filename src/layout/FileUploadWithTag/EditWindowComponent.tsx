@@ -91,7 +91,7 @@ export function EditWindowComponent({
   const isLoading = attachment.updating || !attachment.uploaded || isFetching || options?.length === 0;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
-  // Focus on edit window when mounting the component.
+  // Focus on edit window when mounting the component. Temporary fix until we implement a new fileupload component, ref. https://github.com/Altinn/app-frontend-react/issues/4280#issuecomment-4716177309
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     containerRef.current?.focus();
