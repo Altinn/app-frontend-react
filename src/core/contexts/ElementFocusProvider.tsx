@@ -34,15 +34,8 @@ export function ElementFocusProvider({ children }: PropsWithChildren) {
 
 /**
  * Returns a ref callback to attach to an element. Once focus has been requested (via
- * {@link useRequestFocus}), each element that mounts with this ref receives focus so screen readers
+ * {@link useRequestFocus}), the element that mounts with this ref receives focus so screen readers
  * announce it.
- *
- * The request stays active across remounts: if an interim view is replaced once async state settles
- * into its final view, the final element receives focus rather than the interim one. Focus is never
- * moved before a request is made, so it is not stolen on initial render.
- *
- * The element does not need to be focusable up front: it is made focusable (`tabindex="-1"`) just
- * long enough to receive focus, then reverted on blur so it stays out of the tab order.
  */
 export function useFocusOnRequest() {
   const context = useContext(ElementFocusContext);
