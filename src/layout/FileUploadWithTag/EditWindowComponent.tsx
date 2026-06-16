@@ -97,14 +97,16 @@ export function EditWindowComponent({
     containerRef.current?.focus();
   }, []);
 
+  const announceUploaded = isAttachmentUploaded(attachment)
+    ? langAsString('form_filler.file_uploader_attachment_uploaded_sr', [attachment.data?.filename])
+    : undefined;
+
   return (
     <div
       ref={containerRef}
       tabIndex={-1}
       role='group'
-      aria-label={langAsString('form_filler.file_uploader_attachment_uploaded_sr', [
-        uploadedAttachment?.data.filename ?? '',
-      ])}
+      aria-label={announceUploaded}
       id={`attachment-edit-window-${uniqueId}`}
       className={classes.editContainer}
     >
