@@ -91,7 +91,7 @@ export function EditWindowComponent({
   const isLoading = attachment.updating || !attachment.uploaded || isFetching || options?.length === 0;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
-  // Focus on the container when the edit window opens so screen reader users are taken to the new content. This is especially important for users to be aware of the upload status of the attachment, which is announced in the aria-label of the container.
+  // Focus on edit window when mounting the component.
   const containerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     containerRef.current?.focus();
