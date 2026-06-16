@@ -51,21 +51,20 @@ describe('Grid summary test', () => {
   });
 
   it('keeps row category text visible and associated with the field on mobile/400% zoom', () => {
-    cy.gotoNavPage('GridLabelBugPage');
+    cy.gotoNavPage('Grid');
     cy.viewport('samsung-s10');
 
-    // The desktop table should collapse into the stacked mobile view
-    cy.get('#grid-label-bug-textarea').should('be.visible');
-    cy.get('#grid-label-bug-textarea table').should('not.exist');
+    // The desktop grid table should collapse into the stacked mobile view
+    cy.get('#grid-example-common-fields').should('be.visible');
+    cy.get('#grid-example-common-fields table').should('not.exist');
 
-    // Each "Krav" category text must remain visible (it used to be dropped on mobile)
-    cy.contains('Setter brukeren i sentrum for tjenesteutviklingen').should('be.visible');
-    cy.contains('Sikrer personvern og informasjonssikkerhet').should('be.visible');
+    // The column title ("Row number") is rendered as a <dt> label and the row's read-only text as its
+    // <dd> value - this text used to be dropped entirely on mobile.
+    cy.get('#grid-example-common-fields').find('dt').should('contain.text', 'Row number');
+    cy.get('#grid-example-common-fields').find('dd').should('contain.text', 'Row 1');
 
-    // The category text is programmatically associated with its answer field: the field lives inside a group
-    // labelled by the column title + row text (this text is unique to the textarea grid).
-    cy.findByRole('group', { name: 'Krav Sikrer personvern og informasjonssikkerhet' })
-      .findByRole('textbox')
-      .should('exist');
+    // The category text is programmatically associated with its answer field: the input lives inside a
+    // group labelled by the column title + row text.
+    cy.findByRole('group', { name: 'Row number Row 1' }).findByRole('textbox').should('exist');
   });
 });
