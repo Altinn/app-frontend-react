@@ -68,6 +68,8 @@ export function SigningDocumentListComponent({
         isLoading={isLoading}
         headerClassName={classes.header}
         tableClassName={classes.table}
+        tableTestId='signing-document-list'
+        ariaLabel={textResourceBindings?.title ? langAsString(textResourceBindings.title) : undefined}
         data={data ?? []}
         emptyText={<Lang id='general.empty_table' />}
         columns={[

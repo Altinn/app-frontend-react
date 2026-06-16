@@ -90,7 +90,8 @@ describe('SigningDocumentList', () => {
     screen.getByText('description');
     expect(screen.queryByRole('caption')).not.toBeInTheDocument();
 
-    screen.getByRole('table');
+    screen.getByRole('table', { name: /Signing Document List/ });
+    expect(screen.getByTestId('signing-document-list')).toHaveAttribute('aria-label', 'Signing Document List');
     screen.getByRole('columnheader', { name: 'signing_document_list.header_filename' });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_attachment_type' });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_size' });
@@ -126,7 +127,7 @@ describe('SigningDocumentList', () => {
     render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
 
     screen.getByRole('heading', { name: /Signing Document List/ });
-    screen.getByRole('table');
+    screen.getByRole('table', { name: /Signing Document List/ });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_filename' });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_attachment_type' });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_size' });
