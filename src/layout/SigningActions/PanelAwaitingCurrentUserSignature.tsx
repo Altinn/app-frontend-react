@@ -7,6 +7,7 @@ import { Button } from 'src/app-components/Button/Button';
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import { Panel } from 'src/app-components/Panel/Panel';
 import { LiveValidationMessage } from 'src/app-components/ValidationMessage/LiveValidationMessage';
+import { useRequestFocus } from 'src/core/contexts/ElementFocus';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
@@ -53,6 +54,7 @@ export function AwaitingCurrentUserSignaturePanel({
   const [onBehalfOfError, setOnBehalfOfError] = useState(false);
   const [confirmReadDocumentsError, setConfirmReadDocumentsError] = useState(false);
   const confirmReadDocumentsErrorId = useId();
+  const requestPanelFocus = useRequestFocus();
 
   const { data: authorizedOrganizationDetails, isLoading: isApiLoading } = useAuthorizedOrganizationDetails(
     instanceOwnerPartyId!,
@@ -87,6 +89,9 @@ export function AwaitingCurrentUserSignaturePanel({
         onSuccess: () => {
           setConfirmReadDocuments(false);
           setOnBehalfOf(null);
+          // Move focus to the heading of the panel shown after signing, so screen readers announce
+          // the new state.
+          requestPanelFocus();
         },
       });
     }

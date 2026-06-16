@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { FatalError } from 'src/app-components/error/FatalError/FatalError';
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import { Panel } from 'src/app-components/Panel/Panel';
+import { ElementFocusProvider } from 'src/core/contexts/ElementFocus';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -19,7 +20,15 @@ import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { getCurrentUserStatus } from 'src/layout/SigningActions/utils';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-export function SigningActionsComponent({ baseComponentId }: PropsFromGenericComponent<'SigningActions'>) {
+export function SigningActionsComponent(props: PropsFromGenericComponent<'SigningActions'>) {
+  return (
+    <ElementFocusProvider>
+      <SigningActionsPanels {...props} />
+    </ElementFocusProvider>
+  );
+}
+
+function SigningActionsPanels({ baseComponentId }: PropsFromGenericComponent<'SigningActions'>) {
   const { instanceOwnerPartyId, instanceGuid, taskId } = useParams();
   const {
     data: signeeList,
