@@ -97,9 +97,6 @@ Altinn, and making sure they are consistent. */
   gap: 16px;
 }
 
-/* Read-only "column title / value" pair (e.g. "Krav" + requirement text), rendered as a description list.
-   The explicit margin/padding resets override the global `ol, ul, dl { padding-left: 1.5rem }` rule in index.css
-   and the user-agent `dd { margin-inline-start: 40px }`, so the label and value line up flush-left with the field. */
 .mobileCell {
   display: flex;
   flex-direction: column;

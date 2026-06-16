@@ -497,26 +497,40 @@ interface MobileGridProps extends PropsFromGenericComponent<'Grid'> {
   hiddenColumnIndices: number[];
 }
 
+interface MobileRow {
+  row: GridRow;
+  /** Column titles from the nearest header row above this row; used as each cell's label. */
+  headerCells: GridCell[];
+  index: number;
+}
+
+/**
+ * Flattens grid rows for the stacked mobile view: drops header rows and hidden rows, and tags each
+ * remaining body row with the column titles from the closest header row above it (a grid can have
+ * several header sections). Those titles are rendered as the per-cell labels (e.g. "Krav").
+ */
+function useMobileRows(rows: GridRow[] | undefined): MobileRow[] {
+  const hiddenInRows = useHiddenInRows(rows);
+
+  const result: MobileRow[] = [];
+  let headerCells: GridCell[] = [];
+  for (const [index, row] of (rows ?? []).entries()) {
+    if (row.header) {
+      headerCells = row.cells; // titles now in effect for the rows below
+    } else if (!isGridRowHidden(row, hiddenInRows)) {
+      result.push({ row, headerCells, index });
+    }
+  }
+  return result;
+}
+
 function MobileGrid({ baseComponentId, overrideDisplay, hiddenColumnIndices }: MobileGridProps) {
   const { rows } = useItemWhenType(baseComponentId, 'Grid');
-  const hiddenInRows = useHiddenInRows(rows);
+  const mobileRows = useMobileRows(rows);
 
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
     baseComponentId,
     overrideDisplay,
-  });
-
-  // Header rows are not rendered as their own stacked row (that would just repeat the column titles). Instead we carry
-  // the nearest preceding header row's column titles into each body row as a per-cell prefix (e.g. "Krav: <text>"), so
-  // the category is preserved. Hidden rows must stay hidden.
-  const rowsToRender: { row: GridRow; headerCells: GridCell[]; key: number }[] = [];
-  let currentHeaderCells: GridCell[] = [];
-  (rows ?? []).forEach((row, rowIdx) => {
-    if (row.header) {
-      currentHeaderCells = row.cells;
-    } else if (!isGridRowHidden(row, hiddenInRows)) {
-      rowsToRender.push({ row, headerCells: currentHeaderCells, key: rowIdx });
-    }
   });
 
   return (
@@ -528,9 +542,9 @@ function MobileGrid({ baseComponentId, overrideDisplay, hiddenColumnIndices }: M
       help={getHelpTextComponent()}
       className={css.mobileFieldset}
     >
-      {rowsToRender.map(({ row, headerCells, key }) => (
+      {mobileRows.map(({ row, headerCells, index }) => (
         <MobileGridRow
-          key={key}
+          key={index}
           row={row}
           headerCells={headerCells}
           hiddenColumnIndices={hiddenColumnIndices}
@@ -546,7 +560,7 @@ interface MobileGridRowProps {
   hiddenColumnIndices: number[];
 }
 
-interface ContextItem {
+interface ReadOnlyCell {
   cell: GridCell;
   cellIdx: number;
   /** Text-resource id of the column title (from the header row), rendered as the cell's label. */
@@ -555,12 +569,34 @@ interface ContextItem {
   valueId: string;
 }
 
+/** Pairs a read-only cell with its column title and the element ids used for the screen-reader association. */
+function toReadOnlyCell(cell: GridCell, cellIdx: number, headerCell: GridCell, rowId: string): ReadOnlyCell {
+  const header = isGridCellText(headerCell) && headerCell.text ? headerCell.text : undefined;
+  return {
+    cell,
+    cellIdx,
+    header,
+    headerId: header ? `${rowId}-hdr-${cellIdx}` : undefined,
+    valueId: `${rowId}-val-${cellIdx}`,
+  };
+}
+
+/** The `aria-labelledby` value tying a row's field(s) to its read-only title/value text. */
+function ariaLabelledBy(cells: ReadOnlyCell[]): string | undefined {
+  return (
+    cells
+      .flatMap(({ headerId, valueId }) => [headerId, valueId])
+      .filter(typedBoolean)
+      .join(' ') || undefined
+  );
+}
+
 /**
- * Renders a single grid row stacked for mobile/high-zoom. Each read-only text/labelFrom cell renders as a
- * `<dl>` where the column title (e.g. "Krav") is the `<dt>` label and the cell value is the `<dd>` text — a
- * WCAG-compliant name/value relationship. The row's component cell(s) (which carry their own label, e.g. "Svar")
- * are rendered beneath, and the whole row is a `role="group"` programmatically associated with the read-only
- * context via `aria-labelledby`, so a screen reader announces the category together with each field.
+ * Renders one grid row, stacked for mobile/high-zoom:
+ * 1. Read-only text cells become a `<dl>`: column title (e.g. "Spørsmål") as `<dt>`, cell value as `<dd>`.
+ * 2. Component cells render below, keeping their own label (e.g. "Svar").
+ * 3. The row is a `role="group"` linked to its text via `aria-labelledby`, so screen readers read the
+ *    category together with the field.
  */
 function MobileGridRow({ row, headerCells, hiddenColumnIndices }: MobileGridRowProps) {
   const rowId = useId();
@@ -569,72 +605,55 @@ function MobileGridRow({ row, headerCells, hiddenColumnIndices }: MobileGridRowP
     .map((cell, cellIdx) => ({ cell, cellIdx }))
     .filter(({ cell, cellIdx }) => !hiddenColumnIndices.includes(cellIdx) && !isGridCellEmpty(cell));
 
-  const contextItems: ContextItem[] = visibleCells
+  // 1. Read-only text/labelFrom cells -> title/value pairs.
+  const readOnlyCells = visibleCells
     .filter(({ cell }) => isGridCellText(cell) || isGridCellLabelFrom(cell))
-    .map(({ cell, cellIdx }) => {
-      const headerCell = headerCells[cellIdx];
-      const header = isGridCellText(headerCell) && headerCell.text ? headerCell.text : undefined;
-      return {
-        cell,
-        cellIdx,
-        header,
-        headerId: header ? `${rowId}-hdr-${cellIdx}` : undefined,
-        valueId: `${rowId}-val-${cellIdx}`,
-      };
-    });
+    .map(({ cell, cellIdx }) => toReadOnlyCell(cell, cellIdx, headerCells[cellIdx], rowId));
 
-  const componentCells = visibleCells.filter(({ cell }) => isGridCellNode(cell));
+  // 2. Component cells -> the actual fields (each keeps its own label).
+  const fieldCells = visibleCells.filter(({ cell }) => isGridCellNode(cell));
 
-  const labelledBy =
-    contextItems
-      .flatMap(({ headerId, valueId }) => [headerId, valueId])
-      .filter(typedBoolean)
-      .join(' ') || undefined;
-
-  const context = contextItems.map((item) => (
-    <MobileContextCell
-      key={item.cellIdx}
-      {...item}
+  const readOnlyNodes = readOnlyCells.map((cell) => (
+    <MobileReadOnlyCell
+      key={cell.cellIdx}
+      {...cell}
     />
   ));
-
-  const components = componentCells.map(({ cell, cellIdx }) => {
-    const componentId = isGridCellNode(cell) ? cell.component : undefined;
-    return componentId ? (
+  const fieldNodes = fieldCells.map(({ cell, cellIdx }) =>
+    isGridCellNode(cell) && cell.component ? (
       <GenericComponent
         key={cellIdx}
-        baseComponentId={componentId}
+        baseComponentId={cell.component}
         overrideDisplay={{ rowReadOnly: row.readOnly }}
       />
-    ) : null;
-  });
+    ) : null,
+  );
 
-  // No interactive cells: just the (descriptive) text, nothing to group or associate.
-  if (!componentCells.length) {
-    return contextItems.length ? <div className={css.mobileRow}>{context}</div> : null;
+  // Only text, or only fields: render as-is, no group needed.
+  if (!fieldCells.length) {
+    return readOnlyCells.length ? <div className={css.mobileRow}>{readOnlyNodes}</div> : null;
+  }
+  if (!readOnlyCells.length) {
+    return <div className={css.mobileRow}>{fieldNodes}</div>;
   }
 
-  // No context: the component(s) keep their own labels; no extra grouping needed.
-  if (!contextItems.length) {
-    return <div className={css.mobileRow}>{components}</div>;
-  }
-
+  // 3. Both: group the fields with their read-only title/value text for screen readers.
   return (
     <div
       className={css.mobileRow}
       role='group'
-      aria-labelledby={labelledBy}
+      aria-labelledby={ariaLabelledBy(readOnlyCells)}
     >
-      {context}
-      {components}
+      {readOnlyNodes}
+      {fieldNodes}
     </div>
   );
 }
 
-function MobileContextCell({ cell, header, headerId, valueId }: ContextItem) {
+function MobileReadOnlyCell({ cell, header, headerId, valueId }: ReadOnlyCell) {
   if (isGridCellLabelFrom(cell)) {
     return (
-      <MobileLabelContext
+      <MobileLabelFromCell
         labelFrom={cell.labelFrom}
         header={header}
         headerId={headerId}
@@ -645,7 +664,7 @@ function MobileContextCell({ cell, header, headerId, valueId }: ContextItem) {
 
   if (isGridCellText(cell)) {
     return (
-      <MobileTextContext
+      <MobileTextCell
         cell={cell}
         header={header}
         headerId={headerId}
@@ -657,7 +676,7 @@ function MobileContextCell({ cell, header, headerId, valueId }: ContextItem) {
   return null;
 }
 
-interface ContextCellProps {
+interface ReadOnlyCellProps {
   header: string | undefined;
   headerId: string | undefined;
   valueId: string;
@@ -680,7 +699,7 @@ function ColumnTitleLabel({ header, headerId }: { header: string; headerId: stri
   );
 }
 
-function MobileTextContext({ cell, header, headerId, valueId }: ContextCellProps & { cell: GridCellText }) {
+function MobileTextCell({ cell, header, headerId, valueId }: ReadOnlyCellProps & { cell: GridCellText }) {
   const { elementAsString } = useLanguage();
   const value = (
     <>
@@ -721,7 +740,7 @@ function MobileTextContext({ cell, header, headerId, valueId }: ContextCellProps
   );
 }
 
-function MobileLabelContext({ labelFrom, header, headerId, valueId }: ContextCellProps & { labelFrom: string }) {
+function MobileLabelFromCell({ labelFrom, header, headerId, valueId }: ReadOnlyCellProps & { labelFrom: string }) {
   const item = useItemFor(labelFrom);
   const trb = item.textResourceBindings;
   const required = 'required' in item && item.required;
