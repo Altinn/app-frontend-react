@@ -121,6 +121,49 @@ The app has a complex provider tree with many nested contexts. When making chang
 
 There are many usages of `any` or type casting (`as type`) in the codebase. This skips TypeScript completely and is, in most cases, not what we want. We would like to improve the typing by avoiding this moving forward whilst also refactoring and improving existing types by removing such casts and `any`s.
 
+#### Control flow: prefer guard clauses
+
+Handle each case as a flat guard clause that returns early (or `continue`/`return` inside loops) instead of nesting `if`/`else if`/`else`. Each case stays one short, independent block, so the code reads top-to-bottom like its step-by-step comment.
+
+```ts
+// Before: nested branches, the main case buried in the final `else`
+function useMobileRows(rows: GridRow[] | undefined): MobileRow[] {
+  const hiddenInRows = useHiddenInRows(rows);
+
+  const result: MobileRow[] = [];
+  let headerCells: GridCell[] = [];
+  (rows ?? []).forEach((row, index) => {
+    if (row.header) {
+      headerCells = row.cells;
+    } else if (isGridRowHidden(row, hiddenInRows)) {
+      // skip
+    } else {
+      result.push({ row, headerCells, index });
+    }
+  });
+  return result;
+}
+
+// After: one guard per case, main case un-nested, code mirrors the comment
+function useMobileRows(rows: GridRow[] | undefined): MobileRow[] {
+  const hiddenInRows = useHiddenInRows(rows);
+
+  const result: MobileRow[] = [];
+  let headerCells: GridCell[] = [];
+  (rows ?? []).forEach((row, index) => {
+    if (row.header) {
+      headerCells = row.cells;
+      return;
+    }
+    if (isGridRowHidden(row, hiddenInRows)) {
+      return;
+    }
+    result.push({ row, headerCells, index });
+  });
+  return result;
+}
+```
+
 #### TanStack Query best practices
 
 Use objects for managing query keys and functions and `queryOptions` for sharing these across the system and central management.

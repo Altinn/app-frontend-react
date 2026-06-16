@@ -499,28 +499,34 @@ interface MobileGridProps extends PropsFromGenericComponent<'Grid'> {
 
 interface MobileRow {
   row: GridRow;
-  /** Column titles from the nearest header row above this row; used as each cell's label. */
   headerCells: GridCell[];
   index: number;
 }
 
 /**
- * Flattens grid rows for the stacked mobile view: drops header rows and hidden rows, and tags each
- * remaining body row with the column titles from the closest header row above it (a grid can have
- * several header sections). Those titles are rendered as the per-cell labels (e.g. "Krav").
+ * Picks the rows to show in the stacked mobile view. Walking top to bottom:
+ * 1. Header row: not shown; its cells become the column titles for the rows below.
+ * 2. Hidden row: skipped.
+ * 3. Body row: kept, tagged with the current column titles (later shown as each cell's label).
  */
 function useMobileRows(rows: GridRow[] | undefined): MobileRow[] {
   const hiddenInRows = useHiddenInRows(rows);
 
   const result: MobileRow[] = [];
   let headerCells: GridCell[] = [];
-  for (const [index, row] of (rows ?? []).entries()) {
+  (rows ?? []).forEach((row, index) => {
+    // 1. Header row: keep its cells as the column titles for the rows below, then move on.
     if (row.header) {
-      headerCells = row.cells; // titles now in effect for the rows below
-    } else if (!isGridRowHidden(row, hiddenInRows)) {
-      result.push({ row, headerCells, index });
+      headerCells = row.cells;
+      return;
     }
-  }
+    // 2. Hidden row: skip.
+    if (isGridRowHidden(row, hiddenInRows)) {
+      return;
+    }
+    // 3. Body row: keep, tagged with the current column titles.
+    result.push({ row, headerCells, index });
+  });
   return result;
 }
 
