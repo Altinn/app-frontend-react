@@ -1,10 +1,11 @@
 import React, { useRef } from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
-import { Dialog, Heading, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
+import { Dialog, Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
+import { LiveValidationMessage } from 'src/app-components/ValidationMessage/LiveValidationMessage';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
@@ -53,7 +54,7 @@ export function SigningPanel({
             {actionButton}
             {canReject && <RejectButton baseComponentId={baseComponentId} />}
           </div>
-          {errorMessage && <ValidationMessage>{errorMessage}</ValidationMessage>}
+          <LiveValidationMessage show={!!errorMessage}>{errorMessage}</LiveValidationMessage>
         </div>
       </div>
     </Panel>
