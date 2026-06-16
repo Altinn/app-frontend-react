@@ -16,6 +16,7 @@ import { useSingleMarker } from 'src/layout/Map/features/singleMarker/hooks';
 import { MapSingleMarker } from 'src/layout/Map/features/singleMarker/MapSingleMarker';
 import classes from 'src/layout/Map/MapComponent.module.css';
 import { DefaultBoundsPadding, DefaultFlyToZoomLevel, getMapStartingView, isLocationValid } from 'src/layout/Map/utils';
+import utilClasses from 'src/styles/utils.module.css';
 import { useExternalItem } from 'src/utils/layout/hooks';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
@@ -37,7 +38,12 @@ export function Map({ baseComponentId, className, readOnly, animate = true }: Ma
   return (
     <MapContainer
       ref={map}
-      className={cn(classes.map, { [classes.mapReadOnly]: readOnly, [classes.print]: isPdf }, className)}
+      className={cn(
+        classes.map,
+        utilClasses.focusable,
+        { [classes.mapReadOnly]: readOnly, [classes.print]: isPdf },
+        className,
+      )}
       center={center}
       zoom={zoom}
       bounds={bounds}

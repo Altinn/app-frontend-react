@@ -9,19 +9,10 @@
   height: 600px;
 }
 
-/* Visible focus indicator for keyboard users (2.4.7). The classname is applied to the
-   .leaflet-container element, so this targets the focused map directly. */
-.map:focus,
-.map:focus-visible {
-  outline: var(--ds-border-width-focus) solid var(--ds-color-focus-outer);
-  outline-offset: var(--ds-border-width-focus);
-  box-shadow: 0 0 0 var(--ds-border-width-focus) var(--ds-color-focus-inner);
-}
-
 /* Attribution rendered outside the Leaflet container (see MapAttribution.tsx). Kept visually
    present as required by the OpenStreetMap/Kartverket licenses. */
 .attribution {
-  margin: 0;
+  margin: 1px 0 0 0;
   padding: 2px 0;
   font-size: 0.6875rem;
   line-height: 1.5;
