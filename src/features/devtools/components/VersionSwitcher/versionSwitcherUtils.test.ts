@@ -11,11 +11,6 @@ describe('versionSwitcherUtils', () => {
   <base href="https://ttd.apps.tt02.altinn.no/ttd/signering-brukerstyrt/"></head>
 
   <body style="background: rgb(255, 255, 255);">
-    <script>
-      const appId = window.location.pathname.split('/');
-      window.org = appId[1];
-      window.app = appId[2];
-    </script>
     <!-- <script src="https://altinncdn.no/toolkits/altinn-app-frontend/4.31.3-preview.1/altinn-app-frontend.js"></script> -->
     <script src="https://altinncdn.no/toolkits/altinn-app-frontend/4/altinn-app-frontend.js"></script>
   </body>
@@ -31,10 +26,6 @@ describe('versionSwitcherUtils', () => {
   <base href="https://ttd.apps.tt02.altinn.no/ttd/signering-brukerstyrt/"></head>
 
   <body style="background: rgb(255, 255, 255);">
-    <script>
-      window.org = appId[1];
-      window.app = appId[2];
-    </script>
     <!-- <script src="https://altinncdn.no/toolkits/altinn-app-frontend/4.60/altinn-app-frontend.js"></script> -->
     <script src="https://altinncdn.no/toolkits/altinn-app-frontend/4.60/altinn-app-frontend.js"></script>
   </body>
