@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 
 import { EXPERIMENTAL_Suggestion as Suggestion } from '@digdir/designsystemet-react';
 import deepEqual from 'fast-deep-equal';
@@ -25,6 +25,10 @@ import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import { optionFilter } from 'src/utils/options';
 import type { IAttachment } from 'src/features/attachments';
 import type { IOptionInternal } from 'src/features/options/castOptionsToStrings';
+
+function focusOnMount(node: HTMLDivElement | null) {
+  node?.focus();
+}
 
 export interface EditWindowProps {
   baseComponentId: string;
@@ -91,19 +95,13 @@ export function EditWindowComponent({
   const isLoading = attachment.updating || !attachment.uploaded || isFetching || options?.length === 0;
   const uniqueId = isAttachmentUploaded(attachment) ? attachment.data.id : attachment.data.temporaryId;
 
-  // Focus on edit window when mounting the component. Temporary fix until we implement a new fileupload component, ref. https://github.com/Altinn/app-frontend-react/issues/4280#issuecomment-4716177309
-  const containerRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    containerRef.current?.focus();
-  }, []);
-
   const announceUploaded = isAttachmentUploaded(attachment)
     ? langAsString('form_filler.file_uploader_attachment_uploaded_sr', [attachment.data?.filename])
     : undefined;
 
   return (
     <div
-      ref={containerRef}
+      ref={focusOnMount}
       tabIndex={-1}
       role='group'
       aria-label={announceUploaded}
