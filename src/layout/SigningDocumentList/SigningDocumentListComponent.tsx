@@ -14,29 +14,30 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { getFileEnding, removeFileEnding } from 'src/layout/FileUpload/utils/fileEndings';
 import classes from 'src/layout/SigneeList/SigneeListComponent.module.css';
 import { useDocumentList } from 'src/layout/SigningDocumentList/api';
+import downloadClasses from 'src/layout/SigningDocumentList/SigningDocumentListComponent.module.css';
 import { SigningDocumentListError } from 'src/layout/SigningDocumentList/SigningDocumentListError';
 import utilClasses from 'src/styles/utils.module.css';
 import { getSizeWithUnit } from 'src/utils/attachmentsUtils';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import type { ITextResourceBindings } from 'src/layout/layout';
 
-const tableLabelId = 'signing-document-list';
-
 export function SigningDocumentListComponent({
+  baseComponentId,
   textResourceBindings,
 }: {
+  baseComponentId: string;
   textResourceBindings: ITextResourceBindings<'SigningDocumentList'>;
 }) {
   const { instanceOwnerPartyId, instanceGuid } = useParams();
   const { langAsString } = useLanguage();
   const { altinnNugetVersion } = useApplicationMetadata();
+  const componentId = useIndexedId(baseComponentId);
 
   const { data, isLoading, error } = useDocumentList(instanceOwnerPartyId, instanceGuid, altinnNugetVersion);
 
   if (error) {
     return <SigningDocumentListError error={error} />;
   }
-
-  const downloadLabel = langAsString('signing_document_list.download');
 
   return (
     <>
@@ -51,13 +52,13 @@ export function SigningDocumentListComponent({
           {textResourceBindings.description && (
             <Description
               className={captionClasses.description}
-              componentId={tableLabelId}
+              componentId={componentId}
               description={<Lang id={textResourceBindings.description} />}
             />
           )}
           {textResourceBindings.help && (
             <HelpTextContainer
-              id={tableLabelId}
+              id={componentId}
               helpText={<Lang id={textResourceBindings.help} />}
             />
           )}
@@ -68,7 +69,7 @@ export function SigningDocumentListComponent({
         isLoading={isLoading}
         headerClassName={classes.header}
         tableClassName={classes.table}
-        tableTestId='signing-document-list'
+        tableTestId={baseComponentId}
         ariaLabel={textResourceBindings?.title ? langAsString(textResourceBindings.title) : undefined}
         data={data ?? []}
         emptyText={<Lang id='general.empty_table' />}
@@ -100,15 +101,17 @@ export function SigningDocumentListComponent({
             renderCell: (_, rowData) => getSizeWithUnit(rowData.size),
           },
           {
-            header: <span className={utilClasses.visuallyHidden}>{downloadLabel}</span>,
+            header: (
+              <span className={utilClasses.visuallyHidden}>{langAsString('signing_document_list.download')}</span>
+            ),
             accessors: [],
             renderCell: (_, rowData) => (
               <Link
                 href={rowData.url}
-                style={{ display: 'flex', gap: '0.5rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
+                className={downloadClasses.downloadLink}
                 download
               >
-                {downloadLabel}
+                {langAsString('signing_document_list.download')}
                 <DownloadIcon fontSize='1.5rem' />
               </Link>
             ),
