@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useId, useRef } from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
 import { Dialog, Heading, Paragraph } from '@digdir/designsystemet-react';
@@ -70,6 +70,7 @@ type RejectTextProps = {
 
 function RejectButton({ baseComponentId }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const titleId = `${baseComponentId}-reject-modal-title-${useId()}`;
   const { mutate: processReject, isPending: isRejecting } = useProcessNext({ action: 'reject' });
   const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
@@ -90,11 +91,12 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
         </Button>
       </Dialog.Trigger>
       <Dialog
+        aria-labelledby={titleId}
         modal
         ref={modalRef}
       >
         <Dialog.Block>
-          <Heading>
+          <Heading id={titleId}>
             <Lang id={modalTitle} />
           </Heading>
         </Dialog.Block>
