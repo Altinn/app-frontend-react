@@ -3,6 +3,6 @@
  */
 export function replaceFrontendVersion(html: string, selectedVersion: string): string {
   return html
-    .replace(/src=".*\/altinn-app-frontend.js"/g, `src="${selectedVersion}/altinn-app-frontend.js"`)
-    .replace(/href=".*\/altinn-app-frontend.css"/g, `href="${selectedVersion}/altinn-app-frontend.css"`);
+    .replace(/src="[^"]*\/altinn-app-frontend\.js"/g, `src="${selectedVersion}/altinn-app-frontend.js"`)
+    .replace(/href="[^"]*\/altinn-app-frontend\.css"/g, `href="${selectedVersion}/altinn-app-frontend.css"`);
 }
