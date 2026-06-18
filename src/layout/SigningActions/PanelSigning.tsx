@@ -117,7 +117,7 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
             <Lang id={modalDescription} />
           </Paragraph>
         </Dialog.Block>
-        <Dialog.Block>
+        <Dialog.Block className={classes.dialogButtonContainer}>
           <Button
             color='danger'
             disabled={isRejecting}
