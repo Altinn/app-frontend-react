@@ -78,7 +78,9 @@ function setAutoFocus(node: HTMLElement | null) {
 
 function RejectButton({ baseComponentId }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const titleId = `reject-modal-title-${useId()}`;
+  const reactId = useId();
+  const titleId = `reject-modal-title-${reactId}`;
+  const descId = `reject-modal-description-${reactId}`;
   const { mutate: processReject, isPending: isRejecting } = useProcessNext({ action: 'reject' });
   const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
@@ -106,6 +108,7 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
         <Dialog.Block>
           <Heading
             id={titleId}
+            aria-describedby={descId}
             tabIndex={-1}
             ref={setAutoFocus}
           >
@@ -113,7 +116,7 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
           </Heading>
         </Dialog.Block>
         <Dialog.Block>
-          <Paragraph>
+          <Paragraph id={descId}>
             <Lang id={modalDescription} />
           </Paragraph>
         </Dialog.Block>
