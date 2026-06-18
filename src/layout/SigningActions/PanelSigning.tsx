@@ -68,9 +68,17 @@ type RejectTextProps = {
   baseComponentId: string;
 };
 
+/**
+ * Moves focus to the dialog title on open, so screen readers announce it
+ * We don't use node.focus() since the dialog's content is always mounted (the native <dialog> stays in the DOM while closed)
+ */
+function setAutoFocus(node: HTMLElement | null) {
+  node?.setAttribute('autofocus', '');
+}
+
 function RejectButton({ baseComponentId }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
-  const titleId = `${baseComponentId}-reject-modal-title-${useId()}`;
+  const titleId = `reject-modal-title-${useId()}`;
   const { mutate: processReject, isPending: isRejecting } = useProcessNext({ action: 'reject' });
   const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
@@ -96,7 +104,11 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
         ref={modalRef}
       >
         <Dialog.Block>
-          <Heading id={titleId}>
+          <Heading
+            id={titleId}
+            tabIndex={-1}
+            ref={setAutoFocus}
+          >
             <Lang id={modalTitle} />
           </Heading>
         </Dialog.Block>
