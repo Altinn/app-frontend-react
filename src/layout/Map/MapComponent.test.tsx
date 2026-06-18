@@ -137,17 +137,17 @@ describe('MapComponent', () => {
     expect(screen.queryByRole('button', { name: 'Zoom ut' })).not.toBeInTheDocument();
   });
 
-  it('should expose the map as a region with a localized accessible name', async () => {
+  it('should expose the map as a group with a localized accessible name', async () => {
     await render();
 
     expect(
-      screen.getByRole('region', {
+      screen.getByRole('group', {
         name: 'Interaktivt kart. Bruk piltaster for å panorere, pluss og minus for å zoome.',
       }),
     ).toBeInTheDocument();
   });
 
-  it('should announce the component label first in the map region name', async () => {
+  it('should announce the component label first in the map group name', async () => {
     await render({
       component: {
         textResourceBindings: { title: 'Min Kartkomponent' },
@@ -155,7 +155,7 @@ describe('MapComponent', () => {
     });
 
     expect(
-      screen.getByRole('region', {
+      screen.getByRole('group', {
         name: 'Min Kartkomponent. Interaktivt kart. Bruk piltaster for å panorere, pluss og minus for å zoome.',
       }),
     ).toBeInTheDocument();
