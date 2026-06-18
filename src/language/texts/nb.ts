@@ -78,6 +78,8 @@ export function nb() {
     'form_filler.file_uploader_list_header_name': 'Navn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lastet',
+    'form_filler.file_uploader_attachment_uploaded_sr':
+      'Vedlegget {0} er lastet opp. Du kan nå legge til en beskrivelse av vedlegget.',
     'form_filler.file_uploader_status_scanning': 'Skanner...',
     'form_filler.file_uploader_status_infected': 'Infisert',
     'form_filler.file_uploader_infected_file_alert':

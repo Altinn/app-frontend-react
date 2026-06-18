@@ -78,6 +78,8 @@ export function en() {
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_header_delete_sr': 'Delete',
     'form_filler.file_uploader_list_status_done': 'Uploaded',
+    'form_filler.file_uploader_attachment_uploaded_sr':
+      'The attachment {0} has been uploaded. You can now add a description for the attachment.',
     'form_filler.file_uploader_status_scanning': 'Scanning...',
     'form_filler.file_uploader_status_infected': 'Infected',
     'form_filler.file_uploader_infected_file_alert': 'The file {0} is infected with malware and cannot be used.',
