@@ -44,8 +44,8 @@ export function SigningDocumentListComponent({
       {textResourceBindings?.title && (
         <div className={captionClasses.tableCaption}>
           <Heading
-            level={2}
-            data-size='lg'
+            level={3}
+            data-size='sm'
           >
             <Lang id={textResourceBindings.title} />
           </Heading>
