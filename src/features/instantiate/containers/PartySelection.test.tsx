@@ -100,6 +100,19 @@ describe('PartySelection', () => {
     expect(screen.getByRole('button', { name: 'Ola Privatperson personnr. 010175*****' })).toBeInTheDocument();
   });
 
+  it('should not find parties when searching for letters together with matching numbers', async () => {
+    const user = userEvent.setup({ delay: null });
+    await render();
+    const searchInput = screen.getByRole('textbox', { name: /søk/i });
+
+    await user.type(searchInput, 'abc010175');
+    expect(screen.queryAllByTestId('AltinnParty-PartyWrapper')).toHaveLength(0);
+
+    await user.clear(searchInput);
+    await user.type(searchInput, 'abc974760673');
+    expect(screen.queryAllByTestId('AltinnParty-PartyWrapper')).toHaveLength(0);
+  });
+
   it('sub-unit filter should work', async () => {
     const user = userEvent.setup({ delay: null });
     await render();

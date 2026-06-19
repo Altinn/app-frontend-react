@@ -64,7 +64,7 @@ export const PartySelection = () => {
     navigate('/');
   };
 
-  const numberFilterString = filterString.replace(/\D/g, '');
+  const numberFilterString = filterString.replace(/\s+/g, '');
   const hasNumberFilter = numberFilterString.length > 0 && numberFilterString.match(/^\d+$/);
   const filteredParties = partiesAllowedToInstantiate.filter(
     (party) =>
