@@ -15,6 +15,7 @@ import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper'
 import { toTimeZonedDate } from 'src/utils/dateUtils';
 import { useExternalItem } from 'src/utils/layout/hooks';
 import { useLabel } from 'src/utils/layout/useLabel';
+import { maskSsn } from 'src/utils/maskSsn';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { CompInternal } from 'src/layout/layout';
@@ -74,7 +75,7 @@ export function InstanceInformation({ elements }: Pick<CompInternal<'InstanceInf
   const instanceDateSent =
     lastChanged && dateSent !== false && formatDate(toTimeZonedDate(formatISO(lastChanged)), PrettyDateAndTime);
 
-  const identifier = instanceOwnerParty?.ssn ?? instanceOwnerParty?.orgNumber;
+  const identifier = instanceOwnerParty?.ssn ? maskSsn(instanceOwnerParty.ssn) : instanceOwnerParty?.orgNumber;
   const instanceSender =
     sender !== false &&
     instanceOwnerParty &&

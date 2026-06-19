@@ -113,7 +113,7 @@ describe('PartySelection', () => {
 
     expect(screen.getByRole('checkbox', { name: /vis slettede/i })).toBeChecked();
     expect(screen.getAllByTestId('AltinnParty-PartyWrapper')).toHaveLength(1);
-    expect(screen.getByRole('button', { name: 'Petter Nordmann (slettet) personnr. 01017512347' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Petter Nordmann (slettet) personnr. 010175*****' })).toBeInTheDocument();
   });
 
   describe('selecting parties', () => {
@@ -121,7 +121,7 @@ describe('PartySelection', () => {
       {
         parties: [getPartyMock({ ssn: '01017512346', partyId: 12346, name: 'Kari Nordmann' })],
         expectedPartyId: 12346,
-        partyName: 'Kari Nordmann personnr. 01017512346',
+        partyName: 'Kari Nordmann personnr. 010175*****',
       },
       {
         parties: [getServiceOwnerPartyMock()],
