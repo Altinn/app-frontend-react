@@ -61,10 +61,7 @@ export function ConfirmPopover({
             data-size='sm'
             color='danger'
             type='button'
-            onMouseDown={(event) => {
-              event.preventDefault();
-              handleConfirm();
-            }}
+            onClick={handleConfirm}
           >
             {confirmText}
           </Button>
@@ -73,10 +70,7 @@ export function ConfirmPopover({
             variant='tertiary'
             color='second'
             type='button'
-            onMouseDown={(event) => {
-              event.preventDefault();
-              handleCancel();
-            }}
+            onClick={handleCancel}
           >
             {cancelText}
           </Button>
