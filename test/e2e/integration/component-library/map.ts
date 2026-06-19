@@ -45,9 +45,18 @@ describe('Map component', () => {
 
     cy.get('g>path').should('to.be.visible');
 
-    cy.findByRole('link', { name: 'Delete layers' }).click();
+    cy.get('#form-content-MapPage-MapComponent-Geometries').findByRole('link', { name: 'Delete layers' }).click();
     cy.get('g>path').click('center');
     cy.findByRole('link', { name: 'Save' }).click();
     cy.get('g>path').should('not.exist');
+  });
+
+  it('should pass accessibility tests', () => {
+    cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
+    cy.gotoNavPage('Kart');
+
+    // Wait for the map to be rendered before running the axe check
+    cy.get('.leaflet-container').should('be.visible');
+    cy.testWcag();
   });
 });

@@ -34,6 +34,7 @@ import {
   getLayoutSettingsUrl,
   getLayoutsUrl,
   getOrderDetailsUrl,
+  getPaymentInformationForTaskUrl,
   getPaymentInformationUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
@@ -344,6 +345,12 @@ export const fetchTextResources = (selectedLanguage: string): Promise<ITextResou
 
 export const fetchPaymentInformation = (instanceId: string, language?: string): Promise<PaymentResponsePayload> =>
   httpGet(getPaymentInformationUrl(instanceId, language));
+
+export const fetchPaymentInformationForTask = (
+  instanceId: string,
+  language?: string,
+  taskId?: string,
+): Promise<PaymentResponsePayload> => httpGet(getPaymentInformationForTaskUrl(instanceId, language, taskId));
 
 export const fetchOrderDetails = (instanceId: string, language?: string): Promise<OrderDetails> =>
   httpGet(getOrderDetailsUrl(instanceId, language));

@@ -4,6 +4,7 @@ import escapeStringRegexp from 'escape-string-regexp';
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { SearchParams } from 'src/core/routing/types';
 import { exprCastValue } from 'src/features/expressions';
+import { Decimal } from 'src/features/expressions/Decimal';
 import { ExprRuntimeError, NodeRelationNotFound } from 'src/features/expressions/errors';
 import { ExprVal } from 'src/features/expressions/types';
 import { addError } from 'src/features/expressions/validation';
@@ -126,6 +127,26 @@ export const ExprFunctionDefinitions = {
   lessThanEq: {
     args: args(required(ExprVal.Number), required(ExprVal.Number)),
     returns: ExprVal.Boolean,
+    needs: noSources,
+  },
+  plus: {
+    args: args(required(ExprVal.Number), rest(ExprVal.Number)),
+    returns: ExprVal.Number,
+    needs: noSources,
+  },
+  minus: {
+    args: args(required(ExprVal.Number), required(ExprVal.Number)),
+    returns: ExprVal.Number,
+    needs: noSources,
+  },
+  multiply: {
+    args: args(required(ExprVal.Number), rest(ExprVal.Number)),
+    returns: ExprVal.Number,
+    needs: noSources,
+  },
+  divide: {
+    args: args(required(ExprVal.Number), required(ExprVal.Number)),
+    returns: ExprVal.Number,
     needs: noSources,
   },
   concat: {
@@ -373,6 +394,25 @@ export const ExprFunctionImplementations: { [K in ExprFunctionName]: Implementat
   },
   lessThanEq(arg1, arg2) {
     return compare(this, 'lessThanEq', arg1, arg2);
+  },
+  plus(...terms) {
+    return terms.reduce((prev, current) => applyBinaryOperation(Decimal.add, [prev, current]), 0);
+  },
+  minus(minuend, subtrahend) {
+    return applyBinaryOperation(Decimal.subtract, [minuend, subtrahend]);
+  },
+  multiply(...factors) {
+    return factors.reduce((prev, current) => applyBinaryOperation(Decimal.multiply, [prev, current]), 1);
+  },
+  divide(dividend, divisor) {
+    const divideNumbers = (dividendNumber: number, divisorNumber: number): number => {
+      if (divisorNumber === 0) {
+        throw new ExprRuntimeError(this.expr, this.path, 'The second argument is 0, cannot divide by 0');
+      } else {
+        return Decimal.divide(dividendNumber, divisorNumber);
+      }
+    };
+    return applyBinaryOperation(divideNumbers, [dividend, divisor]);
   },
   concat: (...args) => args.join(''),
   and: (...args) => args.reduce((prev, cur) => prev && !!cur, true),
@@ -990,6 +1030,13 @@ function compare(
   }
 
   return def.impl.call(ctx, a, b);
+}
+
+function applyBinaryOperation(
+  operation: (a: number, b: number) => number,
+  [a, b]: [number | null, number | null],
+): number {
+  return operation(a || 0, b || 0);
 }
 
 function validateDatesForSameDay(this: EvaluateExpressionParams, a: ExprDate, b: ExprDate) {

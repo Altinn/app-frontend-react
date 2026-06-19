@@ -66,10 +66,12 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       autoSaveBehavior: settings.pages.autoSaveBehavior,
       expandedWidth: settings.pages.expandedWidth,
       hideCloseButton: settings.pages.hideCloseButton,
+      navigationTitle: settings.pages.navigationTitle,
       showExpandWidthButton: settings.pages.showExpandWidthButton,
       showLanguageSelector: settings.pages.showLanguageSelector,
       showProgress: settings.pages.showProgress,
       taskNavigation: settings.pages.taskNavigation?.map((g) => ({ ...g, id: uuidv4() })),
+      validationOnNavigation: settings.pages.validationOnNavigation,
     }),
     pdfLayoutName: settings.pages.pdfLayoutName,
   };
@@ -121,17 +123,20 @@ export const usePageGroups = () => {
 
 const emptyArray = [];
 
-const defaults: Required<GlobalPageSettings> = {
+const defaults: Omit<Required<GlobalPageSettings>, 'validationOnNavigation'> = {
   hideCloseButton: false,
   showLanguageSelector: false,
   showProgress: false,
   showExpandWidthButton: false,
   autoSaveBehavior: 'onChangeFormData',
   expandedWidth: false,
+  hideAppNameInPdf: false,
   taskNavigation: [],
+  navigationTitle: 'navigation.form_pages',
 };
 
-export const usePageSettings = (): Required<GlobalPageSettings> => {
+export const usePageSettings = (): Required<Omit<GlobalPageSettings, 'validationOnNavigation'>> &
+  Pick<GlobalPageSettings, 'validationOnNavigation'> => {
   const globalUISettings = useLaxGlobalUISettings();
   const layoutSettings = useLaxCtx();
 

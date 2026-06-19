@@ -78,6 +78,8 @@ export function nb() {
     'form_filler.file_uploader_list_header_name': 'Navn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lastet',
+    'form_filler.file_uploader_attachment_uploaded_sr':
+      'Vedlegget {0} er lastet opp. Du kan nå legge til en beskrivelse av vedlegget.',
     'form_filler.file_uploader_status_scanning': 'Skanner...',
     'form_filler.file_uploader_status_infected': 'Infisert',
     'form_filler.file_uploader_infected_file_alert':
@@ -151,6 +153,8 @@ export function nb() {
     'general.close': 'Lukk',
     'general.contains': 'Inneholder',
     'general.control_submit': 'Kontroller og send inn',
+    'general.copy': 'Kopier',
+    'general.copied': 'Kopiert',
     'general.create_new': 'Opprett ny',
     'general.create': 'Opprett',
     'general.customer_service_phone_number': '+47 75 00 60 00',
@@ -238,6 +242,7 @@ export function nb() {
     'instantiate.unknown_error_text': 'Det har skjedd en ukjent feil, vennligst prøv igjen senere.',
     'instantiate.unknown_error_status': 'Ukjent feil',
     'instantiate.unknown_error_customer_support': 'Om problemet vedvarer, ta kontakt med oss på brukerservice {0}.',
+    'instantiate.unknown_error_show_details': 'Vis detaljer om feilen',
     'instantiate.forbidden_action_error_title': 'Du mangler rettigheter til å utføre denne handlingen',
     'instantiate.forbidden_action_error_text':
       'Det ser ut til at du mangler rettigheter til å utføre denne handlingen.',
@@ -251,7 +256,7 @@ export function nb() {
     'instantiate.authorization_error_ask':
       'Om du representerer en person, er det den du representerer som kan gi deg rettighet til å starte tjenesten. Representerer du en organisasjon er det de som har rollen tilgangsstyring innad i organisasjonen som kan gi deg rettighet.',
     'instantiate.authorization_error_check_rights':
-      '<a href="https://{0}/ui/Profile/" target="_blank">Se hvem som har rollen tilgangsstyring under "Andre med rettigheter til virksomheten"</a>.',
+      '<a href="https://am.ui.{0}/accessmanagement/ui" target="_blank">Se hvem som har rollen tilgangsstyring under "Andre med rettigheter til virksomheten"</a>.',
     'instantiate.authorization_error_info_rights':
       '<a href="https://{0}/hjelp/profil/enkelttjenester-og-roller/" target="_blank">Her finner du mer informasjon om roller og rettigheter</a>.',
     'instantiate.authorization_error_info_customer_service': 'Du kan også kontakte oss på brukerservice {0}.',
@@ -293,7 +298,7 @@ export function nb() {
     'party_selection.show_sub_unit': 'Vis underenheter',
     'party_selection.why_seeing_this': 'Hvorfor ser jeg dette?',
     'party_selection.seeing_this_preference':
-      'Du kan endre [profilinnstillingene](https://altinn.no/ui/Profile) dine for å ikke bli spurt om aktør hver gang du starter utfylling av et nytt skjema. Du finner denne innstillingen under **Profil** > **Avanserte innstillinger** > **Jeg ønsker ikke å bli spurt om aktør hver gang jeg starter utfylling av et nytt skjema**.',
+      'Du kan endre [profilinnstillingene](https://af.{0}/profile/parties) dine for å ikke bli spurt om aktør hver gang du starter utfylling av et nytt skjema. Du finner denne innstillingen under **Profil** > **Aktører**.',
     'party_selection.seeing_this_override': 'Denne appen er satt opp til å alltid spørre om aktør.',
     'payment.pay': 'Betal',
     'payment.summary': 'Oppsummering',
@@ -396,6 +401,9 @@ export function nb() {
     'validation_errors.formatMaximum': 'Største gyldig verdi er {0}',
     'map_component.selectedLocation': 'Valgt lokasjon: {0}° nord, {1}° øst',
     'map_component.noSelectedLocation': 'Ingen lokasjon valgt',
+    'map_component.ariaLabel': 'Interaktivt kart. Bruk piltaster for å panorere, pluss og minus for å zoome.',
+    'map_component.zoomIn': 'Zoom inn',
+    'map_component.zoomOut': 'Zoom ut',
     'multiple_select_component.no_options': 'Ingen valg tilgjengelig',
     'multiple_select_component.placeholder': 'Velg...',
     'list_component.rowsPerPage': 'Rader per side',
