@@ -25,12 +25,7 @@ export const TextComponent = ({ baseComponentId }: PropsFromGenericComponent<'Te
 
   if (!textResourceBindings?.title) {
     return (
-      <div
-        className={cn(
-          classes.textComponent,
-          direction === 'vertical' ? classes.vertical : classes.horizontal,
-        )}
-      >
+      <div className={cn(classes.textComponent, direction === 'vertical' ? classes.vertical : classes.horizontal)}>
         {iconElement}
         <DisplayText value={value} />
       </div>
