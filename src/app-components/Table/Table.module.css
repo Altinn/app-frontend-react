@@ -2,10 +2,19 @@
   width: 100%;
 }
 
+.table tr td,
+.table tr th {
+  overflow-wrap: break-word;
+}
+
 .buttonContainer {
   display: flex;
   justify-content: end;
   gap: var(--ds-size-2);
+}
+
+.buttonContainer a {
+  padding: var(--ds-size-1) var(--ds-size-2);
 }
 
 .mobileTable {

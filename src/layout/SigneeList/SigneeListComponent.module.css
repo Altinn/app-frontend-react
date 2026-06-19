@@ -26,3 +26,10 @@
 .table tr td:last-child {
   width: 1%;
 }
+
+.downloadButton {
+  display: flex;
+  gap: var(--ds-size-1);
+  align-items: center;
+  text-decoration: none;
+}

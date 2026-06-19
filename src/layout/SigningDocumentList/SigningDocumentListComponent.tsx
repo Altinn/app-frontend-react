@@ -83,7 +83,7 @@ export function SigningDocumentListComponent({
           renderCell: (_, rowData) => (
             <Link
               href={rowData.url}
-              style={{ display: 'flex', gap: '0.5rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
+              className={classes.downloadButton}
               download
             >
               {langAsString('signing_document_list.download')}
