@@ -15,8 +15,21 @@ export const TextComponent = ({ baseComponentId }: PropsFromGenericComponent<'Te
   const direction = _direction ?? 'horizontal';
   const { langAsString } = useLanguage();
 
+  const iconElement = icon && (
+    <img
+      src={icon}
+      className={classes.icon}
+      alt={textResourceBindings?.title ? langAsString(textResourceBindings.title) : ''}
+    />
+  );
+
   if (!textResourceBindings?.title) {
-    return <DisplayText value={value} />;
+    return (
+      <div className={cn(classes.textComponent, direction === 'vertical' ? classes.vertical : classes.horizontal)}>
+        {iconElement}
+        <DisplayText value={value} />
+      </div>
+    );
   }
 
   return (
@@ -25,6 +38,7 @@ export const TextComponent = ({ baseComponentId }: PropsFromGenericComponent<'Te
       label={{
         baseComponentId,
         renderLabelAs: 'span',
+        labelPrefix: iconElement,
         className: cn(
           classes.label,
           classes.textComponent,
@@ -34,8 +48,6 @@ export const TextComponent = ({ baseComponentId }: PropsFromGenericComponent<'Te
     >
       <DisplayText
         value={value}
-        iconUrl={icon}
-        iconAltText={langAsString(textResourceBindings.title)}
         labelId={getLabelId(id)}
       />
     </ComponentStructureWrapper>
