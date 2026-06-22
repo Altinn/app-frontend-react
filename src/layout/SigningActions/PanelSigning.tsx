@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
-import { Dialog, Heading, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
+import { Dialog, Heading, Paragraph } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Panel } from 'src/app-components/Panel/Panel';
+import { LiveValidationMessage } from 'src/app-components/ValidationMessage/LiveValidationMessage';
+import { useFocusOnRequest } from 'src/core/contexts/ElementFocusProvider';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
@@ -31,6 +33,7 @@ export function SigningPanel({
   children,
 }: PropsWithChildren<SigningPanelProps>) {
   const canReject = useIsAuthorized()('reject');
+  const focusHeadingOnChange = useFocusOnRequest();
 
   return (
     <Panel
@@ -40,6 +43,7 @@ export function SigningPanel({
     >
       <div className={classes.contentContainer}>
         <Heading
+          ref={focusHeadingOnChange}
           level={4}
           data-size='xs'
         >
@@ -53,7 +57,7 @@ export function SigningPanel({
             {actionButton}
             {canReject && <RejectButton baseComponentId={baseComponentId} />}
           </div>
-          {errorMessage && <ValidationMessage>{errorMessage}</ValidationMessage>}
+          <LiveValidationMessage show={!!errorMessage}>{errorMessage}</LiveValidationMessage>
         </div>
       </div>
     </Panel>

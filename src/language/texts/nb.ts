@@ -78,6 +78,8 @@ export function nb() {
     'form_filler.file_uploader_list_header_name': 'Navn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lastet',
+    'form_filler.file_uploader_attachment_uploaded_sr':
+      'Vedlegget {0} er lastet opp. Du kan nå legge til en beskrivelse av vedlegget.',
     'form_filler.file_uploader_status_scanning': 'Skanner...',
     'form_filler.file_uploader_status_infected': 'Infisert',
     'form_filler.file_uploader_infected_file_alert':
@@ -400,6 +402,9 @@ export function nb() {
     'validation_errors.formatMaximum': 'Største gyldig verdi er {0}',
     'map_component.selectedLocation': 'Valgt lokasjon: {0}° nord, {1}° øst',
     'map_component.noSelectedLocation': 'Ingen lokasjon valgt',
+    'map_component.ariaLabel': 'Interaktivt kart. Bruk piltaster for å panorere, pluss og minus for å zoome.',
+    'map_component.zoomIn': 'Zoom inn',
+    'map_component.zoomOut': 'Zoom ut',
     'multiple_select_component.no_options': 'Ingen valg tilgjengelig',
     'multiple_select_component.placeholder': 'Velg...',
     'list_component.rowsPerPage': 'Rader per side',

@@ -78,6 +78,8 @@ export function en() {
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_header_delete_sr': 'Delete',
     'form_filler.file_uploader_list_status_done': 'Uploaded',
+    'form_filler.file_uploader_attachment_uploaded_sr':
+      'The attachment {0} has been uploaded. You can now add a description for the attachment.',
     'form_filler.file_uploader_status_scanning': 'Scanning...',
     'form_filler.file_uploader_status_infected': 'Infected',
     'form_filler.file_uploader_infected_file_alert': 'The file {0} is infected with malware and cannot be used.',
@@ -396,6 +398,9 @@ export function en() {
     'validation_errors.formatMaximum': 'Maximum valid value is {0}',
     'map_component.selectedLocation': 'Selected location: {0}° north, {1}° east',
     'map_component.noSelectedLocation': 'No selected location',
+    'map_component.ariaLabel': 'Interactive map. Use the arrow keys to pan, and plus and minus to zoom.',
+    'map_component.zoomIn': 'Zoom in',
+    'map_component.zoomOut': 'Zoom out',
     'multiple_select_component.no_options': 'No options available',
     'multiple_select_component.placeholder': 'Select...',
     'list_component.rowsPerPage': 'Rows per page',
