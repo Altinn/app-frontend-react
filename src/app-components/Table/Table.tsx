@@ -33,6 +33,8 @@ interface DataTableProps<T> {
   schema?: JSONSchema7;
   columns: Column<T>[];
   caption?: React.ReactNode;
+  ariaLabel?: string;
+  tableTestId?: string;
   actionButtons?: TableActionButton<T>[];
   actionButtonHeader?: React.ReactNode;
   mobile?: boolean;
@@ -73,6 +75,8 @@ function formatValue(value: FormDataValue): string {
 
 export function AppTable<T>({
   caption,
+  ariaLabel,
+  tableTestId,
   data,
   columns,
   actionButtons,
@@ -93,6 +97,8 @@ export function AppTable<T>({
       className={cn(classes.table, tableClassName, { [classes.mobileTable]: mobile })}
       zebra={zebra}
       stickyHeader={stickyHeader}
+      aria-label={ariaLabel}
+      data-testid={tableTestId}
     >
       {caption}
       <Table.Head>

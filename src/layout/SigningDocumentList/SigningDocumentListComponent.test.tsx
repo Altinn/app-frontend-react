@@ -29,6 +29,10 @@ const mockDocumentList: SigningDocument[] = [
 
 jest.mock('src/utils/layout/useNodeItem', () => ({}));
 
+jest.mock('src/utils/layout/DataModelLocation', () => ({
+  useIndexedId: (baseId: string) => baseId,
+}));
+
 jest.mock('react-router-dom', () => ({
   useParams: jest.fn(() => ({
     partyId: 'partyId',
@@ -65,6 +69,7 @@ jest.mock('src/layout/SigningDocumentList/SigningDocumentListError', () => ({
 
 describe('SigningDocumentList', () => {
   const mockedUseDocumentList = jest.mocked(useDocumentList);
+  const baseComponentId = 'signing-document-list';
 
   const textResourceBindings: ITextResourceBindings<'SigningDocumentList'> = {
     title: 'Signing Document List',
@@ -84,12 +89,23 @@ describe('SigningDocumentList', () => {
   });
 
   it('should render correctly', () => {
-    render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
+    render(
+      <SigningDocumentListComponent
+        baseComponentId={baseComponentId}
+        textResourceBindings={textResourceBindings}
+      />,
+    );
+
+    screen.getByRole('heading', { name: /Signing Document List/ });
+    screen.getByText('description');
+    expect(screen.queryByRole('caption')).not.toBeInTheDocument();
 
     screen.getByRole('table', { name: /Signing Document List/ });
+    expect(screen.getByTestId('signing-document-list')).toHaveAttribute('aria-label', 'Signing Document List');
     screen.getByRole('columnheader', { name: 'signing_document_list.header_filename' });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_attachment_type' });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_size' });
+    screen.getByRole('columnheader', { name: 'signing_document_list.download' });
 
     expect(screen.getAllByRole('columnheader')).toHaveLength(4);
 
@@ -106,7 +122,12 @@ describe('SigningDocumentList', () => {
       error: new Error('API error'),
     } as unknown as ReturnType<typeof useDocumentList>);
 
-    render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
+    render(
+      <SigningDocumentListComponent
+        baseComponentId={baseComponentId}
+        textResourceBindings={textResourceBindings}
+      />,
+    );
 
     screen.getByText('API error');
   });
@@ -118,8 +139,14 @@ describe('SigningDocumentList', () => {
       error: null,
     } as unknown as ReturnType<typeof useDocumentList>);
 
-    render(<SigningDocumentListComponent textResourceBindings={textResourceBindings} />);
+    render(
+      <SigningDocumentListComponent
+        baseComponentId={baseComponentId}
+        textResourceBindings={textResourceBindings}
+      />,
+    );
 
+    screen.getByRole('heading', { name: /Signing Document List/ });
     screen.getByRole('table', { name: /Signing Document List/ });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_filename' });
     screen.getByRole('columnheader', { name: 'signing_document_list.header_attachment_type' });
