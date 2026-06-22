@@ -467,10 +467,11 @@ export function nn() {
     'signing.no_action_required_panel_description_has_signed': 'Alt i orden! Du kan no gå tilbake til innboksen din.',
     'signing.no_action_required_panel_description_not_signed': 'Du har ikkje tilgang til å signere dette skjemaet.',
     'signing.no_action_required_button': 'Gå til innboksen',
-    'signing.reject_modal_title': 'Avbryt signeringsprosessen',
+    'signing.reject_modal_title': 'Avbryt signering',
     'signing.reject_modal_description':
-      'Ved å avbryte signeringsprosessen blir alle signaturar sletta, og alle delegert tilgang trekt tilbake.',
-    'signing.reject_modal_button': 'Avbryt signeringsprosessen',
+      'Alle signaturar blir sletta. Alle personar du har delegert til mistar tilgang. Du kan ikkje angre dette.',
+    'signing.reject_modal_button': 'Avbryt signering',
+    'signing.reject_modal_close_button': 'Hald fram med signering',
     'signing.reject_modal_trigger_button': 'Avbryt signering',
     'signing.api_error_panel_title': 'Klarte ikkje hente signeringsstatus',
     'signing.api_error_panel_description':

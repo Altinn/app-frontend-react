@@ -87,6 +87,7 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
   const modalTitle = textResourceBindings?.rejectModalTitle ?? 'signing.reject_modal_title';
   const modalDescription = textResourceBindings?.rejectModalDescription ?? 'signing.reject_modal_description';
   const modalButton = textResourceBindings?.rejectModalButton ?? 'signing.reject_modal_button';
+  const modalCloseButton = textResourceBindings?.rejectModalCloseButton ?? 'signing.reject_modal_close_button';
   const modalTriggerButton = textResourceBindings?.rejectModalTriggerButton ?? 'signing.reject_modal_trigger_button';
 
   return (
@@ -135,7 +136,7 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
             size='md'
             onClick={() => modalRef.current?.close()}
           >
-            <Lang id='general.close' />
+            <Lang id={modalCloseButton} />
           </Button>
         </Dialog.Block>
       </Dialog>
