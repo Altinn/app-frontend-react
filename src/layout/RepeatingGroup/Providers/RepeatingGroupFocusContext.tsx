@@ -27,8 +27,8 @@ type FocusableHTMLElement =
 export type RefSetter = (rowIndex: number, key: string, div: HTMLElement | null) => void;
 export type FocusTrigger = (rowIndex: number) => void;
 
-// Key used when registering the whole table row as a focus target. This gives read-only tables
-// (where the cells contain no focusable elements) something to focus, e.g. after deleting a row.
+// Key used when registering the whole table row as a focus target. This gives read-only tables after deleting a row
+// something to focus.
 const ROW_CONTAINER_KEY = 'row';
 // Keys used to register the row's edit button and its edit container as focus targets.
 const EDIT_BUTTON_KEY = 'editButton';
@@ -117,8 +117,7 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
   };
 
   // Move focus to the first focusable element inside the edit container of a row. Used when
-  // navigating between multiPage pages and when opening the next row for editing, so focus follows
-  // to the top of the edit container instead of being left behind on the button that was pressed.
+  // navigating between multiPage pages and when opening the next row for editing
   const focusEditContainer = (rowIndex: number) => {
     const element = elementRefs.get(`${rowIndex}-${EDIT_CONTAINER_KEY}`);
     const firstFocusableChild = element && findFirstFocusableElement(element);
@@ -127,12 +126,10 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       firstFocusableChild.focus();
       return;
     }
-    // The edit container isn't mounted yet (e.g. opening a row on another page); focus it once it
-    // registers via refSetter.
     waitingForEditContainer.current = rowIndex;
   };
 
-  // Move focus to a row's edit button, e.g. back to the same row after closing its edit container.
+  // Move focus to a row's edit button
   const focusEditButton = (rowIndex: number) => {
     const element = elementRefs.get(`${rowIndex}-${EDIT_BUTTON_KEY}`);
     if (element) {
@@ -140,8 +137,6 @@ export function RepeatingGroupsFocusProvider({ children }: PropsWithChildren) {
       element.focus();
       return;
     }
-    // The edit button isn't mounted yet (e.g. the table is remounting after closing in hideTable
-    // mode); focus it once it registers via refSetter.
     waitingForEditButton.current = rowIndex;
   };
 
@@ -192,8 +187,7 @@ export function useDeleteRowAndFocus() {
     const focusTarget = getRowToFocusAfterDeletion(visibleRows, row.uuid);
     const successful = await deleteRow(row);
     if (successful) {
-      // Wait for the row to be removed and the remaining rows to re-render (and re-register their
-      // refs under their shifted indices) before moving focus, mirroring `useFocusWhenRemoved`.
+      // Wait for the row to be removed and the remaining rows to re-render before moving focus
       requestAnimationFrame(() => {
         if (focusTarget === null) {
           focusAddButton();

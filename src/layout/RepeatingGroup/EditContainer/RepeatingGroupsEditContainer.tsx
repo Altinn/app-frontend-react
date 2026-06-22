@@ -242,15 +242,13 @@ function RepeatingGroupsEditContainerInternal({
                 <Button
                   id={`next-button-grp-${id}`}
                   onClick={async () => {
-                    // Capture the next editable row before opening it, then move focus to the top of
-                    // its edit container (not the next row's edit button) once it has rendered.
+                    // Move focus to the top of its edit container
                     const currentEditableIndex = editableRows.findIndex((r) => r.uuid === editId);
                     const nextEditableRow = editableRows[currentEditableIndex + 1];
                     const opened = await openNextForEditing();
                     if (opened) {
                       requestAnimationFrame(() =>
-                        // If there is no next editable row, openNextForEditing closes this one
-                        // instead; fall back to this row's edit button like save and close.
+                        // Fall back to focusing this row's edit button like save and close.
                         nextEditableRow ? focusEditContainer(nextEditableRow.index) : focusEditButton(row.index),
                       );
                     }
@@ -268,8 +266,7 @@ function RepeatingGroupsEditContainerInternal({
                   id={`save-button-${id}`}
                   onClick={async () => {
                     const closed = await closeForEditing({ index: row.index, uuid: row.uuid });
-                    // Move focus back to this row's edit button rather than letting it fall to the
-                    // next row (or the page body) when the edit container unmounts.
+                    // Move focus back to this row's edit button
                     if (closed) {
                       requestAnimationFrame(() => focusEditButton(row.index));
                     }

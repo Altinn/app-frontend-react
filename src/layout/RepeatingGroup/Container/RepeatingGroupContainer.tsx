@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect } from 'react';
 import type { JSX } from 'react';
 
 import { PlusIcon } from '@navikt/aksel-icons';
@@ -74,18 +74,15 @@ function RowDeletionAnnouncement() {
   const { numVisibleRows } = useRepeatingGroupRowState();
   const [message, setMessage] = React.useState('');
 
-  // Only announce when the count actually increases. Initializing the ref to the current count means a
-  // remount (e.g. the group being hidden then shown again) with a non-zero count announces nothing.
+  // Only announce when the count actually increases.
   const lastAnnouncedCount = React.useRef(deletedRowsCount);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (deletedRowsCount <= lastAnnouncedCount.current) {
       return;
     }
     lastAnnouncedCount.current = deletedRowsCount;
-    // Include the remaining row count so the message text differs between consecutive deletions.
-    // Screen readers do not reliably re-announce live-region text that is identical to the
-    // previous announcement.
+    // Include the remaining row count so the message gets re-announced on later deletions
     setMessage(langAsString('group.row_deleted_sr', [numVisibleRows]));
   }, [deletedRowsCount, numVisibleRows, langAsString]);
 
