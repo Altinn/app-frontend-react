@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useId } from 'react';
 import type { ChangeEvent } from 'react';
 
-import { ValidationMessage } from '@digdir/designsystemet-react';
-
 import { Fieldset } from 'src/app-components/Label/Fieldset';
+import { LiveValidationMessage } from 'src/app-components/ValidationMessage/LiveValidationMessage';
 import { RadioButton } from 'src/components/form/RadioButton';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { Lang } from 'src/features/language/Lang';
@@ -27,6 +26,7 @@ export const OnBehalfOfChooser = ({
   error = false,
 }: Readonly<OnBehalfOfChooserProps>) => {
   const mySelf = useLanguage().langAsString('signing.submit_panel_myself_choice');
+  const errorId = useId();
 
   return (
     <Fieldset
@@ -34,6 +34,7 @@ export const OnBehalfOfChooser = ({
       description={<Lang id='signing.submit_panel_radio_group_description' />}
       required={true}
       requiredIndicator={<RequiredIndicator />}
+      aria-describedby={errorId}
     >
       {currentUserSignee && (
         <RadioButton
@@ -56,11 +57,13 @@ export const OnBehalfOfChooser = ({
           checked={onBehalfOfOrg === org.orgNumber}
         />
       ))}
-      {error && (
-        <ValidationMessage data-size='sm'>
-          <Lang id='signing.error_signing_no_on_behalf_of' />
-        </ValidationMessage>
-      )}
+      <LiveValidationMessage
+        show={error}
+        id={errorId}
+        data-size='sm'
+      >
+        <Lang id='signing.error_signing_no_on_behalf_of' />
+      </LiveValidationMessage>
     </Fieldset>
   );
 };
