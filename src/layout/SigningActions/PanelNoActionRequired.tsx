@@ -3,12 +3,13 @@ import React from 'react';
 import { Link } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
+import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useProfile } from 'src/features/profile/ProfileProvider';
 import { SigningPanel } from 'src/layout/SigningActions/PanelSigning';
 import classes from 'src/layout/SigningActions/SigningActions.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import { getMessageBoxUrl } from 'src/utils/urls/urlHelper';
+import { getDialogIdFromDataValues, getMessageBoxUrl } from 'src/utils/urls/urlHelper';
 
 type NoActionRequiredPanelProps = {
   baseComponentId: string;
@@ -17,6 +18,8 @@ type NoActionRequiredPanelProps = {
 
 export function NoActionRequiredPanel({ baseComponentId, hasSigned }: NoActionRequiredPanelProps) {
   const currentUserPartyId = useProfile()?.partyId;
+  const dataValues = useInstanceDataQuery({ select: (instance) => instance.dataValues }).data;
+  const dialogId = getDialogIdFromDataValues(dataValues);
   const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
   const titleHasSigned =
@@ -44,7 +47,7 @@ export function NoActionRequiredPanel({ baseComponentId, hasSigned }: NoActionRe
           asChild
         >
           <Link
-            href={getMessageBoxUrl(currentUserPartyId) ?? '#'}
+            href={getMessageBoxUrl(currentUserPartyId, dialogId) ?? '#'}
             className={classes.buttonLink}
           >
             <Lang id={goToInboxButton} />
