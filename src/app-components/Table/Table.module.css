@@ -13,10 +13,6 @@
   gap: var(--ds-size-2);
 }
 
-.buttonContainer a {
-  padding: var(--ds-size-1) var(--ds-size-2);
-}
-
 .mobileTable {
   display: block;
 }
