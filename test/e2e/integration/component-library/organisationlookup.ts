@@ -2,9 +2,11 @@ import { AppFrontend } from 'test/e2e/pageobjects/app-frontend';
 
 const appFrontend = new AppFrontend();
 
+const organisationLookupIntercept = '**/api/v1/lookup/organisation/*';
+
 describe('Organisation lookup', () => {
   it('Renders the organisation lookup component correctly', () => {
-    cy.intercept('GET', '/ttd/component-library/api/v1/lookup/organisation/*', {
+    cy.intercept('GET', organisationLookupIntercept, {
       statusCode: 200,
       body: {
         success: true,
@@ -40,7 +42,7 @@ describe('Organisation lookup', () => {
     cy.findByRole('button', { name: /Fjern/i }).should('not.exist');
 
     // Add interceptor for failed fetch
-    cy.intercept('GET', '/ttd/component-library/api/v1/lookup/organisation/*', {
+    cy.intercept('GET', organisationLookupIntercept, {
       statusCode: 200,
       body: {
         success: false,
@@ -55,7 +57,7 @@ describe('Organisation lookup', () => {
     cy.findByText(/Organisasjonsnummeret ble ikke funnet i enhetsregisteret/i).should('exist');
 
     // Add interceptor for failed fetch due to server error
-    cy.intercept('GET', '/ttd/component-library/api/v1/lookup/organisation/*', {
+    cy.intercept('GET', organisationLookupIntercept, {
       statusCode: 500,
     }).as('failedFetchOrganisationServerError');
 
