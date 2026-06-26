@@ -474,10 +474,11 @@ export function nb() {
     'signing.delegation_error_panel_title': 'Kunne ikke gi tilgang til skjema',
     'signing.delegation_error_panel_description':
       'En eller flere av signatarene er ugyldige og har ikke fått tilgang til skjemaet. Gå tilbake for å prøve å rette opp feilen eller kontakt skjemaeier.',
-    'signing.reject_modal_title': 'Avbryt signeringsprosessen',
+    'signing.reject_modal_title': 'Avbryt signering',
     'signing.reject_modal_description':
-      'Ved å avbryte signeringsprosessen vil alle signaturer bli slettet og alle delegerte tilganger trukket tilbake.',
-    'signing.reject_modal_button': 'Avbryt signeringsprosessen',
+      'Alle signaturer blir slettet. Alle personer du har delegert til mister tilgang. Du kan ikke angre dette.',
+    'signing.reject_modal_button': 'Avbryt signering',
+    'signing.reject_modal_close_button': 'Fortsett signering',
     'signing.reject_modal_trigger_button': 'Avbryt signering',
     'signing.loading': 'Laster inn signeringsstatus...',
     'signing.wrong_task_error': '{0}-komponenten er kun tilgjengelig i et signeringssteg.',
