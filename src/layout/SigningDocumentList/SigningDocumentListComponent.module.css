@@ -1,6 +1,6 @@
 .downloadLink {
   display: flex;
-  gap: 0.5rem;
-  white-space: nowrap;
+  gap: var(--ds-size-1);
+  align-items: center;
   text-decoration: none;
 }
