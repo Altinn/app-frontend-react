@@ -474,10 +474,11 @@ export function en() {
     'signing.delegation_error_panel_title': 'Could not grant access to form',
     'signing.delegation_error_panel_description':
       'One or more of the signees are invalid and have not been granted access to the form. Go back to try to correct the issue or contact the form owner.',
-    'signing.reject_modal_title': 'Cancel the signing process',
+    'signing.reject_modal_title': 'Cancel signing',
     'signing.reject_modal_description':
-      'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',
-    'signing.reject_modal_button': 'Cancel the signing process',
+      'All signatures will be deleted. Everyone you have delegated to will lose access. This cannot be undone.',
+    'signing.reject_modal_button': 'Cancel signing',
+    'signing.reject_modal_close_button': 'Continue signing',
     'signing.reject_modal_trigger_button': 'Cancel signing',
     'signing.wrong_task_error': 'The {0} component is only available in a signing task.',
     'signing.error_missing_signing_rights':
