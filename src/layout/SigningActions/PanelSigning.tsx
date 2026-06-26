@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useId, useRef } from 'react';
 import type { PropsWithChildren, ReactElement } from 'react';
 
 import { Dialog, Heading, Paragraph } from '@digdir/designsystemet-react';
@@ -68,14 +68,26 @@ type RejectTextProps = {
   baseComponentId: string;
 };
 
+/**
+ * Moves focus to the dialog title on open, so screen readers announce it
+ * We don't use node.focus() since the dialog's content is always mounted (the native <dialog> stays in the DOM while closed)
+ */
+function setAutoFocus(node: HTMLElement | null) {
+  node?.setAttribute('autofocus', '');
+}
+
 function RejectButton({ baseComponentId }: RejectTextProps) {
   const modalRef = useRef<HTMLDialogElement>(null);
+  const reactId = useId();
+  const titleId = `reject-modal-title-${reactId}`;
+  const descId = `reject-modal-description-${reactId}`;
   const { mutate: processReject, isPending: isRejecting } = useProcessNext({ action: 'reject' });
   const { textResourceBindings } = useItemWhenType(baseComponentId, 'SigningActions');
 
   const modalTitle = textResourceBindings?.rejectModalTitle ?? 'signing.reject_modal_title';
   const modalDescription = textResourceBindings?.rejectModalDescription ?? 'signing.reject_modal_description';
   const modalButton = textResourceBindings?.rejectModalButton ?? 'signing.reject_modal_button';
+  const modalCloseButton = textResourceBindings?.rejectModalCloseButton ?? 'signing.reject_modal_close_button';
   const modalTriggerButton = textResourceBindings?.rejectModalTriggerButton ?? 'signing.reject_modal_trigger_button';
 
   return (
@@ -90,20 +102,26 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
         </Button>
       </Dialog.Trigger>
       <Dialog
+        aria-labelledby={titleId}
         modal
         ref={modalRef}
       >
         <Dialog.Block>
-          <Heading>
+          <Heading
+            id={titleId}
+            aria-describedby={descId}
+            tabIndex={-1}
+            ref={setAutoFocus}
+          >
             <Lang id={modalTitle} />
           </Heading>
         </Dialog.Block>
         <Dialog.Block>
-          <Paragraph>
+          <Paragraph id={descId}>
             <Lang id={modalDescription} />
           </Paragraph>
         </Dialog.Block>
-        <Dialog.Block>
+        <Dialog.Block className={classes.dialogButtonContainer}>
           <Button
             color='danger'
             disabled={isRejecting}
@@ -118,7 +136,7 @@ function RejectButton({ baseComponentId }: RejectTextProps) {
             size='md'
             onClick={() => modalRef.current?.close()}
           >
-            <Lang id='general.close' />
+            <Lang id={modalCloseButton} />
           </Button>
         </Dialog.Block>
       </Dialog>
