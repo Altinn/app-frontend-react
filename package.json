@@ -33,7 +33,7 @@
     "bench": "tsx --expose_gc --tsconfig benchmarks/tsconfig.json benchmarks/${0}"
   },
   "devDependencies": {
-    "@babel/core": "7.29.0",
+    "@babel/core": "7.29.6",
     "@babel/plugin-transform-runtime": "7.29.0",
     "@babel/preset-env": "7.29.5",
     "@babel/preset-react": "7.28.5",
@@ -118,7 +118,7 @@
     "utility-types": "3.11.0",
     "webpack": "5.106.2",
     "webpack-cli": "7.0.2",
-    "webpack-dev-server": "5.2.4"
+    "webpack-dev-server": "5.2.5"
   },
   "dependencies": {
     "@date-fns/tz": "1.4.1",
@@ -137,7 +137,7 @@
     "cypress-parallel": "0.15.0",
     "date-fns": "4.1.0",
     "decimal.js": "10.6.0",
-    "dompurify": "3.4.3",
+    "dompurify": "3.4.11",
     "dot-object": "2.1.5",
     "fast-array-diff": "1.1.0",
     "fast-json-patch": "3.1.1",
