@@ -31,8 +31,13 @@ describe('Unknown error', () => {
 
     expect(console.error).not.toHaveBeenCalled();
 
-    const showDetailsButton = screen.getByRole('button', { name: 'Vis detaljer om feilen' });
-    await user.click(showDetailsButton);
+    const detailsGroup = screen.getByRole('group');
+    expect(detailsGroup).toHaveTextContent('Vis detaljer om feilen');
+    const summary = detailsGroup.querySelector('summary');
+    if (!summary) {
+      throw new Error('Expected a <summary> inside the details group');
+    }
+    await user.click(summary);
     expect(screen.getByText('Error test message')).toBeInTheDocument();
 
     const writeTextMock = jest.spyOn(navigator.clipboard, 'writeText').mockResolvedValue();
