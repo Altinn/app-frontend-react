@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
+import { useDataListQuery } from 'src/features/dataLists/useDataListQuery';
 import { evalExpr } from 'src/features/expressions';
 import { ExprVal } from 'src/features/expressions/types';
 import { ExprValidation } from 'src/features/expressions/validation';
@@ -11,6 +12,7 @@ import { useGeneratorErrorBoundaryNodeRef } from 'src/utils/layout/generator/Gen
 import { WhenParentAdded } from 'src/utils/layout/generator/GeneratorStages';
 import { NodePropertiesValidation } from 'src/utils/layout/generator/validation/NodePropertiesValidation';
 import { NodesInternal, NodesStore } from 'src/utils/layout/NodesContext';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import type { SimpleEval } from 'src/features/expressions';
 import type { ExprResolved, ExprValToActual, ExprValToActualOrExpr } from 'src/features/expressions/types';
 import type { FormComponentProps, SummarizableComponentProps } from 'src/layout/common.generated';
@@ -19,6 +21,7 @@ import type {
   CompExternalExact,
   CompIntermediate,
   CompIntermediateExact,
+  CompInternal,
   CompTypes,
   ITextResourceBindings,
 } from 'src/layout/layout';
@@ -55,6 +58,9 @@ export function NodeGenerator({ children, externalItem }: PropsWithChildren<Node
         parentBaseId={externalItem.id}
         item={intermediateItem}
       >
+        {intermediateItem.type === 'List' && window.listPrefetchingEnabled !== false && (
+          <PrefetchListData item={intermediateItem} />
+        )}
         <WhenParentAdded>
           <NodePropertiesValidation
             {...commonProps}
@@ -138,6 +144,27 @@ function AddRemoveNode<T extends CompTypes>({
       removeNode({ nodeId: intermediateItem.id, layouts: layoutsWas });
     },
     [intermediateItem.id, layoutsWas, removeNode],
+  );
+
+  return null;
+}
+
+function PrefetchListData({ item }: { item: CompIntermediateExact<'List'> }) {
+  const dataSources = useExpressionDataSources(item);
+  const props = useExpressionResolverProps<'List'>(`Invalid expression for ${item.id}`, item, dataSources);
+  const resolvedItem = getComponentDef('List').evalExpressions(props) as CompInternal<'List'>;
+
+  useDataListQuery(
+    {
+      pageSize: resolvedItem.pagination?.default ?? 0,
+      pageNumber: 0,
+      sortColumn: undefined,
+      sortDirection: 'none',
+    },
+    resolvedItem.dataListId,
+    resolvedItem.secure,
+    resolvedItem.mapping,
+    resolvedItem.queryParameters,
   );
 
   return null;
