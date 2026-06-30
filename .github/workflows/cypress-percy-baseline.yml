@@ -7,13 +7,13 @@ on:
       - 'src/**'
       - 'test/**'
       - 'yarn.lock'
-      - '.github/workflows/cypress.yml'
+      - '.github/workflows/cypress-percy-baseline.yml'
   pull_request:
     paths:
       - 'src/**'
       - 'test/**'
       - 'yarn.lock'
-      - '.github/workflows/cypress.yml'
+      - '.github/workflows/cypress-percy-baseline.yml'
     types:
       - opened
       - reopened
