@@ -31,4 +31,9 @@ export const ignoredConsoleMessages = [
   /^Designsystemet: useRovingFocus is deprecated/,
 
   /AxiosError: Request failed with status code 400/,
+
+  // Benign browser notification (not a real error) triggered by the Designsystemet combobox
+  // (EXPERIMENTAL_Suggestion / u-datalist) when its popover opens. Chrome logs this to the console in
+  // addition to dispatching it as an uncaught exception (the latter is handled in index.ts).
+  /ResizeObserver loop completed with undelivered notifications/,
 ];

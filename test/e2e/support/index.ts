@@ -25,6 +25,15 @@ before(() => {
   chai.use(chaiExtensions);
 });
 
+// "ResizeObserver loop completed with undelivered notifications" is a benign browser notification (not a real error)
+// that the Designsystemet combobox (EXPERIMENTAL_Suggestion / u-datalist) triggers when its popover opens. Cypress
+// fails any test on an uncaught application exception, so we have to explicitly ignore this specific message.
+Cypress.on('uncaught:exception', (err) => {
+  if (err.message.includes('ResizeObserver loop completed with undelivered notifications')) {
+    return false;
+  }
+});
+
 // Clear media emulation and reset default command timeout before each test
 beforeEach(() => {
   cy.setEmulatedMedia();

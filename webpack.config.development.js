@@ -81,6 +81,11 @@ module.exports = {
       overlay: {
         errors: enableErrorsOverlay,
         warnings: false,
+        // "ResizeObserver loop completed with undelivered notifications" is a benign browser notification (not a real
+        // error) triggered by the Designsystemet combobox's floating-positioning logic. Don't let it raise the
+        // full-screen dev-server error overlay, which renders as an iframe that covers the page and breaks e2e tests.
+        runtimeErrors: (error) =>
+          !error?.message?.includes('ResizeObserver loop completed with undelivered notifications'),
       },
     },
     static: [

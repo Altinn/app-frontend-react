@@ -84,8 +84,10 @@ Cypress.Commands.add('dsClear', (selector) => {
   // Clear the input value and trigger input event to reset dropdown's internal state
   cy.get(selector).invoke('val', '').trigger('input');
 
-  // Close any open dropdowns by clicking outside
-  cy.get('body').click('bottomRight');
+  // Close any open dropdowns by clicking outside.
+  // force:true because this is an outside-click to dismiss the dropdown, not a real user interaction — without
+  // it Cypress can fail with "<body> is covered by <html>" when the body's corner pixel resolves to <html>.
+  cy.get('body').click('bottomRight', { force: true });
 
   // Additional step to ensure dropdown is reset
   cy.get(selector).click();
@@ -106,7 +108,9 @@ Cypress.Commands.add('dsSelect', (selector, value, debounce = true) => {
   // https://github.com/testing-library/cypress-testing-library/issues/205#issuecomment-974688283
   cy.findByRole('option', { name: value }).click();
   if (debounce) {
-    cy.get('body').click('bottomRight');
+    // force:true because this is an outside-click to dismiss the dropdown, not a real user interaction — without
+    // it Cypress can fail with "<body> is covered by <html>" when the body's corner pixel resolves to <html>.
+    cy.get('body').click('bottomRight', { force: true });
   }
 });
 

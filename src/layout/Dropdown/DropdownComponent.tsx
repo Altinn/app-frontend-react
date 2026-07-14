@@ -104,6 +104,10 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           </DSLabel>
         )}
         <Suggestion
+          // With alertOnChange the commit is deferred until the user confirms, which breaks the DS combobox's
+          // runtime re-sync of the displayed input value. Keying by the committed value
+          // forces a fresh mount on commit.
+          key={alertOnChange ? `${id}-${selectedValues[0] ?? ''}` : undefined}
           multiple={false}
           filter={(args) => optionFilter(args, selectedLabels)}
           data-size='sm'

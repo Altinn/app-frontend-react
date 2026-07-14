@@ -479,22 +479,17 @@ describe('UI Components', () => {
     cy.gotoHiddenPage('label-data-bindings');
 
     cy.get('#form-content-colorsCheckboxes').click();
+    // After selecting an option, the DS combobox renders a removable chip (a <data role="option">) whose
+    // accessible name is "<label>, Press to remove". Selection state (aria-selected) lives on the list
+    // option, not the chip, so we assert the chip's presence to confirm the value was added.
     cy.findByRole('option', { name: /blå/i }).click();
-    cy.findAllByRole('option', { name: /added blå, blå/i })
-      .last()
-      .should('have.attr', 'aria-selected', 'true');
+    cy.findByRole('option', { name: /Blå, Press to remove/i }).should('exist');
     cy.findByRole('option', { name: /cyan/i }).click();
-    cy.findAllByRole('option', { name: /added cyan, cyan/i })
-      .last()
-      .should('have.attr', 'aria-selected', 'true');
+    cy.findByRole('option', { name: /Cyan, Press to remove/i }).should('exist');
     cy.findByRole('option', { name: /grønn/i }).click();
-    cy.findAllByRole('option', { name: /added grønn, grønn/i })
-      .last()
-      .should('have.attr', 'aria-selected', 'true');
+    cy.findByRole('option', { name: /Grønn, Press to remove/i }).should('exist');
     cy.findByRole('option', { name: /gul/i }).click();
-    cy.findAllByRole('option', { name: /added gul, gul/i })
-      .last()
-      .should('have.attr', 'aria-selected', 'true');
+    cy.findByRole('option', { name: /Gul, Press to remove/i }).should('exist');
 
     cy.findByRole('option', {
       name: /Grønn, Press to remove/i,
@@ -625,13 +620,16 @@ describe('UI Components', () => {
       });
 
       cy.goto('changename');
-      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength} tegn igjen`);
+      // The DS field counter renders its text via CSS (`content: attr(data-label)`), so it is not part of the
+      // DOM text content and cannot be matched with .contains(). Assert on the data-label attribute instead.
+      const counter = '#form-content-newFirstName [data-field="counter"]';
+      cy.get(counter).should('have.attr', 'data-label', `Du har ${maxLength} tegn igjen`);
       cy.get(appFrontend.changeOfName.newFirstName).type('Per');
-      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 3} tegn igjen`);
+      cy.get(counter).should('have.attr', 'data-label', `Du har ${maxLength - 3} tegn igjen`);
       cy.get(appFrontend.changeOfName.newFirstName).type('r');
-      cy.get('#form-content-newFirstName').contains(`Du har ${maxLength - 4} tegn igjen`);
+      cy.get(counter).should('have.attr', 'data-label', `Du har ${maxLength - 4} tegn igjen`);
       cy.get(appFrontend.changeOfName.newFirstName).type('rrr');
-      cy.get('#form-content-newFirstName').contains(`Du har overskredet maks antall tegn med ${7 - maxLength}`);
+      cy.get(counter).should('have.attr', 'data-label', `Du har overskredet maks antall tegn med ${7 - maxLength}`);
 
       // Display data model validation below component if maxLength in layout and datamodel is different
       if (maxLength !== 4) {

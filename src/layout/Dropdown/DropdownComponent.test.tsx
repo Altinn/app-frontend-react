@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { jest } from '@jest/globals';
-import { act, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import type { AxiosResponse } from 'axios';
 
@@ -102,6 +102,43 @@ describe('DropdownComponent', () => {
         newValue: 'sweden',
       }),
     );
+  });
+
+  it('should commit the new value after confirming alertOnChange', async () => {
+    const { formDataMethods } = await render({
+      component: {
+        alertOnChange: true,
+      },
+      options: countries,
+      queries: {
+        fetchFormData: async () => ({
+          ...getFormDataMockForRepGroup(),
+          myDropdown: 'norway',
+        }),
+      },
+    });
+
+    expect(await screen.findByRole('combobox')).toHaveValue('Norway');
+
+    await userEvent.click(screen.getByRole('combobox'));
+    await userEvent.click(screen.getByRole('option', { name: /sweden/i }));
+
+    // Mimic the alert popover stealing focus, which blurs the combobox and reverts the input display
+    // back to the previously-committed value before the change is confirmed.
+    fireEvent.blur(screen.getByRole('combobox'));
+
+    // Alert should appear; confirm the change
+    const confirmButton = await screen.findByRole('button', { name: /bekreft|confirm/i });
+    await userEvent.click(confirmButton);
+
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { field: 'myDropdown', dataType: defaultDataTypeMock },
+        newValue: 'sweden',
+      }),
+    );
+
+    expect(screen.getByRole('combobox')).toHaveValue('Sweden');
   });
 
   it('should show as readonly when readOnly is true', async () => {

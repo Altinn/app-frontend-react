@@ -167,12 +167,6 @@ describe('Summary', () => {
   });
 
   it('is possible to view summary of repeating group', () => {
-    Cypress.on('uncaught:exception', (err) => {
-      if (err.message.includes('ResizeObserver loop completed with undelivered notifications')) {
-        return false;
-      }
-    });
-
     cy.goto('group');
 
     // Verify empty group summary
