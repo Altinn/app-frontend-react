@@ -26,13 +26,13 @@ describe('Existing instance access', () => {
 
     cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, {
       cyUser: null,
-      tenorUser: Tenor.users.raffinertFilm,
+      tenorUser: Tenor.users.humanAndrefiolin,
       authenticationLevel: '2',
     });
 
     cy.findByRole('heading', { name: 'Hvem vil du sende inn for?' }).should('be.visible');
     cy.findByRole('button', {
-      name: new RegExp(`org\\.nr\\. ${Tenor.orgs.overflodigSlemTigerAS.orgNr}`, 'i'),
+      name: new RegExp(`org\\.nr\\. ${Tenor.orgs.sivilisertAvansertIsbjoernSA.orgNr}`, 'i'),
     }).click();
 
     const companyName = 'Testselskap AS';
@@ -48,7 +48,7 @@ describe('Existing instance access', () => {
       userIsReopeningInstance = true;
       cy.startAppInstance(appFrontend.apps.signeringBrukerstyrt, {
         cyUser: null,
-        tenorUser: Tenor.users.raffinertFilm,
+        tenorUser: Tenor.users.humanAndrefiolin,
         authenticationLevel: '2',
         urlSuffix: instanceHash,
       });
