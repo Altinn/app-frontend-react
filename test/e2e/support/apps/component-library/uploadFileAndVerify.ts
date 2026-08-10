@@ -31,8 +31,6 @@ export const uploadFileWithTagAndVerify = (fileName: string, fileType: string) =
     .find('input[type="file"]')
     .selectFile(makeTestFile(fileName), { force: true });
   cy.contains('label', 'Filtype').click();
-  // DS 1.18 renders the Suggestion as a <ds-suggestion> element (previously <u-combobox>), so target the
-  // inner input by its stable id prefix instead of the custom element tag.
   cy.dsSelect('[data-componenttype="FileUploadWithTag"] input[id^=attachment-tag-dropdown]', fileType);
   cy.get('button[id^=attachment-save-tag-button]').click();
 
