@@ -35,7 +35,7 @@ export class AppFrontend {
     /** @see https://dev.altinn.studio/repos/ttd/stateless-app */
     stateless: 'stateless-app',
 
-    /** @see https://dev.altinn.studio/repos/ttd/subform-test */
+    /** @see https://altinn.studio/repos/ttd/subform-test */
     subformTest: 'subform-test',
   };
 
@@ -63,6 +63,7 @@ export class AppFrontend {
   public helpText = {
     button: 'button[class^="ds-helptext"]',
     alert: 'div[data-testid="helptext"]',
+    alertOpen: 'div[data-testid="helptext"]:popover-open',
   };
 
   public deleteWarningPopover = 'div[data-testid="delete-warning-popover"]';
@@ -217,7 +218,7 @@ export class AppFrontend {
     secondGroup_table: '[id^="group-group2-table"]',
     subGroup: '[id^="group-subGroup"]',
     currentValue: 'input[id^="currentValue"]',
-    navigationBarButton: '#form-content-nav2 > div > nav > button',
+    navigationBarButton: '#form-content-nav2 [data-testid="NavigationBar"] > button[aria-controls="navigation-menu"]',
     newValue: 'input[id^="newValue"]',
     newValueLabel: 'label[for^="newValue"]',
     addNewItem: '[id^="add-button-mainGroup"]',

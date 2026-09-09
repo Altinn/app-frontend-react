@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
 import { useQuery } from '@tanstack/react-query';
-import type { ErrorObject } from 'ajv';
 import type Ajv from 'ajv';
+import type { ErrorObject } from 'ajv';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { createContext } from 'src/core/contexts/context';
@@ -51,18 +51,23 @@ function FetchLayoutSchema({
   const enabled = useIsLayoutValidationEnabled();
 
   const { fetchLayoutSchema } = useAppQueries();
-  const { data: layoutSchema, isSuccess } = useQuery({
+  const { data: validate, isSuccess } = useQuery({
     enabled,
     queryKey: ['fetchLayoutSchema'],
-    queryFn: () => fetchLayoutSchema(),
+    queryFn: async () => {
+      const schema = await fetchLayoutSchema();
+      if (!schema) {
+        return null;
+      }
+      return makeValidateFunc(createLayoutValidator(schema));
+    },
   });
 
   useEffect(() => {
-    if (isSuccess && layoutSchema) {
-      const ajv = createLayoutValidator(layoutSchema);
-      setSchemaValidator(() => makeValidateFunc(ajv));
+    if (isSuccess && validate) {
+      setSchemaValidator(validate);
     }
-  }, [isSuccess, layoutSchema, setSchemaValidator]);
+  }, [isSuccess, validate, setSchemaValidator]);
 
   return null;
 }

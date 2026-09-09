@@ -4,6 +4,7 @@ import { Tag } from '@digdir/designsystemet-react';
 import type { TagProps } from '@digdir/designsystemet-react';
 
 import { Lang } from 'src/features/language/Lang';
+import classes from 'src/layout/SigneeList/SigningStateTag.module.css';
 import type { SigneeState } from 'src/layout/SigneeList/api';
 
 export const SIGNEE_STATUS = {
@@ -53,6 +54,7 @@ export function SigneeStateTag({ state }: { state: SigneeState }) {
     <Tag
       data-color={color}
       data-size='sm'
+      className={classes.stateTag}
     >
       <Lang id={SIGNEE_STATUS[status]} />
     </Tag>

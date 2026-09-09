@@ -39,7 +39,7 @@ export function SimpleTableComponent({ baseComponentId, dataModelBindings }: Tab
   const accessibleTitle = elementAsString(title);
   const isMobile = useIsMobile();
   const data = formData.tableData;
-  const { schemaLookup } = DataModels.useFullStateRef().current;
+  const schemaLookup = DataModels.useSchemaLookup();
   const [showEdit, setShowEdit] = useState(false);
   const [editItemIndex, setEditItemIndex] = useState<number>(-1);
   const setMultiLeafValues = FD.useSetMultiLeafValues();
@@ -67,6 +67,11 @@ export function SimpleTableComponent({ baseComponentId, dataModelBindings }: Tab
       buttonText: <Lang id='general.delete' />,
       icon: <TrashIcon />,
       color: 'danger',
+      confirm: {
+        message: <Lang id='group.row_popover_delete_message' />,
+        confirmText: <Lang id='group.row_popover_delete_button_confirm' />,
+        cancelText: <Lang id='general.cancel' />,
+      },
     });
   }
 

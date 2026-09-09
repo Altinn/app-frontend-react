@@ -127,6 +127,19 @@ export const makeMutationMocks = <T extends (name: keyof AppMutations) => any>(
   doSubformEntryDelete: makeMock('doSubformEntryDelete'),
 });
 
+// Mock postal codes data for testing. Uses the indexed format where:
+// - places array contains unique place names (index 0 is null for "not found")
+// - mapping array maps zip code (as index) to places array index
+const defaultPostalCodesMock = (() => {
+  const places: (string | null)[] = [null, 'OSLO', 'BERGEN', 'FREDRIKSTAD', 'KARDEMOMME BY'];
+  const mapping = new Array(4610).fill(0);
+  mapping[1] = 1; // 0001 -> OSLO
+  mapping[2] = 2; // 0002 -> BERGEN
+  mapping[1613] = 3; // 1613 -> FREDRIKSTAD
+  mapping[4609] = 4; // 4609 -> KARDEMOMME BY
+  return { places, mapping };
+})();
+
 const defaultQueryMocks: AppQueries = {
   fetchLogo: async () => getLogoMock(),
   fetchActiveInstances: async () => [],
@@ -149,14 +162,15 @@ const defaultQueryMocks: AppQueries = {
   fetchTextResources: async (language) => ({ language, resources: getTextResourcesMock() }),
   fetchLayoutSchema: async () => ({}) as JSONSchema7,
   fetchAppLanguages: async () => [{ language: 'nb' }, { language: 'nn' }, { language: 'en' }],
-  fetchPostPlace: async () => ({ valid: true, result: 'OSLO' }),
   fetchLayoutSettings: async () => ({ pages: { order: [] } }),
   fetchLayouts: () => Promise.reject(new Error('fetchLayouts not mocked')),
   fetchLayoutsForInstance: () => Promise.reject(new Error('fetchLayoutsForInstance not mocked')),
   fetchBackendValidations: async () => [],
   fetchBackendValidationsForDataElement: async () => [],
   fetchPaymentInformation: async () => paymentResponsePayload,
+  fetchPaymentInformationForTask: async () => paymentResponsePayload,
   fetchOrderDetails: async () => orderDetailsResponsePayload,
+  fetchPostalCodes: async () => defaultPostalCodesMock,
 };
 
 function makeProxy<Name extends keyof FormDataMethods>(name: Name, ref: InitialRenderRef) {
@@ -706,8 +720,7 @@ export const renderWithInstanceAndLayout = async ({
 };
 
 export interface RenderGenericComponentTestProps<T extends CompTypes, InInstance extends boolean = true>
-  extends Omit<ExtendedRenderOptions, 'renderer'>,
-    Omit<InstanceRouterProps, 'routerRef'> {
+  extends Omit<ExtendedRenderOptions, 'renderer'>, Omit<InstanceRouterProps, 'routerRef'> {
   type: T;
   renderer: (props: PropsFromGenericComponent<T>) => React.ReactElement;
   component?: Partial<CompExternalExact<T>>;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 import { EXPERIMENTAL_Suggestion as Suggestion, Label as DSLabel } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -29,6 +29,8 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
   const isValid = useIsValid(baseComponentId);
   const { id, readOnly, textResourceBindings, alertOnChange, grid, required } = item;
   const { langAsString, lang } = useLanguage();
+
+  const isPatchingFocus = useRef(false);
 
   const { labelText, getRequiredComponent, getOptionalComponent, getHelpTextComponent, getDescriptionComponent } =
     useLabel({ baseComponentId, overrideDisplay });
@@ -108,13 +110,39 @@ export function DropdownComponent({ baseComponentId, overrideDisplay }: PropsFro
           selected={formatSelectedValue(selectedValues, options)}
           onSelectedChange={(option) => handleChange(option ? [option.value] : [])}
           onBlur={() => debounce}
-          name={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
           className={cn(comboboxClasses.container, classes.showCaretsWithoutClear, { [classes.readOnly]: readOnly })}
           style={{ width: '100%' }}
         >
           <Suggestion.Input
             id={id}
             aria-invalid={!isValid}
+            onFocus={async (e) => {
+              // Workaround for when programmatically focused by repeating group focus management
+
+              // If this event was triggered by our code below, reset the flag and exit.
+              if (isPatchingFocus.current) {
+                isPatchingFocus.current = false;
+                return;
+              }
+
+              const input = e.target;
+
+              // Wait for the combobox to be fully defined
+              await customElements.whenDefined('u-combobox');
+
+              setTimeout(() => {
+                // Ensure we are still the active element
+                if (document.activeElement !== input) {
+                  return;
+                }
+
+                // Tell the next execution of onFocus to ignore the event we are about to fire
+                isPatchingFocus.current = true;
+
+                // Wake up the component
+                input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+              }, 150);
+            }}
             aria-label={overrideDisplay?.renderedInTable ? langAsString(textResourceBindings?.title) : undefined}
             aria-describedby={
               overrideDisplay?.renderedInTable !== true &&

@@ -78,6 +78,8 @@ export function en() {
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_header_delete_sr': 'Delete',
     'form_filler.file_uploader_list_status_done': 'Uploaded',
+    'form_filler.file_uploader_attachment_uploaded_sr':
+      'The attachment {0} has been uploaded. You can now add a description for the attachment.',
     'form_filler.file_uploader_status_scanning': 'Scanning...',
     'form_filler.file_uploader_status_infected': 'Infected',
     'form_filler.file_uploader_infected_file_alert': 'The file {0} is infected with malware and cannot be used.',
@@ -151,10 +153,12 @@ export function en() {
     'general.close': 'Close',
     'general.contains': 'Contains{0}',
     'general.control_submit': 'Control and submit',
+    'general.copy': 'Copy',
+    'general.copied': 'Copied',
     'general.create_new': 'Create new',
     'general.create': 'Create',
     'general.customer_service_phone_number': '+47 75 00 60 00',
-    'general.customer_service_slack': 'https://altinn.slack.com',
+    'general.customer_service_slack': 'https://digdir-samarbeid.slack.com',
     'general.customer_service_email': 'servicedesk@altinn.no',
     'general.customer_service_error_message':
       'If you need help resolving this issue, reach out to Altinn via our support lines<br/><br/><ul><li>Phone: <a href="tel:{0}">{0}</a></li><li>Email: {1}</li><li>Slack: {2}</li></ul>',
@@ -206,6 +210,7 @@ export function en() {
       'One of the rows is incorrectly filled out. This has to bee fixed before the schema can be submitted.',
     'group.row_popover_delete_message': 'Are you sure you want to delete this row?',
     'group.row_popover_delete_button_confirm': 'Yes, delete the row',
+    'group.row_deleted_sr': 'Row deleted, {0} remaining',
     'iframe_component.unsupported_browser_title': 'Your browser is unsupported',
     'iframe_component.unsupported_browser':
       'Your browser does not support iframes that use srcdoc. This may result in not being able to see all the content intended to be displayed here. We recommend trying a different browser.',
@@ -219,6 +224,7 @@ export function en() {
     'image_upload_component.reset': 'Reset position and zoom',
     'image_upload_component.error_invalid_file_type': 'Invalid file format. Please upload an image file.',
     'image_upload_component.error_file_size_exceeded': 'File size exceeds 10MB limit.',
+    'image_upload_component.error_required': 'You must upload an image',
     'image_upload_component.valid_file_types': 'Image files only',
     'input_components.remaining_characters': 'You have %d characters left',
     'input_components.exceeded_max_limit': 'You have exceeded the maximum limit with %d characters',
@@ -233,10 +239,11 @@ export function en() {
     'instantiate.all_forms': 'all forms',
     'instantiate.inbox': 'inbox',
     'instantiate.profile': 'profile',
-    'instantiate.unknown_error_title': 'Unknow error',
+    'instantiate.unknown_error_title': 'Unknown error',
     'instantiate.unknown_error_text': 'An unknown error occcurred, please try again later.',
-    'instantiate.unknown_error_status': 'Unknow error',
+    'instantiate.unknown_error_status': 'Unknown error',
     'instantiate.unknown_error_customer_support': 'If the problem persists, contact us at customer service at {0}.',
+    'instantiate.unknown_error_show_details': 'Show error details',
     'instantiate.forbidden_action_error_title': 'You do not have permission to perform this action.',
     'instantiate.forbidden_action_error_text': 'It looks like you do not have permission to perform this action.',
     'instantiate.forbidden_action_error_status': '403 - Forbidden',
@@ -248,7 +255,7 @@ export function en() {
     'instantiate.authorization_error_ask':
       'If you are representing a person it is the one you are representing that can give you the required rights to start this service. If you are you representing an organization you have to ask for the required rights from persons with access delegation rights within your organization.',
     'instantiate.authorization_error_check_rights':
-      '<a href="https://{0}/ui/Profile/" target="_blank">See who has rights to delegate access under "Others with rights within the organization"</a>.',
+      '<a href="https://am.ui.{0}/accessmanagement/ui" target="_blank">See who has rights to delegate access under "Others with rights within the organization"</a>.',
     'instantiate.authorization_error_info_rights':
       '<a href="https://{0}/hjelp/profil/enkelttjenester-og-roller/" target="_blank">Learn more about roles and rights</a>.',
     'instantiate.authorization_error_info_customer_service': 'You can also contact customer service at {0}.',
@@ -289,7 +296,7 @@ export function en() {
     'party_selection.show_sub_unit': 'Show sub units',
     'party_selection.why_seeing_this': 'Why am I seeing this?',
     'party_selection.seeing_this_preference':
-      'You can change your [profile settings](https://altinn.no/ui/Profile) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Advanced settings** > **Do not ask what party I represent each time I start to fill in a new form**.',
+      'You can change your [profile settings](https://af.{0}/profile/parties) to not get prompted for party selection each time you start a new instance. You can find this setting under **Profile** > **Parties**.',
     'party_selection.seeing_this_override': 'This app has been configured to always prompt you for party selection.',
     'payment.pay': 'Pay',
     'payment.summary': 'Summary',
@@ -340,8 +347,9 @@ export function en() {
     'person_lookup.validation_error_name_too_short': "The name can't be empty.",
     'person_lookup.validation_error_ssn': 'The national ID number/D-number is invalid.',
     'person_lookup.validation_error_not_found':
-      'No person is registered with this combination of national ID number/D-number and name. Please check the fields and try again. <br> Note: After 5 failed attempts, the search functionality will be temporarily locked.',
-    'person_lookup.validation_error_too_many_requests': 'Too many requests. Please try again later.',
+      'No person is registered with this combination of national ID number/D-number and name. Please check the fields and try again. <br> Note: After 3 failed attempts, the search functionality may be temporarily locked.',
+    'person_lookup.validation_error_too_many_requests':
+      'Too many requests. You have been locked out of the search functionality for one hour. Please try again later.',
     'person_lookup.validation_error_forbidden':
       'You do not have permission to perform this action. A security level of minimum 2 is required.',
     'person_lookup.validation_invalid_response_from_server': 'An error occurred. Please try again later.',
@@ -358,7 +366,7 @@ export function en() {
     'receipt.receipt': 'Receipt',
     'receipt.ref_num': 'Reference number',
     'receipt.sender': 'Sender',
-    'receipt.subtitle': 'A copy of your receipt has been sent to your archive',
+    'receipt.subtitle': 'Your receipt has been saved and is available in your inbox',
     'receipt.title': 'The form is submitted',
     'receipt.title_submitted': 'The following is submitted:',
     'receipt_platform.attachments': 'Attachments',
@@ -391,6 +399,9 @@ export function en() {
     'validation_errors.formatMaximum': 'Maximum valid value is {0}',
     'map_component.selectedLocation': 'Selected location: {0}° north, {1}° east',
     'map_component.noSelectedLocation': 'No selected location',
+    'map_component.ariaLabel': 'Interactive map. Use the arrow keys to pan, and plus and minus to zoom.',
+    'map_component.zoomIn': 'Zoom in',
+    'map_component.zoomOut': 'Zoom out',
     'multiple_select_component.no_options': 'No options available',
     'multiple_select_component.placeholder': 'Select...',
     'list_component.rowsPerPage': 'Rows per page',
@@ -472,10 +483,11 @@ export function en() {
     'signing.delegation_error_panel_title': 'Could not grant access to form',
     'signing.delegation_error_panel_description':
       'One or more of the signees are invalid and have not been granted access to the form. Go back to try to correct the issue or contact the form owner.',
-    'signing.reject_modal_title': 'Cancel the signing process',
+    'signing.reject_modal_title': 'Cancel signing',
     'signing.reject_modal_description':
-      'By canceling the signing process, all signatures will be deleted, and all delegated access will be revoked.',
-    'signing.reject_modal_button': 'Cancel the signing process',
+      'All signatures will be deleted. Everyone you have delegated to will lose access. This cannot be undone.',
+    'signing.reject_modal_button': 'Cancel signing',
+    'signing.reject_modal_close_button': 'Continue signing',
     'signing.reject_modal_trigger_button': 'Cancel signing',
     'signing.wrong_task_error': 'The {0} component is only available in a signing task.',
     'signing.error_missing_signing_rights':
@@ -597,5 +609,11 @@ export function en() {
     'config_error.lommebok_issue_datatype_not_found':
       'Data type "{0}" not found for issue mode on credential type "{1}"',
     'config_error.lommebok_issue_missing_url_field': 'URL field is required for issue mode on credential type "{0}"',
+    'service_task_custom_pdf_default.title': 'Something went wrong',
+    'service_task_custom_pdf_default.body': 'An error occurred during automatic processing of the form.',
+    'service_task_custom_pdf_default.help_text':
+      'You can try to process again by clicking "Try again". If the problem persists, contact customer service at +47 75 00 60 00.',
+    'service_task_custom_pdf_default.retry_button': 'Try again',
+    'service_task_custom_pdf_default.back_button': 'Go back',
   };
 }

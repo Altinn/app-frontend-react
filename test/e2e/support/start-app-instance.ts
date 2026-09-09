@@ -2,13 +2,13 @@ import dotenv from 'dotenv';
 import escapeRegex from 'escape-string-regexp';
 
 import { cyUserLogin, tenorUserLogin } from 'test/e2e/support/auth';
+import { Tenor } from 'test/e2e/support/users';
 import type { AppResponseRef } from 'test/e2e/support/auth';
 
-Cypress.Commands.add('startAppInstance', (appName, options) => {
+Cypress.Commands.add('startAppInstance', function (appName, options) {
   const {
     cyUser = 'default',
-    tenorUser = null,
-    evaluateBefore,
+    tenorUser = Tenor.users.saligBlomsterplante,
     urlSuffix = '',
     authenticationLevel = '1',
   } = options || {};
@@ -70,48 +70,58 @@ Cypress.Commands.add('startAppInstance', (appName, options) => {
   const targetUrlRaw = getTargetUrl(appName) + urlSuffix;
   const targetUrl = new RegExp(`^${escapeRegex(targetUrlRaw)}/?$`);
 
-  // This mechanism lets you override what happens in the @app response, for example in a login handler.
-  cy.wrap<AppResponseRef>({ current: undefined }).as('appResponse');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ranBefore = ((this.currentTest ?? this.test) as any).startAppInstanceRanBefore ?? false;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ((this.currentTest ?? this.test) as any).startAppInstanceRanBefore = true;
 
-  // Rewrite all references to the app-frontend with a local URL
-  // We cannot just intercept and redirect (like we did before), because Percy reads this DOM to figure out where
-  // to download assets from. If we redirect, Percy will download from altinncdn.no, which will cause the test to
-  // use outdated CSS.
-  // https://docs.percy.io/docs/debugging-sdks#asset-discovery
-  cy.get<AppResponseRef>('@appResponse').then((ref) => {
-    cy.intercept({ url: targetUrl }, (req) => {
-      const cookies = req.headers['cookie'] || '';
-      req.on('response', (res) => {
-        if (typeof res.body === 'string' || res.statusCode === 200) {
-          if (ref.current) {
-            ref.current(res);
-            return;
+  if (!ranBefore) {
+    // This mechanism lets you override what happens in the @app response, for example in a login handler.
+    cy.wrap<AppResponseRef>({ current: undefined }).as('appResponse');
+
+    // Rewrite all references to the app-frontend with a local URL
+    // We cannot just intercept and redirect (like we did before), because Percy reads this DOM to figure out where
+    // to download assets from. If we redirect, Percy will download from altinncdn.no, which will cause the test to
+    // use outdated CSS.
+    // https://docs.percy.io/docs/debugging-sdks#asset-discovery
+    cy.get<AppResponseRef>('@appResponse').then((ref) => {
+      cy.intercept({ url: targetUrl }, (req) => {
+        req.on('response', (res) => {
+          if (typeof res.body === 'string' || res.statusCode === 200) {
+            if (ref.current) {
+              ref.current(res);
+              return;
+            }
+
+            const source = /https?:\/\/.*?\/altinn-app-frontend\./g;
+            const target = `http://${targetHost}/altinn-app-frontend.`;
+            res.body = res.body.replace(source, target);
           }
+        });
+      }).as('app');
+    });
 
-          if (evaluateBefore && !cookies.includes('cy-evaluated-js=true')) {
-            res.body = generateHtmlToEval(evaluateBefore);
-            return;
-          }
+    cy.intercept('GET', `http://${targetHost}/altinn-app-frontend.js`).as('js');
+    cy.intercept('GET', `http://${targetHost}/altinn-app-frontend.css`).as('css');
 
-          const source = /https?:\/\/.*?\/altinn-app-frontend\./g;
-          const target = `http://${targetHost}/altinn-app-frontend.`;
-          res.body = res.body.replace(source, target);
-        }
-      });
-    }).as('app');
-  });
+    cy.intercept('https://altinncdn.no/toolkits/altinn-app-frontend/*/altinn-app-frontend.*', (req) => {
+      req.destroy();
+      throw new Error('Requested asset from altinncdn.no, our rewrite code is apparently not working, aborting test');
+    });
+  }
 
-  cy.intercept('GET', `http://${targetHost}/altinn-app-frontend.js`).as('js');
-  cy.intercept('GET', `http://${targetHost}/altinn-app-frontend.css`).as('css');
+  if (Cypress.env('type') === 'localtest') {
+    cy.clearCookies({ domain: 'local.altinn.cloud' });
+  } else {
+    cy.clearCookies({ domain: 'tt02.altinn.no' });
+    cy.clearCookies({ domain: 'ttd.apps.tt02.altinn.no' });
+    cy.clearCookies({ domain: 'login.test.idporten.no' });
+    cy.clearCookies({ domain: 'platform.tt02.altinn.no' });
+  }
 
-  cy.intercept('https://altinncdn.no/toolkits/altinn-app-frontend/*/altinn-app-frontend.*', (req) => {
-    req.destroy();
-    throw new Error('Requested asset from altinncdn.no, our rewrite code is apparently not working, aborting test');
-  });
-
-  cy.clearCookies();
-
-  if (tenorUser) {
+  if (tenorUser && cyUser && Cypress.env('type') === 'localtest') {
+    cyUserLogin({ cyUser, authenticationLevel });
+  } else if (tenorUser) {
     tenorUserLogin({ appName, tenorUser, authenticationLevel });
   } else if (cyUser) {
     cyUserLogin({ cyUser, authenticationLevel });
@@ -139,32 +149,4 @@ export function getTargetUrl(appName: string) {
   return Cypress.env('type') === 'localtest'
     ? `${Cypress.config('baseUrl')}/ttd/${appName}`
     : `https://ttd.apps.${Cypress.config('baseUrl')?.slice(8)}/ttd/${appName}`;
-}
-
-function generateHtmlToEval(javascript: string) {
-  return `
-    <html lang="en">
-    <head>
-      <title>Evaluating JavaScript before starting app</title>
-      <script>
-        async function toEvaluate() {
-          ${javascript}
-        }
-
-        window.addEventListener('DOMContentLoaded', async () => {
-          const maybeReturnUrl = await toEvaluate();
-          document.cookie = 'cy-evaluated-js=true';
-          if (maybeReturnUrl && typeof maybeReturnUrl === 'string') {
-            window.location.href = maybeReturnUrl;
-          } else {
-            window.location.reload();
-          }
-        });
-      </script>
-    </head>
-    <body>
-      <div id="cy-evaluating-js"></div>
-    </body>
-  </html>
-  `.trim();
 }

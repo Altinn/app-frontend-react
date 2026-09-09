@@ -34,6 +34,7 @@ import {
   getLayoutSettingsUrl,
   getLayoutsUrl,
   getOrderDetailsUrl,
+  getPaymentInformationForTaskUrl,
   getPaymentInformationUrl,
   getPdfFormatUrl,
   getProcessNextUrl,
@@ -44,6 +45,7 @@ import {
   getUpdateFileTagsUrl,
   getValidationUrl,
   instancesControllerUrl,
+  postalCodesUrl,
   profileApiUrl,
   refreshJwtTokenUrl,
   selectedPartyUrl,
@@ -85,6 +87,7 @@ import type {
   IParty,
   IProcess,
   IProfile,
+  PostalCodesRegistry,
 } from 'src/types/shared';
 
 export const doSetSelectedParty = (partyId: number | string) =>
@@ -343,6 +346,12 @@ export const fetchTextResources = (selectedLanguage: string): Promise<ITextResou
 export const fetchPaymentInformation = (instanceId: string, language?: string): Promise<PaymentResponsePayload> =>
   httpGet(getPaymentInformationUrl(instanceId, language));
 
+export const fetchPaymentInformationForTask = (
+  instanceId: string,
+  language?: string,
+  taskId?: string,
+): Promise<PaymentResponsePayload> => httpGet(getPaymentInformationForTaskUrl(instanceId, language, taskId));
+
 export const fetchOrderDetails = (instanceId: string, language?: string): Promise<OrderDetails> =>
   httpGet(getOrderDetailsUrl(instanceId, language));
 
@@ -372,14 +381,6 @@ export const fetchLayoutSchema = async (): Promise<JSONSchema7 | undefined> => {
   return (await axios.get(`${schemaBaseUrl}${LAYOUT_SCHEMA_NAME}`)).data ?? undefined;
 };
 
-export const fetchPostPlace = (zipCode: string): Promise<{ result: string; valid: boolean }> =>
-  httpGet('https://api.bring.com/shippingguide/api/postalCode.json', {
-    params: {
-      clientUrl: window.location.href,
-      pnr: zipCode,
-    },
-  });
-
 export function fetchExternalApi({
   instanceId,
   externalApiId,
@@ -390,3 +391,5 @@ export function fetchExternalApi({
   const externalApiUrl = `${appPath}/instances/${instanceId}/api/external/${externalApiId}`;
   return httpGet(externalApiUrl);
 }
+
+export const fetchPostalCodes = async (): Promise<PostalCodesRegistry> => (await axios.get(postalCodesUrl)).data;

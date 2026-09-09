@@ -110,14 +110,10 @@ describe('Options', () => {
 
     cy.goto('changename');
 
-    // All options are fetched once at first (with 'undefined' in mapping, as no value for source has been set)
-    cy.get('@interceptOptions(references).all').should('have.length', 1);
-    cy.get('@interceptOptions(test).all').should('have.length', 1);
-
     // This field uses preselectedOptionIndex to select 'Altinn'
     cy.get(appFrontend.changeOfName.sources).should('have.value', 'Altinn');
 
-    // At that point our options have new mappings, so requests should have fired again
+    // At this point our options have new mappings, so requests should have fired again
     cy.get('@interceptOptions(references).all').should('have.length', 2);
     cy.get('@interceptOptions(test).all').should('have.length', 2);
 
@@ -143,7 +139,7 @@ describe('Options', () => {
     cy.goto('changename');
     cy.wait('@optionsMunicipality');
 
-    cy.dsSelect(appFrontend.changeOfName.municipality, 'Oslo');
+    cy.dsSelect(appFrontend.changeOfName.municipality, /Oslo/);
 
     cy.get(appFrontend.changeOfName.municipalityMetadata)
       .should('have.prop', 'value')

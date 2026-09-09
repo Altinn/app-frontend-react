@@ -6,6 +6,7 @@ import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import classes from 'src/layout/Header/HeaderComponent.module.css';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
 
@@ -42,23 +43,22 @@ export const HeaderComponent = ({ baseComponentId }: PropsFromGenericComponent<'
   const { id, size, textResourceBindings } = useItemWhenType(baseComponentId, 'Header');
   const { langAsString } = useLanguage();
   return (
-    <ComponentStructureWrapper
-      baseComponentId={baseComponentId}
-      style={{ display: 'flex' }}
-    >
-      <Heading
-        id={id}
-        {...getHeaderProps(size)}
-      >
-        <Lang id={textResourceBindings?.title} />
-      </Heading>
-      {textResourceBindings?.help && (
-        <HelpTextContainer
+    <ComponentStructureWrapper baseComponentId={baseComponentId}>
+      <div className={classes.header}>
+        <Heading
           id={id}
-          helpText={<Lang id={textResourceBindings.help} />}
-          title={langAsString(textResourceBindings?.title)}
-        />
-      )}
+          {...getHeaderProps(size)}
+        >
+          <Lang id={textResourceBindings?.title} />
+        </Heading>
+        {textResourceBindings?.help && (
+          <HelpTextContainer
+            id={id}
+            helpText={<Lang id={textResourceBindings.help} />}
+            title={langAsString(textResourceBindings?.title)}
+          />
+        )}
+      </div>
     </ComponentStructureWrapper>
   );
 };

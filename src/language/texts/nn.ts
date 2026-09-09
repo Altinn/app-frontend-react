@@ -78,6 +78,8 @@ export function nn() {
     'form_filler.file_uploader_list_header_name': 'Namn',
     'form_filler.file_uploader_list_header_status': 'Status',
     'form_filler.file_uploader_list_status_done': 'Ferdig lasta',
+    'form_filler.file_uploader_attachment_uploaded_sr':
+      'Vedlegget {0} er lasta opp. Du kan no leggje til ei skildring av vedlegget.',
     'form_filler.file_uploader_status_scanning': 'Skannar...',
     'form_filler.file_uploader_status_infected': 'Infisert',
     'form_filler.file_uploader_infected_file_alert':
@@ -152,10 +154,12 @@ export function nn() {
     'general.close': 'Lukk',
     'general.contains': 'Inneheld',
     'general.control_submit': 'Kontroller og send inn',
+    'general.copy': 'Kopier',
+    'general.copied': 'Kopiert',
     'general.create_new': 'Opprett ny',
     'general.create': 'Opprett',
     'general.customer_service_phone_number': '+47 75 00 60 00',
-    'general.customer_service_slack': 'https://altinn.slack.com',
+    'general.customer_service_slack': 'https://digdir-samarbeid.slack.com',
     'general.customer_service_email': 'servicedesk@altinn.no',
     'general.customer_service_error_message':
       'Om du treng hjelp kan du nå Altinn på:<br/><br/>Telefon: <a href="tel:{0}">{0}</a><br/>E-post: {1}<br/>Slack: {2}',
@@ -207,6 +211,7 @@ export function nn() {
     'group.row_error': 'Ei av radene er ikkje fylt ut riktig. Dette må bli retta før skjema kan sendast inn.',
     'group.row_popover_delete_message': 'Er du sikker på at du vil sletta denne rada?',
     'group.row_popover_delete_button_confirm': 'Ja, slett rada',
+    'group.row_deleted_sr': 'Rad sletta, {0} står att',
     'iframe_component.unsupported_browser_title': 'Nettlesaren din støttas ikkje',
     'iframe_component.unsupported_browser':
       'Nettlesaren di støttar ikkje iframes som brukar srcdoc. Dette kan føre til at du ikkje ser all innhaldet som er meint å visast her. Vi anbefalar deg å prøve ein annan nettlesar.',
@@ -220,6 +225,7 @@ export function nn() {
     'image_upload_component.reset': 'Tilbakestill zoom og plassering',
     'image_upload_component.error_invalid_file_type': 'Ugyldig filformat. Last opp ein bildefil.',
     'image_upload_component.error_file_size_exceeded': 'Fila er for stor. Største tillatte filstorleik er 10MB.',
+    'image_upload_component.error_required': 'Du må laste opp eit bilde',
     'image_upload_component.valid_file_types': 'Bildefiler er tillatne',
     'input_components.remaining_characters': 'Du har %d teikn igjen',
     'input_components.exceeded_max_limit': 'Du har overskride maks teikn med %d',
@@ -238,6 +244,7 @@ export function nn() {
     'instantiate.unknown_error_text': 'Det har skjedd ein ukjent feil, ver venleg prøv igjen seinare.',
     'instantiate.unknown_error_status': 'Ukjent feil',
     'instantiate.unknown_error_customer_support': 'Om problemet hald fram, ta kontakt med oss på brukarservice {0}.',
+    'instantiate.unknown_error_show_details': 'Vis detaljar om feilen',
     'instantiate.forbidden_action_error_title': 'Du manglar rett til å utføre denne handlinga',
     'instantiate.forbidden_action_error_text': 'Det ser ut til at du ikkje har rett til å utføre denne handlinga.',
     'instantiate.forbidden_action_error_status': '403 - Forbidden',
@@ -249,7 +256,7 @@ export function nn() {
     'instantiate.authorization_error_ask':
       'Om du representerer ein person, er det den du representerer som kan gi deg dei naudsynte rettane til å starte tenesta. Representerer du ein organisasjon er det personar som har rolla tilgangsstyring innad i organisasjonen som kan gi deg dei naudsynte rettane.',
     'instantiate.authorization_error_check_rights':
-      '<a href="https://{0}/ui/Profile/" target="_blank">Sjå kven som har rolla tilgangsstyring under "Andre med rettar til verksemda"</a>.',
+      '<a href="https://am.ui.{0}/accessmanagement/ui" target="_blank">Sjå kven som har rolla tilgangsstyring under "Andre med rettar til verksemda"</a>.',
     'instantiate.authorization_error_info_rights':
       '<a href="https://{0}/hjelp/profil/enkelttjenester-og-roller/" target="_blank">Her finn du meir informasjon om roller og rettar</a>.',
     'instantiate.authorization_error_info_customer_service': 'Du kan også kontakte oss på brukarservice {0}.',
@@ -291,7 +298,7 @@ export function nn() {
     'party_selection.show_sub_unit': 'Vis undereiningar',
     'party_selection.why_seeing_this': 'Kvifor ser eg dette?',
     'party_selection.seeing_this_preference':
-      'Du kan endra [profilinnstillingane](https://altinn.no/ui/Profile) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Avanserte innstillingar** > **Eg ønskjer ikkje å bli spurt om aktør kvar gong eg startar utfylling av eit nytt skjema**.',
+      'Du kan endra [profilinnstillingane](https://af.{0}/profile/parties) dine for å ikkje bli spurt om aktør kvar gong du startar utfylling av eit nytt skjema. Du finn denne innstillinga under **Profil** > **Aktørar**.',
     'party_selection.seeing_this_override': 'Denne appen er sett opp til å alltid spørja om aktør.',
     'payment.pay': 'Betal',
     'payment.summary': 'Oppsummering',
@@ -342,8 +349,9 @@ export function nn() {
     'person_lookup.validation_error_name_too_short': 'Etternamn kan ikkje vere tomt.',
     'person_lookup.validation_error_ssn': 'Fødselsnummeret/D-nummeret er ugyldig.',
     'person_lookup.validation_error_not_found':
-      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. <br> Merk: Etter 5 feilforsøk blir søkemoglegheita mellombels sperra.',
-    'person_lookup.validation_error_too_many_requests': 'Du har gjort for mange søk. Ver venleg, prøv igjen seinare.',
+      'Ingen person er registrert med denne kombinasjonen av fødselsnummer/D-nummer og namn. Ver venleg og kontroller felta og prøv igjen. <br> Merk: Etter 3 feilforsøk kan søkemoglegheita bli mellombels sperra.',
+    'person_lookup.validation_error_too_many_requests':
+      'Du har gjort for mange søk. Du har blitt utestengt frå søkefunksjonaliteten i ein time. Ver venleg, prøv igjen seinare.',
     'person_lookup.validation_error_forbidden':
       'Du har ikkje tilgang til å gjere dette søket. Sikkerheitsnivå 2 eller høgare er påkravd.',
     'person_lookup.validation_invalid_response_from_server': 'Det oppstod ein feil. Ver venleg, prøv igjen seinare.',
@@ -360,7 +368,7 @@ export function nn() {
     'receipt.receipt': 'Kvittering',
     'receipt.ref_num': 'Referansenummer',
     'receipt.sender': 'Avsendar',
-    'receipt.subtitle': 'Kopi av kvitteringa di er sendt til ditt arkiv',
+    'receipt.subtitle': 'Kvitteringa di er lagra og tilgjengeleg i innboksen din',
     'receipt.title': 'Skjemaet er sendt inn',
     'receipt.title_submitted': 'Følgjande er sendt inn:',
     'receipt_platform.attachments': 'Vedlegg',
@@ -393,6 +401,9 @@ export function nn() {
     'validation_errors.formatMaximum': 'Største gyldige verdi er {0}',
     'map_component.selectedLocation': 'Valt lokasjon: {0}° nord, {1}° øst',
     'map_component.noSelectedLocation': 'Ingen lokasjon valt',
+    'map_component.ariaLabel': 'Interaktivt kart. Bruk piltastane for å panorere, pluss og minus for å zoome.',
+    'map_component.zoomIn': 'Zoom inn',
+    'map_component.zoomOut': 'Zoom ut',
     'multiple_select_component.no_options': 'Ingen valg tilgjengelig',
     'multiple_select_component.placeholder': 'Velg...',
     'list_component.rowsPerPage': 'Rader per side',
@@ -466,10 +477,11 @@ export function nn() {
     'signing.no_action_required_panel_description_has_signed': 'Alt i orden! Du kan no gå tilbake til innboksen din.',
     'signing.no_action_required_panel_description_not_signed': 'Du har ikkje tilgang til å signere dette skjemaet.',
     'signing.no_action_required_button': 'Gå til innboksen',
-    'signing.reject_modal_title': 'Avbryt signeringsprosessen',
+    'signing.reject_modal_title': 'Avbryt signering',
     'signing.reject_modal_description':
-      'Ved å avbryte signeringsprosessen blir alle signaturar sletta, og alle delegert tilgang trekt tilbake.',
-    'signing.reject_modal_button': 'Avbryt signeringsprosessen',
+      'Alle signaturar blir sletta. Alle personar du har delegert til mistar tilgang. Du kan ikkje angre dette.',
+    'signing.reject_modal_button': 'Avbryt signering',
+    'signing.reject_modal_close_button': 'Hald fram med signering',
     'signing.reject_modal_trigger_button': 'Avbryt signering',
     'signing.api_error_panel_title': 'Klarte ikkje hente signeringsstatus',
     'signing.api_error_panel_description':
@@ -596,5 +608,11 @@ export function nn() {
     'config_error.lommebok_issue_datatype_not_found':
       'Datatype "{0}" ikkje funne for utstedelsesmodus på bevis-type "{1}"',
     'config_error.lommebok_issue_missing_url_field': 'URL-felt er påkravd for utstedelsesmodus på bevis-type "{0}"',
+    'service_task_custom_pdf_default.title': 'Noko gjekk gale',
+    'service_task_custom_pdf_default.body': 'Ein feil oppstod under automatisk handsaming av skjemaet.',
+    'service_task_custom_pdf_default.help_text':
+      'Du kan prøve å utføre handsaminga på nytt ved å klikke på "Prøv igjen". Om problemet held fram, ta kontakt med oss på brukarservice +47 75 00 60 00.',
+    'service_task_custom_pdf_default.retry_button': 'Prøv igjen',
+    'service_task_custom_pdf_default.back_button': 'Gå tilbake',
   } satisfies FixedLanguageList;
 }

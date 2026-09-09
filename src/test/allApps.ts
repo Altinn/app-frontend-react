@@ -71,7 +71,7 @@ export class ExternalApp {
   }
 
   getBackendVersion(): string | undefined {
-    let appFile = '';
+    let appFile: string;
     try {
       appFile = this.readFile('/App/App.csproj');
     } catch (_e) {
@@ -108,7 +108,7 @@ export class ExternalApp {
   }
 
   getFrontendVersion(): string | undefined {
-    let indexFile = '';
+    let indexFile: string;
     try {
       indexFile = this.readFile('/App/views/Home/Index.cshtml');
     } catch (_e) {
@@ -651,9 +651,13 @@ function parseJsonTolerantly<T = unknown>(content: string): T {
       const before = content.substring(0, pos);
       const line = before.split('\n').length;
       const column = before.split('\n').pop()?.length ?? 0;
-      throw new Error(`${e.message} (line ${line}, column ${column})`);
+      const err = new Error(`${e.message} (line ${line}, column ${column})`);
+      err.cause = e;
+      throw err;
     }
 
-    throw new Error(`Failed to parse JSON: ${e.message}`);
+    const err = new Error(`Failed to parse JSON: ${e.message}`);
+    err.cause = e;
+    throw err;
   }
 }

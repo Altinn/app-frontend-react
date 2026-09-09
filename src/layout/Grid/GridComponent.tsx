@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import type { PropsWithChildren } from 'react';
 
 import { Table } from '@digdir/designsystemet-react';
@@ -10,6 +10,9 @@ import { Fieldset } from 'src/app-components/Label/Fieldset';
 import { Caption } from 'src/components/form/caption/Caption';
 import { HelpTextContainer } from 'src/components/form/HelpTextContainer';
 import { LabelContent } from 'src/components/label/LabelContent';
+import { evalExpr } from 'src/features/expressions';
+import { ExprVal } from 'src/features/expressions/types';
+import { ExprValidation } from 'src/features/expressions/validation';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -17,6 +20,7 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { GenericComponent } from 'src/layout/GenericComponent';
 import css from 'src/layout/Grid/Grid.module.css';
 import {
+  getGridCellHiddenExpr,
   isGridCellLabelFrom,
   isGridCellNode,
   isGridCellText,
@@ -25,11 +29,71 @@ import {
 } from 'src/layout/Grid/tools';
 import { getColumnStyles } from 'src/utils/formComponentUtils';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import { useIsHidden } from 'src/utils/layout/hidden';
+import { useExpressionDataSources } from 'src/utils/layout/useExpressionDataSources';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
-import type { GridCell, GridRow, ITableColumnFormatting, ITableColumnProperties } from 'src/layout/common.generated';
+import type {
+  GridCell,
+  GridRow,
+  IGridColumnProperties,
+  ITableColumnFormatting,
+  ITableColumnProperties,
+} from 'src/layout/common.generated';
+
+interface ColSpanHiddenOverlapWarningParams {
+  colSpan: number;
+  cellIdx: number;
+  hiddenColumnIndices?: number[];
+  cellDescription: string;
+}
+
+function warnForColSpanHiddenOverlap({
+  colSpan,
+  cellIdx,
+  hiddenColumnIndices,
+  cellDescription,
+}: ColSpanHiddenOverlapWarningParams): void {
+  const normalizedHiddenColumnIndices = hiddenColumnIndices ?? [];
+  if (colSpan <= 1 || cellIdx < 0 || normalizedHiddenColumnIndices.length === 0) {
+    return;
+  }
+
+  const overlappingHiddenColumns = normalizedHiddenColumnIndices.filter(
+    (hiddenIdx) => hiddenIdx > cellIdx && hiddenIdx < cellIdx + colSpan,
+  );
+  if (overlappingHiddenColumns.length === 0) {
+    return;
+  }
+
+  const warningMessage =
+    `Grid: colSpan overlaps hidden column(s). Cell ${cellDescription} at index ${cellIdx} has colSpan=${colSpan}, ` +
+    `overlapping hidden column indices [${overlappingHiddenColumns.join(', ')}]. This may cause unexpected layout.`;
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(warningMessage);
+  }
+
+  if (window.logWarnOnce) {
+    window.logWarnOnce(warningMessage);
+    return;
+  }
+
+  window.logWarn?.(warningMessage);
+}
+
+function useWarnIfColSpanOverlapsHiddenColumns({
+  colSpan,
+  cellIdx,
+  hiddenColumnIndices = [],
+  cellDescription,
+}: ColSpanHiddenOverlapWarningParams) {
+  useEffect(() => {
+    warnForColSpanHiddenOverlap({ colSpan, cellIdx, hiddenColumnIndices, cellDescription });
+  }, [cellDescription, cellIdx, colSpan, hiddenColumnIndices]);
+}
 
 export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { baseComponentId } = props;
@@ -43,6 +107,27 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
   const { elementAsString } = useLanguage();
   const accessibleTitle = elementAsString(title);
   const indexedId = useIndexedId(baseComponentId);
+
+  const columnHiddenExprs = useMemo(() => rows?.find((r) => r.header)?.cells?.map(getGridCellHiddenExpr) ?? [], [rows]);
+  const expressionDataSources = useExpressionDataSources(columnHiddenExprs);
+  const hiddenColumnIndices = useMemo(
+    () =>
+      columnHiddenExprs.reduce<number[]>((indices, hiddenExpr, cellIdx) => {
+        if (!ExprValidation.isValidOrScalar(hiddenExpr, ExprVal.Boolean)) {
+          return indices;
+        }
+        const hidden = evalExpr(hiddenExpr, expressionDataSources, {
+          returnType: ExprVal.Boolean,
+          defaultValue: false,
+          errorIntroText: `Invalid expression for hidden in Grid column ${cellIdx}`,
+        });
+        if (hidden) {
+          indices.push(cellIdx);
+        }
+        return indices;
+      }, []),
+    [columnHiddenExprs, expressionDataSources],
+  );
 
   if (isMobile) {
     return <MobileGrid {...props} />;
@@ -70,6 +155,7 @@ export function RenderGrid(props: PropsFromGenericComponent<'Grid'>) {
           rows={rows}
           isNested={isNested}
           mutableColumnSettings={columnSettings}
+          hiddenColumnIndices={hiddenColumnIndices}
         />
       </Table>
     </ConditionalWrapper>
@@ -81,9 +167,18 @@ interface GridRowsProps {
   extraCells?: GridCell[];
   isNested: boolean;
   mutableColumnSettings: ITableColumnFormatting;
+  hiddenColumnIndices?: number[];
+  bodyClassName?: string;
 }
 
-export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColumnSettings }: GridRowsProps) {
+export function GridRowsRenderer({
+  rows,
+  extraCells = [],
+  isNested,
+  mutableColumnSettings,
+  hiddenColumnIndices = [],
+  bodyClassName,
+}: GridRowsProps) {
   const batches: { type: 'header' | 'body'; rows: GridRow[] }[] = [];
 
   for (const row of rows) {
@@ -102,13 +197,17 @@ export function GridRowsRenderer({ rows, extraCells = [], isNested, mutableColum
         const WrapperComponent = batch.type === 'header' ? Table.Head : Table.Body;
 
         return (
-          <WrapperComponent key={batchIdx}>
+          <WrapperComponent
+            key={batchIdx}
+            className={batch.type === 'body' ? bodyClassName : undefined}
+          >
             {batch.rows.map((row, rowIdx) => (
               <GridRowRenderer
                 key={rowIdx}
                 row={{ ...row, cells: [...row.cells, ...extraCells] }}
                 isNested={isNested}
                 mutableColumnSettings={mutableColumnSettings}
+                hiddenColumnIndices={hiddenColumnIndices}
               />
             ))}
           </WrapperComponent>
@@ -122,17 +221,22 @@ interface GridRowProps extends Omit<GridRowsProps, 'rows'> {
   row: GridRow;
 }
 
-function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps) {
+function GridRowRenderer({ row, isNested, mutableColumnSettings, hiddenColumnIndices = [] }: GridRowProps) {
   const rowHidden = useIsGridRowHidden(row);
   if (rowHidden) {
     return null;
   }
 
+  // Create array of cells with their original indices, then filter out hidden ones
+  const cellsWithIndices = row.cells
+    .map((cell, cellIdx) => ({ cell, cellIdx }))
+    .filter(({ cellIdx }) => !hiddenColumnIndices.includes(cellIdx));
+
   return (
     <Table.Row className={row.readOnly ? css.rowReadOnly : undefined}>
-      {row.cells.map((cell, cellIdx) => {
-        const isFirst = cellIdx === 0;
-        const isLast = cellIdx === row.cells.length - 1;
+      {cellsWithIndices.map(({ cell, cellIdx }, visibleIdx) => {
+        const isFirst = visibleIdx === 0;
+        const isLast = visibleIdx === cellsWithIndices.length - 1;
         const className = cn({
           [css.fullWidthCellFirst]: isFirst && !isNested,
           [css.fullWidthCellLast]: isLast && !isNested,
@@ -144,10 +248,11 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
         }
 
         if (isGridCellText(cell) || isGridCellLabelFrom(cell)) {
-          let textCellSettings: ITableColumnProperties = mutableColumnSettings[cellIdx]
+          let textCellSettings: GridColumnOptions = mutableColumnSettings[cellIdx]
             ? structuredClone(mutableColumnSettings[cellIdx])
             : {};
-          textCellSettings = { ...textCellSettings, ...cell };
+
+          textCellSettings = { ...textCellSettings, ...cell.cellStyle, ...cell };
 
           if (isGridCellText(cell)) {
             return (
@@ -157,6 +262,8 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
                 help={cell?.help}
                 isHeader={row.header}
                 columnStyleOptions={textCellSettings}
+                cellIdx={cellIdx}
+                hiddenColumnIndices={hiddenColumnIndices}
               >
                 <Lang id={cell.text} />
               </CellWithText>
@@ -170,6 +277,8 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
               isHeader={row.header}
               columnStyleOptions={textCellSettings}
               labelFrom={cell.labelFrom}
+              cellIdx={cellIdx}
+              hiddenColumnIndices={hiddenColumnIndices}
             />
           );
         }
@@ -185,6 +294,15 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
           );
         }
 
+        let componentCellSettings: GridColumnOptions | undefined =
+          mutableColumnSettings[cellIdx] && structuredClone(mutableColumnSettings[cellIdx]);
+
+        if (cell && 'cellStyle' in cell && cell.cellStyle) {
+          componentCellSettings = componentCellSettings
+            ? { ...componentCellSettings, ...cell.cellStyle }
+            : { ...cell.cellStyle };
+        }
+
         return (
           <CellWithComponent
             rowReadOnly={row.readOnly}
@@ -192,7 +310,9 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
             baseComponentId={baseComponentId}
             isHeader={row.header}
             className={className}
-            columnStyleOptions={mutableColumnSettings[cellIdx]}
+            columnStyleOptions={componentCellSettings}
+            cellIdx={cellIdx}
+            hiddenColumnIndices={hiddenColumnIndices}
           />
         );
       })}
@@ -202,10 +322,14 @@ function GridRowRenderer({ row, isNested, mutableColumnSettings }: GridRowProps)
 
 interface CellProps {
   className?: string;
-  columnStyleOptions?: ITableColumnProperties;
+  columnStyleOptions?: GridColumnOptions;
   isHeader?: boolean;
   rowReadOnly?: boolean;
+  cellIdx?: number;
+  hiddenColumnIndices?: number[];
 }
+
+type GridColumnOptions = ITableColumnProperties & IGridColumnProperties;
 
 interface CellWithComponentProps extends CellProps {
   baseComponentId: string;
@@ -225,9 +349,22 @@ function CellWithComponent({
   columnStyleOptions,
   isHeader = false,
   rowReadOnly,
+  cellIdx,
+  hiddenColumnIndices,
 }: CellWithComponentProps) {
   const isHidden = useIsHidden(baseComponentId);
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+  const colSpanValue = useEvalExpression(columnStyleOptions?.colSpan, {
+    returnType: ExprVal.Number,
+    defaultValue: 1,
+    errorIntroText: `Invalid expression for colSpan in Grid cell with component "${baseComponentId}"`,
+  });
+  useWarnIfColSpanOverlapsHiddenColumns({
+    colSpan: colSpanValue,
+    cellIdx: cellIdx ?? -1,
+    hiddenColumnIndices,
+    cellDescription: `with component "${baseComponentId}"`,
+  });
 
   if (!isHidden) {
     const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
@@ -235,6 +372,7 @@ function CellWithComponent({
       <CellComponent
         className={cn(css.tableCellFormatting, className)}
         style={columnStyles}
+        colSpan={colSpanValue}
       >
         <GenericComponent
           baseComponentId={baseComponentId}
@@ -252,7 +390,27 @@ function CellWithComponent({
   return <CellComponent className={className} />;
 }
 
-function CellWithText({ children, className, columnStyleOptions, help, isHeader = false }: CellWithTextProps) {
+function CellWithText({
+  children,
+  className,
+  columnStyleOptions,
+  help,
+  isHeader = false,
+  cellIdx,
+  hiddenColumnIndices,
+}: CellWithTextProps) {
+  const colSpanValue = useEvalExpression(columnStyleOptions?.colSpan, {
+    returnType: ExprVal.Number,
+    defaultValue: 1,
+    errorIntroText: 'Invalid expression for colSpan in Grid text cell',
+  });
+  useWarnIfColSpanOverlapsHiddenColumns({
+    colSpan: colSpanValue,
+    cellIdx: cellIdx ?? -1,
+    hiddenColumnIndices,
+    cellDescription: 'text',
+  });
+
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const { elementAsString } = useLanguage();
   const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
@@ -261,6 +419,7 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
     <CellComponent
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
+      colSpan={colSpanValue}
     >
       <span className={help && css.textCell}>
         <span
@@ -280,12 +439,29 @@ function CellWithText({ children, className, columnStyleOptions, help, isHeader 
   );
 }
 
-function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = false }: CellWithLabelProps) {
+function CellWithLabel({
+  className,
+  columnStyleOptions,
+  labelFrom,
+  isHeader = false,
+  cellIdx,
+  hiddenColumnIndices,
+}: CellWithLabelProps) {
   const columnStyles = columnStyleOptions && getColumnStyles(columnStyleOptions);
   const item = useItemFor(labelFrom);
   const trb = item.textResourceBindings;
   const required = 'required' in item && item.required;
-
+  const colSpanValue = useEvalExpression(columnStyleOptions?.colSpan, {
+    returnType: ExprVal.Number,
+    defaultValue: 1,
+    errorIntroText: `Invalid expression for colSpan in Grid cell with label from "${labelFrom}"`,
+  });
+  useWarnIfColSpanOverlapsHiddenColumns({
+    colSpan: colSpanValue,
+    cellIdx: cellIdx ?? -1,
+    hiddenColumnIndices,
+    cellDescription: `with label from "${labelFrom}"`,
+  });
   const title = trb && 'title' in trb ? trb.title : undefined;
   const help = trb && 'help' in trb ? trb.help : undefined;
   const description = trb && 'description' in trb && typeof trb.description === 'string' ? trb.description : undefined;
@@ -295,6 +471,7 @@ function CellWithLabel({ className, columnStyleOptions, labelFrom, isHeader = fa
     <CellComponent
       className={cn(css.tableCellFormatting, className)}
       style={columnStyles}
+      colSpan={colSpanValue}
     >
       <LabelContent
         id={useIndexedId(labelFrom)}

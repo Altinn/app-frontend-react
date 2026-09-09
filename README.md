@@ -7,13 +7,13 @@ This frontend is tasked with fetching layout files, components and other configu
 presents the UI for different steps in the workflow of an Altinn application. It is made to talk with the application
 backend developed using our [nuget packages](https://github.com/Altinn/app-lib-dotnet), usually extended from
 our [application template](https://github.com/Altinn/app-template-dotnet). If you want to try out creating your own
-apps in Altinn Studio, [check out our documentation](https://docs.altinn.studio/altinn-studio/getting-started/).
+apps in Altinn Studio, [check out our documentation](https://docs.altinn.studio/en/altinn-studio/v8/getting-started/).
 
 ## Getting started
 
 Apps created in Altinn Studio uses the latest stable release of this frontend by default.
-When [testing locally](https://docs.altinn.studio/altinn-studio/reference/testing/local/), you can also
-[try out](https://docs.altinn.studio/altinn-studio/reference/testing/local/debug/#using-other-frontend-versions) any of
+When [testing locally](https://docs.altinn.studio/en/altinn-studio/v8/reference/testing/local/), you can also
+[try out](https://docs.altinn.studio/en/altinn-studio/v8/reference/testing/local/debug/#using-other-frontend-versions) any of
 our [previous versions or pre-releases](https://github.com/Altinn/app-frontend-react/releases).
 
 Alternatively, you can set up this project locally to test code not yet released,
@@ -67,7 +67,7 @@ To start the app locally:
 
 1. Clone the [App-LocalTest repository](https://github.com/Altinn/app-localtest)
 2. Follow the steps in the [README.md documentation](https://github.com/Altinn/app-localtest/blob/main/README.md)
-3. Follow our documentation on [how to use the local app-frontend](https://docs.altinn.studio/altinn-studio/reference/testing/local/debug/#using-other-frontend-versions) when running locally
+3. Follow our documentation on [how to use the local app-frontend](https://docs.altinn.studio/en/altinn-studio/v8/reference/testing/local/debug/#using-other-frontend-versions) when running locally
 
 ## Automated tests
 
@@ -79,7 +79,7 @@ End to end tests are using Cypress, see [test readme for how to run these](./tes
 
 Unit tests are written using Jest and React testing library
 
-1. Execute `yarn --immutable`. This step is only nescessary if you have not already done it, or when package.json changes.
+1. Execute `yarn --immutable`. This step is only necessary if you have not already done it, or when package.json changes.
 2. Execute `yarn run test`.
 
 ## Contributing

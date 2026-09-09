@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 
 import { EXPERIMENTAL_Suggestion as Suggestion, Field, Label as DSLabel } from '@digdir/designsystemet-react';
 
@@ -14,6 +14,7 @@ import { useGetOptions } from 'src/features/options/useGetOptions';
 import { useSaveValueToGroup } from 'src/features/saveToGroup/useSaveToGroup';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
+import classes from 'src/layout/MultipleSelect/MultipleSelectComponent.module.css';
 import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -35,6 +36,7 @@ export function MultipleSelectComponent({
   } = useGetOptions(baseComponentId, 'multi');
   const groupBinding = useSaveValueToGroup(dataModelBindings);
   const selectedValues = groupBinding.enabled ? groupBinding.selectedValues : selectedFromSimpleBinding;
+  const isPatchingFocus = useRef(false);
 
   const debounce = FD.useDebounceImmediately();
   const { langAsString, lang } = useLanguage();
@@ -146,6 +148,33 @@ export function MultipleSelectComponent({
                   : undefined
               }
               readOnly={readOnly}
+              onFocus={async (e) => {
+                // Workaround for when programmatically focused by repeating group focus management
+
+                // If this event was triggered by our code below, reset the flag and exit.
+                if (isPatchingFocus.current) {
+                  isPatchingFocus.current = false;
+                  return;
+                }
+
+                const input = e.target;
+
+                // Wait for the combobox to be fully defined
+                await customElements.whenDefined('u-combobox');
+
+                setTimeout(() => {
+                  // Ensure we are still the active element
+                  if (document.activeElement !== input) {
+                    return;
+                  }
+
+                  // Tell the next execution of onFocus to ignore the event we are about to fire
+                  isPatchingFocus.current = true;
+
+                  // Wake up the component
+                  input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
+                }, 150);
+              }}
             />
             <Suggestion.Clear
               aria-label={langAsString('form_filler.clear_selection')}
@@ -164,7 +193,11 @@ export function MultipleSelectComponent({
                   <span>
                     <wbr />
                     <Lang id={option.label} />
-                    {option.description && <Lang id={option.description} />}
+                    {option.description && (
+                      <span className={classes.optionDescription}>
+                        <Lang id={option.description} />
+                      </span>
+                    )}
                   </span>
                 </Suggestion.Option>
               ))}

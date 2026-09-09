@@ -1,3 +1,4 @@
+import { maskSsn } from 'src/utils/maskSsn';
 import type { SummaryDataObject } from 'src/components/table/AltinnSummaryTable';
 import type { IUseLanguage } from 'src/features/language/useLanguage';
 import type { IParty } from 'src/types/shared';
@@ -8,14 +9,11 @@ interface ISummaryData {
 }
 
 export function getInstanceSender(instanceOwnerParty?: IParty): string {
-  let sender = '';
-  if (instanceOwnerParty?.ssn) {
-    sender = `${instanceOwnerParty.ssn}-${instanceOwnerParty.name}`;
-  } else if (instanceOwnerParty?.orgNumber) {
-    sender = `${instanceOwnerParty.orgNumber}-${instanceOwnerParty.name}`;
+  if (!instanceOwnerParty) {
+    return '';
   }
-
-  return sender;
+  const identifier = instanceOwnerParty.ssn ? maskSsn(instanceOwnerParty.ssn) : instanceOwnerParty.orgNumber;
+  return identifier ? `${identifier}-${instanceOwnerParty.name}` : instanceOwnerParty.name;
 }
 
 export const returnConfirmSummaryObject = ({ instanceOwnerParty, langTools }: ISummaryData): SummaryDataObject => {

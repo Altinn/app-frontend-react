@@ -10,6 +10,7 @@ import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { AltinnPalette } from 'src/theme/altinnAppTheme';
 import { changeBodyBackground } from 'src/utils/bodyStyling';
 import { isAxiosError } from 'src/utils/isAxiosError';
+import { isAuthenticationRedirectError } from 'src/utils/maybeAuthenticationRedirect';
 import { HttpStatusCodes } from 'src/utils/network/networking';
 
 export const InstantiateContainer = () => {
@@ -24,13 +25,21 @@ export const InstantiateContainer = () => {
     }
   }, [instantiation, party]);
 
+  // A 403 with RequiredAuthenticationLevel triggers a step-up redirect (see useInstantiation.onError). Block further
+  // rendering with a loader until the browser navigates away, so we never flash the "missing roles" error page. After a
+  // successful step-up the level is raised, so a later 403 no longer carries RequiredAuthenticationLevel and the error
+  // page renders below instead.
+  if (isAuthenticationRedirectError(instantiation.error)) {
+    return <Loader reason='authentication-redirect' />;
+  }
+
   if (isAxiosError(instantiation.error) && instantiation.error.response?.status === HttpStatusCodes.Forbidden) {
     if (isInstantiationValidationResult(instantiation.error.response?.data)) {
       return <InstantiateValidationError validationResult={instantiation.error.response.data} />;
     }
     return <MissingRolesError />;
   } else if (instantiation.error) {
-    return <UnknownError />;
+    return <UnknownError error={instantiation.error} />;
   }
 
   return <Loader reason='instantiating' />;

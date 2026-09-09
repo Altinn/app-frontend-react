@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { Field, ValidationMessage } from '@digdir/designsystemet-react';
 import { queryOptions, useQuery } from '@tanstack/react-query';
@@ -80,7 +80,7 @@ async function fetchPerson(
 }
 
 export function PersonLookupComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'PersonLookup'>) {
-  const { id, dataModelBindings, required } = useItemWhenType(baseComponentId, 'PersonLookup');
+  const { id, dataModelBindings, required, readOnly } = useItemWhenType(baseComponentId, 'PersonLookup');
   const { labelText, getDescriptionComponent, getHelpTextComponent } = useLabel({
     baseComponentId,
     overrideDisplay,
@@ -91,9 +91,10 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   const [nameError, setNameError] = useState<string>();
 
   const bindingValidations = useBindingValidationsFor<'PersonLookup'>(baseComponentId);
+
   const { langAsString } = useLanguage();
   const {
-    formData: { person_lookup_ssn, person_lookup_name },
+    formData: { person_lookup_ssn, person_lookup_name, person_lookup_first_name, person_lookup_last_name },
     setValue,
   } = useDataModelBindings(dataModelBindings);
 
@@ -132,25 +133,61 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
 
     const { data } = await performLookup();
     if (data?.person) {
-      setValue('person_lookup_name', getFullName(data.person));
-      setValue('person_lookup_ssn', data.person.ssn);
+      if (dataModelBindings.person_lookup_ssn) {
+        setValue('person_lookup_ssn', data.person.ssn);
+      }
+      if (dataModelBindings.person_lookup_first_name) {
+        setValue('person_lookup_first_name', data.person.firstName);
+      }
+      if (dataModelBindings.person_lookup_last_name) {
+        setValue('person_lookup_last_name', data.person.lastName);
+      }
+      if (dataModelBindings.person_lookup_middle_name) {
+        setValue('person_lookup_middle_name', data.person.middleName || '');
+      }
+      if (dataModelBindings.person_lookup_name) {
+        setValue('person_lookup_name', composeFullName(data.person));
+      }
     }
   }
 
-  function getFullName({ firstName, middleName, lastName }) {
+  function composeFullName({ firstName, middleName, lastName }) {
     return middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`;
   }
 
   function handleClear() {
-    setValue('person_lookup_name', '');
-    setValue('person_lookup_ssn', '');
+    if (dataModelBindings.person_lookup_ssn) {
+      setValue('person_lookup_ssn', '');
+    }
+    if (dataModelBindings.person_lookup_first_name) {
+      setValue('person_lookup_first_name', '');
+    }
+    if (dataModelBindings.person_lookup_last_name) {
+      setValue('person_lookup_last_name', '');
+    }
+    if (dataModelBindings.person_lookup_middle_name) {
+      setValue('person_lookup_middle_name', '');
+    }
+    if (dataModelBindings.person_lookup_name) {
+      setValue('person_lookup_name', '');
+    }
+
     setTempName('');
     setTempSsn('');
     setSsnErrors(undefined);
     setNameError(undefined);
   }
 
-  const hasSuccessfullyFetched = !!person_lookup_name && !!person_lookup_ssn;
+  const displayName = useMemo(() => {
+    // We prefer to not display middle name
+    if (person_lookup_first_name && person_lookup_last_name) {
+      return `${person_lookup_first_name} ${person_lookup_last_name}`;
+    }
+
+    return person_lookup_name || '';
+  }, [person_lookup_name, person_lookup_first_name, person_lookup_last_name]);
+
+  const hasSuccessfullyFetched = !!person_lookup_ssn;
 
   const invalidSsn =
     (ssnErrors?.length && ssnErrors?.length > 0) || hasValidationErrors(bindingValidations?.person_lookup_ssn);
@@ -177,7 +214,6 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
                   <Description
                     description={langAsString('person_lookup.from_registry_description')}
                     componentId={`${id}_ssn`}
-                    style={{ fontSize: '1rem' }}
                   />
                 ) : undefined
               }
@@ -190,14 +226,14 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
               aria-label={langAsString('person_lookup.ssn_label')}
               value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
               required={required}
-              readOnly={hasSuccessfullyFetched}
+              readOnly={hasSuccessfullyFetched || isFetching || readOnly}
               error={invalidSsn}
               onValueChange={(e) => {
                 setTempSsn(e.value);
                 setSsnErrors(undefined);
               }}
               onKeyDown={async (ev) => {
-                if (ev.key === 'Enter') {
+                if (ev.key === 'Enter' && !readOnly) {
                   await handleSubmit();
                 }
               }}
@@ -241,17 +277,17 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
               aria-label={langAsString(
                 hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label',
               )}
-              value={hasSuccessfullyFetched ? person_lookup_name : tempName}
+              value={hasSuccessfullyFetched ? displayName : tempName}
               type='text'
               required={required}
-              readOnly={hasSuccessfullyFetched}
+              readOnly={hasSuccessfullyFetched || isFetching || readOnly}
               error={invalidName}
               onChange={(e) => {
                 setTempName(e.target.value);
                 setNameError(undefined);
               }}
               onKeyDown={async (ev) => {
-                if (ev.key === 'Enter') {
+                if (ev.key === 'Enter' && !readOnly) {
                   await handleSubmit();
                 }
               }}
@@ -269,25 +305,27 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
                 />
               ))}
           </Field>
-          <div className={classes.submit}>
-            {!hasSuccessfullyFetched ? (
-              <Button
-                onClick={handleSubmit}
-                variant='secondary'
-                isLoading={isFetching}
-              >
-                <Lang id='person_lookup.submit_button' />
-              </Button>
-            ) : (
-              <Button
-                variant='secondary'
-                color='danger'
-                onClick={handleClear}
-              >
-                <Lang id='person_lookup.clear_button' />
-              </Button>
-            )}
-          </div>
+          {!readOnly && (
+            <div className={classes.submit}>
+              {!hasSuccessfullyFetched ? (
+                <Button
+                  onClick={handleSubmit}
+                  variant='secondary'
+                  isLoading={isFetching}
+                >
+                  <Lang id='person_lookup.submit_button' />
+                </Button>
+              ) : (
+                <Button
+                  variant='secondary'
+                  color='danger'
+                  onClick={handleClear}
+                >
+                  <Lang id='person_lookup.clear_button' />
+                </Button>
+              )}
+            </div>
+          )}
           {data?.error && (
             <ValidationMessage
               data-size='sm'

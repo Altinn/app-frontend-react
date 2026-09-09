@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import type { AxiosError } from 'axios';
 
 import { Loader } from 'src/core/loading/Loader';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { useProcessNext } from 'src/features/instance/useProcessNext';
 import { usePaymentInformation } from 'src/features/payment/PaymentInformationProvider';
 import { PaymentStatus } from 'src/features/payment/types';
@@ -13,6 +14,7 @@ import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
+import { appSupportsPaymentWebhooks } from 'src/utils/versioning/versions';
 
 type PaymentContextProps = {
   performPayment: () => void;
@@ -59,6 +61,7 @@ function PaymentNavigation() {
   const isPdf = useIsPdf();
   const { performPayment, skipPayment } = usePayment();
   const instanceGuid = useNavigationParam('instanceGuid');
+  const altinnNugetVersion = useApplicationMetadata().altinnNugetVersion;
 
   const paymentDoesNotExist = paymentInfo?.status === PaymentStatus.Uninitialized;
   const isPaymentProcess = useIsPayment();
@@ -84,12 +87,13 @@ function PaymentNavigation() {
 
   const paymentCompleted = paymentInfo?.status === PaymentStatus.Paid || paymentInfo?.status === PaymentStatus.Skipped;
 
-  // If when landing on payment task, PaymentStatus is Paid or Skipped, go to next task
+  // If when landing on payment task, PaymentStatus is Paid or Skipped while using backend-version
+  //  without webhook support, go to next task
   useEffect(() => {
-    if (isPaymentProcess && paymentCompleted && !isPdf) {
+    if (isPaymentProcess && paymentCompleted && !isPdf && !appSupportsPaymentWebhooks(altinnNugetVersion)) {
       skipPayment();
     }
-  }, [isPaymentProcess, paymentCompleted, skipPayment, isPdf]);
+  }, [isPaymentProcess, paymentCompleted, skipPayment, isPdf, altinnNugetVersion]);
 
   return null;
 }

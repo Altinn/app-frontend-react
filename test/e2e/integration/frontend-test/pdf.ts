@@ -52,6 +52,13 @@ describe('PDF', () => {
         cy.get('@allRequests.all').then((_intercepts) => {
           const intercepts = _intercepts as unknown as Interception[];
           expect(intercepts.length).to.be.greaterThan(10);
+
+          // We explicitly do not want keepAlive requests, since those should be disabled in PDF mode
+          expect(
+            intercepts.map((intercept) => intercept.request.url),
+            'PDF mode requests',
+          ).not.to.satisfy((urls: string[]) => urls.some((url) => url.includes('/api/authentication/keepAlive')));
+
           for (const intercept of intercepts) {
             const { request } = intercept;
             const reqInfo = `${intercept.browserRequestId} ${intercept.routeId} ${request.method} ${request.url.split(domain)[1]}`;
@@ -401,10 +408,6 @@ describe('PDF', () => {
       }),
     );
 
-    cy.goto('message');
-    cy.get(appFrontend.message.title).should('be.visible');
-    cy.waitUntilSaved();
-
     cy.gotoAndComplete('datalist');
 
     cy.testPdf({
@@ -463,7 +466,7 @@ describe('PDF', () => {
 
   // Used to cause a crash, @see https://github.com/Altinn/app-frontend-react/pull/2019
   it('Grid in Group should display correctly', { retries: 0 }, () => {
-    cy.intercept('GET', '**/layouts/**', (req) => {
+    cy.intercept('GET', '**/layouts/changename', (req) => {
       req.on('response', (res) => {
         const body: ILayoutCollection = JSON.parse(res.body);
         res.send({
@@ -507,12 +510,11 @@ describe('PDF', () => {
 
     // Wait for page to load
     cy.get('#finishedLoading').should('exist');
-    cy.waitForNetworkIdle(500);
 
-    // This should provoke an unknown error
-    cy.intercept({ method: 'GET', url: '**/data/**includeRowId=true*', times: 1 }, (req) =>
-      req.reply({ statusCode: 404, body: 'Not Found' }),
-    );
+    // This should provoke an unknown error. It used to intercept form data, but failures in loading form data from
+    // FormDataReaders (used from text resources) do not lead to errors, so this test could become flaky when that
+    // was the first request out of the gate.
+    cy.intercept('GET', '**/process', (req) => req.reply({ statusCode: 404, body: 'Not Found' })).as('failing');
 
     // Visit the PDF page and reload
     cy.location('href').then((href) => {
@@ -521,20 +523,13 @@ describe('PDF', () => {
       const before = href.split(regex)[0];
       const visitUrl = `${before}${instanceId}?pdf=1`;
       cy.visit(visitUrl);
+      cy.reload();
     });
-    cy.reload();
-
-    // Wait for page to load
-    cy.get('#finishedLoading').should('exist');
-    cy.waitForNetworkIdle(500);
 
     // Check that we are on the error page and that #readyForPrint is not present
     cy.findByRole('heading', { name: 'Ukjent feil' }).should('exist');
     cy.get('#readyForPrint').should('not.exist');
-
-    // To confirm we are on the PDF page, reload (which should now succeed) and check that #readyForPrint is visible
-    cy.reload();
-    cy.get('#readyForPrint').should('exist');
-    cy.findByRole('heading', { name: 'Ukjent feil' }).should('not.exist');
+    cy.get('#finishedLoading').should('not.exist');
+    cy.allowFailureOnEnd();
   });
 });
