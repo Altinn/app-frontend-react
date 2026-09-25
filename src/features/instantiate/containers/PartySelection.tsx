@@ -74,14 +74,11 @@ export const PartySelection = () => {
     if (party.isDeleted && !showDeleted) {
       return [];
     }
-    if (matchesSearch(party)) {
-      return [{ party, expandSubUnits: false }];
-    }
-    const matchingSubUnits = showSubUnits ? party.childParties?.filter(matchesSearch) : undefined;
+    const matchingSubUnits = filterString && showSubUnits ? party.childParties?.filter(matchesSearch) : undefined;
     if (matchingSubUnits?.length) {
       return [{ party: { ...party, childParties: matchingSubUnits }, expandSubUnits: true }];
     }
-    return [];
+    return matchesSearch(party) ? [{ party, expandSubUnits: false }] : [];
   });
 
   const hasMoreParties = filteredParties.length > numberOfPartiesShown;

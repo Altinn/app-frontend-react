@@ -137,6 +137,14 @@ describe('PartySelection', () => {
     expect(screen.queryAllByTestId('AltinnParty-PartyWrapper')).toHaveLength(0);
   });
 
+  it('should expand matching sub-units when the parent also matches', async () => {
+    const user = userEvent.setup({ delay: null });
+    await render();
+
+    await user.type(screen.getByRole('textbox', { name: /søk/i }), 'Org');
+    expect(screen.getByRole('button', { name: /^Subunit Org/ })).toBeInTheDocument();
+  });
+
   it('deleted filter should work', async () => {
     const user = userEvent.setup({ delay: null });
     await render();
