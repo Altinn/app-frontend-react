@@ -16,6 +16,7 @@ import { useUploaderSummaryData } from 'src/layout/FileUpload/Summary/summary';
 import { EditButton } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { SummaryContains, SummaryFlex } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
+import { useGetUniqueKeyFromObject } from 'src/utils/useGetKeyFromObject';
 import type { Summary2Props } from 'src/layout/Summary2/SummaryComponent2/types';
 
 export function AttachmentSummaryComponent2({ targetBaseComponentId }: Summary2Props) {
@@ -41,6 +42,7 @@ export function AttachmentSummaryComponent2({ targetBaseComponentId }: Summary2P
   const required = component.minNumberOfAttachments > 0;
   const validations = useUnifiedValidationsForNode(targetBaseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
+  const getUniqueKeyFromObject = useGetUniqueKeyFromObject();
 
   return (
     <SummaryFlex
@@ -87,14 +89,14 @@ export function AttachmentSummaryComponent2({ targetBaseComponentId }: Summary2P
           isFetching={isFetching}
         />
       )}
-      {errors.map(({ message }) => (
+      {errors.map((validation) => (
         <ValidationMessage
-          key={message.key}
+          key={getUniqueKeyFromObject(validation)}
           data-size='sm'
         >
           <Lang
-            id={message.key}
-            params={message.params}
+            id={validation.message.key}
+            params={validation.message.params}
           />
         </ValidationMessage>
       ))}
