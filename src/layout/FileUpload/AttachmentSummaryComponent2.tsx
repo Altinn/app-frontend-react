@@ -1,11 +1,14 @@
 import React from 'react';
 
-import { Paragraph } from '@digdir/designsystemet-react';
+import { Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
+import cn from 'classnames';
 
 import { Label } from 'src/components/label/Label';
 import { Lang } from 'src/features/language/Lang';
 import { useOptionsFor } from 'src/features/options/useOptionsFor';
 import { usePdfModeActive } from 'src/features/pdf/PdfWrapper';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobileOrTablet } from 'src/hooks/useDeviceWidths';
 import { FileTable } from 'src/layout/FileUpload/FileUploadTable/FileTable';
 import classes from 'src/layout/FileUpload/FileUploadTable/FileTableComponent.module.css';
@@ -36,6 +39,8 @@ export function AttachmentSummaryComponent2({ targetBaseComponentId }: Summary2P
   });
   const isEmpty = filteredAttachments.length === 0;
   const required = component.minNumberOfAttachments > 0;
+  const validations = useUnifiedValidationsForNode(targetBaseComponentId);
+  const errors = validationsOfSeverity(validations, 'error');
 
   return (
     <SummaryFlex
@@ -68,7 +73,7 @@ export function AttachmentSummaryComponent2({ targetBaseComponentId }: Summary2P
       </div>
       {filteredAttachments.length === 0 ? (
         <Paragraph asChild>
-          <span className={classes.emptyField}>
+          <span className={cn(classes.emptyField, { [classes.error]: errors.length > 0 })}>
             <Lang id='general.empty_summary' />
           </span>
         </Paragraph>
@@ -82,6 +87,17 @@ export function AttachmentSummaryComponent2({ targetBaseComponentId }: Summary2P
           isFetching={isFetching}
         />
       )}
+      {errors.map(({ message }) => (
+        <ValidationMessage
+          key={message.key}
+          data-size='sm'
+        >
+          <Lang
+            id={message.key}
+            params={message.params}
+          />
+        </ValidationMessage>
+      ))}
     </SummaryFlex>
   );
 }
