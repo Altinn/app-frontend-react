@@ -36,6 +36,10 @@ export class OrganisationLookup extends OrganisationLookupDef {
     return null;
   }
 
+  renderDefaultValidations(): boolean {
+    return false;
+  }
+
   useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
     return useEmptyFieldValidationOnlyOneBinding(
       baseComponentId,

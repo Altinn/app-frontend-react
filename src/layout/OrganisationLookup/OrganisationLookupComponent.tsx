@@ -18,6 +18,10 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
+import { useOnComponentValidation } from 'src/features/validation/callbacks/onComponentValidation';
+import { ComponentValidations } from 'src/features/validation/ComponentValidations';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
+import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupComponent.module.css';
 import { validateOrganisationLookupResponse, validateOrgnr } from 'src/layout/OrganisationLookup/validation';
@@ -79,6 +83,8 @@ export function OrganisationLookupComponent({
     baseComponentId,
     overrideDisplay,
   });
+  const validations = useUnifiedValidationsForNode(baseComponentId);
+  const validate = useOnComponentValidation(baseComponentId);
   const [tempOrgNr, setTempOrgNr] = useState('');
   const [orgNrErrors, setOrgNrErrors] = useState<string[]>();
   const [statusMessage, setStatusMessage] = useState('');
@@ -93,7 +99,6 @@ export function OrganisationLookupComponent({
   const currentLanguage = useCurrentLanguage();
   const layoutLookups = useLayoutLookups();
   const pickFormValue = FD.useCurrentSelector();
-  const waitForSave = FD.useWaitForSave();
 
   const { data, refetch: performLookup, isFetching } = useQuery(orgLookupQueries.lookup(tempOrgNr));
 
@@ -149,6 +154,9 @@ export function OrganisationLookupComponent({
   }
 
   async function handleSubmit() {
+    if (readOnly || isFetching || organisation_lookup_orgnr) {
+      return;
+    }
     const validationErrors = handleValidateOrgnr(tempOrgNr);
 
     if (validationErrors?.length) {
@@ -160,7 +168,7 @@ export function OrganisationLookupComponent({
     if (data?.org) {
       setValue('organisation_lookup_orgnr', data.org.orgNr);
       dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', data.org.name);
-      await waitForSave(true);
+      await validate();
       announceOrgDetails(data.org.orgNr);
     } else if (data?.error) {
       announceStatusMessage(langAsString(data.error));
@@ -177,7 +185,7 @@ export function OrganisationLookupComponent({
 
   const hasSuccessfullyFetched = !!organisation_lookup_orgnr;
 
-  const isValid = (orgNrErrors?.length && orgNrErrors?.length > 0) || data?.error;
+  const invalid = !!orgNrErrors?.length || !!data?.error || hasValidationErrors(validations);
 
   return (
     <Fieldset
@@ -213,7 +221,7 @@ export function OrganisationLookupComponent({
               value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
               required={required}
               readOnly={hasSuccessfullyFetched || isFetching || readOnly}
-              error={!!isValid}
+              error={invalid}
               onValueChange={(e) => {
                 setTempOrgNr(e.value);
                 setOrgNrErrors(undefined);
@@ -228,11 +236,15 @@ export function OrganisationLookupComponent({
               inputMode='numeric'
               pattern='[0-9]{9}'
             />
-            {orgNrErrors?.length && (
+            {!!orgNrErrors?.length && (
               <ValidationMessage data-size='sm'>
                 <Lang id={orgNrErrors.join(' ')} />
               </ValidationMessage>
             )}
+            <ComponentValidations
+              validations={validations}
+              baseComponentId={baseComponentId}
+            />
           </Field>
           {!readOnly && (
             <div className={classes.submit}>
