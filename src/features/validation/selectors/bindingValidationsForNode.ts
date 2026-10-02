@@ -18,9 +18,9 @@ export function useBindingValidationsFor<T extends CompTypes>(
   baseComponentId: string,
 ): { [binding in keyof NonNullable<IDataModelBindings<T>>]: OutValues } | undefined {
   const showAll = Validation.useShowAllBackendErrors();
-  const component = NodesInternal.useVisibleValidations(baseComponentId, showAll);
-  const dataModelBindings = useDataModelBindingsFor(baseComponentId);
   const indexedId = useIndexedId(baseComponentId);
+  const component = NodesInternal.useVisibleValidations(indexedId, showAll);
+  const dataModelBindings = useDataModelBindingsFor(baseComponentId);
 
   return useMemo(() => {
     if (!dataModelBindings) {
