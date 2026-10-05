@@ -72,6 +72,7 @@ describe('Organisation lookup', () => {
     cy.findByRole('button', { name: /Hent opplysninger/i }).click();
     cy.findByText(/Organisasjonsnummeret er ugyldig/i).should('exist');
 
+    cy.findByRole('radio', { name: 'Ja' }).check();
     cy.changeLayout((component) => {
       if (component.type === 'OrganisationLookup') {
         component.showValidations = ['All'];

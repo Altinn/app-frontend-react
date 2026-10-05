@@ -89,7 +89,8 @@ for (const scenario of scenarios) {
 
     it('changes required validation using the radio buttons', () => {
       start();
-      cy.findByRole('radio', { name: 'Ja' }).should('be.checked');
+      cy.findByRole('radio', { name: 'Nei' }).should('be.checked');
+      cy.findByRole('radio', { name: 'Ja' }).check();
       cy.get(`[data-componentid="${scenario.id}"]`)
         .findByRole('textbox', { name: scenario.numberLabel })
         .should('have.attr', 'required');
@@ -106,6 +107,7 @@ for (const scenario of scenarios) {
 
     it('validates required lookups when saving a row and permits empty optional rows', () => {
       start();
+      cy.findByRole('radio', { name: 'Ja' }).check();
       cy.findByRole('button', { name: /Legg til ny/ }).click();
       cy.get('[data-testid="group-edit-container"]').within(() => {
         cy.findByRole('button', { name: /Lagre og lukk/ }).click();
