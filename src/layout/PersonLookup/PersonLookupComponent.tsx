@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
 
 import { Field, ValidationMessage } from '@digdir/designsystemet-react';
-import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Input } from 'src/app-components/Input/Input';
@@ -11,6 +10,7 @@ import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getDescriptionId } from 'src/components/label/Label';
+import { usePersonLookup } from 'src/core/queries/lookup';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -20,65 +20,19 @@ import { useBindingValidationsFor } from 'src/features/validation/selectors/bind
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
-import { validatePersonLookupResponse, validateSsn } from 'src/layout/PersonLookup/validation';
+import { validateSsn } from 'src/layout/PersonLookup/validation';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import { httpPost } from 'src/utils/network/networking';
-import { appPath } from 'src/utils/urls/appUrlHelper';
+import type { LookupFailure, Person } from 'src/core/queries/lookup';
 import type { PropsFromGenericComponent } from 'src/layout';
 
-const personLookupQueries = {
-  lookup: (ssn: string, name: string) =>
-    queryOptions({
-      queryKey: [{ scope: 'personLookup', ssn, name }],
-      queryFn: () => fetchPerson(ssn, name),
-      enabled: false,
-      gcTime: 0,
-    }),
+const lookupFailureMessages: Record<LookupFailure, string> = {
+  notFound: 'person_lookup.validation_error_not_found',
+  invalidResponse: 'person_lookup.validation_invalid_response_from_server',
+  forbidden: 'person_lookup.validation_error_forbidden',
+  tooManyRequests: 'person_lookup.validation_error_too_many_requests',
+  unknown: 'person_lookup.unknown_error',
 };
-
-export type Person = {
-  firstName: string;
-  lastName: string;
-  middleName: string;
-  ssn: string;
-};
-export type PersonLookupResponse = { success: false; personDetails: null } | { success: true; personDetails: Person };
-
-async function fetchPerson(
-  ssn: string,
-  name: string,
-): Promise<{ person: Person; error: null } | { person: null; error: string }> {
-  if (!ssn || !name) {
-    throw new Error('Missing ssn or name');
-  }
-  const body = { socialSecurityNumber: ssn, lastName: name };
-  const url = `${appPath}/api/v1/lookup/person`;
-
-  try {
-    const response = await httpPost(url, undefined, body);
-    const data = response.data;
-
-    if (!validatePersonLookupResponse(data)) {
-      return { person: null, error: 'person_lookup.validation_invalid_response_from_server' };
-    }
-
-    if (!data.success) {
-      return { person: null, error: 'person_lookup.validation_error_not_found' };
-    }
-
-    return { person: data.personDetails, error: null };
-  } catch (error) {
-    if (error.response?.status === 403) {
-      return { person: null, error: 'person_lookup.validation_error_forbidden' };
-    }
-    if (error.response?.status === 429) {
-      return { person: null, error: 'person_lookup.validation_error_too_many_requests' };
-    }
-
-    return { person: null, error: 'person_lookup.unknown_error' };
-  }
-}
 
 export function PersonLookupComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'PersonLookup'>) {
   const { id, dataModelBindings, required, readOnly } = useItemWhenType(baseComponentId, 'PersonLookup');
@@ -100,7 +54,8 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
     setValue,
   } = useDataModelBindings(dataModelBindings);
 
-  const { data, refetch: performLookup, isFetching } = useQuery(personLookupQueries.lookup(tempSsn, tempName));
+  const { result, lookup: performLookup, isFetching } = usePersonLookup(tempSsn, tempName);
+  const lookupError = result?.failure ? lookupFailureMessages[result.failure] : undefined;
 
   function handleValidateName(name: string) {
     if (!name.trim()) {
@@ -136,28 +91,28 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
       return;
     }
 
-    const { data } = await performLookup();
-    if (data?.person) {
+    const result = await performLookup();
+    if (result.data) {
       if (dataModelBindings.person_lookup_ssn) {
-        setValue('person_lookup_ssn', data.person.ssn);
+        setValue('person_lookup_ssn', result.data.ssn);
       }
       if (dataModelBindings.person_lookup_first_name) {
-        setValue('person_lookup_first_name', data.person.firstName);
+        setValue('person_lookup_first_name', result.data.firstName);
       }
       if (dataModelBindings.person_lookup_last_name) {
-        setValue('person_lookup_last_name', data.person.lastName);
+        setValue('person_lookup_last_name', result.data.lastName);
       }
       if (dataModelBindings.person_lookup_middle_name) {
-        setValue('person_lookup_middle_name', data.person.middleName || '');
+        setValue('person_lookup_middle_name', result.data.middleName || '');
       }
       if (dataModelBindings.person_lookup_name) {
-        setValue('person_lookup_name', composeFullName(data.person));
+        setValue('person_lookup_name', composeFullName(result.data));
       }
       await validate();
     }
   }
 
-  function composeFullName({ firstName, middleName, lastName }) {
+  function composeFullName({ firstName, middleName, lastName }: Person) {
     return middleName ? `${firstName} ${middleName} ${lastName}` : `${firstName} ${lastName}`;
   }
 
@@ -337,12 +292,12 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
               )}
             </div>
           )}
-          {data?.error && (
+          {lookupError && (
             <ValidationMessage
               data-size='sm'
               className={classes.apiError}
             >
-              <Lang id={data.error} />
+              <Lang id={lookupError} />
             </ValidationMessage>
           )}
         </div>

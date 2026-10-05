@@ -1,7 +1,6 @@
 import React, { useRef, useState } from 'react';
 
 import { Field, Paragraph, ValidationMessage } from '@digdir/designsystemet-react';
-import { queryOptions, useQuery } from '@tanstack/react-query';
 
 import type { PropsFromGenericComponent } from '..';
 
@@ -12,6 +11,7 @@ import { Label } from 'src/app-components/Label/Label';
 import { Description } from 'src/components/form/Description';
 import { RequiredIndicator } from 'src/components/form/RequiredIndicator';
 import { getDescriptionId } from 'src/components/label/Label';
+import { useOrganizationLookup } from 'src/core/queries/lookup';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
@@ -24,55 +24,21 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupComponent.module.css';
-import { validateOrganisationLookupResponse, validateOrgnr } from 'src/layout/OrganisationLookup/validation';
+import { validateOrgnr } from 'src/layout/OrganisationLookup/validation';
 import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import { httpGet } from 'src/utils/network/networking';
-import { appPath } from 'src/utils/urls/appUrlHelper';
-
-const orgLookupQueries = {
-  lookup: (orgNr: string) =>
-    queryOptions({
-      queryKey: [{ scope: 'organisationLookup', orgNr }],
-      queryFn: () => fetchOrg(orgNr),
-      enabled: false,
-      gcTime: 0,
-    }),
-};
+import type { LookupFailure } from 'src/core/queries/lookup';
 
 const LIVE_REGION_RESET_DELAY_MS = 100;
 
-export type Organisation = {
-  orgNr: string;
-  name: string;
+const lookupFailureMessages: Record<LookupFailure, string> = {
+  notFound: 'organisation_lookup.validation_error_not_found',
+  invalidResponse: 'organisation_lookup.validation_invalid_response_from_server',
+  forbidden: 'organisation_lookup.unknown_error',
+  tooManyRequests: 'organisation_lookup.unknown_error',
+  unknown: 'organisation_lookup.unknown_error',
 };
-export type OrganisationLookupResponse =
-  | { success: false; organisationDetails: null }
-  | { success: true; organisationDetails: Organisation };
-
-async function fetchOrg(orgNr: string): Promise<{ org: Organisation; error: null } | { org: null; error: string }> {
-  if (!orgNr) {
-    throw new Error('orgNr is required');
-  }
-  const url = `${appPath}/api/v1/lookup/organisation/${orgNr}`;
-
-  try {
-    const response = await httpGet(url);
-
-    if (!validateOrganisationLookupResponse(response)) {
-      return { org: null, error: 'organisation_lookup.validation_invalid_response_from_server' };
-    }
-
-    if (!response.success || !response.organisationDetails) {
-      return { org: null, error: 'organisation_lookup.validation_error_not_found' };
-    }
-
-    return { org: response.organisationDetails, error: null };
-  } catch {
-    return { org: null, error: 'organisation_lookup.unknown_error' };
-  }
-}
 
 export function OrganisationLookupComponent({
   baseComponentId,
@@ -100,7 +66,8 @@ export function OrganisationLookupComponent({
   const layoutLookups = useLayoutLookups();
   const pickFormValue = FD.useCurrentSelector();
 
-  const { data, refetch: performLookup, isFetching } = useQuery(orgLookupQueries.lookup(tempOrgNr));
+  const { result, lookup: performLookup, isFetching } = useOrganizationLookup(tempOrgNr);
+  const lookupError = result?.failure ? lookupFailureMessages[result.failure] : undefined;
 
   function announceStatusMessage(message: string) {
     setStatusMessage('');
@@ -164,14 +131,14 @@ export function OrganisationLookupComponent({
       return;
     }
 
-    const { data } = await performLookup();
-    if (data?.org) {
-      setValue('organisation_lookup_orgnr', data.org.orgNr);
-      dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', data.org.name);
+    const result = await performLookup();
+    if (result.data) {
+      setValue('organisation_lookup_orgnr', result.data.orgNr);
+      dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', result.data.name);
       await validate();
-      announceOrgDetails(data.org.orgNr);
-    } else if (data?.error) {
-      announceStatusMessage(langAsString(data.error));
+      announceOrgDetails(result.data.orgNr);
+    } else {
+      announceStatusMessage(langAsString(lookupFailureMessages[result.failure]));
     }
   }
 
@@ -185,7 +152,7 @@ export function OrganisationLookupComponent({
 
   const hasSuccessfullyFetched = !!organisation_lookup_orgnr;
 
-  const invalid = !!orgNrErrors?.length || !!data?.error || hasValidationErrors(validations);
+  const invalid = !!orgNrErrors?.length || !!lookupError || hasValidationErrors(validations);
 
   return (
     <Fieldset
@@ -267,12 +234,12 @@ export function OrganisationLookupComponent({
               )}
             </div>
           )}
-          {data?.error && (
+          {lookupError && (
             <ValidationMessage
               data-size='sm'
               className={classes.apiError}
             >
-              <Lang id={data.error} />
+              <Lang id={lookupError} />
             </ValidationMessage>
           )}
           {hasSuccessfullyFetched && orgName && (
