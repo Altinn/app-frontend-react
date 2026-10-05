@@ -58,13 +58,40 @@ const scenarios = [
   },
 ] as const;
 
-describe('Lookup validation', () => {
+describe('Lookup validation', { testIsolation: false }, () => {
+  before(() => {
+    cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
+    cy.gotoNavPage('PersonLookupPage');
+    cy.findByRole('radio', { name: 'Nei' }).should('be.checked');
+  });
+
   for (const scenario of scenarios) {
     describe(`${scenario.type} validation gates`, () => {
       beforeEach(() => {
-        cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
         cy.gotoNavPage(scenario.page);
-        cy.findByRole('radio', { name: 'Nei' }).should('be.checked');
+        // Keep one instance, but reset the model, pending drafts and layout between cases.
+        cy.findByRole('checkbox', { name: 'Vis feil fra serveren' }).uncheck();
+        cy.findByRole('radio', { name: 'Nei' }).check();
+        cy.get(`[data-componentid="${scenario.id}-group"]`).then(($group) => {
+          const count = $group.find('button').filter((_, button) => button.textContent?.includes('Slett')).length;
+          for (let row = 0; row < count; row++) {
+            cy.get(`[data-componentid="${scenario.id}-group"]`)
+              .findAllByRole('button', { name: /Slett/ })
+              .first()
+              .click();
+          }
+        });
+        cy.get(`[data-componentid="${scenario.id}"]`).then(($lookup) => {
+          if ($lookup.find('button').filter((_, button) => button.textContent?.includes('Fjern')).length) {
+            cy.get(`[data-componentid="${scenario.id}"]`).findByRole('button', { name: /Fjern/ }).click();
+          }
+        });
+        cy.waitUntilSaved();
+        cy.changeLayout((component) => {
+          if (component.type === scenario.type) {
+            component.showValidations = undefined;
+          }
+        });
       });
 
       function fill() {

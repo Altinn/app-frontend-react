@@ -6,18 +6,21 @@ const organisationLookupIntercept = '**/api/v1/lookup/organisation/*';
 
 describe('Organisation lookup', () => {
   it('Renders the organisation lookup component correctly', () => {
-    cy.intercept('GET', organisationLookupIntercept, {
-      statusCode: 200,
-      body: {
-        success: true,
-        organisationDetails: {
-          orgNr: '043871668',
-          name: 'Skog og Fjell Consulting',
+    cy.intercept(
+      { method: 'GET', url: organisationLookupIntercept, times: 1 },
+      {
+        statusCode: 200,
+        body: {
+          success: true,
+          organisationDetails: {
+            orgNr: '043871668',
+            name: 'Skog og Fjell Consulting',
+          },
         },
       },
-    }).as('successfullyFetchedOrganisation');
+    ).as('successfullyFetchedOrganisation');
 
-    // Contrary to person looku, organisation lookup does not require authentication level >2
+    // Organisation lookup also supports authentication level 1
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '1' });
     cy.gotoNavPage('OrganisationLookupPage');
 
@@ -42,13 +45,16 @@ describe('Organisation lookup', () => {
     cy.findByRole('button', { name: /Fjern/i }).should('not.exist');
 
     // Add interceptor for failed fetch
-    cy.intercept('GET', organisationLookupIntercept, {
-      statusCode: 200,
-      body: {
-        success: false,
-        organisationDetails: null,
+    cy.intercept(
+      { method: 'GET', url: organisationLookupIntercept, times: 1 },
+      {
+        statusCode: 200,
+        body: {
+          success: false,
+          organisationDetails: null,
+        },
       },
-    }).as('failedFetchOrganisation');
+    ).as('failedFetchOrganisation');
 
     // Fetch organisation that does not exist
     cy.findByRole('textbox', { name: /Organisasjonsnummer/i }).type('043871668');
@@ -57,9 +63,12 @@ describe('Organisation lookup', () => {
     cy.findByText(/Organisasjonsnummeret ble ikke funnet i enhetsregisteret/i).should('exist');
 
     // Add interceptor for failed fetch due to server error
-    cy.intercept('GET', organisationLookupIntercept, {
-      statusCode: 500,
-    }).as('failedFetchOrganisationServerError');
+    cy.intercept(
+      { method: 'GET', url: organisationLookupIntercept, times: 1 },
+      {
+        statusCode: 500,
+      },
+    ).as('failedFetchOrganisationServerError');
 
     // Fetch organisation with server error
     cy.findByRole('button', { name: /Hent opplysninger/i }).click();
