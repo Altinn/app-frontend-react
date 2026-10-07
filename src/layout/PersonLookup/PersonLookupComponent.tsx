@@ -23,16 +23,8 @@ import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
 import { validateSsn } from 'src/layout/PersonLookup/validation';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { LookupFailure, Person } from 'src/core/queries/lookup';
+import type { Person } from 'src/core/queries/lookup';
 import type { PropsFromGenericComponent } from 'src/layout';
-
-const lookupFailureMessages: Record<LookupFailure, string> = {
-  notFound: 'person_lookup.validation_error_not_found',
-  invalidResponse: 'person_lookup.validation_invalid_response_from_server',
-  forbidden: 'person_lookup.validation_error_forbidden',
-  tooManyRequests: 'person_lookup.validation_error_too_many_requests',
-  unknown: 'person_lookup.unknown_error',
-};
 
 export function PersonLookupComponent({ baseComponentId, overrideDisplay }: PropsFromGenericComponent<'PersonLookup'>) {
   const { id, dataModelBindings, required, readOnly } = useItemWhenType(baseComponentId, 'PersonLookup');
@@ -54,8 +46,7 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
     setValue,
   } = useDataModelBindings(dataModelBindings);
 
-  const { result, lookup: performLookup, isFetching } = usePersonLookup(tempSsn, tempName);
-  const lookupError = result?.failure ? lookupFailureMessages[result.failure] : undefined;
+  const { error: lookupError, lookup: performLookup, isFetching } = usePersonLookup(tempSsn, tempName);
 
   function handleValidateName(name: string) {
     if (!name.trim()) {
@@ -91,22 +82,22 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
       return;
     }
 
-    const result = await performLookup();
-    if (result.data) {
+    const { person } = await performLookup();
+    if (person) {
       if (dataModelBindings.person_lookup_ssn) {
-        setValue('person_lookup_ssn', result.data.ssn);
+        setValue('person_lookup_ssn', person.ssn);
       }
       if (dataModelBindings.person_lookup_first_name) {
-        setValue('person_lookup_first_name', result.data.firstName);
+        setValue('person_lookup_first_name', person.firstName);
       }
       if (dataModelBindings.person_lookup_last_name) {
-        setValue('person_lookup_last_name', result.data.lastName);
+        setValue('person_lookup_last_name', person.lastName);
       }
       if (dataModelBindings.person_lookup_middle_name) {
-        setValue('person_lookup_middle_name', result.data.middleName || '');
+        setValue('person_lookup_middle_name', person.middleName || '');
       }
       if (dataModelBindings.person_lookup_name) {
-        setValue('person_lookup_name', composeFullName(result.data));
+        setValue('person_lookup_name', composeFullName(person));
       }
       await validate();
     }

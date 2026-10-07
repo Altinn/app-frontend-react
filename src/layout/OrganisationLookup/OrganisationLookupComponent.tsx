@@ -28,17 +28,8 @@ import { validateOrgnr } from 'src/layout/OrganisationLookup/validation';
 import utilClasses from 'src/styles/utils.module.css';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { LookupFailure } from 'src/core/queries/lookup';
 
 const LIVE_REGION_RESET_DELAY_MS = 100;
-
-const lookupFailureMessages: Record<LookupFailure, string> = {
-  notFound: 'organisation_lookup.validation_error_not_found',
-  invalidResponse: 'organisation_lookup.validation_invalid_response_from_server',
-  forbidden: 'organisation_lookup.unknown_error',
-  tooManyRequests: 'organisation_lookup.unknown_error',
-  unknown: 'organisation_lookup.unknown_error',
-};
 
 export function OrganisationLookupComponent({
   baseComponentId,
@@ -66,8 +57,7 @@ export function OrganisationLookupComponent({
   const layoutLookups = useLayoutLookups();
   const pickFormValue = FD.useCurrentSelector();
 
-  const { result, lookup: performLookup, isFetching } = useOrganizationLookup(tempOrgNr);
-  const lookupError = result?.failure ? lookupFailureMessages[result.failure] : undefined;
+  const { error: lookupError, lookup: performLookup, isFetching } = useOrganizationLookup(tempOrgNr);
 
   function announceStatusMessage(message: string) {
     setStatusMessage('');
@@ -131,14 +121,14 @@ export function OrganisationLookupComponent({
       return;
     }
 
-    const result = await performLookup();
-    if (result.data) {
-      setValue('organisation_lookup_orgnr', result.data.orgNr);
-      dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', result.data.name);
+    const { org, error } = await performLookup();
+    if (org) {
+      setValue('organisation_lookup_orgnr', org.orgNr);
+      dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', org.name);
       await validate();
-      announceOrgDetails(result.data.orgNr);
-    } else {
-      announceStatusMessage(langAsString(lookupFailureMessages[result.failure]));
+      announceOrgDetails(org.orgNr);
+    } else if (error) {
+      announceStatusMessage(langAsString(error));
     }
   }
 
