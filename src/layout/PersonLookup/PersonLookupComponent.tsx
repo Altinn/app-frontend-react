@@ -49,7 +49,7 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   const { error: lookupError, lookup: performLookup, isFetching } = usePersonLookup(tempSsn, tempName);
 
   function handleValidateName(name: string) {
-    if (!name.trim()) {
+    if (name.length < 1) {
       setNameError('person_lookup.validation_error_name_too_short');
       return false;
     }
@@ -73,9 +73,6 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   }
 
   async function handleSubmit() {
-    if (readOnly || isFetching || person_lookup_ssn) {
-      return;
-    }
     const isNameValid = handleValidateName(tempName);
     const isSsnValid = handleValidateSsn(tempSsn);
     if (!isNameValid || !isSsnValid) {

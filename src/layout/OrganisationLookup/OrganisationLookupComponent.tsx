@@ -111,9 +111,6 @@ export function OrganisationLookupComponent({
   }
 
   async function handleSubmit() {
-    if (readOnly || isFetching || organisation_lookup_orgnr) {
-      return;
-    }
     const validationErrors = handleValidateOrgnr(tempOrgNr);
 
     if (validationErrors?.length) {
