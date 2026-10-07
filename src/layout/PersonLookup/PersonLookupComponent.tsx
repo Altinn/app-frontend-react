@@ -14,13 +14,12 @@ import { usePersonLookup } from 'src/core/queries/lookup';
 import { useDataModelBindings } from 'src/features/formData/useDataModelBindings';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useOnComponentValidation } from 'src/features/validation/callbacks/onComponentValidation';
-import { ComponentValidations } from 'src/features/validation/ComponentValidations';
-import { useBindingValidationsFor } from 'src/features/validation/selectors/bindingValidationsForNode';
+import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/PersonLookup/PersonLookupComponent.module.css';
 import { validateSsn } from 'src/layout/PersonLookup/validation';
+import { buildAriaDescribedBy } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { Person } from 'src/core/queries/lookup';
@@ -37,8 +36,9 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
   const [ssnErrors, setSsnErrors] = useState<string[]>();
   const [nameError, setNameError] = useState<string>();
 
-  const validate = useOnComponentValidation(baseComponentId);
-  const bindingValidations = useBindingValidationsFor<'PersonLookup'>(baseComponentId);
+  const validations = useUnifiedValidationsForNode(baseComponentId);
+  const ssnValidations = validations.filter((v) => 'bindingKey' in v && v.bindingKey === 'person_lookup_ssn');
+  const nameValidations = validations.filter((v) => 'bindingKey' in v && v.bindingKey !== 'person_lookup_ssn');
 
   const { langAsString } = useLanguage();
   const {
@@ -96,7 +96,6 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
       if (dataModelBindings.person_lookup_name) {
         setValue('person_lookup_name', composeFullName(person));
       }
-      await validate();
     }
   }
 
@@ -138,15 +137,7 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
 
   const hasSuccessfullyFetched = !!person_lookup_ssn;
 
-  const nameValidations = [
-    ...(bindingValidations?.person_lookup_name ?? []),
-    ...(bindingValidations?.person_lookup_first_name ?? []),
-    ...(bindingValidations?.person_lookup_middle_name ?? []),
-    ...(bindingValidations?.person_lookup_last_name ?? []),
-  ];
-
-  const invalidSsn =
-    (ssnErrors?.length && ssnErrors?.length > 0) || hasValidationErrors(bindingValidations?.person_lookup_ssn);
+  const invalidSsn = (ssnErrors?.length && ssnErrors?.length > 0) || hasValidationErrors(ssnValidations);
   const invalidName = !!nameError || hasValidationErrors(nameValidations);
 
   return (
@@ -178,7 +169,13 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
           <Field className={classes.ssn}>
             <NumericInput
               id={`${id}_ssn`}
-              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_ssn`) : undefined}
+              aria-describedby={buildAriaDescribedBy({
+                hasTitle: true,
+                hasDescription: hasSuccessfullyFetched,
+                descriptionId: getDescriptionId(`${id}_ssn`),
+                hasValidations: validations.length > 0,
+                validationsId: `${id}-validations`,
+              })}
               aria-label={langAsString('person_lookup.ssn_label')}
               value={hasSuccessfullyFetched ? person_lookup_ssn : tempSsn}
               required={required}
@@ -203,11 +200,6 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
                 <Lang id={ssnErrors.join(' ')} />
               </ValidationMessage>
             )}
-            <ComponentValidations
-              validations={bindingValidations?.person_lookup_ssn}
-              baseComponentId={baseComponentId}
-              id={`${id}-ssn-validations`}
-            />
           </Field>
           <div className={classes.nameLabel}>
             <Label
@@ -228,7 +220,13 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
           <Field className={classes.name}>
             <Input
               id={`${id}_name`}
-              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_name`) : undefined}
+              aria-describedby={buildAriaDescribedBy({
+                hasTitle: true,
+                hasDescription: hasSuccessfullyFetched,
+                descriptionId: getDescriptionId(`${id}_name`),
+                hasValidations: validations.length > 0,
+                validationsId: `${id}-validations`,
+              })}
               aria-label={langAsString(
                 hasSuccessfullyFetched ? 'person_lookup.name_label' : 'person_lookup.surname_label',
               )}
@@ -253,11 +251,6 @@ export function PersonLookupComponent({ baseComponentId, overrideDisplay }: Prop
                 <Lang id={nameError} />
               </ValidationMessage>
             )}
-            <ComponentValidations
-              validations={nameValidations}
-              baseComponentId={baseComponentId}
-              id={`${id}-name-validations`}
-            />
           </Field>
           {!readOnly && (
             <div className={classes.submit}>

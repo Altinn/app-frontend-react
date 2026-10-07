@@ -18,14 +18,13 @@ import { useDataModelBindings } from 'src/features/formData/useDataModelBindings
 import { Lang } from 'src/features/language/Lang';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useLanguage } from 'src/features/language/useLanguage';
-import { useOnComponentValidation } from 'src/features/validation/callbacks/onComponentValidation';
-import { ComponentValidations } from 'src/features/validation/ComponentValidations';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { hasValidationErrors } from 'src/features/validation/utils';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/OrganisationLookup/OrganisationLookupComponent.module.css';
 import { validateOrgnr } from 'src/layout/OrganisationLookup/validation';
 import utilClasses from 'src/styles/utils.module.css';
+import { buildAriaDescribedBy } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
@@ -41,7 +40,6 @@ export function OrganisationLookupComponent({
     overrideDisplay,
   });
   const validations = useUnifiedValidationsForNode(baseComponentId);
-  const validate = useOnComponentValidation(baseComponentId);
   const [tempOrgNr, setTempOrgNr] = useState('');
   const [orgNrErrors, setOrgNrErrors] = useState<string[]>();
   const [statusMessage, setStatusMessage] = useState('');
@@ -56,6 +54,7 @@ export function OrganisationLookupComponent({
   const currentLanguage = useCurrentLanguage();
   const layoutLookups = useLayoutLookups();
   const pickFormValue = FD.useCurrentSelector();
+  const waitForSave = FD.useWaitForSave();
 
   const { error: lookupError, lookup: performLookup, isFetching } = useOrganizationLookup(tempOrgNr);
 
@@ -122,7 +121,7 @@ export function OrganisationLookupComponent({
     if (org) {
       setValue('organisation_lookup_orgnr', org.orgNr);
       dataModelBindings.organisation_lookup_name && setValue('organisation_lookup_name', org.name);
-      await validate();
+      await waitForSave(true);
       announceOrgDetails(org.orgNr);
     } else if (error) {
       announceStatusMessage(langAsString(error));
@@ -170,7 +169,13 @@ export function OrganisationLookupComponent({
           <Field className={classes.orgnr}>
             <NumericInput
               id={`${id}_orgnr`}
-              aria-describedby={hasSuccessfullyFetched ? getDescriptionId(`${id}_orgnr`) : undefined}
+              aria-describedby={buildAriaDescribedBy({
+                hasTitle: true,
+                hasDescription: hasSuccessfullyFetched,
+                descriptionId: getDescriptionId(`${id}_orgnr`),
+                hasValidations: validations.length > 0,
+                validationsId: `${id}-validations`,
+              })}
               aria-label={langAsString('organisation_lookup.orgnr_label')}
               value={hasSuccessfullyFetched ? organisation_lookup_orgnr : tempOrgNr}
               required={required}
@@ -195,10 +200,6 @@ export function OrganisationLookupComponent({
                 <Lang id={orgNrErrors.join(' ')} />
               </ValidationMessage>
             )}
-            <ComponentValidations
-              validations={validations}
-              baseComponentId={baseComponentId}
-            />
           </Field>
           {!readOnly && (
             <div className={classes.submit}>

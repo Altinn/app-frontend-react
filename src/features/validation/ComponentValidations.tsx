@@ -16,7 +16,6 @@ import type { AlertSeverity } from 'src/layout/Alert/config.generated';
 interface Props {
   validations: NodeRefValidation[] | undefined;
   baseComponentId: string;
-  id?: string;
 }
 
 export function AllComponentValidations({ baseComponentId: _baseId }: { baseComponentId?: string }) {
@@ -34,7 +33,7 @@ export function AllComponentValidations({ baseComponentId: _baseId }: { baseComp
   );
 }
 
-export function ComponentValidations({ validations, baseComponentId, id }: Props) {
+export function ComponentValidations({ validations, baseComponentId }: Props) {
   const currentId = useCurrentComponentId();
   const baseId = baseComponentId ?? currentId;
   const indexedId = useIndexedId(baseId);
@@ -66,7 +65,7 @@ export function ComponentValidations({ validations, baseComponentId, id }: Props
 
   return (
     <div
-      id={id ?? `${baseId}-validations`}
+      id={`${indexedId}-validations`}
       data-validation={indexedId}
       aria-live='assertive'
     >
