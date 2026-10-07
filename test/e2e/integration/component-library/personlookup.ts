@@ -4,22 +4,19 @@ const appFrontend = new AppFrontend();
 
 describe('Person lookup component', () => {
   it('Renders the person lookup component with correct text', () => {
-    cy.intercept(
-      { method: 'POST', url: '/ttd/component-library/api/v1/lookup/person', times: 1 },
-      {
-        statusCode: 200,
-        body: {
-          success: true,
-          personDetails: {
-            ssn: '08829698278',
-            name: 'Rik Forelder',
-            firstName: 'Rik',
-            middleName: '',
-            lastName: 'Forelder',
-          },
+    cy.intercept('POST', '/ttd/component-library/api/v1/lookup/person', {
+      statusCode: 200,
+      body: {
+        success: true,
+        personDetails: {
+          ssn: '08829698278',
+          name: 'Rik Forelder',
+          firstName: 'Rik',
+          middleName: '',
+          lastName: 'Forelder',
         },
       },
-    ).as('successfullyFetchedPerson');
+    }).as('successfullyFetchedPerson');
 
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.gotoNavPage('PersonLookupPage');
@@ -59,13 +56,10 @@ describe('Person lookup component', () => {
     cy.findByRole('textbox', { name: /Navn/i, description: /Fra folkeregisteret/i }).should('exist');
 
     // Add intercept for failed fetch
-    cy.intercept(
-      { method: 'POST', url: '/ttd/component-library/api/v1/lookup/person', times: 1 },
-      {
-        statusCode: 200,
-        body: { success: false, personDetails: null },
-      },
-    ).as('failedToGetPerson');
+    cy.intercept('POST', '/ttd/component-library/api/v1/lookup/person', {
+      statusCode: 200,
+      body: { success: false, personDetails: null },
+    }).as('failedToGetPerson');
 
     // Remove person and fetch unsuccessfully
     cy.findByRole('button', { name: /Fjern/i }).click();
@@ -81,20 +75,16 @@ describe('Person lookup component', () => {
     cy.findByText(/Merk: Etter 3 feilforsøk kan søkemuligheten bli midlertidig sperret./i).should('exist');
 
     // Must be updated when backend returns better http status codes
-    cy.intercept(
-      { method: 'POST', url: '/ttd/component-library/api/v1/lookup/person', times: 1 },
-      {
-        statusCode: 500,
-        body: { success: false, personDetails: null },
-      },
-    ).as('forbidden');
+    cy.intercept('POST', '/ttd/component-library/api/v1/lookup/person', {
+      statusCode: 500,
+      body: { success: false, personDetails: null },
+    }).as('forbidden');
 
     cy.findByRole('textbox', { name: /Etternavn/i }).type('{Enter}');
     cy.wait('@forbidden');
 
     cy.findByText(/Ukjent feil. Vennligst prøv igjen senere./i).should('exist');
 
-    cy.findByRole('radio', { name: 'Ja' }).check();
     cy.changeLayout((component) => {
       if (component.type === 'PersonLookup') {
         component.showValidations = ['All'];
