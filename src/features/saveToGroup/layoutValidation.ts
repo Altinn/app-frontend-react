@@ -1,6 +1,7 @@
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { lookupErrorAsText } from 'src/features/datamodel/lookupErrorAsText';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
+import { validateOptionsDataModelBindings } from 'src/features/options/validation';
 import {
   validateDataModelBindingsAny,
   validateDataModelBindingsSimple,
@@ -34,6 +35,23 @@ export function useValidateSimpleBindingWithOptionalGroup<T extends 'Checkboxes'
     }
     if (labelBinding && !labelBinding.field.startsWith(`${groupBinding.field}.`)) {
       errors.push(`label must start with the group binding field (must point to a property inside the group)`);
+    } else if (labelBinding) {
+      errors.push(
+        ...validateOptionsDataModelBindings(
+          baseComponentId,
+          {
+            ...bindings,
+            label: {
+              ...labelBinding,
+              field: `${groupBinding.field}[0].${labelBinding.field.slice(groupBinding.field.length + 1)}`,
+            },
+            metadata: undefined,
+          },
+          lookupBinding,
+          layoutLookups,
+          'single',
+        ),
+      );
     }
     if (metadataBinding) {
       errors.push(`Metadata is not supported when using group`);
@@ -55,6 +73,7 @@ export function useValidateSimpleBindingWithOptionalGroup<T extends 'Checkboxes'
   } else {
     const newErrors = validateDataModelBindingsSimple(baseComponentId, bindings, lookupBinding, layoutLookups);
     errors.push(...(newErrors || []));
+    errors.push(...validateOptionsDataModelBindings(baseComponentId, bindings, lookupBinding, layoutLookups, 'multi'));
   }
 
   return errors;
