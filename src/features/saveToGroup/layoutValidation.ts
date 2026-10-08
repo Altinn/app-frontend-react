@@ -35,6 +35,8 @@ export function useValidateSimpleBindingWithOptionalGroup<T extends 'Checkboxes'
     }
     if (labelBinding && !labelBinding.field.startsWith(`${groupBinding.field}.`)) {
       errors.push(`label must start with the group binding field (must point to a property inside the group)`);
+    } else if (labelBinding && labelBinding.dataType !== groupBinding.dataType) {
+      errors.push('label must use the group binding data type');
     } else if (labelBinding) {
       errors.push(
         ...validateOptionsDataModelBindings(
