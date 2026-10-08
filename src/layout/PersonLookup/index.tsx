@@ -64,10 +64,6 @@ export class PersonLookup extends PersonLookupDef {
     return <PersonLookupSummary {...props} />;
   }
 
-  renderDefaultValidations(): boolean {
-    return false;
-  }
-
   useEmptyFieldValidation(baseComponentId: string): ComponentValidation[] {
     return useEmptyFieldValidationOnlyOneBinding(baseComponentId, 'person_lookup_ssn');
   }
