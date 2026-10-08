@@ -132,7 +132,7 @@ export const InputVariant = ({
   const debounce = FD.useDebounceImmediately();
 
   const descriptionId = getDescriptionId(id);
-  const validationsId = `${baseComponentId}-validations`;
+  const validationsId = `${id}-validations`;
   const validations = useUnifiedValidationsForNode(baseComponentId);
   const hasValidations = validations.length > 0;
 
