@@ -178,6 +178,19 @@ describe('component binding validators', () => {
     ]);
   });
 
+  it('rejects grouped labels bound to a different data model despite matching field paths and types', () => {
+    jest.spyOn(DataModels, 'useLookupBinding').mockReturnValue(makeLookup({ type: 'string' }));
+    jest.spyOn(LayoutsContext, 'useLayoutLookups').mockReturnValue(layoutLookups);
+    const { result } = renderHook(() =>
+      useValidateSimpleBindingWithOptionalGroup('choice', {
+        group: reference('Group'),
+        simpleBinding: reference('Group.Value'),
+        label: { field: 'Group.Label', dataType: 'otherModel' },
+      }),
+    );
+    expect(result.current).toEqual(['label must use the group binding data type']);
+  });
+
   it.each([
     [{ type: 'string' }, []],
     [{ type: 'array', items: { type: 'string' } }, [expect.stringContaining('label-datamodellbindingen')]],
