@@ -192,14 +192,17 @@ const common = {
         'label',
         new CG.dataModelBinding()
           .setTitle('Data model binding for label')
-          .setDescription('Describes the location in the data model where the component should store its labels')
+          .setDescription(
+            'Location in the data model for the translated labels. Must point to a string for single-select components ' +
+              'or an array of strings for multi-select components. With a group binding, must point to a string inside each row.',
+          )
           .optional(),
       ),
       new CG.prop(
         'metadata',
         new CG.dataModelBinding()
           .setTitle('Data model binding for metadata')
-          .setDescription('Describes the location in the data model where the component should store its metadata')
+          .setDescription('Location in the data model for options metadata. Must point to a string.')
           .optional(),
       ),
     ),
