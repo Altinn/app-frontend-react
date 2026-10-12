@@ -35,15 +35,16 @@ export function useLayoutQueryDef(
   layoutSetId?: string,
 ): QueryDefinition<LayoutContextValue> {
   const { fetchLayouts, fetchLayoutsForInstance } = useAppQueries();
-  const instanceId = useLaxInstanceId();
+  const laxInstanceId = useLaxInstanceId();
   const features = useApplicationMetadata().features ?? {};
+  // Layouts may differ per instance when fetched from the instance endpoint, so the instance must be part of the key
+  const instanceId = features.addInstanceIdentifierToLayoutRequests ? laxInstanceId : undefined;
 
   return {
-    queryKey: ['formLayouts', layoutSetId, enabled],
+    queryKey: ['formLayouts', layoutSetId, enabled, instanceId],
     queryFn: layoutSetId
       ? async () => {
-          const shouldUseInstanceEndpoint = features.addInstanceIdentifierToLayoutRequests && instanceId;
-          const layouts = shouldUseInstanceEndpoint
+          const layouts = instanceId
             ? await fetchLayoutsForInstance(layoutSetId, instanceId)
             : await fetchLayouts(layoutSetId);
 

@@ -18,15 +18,16 @@ import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 's
 // Also used for prefetching @see formPrefetcher.ts
 export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition<ProcessedLayoutSettings> {
   const { fetchLayoutSettings, fetchLayoutSettingsForInstance } = useAppQueries();
-  const instanceId = useLaxInstanceId();
+  const laxInstanceId = useLaxInstanceId();
   const features = useApplicationMetadata().features ?? {};
+  // Settings may differ per instance when fetched from the instance endpoint, so the instance must be part of the key
+  const instanceId = features.addInstanceIdentifierToLayoutRequests ? laxInstanceId : undefined;
 
   return {
-    queryKey: ['layoutSettings', layoutSetId],
+    queryKey: ['layoutSettings', layoutSetId, instanceId],
     queryFn: layoutSetId
       ? async () => {
-          const shouldUseInstanceEndpoint = features.addInstanceIdentifierToLayoutRequests && instanceId;
-          const layoutSettings = shouldUseInstanceEndpoint
+          const layoutSettings = instanceId
             ? await fetchLayoutSettingsForInstance(layoutSetId, instanceId)
             : await fetchLayoutSettings(layoutSetId);
 
