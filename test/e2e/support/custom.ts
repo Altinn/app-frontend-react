@@ -11,12 +11,32 @@ import type { ResponseFuzzing, Size, SnapshotOptions, SnapshotViewport } from 't
 
 import { breakpoints } from 'src/hooks/useDeviceWidths';
 import { getInstanceIdRegExp } from 'src/utils/instanceIdRegExp';
+import type { IncomingApplicationMetadata } from 'src/features/applicationMetadata/types';
 import type { LayoutContextValue } from 'src/features/form/layout/LayoutsContext';
 import type { IFeatureToggles } from 'src/features/toggles';
 import type { ILayoutFile } from 'src/layout/common.generated';
 import JQueryWithSelector = Cypress.JQueryWithSelector;
 
 const appFrontend = new AppFrontend();
+
+Cypress.Commands.add('tab', { prevSubject: 'optional' }, (_subject, options) => {
+  const shift = options?.shift ?? false;
+  const params = { key: 'Tab', code: 'Tab', keyCode: 9, modifiers: shift ? 8 : 0 };
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Input.dispatchKeyEvent',
+      params: { type: 'keyDown', ...params },
+    }),
+    { log: false },
+  );
+  cy.wrap(
+    Cypress.automation('remote:debugger:protocol', {
+      command: 'Input.dispatchKeyEvent',
+      params: { type: 'keyUp', ...params },
+    }),
+    { log: false },
+  );
+});
 
 Cypress.Commands.add('assertTextWithoutWhiteSpaces', { prevSubject: true }, (subject, expectedText) => {
   const normalWhiteSpace = (subject[0].value || ' ').replace(/\u00a0/g, ' ');
@@ -112,21 +132,28 @@ Cypress.Commands.add('gotoNavPage', (page: string) => {
 
 Cypress.Commands.add('numberFormatClear', { prevSubject: true }, (subject: JQueryWithSelector | undefined) => {
   cy.log('Clearing number formatted input field');
-  if (!subject) {
+  if (!subject?.length) {
     throw new Error('Subject is undefined');
+  }
+
+  // Prefer id over subject.selector — findByRole() sets a non-CSS selector that cy.get cannot parse.
+  const id = subject.attr('id');
+  const selector = id ? `#${id}` : subject.selector;
+
+  if (!selector) {
+    throw new Error('numberFormatClear requires cy.get("#id") or an element with an id attribute');
   }
 
   // Since we cannot use {selectall} on number formatted input fields, because react-number-format messes with
   // our selection, we need to delete the content by moving to the start of the input field and deleting one
-  // character at a time.
-  const strLength = subject.val()?.toString().length;
-  const del = new Array(strLength).fill('{del}').join('');
-
-  // We also add {moveToStart} multiple times to ensure that we are at the start of the input field, as
-  // react-number-format messes with our cursor position here as well.
-  const moveToStart = new Array(5).fill('{moveToStart}').join('');
-
-  cy.get(subject.selector!).type(`${moveToStart}${del}`);
+  // character at a time. Each delete is a separate command so React re-renders do not detach the subject mid-type.
+  cy.get(selector).type('{moveToStart}{moveToStart}{moveToStart}{moveToStart}{moveToStart}');
+  cy.get(selector).then(($input) => {
+    const strLength = $input.val()?.toString().length ?? 0;
+    for (let i = 0; i < strLength; i++) {
+      cy.get(selector).type('{del}', { delay: 0 });
+    }
+  });
 });
 
 interface KnownViolation extends Pick<axe.Result, 'id'> {
@@ -494,8 +521,8 @@ Cypress.Commands.add('moveProcessNext', () => {
 Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator, _options) => {
   const options = _options ?? { times: 1 };
   cy.intercept({ method: 'GET', url: `**/api/layouts/${taskName}`, ...options }, (req) => {
-    req.reply((res) => {
-      const set = JSON.parse(res.body);
+    req.on('before:response', (res) => {
+      const set = typeof res.body === 'string' ? JSON.parse(res.body) : res.body;
       if (mutator) {
         for (const layout of Object.values(set)) {
           (layout as ILayoutFile).data.layout.map(mutator);
@@ -504,7 +531,7 @@ Cypress.Commands.add('interceptLayout', (taskName, mutator, wholeLayoutMutator, 
       if (wholeLayoutMutator) {
         wholeLayoutMutator(set);
       }
-      res.send(JSON.stringify(set));
+      res.body = JSON.stringify(set);
     });
   }).as(`interceptLayout(${taskName})`);
 });
@@ -623,6 +650,12 @@ Cypress.Commands.add('directSnapshot', (snapshotName, { width, minHeight }, rese
   }
 });
 
+/**
+ * After the navigation rewrite where we now add the current task ID to the URL, this test is only realistic if
+ * we remove the task and page from the URL before rendering the PDF. This is because the real PDF generator
+ * won't know about the task and page, and will load this URL and assume the app will figure out how to display
+ * the current task as a PDF.
+ */
 function buildPdfUrl(href: string): string {
   const regex = getInstanceIdRegExp();
   const instanceId = regex.exec(href)?.[1];
@@ -653,7 +686,7 @@ Cypress.Commands.add(
     cy.getCurrentViewportSize().as('testPdfViewportSize');
 
     // Make sure instantiation is completed before we get the url
-    cy.location('hash', { log: false }).should('contain', '#/instance/').as('hashBeforePdf');
+    cy.location('href', { log: false }).should('contain', '/instance/').as('urlBeforePdf');
 
     // Make sure we blur any selected component before reload to trigger save
     cy.get('body').click({ log: false });
@@ -670,18 +703,11 @@ Cypress.Commands.add(
 
     cy.log('Testing PDF');
 
-    // Build PDF url and visit
     cy.window({ log: false }).then((win) => {
-      const visitUrl = buildUrl(win.location.href);
-
-      // Visit this first so that we don't just re-route in the active react app
-      win.location.href = 'about:blank';
-
-      // After the navigation rewrite where we now add the current task ID to the URL, this test is only realistic if
-      // we remove the task and page from the URL before rendering the PDF. This is because the real PDF generator
-      // won't know about the task and page, and will load this URL and assume the app will figure out how to display
-      // the current task as a PDF.
-      cy.visit(visitUrl);
+      // A regular cy.visit() would not work here, as it would just trigger a hash-change
+      const url = buildUrl(win.location.href);
+      cy.visit(`${win.location.protocol}//${win.location.host}${win.location.pathname}/login.html`);
+      cy.visit(url);
     });
 
     // Wait for readyForPrint, after this everything should be rendered so using timeout: 0
@@ -734,9 +760,10 @@ Cypress.Commands.add(
       });
       cy.get('body').invoke('css', 'margin', '');
 
-      cy.get('@hashBeforePdf').then((hashBeforePdf) => {
+      cy.get('@urlBeforePdf').then((urlBeforePdf) => {
         cy.window().then((win) => {
-          win.location.hash = hashBeforePdf.toString();
+          cy.visit(`${win.location.protocol}//${win.location.host}${win.location.pathname}/login.html`);
+          cy.visit(urlBeforePdf.toString());
         });
       });
 
@@ -1021,4 +1048,13 @@ Cypress.Commands.add('expectPageBreaks', (expectedCount: number) => {
 
 Cypress.Commands.add('setFeatureToggle', (toggleName: IFeatureToggles, value: boolean) => {
   cy.setCookie(`FEATURE_${toggleName}`, value.toString());
+});
+
+Cypress.Commands.add('preventPartySelection', () => {
+  cy.intercept('**/api/v1/applicationmetadata', (req) => {
+    req.reply((res) => {
+      const body = res.body as IncomingApplicationMetadata;
+      body.promptForParty = 'never';
+    });
+  }).as('preventPartySelection');
 });

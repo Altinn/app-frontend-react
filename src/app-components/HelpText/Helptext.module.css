@@ -33,6 +33,7 @@
 .helpTextContent {
   font: var(--ds-typography-paragraph-md);
   font-family: inherit;
+  font-weight: 400;
   width: fit-content;
   max-width: 700px;
 }

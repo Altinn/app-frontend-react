@@ -9,40 +9,40 @@ import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import classes from 'src/features/navigation/components/Page.module.css';
 import { SubformsForPage } from 'src/features/navigation/components/SubformsForPage';
+import { useNavigateToPageWithValidation } from 'src/features/navigation/useNavigateToPageWithValidation';
+import { useGetNavigationIsPrevented } from 'src/features/navigation/utils';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { useNavigatePage } from 'src/hooks/useNavigatePage';
 
 export function Page({
   page,
   onNavigate,
   hasErrors,
   isComplete,
+  expandedByDefault,
 }: {
   page: string;
   onNavigate?: () => void;
   hasErrors: boolean;
   isComplete: boolean;
+  expandedByDefault?: boolean;
 }) {
   const currentPageId = useNavigationParam('pageKey');
   const isCurrentPage = page === currentPageId;
 
-  const { navigateToPage } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isNavigating } = useIsProcessing();
+  const navigateToPageWithValidation = useNavigateToPageWithValidation();
+
+  const navigationIsPrevented = useGetNavigationIsPrevented()(page);
+
+  const handleNavigationClick = () => performProcess(() => navigateToPageWithValidation(page, onNavigate));
 
   return (
     <li className={classes.pageListItem}>
       <button
-        disabled={isAnyProcessing}
+        disabled={isAnyProcessing || navigationIsPrevented}
         aria-current={isCurrentPage ? 'page' : undefined}
         className={cn(classes.pageButton, 'fds-focus')}
-        onClick={() =>
-          performProcess(async () => {
-            if (!isCurrentPage) {
-              await navigateToPage(page);
-              onNavigate?.();
-            }
-          })
-        }
+        onClick={handleNavigationClick}
       >
         <PageSymbol
           error={hasErrors}
@@ -64,7 +64,10 @@ export function Page({
           )}
         </span>
       </button>
-      <SubformsForPage pageKey={page} />
+      <SubformsForPage
+        pageKey={page}
+        expandedByDefault={expandedByDefault}
+      />
     </li>
   );
 }

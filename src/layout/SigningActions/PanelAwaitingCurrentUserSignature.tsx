@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { Checkbox, Heading, ValidationMessage } from '@digdir/designsystemet-react';
+import { Checkbox, Heading } from '@digdir/designsystemet-react';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import { Panel } from 'src/app-components/Panel/Panel';
+import { LiveValidationMessage } from 'src/app-components/ValidationMessage/LiveValidationMessage';
+import { useRequestFocus } from 'src/core/contexts/ElementFocusProvider';
 import { useIsAuthorized } from 'src/features/instance/useProcessQuery';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { Lang } from 'src/features/language/Lang';
@@ -51,6 +53,8 @@ export function AwaitingCurrentUserSignaturePanel({
   const [onBehalfOf, setOnBehalfOf] = useState<string | null>(null);
   const [onBehalfOfError, setOnBehalfOfError] = useState(false);
   const [confirmReadDocumentsError, setConfirmReadDocumentsError] = useState(false);
+  const confirmReadDocumentsErrorId = useId();
+  const requestPanelFocus = useRequestFocus();
 
   const { data: authorizedOrganizationDetails, isLoading: isApiLoading } = useAuthorizedOrganizationDetails(
     instanceOwnerPartyId!,
@@ -85,6 +89,9 @@ export function AwaitingCurrentUserSignaturePanel({
         onSuccess: () => {
           setConfirmReadDocuments(false);
           setOnBehalfOf(null);
+          // Move focus to the heading of the panel shown after signing, so screen readers announce
+          // the new state.
+          requestPanelFocus();
         },
       });
     }
@@ -102,7 +109,7 @@ export function AwaitingCurrentUserSignaturePanel({
 
   // This shouldn't really happen, but if it does it indicates that our backend is out of sync with Autorisasjon somehow
   if (!canSign) {
-    return <UnknownError />;
+    return <UnknownError error={new Error('Unknown error during signing: User cannot sign in')} />;
   }
 
   if (isApiLoading) {
@@ -178,12 +185,16 @@ export function AwaitingCurrentUserSignaturePanel({
           }}
           className={classes.checkbox}
           label={<Lang id={checkboxLabel} />}
+          aria-invalid={confirmReadDocumentsError}
+          aria-describedby={confirmReadDocumentsErrorId}
         />
-        {confirmReadDocumentsError && (
-          <ValidationMessage data-size='sm'>
-            <Lang id='signing.error_signing_not_confirmed_documents' />
-          </ValidationMessage>
-        )}
+        <LiveValidationMessage
+          show={confirmReadDocumentsError}
+          id={confirmReadDocumentsErrorId}
+          data-size='sm'
+        >
+          <Lang id='signing.error_signing_not_confirmed_documents' />
+        </LiveValidationMessage>
       </div>
     </SigningPanel>
   );

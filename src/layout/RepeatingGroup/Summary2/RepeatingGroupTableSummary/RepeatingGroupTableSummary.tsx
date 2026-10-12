@@ -6,10 +6,12 @@ import cn from 'classnames';
 
 import { Caption } from 'src/components/form/caption/Caption';
 import { useDisplayData } from 'src/features/displayData/useDisplayData';
+import { ExprVal } from 'src/features/expressions/types';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { usePdfModeActive } from 'src/features/pdf/PdfWrapper';
+import { useDeepValidationsForNode } from 'src/features/validation/selectors/deepValidationsForNode';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { validationsOfSeverity } from 'src/features/validation/utils';
 import { useIsMobile } from 'src/hooks/useDeviceWidths';
@@ -19,14 +21,15 @@ import tableClasses from 'src/layout/RepeatingGroup/Summary2/RepeatingGroupTable
 import { RepeatingGroupTableTitle, useTableTitle } from 'src/layout/RepeatingGroup/Table/RepeatingGroupTableTitle';
 import { useTableComponentIds } from 'src/layout/RepeatingGroup/useTableComponentIds';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
-import { EditButtonFirstVisible } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
+import { EditButtonFirstVisibleAndEditable } from 'src/layout/Summary2/CommonSummaryComponents/EditButton';
 import { useReportSummaryRender } from 'src/layout/Summary2/isEmpty/EmptyChildrenContext';
 import { ComponentSummary, SummaryContains } from 'src/layout/Summary2/SummaryComponent2/ComponentSummary';
 import utilClasses from 'src/styles/utils.module.css';
-import { useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
+import { getColumnStyles, useColumnStylesRepeatingGroups } from 'src/utils/formComponentUtils';
 import { DataModelLocationProvider } from 'src/utils/layout/DataModelLocation';
+import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import { useItemFor, useItemWhenType } from 'src/utils/layout/useNodeItem';
-import type { ITableColumnFormatting } from 'src/layout/common.generated';
+import type { GridCell, GridRows, ITableColumnFormatting } from 'src/layout/common.generated';
 import type { BaseRow } from 'src/utils/layout/types';
 
 export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentId: string }) => {
@@ -36,10 +39,14 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
   const rows = RepGroupHooks.useVisibleRows(baseComponentId);
   const validations = useUnifiedValidationsForNode(baseComponentId);
   const errors = validationsOfSeverity(validations, 'error');
-  const { textResourceBindings, dataModelBindings, tableColumns } = useItemWhenType(baseComponentId, 'RepeatingGroup');
-  const title = textResourceBindings?.title;
+  const { textResourceBindings, dataModelBindings, tableColumns, rowsBefore, rowsAfter } = useItemWhenType(
+    baseComponentId,
+    'RepeatingGroup',
+  );
+  const title = textResourceBindings?.summaryTitle || textResourceBindings?.title;
   const tableIds = useTableComponentIds(baseComponentId);
   const columnSettings = tableColumns ? structuredClone(tableColumns) : ({} as ITableColumnFormatting);
+  const showEditColumn = !pdfModeActive && !isSmall;
 
   return (
     <div
@@ -48,7 +55,8 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
     >
       <Table className={cn({ [tableClasses.mobileTable]: isSmall })}>
         <Caption title={<Lang id={title} />} />
-        <Table.Head>
+        <Table.Body>
+          {renderExtraRows(rowsBefore, 'before', showEditColumn)}
           <Table.Row>
             <DataModelLocationProvider
               groupBinding={dataModelBindings.group}
@@ -62,7 +70,7 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
                 />
               ))}
             </DataModelLocationProvider>
-            {!pdfModeActive && !isSmall && (
+            {showEditColumn && (
               <Table.HeaderCell className={tableClasses.narrowLastColumn}>
                 <span className={utilClasses.visuallyHidden}>
                   <Lang id='general.edit' />
@@ -70,8 +78,6 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
               </Table.HeaderCell>
             )}
           </Table.Row>
-        </Table.Head>
-        <Table.Body>
           {rows.map((row, index) => (
             <DataModelLocationProvider
               groupBinding={dataModelBindings.group}
@@ -86,6 +92,7 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
               />
             </DataModelLocationProvider>
           ))}
+          {renderExtraRows(rowsAfter, 'after', showEditColumn)}
         </Table.Body>
       </Table>
       {errors?.map(({ message }) => (
@@ -105,6 +112,50 @@ export const RepeatingGroupTableSummary = ({ baseComponentId }: { baseComponentI
   );
 };
 
+function renderExtraRows(rows: GridRows | undefined, keyPrefix: 'before' | 'after', showEditColumn: boolean) {
+  return rows?.map((row, rowIdx) => (
+    <Table.Row key={`row-${keyPrefix}-${rowIdx}`}>
+      {row.cells.map((cell, cellIdx) => (
+        <ExtraRowCell
+          key={cellIdx}
+          cell={cell}
+          isHeader={!!row.header}
+        />
+      ))}
+      {showEditColumn &&
+        (row.header ? (
+          <Table.HeaderCell className={tableClasses.narrowLastColumn} />
+        ) : (
+          <Table.Cell className={tableClasses.narrowLastColumn} />
+        ))}
+    </Table.Row>
+  ));
+}
+
+function ExtraRowCell({ cell, isHeader }: { cell: GridCell; isHeader: boolean }) {
+  const CellComponent = isHeader ? Table.HeaderCell : Table.Cell;
+  const colSpan = useEvalExpression(cell?.cellStyle?.colSpan, {
+    returnType: ExprVal.Number,
+    defaultValue: 1,
+    errorIntroText: 'Invalid expression for colSpan in Summary2 repeating group extra row cell',
+  });
+  const columnStyles = cell ? getColumnStyles(cell) : undefined;
+
+  return (
+    <CellComponent
+      colSpan={colSpan > 1 ? colSpan : undefined}
+      style={columnStyles}
+    >
+      {cell && 'text' in cell && cell.text !== undefined && (
+        <span className={tableClasses.cellValue}>
+          <Lang id={cell.text} />
+        </span>
+      )}
+      {cell && 'component' in cell && cell.component && <ComponentSummary targetBaseComponentId={cell.component} />}
+    </CellComponent>
+  );
+}
+
 function HeaderCell({
   baseComponentId,
   columnSettings,
@@ -113,6 +164,12 @@ function HeaderCell({
   columnSettings: ITableColumnFormatting;
 }) {
   const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
+
+  const isHidden = columnSettings[baseComponentId]?.hidden === true;
+  if (isHidden) {
+    return null;
+  }
+
   return (
     <Table.HeaderCell style={style}>
       <RepeatingGroupTableTitle
@@ -132,8 +189,27 @@ type DataRowProps = {
 
 function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRowProps) {
   const layoutLookups = useLayoutLookups();
-  const ids = useTableComponentIds(baseComponentId);
   const children = RepGroupHooks.useChildIds(baseComponentId);
+  const ids = useTableComponentIds(baseComponentId);
+  const visibleIds = ids.filter((id) => columnSettings[id]?.hidden !== true);
+  const rowWithExpressions = RepGroupHooks.useRowWithExpressions(baseComponentId, { uuid: row?.uuid ?? '' });
+  const editableChildren = RepGroupHooks.useEditableChildren(baseComponentId, rowWithExpressions);
+  const editableIds = [...ids, ...children].filter((id) => editableChildren.includes(id));
+  const rowErrors = useDeepValidationsForNode(baseComponentId, false, row?.index, true).filter(
+    (validation) => validation.severity === 'error',
+  );
+  const visibleIdSet = new Set(visibleIds);
+  const errorsByColumnId: Record<string, typeof rowErrors> = {};
+  const unmappedRowErrors: typeof rowErrors = [];
+  for (const validation of rowErrors) {
+    const key = validation.baseComponentId;
+    if (!key || !visibleIdSet.has(key)) {
+      unmappedRowErrors.push(validation);
+      continue;
+    }
+    errorsByColumnId[key] = errorsByColumnId[key] ?? [];
+    errorsByColumnId[key].push(validation);
+  }
 
   if (!row) {
     return null;
@@ -141,7 +217,7 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
 
   return (
     <Table.Row>
-      {ids.map((id) =>
+      {visibleIds.map((id) =>
         layoutLookups.getComponent(id).type === 'Custom' ? (
           <Table.Cell key={id}>
             <ComponentSummary targetBaseComponentId={id} />
@@ -151,6 +227,7 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
             key={id}
             baseComponentId={id}
             columnSettings={columnSettings}
+            errors={errorsByColumnId[id] ?? (id === visibleIds[0] ? unmappedRowErrors : [])}
           />
         ),
       )}
@@ -159,9 +236,10 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
           align='right'
           className={tableClasses.buttonCell}
         >
-          <EditButtonFirstVisible
-            ids={[...ids, ...children]}
-            fallback={baseComponentId}
+          <EditButtonFirstVisibleAndEditable
+            key={editableIds.join(',')}
+            ids={editableIds}
+            fallback={rowWithExpressions?.edit?.editButton !== false ? baseComponentId : undefined}
           />
         </Table.Cell>
       )}
@@ -172,9 +250,10 @@ function DataRow({ row, baseComponentId, pdfModeActive, columnSettings }: DataRo
 type DataCellProps = {
   baseComponentId: string;
   columnSettings: ITableColumnFormatting;
+  errors: ReturnType<typeof useDeepValidationsForNode>;
 };
 
-function DataCell({ baseComponentId, columnSettings }: DataCellProps) {
+function DataCell({ baseComponentId, columnSettings, errors }: DataCellProps) {
   const { langAsString } = useLanguage();
   const headerTitle = langAsString(useTableTitle(baseComponentId));
   const style = useColumnStylesRepeatingGroups(baseComponentId, columnSettings);
@@ -191,13 +270,28 @@ function DataCell({ baseComponentId, columnSettings }: DataCellProps) {
   );
 
   return (
-    <Table.Cell data-header-title={headerTitle}>
+    <Table.Cell
+      data-header-title={headerTitle}
+      className={tableClasses.dataCell}
+    >
       <span
-        className={repeatingGroupClasses.contentFormatting}
+        className={cn(repeatingGroupClasses.contentFormatting, tableClasses.cellValue)}
         style={style}
       >
         {displayData}
       </span>
+      {errors.map((validation, index) => (
+        <ValidationMessage
+          key={`${baseComponentId}-${validation.message.key}-${index}`}
+          data-size='sm'
+          className={cn(classes.errorMessage, tableClasses.cellValidationMessage)}
+        >
+          <Lang
+            id={validation.message.key}
+            params={validation.message.params}
+          />
+        </ValidationMessage>
+      ))}
     </Table.Cell>
   );
 }

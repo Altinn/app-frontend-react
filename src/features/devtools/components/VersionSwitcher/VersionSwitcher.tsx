@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import { Button } from 'src/app-components/Button/Button';
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
+import { replaceFrontendVersion } from 'src/features/devtools/components/VersionSwitcher/versionSwitcherUtils';
 import comboboxClasses from 'src/styles/combobox.module.css';
 import { optionFilter } from 'src/utils/options';
 import { appFrontendCDNPath, appPath, frontendVersionsCDN } from 'src/utils/urls/appUrlHelper';
@@ -38,14 +39,15 @@ export const VersionSwitcher = () => {
   });
 
   const onClick = () => {
-    if (selectedVersion) {
-      const newDoc = html
-        .replace(/src=".*\/altinn-app-frontend.js"/, `src="${selectedVersion}/altinn-app-frontend.js"`)
-        .replace(/href=".*\/altinn-app-frontend.css"/, `href="${selectedVersion}/altinn-app-frontend.css"`);
-      document.open();
-      document.write(newDoc);
-      document.close();
+    if (!selectedVersion) {
+      return;
     }
+
+    const newDoc = replaceFrontendVersion(html, selectedVersion);
+
+    document.open();
+    document.write(newDoc);
+    document.close();
   };
 
   if (isVersionsLoading || isHtmlLoading || !versions) {

@@ -33,7 +33,7 @@ const InnerHeader = ({ header, aboveHeader, children }: IInnerHeaderProps) => (
         <Flex item>
           <Heading
             level={1}
-            data-size='md'
+            data-size='lg'
             className={cn({ [classes.noAboveHeader]: !aboveHeader })}
             data-testid='presentation-heading'
           >

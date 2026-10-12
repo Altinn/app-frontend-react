@@ -10,18 +10,20 @@ import classes from 'src/components/altinnParty.module.css';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { PartyType } from 'src/types/shared';
+import { maskSsn } from 'src/utils/maskSsn';
 import type { IParty } from 'src/types/shared';
 
 export interface IAltinnPartyProps {
   party: IParty;
   onSelectParty: (party: IParty) => void;
   showSubUnits: boolean;
+  initiallyExpanded?: boolean;
 }
 
-export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnPartyProps) {
+export function AltinnParty({ party, onSelectParty, showSubUnits, initiallyExpanded = false }: IAltinnPartyProps) {
   const { langAsString } = useLanguage();
 
-  const [subUnitsExpanded, setSubUnitsExpanded] = React.useState<boolean>(false);
+  const [subUnitsExpanded, setSubUnitsExpanded] = React.useState<boolean>(initiallyExpanded);
   const isOrg = party.partyTypeName === PartyType.Organisation;
 
   function onClickParty(selectedParty: IParty, event: React.MouseEvent<HTMLDivElement, MouseEvent>) {
@@ -161,7 +163,7 @@ export function AltinnParty({ party, onSelectParty, showSubUnits }: IAltinnParty
         <Paragraph className={classes.partyInfo}>
           {isOrg
             ? `${langAsString('party_selection.unit_org_number')} ${party.orgNumber}`
-            : `${langAsString('party_selection.unit_personal_number')} ${party.ssn}`}
+            : `${langAsString('party_selection.unit_personal_number')} ${maskSsn(party.ssn)}`}
         </Paragraph>
       </Flex>
       {renderSubunits()}

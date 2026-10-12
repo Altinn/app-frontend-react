@@ -1,5 +1,4 @@
-import React from 'react';
-import type { ReactElement } from 'react';
+import React, { type ReactElement, type ReactNode } from 'react';
 
 import { Button, Table } from '@digdir/designsystemet-react';
 import cn from 'classnames';
@@ -7,6 +6,7 @@ import { format, isValid, parseISO } from 'date-fns';
 import { pick } from 'dot-object';
 import type { JSONSchema7 } from 'json-schema';
 
+import { ConfirmPopover } from 'src/app-components/ConfirmPopover/ConfirmPopover';
 import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import classes from 'src/app-components/Table/Table.module.css';
 import utilClasses from 'src/styles/utils.module.css';
@@ -20,12 +20,19 @@ interface Column<T> {
   enableInlineEditing?: boolean;
 }
 
+export interface TableActionButtonConfirm {
+  message: ReactNode;
+  confirmText: ReactNode;
+  cancelText: ReactNode;
+}
+
 export interface TableActionButton<T = unknown> {
   onClick: (rowIdx: number, rowData: T) => void;
   buttonText: React.ReactNode;
   icon: React.ReactNode;
   color?: 'first' | 'second' | 'success' | 'danger';
   variant?: 'tertiary' | 'primary' | 'secondary';
+  confirm?: TableActionButtonConfirm;
 }
 
 interface DataTableProps<T> {
@@ -33,6 +40,8 @@ interface DataTableProps<T> {
   schema?: JSONSchema7;
   columns: Column<T>[];
   caption?: React.ReactNode;
+  ariaLabel?: string;
+  tableTestId?: string;
   actionButtons?: TableActionButton<T>[];
   actionButtonHeader?: React.ReactNode;
   mobile?: boolean;
@@ -73,6 +82,8 @@ function formatValue(value: FormDataValue): string {
 
 export function AppTable<T>({
   caption,
+  ariaLabel,
+  tableTestId,
   data,
   columns,
   actionButtons,
@@ -93,6 +104,8 @@ export function AppTable<T>({
       className={cn(classes.table, tableClassName, { [classes.mobileTable]: mobile })}
       zebra={zebra}
       stickyHeader={stickyHeader}
+      aria-label={ariaLabel}
+      data-testid={tableTestId}
     >
       {caption}
       <Table.Head>
@@ -193,18 +206,38 @@ export function AppTable<T>({
               {actionButtons && actionButtons.length > 0 && (
                 <Table.Cell>
                   <div className={classes.buttonContainer}>
-                    {actionButtons.map((button, idx) => (
-                      <Button
-                        key={idx}
-                        onClick={() => button.onClick(rowIndex, rowData)}
-                        data-size='sm'
-                        variant={button.variant ? button.variant : defaultButtonVariant}
-                        color={button.color ? button.color : 'second'}
-                      >
-                        {button.buttonText}
-                        {button.icon}
-                      </Button>
-                    ))}
+                    {actionButtons.map((button, idx) => {
+                      const { confirm } = button;
+                      const handleAction = () => button.onClick(rowIndex, rowData);
+                      const buttonElement = (
+                        <Button
+                          key={idx}
+                          onClick={confirm ? undefined : handleAction}
+                          data-size='sm'
+                          variant={button.variant ?? defaultButtonVariant}
+                          color={button.color ?? 'second'}
+                        >
+                          {button.buttonText}
+                          {button.icon}
+                        </Button>
+                      );
+
+                      if (!confirm) {
+                        return buttonElement;
+                      }
+
+                      return (
+                        <ConfirmPopover
+                          key={idx}
+                          message={confirm.message}
+                          confirmText={confirm.confirmText}
+                          cancelText={confirm.cancelText}
+                          onConfirm={handleAction}
+                        >
+                          {buttonElement}
+                        </ConfirmPopover>
+                      );
+                    })}
                   </div>
                 </Table.Cell>
               )}

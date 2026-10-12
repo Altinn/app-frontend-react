@@ -685,7 +685,7 @@ function collectMatchingFieldPaths(
   }
 
   const part = fieldParts[partIndex];
-  if (typeof data !== 'object' || data === null || data[part] === undefined || data[part] === null) {
+  if (typeof data !== 'object' || data === null) {
     return;
   }
 
@@ -701,12 +701,40 @@ function collectMatchingFieldPaths(
   }
 }
 
+export function selectAllPaths(reference: IDataModelReference | undefined, noRepGroup: boolean | undefined) {
+  return (v: FormDataContext) => {
+    if (!reference) {
+      return emptyArray;
+    }
+
+    if (noRepGroup) {
+      return [reference.field];
+    }
+
+    // If lookupTool is not available (e.g., in tests), or if there's a missingRepeatingGroup error,
+    // we need to check the actual data to find all matching paths.
+    const formData = v.dataModels[reference.dataType]?.debouncedCurrentData;
+    if (!formData) {
+      return [];
+    }
+
+    const paths: string[] = [];
+    collectMatchingFieldPaths(formData, reference.field.split('.'), '', 0, paths);
+    return paths.sort();
+  };
+}
+
 const currentSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType]?.currentData);
 const debouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType]?.debouncedCurrentData);
 const invalidDebouncedSelector = (reference: IDataModelReference) => (state: FormDataContext) =>
   dot.pick(reference.field, state.dataModels[reference.dataType]?.invalidDebouncedCurrentData);
+
+const dataModelReferenceCacheKey = ([arg]: unknown[]): string[] => {
+  const reference = arg as IDataModelReference;
+  return [reference.dataType, reference.field];
+};
 
 const debouncedRowSelector = (reference: IDataModelReference) => (state: FormDataContext) => {
   const rawRows = dot.pick(reference.field, state.dataModels[reference.dataType]?.debouncedCurrentData);
@@ -723,10 +751,14 @@ export const FD = {
    * model).
    */
   useCurrentSelector(): FormDataSelector {
-    return useDelayedSelector({
-      mode: 'simple',
-      selector: currentSelector,
-    });
+    return useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: currentSelector,
+      },
+      undefined,
+      dataModelReferenceCacheKey,
+    );
   },
 
   /**
@@ -736,17 +768,25 @@ export const FD = {
    * pretend to have the full data model available to look up values from.
    */
   useDebouncedSelector(): FormDataSelector {
-    return useDelayedSelector({
-      mode: 'simple',
-      selector: debouncedSelector,
-    });
+    return useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: debouncedSelector,
+      },
+      undefined,
+      dataModelReferenceCacheKey,
+    );
   },
 
   useLaxDebouncedSelectorProps() {
-    return useLaxDelayedSelectorProps({
-      mode: 'simple',
-      selector: debouncedSelector,
-    });
+    return useLaxDelayedSelectorProps(
+      {
+        mode: 'simple',
+        selector: debouncedSelector,
+      },
+      undefined,
+      dataModelReferenceCacheKey,
+    );
   },
 
   /**
@@ -755,20 +795,28 @@ export const FD = {
    * inside them (and re-render if that data changes).
    */
   useDebouncedRowsSelector(): FormDataRowsSelector {
-    return useDelayedSelector({
-      mode: 'simple',
-      selector: debouncedRowSelector,
-    });
+    return useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: debouncedRowSelector,
+      },
+      undefined,
+      dataModelReferenceCacheKey,
+    );
   },
 
   /**
    * Same as useDebouncedSelector(), but for invalid data.
    */
   useInvalidDebouncedSelector(): FormDataSelector {
-    return useDelayedSelector({
-      mode: 'simple',
-      selector: invalidDebouncedSelector,
-    });
+    return useDelayedSelector(
+      {
+        mode: 'simple',
+        selector: invalidDebouncedSelector,
+      },
+      undefined,
+      dataModelReferenceCacheKey,
+    );
   },
 
   /**
@@ -796,10 +844,14 @@ export const FD = {
    * provider is not present.
    */
   useLaxDebouncedSelector(): FormDataSelector | typeof ContextNotProvided {
-    return useLaxDelayedSelector({
-      mode: 'simple',
-      selector: debouncedSelector,
-    });
+    return useLaxDelayedSelector(
+      {
+        mode: 'simple',
+        selector: debouncedSelector,
+      },
+      undefined,
+      dataModelReferenceCacheKey,
+    );
   },
 
   /**
@@ -831,29 +883,14 @@ export const FD = {
     const lookupTool = DataModels.useLookupBinding();
     const [, lookupErr] = (reference ? lookupTool?.(reference) : undefined) ?? [undefined, undefined];
 
-    return useShallowSelector((v) => {
-      if (!reference) {
-        return emptyArray;
-      }
+    // When lookupTool is available and doesn't report a missing repeating group error, we know there's no
+    // repeating group structure in this path, so we can return the field as-is.
+    const noRepGroup =
+      lookupTool &&
+      (!lookupErr || lookupErr.error !== 'missingProperty') &&
+      (!lookupErr || lookupErr.error !== 'missingRepeatingGroup');
 
-      // When lookupTool is available and doesn't report a missing repeating group error, we know there's no
-      // repeating group structure in this path, so we can return the field as-is.
-      const foundInDataModel = lookupTool && (!lookupErr || lookupErr.error !== 'missingProperty');
-      if (foundInDataModel && lookupErr?.error !== 'missingRepeatingGroup') {
-        return [reference?.field];
-      }
-
-      // If lookupTool is not available (e.g., in tests), or if there's a missingRepeatingGroup error,
-      // we need to check the actual data to find all matching paths.
-      const formData = v.dataModels[reference.dataType]?.debouncedCurrentData;
-      if (!formData) {
-        return [];
-      }
-
-      const paths: string[] = [];
-      collectMatchingFieldPaths(formData, reference.field.split('.'), '', 0, paths);
-      return paths.length === 0 ? [reference.field] : paths.sort();
-    });
+    return useShallowSelector(selectAllPaths(reference, noRepGroup));
   },
 
   /**

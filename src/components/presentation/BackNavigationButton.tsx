@@ -9,6 +9,8 @@ import { Spinner } from 'src/app-components/loading/Spinner/Spinner';
 import classes from 'src/components/presentation/BackNavigationButton.module.css';
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
+import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { MessageBoxConfigEvaluator } from 'src/features/applicationMetadata/messageBoxConfig';
 import { useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
@@ -18,7 +20,7 @@ import { useIsMobile } from 'src/hooks/useDeviceWidths';
 import { useNavigatePage } from 'src/hooks/useNavigatePage';
 import { getDialogIdFromDataValues, getMessageBoxUrl } from 'src/utils/urls/urlHelper';
 
-export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
+export function BackNavigationButton(props: { className?: string }) {
   const { langAsString } = useLanguage();
   const isMobile = useIsMobile();
   const party = useSelectedParty();
@@ -28,9 +30,11 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
   const { exitSubform } = useNavigatePage();
   const { performProcess, isAnyProcessing, isThisProcessing: isExitingSubform } = useIsProcessing();
 
+  const applicationMetadata = useApplicationMetadata();
   const dataValues = useInstanceDataQuery({ select: (instance) => instance.dataValues }).data;
   const dialogId = getDialogIdFromDataValues(dataValues);
   const messageBoxUrl = getMessageBoxUrl(party?.partyId, dialogId);
+  const hiddenFromInbox = MessageBoxConfigEvaluator.isHiddenFromInbox(applicationMetadata.messageBoxConfig);
 
   if (isFetchingReturnUrl) {
     return (
@@ -50,7 +54,6 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
         isLoading={isExitingSubform}
         variant='tertiary'
         size='sm'
-        {...props}
         className={cn(classes.button, props.className)}
       >
         {!isExitingSubform && (
@@ -73,7 +76,6 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
         asChild
         variant='tertiary'
         size='sm'
-        {...props}
         className={cn(classes.button, props.className)}
       >
         <a href={returnUrl}>
@@ -87,13 +89,12 @@ export function BackNavigationButton(props: Parameters<typeof Button>[0]) {
     );
   }
 
-  if (messageBoxUrl) {
+  if (messageBoxUrl && !hiddenFromInbox) {
     return (
       <Button
         asChild
         variant='tertiary'
         size='sm'
-        {...props}
         className={cn(classes.button, props.className)}
       >
         <a href={messageBoxUrl}>

@@ -1,10 +1,7 @@
 import { Ajv, type JSONSchemaType } from 'ajv';
 import adderrors from 'ajv-errors';
 
-import type {
-  Organisation,
-  OrganisationLookupResponse,
-} from 'src/layout/OrganisationLookup/OrganisationLookupComponent';
+import type { Organization } from 'src/core/queries/lookup';
 
 const ajv = new Ajv({ allErrors: true });
 adderrors(ajv);
@@ -21,7 +18,7 @@ ajv.addKeyword({
   },
 });
 
-const orgNrSchema: JSONSchemaType<Pick<Organisation, 'orgNr'>> = {
+const orgNrSchema: JSONSchemaType<Pick<Organization, 'orgNr'>> = {
   type: 'object',
   properties: {
     orgNr: {
@@ -56,33 +53,3 @@ export function checkValidOrgnNr(orgNr: string): boolean {
 export const validateOrgnr = ajv.compile(orgNrSchema);
 
 const modularAdditiveInverse = (value: number, base: number): number => base - (value % base);
-
-const organisationLookupResponseSchema: JSONSchemaType<OrganisationLookupResponse> = {
-  type: 'object',
-  oneOf: [
-    {
-      properties: {
-        success: { const: false },
-        organisationDetails: { type: 'null' },
-      },
-      required: ['success', 'organisationDetails'],
-    },
-    {
-      properties: {
-        success: { const: true },
-        organisationDetails: {
-          type: 'object',
-          properties: {
-            orgNr: { type: 'string' },
-            name: { type: 'string' },
-          },
-          required: ['orgNr', 'name'],
-        },
-      },
-      required: ['success', 'organisationDetails'],
-    },
-  ],
-  required: ['success', 'organisationDetails'],
-};
-
-export const validateOrganisationLookupResponse = ajv.compile(organisationLookupResponseSchema);

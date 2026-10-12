@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 
+import { wktToGeoJSON } from '@terraformer/wkt';
 import dot from 'dot-object';
 import { geoJson, LatLngBounds } from 'leaflet';
-import WKT from 'terraformer-wkt-parser';
 import type { GeoJSON } from 'geojson';
 
 import { FD } from 'src/features/formData/FormDataWrite';
@@ -23,6 +23,11 @@ export function useMapRawGeometries(baseComponentId: string): RawGeometry[] | un
 
     const labelPath = toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryLabel) ?? 'label';
     const dataPath = toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryData) ?? 'data';
+    const isEditablePath =
+      toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryIsEditable) ?? 'isEditable';
+    const isHiddenPath =
+      toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryIsHidden) ?? 'isHidden';
+    const stylePath = toRelativePath(dataModelBindings?.geometries, dataModelBindings?.geometryStyle) ?? 'style';
 
     return formData.map((item: unknown): RawGeometry => {
       if (!item || typeof item !== 'object' || !item[ALTINN_ROW_ID]) {
@@ -35,9 +40,20 @@ export function useMapRawGeometries(baseComponentId: string): RawGeometry[] | un
         altinnRowId: item[ALTINN_ROW_ID],
         data: dot.pick(dataPath, item),
         label: dot.pick(labelPath, item),
+        isEditable: dot.pick(isEditablePath, item),
+        isHidden: dot.pick(isHiddenPath, item),
+        style: dot.pick(stylePath, item),
       };
     });
-  }, [dataModelBindings?.geometries, dataModelBindings?.geometryData, dataModelBindings?.geometryLabel, formData]);
+  }, [
+    dataModelBindings?.geometries,
+    dataModelBindings?.geometryData,
+    dataModelBindings?.geometryLabel,
+    dataModelBindings?.geometryIsEditable,
+    dataModelBindings?.geometryIsHidden,
+    dataModelBindings?.geometryStyle,
+    formData,
+  ]);
 }
 
 export function useMapParsedGeometries(baseComponentId: string): Geometry[] | null {
@@ -66,13 +82,13 @@ function parseGeometries(geometries: RawGeometry[] | undefined, geometryType?: I
   }
 
   const out: Geometry[] = [];
-  for (const { altinnRowId, data: rawData, label } of geometries) {
+  for (const { altinnRowId, data: rawData, label, isEditable, isHidden, style } of geometries) {
     if (geometryType === 'WKT') {
-      const data = WKT.parse(rawData);
-      out.push({ altinnRowId, data, label });
+      const data = wktToGeoJSON(rawData);
+      out.push({ altinnRowId, data, label, isEditable, isHidden, style });
     } else {
       const data = JSON.parse(rawData) as GeoJSON;
-      out.push({ altinnRowId, data, label });
+      out.push({ altinnRowId, data, label, isEditable, isHidden, style });
     }
   }
 

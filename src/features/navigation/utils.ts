@@ -11,10 +11,13 @@ import {
 
 import { ContextNotProvided } from 'src/core/contexts/context';
 import { useIsReceiptPage } from 'src/core/routing/useIsReceiptPage';
+import { useLayoutCollection } from 'src/features/form/layout/LayoutsContext';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useGetAltinnTaskType } from 'src/features/instance/useProcessQuery';
 import { ValidationMask } from 'src/features/validation';
-import { useVisitedPages } from 'src/hooks/useNavigatePage';
+import { getVisibilityMask } from 'src/features/validation/utils';
+import { useNavigationParam } from 'src/hooks/navigation';
+import { useNavigatePage, useVisitedPages } from 'src/hooks/useNavigatePage';
 import { useHiddenPages } from 'src/utils/layout/hidden';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
@@ -149,4 +152,46 @@ export function useValidationsForPages(order: string[], shouldMarkWhenCompleted 
   }
 
   return { isCompleted, hasErrors };
+}
+
+//Prevents navigation to a page if there are pages between the current page and the target page that have validateOnNavigation enabled and contain validation errors.
+export function useGetNavigationIsPrevented() {
+  const currentPageId = useNavigationParam('pageKey') ?? '';
+  const layoutCollection = useLayoutCollection();
+  const globalValidationOnNavigation = usePageSettings().validationOnNavigation;
+  const { order } = useNavigatePage();
+  const validationsSelector = NodesInternal.useLaxValidationsSelector();
+  const allNodeIds = NodesInternal.useLaxMemoSelector((state) => {
+    const result = Object.fromEntries<string[]>(order.map((page) => [page, []]));
+    Object.values(state.nodeData).forEach((node) => result[node.pageKey]?.push(node.id));
+    return result;
+  });
+
+  return (targetPageKey: string): boolean => {
+    if (allNodeIds === ContextNotProvided) {
+      return false;
+    }
+
+    const currentIndex = order.indexOf(currentPageId);
+    const targetIndex = order.indexOf(targetPageKey);
+
+    if (currentIndex === -1 || targetIndex === -1 || targetIndex <= currentIndex) {
+      return false;
+    }
+
+    return order.slice(currentIndex + 1, targetIndex).some((pageId) => {
+      const validationOnNavigation =
+        layoutCollection[pageId]?.data?.validationOnNavigation ?? globalValidationOnNavigation;
+
+      if (!validationOnNavigation) {
+        return false;
+      }
+
+      const mask = getVisibilityMask(validationOnNavigation.show);
+      return (allNodeIds[pageId] ?? []).some((nodeId) => {
+        const validations = validationsSelector(nodeId, mask, 'error');
+        return validations !== ContextNotProvided && validations.length > 0;
+      });
+    });
+  };
 }

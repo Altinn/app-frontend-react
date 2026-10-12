@@ -11,6 +11,7 @@ import type { IGridStyling } from 'src/layout/common.generated';
 
 export type FieldsetProps = {
   id?: string;
+  'aria-describedby'?: string;
   legend: string | ReactElement | undefined;
   legendSize?: Extract<DesignsystemetLabelProps['data-size'], 'sm' | 'md' | 'lg' | 'xl'>;
   className?: string;
@@ -26,6 +27,7 @@ export type FieldsetProps = {
 
 export function Fieldset({
   id,
+  'aria-describedby': ariaDescribedBy,
   children,
   className,
   legend,
@@ -39,6 +41,11 @@ export function Fieldset({
   size = 'md',
   optionalIndicator,
 }: PropsWithChildren<FieldsetProps>) {
+  const generatedId = React.useId();
+  const baseId = id ?? `fieldset-${generatedId}`;
+  const legendId = `${baseId}-legend`;
+  const descriptionId = `${baseId}-description`;
+
   if (!legend) {
     return (
       <Flex
@@ -70,8 +77,13 @@ export function Fieldset({
         <DesignsystemetFieldset
           className={cn(className)}
           data-size={size}
+          aria-labelledby={`${legendId} ${descriptionId}`}
+          aria-describedby={ariaDescribedBy}
         >
-          <DesignsystemetFieldset.Legend className={labelClasses.legend}>
+          <DesignsystemetFieldset.Legend
+            id={legendId}
+            className={labelClasses.legend}
+          >
             <span className={cn(labelClasses.labelAndHelpWrapper)}>
               <DesignsystemetLabel
                 weight='medium'
@@ -88,7 +100,7 @@ export function Fieldset({
               {help}
             </span>
           </DesignsystemetFieldset.Legend>
-          <DesignsystemetFieldset.Description>{description}</DesignsystemetFieldset.Description>
+          <DesignsystemetFieldset.Description id={descriptionId}>{description}</DesignsystemetFieldset.Description>
           {children}
         </DesignsystemetFieldset>
       </Flex>

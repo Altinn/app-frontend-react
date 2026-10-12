@@ -10,7 +10,7 @@ import { FD } from 'src/features/formData/FormDataWrite';
 import { useSingleMarker } from 'src/layout/Map/features/singleMarker/hooks';
 import { isLocationValid, locationToTuple } from 'src/layout/Map/utils';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
-import type { Location } from 'src/layout/Map/config.generated';
+import type { Location } from 'src/layout/Map/types';
 
 const markerIcon = icon({
   iconUrl: Icon,
@@ -20,6 +20,10 @@ const markerIcon = icon({
   iconAnchor: [12, 41],
 });
 
+// TODO(a11y): Setting a location is only possible by clicking/dragging on the map, which is not
+// operable without sight. To satisfy WCAG 2.1 AA (1.1.1 / non-visual alternative), we still need an
+// accessible text/coordinate input (or address search) wired to the same simpleBinding so a value
+// can be set without the map. Tracked in: https://github.com/Altinn/altinn-studio/issues/19245
 function MapClickHandler({ onClick }: { onClick: (location: Location) => void }) {
   useMapEvent('click', (event) => {
     if (!event.originalEvent.defaultPrevented) {

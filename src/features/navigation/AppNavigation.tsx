@@ -6,6 +6,7 @@ import { XMarkIcon } from '@navikt/aksel-icons';
 import { Button } from 'src/app-components/Button/Button';
 import { useIsReceiptPage } from 'src/core/routing/useIsReceiptPage';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
+import { ExprVal } from 'src/features/expressions/types';
 import { usePageGroups, usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { Lang } from 'src/features/language/Lang';
@@ -14,6 +15,7 @@ import classes from 'src/features/navigation/AppNavigation.module.css';
 import { PageGroup } from 'src/features/navigation/components/PageGroup';
 import { TaskGroup } from 'src/features/navigation/components/TaskGroup';
 import { useIsSubformPage } from 'src/hooks/navigation';
+import { useEvalExpression } from 'src/utils/layout/generator/useEvalExpression';
 import type { NavigationReceipt, NavigationTask } from 'src/layout/common.generated';
 
 export function AppNavigation({ onNavigate }: { onNavigate?: () => void }) {
@@ -98,6 +100,12 @@ export function AppNavigationHeading({
   onClose,
 }: { showClose?: undefined; onClose?: undefined } | { showClose: boolean; onClose: () => void }) {
   const { langAsString } = useLanguage();
+  const { navigationTitle: navigationTitleExpr } = usePageSettings();
+  const navigationTitle = useEvalExpression(navigationTitleExpr, {
+    returnType: ExprVal.String,
+    defaultValue: 'navigation.form_pages',
+    errorIntroText: 'Invalid expression for navigationTitle in Settings.json',
+  });
   return (
     <div
       id={appNavigationHeadingId}
@@ -108,7 +116,7 @@ export function AppNavigationHeading({
         level={2}
         data-size='xs'
       >
-        <Lang id='navigation.form_pages' />
+        <Lang id={navigationTitle} />
       </Heading>
       {showClose && (
         <Button

@@ -21,7 +21,16 @@ export interface IncomingApplicationMetadata {
   onEntry?: IOnEntry;
   altinnNugetVersion?: string;
   logo?: ILogoOptions;
+  messageBoxConfig?: MessageBoxConfig;
 }
+
+type HideAlwaysSettings = {
+  hideAlways: boolean;
+};
+
+export type MessageBoxConfig = {
+  hideSettings?: HideAlwaysSettings;
+};
 
 export type ApplicationMetadata = Omit<IncomingApplicationMetadata, 'onEntry' | 'logo'> & {
   onEntry: IOnEntry;

@@ -5,8 +5,10 @@ import { icon, marker } from 'leaflet';
 import Icon from 'leaflet/dist/images/marker-icon.png';
 import RetinaIcon from 'leaflet/dist/images/marker-icon-2x.png';
 import IconShadow from 'leaflet/dist/images/marker-shadow.png';
+import type { PathOptions } from 'leaflet';
 
 import { useMapParsedGeometries } from 'src/layout/Map/features/geometries/fixed/hooks';
+import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 
 const markerIcon = icon({
   iconUrl: Icon,
@@ -22,14 +24,23 @@ type MapGeometriesProps = {
 };
 
 export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps) {
-  const geometries = useMapParsedGeometries(baseComponentId);
+  const { toolbar } = useItemWhenType(baseComponentId, 'Map');
+  let geometries = useMapParsedGeometries(baseComponentId);
+
   if (!geometries || geometries.length === 0) {
     return null;
   }
 
+  // if toolbar is defined and map is editable, we want to render editable geometries separately
+  if (toolbar && !readOnly) {
+    geometries = geometries?.filter((g) => !g.isEditable);
+  }
+
+  geometries = geometries?.filter((g) => !g.isHidden);
+
   return (
     <>
-      {geometries.map(({ altinnRowId, data, label }) => (
+      {geometries.map(({ altinnRowId, data, label, style }) => (
         <GeoJSON
           key={altinnRowId}
           data={data}
@@ -37,6 +48,7 @@ export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps)
           pointToLayer={(_, position) =>
             marker(position, { icon: markerIcon, interactive: false, draggable: false, keyboard: false })
           }
+          style={parseStyle(style)}
         >
           {label && (
             <Tooltip
@@ -51,4 +63,16 @@ export function MapGeometries({ baseComponentId, readOnly }: MapGeometriesProps)
       ))}
     </>
   );
+}
+
+function parseStyle(style: string | undefined): PathOptions | undefined {
+  if (!style) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(style);
+    return parsed as PathOptions;
+  } catch {
+    return undefined;
+  }
 }
