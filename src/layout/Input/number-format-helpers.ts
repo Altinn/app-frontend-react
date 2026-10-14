@@ -13,7 +13,13 @@ export const isNumberFormat = (
 
 export function parsePastedNumber(pastedText: string, format: NumericFormatProps): string {
   const thousandSeparator = format.thousandSeparator === true ? ',' : format.thousandSeparator;
-  const ungroupedText = thousandSeparator ? pastedText.split(thousandSeparator).join('') : pastedText;
+  const decimalSeparator = format.decimalSeparator ?? '.';
+  const groups = thousandSeparator ? pastedText.split(thousandSeparator) : [pastedText];
+  // A lone comma or dot may be an alternate decimal separator. Preserve the paste workaround in that case.
+  const hasGrouping =
+    thousandSeparator &&
+    (pastedText.includes(decimalSeparator) || groups.length > 2 || !['.', ','].includes(thousandSeparator));
+  const ungroupedText = hasGrouping ? groups.join('') : pastedText;
   // Apply the input's precision before saving, so decimals hidden by decimalScale are not stored.
   const formatted = numericFormatter(ungroupedText.replace(',', '.'), format);
   const changeMeta = {
