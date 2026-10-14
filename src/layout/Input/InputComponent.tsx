@@ -1,5 +1,4 @@
 import React from 'react';
-import { numericFormatter, removeNumericFormat } from 'react-number-format';
 
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
@@ -14,7 +13,7 @@ import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/
 import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Input/InputComponent.module.css';
-import { isNumberFormat, isPatternFormat } from 'src/layout/Input/number-format-helpers';
+import { isNumberFormat, isPatternFormat, parsePastedNumber } from 'src/layout/Input/number-format-helpers';
 import { buildAriaDescribedBy } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
@@ -240,17 +239,7 @@ export const InputVariant = ({
               return;
             }
             const pastedText = event.clipboardData.getData('Text');
-            const thousandSeparator =
-              variant.format.thousandSeparator === true ? ',' : variant.format.thousandSeparator;
-            const ungroupedText = thousandSeparator ? pastedText.split(thousandSeparator).join('') : pastedText;
-            // Apply the input's precision before saving, so decimals hidden by decimalScale are not stored.
-            const formatted = numericFormatter(ungroupedText.replace(',', '.'), variant.format);
-            const changeMeta = {
-              from: { start: 0, end: 0 },
-              to: { start: 0, end: formatted.length },
-              lastValue: '',
-            };
-            setValue('simpleBinding', removeNumericFormat(formatted, changeMeta, variant.format));
+            setValue('simpleBinding', parsePastedNumber(pastedText, variant.format));
           }}
           maxLength={maxLength}
         />
