@@ -1017,6 +1017,38 @@ describe('UI Components', () => {
     }
   });
 
+  it('pasted grouped numbers should retain their value when applying numeric precision', () => {
+    cy.gotoHiddenPage('numeric-fields');
+
+    for (const { text, thousandSeparator, decimalSeparator, expected } of [
+      { text: '1,234.567', thousandSeparator: ',', decimalSeparator: '.', expected: '1,234.56 flis' },
+      { text: '1.234,567', thousandSeparator: '.', decimalSeparator: ',', expected: '1.234,56 flis' },
+      { text: '1 234,567', thousandSeparator: ' ', decimalSeparator: ',', expected: '1 234,56 flis' },
+      { text: '1,234.567', thousandSeparator: true, decimalSeparator: '.', expected: '1,234.56 flis' },
+    ]) {
+      cy.changeLayout((c) => {
+        if (c.id === 'decimalAsNumber' && c.type === 'Input' && isNumberFormat(c.formatting?.number)) {
+          Object.assign(c.formatting.number, { thousandSeparator, decimalSeparator, decimalScale: 2 });
+        }
+      });
+
+      cy.get('#decimalAsNumber').numberFormatClear();
+      cy.get('#decimalAsNumber').focus();
+      cy.get('#decimalAsNumber').then(($input) => {
+        const clipboardData = new DataTransfer();
+        clipboardData.setData('text/plain', text);
+        $input[0].dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }));
+      });
+
+      cy.get('#decimalAsNumber').should('have.value', expected);
+      cy.get('#decimalAsString').should('have.value', '1234.56');
+      cy.get('#decimalAsNumber').blur();
+      cy.waitUntilSaved();
+      cy.reloadAndWait();
+      cy.get('#decimalAsString').should('have.value', '1234.56');
+    }
+  });
+
   it('number formatting should never update/change the form data', () => {
     cy.gotoHiddenPage('numeric-fields');
     cy.get(appFrontend.errorReport).should('not.exist');
