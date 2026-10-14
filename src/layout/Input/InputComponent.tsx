@@ -1,4 +1,5 @@
 import React from 'react';
+import { numericFormatter, removeNumericFormat } from 'react-number-format';
 
 import { FormattedInput } from 'src/app-components/Input/FormattedInput';
 import { Input } from 'src/app-components/Input/Input';
@@ -239,11 +240,14 @@ export const InputVariant = ({
               return;
             }
             const pastedText = event.clipboardData.getData('Text');
-            if (pastedText.indexOf(',') !== -1) {
-              setValue('simpleBinding', pastedText.replace(',', '.'));
-            } else {
-              setValue('simpleBinding', pastedText);
-            }
+            // Apply the input's precision before saving, so decimals hidden by decimalScale are not stored.
+            const formatted = numericFormatter(pastedText.replace(',', '.'), variant.format);
+            const changeMeta = {
+              from: { start: 0, end: 0 },
+              to: { start: 0, end: formatted.length },
+              lastValue: '',
+            };
+            setValue('simpleBinding', removeNumericFormat(formatted, changeMeta, variant.format));
           }}
           maxLength={maxLength}
         />
