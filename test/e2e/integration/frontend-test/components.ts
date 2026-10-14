@@ -986,6 +986,37 @@ describe('UI Components', () => {
     cy.visualTesting('components:map-geometries');
   });
 
+  it('pasted decimals should respect the numeric input precision', () => {
+    cy.gotoHiddenPage('numeric-fields');
+
+    for (const decimalScale of [0, 2]) {
+      for (const text of ['2,345', '2.345']) {
+        cy.changeLayout((c) => {
+          if (c.id === 'decimalAsNumber' && c.type === 'Input' && isNumberFormat(c.formatting?.number)) {
+            c.formatting.number.decimalScale = decimalScale;
+          }
+        });
+
+        cy.get('#decimalAsNumber').numberFormatClear();
+        cy.get('#decimalAsNumber').focus();
+        cy.get('#decimalAsNumber').then(($input) => {
+          const clipboardData = new DataTransfer();
+          clipboardData.setData('text/plain', text);
+          const event = new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true });
+          $input[0].dispatchEvent(event);
+        });
+
+        const expectedValue = decimalScale === 0 ? '2' : '2.34';
+        cy.get('#decimalAsNumber').should('have.value', `${expectedValue.replace('.', ',')} flis`);
+        cy.get('#decimalAsString').should('have.value', expectedValue);
+        cy.get('#decimalAsNumber').blur();
+        cy.waitUntilSaved();
+        cy.reloadAndWait();
+        cy.get('#decimalAsString').should('have.value', expectedValue);
+      }
+    }
+  });
+
   it('number formatting should never update/change the form data', () => {
     cy.gotoHiddenPage('numeric-fields');
     cy.get(appFrontend.errorReport).should('not.exist');
