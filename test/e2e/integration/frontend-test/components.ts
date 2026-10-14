@@ -1017,6 +1017,36 @@ describe('UI Components', () => {
     }
   });
 
+  it('pasted alternate decimal separators should remain decimals when also configured for grouping', () => {
+    cy.gotoHiddenPage('numeric-fields');
+
+    for (const { text, thousandSeparator, decimalSeparator, expected } of [
+      { text: '2.5', thousandSeparator: '.', decimalSeparator: ',', expected: '2,5 flis' },
+      { text: '2,5', thousandSeparator: true, decimalSeparator: '.', expected: '2.5 flis' },
+    ]) {
+      cy.changeLayout((c) => {
+        if (c.id === 'decimalAsNumber' && c.type === 'Input' && isNumberFormat(c.formatting?.number)) {
+          Object.assign(c.formatting.number, { thousandSeparator, decimalSeparator, decimalScale: 2 });
+        }
+      });
+
+      cy.get('#decimalAsNumber').numberFormatClear();
+      cy.get('#decimalAsNumber').focus();
+      cy.get('#decimalAsNumber').then(($input) => {
+        const clipboardData = new DataTransfer();
+        clipboardData.setData('text/plain', text);
+        $input[0].dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true, cancelable: true }));
+      });
+
+      cy.get('#decimalAsNumber').should('have.value', expected);
+      cy.get('#decimalAsString').should('have.value', '2.5');
+      cy.get('#decimalAsNumber').blur();
+      cy.waitUntilSaved();
+      cy.reloadAndWait();
+      cy.get('#decimalAsString').should('have.value', '2.5');
+    }
+  });
+
   it('pasted grouped numbers should retain their value when applying numeric precision', () => {
     cy.gotoHiddenPage('numeric-fields');
 
