@@ -240,8 +240,11 @@ export const InputVariant = ({
               return;
             }
             const pastedText = event.clipboardData.getData('Text');
+            const thousandSeparator =
+              variant.format.thousandSeparator === true ? ',' : variant.format.thousandSeparator;
+            const ungroupedText = thousandSeparator ? pastedText.split(thousandSeparator).join('') : pastedText;
             // Apply the input's precision before saving, so decimals hidden by decimalScale are not stored.
-            const formatted = numericFormatter(pastedText.replace(',', '.'), variant.format);
+            const formatted = numericFormatter(ungroupedText.replace(',', '.'), variant.format);
             const changeMeta = {
               from: { start: 0, end: 0 },
               to: { start: 0, end: formatted.length },
