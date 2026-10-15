@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { FeatureGroup } from 'react-leaflet';
 import { EditControl } from 'react-leaflet-draw';
 
@@ -14,6 +14,7 @@ import type { Feature } from 'geojson';
 import { FD } from 'src/features/formData/FormDataWrite';
 import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { toRelativePath } from 'src/features/saveToGroup/useSaveToGroup';
+import { useOurEffectEvent } from 'src/hooks/useOurEffectEvent';
 import { useLeafletDrawSpritesheetFix } from 'src/layout/Map/features/geometries/editable/useLeafletDrawSpritesheetFix';
 import { useMapParsedGeometries } from 'src/layout/Map/features/geometries/fixed/hooks';
 import { useDataModelBindingsFor } from 'src/utils/layout/hooks';
@@ -48,10 +49,12 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   const isEditableBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryIsEditable;
   const geometryDataFieldName = geometryDataBinding?.field.split('.').pop();
   const isEditableFieldName = isEditableBinding?.field.split('.').pop();
-  const initialGeometries = useMapParsedGeometries(baseComponentId)?.filter((g) => g.isEditable);
+  const geometries = useMapParsedGeometries(baseComponentId);
+  const initialGeometries = useMemo(() => geometries?.filter((g) => g.isEditable), [geometries]);
 
   const geometryDataPath = toRelativePath(geometryBinding, geometryDataBinding);
 
+  const formDataSelector = FD.useCurrentSelector();
   const appendToList = FD.useAppendToList();
   const setLeafValue = FD.useSetLeafValue();
   const removeFromList = FD.useRemoveFromListCallback();
@@ -116,7 +119,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
     }
   }, [initialGeometries]);
 
-  const onCreatedHandler = (e: L.DrawEvents.Created) => {
+  const onCreatedHandler = useOurEffectEvent((e: L.DrawEvents.Created) => {
     if (!geometryBinding || !geometryDataFieldName || !isEditableFieldName) {
       return;
     }
@@ -147,9 +150,9 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
         [isEditableFieldName]: true,
       },
     });
-  };
+  });
 
-  const onEditedHandler = (e: L.DrawEvents.Edited) => {
+  const onEditedHandler = useOurEffectEvent((e: L.DrawEvents.Edited) => {
     if (!geometryBinding || !geometryDataBinding || !isEditableBinding) {
       return;
     }
@@ -164,20 +167,21 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
       if (geometryType === 'WKT') {
         geoString = geojsonToWKT(editedGeo.geometry);
       }
+      const rows = formDataSelector(geometryBinding);
+      const index = Array.isArray(rows) ? rows.findIndex((row) => row?.[ALTINN_ROW_ID] === altinnRowId) : -1;
+      if (index === -1) {
+        return;
+      }
 
-      initialGeometries?.forEach((g, index) => {
-        if (g.altinnRowId === altinnRowId) {
-          const field = `${geometryBinding.field}[${index}].${geometryDataPath}`;
-          setLeafValue({
-            reference: { dataType: geometryDataBinding?.dataType, field },
-            newValue: geoString,
-          });
-        }
+      const field = `${geometryBinding.field}[${index}].${geometryDataPath}`;
+      setLeafValue({
+        reference: { dataType: geometryDataBinding?.dataType, field },
+        newValue: geoString,
       });
     });
-  };
+  });
 
-  const onDeletedHandler = (e: L.DrawEvents.Deleted) => {
+  const onDeletedHandler = useOurEffectEvent((e: L.DrawEvents.Deleted) => {
     if (!geometryBinding) {
       return;
     }
@@ -190,7 +194,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
         callback: (item) => item[ALTINN_ROW_ID] === deletedGeo.properties?.altinnRowId,
       });
     });
-  };
+  });
 
   return (
     <FeatureGroup ref={editRef}>

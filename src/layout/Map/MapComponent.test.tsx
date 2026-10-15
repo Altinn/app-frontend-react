@@ -1,13 +1,17 @@
 import React from 'react';
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import L from 'leaflet';
 
 import { defaultDataTypeMock } from 'src/__mocks__/getLayoutSetsMock';
+import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { MapComponent } from 'src/layout/Map/MapComponent';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 import type { FDNewValue } from 'src/features/formData/FormDataWriteStateMachine';
 import type { RenderGenericComponentTestProps } from 'src/test/renderWithProviders';
+
+jest.mock('react-leaflet-draw', () => jest.requireActual('react-leaflet-draw/dist/esm/index.js'));
 
 const user = userEvent.setup();
 
@@ -196,5 +200,89 @@ describe('MapComponent', () => {
       reference: { dataType: defaultDataTypeMock, field: 'myCoords' },
       newValue: '59.933000,10.722656',
     } satisfies FDNewValue);
+  });
+});
+
+describe('MapComponent with editable geometries', () => {
+  const maps: L.Map[] = [];
+  L.Map.addInitHook(function (this: L.Map) {
+    maps.push(this);
+  });
+
+  beforeEach(() => {
+    maps.length = 0;
+  });
+
+  const polygon = (offset: number) =>
+    JSON.stringify({
+      type: 'Polygon',
+      coordinates: [
+        [
+          [10 + offset, 59],
+          [11 + offset, 59],
+          [11 + offset, 60],
+          [10 + offset, 59],
+        ],
+      ],
+    });
+
+  const renderWithGeometries = () =>
+    render({
+      component: {
+        toolbar: { polygon: true },
+        geometryType: 'GeoJSON',
+        dataModelBindings: {
+          geometries: { dataType: defaultDataTypeMock, field: 'Geometries' },
+          geometryData: { dataType: defaultDataTypeMock, field: 'Geometries.Data' },
+          geometryIsEditable: { dataType: defaultDataTypeMock, field: 'Geometries.Editable' },
+        },
+      },
+      queries: {
+        fetchFormData: async () => ({
+          Geometries: [
+            { [ALTINN_ROW_ID]: 'geo1', Data: polygon(0), Editable: true },
+            { [ALTINN_ROW_ID]: 'geo2', Data: polygon(2), Editable: true },
+          ],
+        }),
+      },
+    });
+
+  function findLayer(altinnRowId: string): L.Polygon {
+    const map = maps.at(-1);
+    let found: L.Polygon | undefined;
+    map?.eachLayer((layer) => {
+      if (layer instanceof L.Polygon && layer.feature?.properties?.altinnRowId === altinnRowId) {
+        found = layer;
+      }
+    });
+    if (!found) {
+      throw new Error(`No layer found for ${altinnRowId}`);
+    }
+    return found;
+  }
+
+  it('should update the correct row when editing a geometry after deleting another one', async () => {
+    const { formDataMethods } = await renderWithGeometries();
+    await waitFor(() => expect(() => findLayer('geo2')).not.toThrow());
+
+    maps.at(-1)?.fire('draw:deleted', { layers: L.layerGroup([findLayer('geo1')]) });
+    await waitFor(() => expect(() => findLayer('geo1')).toThrow());
+
+    const geo2 = findLayer('geo2');
+    geo2.setLatLngs([
+      [59, 12],
+      [59, 14],
+      [61, 14],
+    ]);
+    maps.at(-1)?.fire('draw:edited', { layers: L.layerGroup([geo2]) });
+
+    await waitFor(() =>
+      expect(formDataMethods.setLeafValue).toHaveBeenCalledWith({
+        reference: { dataType: defaultDataTypeMock, field: 'Geometries[0].Data' },
+        newValue: expect.stringContaining('[14,61]'),
+      }),
+    );
+    expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(1);
+    expect(screen.queryByText(/Invalid geometry item/)).not.toBeInTheDocument();
   });
 });
