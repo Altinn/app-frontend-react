@@ -139,7 +139,7 @@ export function GlobalFormDataReadersProvider({ children }: PropsWithChildren) {
   }, [readerMap, updateModel]);
 
   const reset = useCallback(() => {
-    setReaderMap({});
+    setReaderMap((all) => (Object.keys(all).length === 0 ? all : {}));
   }, []);
 
   return (
