@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-import { skipToken, useQuery } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
 
 import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
@@ -23,17 +23,12 @@ export function useLayoutSettingsQueryDef(layoutSetId?: string): QueryDefinition
   // Settings may differ per instance when fetched from the instance endpoint, so the instance must be part of the key
   const instanceId = features.addInstanceIdentifierToLayoutRequests ? laxInstanceId : undefined;
 
+  const fetchSettings = (setId: string) =>
+    instanceId ? fetchLayoutSettingsForInstance(setId, instanceId) : fetchLayoutSettings(setId);
+
   return {
     queryKey: ['layoutSettings', layoutSetId, instanceId],
-    queryFn: layoutSetId
-      ? async () => {
-          const layoutSettings = instanceId
-            ? await fetchLayoutSettingsForInstance(layoutSetId, instanceId)
-            : await fetchLayoutSettings(layoutSetId);
-
-          return processData(layoutSettings);
-        }
-      : skipToken,
+    queryFn: async () => processData(layoutSetId ? await fetchSettings(layoutSetId) : null),
   };
 }
 
