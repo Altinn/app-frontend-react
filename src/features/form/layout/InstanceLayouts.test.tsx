@@ -28,19 +28,26 @@ function LayoutsAndPageOrder() {
   );
 }
 
+function mockInstanceLayoutsFeature(enabled: boolean | undefined) {
+  jest.mocked(fetchApplicationMetadata).mockImplementation(async () =>
+    getIncomingApplicationMetadataMock((a) => {
+      const { addInstanceIdentifierToLayoutRequests: _, ...features } = a.features ?? {};
+      a.features = enabled === undefined ? features : { ...features, addInstanceIdentifierToLayoutRequests: enabled };
+    }),
+  );
+}
+
+beforeEach(() => {
+  jest.mocked(fetchInstanceData).mockClear();
+  jest.mocked(fetchInstanceData).mockImplementation(async (partyId, instanceGuid) =>
+    getInstanceDataMock((i) => {
+      i.id = `${partyId}/${instanceGuid}`;
+    }),
+  );
+});
+
 describe('Layouts with addInstanceIdentifierToLayoutRequests', () => {
-  beforeEach(() => {
-    jest.mocked(fetchApplicationMetadata).mockImplementation(async () =>
-      getIncomingApplicationMetadataMock((a) => {
-        a.features = { ...a.features, addInstanceIdentifierToLayoutRequests: true };
-      }),
-    );
-    jest.mocked(fetchInstanceData).mockImplementation(async (partyId, instanceGuid) =>
-      getInstanceDataMock((i) => {
-        i.id = `${partyId}/${instanceGuid}`;
-      }),
-    );
-  });
+  beforeEach(() => mockInstanceLayoutsFeature(true));
 
   it('fetches layouts and settings again when navigating to another instance', async () => {
     const { queries, routerRef } = await renderWithInstanceAndLayout({
@@ -68,5 +75,38 @@ describe('Layouts with addInstanceIdentifierToLayoutRequests', () => {
     expect(screen.getByTestId('order')).toHaveTextContent(pageNameFor(instanceB));
     expect(queries.fetchLayoutsForInstance).toHaveBeenCalledWith(expect.any(String), instanceB);
     expect(queries.fetchLayoutSettingsForInstance).toHaveBeenCalledWith(expect.any(String), instanceB);
+  });
+});
+
+describe('Layouts without addInstanceIdentifierToLayoutRequests', () => {
+  const regularPage = 'regular-page';
+
+  it.each([
+    { feature: 'missing', enabled: undefined },
+    { feature: 'false', enabled: false },
+  ])('only uses the regular endpoints when the feature is $feature', async ({ enabled }) => {
+    mockInstanceLayoutsFeature(enabled);
+    const { queries, routerRef } = await renderWithInstanceAndLayout({
+      renderer: () => <LayoutsAndPageOrder />,
+      instanceId: instanceA,
+      initialPage: regularPage,
+      queries: {
+        fetchLayouts: async () => ({ [regularPage]: { data: { layout: [] } } }),
+        fetchLayoutSettings: async () => ({ pages: { order: [regularPage] } }),
+      },
+    });
+
+    expect(screen.getByTestId('layouts')).toHaveTextContent(regularPage);
+    expect(screen.getByTestId('order')).toHaveTextContent(regularPage);
+
+    await routerRef.current!.navigate(`/instance/${instanceB}/Task_1/${regularPage}`);
+    await waitFor(() => {
+      expect(fetchInstanceData).toHaveBeenCalledWith(...instanceB.split('/'));
+      expect(screen.getByTestId('layouts')).toHaveTextContent(regularPage);
+    });
+    expect(queries.fetchLayouts).toHaveBeenCalled();
+    expect(queries.fetchLayoutSettings).toHaveBeenCalled();
+    expect(queries.fetchLayoutsForInstance).not.toHaveBeenCalled();
+    expect(queries.fetchLayoutSettingsForInstance).not.toHaveBeenCalled();
   });
 });
