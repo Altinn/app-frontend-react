@@ -49,28 +49,27 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   const isEditableBinding = useDataModelBindingsFor(baseComponentId, 'Map')?.geometryIsEditable;
   const geometryDataFieldName = geometryDataBinding?.field.split('.').pop();
   const isEditableFieldName = isEditableBinding?.field.split('.').pop();
-  const geometries = useMapParsedGeometries(baseComponentId);
-  const initialGeometries = useMemo(() => geometries?.filter((g) => g.isEditable), [geometries]);
+  const allGeometries = useMapParsedGeometries(baseComponentId);
+  const editableGeometries = useMemo(() => allGeometries?.filter((g) => g.isEditable), [allGeometries]);
 
   const geometryDataPath = toRelativePath(geometryBinding, geometryDataBinding);
 
-  const formDataSelector = FD.useCurrentSelector();
   const appendToList = FD.useAppendToList();
-  const setLeafValue = FD.useSetLeafValue();
+  const setLeafValueInList = FD.useSetLeafValueInList();
   const removeFromList = FD.useRemoveFromListCallback();
 
   const { toolbar } = useItemWhenType(baseComponentId, 'Map');
 
   useLeafletDrawSpritesheetFix();
 
-  // Load initial data into the FeatureGroup on component mount
+  // Load the editable geometries into the FeatureGroup whenever they change
   useEffect(() => {
     const featureGroup = editRef.current;
-    if (featureGroup && initialGeometries) {
-      // Clear existing layers to prevent duplication if initialData changes
+    if (featureGroup && editableGeometries) {
+      // Clear existing layers to prevent duplication if the geometries change
       featureGroup.clearLayers();
 
-      initialGeometries.forEach((item) => {
+      editableGeometries.forEach((item) => {
         if (item.data && item.data.type === 'FeatureCollection') {
           item.data.features.forEach((feature: Feature) => {
             // Attach the unique ID to the feature's properties
@@ -117,7 +116,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
         }
       });
     }
-  }, [initialGeometries]);
+  }, [editableGeometries]);
 
   const onCreatedHandler = useOurEffectEvent((e: L.DrawEvents.Created) => {
     if (!geometryBinding || !geometryDataFieldName || !isEditableFieldName) {
@@ -153,7 +152,7 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
   });
 
   const onEditedHandler = useOurEffectEvent((e: L.DrawEvents.Edited) => {
-    if (!geometryBinding || !geometryDataBinding || !isEditableBinding) {
+    if (!geometryBinding || !geometryDataPath || !isEditableBinding) {
       return;
     }
 
@@ -167,15 +166,10 @@ export function MapEditGeometries({ baseComponentId }: MapEditGeometriesProps) {
       if (geometryType === 'WKT') {
         geoString = geojsonToWKT(editedGeo.geometry);
       }
-      const rows = formDataSelector(geometryBinding);
-      const index = Array.isArray(rows) ? rows.findIndex((row) => row?.[ALTINN_ROW_ID] === altinnRowId) : -1;
-      if (index === -1) {
-        return;
-      }
-
-      const field = `${geometryBinding.field}[${index}].${geometryDataPath}`;
-      setLeafValue({
-        reference: { dataType: geometryDataBinding?.dataType, field },
+      setLeafValueInList({
+        reference: geometryBinding,
+        findRow: (row) => row[ALTINN_ROW_ID] === altinnRowId,
+        field: geometryDataPath,
         newValue: geoString,
       });
     });
