@@ -138,10 +138,21 @@ describe('Group summary test', () => {
     cy.get('[data-testid="summary-repeating-group-component"] > table').should('not.contain.text', 'Testnavn2');
   });
 
-  it('Displays a summary for a filled repeating group in table', () => {
+  it('Displays a summary for a filled repeating group in table and limits cell text without truncating headers', () => {
+    const tableTitle = 'A long column heading that must remain fully visible. '.repeat(8).trim();
+    cy.interceptLayout('ComponentLayouts', (component) => {
+      if (component.type === 'RepeatingGroup' && component.id === 'RepeatingGroup') {
+        component.tableColumns = {
+          'RepeatingGroup-Input-Name': { width: '160px', textOverflow: { maxHeight: 4 } },
+        };
+      }
+      if (component.type === 'Input' && component.id === 'RepeatingGroup-Input-Name') {
+        component.textResourceBindings = { ...component.textResourceBindings, tableTitle };
+      }
+    });
     cy.startAppInstance(appFrontend.apps.componentLibrary, { authenticationLevel: '2' });
     cy.gotoNavPage('Repeterende gruppe');
-    const inputValue = 'Test input for group';
+    const inputValue = 'Long cell content that should be truncated. '.repeat(12).trim();
     const inputValue2 = 'Test input for group2';
 
     cy.findAllByRole('button', { name: /Legg til ny/ })
@@ -159,9 +170,32 @@ describe('Group summary test', () => {
       .first()
       .click();
 
-    cy.get('div[data-testid="summary-repeating-group-component"] > table').within(() => {
+    cy.get('[data-testid="group-RepeatingGroup"] > table').within(() => {
+      cy.findByRole('columnheader', { name: tableTitle })
+        .children('span')
+        .should(($header) => {
+          const header = $header[0];
+          const lineHeight = parseFloat(getComputedStyle(header).lineHeight);
+          expect(header.clientHeight, 'long header remains taller than four lines').to.be.greaterThan(4 * lineHeight);
+          expect(header.scrollHeight, 'header is not clipped').to.equal(header.clientHeight);
+        });
+      cy.findByRole('cell', { name: inputValue })
+        .children('span')
+        .first()
+        .should(($content) => {
+          const content = $content[0];
+          const lineHeight = parseFloat(getComputedStyle(content).lineHeight);
+          expect(content.clientHeight, 'cell is limited to four lines').to.be.closeTo(4 * lineHeight, 1);
+          expect(content.scrollHeight, 'content exceeds the visible lines').to.be.greaterThan(content.clientHeight);
+        });
+    });
+    cy.visualTesting('repeatingGroupTextOverflow');
+
+    cy.get(
+      '[data-componentid="RepeatingGroup-Summary2-table"] [data-testid="summary-repeating-group-component"] > table',
+    ).within(() => {
       cy.findAllByRole('row').should('have.length', 3);
-      cy.findByRole('columnheader', { name: /Navn/ }).should('exist');
+      cy.findByRole('columnheader', { name: tableTitle }).should('exist');
       cy.findAllByRole('cell', { name: inputValue }).should('exist');
       cy.findAllByRole('cell', { name: inputValue2 }).should('exist');
     });
