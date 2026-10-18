@@ -14,10 +14,10 @@ permissions:
 
 jobs:
   approve:
+    if: github.event.action == 'opened' || github.event.label.name == 'approve'
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
-      cancel-in-progress: true
     steps:
       - name: Check if auto-approval is needed
         id: check-labels
