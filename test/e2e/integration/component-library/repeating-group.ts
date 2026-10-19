@@ -82,6 +82,7 @@ describe('Group summary test', () => {
           expect(content.scrollHeight, 'content exceeds the visible lines').to.be.greaterThan(content.clientHeight);
         });
     });
+    cy.get('#add-button-RepeatingGroup').should('be.visible');
     cy.visualTesting('repeatingGroupAddButtons');
   });
 
