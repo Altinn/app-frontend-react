@@ -14,7 +14,9 @@ import { useInstanceDataQuery, useLaxInstanceId } from 'src/features/instance/In
 import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
 import { useCurrentLanguage } from 'src/features/language/LanguageProvider';
 import { useAllowAnonymous } from 'src/features/stateless/getAllowAnonymous';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { useAsRef } from 'src/hooks/useAsRef';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import {
   getAnonymousStatelessDataModelUrl,
   getStatefulDataModelUrl,
@@ -35,6 +37,8 @@ export function useCurrentDataModelDataElementId() {
   const taskId = useProcessTaskId();
 
   const overriddenDataElementId = useTaskOverrides()?.dataModelElementId;
+  const isPdf = useIsPdf();
+  const pdfSubformId = useNavigationParam('dataElementId');
 
   // Instance data elements will update often (after each save), so we have to use a selector to make
   // sure components don't re-render too often.
@@ -44,6 +48,13 @@ export function useCurrentDataModelDataElementId() {
         return overriddenDataElementId;
       }
 
+      if (isPdf && pdfSubformId) {
+        const dataType = getCurrentDataTypeForApplication({ application, layoutSets, taskId });
+        const subform = data.data.find((element) => element.id === pdfSubformId && element.dataType === dataType);
+        if (subform) {
+          return subform.id;
+        }
+      }
       return getCurrentTaskDataElementId({ application, dataElements: data.data, taskId, layoutSets });
     },
   }).data;

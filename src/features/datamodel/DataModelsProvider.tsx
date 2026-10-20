@@ -28,6 +28,7 @@ import { useCurrentLayoutSetId } from 'src/features/form/layoutSets/useCurrentLa
 import { useFormDataQuery } from 'src/features/formData/useFormDataQuery';
 import { useInstanceDataElements, useInstanceDataQuery } from 'src/features/instance/InstanceContext';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
+import { useNavigationParam } from 'src/hooks/navigation';
 import { useIsPdf } from 'src/hooks/useIsPdf';
 import { isAxiosError } from 'src/utils/isAxiosError';
 import { HttpStatusCodes } from 'src/utils/network/networking';
@@ -306,7 +307,12 @@ function LoadInitialData({ dataType, overrideDataElement }: LoaderProps & { over
   const setDataElementId = useSelector((state) => state.setDataElementId);
   const setError = useSelector((state) => state.setError);
   const dataElements = useInstanceDataElements(dataType);
-  const dataElementId = overrideDataElement ?? getFirstDataElementId(dataElements, dataType);
+  const isPdf = useIsPdf();
+  const subformDataElementId = useNavigationParam('dataElementId');
+  // A subform PDF layout uses the subform's data type as its default model. Select the
+  // requested element before the usual single-element lookup (there can be many subforms).
+  const pdfDataElementId = isPdf ? dataElements?.find((element) => element.id === subformDataElementId)?.id : undefined;
+  const dataElementId = overrideDataElement ?? pdfDataElementId ?? getFirstDataElementId(dataElements, dataType);
   const metaData = useApplicationMetadata();
 
   const url = useDataModelUrl({

@@ -12,9 +12,10 @@ import classes from 'src/components/wrappers/ProcessWrapper.module.css';
 import { Loader } from 'src/core/loading/Loader';
 import { useIsNavigating } from 'src/core/routing/useIsNavigating';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
+import { FormProvider } from 'src/features/form/FormContext';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
 import { getProcessNextMutationKey, getTargetTaskFromProcess } from 'src/features/instance/useProcessNext';
-import { useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
+import { useGetAltinnTaskType, useGetTaskTypeById, useProcessQuery } from 'src/features/instance/useProcessQuery';
 import { Lang } from 'src/features/language/Lang';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { PdfWrapper } from 'src/features/pdf/PdfWrapper';
@@ -22,6 +23,7 @@ import { Confirm } from 'src/features/process/confirm/containers/Confirm';
 import { Feedback } from 'src/features/process/feedback/Feedback';
 import { ServiceTask } from 'src/features/process/service/ServiceTask';
 import { useNavigationParam } from 'src/hooks/navigation';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { useWaitForQueries } from 'src/hooks/useWaitForQueries';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
@@ -103,6 +105,8 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
   const isValidTaskId = useIsValidTaskId()(taskId);
   const taskType = useGetTaskTypeById()(taskId);
   const isRunningProcessNext = useIsRunningProcessNext();
+  const isPdf = useIsPdf();
+  const altinnTaskType = useGetAltinnTaskType()(taskId);
 
   if (isRunningProcessNext === null || isRunningProcessNext || isWrongTask === null) {
     return <Loader reason='process-wrapper' />;
@@ -121,7 +125,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
     );
   }
 
-  if (isWrongTask) {
+  if (isWrongTask && !isPdf) {
     return (
       <PresentationComponent showNavigation={false}>
         <NavigationError label='general.part_of_form_completed' />
@@ -156,6 +160,15 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
   }
 
   if (taskType === ProcessTaskType.Data) {
+    // A PDF service task renders its own layout set directly. The subform URL identifies
+    // the data element; its component belongs to the input task, not the PDF layout.
+    if (isPdf && (altinnTaskType === 'pdf' || altinnTaskType === 'subformPdf')) {
+      return (
+        <FormProvider>
+          <PdfWrapper />
+        </FormProvider>
+      );
+    }
     return children;
   }
 

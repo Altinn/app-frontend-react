@@ -368,7 +368,7 @@ function useIsSavingFormData() {
   );
 }
 
-export function FormDataWriteProvider({ children }: PropsWithChildren) {
+export function FormDataWriteProvider({ children, locked = false }: PropsWithChildren<{ locked?: boolean }>) {
   const proxies = useFormDataWriteProxies();
   const ruleConnections = useRuleConnections();
   const allDataTypes = DataModels.useReadableDataTypes();
@@ -394,7 +394,7 @@ export function FormDataWriteProvider({ children }: PropsWithChildren) {
       lastSavedData: initialData[dt],
       hasUnsavedChanges: false,
       dataElementId: dataElementIds[dt],
-      readonly: !writableDataTypes.includes(dt),
+      readonly: locked || !writableDataTypes.includes(dt),
       isDefault: dt === defaultDataType,
     };
     return dm;
