@@ -148,6 +148,14 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
 export function ErrorListFromInstantiation({ error }: { error: unknown }) {
   const selectedParty = useSelectedParty();
 
+  if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Gone) {
+    return (
+      <ErrorReportListItem>
+        <Lang id='instantiate.closed_error_text' />
+      </ErrorReportListItem>
+    );
+  }
+
   if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {
     if (isInstantiationValidationResult(error.response.data)) {
       return (

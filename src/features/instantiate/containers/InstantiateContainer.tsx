@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 
 import { Loader } from 'src/core/loading/Loader';
 import { InstantiateValidationError } from 'src/features/instantiate/containers/InstantiateValidationError';
+import { InstantiationClosedError } from 'src/features/instantiate/containers/InstantiationClosedError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
 import { isInstantiationValidationResult } from 'src/features/instantiate/InstantiationValidation';
@@ -31,6 +32,10 @@ export const InstantiateContainer = () => {
   // page renders below instead.
   if (isAuthenticationRedirectError(instantiation.error)) {
     return <Loader reason='authentication-redirect' />;
+  }
+
+  if (isAxiosError(instantiation.error) && instantiation.error.response?.status === HttpStatusCodes.Gone) {
+    return <InstantiationClosedError />;
   }
 
   if (isAxiosError(instantiation.error) && instantiation.error.response?.status === HttpStatusCodes.Forbidden) {

@@ -243,6 +243,9 @@ export function en() {
     'instantiate.unknown_error_status': 'Unknown error',
     'instantiate.unknown_error_customer_support': 'If the problem persists, contact us at customer service at {0}.',
     'instantiate.unknown_error_show_details': 'Show error details',
+    'instantiate.closed_error_title': 'You cannot start this service',
+    'instantiate.closed_error_text':
+      'It is not possible to start new forms in this service. You can still complete forms you have already started from your inbox.',
     'instantiate.forbidden_action_error_title': 'You do not have permission to perform this action.',
     'instantiate.forbidden_action_error_text': 'It looks like you do not have permission to perform this action.',
     'instantiate.forbidden_action_error_status': '403 - Forbidden',
