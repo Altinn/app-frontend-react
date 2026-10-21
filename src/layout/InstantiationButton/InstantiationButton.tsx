@@ -9,7 +9,7 @@ import {
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
+import { isInstantiationClosedError, useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -26,7 +26,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useSelectedParty();
   const setNavigationEffect = useSetNavigationEffect();
-  const isInstantiationClosed = useIsInstantiationClosed();
+  const isInstantiationClosed = useIsInstantiationClosed() || isInstantiationClosedError(instantiation.error);
 
   return (
     <ErrorReport

@@ -89,4 +89,18 @@ describe('InstantiationButton', () => {
     expect(screen.getByRole('button', { name: 'Instantiate' })).toBeDisabled();
     expect(mutations.doInstantiateWithPrefill.mock).not.toHaveBeenCalled();
   });
+
+  it('should explain that the service cannot be started, and disable the button, after a 410 response', async () => {
+    jest.spyOn(window, 'logError').mockImplementation(() => {});
+    const { mutations } = await render();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Instantiate' }));
+    await waitFor(() => expect(mutations.doInstantiateWithPrefill.mock).toHaveBeenCalledTimes(1));
+    mutations.doInstantiateWithPrefill.reject(
+      Object.assign(new Error('Gone'), { isAxiosError: true, response: { status: 410 } }),
+    );
+
+    expect(await screen.findByText(/det er ikke mulig å starte nye skjema i denne tjenesten/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Instantiate' })).toBeDisabled();
+  });
 });

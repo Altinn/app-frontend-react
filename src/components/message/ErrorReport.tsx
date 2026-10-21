@@ -8,6 +8,7 @@ import { FullWidthWrapper } from 'src/app-components/FullWidthWrapper/FullWidthW
 import classes from 'src/components/message/ErrorReport.module.css';
 import { useAllAttachments } from 'src/features/attachments/hooks';
 import { FileScanResults } from 'src/features/attachments/types';
+import { isInstantiationClosedError } from 'src/features/instantiate/instantiationClosed';
 import {
   InstantiationValidation,
   isInstantiationValidationResult,
@@ -142,9 +143,6 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
   );
 }
 
-/**
- * @see InstantiateContainer Contains somewhat similar logic, but for a full-screen error page.
- */
 export function ErrorListForClosedInstantiation() {
   return (
     <ErrorReportListItem>
@@ -153,10 +151,13 @@ export function ErrorListForClosedInstantiation() {
   );
 }
 
+/**
+ * @see InstantiateContainer Contains somewhat similar logic, but for a full-screen error page.
+ */
 export function ErrorListFromInstantiation({ error }: { error: unknown }) {
   const selectedParty = useSelectedParty();
 
-  if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Gone) {
+  if (isInstantiationClosedError(error)) {
     return <ErrorListForClosedInstantiation />;
   }
 

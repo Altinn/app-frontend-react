@@ -5,7 +5,7 @@ import { InstantiateValidationError } from 'src/features/instantiate/containers/
 import { InstantiationClosedError } from 'src/features/instantiate/containers/InstantiationClosedError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
-import { useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
+import { isInstantiationClosedError, useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
 import { isInstantiationValidationResult } from 'src/features/instantiate/InstantiationValidation';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -40,7 +40,7 @@ export const InstantiateContainer = () => {
     return <Loader reason='authentication-redirect' />;
   }
 
-  if (isAxiosError(instantiation.error) && instantiation.error.response?.status === HttpStatusCodes.Gone) {
+  if (isInstantiationClosedError(instantiation.error)) {
     return <InstantiationClosedError />;
   }
 
