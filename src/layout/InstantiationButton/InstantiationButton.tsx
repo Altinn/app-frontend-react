@@ -9,12 +9,13 @@ import {
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
-import { isInstantiationClosedError, useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
+import { isInstantiationClosedError, useInstantiationClosedReason } from 'src/features/instantiate/instantiationClosed';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
 import { focusMainContent } from 'src/hooks/useNavigatePage';
 import { useIndexedId } from 'src/utils/layout/DataModelLocation';
+import type { InstantiationClosedReason } from 'src/features/instantiate/instantiationClosed';
 import type { IInstantiationButtonComponentProvidedProps } from 'src/layout/InstantiationButton/InstantiationButtonComponent';
 
 type Props = Omit<React.PropsWithChildren<IInstantiationButtonComponentProvidedProps>, 'text'>;
@@ -26,14 +27,16 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useSelectedParty();
   const setNavigationEffect = useSetNavigationEffect();
-  const isInstantiationClosed = useIsInstantiationClosed() || isInstantiationClosedError(instantiation.error);
+  const metadataClosedReason = useInstantiationClosedReason();
+  const closedReason: InstantiationClosedReason | undefined =
+    metadataClosedReason ?? (isInstantiationClosedError(instantiation.error) ? { reason: 'closed' } : undefined);
 
   return (
     <ErrorReport
-      show={isInstantiationClosed || instantiation.error !== undefined}
+      show={closedReason !== undefined || instantiation.error !== undefined}
       errors={
-        isInstantiationClosed ? (
-          <ErrorListForClosedInstantiation />
+        closedReason ? (
+          <ErrorListForClosedInstantiation reason={closedReason} />
         ) : instantiation.error ? (
           <ErrorListFromInstantiation error={instantiation.error} />
         ) : undefined
@@ -62,7 +65,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
             ),
           )
         }
-        disabled={isAnyProcessing || isInstantiationClosed}
+        disabled={isAnyProcessing || closedReason !== undefined}
         isLoading={isLoading}
         variant='secondary'
         color='first'

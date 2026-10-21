@@ -103,6 +103,7 @@ interface Mockable {
   partyTypesAllowed?: IncomingApplicationMetadata['partyTypesAllowed'];
   activeInstances?: false | ISimpleInstance[]; // Defaults to false
   onEntryShow?: ShowTypes;
+  validFrom?: IncomingApplicationMetadata['validFrom'];
   validTo?: IncomingApplicationMetadata['validTo'];
   disallowUserInstantiation?: IncomingApplicationMetadata['disallowUserInstantiation'];
 }
@@ -146,6 +147,7 @@ export function cyMockResponses(whatToMock: Mockable) {
     whatToMock.appPromptForPartyOverride !== undefined ||
     whatToMock.partyTypesAllowed !== undefined ||
     whatToMock.onEntryShow !== undefined ||
+    whatToMock.validFrom !== undefined ||
     whatToMock.validTo !== undefined ||
     whatToMock.disallowUserInstantiation !== undefined
   ) {
@@ -160,6 +162,9 @@ export function cyMockResponses(whatToMock: Mockable) {
         }
         if (whatToMock.onEntryShow !== undefined) {
           body.onEntry = { show: whatToMock.onEntryShow };
+        }
+        if (whatToMock.validFrom !== undefined) {
+          body.validFrom = whatToMock.validFrom;
         }
         if (whatToMock.validTo !== undefined) {
           body.validTo = whatToMock.validTo;

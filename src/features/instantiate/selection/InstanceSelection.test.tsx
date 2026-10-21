@@ -104,6 +104,18 @@ describe('InstanceSelection', () => {
     expect(mutations.doInstantiate.mock).not.toHaveBeenCalled();
   });
 
+  it('should list active instances but not offer to start a new one before validFrom', async () => {
+    jest
+      .mocked(fetchApplicationMetadata)
+      .mockImplementationOnce(async () => getIncomingApplicationMetadataMock({ validFrom: '2099-01-01T10:00:00Z' }));
+    const { mutations } = await render();
+
+    expect(await screen.findByText(mockActiveInstances[0].lastChangedBy)).toBeInTheDocument();
+    expect(screen.getByText(/Tjenesten åpner 01\.01\.2099/)).toBeInTheDocument();
+    expect(screen.queryByText(/start på nytt/i)).not.toBeInTheDocument();
+    expect(mutations.doInstantiate.mock).not.toHaveBeenCalled();
+  });
+
   it('should trigger openInstance on editButton click', async () => {
     const { mutations, routerRef } = await render();
     const row = screen.getByRole('row', {

@@ -6,6 +6,7 @@ const appFrontend = new AppFrontend();
 const closedTitle = 'Du kan ikke starte denne tjenesten';
 const closedText = /Det er ikke mulig å starte nye skjema i denne tjenesten/;
 const expiredValidTo = '2020-01-01T00:00:00Z';
+const futureValidFrom = '2099-01-01T10:00:00Z';
 
 describe('Instantiation closed', () => {
   beforeEach(() => {
@@ -23,6 +24,16 @@ describe('Instantiation closed', () => {
 
     cy.findByRole('heading', { name: closedTitle }).should('be.visible');
     cy.findByText(closedText).should('be.visible');
+    assertNoInstantiationRequest();
+  });
+
+  it('should not instantiate before validFrom, and say when the service opens', () => {
+    cy.allowFailureOnEnd();
+    cyMockResponses({ onEntryShow: 'new-instance', validFrom: futureValidFrom });
+    cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'manager' });
+
+    cy.findByRole('heading', { name: 'Denne tjenesten har ikke åpnet ennå' }).should('be.visible');
+    cy.findByText(/Tjenesten åpner 01\.01\.2099/).should('be.visible');
     assertNoInstantiationRequest();
   });
 

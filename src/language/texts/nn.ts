@@ -244,6 +244,8 @@ export function nn() {
     'instantiate.unknown_error_status': 'Ukjent feil',
     'instantiate.unknown_error_customer_support': 'Om problemet hald fram, ta kontakt med oss på brukarservice {0}.',
     'instantiate.unknown_error_show_details': 'Vis detaljar om feilen',
+    'instantiate.not_yet_open_error_title': 'Denne tenesta har ikkje opna enno',
+    'instantiate.not_yet_open_error_text': 'Tenesta opnar {0}. Det er ikkje mogleg å starte nye skjema før det.',
     'instantiate.closed_error_title': 'Du kan ikkje starte denne tenesta',
     'instantiate.closed_error_text':
       'Det er ikkje mogleg å starte nye skjema i denne tenesta. Skjema du allereie har starta, kan du framleis fullføre frå innboksen.',

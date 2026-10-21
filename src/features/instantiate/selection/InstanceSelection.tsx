@@ -12,7 +12,8 @@ import { ReadyForPrint } from 'src/components/ReadyForPrint';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
-import { useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
+import { InstantiationClosedText } from 'src/features/instantiate/containers/InstantiationClosedError';
+import { useInstantiationClosedReason } from 'src/features/instantiate/instantiationClosed';
 import {
   ActiveInstancesProvider,
   useActiveInstances,
@@ -59,7 +60,7 @@ function InstanceSelection() {
   const mobileView = useIsMobileOrTablet();
   const rowsPerPageOptions = instanceSelectionOptions?.rowsPerPageOptions ?? [10, 25, 50];
   const instantiation = useInstantiation();
-  const isInstantiationClosed = useIsInstantiationClosed();
+  const instantiationClosedReason = useInstantiationClosedReason();
   const selectedParty = useSelectedParty();
   const setNavigationEffect = useSetNavigationEffect();
   const { performProcess, isAnyProcessing, isThisProcessing: isLoading } = useIsProcessing();
@@ -253,9 +254,9 @@ function InstanceSelection() {
         {mobileView && renderMobileTable()}
         {!mobileView && renderTable()}
         <div className={classes.startNewButtonContainer}>
-          {isInstantiationClosed ? (
+          {instantiationClosedReason ? (
             <Paragraph id='instantiation-closed-message'>
-              <Lang id='instantiate.closed_error_text' />
+              <InstantiationClosedText reason={instantiationClosedReason} />
             </Paragraph>
           ) : (
             <ErrorReport

@@ -36,4 +36,18 @@ describe('InstantiateContainer', () => {
     expect(await screen.findByText('Du kan ikke starte denne tjenesten')).toBeInTheDocument();
     expect(mutations.doInstantiate.mock).not.toHaveBeenCalled();
   });
+
+  it('should not try to instantiate before validFrom, and say when the service opens', async () => {
+    jest
+      .mocked(fetchApplicationMetadata)
+      .mockImplementationOnce(async () => getIncomingApplicationMetadataMock({ validFrom: '2099-01-01T10:00:00Z' }));
+    const { mutations } = await renderWithoutInstanceAndLayout({
+      renderer: () => <InstantiateContainer />,
+      waitUntilLoaded: false,
+    });
+
+    expect(await screen.findByText('Denne tjenesten har ikke åpnet ennå')).toBeInTheDocument();
+    expect(screen.getByText(/Tjenesten åpner 01\.01\.2099/)).toBeInTheDocument();
+    expect(mutations.doInstantiate.mock).not.toHaveBeenCalled();
+  });
 });
