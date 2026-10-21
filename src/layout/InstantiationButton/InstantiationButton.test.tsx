@@ -82,12 +82,11 @@ describe('InstantiationButton', () => {
     });
   });
 
-  it('should explain that the service cannot be started, without instantiating, when validTo has passed', async () => {
+  it('should explain that the service cannot be started, and disable the button, when validTo has passed', async () => {
     const { mutations } = await render('2020-01-01T00:00:00Z');
 
-    await userEvent.click(screen.getByRole('button'));
-
     expect(await screen.findByText(/det er ikke mulig å starte nye skjema i denne tjenesten/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Instantiate' })).toBeDisabled();
     expect(mutations.doInstantiateWithPrefill.mock).not.toHaveBeenCalled();
   });
 });

@@ -55,8 +55,9 @@ describe('Instantiation closed', () => {
     cy.findByText('Feil 410').should('be.visible');
   });
 
-  it('should still instantiate outside production when disallowUserInstantiation is set', () => {
-    // The app backend only enforces disallowUserInstantiation in production, and these tests never run there.
+  it('should not block instantiation on a non-production host when disallowUserInstantiation is set', () => {
+    // Only the metadata the browser sees is changed here, so this covers the host check in the frontend, not the
+    // backend. The app backend enforces disallowUserInstantiation in production only, which these tests never run in.
     cyMockResponses({ onEntryShow: 'new-instance', disallowUserInstantiation: true });
     cy.startAppInstance(appFrontend.apps.frontendTest, { cyUser: 'manager' });
 

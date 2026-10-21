@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
 import {
@@ -27,13 +27,12 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const party = useSelectedParty();
   const setNavigationEffect = useSetNavigationEffect();
   const isInstantiationClosed = useIsInstantiationClosed();
-  const [triedWhileClosed, setTriedWhileClosed] = useState(false);
 
   return (
     <ErrorReport
-      show={triedWhileClosed || instantiation.error !== undefined}
+      show={isInstantiationClosed || instantiation.error !== undefined}
       errors={
-        triedWhileClosed ? (
+        isInstantiationClosed ? (
           <ErrorListForClosedInstantiation />
         ) : instantiation.error ? (
           <ErrorListFromInstantiation error={instantiation.error} />
@@ -42,11 +41,7 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
     >
       <Button
         id={useIndexedId(props.baseComponentId)}
-        onClick={() => {
-          if (isInstantiationClosed) {
-            setTriedWhileClosed(true);
-            return;
-          }
+        onClick={() =>
           performProcess(() =>
             instantiation.instantiateWithPrefill(
               {
@@ -65,9 +60,9 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
                   }),
               },
             ),
-          );
-        }}
-        disabled={isAnyProcessing}
+          )
+        }
+        disabled={isAnyProcessing || isInstantiationClosed}
         isLoading={isLoading}
         variant='secondary'
         color='first'

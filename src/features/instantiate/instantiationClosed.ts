@@ -22,7 +22,8 @@ export function isInstantiationClosed(
   now: Date,
   host: string,
 ): boolean {
-  if (validTo && parseValidTo(validTo) < now) {
+  // An unparsable validTo is left for the backend to judge; it responds with 410 Gone if the app has expired.
+  if (validTo && parseValidTo(validTo).getTime() < now.getTime()) {
     return true;
   }
 

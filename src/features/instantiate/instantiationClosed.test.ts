@@ -17,6 +17,7 @@ describe('isInstantiationClosed', () => {
     ['2026-10-21T12:00:01', false],
     ['2026-10-21', true],
     ['2026-10-22', false],
+    ['not a date', false],
   ])('validTo %s gives %s', (validTo, expected) => {
     expect(isInstantiationClosed({ validTo }, now, tt02Host)).toBe(expected);
   });
