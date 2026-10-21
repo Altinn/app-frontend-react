@@ -145,15 +145,19 @@ export function ErrorReportList({ formErrors, taskErrors }: ErrorReportListProps
 /**
  * @see InstantiateContainer Contains somewhat similar logic, but for a full-screen error page.
  */
+export function ErrorListForClosedInstantiation() {
+  return (
+    <ErrorReportListItem>
+      <Lang id='instantiate.closed_error_text' />
+    </ErrorReportListItem>
+  );
+}
+
 export function ErrorListFromInstantiation({ error }: { error: unknown }) {
   const selectedParty = useSelectedParty();
 
   if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Gone) {
-    return (
-      <ErrorReportListItem>
-        <Lang id='instantiate.closed_error_text' />
-      </ErrorReportListItem>
-    );
+    return <ErrorListForClosedInstantiation />;
   }
 
   if (isAxiosError(error) && error.response?.status === HttpStatusCodes.Forbidden) {

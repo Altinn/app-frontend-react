@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { Button } from 'src/app-components/Button/Button';
-import { ErrorListFromInstantiation, ErrorReport } from 'src/components/message/ErrorReport';
+import {
+  ErrorListForClosedInstantiation,
+  ErrorListFromInstantiation,
+  ErrorReport,
+} from 'src/components/message/ErrorReport';
 import { useIsProcessing } from 'src/core/contexts/processingContext';
 import { DataModels } from 'src/features/datamodel/DataModelsProvider';
 import { FD } from 'src/features/formData/FormDataWrite';
+import { useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useSetNavigationEffect } from 'src/features/navigation/NavigationEffectContext';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -21,15 +26,27 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
   const prefill = FD.useMapping(props.mapping, DataModels.useDefaultDataType());
   const party = useSelectedParty();
   const setNavigationEffect = useSetNavigationEffect();
+  const isInstantiationClosed = useIsInstantiationClosed();
+  const [triedWhileClosed, setTriedWhileClosed] = useState(false);
 
   return (
     <ErrorReport
-      show={instantiation.error !== undefined}
-      errors={instantiation.error ? <ErrorListFromInstantiation error={instantiation.error} /> : undefined}
+      show={triedWhileClosed || instantiation.error !== undefined}
+      errors={
+        triedWhileClosed ? (
+          <ErrorListForClosedInstantiation />
+        ) : instantiation.error ? (
+          <ErrorListFromInstantiation error={instantiation.error} />
+        ) : undefined
+      }
     >
       <Button
         id={useIndexedId(props.baseComponentId)}
-        onClick={() =>
+        onClick={() => {
+          if (isInstantiationClosed) {
+            setTriedWhileClosed(true);
+            return;
+          }
           performProcess(() =>
             instantiation.instantiateWithPrefill(
               {
@@ -48,8 +65,8 @@ export const InstantiationButton = ({ children, ...props }: Props) => {
                   }),
               },
             ),
-          )
-        }
+          );
+        }}
         disabled={isAnyProcessing}
         isLoading={isLoading}
         variant='secondary'

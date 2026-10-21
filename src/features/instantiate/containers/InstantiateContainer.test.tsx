@@ -3,7 +3,9 @@ import React from 'react';
 import { jest } from '@jest/globals';
 import { screen, waitFor } from '@testing-library/react';
 
+import { getIncomingApplicationMetadataMock } from 'src/__mocks__/getApplicationMetadataMock';
 import { InstantiateContainer } from 'src/features/instantiate/containers/InstantiateContainer';
+import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderWithoutInstanceAndLayout } from 'src/test/renderWithProviders';
 
 describe('InstantiateContainer', () => {
@@ -20,5 +22,18 @@ describe('InstantiateContainer', () => {
     expect(await screen.findByText('Du kan ikke starte denne tjenesten')).toBeInTheDocument();
     expect(screen.getByTestId('StatusCode')).toHaveTextContent('Feil 410');
     expect(screen.queryByText(/du mangler rettigheter/i)).not.toBeInTheDocument();
+  });
+
+  it('should not try to instantiate when validTo has passed', async () => {
+    jest
+      .mocked(fetchApplicationMetadata)
+      .mockImplementationOnce(async () => getIncomingApplicationMetadataMock({ validTo: '2020-01-01T00:00:00Z' }));
+    const { mutations } = await renderWithoutInstanceAndLayout({
+      renderer: () => <InstantiateContainer />,
+      waitUntilLoaded: false,
+    });
+
+    expect(await screen.findByText('Du kan ikke starte denne tjenesten')).toBeInTheDocument();
+    expect(mutations.doInstantiate.mock).not.toHaveBeenCalled();
   });
 });

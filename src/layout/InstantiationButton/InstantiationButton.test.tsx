@@ -12,12 +12,13 @@ import { InstantiationButtonComponent } from 'src/layout/InstantiationButton/Ins
 import { fetchApplicationMetadata } from 'src/queries/queries';
 import { renderGenericComponentTest } from 'src/test/renderWithProviders';
 
-const render = async () => {
+const render = async (validTo?: string) => {
   jest.mocked(fetchApplicationMetadata).mockImplementationOnce(async () =>
     getIncomingApplicationMetadataMock({
       onEntry: {
         show: 'stateless',
       },
+      validTo,
     }),
   );
   return await renderGenericComponentTest({
@@ -79,5 +80,14 @@ describe('InstantiationButton', () => {
     await waitFor(() => {
       expect(screen.getByText('You are now looking at the instance')).toBeInTheDocument();
     });
+  });
+
+  it('should explain that the service cannot be started, without instantiating, when validTo has passed', async () => {
+    const { mutations } = await render('2020-01-01T00:00:00Z');
+
+    await userEvent.click(screen.getByRole('button'));
+
+    expect(await screen.findByText(/det er ikke mulig å starte nye skjema i denne tjenesten/i)).toBeInTheDocument();
+    expect(mutations.doInstantiateWithPrefill.mock).not.toHaveBeenCalled();
   });
 });

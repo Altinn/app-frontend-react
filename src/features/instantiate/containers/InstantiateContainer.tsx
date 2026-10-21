@@ -5,6 +5,7 @@ import { InstantiateValidationError } from 'src/features/instantiate/containers/
 import { InstantiationClosedError } from 'src/features/instantiate/containers/InstantiationClosedError';
 import { MissingRolesError } from 'src/features/instantiate/containers/MissingRolesError';
 import { UnknownError } from 'src/features/instantiate/containers/UnknownError';
+import { useIsInstantiationClosed } from 'src/features/instantiate/instantiationClosed';
 import { isInstantiationValidationResult } from 'src/features/instantiate/InstantiationValidation';
 import { useInstantiation } from 'src/features/instantiate/useInstantiation';
 import { useSelectedParty } from 'src/features/party/PartiesProvider';
@@ -18,13 +19,18 @@ export const InstantiateContainer = () => {
   changeBodyBackground(AltinnPalette.greyLight);
   const party = useSelectedParty();
   const instantiation = useInstantiation();
+  const isClosed = useIsInstantiationClosed();
 
   useEffect(() => {
-    const shouldCreateInstance = !!party;
+    const shouldCreateInstance = !!party && !isClosed;
     if (shouldCreateInstance) {
       instantiation.instantiate(party.partyId);
     }
-  }, [instantiation, party]);
+  }, [instantiation, party, isClosed]);
+
+  if (isClosed) {
+    return <InstantiationClosedError />;
+  }
 
   // A 403 with RequiredAuthenticationLevel triggers a step-up redirect (see useInstantiation.onError). Block further
   // rendering with a loader until the browser navigates away, so we never flash the "missing roles" error page. After a
