@@ -14,6 +14,9 @@ import {
 import { Validation } from 'src/features/validation/validationContext';
 import type { TextReference } from 'src/features/language/useLanguage';
 
+/**
+ * Validates the form data for one data type against its JSON schema with AJV, and stores the errors as data model validations.
+ */
 export function SchemaValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
 
