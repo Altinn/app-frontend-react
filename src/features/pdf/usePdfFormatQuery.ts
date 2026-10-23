@@ -7,6 +7,7 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { type QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import { useCurrentDataModelDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useIsPdfOfOtherTask } from 'src/hooks/useIsPdfOfOtherTask';
 import type { IPdfFormat } from 'src/features/pdf/types';
 
 // Also used for prefetching @see formPrefetcher.ts
@@ -16,10 +17,13 @@ export function usePdfFormatQueryDef(
   dataElementId?: string,
 ): QueryDefinition<IPdfFormat> {
   const { fetchPdfFormat } = useAppQueries();
+  // The legacy formatter only understands the current process task. Other task
+  // previews use their own layout settings, including when prefetching.
+  const isPdfOfOtherTask = useIsPdfOfOtherTask();
   return {
     queryKey: ['fetchPdfFormat', { instanceId, dataElementId }],
     queryFn: instanceId && dataElementId ? () => fetchPdfFormat(instanceId, dataElementId) : skipToken,
-    enabled: enabled && !!instanceId && !!dataElementId,
+    enabled: enabled && !isPdfOfOtherTask && !!instanceId && !!dataElementId,
     gcTime: 0,
   };
 }

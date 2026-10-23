@@ -16,6 +16,7 @@ import { PaymentInformationProvider } from 'src/features/payment/PaymentInformat
 import { PaymentProvider } from 'src/features/payment/PaymentProvider';
 import { ValidationProvider } from 'src/features/validation/validationContext';
 import { useNavigationParam } from 'src/hooks/navigation';
+import { useIsPdfOfOtherTask } from 'src/hooks/useIsPdfOfOtherTask';
 import { FormPrefetcher } from 'src/queries/formPrefetcher';
 import { NodesProvider } from 'src/utils/layout/NodesContext';
 
@@ -42,6 +43,8 @@ export function useIsInFormContext() {
  */
 export function FormProvider({ children, readOnly = false }: React.PropsWithChildren<FormContext>) {
   const isEmbedded = useIsInFormContext();
+  const isPdfOfOtherTask = useIsPdfOfOtherTask();
+  const effectiveReadOnly = readOnly || isPdfOfOtherTask;
   const instanceOwnerPartyId = useNavigationParam('instanceOwnerPartyId');
   const instanceGuid = useNavigationParam('instanceGuid');
   const hasProcess = !!(instanceOwnerPartyId && instanceGuid);
@@ -56,16 +59,16 @@ export function FormProvider({ children, readOnly = false }: React.PropsWithChil
               <PageNavigationProvider>
                 <DynamicsProvider>
                   <MaybeRulesProvider isEmbedded={isEmbedded}>
-                    <FormDataWriteProvider>
+                    <FormDataWriteProvider locked={isPdfOfOtherTask}>
                       <ValidationProvider>
                         <NodesProvider
-                          readOnly={readOnly}
+                          readOnly={effectiveReadOnly}
                           isEmbedded={isEmbedded}
                         >
                           <PaymentInformationProvider>
                             <OrderDetailsProvider>
                               <MaybePaymentProvider hasProcess={hasProcess}>
-                                <Provider value={{ readOnly }}>
+                                <Provider value={{ readOnly: effectiveReadOnly }}>
                                   <BlockUntilAllLoaded>{children}</BlockUntilAllLoaded>
                                 </Provider>
                               </MaybePaymentProvider>
