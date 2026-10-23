@@ -37,7 +37,11 @@ export function useValidateGroupIsEmpty<T extends 'Checkboxes' | 'MultipleSelect
       hasErrors = groupRows.length === 0;
     }
   } else {
-    for (const key of Object.keys(dataModelBindings)) {
+    // For Checkboxes and MultipleSelect, only simpleBinding holds the user's selection. The label and metadata
+    // bindings are derived from it (label is even an array for these components), so they should not be checked.
+    const keys =
+      type === 'Checkboxes' || type === 'MultipleSelect' ? ['simpleBinding'] : Object.keys(dataModelBindings);
+    for (const key of keys) {
       const reference = dataModelBindings[key];
       if (reference) {
         const data = formData?.[key] ?? invalidDataSelector(reference);
