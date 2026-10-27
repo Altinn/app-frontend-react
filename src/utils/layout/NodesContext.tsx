@@ -22,7 +22,6 @@ import {
 } from 'src/features/validation/validationContext';
 import { ValidationStorePlugin } from 'src/features/validation/ValidationStorePlugin';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { useIsPdf } from 'src/hooks/useIsPdf';
 import { TaskKeys } from 'src/hooks/useNavigatePage';
 import { useComponentIdMutator } from 'src/utils/layout/DataModelLocation';
 import { GeneratorGlobalProvider, GeneratorInternal } from 'src/utils/layout/generator/GeneratorContext';
@@ -345,10 +344,10 @@ function ProvideGlobalContext({ children, registry }: PropsWithChildren<{ regist
 function useIsInTaskTransition() {
   const currentTask = useProcessQuery().data?.currentTask?.elementId;
   const taskIdFromUrl = useNavigationParam('taskId');
-  const isPdf = useIsPdf();
+  const readOnly = Store.useSelector((state) => state.readOnly);
 
-  // A PDF intentionally renders its URL task, which may differ from the current process task.
-  if (isPdf) {
+  // Read-only forms can intentionally render another process task.
+  if (readOnly) {
     return false;
   }
 

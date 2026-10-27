@@ -22,7 +22,6 @@ import { Confirm } from 'src/features/process/confirm/containers/Confirm';
 import { Feedback } from 'src/features/process/feedback/Feedback';
 import { ServiceTask } from 'src/features/process/service/ServiceTask';
 import { useNavigationParam } from 'src/hooks/navigation';
-import { useIsPdf } from 'src/hooks/useIsPdf';
 import { TaskKeys, useIsValidTaskId, useNavigateToTask, useStartUrl } from 'src/hooks/useNavigatePage';
 import { useWaitForQueries } from 'src/hooks/useWaitForQueries';
 import { getComponentDef, implementsSubRouting } from 'src/layout';
@@ -104,7 +103,6 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
   const isValidTaskId = useIsValidTaskId()(taskId);
   const taskType = useGetTaskTypeById()(taskId);
   const isRunningProcessNext = useIsRunningProcessNext();
-  const isPdf = useIsPdf();
 
   if (isRunningProcessNext === null || isRunningProcessNext || isWrongTask === null) {
     return <Loader reason='process-wrapper' />;
@@ -123,7 +121,7 @@ export function ProcessWrapper({ children }: PropsWithChildren) {
     );
   }
 
-  if (isWrongTask && !isPdf) {
+  if (isWrongTask) {
     return (
       <PresentationComponent showNavigation={false}>
         <NavigationError label='general.part_of_form_completed' />
