@@ -163,7 +163,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.59.3",
     "uuid": "14.0.0",
-    "zod": "4.4.3",
+    "zod": "4.6.6",
     "zustand": "5.0.13"
   },
   "packageManager": "yarn@4.14.1",
