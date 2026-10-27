@@ -9,11 +9,8 @@ const appFrontend = new AppFrontend();
 const firstSubform = 'First preview subform';
 const secondSubform = 'Second preview subform';
 
-// Enable in shared environments after the backend preview release and test-app deployment.
-const describePreview = Cypress.env('type') === 'localtest' ? describe : describe.skip;
-
 // Render data already collected in earlier tasks without advancing the process.
-describePreview('PDF service task previews', { testIsolation: false }, () => {
+describe('PDF service task previews', { testIsolation: false }, () => {
   // Reuse one filled instance. Only the final test advances it to a service task.
   let formUrl = '';
 
