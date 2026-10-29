@@ -7,6 +7,9 @@ import { useAppQueries } from 'src/core/contexts/AppQueriesProvider';
 import { type QueryDefinition } from 'src/core/queries/usePrefetchQuery';
 import { useCurrentDataModelDataElementId } from 'src/features/datamodel/useBindingSchema';
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
+import { useGetAltinnTaskType, useProcessQuery } from 'src/features/instance/useProcessQuery';
+import { useProcessTaskId } from 'src/features/instance/useProcessTaskId';
+import { useIsPdf } from 'src/hooks/useIsPdf';
 import type { IPdfFormat } from 'src/features/pdf/types';
 
 // Also used for prefetching @see formPrefetcher.ts
@@ -16,10 +19,15 @@ export function usePdfFormatQueryDef(
   dataElementId?: string,
 ): QueryDefinition<IPdfFormat> {
   const { fetchPdfFormat } = useAppQueries();
+  const taskId = useProcessTaskId();
+  const currentTaskId = useProcessQuery().data?.currentTask?.elementId;
+  const taskType = useGetAltinnTaskType()(taskId);
+  // The obsolete formatter supports current data-task PDFs only.
+  const isNewPdf = useIsPdf() && (taskId !== currentTaskId || taskType === 'pdf' || taskType === 'subformPdf');
   return {
     queryKey: ['fetchPdfFormat', { instanceId, dataElementId }],
     queryFn: instanceId && dataElementId ? () => fetchPdfFormat(instanceId, dataElementId) : skipToken,
-    enabled: enabled && !!instanceId && !!dataElementId,
+    enabled: enabled && !isNewPdf && !!instanceId && !!dataElementId,
     gcTime: 0,
   };
 }
