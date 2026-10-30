@@ -9,7 +9,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { buildAriaDescribedBy, useCharacterLimit } from 'src/utils/inputUtils';
+import { buildAriaDescribedBy, shouldTrimWhitespaceOnBlur, useCharacterLimit } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -77,7 +77,7 @@ export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAre
           value={value}
           onChange={(newValue) => setValue('simpleBinding', newValue)}
           onBlur={() => {
-            if (trimWhitespace && value !== value.trim()) {
+            if (shouldTrimWhitespaceOnBlur({ trimWhitespace, readOnly, value })) {
               setValue('simpleBinding', value.trim());
             }
             debounce(`blur`);

@@ -52,29 +52,80 @@ describe('InputComponent', () => {
     expect(inputComponent).toHaveValue(typedValue);
   });
 
-  it.each([
-    { trimWhitespace: undefined, typedValue: ' ola@example.no ', savedValue: ' ola@example.no ' },
-    { trimWhitespace: false, typedValue: ' ola@example.no ', savedValue: ' ola@example.no ' },
-    { trimWhitespace: true, typedValue: ' ola@example.no ', savedValue: 'ola@example.no' },
-    { trimWhitespace: true, typedValue: 'Ola Nordmann ', savedValue: 'Ola Nordmann' },
-    { trimWhitespace: true, typedValue: '   ', savedValue: '' },
-    { trimWhitespace: true, typedValue: 'ola@example.no', savedValue: 'ola@example.no' },
-  ])(
-    'should save "$typedValue" as "$savedValue" on blur when trimWhitespace is $trimWhitespace',
-    async ({ trimWhitespace, typedValue, savedValue }) => {
-      const { formDataMethods } = await render({ component: { trimWhitespace } });
+  describe('trimWhitespace', () => {
+    let hasFocusSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      // jsdom returns false from document.hasFocus() while an element loses focus. Browsers return true unless
+      // the whole window lost focus.
+      hasFocusSpy = jest.spyOn(document, 'hasFocus').mockReturnValue(true);
+    });
+
+    afterEach(() => {
+      hasFocusSpy.mockRestore();
+    });
+
+    it.each([
+      { trimWhitespace: undefined, typedValue: ' ola@example.no ', savedValue: ' ola@example.no ' },
+      { trimWhitespace: false, typedValue: ' ola@example.no ', savedValue: ' ola@example.no ' },
+      { trimWhitespace: true, typedValue: ' ola@example.no ', savedValue: 'ola@example.no' },
+      { trimWhitespace: true, typedValue: 'Ola Nordmann ', savedValue: 'Ola Nordmann' },
+      { trimWhitespace: true, typedValue: '   ', savedValue: '' },
+      { trimWhitespace: true, typedValue: 'ola@example.no', savedValue: 'ola@example.no' },
+    ])(
+      'should save "$typedValue" as "$savedValue" on blur when trimWhitespace is $trimWhitespace',
+      async ({ trimWhitespace, typedValue, savedValue }) => {
+        const { formDataMethods } = await render({ component: { trimWhitespace } });
+        const inputComponent = screen.getByRole('textbox');
+
+        await userEvent.type(inputComponent, typedValue);
+        await userEvent.tab();
+
+        expect(inputComponent).toHaveValue(savedValue);
+        expect(formDataMethods.setLeafValue).toHaveBeenLastCalledWith({
+          reference: { field: 'some.field', dataType: defaultDataTypeMock },
+          newValue: savedValue,
+        });
+      },
+    );
+
+    it.each([
+      { readOnly: false, savedValue: 'ola@example.no' },
+      { readOnly: true, savedValue: ' ola@example.no ' },
+    ])(
+      'should trim a stored value on blur only when the field is not read-only (readOnly: $readOnly)',
+      async ({ readOnly, savedValue }) => {
+        const { formDataMethods } = await render({
+          component: { trimWhitespace: true, readOnly },
+          queries: {
+            fetchFormData: () => Promise.resolve({ some: { field: ' ola@example.no ' } }),
+          },
+        });
+        const inputComponent = screen.getByRole('textbox');
+
+        await userEvent.click(inputComponent);
+        await userEvent.tab();
+
+        expect(inputComponent).toHaveValue(savedValue);
+        expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(readOnly ? 0 : 1);
+      },
+    );
+
+    it('should not trim on blur when the whole window lost focus', async () => {
+      const { formDataMethods } = await render({ component: { trimWhitespace: true } });
       const inputComponent = screen.getByRole('textbox');
 
-      await userEvent.type(inputComponent, typedValue);
+      await userEvent.type(inputComponent, 'Kari ');
+      hasFocusSpy.mockReturnValue(false);
       await userEvent.tab();
 
-      expect(inputComponent).toHaveValue(savedValue);
+      expect(inputComponent).toHaveValue('Kari ');
       expect(formDataMethods.setLeafValue).toHaveBeenLastCalledWith({
         reference: { field: 'some.field', dataType: defaultDataTypeMock },
-        newValue: savedValue,
+        newValue: 'Kari ',
       });
-    },
-  );
+    });
+  });
 
   it('should render input with formatted number when this is specified', async () => {
     const inputValuePlainText = '123456';

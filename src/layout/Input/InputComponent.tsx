@@ -14,7 +14,7 @@ import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat, parsePastedNumber } from 'src/layout/Input/number-format-helpers';
-import { buildAriaDescribedBy } from 'src/utils/inputUtils';
+import { buildAriaDescribedBy, shouldTrimWhitespaceOnBlur } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
@@ -160,7 +160,7 @@ export const InputVariant = ({
     textonly: overrideDisplay?.rowReadOnly && readOnly,
     required,
     onBlur: () => {
-      if (trimWhitespace && formValue !== formValue.trim()) {
+      if (shouldTrimWhitespaceOnBlur({ trimWhitespace, readOnly, value: formValue })) {
         setValue('simpleBinding', formValue.trim());
       }
       debounce('blur');
