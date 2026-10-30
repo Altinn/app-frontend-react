@@ -44,6 +44,81 @@ describe('TextAreaComponent', () => {
     });
   });
 
+  describe('trimWhitespace', () => {
+    let hasFocusSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      // jsdom returns false from document.hasFocus() while an element loses focus. Browsers return true unless
+      // the whole window lost focus.
+      hasFocusSpy = jest.spyOn(document, 'hasFocus').mockReturnValue(true);
+    });
+
+    afterEach(() => {
+      hasFocusSpy.mockRestore();
+    });
+
+    it.each([
+      { trimWhitespace: undefined, typedValue: ' Ola Nordmann ', savedValue: ' Ola Nordmann ' },
+      { trimWhitespace: false, typedValue: ' Ola Nordmann ', savedValue: ' Ola Nordmann ' },
+      { trimWhitespace: true, typedValue: ' Ola Nordmann ', savedValue: 'Ola Nordmann' },
+      { trimWhitespace: true, typedValue: 'Ola Nordmann{Enter}', savedValue: 'Ola Nordmann' },
+      { trimWhitespace: true, typedValue: '   ', savedValue: '' },
+      { trimWhitespace: true, typedValue: 'Ola Nordmann', savedValue: 'Ola Nordmann' },
+    ])(
+      'should save "$typedValue" as "$savedValue" on blur when trimWhitespace is $trimWhitespace',
+      async ({ trimWhitespace, typedValue, savedValue }) => {
+        const { formDataMethods } = await render({ component: { trimWhitespace } });
+        const textarea = screen.getByRole('textbox');
+
+        await userEvent.type(textarea, typedValue);
+        await userEvent.tab();
+
+        expect(textarea).toHaveValue(savedValue);
+        expect(formDataMethods.setLeafValue).toHaveBeenLastCalledWith({
+          reference: { field: 'myTextArea', dataType: defaultDataTypeMock },
+          newValue: savedValue,
+        });
+      },
+    );
+
+    it.each([
+      { readOnly: false, savedValue: 'Ola Nordmann' },
+      { readOnly: true, savedValue: ' Ola Nordmann ' },
+    ])(
+      'should trim a stored value on blur only when the field is not read-only (readOnly: $readOnly)',
+      async ({ readOnly, savedValue }) => {
+        const { formDataMethods } = await render({
+          component: { trimWhitespace: true, readOnly },
+          queries: {
+            fetchFormData: async () => ({ myTextArea: ' Ola Nordmann ' }),
+          },
+        });
+        const textarea = screen.getByRole('textbox');
+
+        await userEvent.click(textarea);
+        await userEvent.tab();
+
+        expect(textarea).toHaveValue(savedValue);
+        expect(formDataMethods.setLeafValue).toHaveBeenCalledTimes(readOnly ? 0 : 1);
+      },
+    );
+
+    it('should not trim on blur when the whole window lost focus', async () => {
+      const { formDataMethods } = await render({ component: { trimWhitespace: true } });
+      const textarea = screen.getByRole('textbox');
+
+      await userEvent.type(textarea, 'First paragraph{Enter}');
+      hasFocusSpy.mockReturnValue(false);
+      await userEvent.tab();
+
+      expect(textarea).toHaveValue('First paragraph\n');
+      expect(formDataMethods.setLeafValue).toHaveBeenLastCalledWith({
+        reference: { field: 'myTextArea', dataType: defaultDataTypeMock },
+        newValue: 'First paragraph\n',
+      });
+    });
+  });
+
   it('should not fire setLeafValue when readOnly is true', async () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';
