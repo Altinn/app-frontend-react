@@ -44,6 +44,30 @@ describe('TextAreaComponent', () => {
     });
   });
 
+  it.each([
+    { trimWhitespace: undefined, typedValue: ' Ola Nordmann ', savedValue: ' Ola Nordmann ' },
+    { trimWhitespace: false, typedValue: ' Ola Nordmann ', savedValue: ' Ola Nordmann ' },
+    { trimWhitespace: true, typedValue: ' Ola Nordmann ', savedValue: 'Ola Nordmann' },
+    { trimWhitespace: true, typedValue: 'Ola Nordmann{Enter}', savedValue: 'Ola Nordmann' },
+    { trimWhitespace: true, typedValue: '   ', savedValue: '' },
+    { trimWhitespace: true, typedValue: 'Ola Nordmann', savedValue: 'Ola Nordmann' },
+  ])(
+    'should save "$typedValue" as "$savedValue" on blur when trimWhitespace is $trimWhitespace',
+    async ({ trimWhitespace, typedValue, savedValue }) => {
+      const { formDataMethods } = await render({ component: { trimWhitespace } });
+      const textarea = screen.getByRole('textbox');
+
+      await userEvent.type(textarea, typedValue);
+      await userEvent.tab();
+
+      expect(textarea).toHaveValue(savedValue);
+      expect(formDataMethods.setLeafValue).toHaveBeenLastCalledWith({
+        reference: { field: 'myTextArea', dataType: defaultDataTypeMock },
+        newValue: savedValue,
+      });
+    },
+  );
+
   it('should not fire setLeafValue when readOnly is true', async () => {
     const initialText = 'initial text content';
     const addedText = ' + added content';

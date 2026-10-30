@@ -18,6 +18,9 @@ import 'src/styles/shared.css';
 
 export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 
+/**
+ * A multi-line text field with a label, bound to a single field in the data model.
+ */
 export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAreaProps) {
   const { langAsString } = useLanguage();
   const isValid = useIsValid(baseComponentId);
@@ -27,6 +30,7 @@ export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAre
     textResourceBindings,
     dataModelBindings,
     saveWhileTyping,
+    trimWhitespace,
     autocomplete,
     maxLength,
     grid,
@@ -72,7 +76,12 @@ export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAre
           id={id}
           value={value}
           onChange={(newValue) => setValue('simpleBinding', newValue)}
-          onBlur={() => debounce(`blur`)}
+          onBlur={() => {
+            if (trimWhitespace && value !== value.trim()) {
+              setValue('simpleBinding', value.trim());
+            }
+            debounce(`blur`);
+          }}
           readOnly={readOnly}
           characterLimit={!readOnly ? characterLimit : undefined}
           error={!isValid}

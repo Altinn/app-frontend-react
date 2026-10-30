@@ -102,6 +102,10 @@ function getMobileKeyboardProps(
   return { inputMode: 'text', pattern: undefined };
 }
 
+/**
+ * The input field itself, rendered as plain text, a pattern format or a number format, depending on the
+ * component's formatting and variant.
+ */
 export const InputVariant = ({
   baseComponentId,
   overrideDisplay,
@@ -115,6 +119,7 @@ export const InputVariant = ({
     textResourceBindings,
     dataModelBindings,
     saveWhileTyping,
+    trimWhitespace,
     autocomplete,
     maxLength,
   } = useItemWhenType(baseComponentId, 'Input');
@@ -154,7 +159,12 @@ export const InputVariant = ({
     readOnly,
     textonly: overrideDisplay?.rowReadOnly && readOnly,
     required,
-    onBlur: () => debounce('blur'),
+    onBlur: () => {
+      if (trimWhitespace && formValue !== formValue.trim()) {
+        setValue('simpleBinding', formValue.trim());
+      }
+      debounce('blur');
+    },
     error: !useIsValid(baseComponentId),
     prefix: textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined,
     suffix: textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined,
