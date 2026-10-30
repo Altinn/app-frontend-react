@@ -3,6 +3,11 @@
   gap: var(--ds-size-2);
 }
 
+.iconWithTitle {
+  display: flex;
+  align-items: center;
+}
+
 .fullWidth {
   width: 100%;
 }
