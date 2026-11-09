@@ -12,9 +12,11 @@ import {
   getErrorTextKey,
 } from 'src/features/validation/schemaValidation/schemaValidationUtils';
 import { Validation } from 'src/features/validation/validationContext';
-import { getSchemaPart, getSchemaPartOldGenerator } from 'src/utils/schemaUtils';
 import type { TextReference } from 'src/features/language/useLanguage';
 
+/**
+ * Validates the form data for one data type against its JSON schema with AJV, and stores the errors as data model validations.
+ */
 export function SchemaValidation({ dataType }: { dataType: string }) {
   const updateDataModelValidations = Validation.useUpdateDataModelValidations();
 
@@ -66,11 +68,10 @@ export function SchemaValidation({ dataType }: { dataType: string }) {
 
           /**
            * Get schema for the field that failed validation.
-           * Backward compatible if we are validating against a sub scheme.
+           * Not looked up from error.schemaPath: when a referenced definition contains a $ref itself, AJV compiles
+           * it separately and the path is relative to that definition, not to the root schema.
            */
-          const fieldSchema = rootElementPath
-            ? getSchemaPartOldGenerator(error.schemaPath, schema, rootElementPath)
-            : getSchemaPart(error.schemaPath, schema);
+          const fieldSchema = error.parentSchema;
 
           /**
            * Get TextReference for error message.
