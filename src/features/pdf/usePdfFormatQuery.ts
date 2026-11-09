@@ -24,7 +24,7 @@ export function usePdfFormatQueryDef(
   // The legacy formatter uses the current process task, regardless of its type.
   const isOtherTaskPdf = useIsPdf() && taskId !== currentTaskId;
   return {
-    queryKey: ['fetchPdfFormat', { instanceId, dataElementId }],
+    queryKey: ['fetchPdfFormat', { instanceId, dataElementId, isOtherTaskPdf }],
     queryFn: instanceId && dataElementId ? () => fetchPdfFormat(instanceId, dataElementId) : skipToken,
     enabled: enabled && !isOtherTaskPdf && !!instanceId && !!dataElementId,
     gcTime: 0,
