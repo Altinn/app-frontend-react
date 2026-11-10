@@ -24,6 +24,7 @@ export type LabelProps = PropsWithChildren<{
   className?: string;
   overrideId?: string;
   textResourceBindings?: ExprResolved<TRBLabel>;
+  icon?: React.ReactNode;
 }> &
   DesignsystemetLabelProps;
 
@@ -46,6 +47,7 @@ export function LabelInner(props: LabelInnerProps) {
     overrideId,
     renderLabelAs,
     className,
+    icon,
     textResourceBindings: overriddenTrb,
     ...designsystemetLabelProps
   } = props;
@@ -101,15 +103,30 @@ export function LabelInner(props: LabelInnerProps) {
           {/* we want this "label" not to be rendered as a <label>,
            because it does not belong to an input element */}
           <LabelGridItemWrapper labelGrid={grid?.labelGrid}>
-            <DesignsystemetLabel
-              asChild
-              {...designsystemetLabelProps}
-            >
-              <LabelContent
-                {...labelContentProps}
-                id={id}
-              />
-            </DesignsystemetLabel>
+            {icon ? (
+              <span className={classes.iconWithTitle}>
+                {icon}
+                <DesignsystemetLabel
+                  asChild
+                  {...designsystemetLabelProps}
+                >
+                  <LabelContent
+                    {...labelContentProps}
+                    id={id}
+                  />
+                </DesignsystemetLabel>
+              </span>
+            ) : (
+              <DesignsystemetLabel
+                asChild
+                {...designsystemetLabelProps}
+              >
+                <LabelContent
+                  {...labelContentProps}
+                  id={id}
+                />
+              </DesignsystemetLabel>
+            )}
           </LabelGridItemWrapper>
           {children}
         </span>
