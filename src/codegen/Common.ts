@@ -677,6 +677,14 @@ const common = {
           'It can be smart to check the type of this value before using it.',
       ),
 
+  TrimWhitespace: () =>
+    new CG.bool()
+      .setTitle('Trim whitespace')
+      .setDescription(
+        'Removes whitespace at the start and end of the value when the user leaves the field. ' +
+          'Whitespace inside the value is kept. Defaults to false.',
+      ),
+
   HTMLAutoCompleteValues: () =>
     new CG.enum(
       ...['on', 'off', 'name', 'honorific-prefix', 'given-name', 'additional-name'],

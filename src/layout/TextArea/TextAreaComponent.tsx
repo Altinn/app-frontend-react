@@ -9,7 +9,7 @@ import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsValid } from 'src/features/validation/selectors/isValid';
 import { useUnifiedValidationsForNode } from 'src/features/validation/selectors/unifiedValidationsForNode';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
-import { buildAriaDescribedBy, useCharacterLimit } from 'src/utils/inputUtils';
+import { buildAriaDescribedBy, shouldTrimWhitespaceOnBlur, useCharacterLimit } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { PropsFromGenericComponent } from 'src/layout';
@@ -18,6 +18,9 @@ import 'src/styles/shared.css';
 
 export type ITextAreaProps = Readonly<PropsFromGenericComponent<'TextArea'>>;
 
+/**
+ * A multi-line text field with a label, bound to a single field in the data model.
+ */
 export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAreaProps) {
   const { langAsString } = useLanguage();
   const isValid = useIsValid(baseComponentId);
@@ -27,6 +30,7 @@ export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAre
     textResourceBindings,
     dataModelBindings,
     saveWhileTyping,
+    trimWhitespace,
     autocomplete,
     maxLength,
     grid,
@@ -72,7 +76,12 @@ export function TextAreaComponent({ baseComponentId, overrideDisplay }: ITextAre
           id={id}
           value={value}
           onChange={(newValue) => setValue('simpleBinding', newValue)}
-          onBlur={() => debounce(`blur`)}
+          onBlur={() => {
+            if (shouldTrimWhitespaceOnBlur({ trimWhitespace, readOnly, value })) {
+              setValue('simpleBinding', value.trim());
+            }
+            debounce(`blur`);
+          }}
           readOnly={readOnly}
           characterLimit={!readOnly ? characterLimit : undefined}
           error={!isValid}
