@@ -150,6 +150,12 @@ export const InputVariant = ({
     hasValidations,
   });
 
+  const trimWhitespaceOnBlur = () => {
+    if (shouldTrimWhitespaceOnBlur({ trimWhitespace, readOnly, value: formValue })) {
+      setValue('simpleBinding', formValue.trim());
+    }
+  };
+
   const inputProps: InputProps = {
     id,
     'aria-label': langAsString(textResourceBindings?.title),
@@ -160,9 +166,7 @@ export const InputVariant = ({
     textonly: overrideDisplay?.rowReadOnly && readOnly,
     required,
     onBlur: () => {
-      if (shouldTrimWhitespaceOnBlur({ trimWhitespace, readOnly, value: formValue })) {
-        setValue('simpleBinding', formValue.trim());
-      }
+      trimWhitespaceOnBlur();
       debounce('blur');
     },
     error: !useIsValid(baseComponentId),
@@ -211,6 +215,7 @@ export const InputVariant = ({
           value={formValue}
           type='text'
           onBlur={() => {
+            trimWhitespaceOnBlur();
             setLocalValue(undefined);
           }}
           onValueChange={(values, sourceInfo) => {

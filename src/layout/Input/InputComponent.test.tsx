@@ -111,6 +111,25 @@ describe('InputComponent', () => {
       },
     );
 
+    it('should trim a stored value on blur in a number-formatted field', async () => {
+      const { formDataMethods } = await render({
+        component: { trimWhitespace: true, formatting: { number: { thousandSeparator: true } } },
+        queries: {
+          fetchFormData: () => Promise.resolve({ some: { field: ' 123456 ' } }),
+        },
+      });
+      const inputComponent = screen.getByRole('textbox');
+
+      await userEvent.click(inputComponent);
+      await userEvent.tab();
+
+      expect(inputComponent).toHaveValue('123,456');
+      expect(formDataMethods.setLeafValue).toHaveBeenLastCalledWith({
+        reference: { field: 'some.field', dataType: defaultDataTypeMock },
+        newValue: '123456',
+      });
+    });
+
     it('should not trim on blur when the whole window lost focus', async () => {
       const { formDataMethods } = await render({ component: { trimWhitespace: true } });
       const inputComponent = screen.getByRole('textbox');
