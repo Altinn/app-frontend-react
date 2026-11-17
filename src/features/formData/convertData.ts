@@ -1,5 +1,7 @@
 import type { JSONSchema7, JSONSchema7Definition } from 'json-schema';
 
+import { strictParseISO } from 'src/app-components/Datepicker/utils/dateHelpers';
+
 interface ReturnType {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newValue: any;
@@ -55,15 +57,18 @@ function convertToType(value: Value, schema: JSONSchema7 | JSONSchema7Definition
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     AllValidTypes.includes(schema.type as any)
   ) {
-    return convertToScalar(value, schema.type as ValidTypes, schema['@xsdType']);
+    return convertToScalar(value, schema.type as ValidTypes, schema['@xsdType'], schema.format);
   }
 
   throw new Error(`Unsupported schema: ${JSON.stringify(schema)}`);
 }
 
-function convertToScalar(value: Value, targetType: ValidTypes, xsdType?: string): ReturnType {
+function convertToScalar(value: Value, targetType: ValidTypes, xsdType?: string, format?: string): ReturnType {
   const sVal = String(value);
   if (targetType === 'string') {
+    if ((format === 'date-time' || format === 'date') && !strictParseISO(sVal)) {
+      return { newValue: undefined, error: true };
+    }
     return { newValue: sVal, error: false };
   }
 

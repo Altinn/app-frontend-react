@@ -12,7 +12,9 @@ export function useDatepickerValidation(baseComponentId: string): ComponentValid
   const currentLanguage = useCurrentLanguage();
   const field = useDataModelBindingsFor(baseComponentId, 'Datepicker')?.simpleBinding;
   const component = useItemWhenType(baseComponentId, 'Datepicker');
-  const data = FD.useDebouncedPick(field);
+  const validData = FD.useDebouncedPick(field);
+  const invalidData = FD.useInvalidDebouncedPick(field);
+  const data = validData ?? invalidData;
   const minDate = getDateConstraint(component?.minDate, 'min');
   const maxDate = getDateConstraint(component?.maxDate, 'max');
   const format = getDateFormat(component?.format, currentLanguage);
