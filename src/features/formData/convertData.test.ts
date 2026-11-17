@@ -13,13 +13,13 @@ describe('convertData with format date-time', () => {
     expect(convertData(value, schema)).toEqual({ newValue: undefined, error: true });
   });
 
-  it('validates dates in an anyOf sub-schema', () => {
+  it('validates date-time in an anyOf sub-schema', () => {
     const nullableSchema: JSONSchema7 = { anyOf: [schema, { type: 'null' }] };
     expect(convertData('2026-01-01', nullableSchema)).toEqual({ newValue: '2026-01-01', error: false });
     expect(convertData('32.13.2026', nullableSchema)).toEqual({ newValue: undefined, error: true });
   });
 
-  it('does not validate format date, as it is generated as a C# string that accepts any text', () => {
+  it('does not reject an invalid date for format "date", as the C# string accepts any text (validation still flags it)', () => {
     expect(convertData('32.13.2026', { type: 'string', format: 'date' })).toEqual({
       newValue: '32.13.2026',
       error: false,
