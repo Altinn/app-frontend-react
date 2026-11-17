@@ -66,7 +66,7 @@ function convertToType(value: Value, schema: JSONSchema7 | JSONSchema7Definition
 function convertToScalar(value: Value, targetType: ValidTypes, xsdType?: string, format?: string): ReturnType {
   const sVal = String(value);
   if (targetType === 'string') {
-    if ((format === 'date-time' || format === 'date') && !strictParseISO(sVal)) {
+    if (format === 'date-time' && !strictParseISO(sVal)) {
       return { newValue: undefined, error: true };
     }
     return { newValue: sVal, error: false };
