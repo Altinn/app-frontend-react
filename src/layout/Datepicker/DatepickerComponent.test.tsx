@@ -205,6 +205,25 @@ describe('DatepickerComponent', () => {
     });
   });
 
+  it('should show its own validation message and not save when an invalid date is typed into a date-time field', async () => {
+    const { mutations } = await render({
+      component: { showValidations: ['AllExceptRequired'] },
+      queries: {
+        fetchDataModelSchema: async () => ({
+          type: 'object',
+          properties: { myDate: { type: 'string', format: 'date-time' } },
+        }),
+      },
+    });
+
+    await userEvent.type(screen.getByRole('textbox'), '32.13.2026');
+    await userEvent.tab();
+
+    expect(await screen.findByText('Ugyldig datoformat. Bruk formatet DD.MM.YYYY.')).toBeInTheDocument();
+    expect(screen.queryByText('Feil format eller verdi')).not.toBeInTheDocument();
+    expect(mutations.doPatchFormData.mock).not.toHaveBeenCalled();
+  });
+
   it('should not have aria-describedby if textResources.description does not exist', async () => {
     await render({ component: { textResourceBindings: {}, id: 'test-id' } });
     const inputField = screen.getByRole('textbox');
