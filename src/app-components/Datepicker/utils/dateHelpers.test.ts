@@ -2,8 +2,6 @@ import { jest } from '@jest/globals';
 import { formatISO, isValid, parseISO } from 'date-fns';
 
 import {
-  DatepickerMaxDateDefault,
-  DatepickerMinDateDefault,
   formatISOString,
   getDateConstraint,
   getDateFormat,
@@ -62,14 +60,14 @@ describe('dateHelpers', () => {
 
   describe('getDateConstraint', () => {
     const tests: { props: Parameters<typeof getDateConstraint>; expected: string }[] = [
-      { props: [undefined, 'min'], expected: DatepickerMinDateDefault },
-      { props: [undefined, 'max'], expected: DatepickerMaxDateDefault },
-      { props: ['', 'min'], expected: DatepickerMinDateDefault },
-      { props: ['', 'max'], expected: DatepickerMaxDateDefault },
-      { props: ['asdf', 'min'], expected: DatepickerMinDateDefault },
-      { props: ['asdf', 'max'], expected: DatepickerMaxDateDefault },
-      { props: ['2022-45-15', 'min'], expected: DatepickerMinDateDefault },
-      { props: ['2022-45-15', 'max'], expected: DatepickerMaxDateDefault },
+      { props: [undefined, 'min'], expected: '1900-01-01T00:00:00Z' },
+      { props: [undefined, 'max'], expected: '2100-01-01T23:59:59Z' },
+      { props: ['', 'min'], expected: '1900-01-01T00:00:00Z' },
+      { props: ['', 'max'], expected: '2100-01-01T23:59:59Z' },
+      { props: ['asdf', 'min'], expected: '1900-01-01T00:00:00Z' },
+      { props: ['asdf', 'max'], expected: '2100-01-01T23:59:59Z' },
+      { props: ['2022-45-15', 'min'], expected: '1900-01-01T00:00:00Z' },
+      { props: ['2022-45-15', 'max'], expected: '2100-01-01T23:59:59Z' },
       { props: [DateFlags.Today, 'min'], expected: '2023-07-07T00:00:00Z' },
       { props: [DateFlags.Today, 'max'], expected: '2023-07-07T23:59:59Z' },
       { props: [DateFlags.Yesterday, 'min'], expected: '2023-07-06T00:00:00Z' },

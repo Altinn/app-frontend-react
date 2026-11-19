@@ -8,7 +8,7 @@ import styles from 'src/app-components/Datepicker/Calendar.module.css';
 import { DatePickerCalendar } from 'src/app-components/Datepicker/DatePickerCalendar';
 import { DatePickerDialog } from 'src/app-components/Datepicker/DatepickerDialog';
 import { DatePickerInput } from 'src/app-components/Datepicker/DatePickerInput';
-import { getSaveFormattedDateString } from 'src/app-components/Datepicker/utils/dateHelpers';
+import { getSaveFormattedDateString, strictParseISO } from 'src/app-components/Datepicker/utils/dateHelpers';
 import { Flex } from 'src/app-components/Flex/Flex';
 
 export type DatePickerControlProps = {
@@ -46,8 +46,7 @@ export const DatePickerControl: React.FC<DatePickerControlProps> = ({
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const dateValue = new Date(value);
-  const dayPickerDate = isValidDate(dateValue) ? dateValue : undefined;
+  const dayPickerDate = strictParseISO(value) ?? undefined;
 
   const handleDayPickerSelect = (date: Date) => {
     if (date && isValidDate(date)) {
