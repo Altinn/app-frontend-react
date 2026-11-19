@@ -14,7 +14,11 @@ import { useAppName, useAppOwner } from 'src/core/texts/appTexts';
 import { useApplicationMetadata } from 'src/features/applicationMetadata/ApplicationMetadataProvider';
 import { ExprVal } from 'src/features/expressions/types';
 import { useLayoutLookups } from 'src/features/form/layout/LayoutsContext';
-import { usePageSettings, usePdfLayoutName } from 'src/features/form/layoutSettings/LayoutSettingsContext';
+import {
+  usePageSettings,
+  usePdfExclusionsFromSettings,
+  usePdfLayoutName,
+} from 'src/features/form/layoutSettings/LayoutSettingsContext';
 import { useLanguage } from 'src/features/language/useLanguage';
 import { useIsPayment } from 'src/features/payment/utils';
 import classes from 'src/features/pdf/PDFView.module.css';
@@ -119,15 +123,23 @@ function AutoGeneratePdfFromTasks({ taskIds }: { taskIds: string[] }) {
             taskId={taskId}
           >
             {idx > 0 && <div className={classes.pageBreak} />}
-            {/* Settings intentionally omitted, as this is new functionality
-            and PDF settings are deprecated at this point. */}
-            <AllPages pdfSettings={undefined} />
+            <AllPagesForTask />
             <AllSubformSummaryComponent2 />
           </TaskSummaryWrapper>
         ))}
       </PdfWrapping>
     </DummyPresentation>
   );
+}
+
+/**
+ * The pdf/format endpoint (and the IPdfFormatter behind it) only knows the instance's current process task, which here
+ * is the PDF service task. Each listed task therefore reads its exclusions from its own Settings.json, which is what
+ * the layout settings resolve to inside TaskSummaryWrapper.
+ */
+function AllPagesForTask() {
+  const pdfSettings = usePdfExclusionsFromSettings();
+  return <AllPages pdfSettings={pdfSettings} />;
 }
 
 function PdfWrapping({ children }: PropsWithChildren) {
