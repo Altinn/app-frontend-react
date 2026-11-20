@@ -30,12 +30,17 @@ export const TextComponent = ({ baseComponentId }: PropsFromGenericComponent<'Te
           classes.textComponent,
           direction === 'vertical' ? classes.vertical : classes.horizontal,
         ),
+        icon: icon && (
+          <img
+            src={icon}
+            className={classes.icon}
+            alt={langAsString(textResourceBindings.title)}
+          />
+        ),
       }}
     >
       <DisplayText
         value={value}
-        iconUrl={icon}
-        iconAltText={langAsString(textResourceBindings.title)}
         labelId={getLabelId(id)}
       />
     </ComponentStructureWrapper>
