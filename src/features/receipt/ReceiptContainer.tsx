@@ -85,13 +85,7 @@ export function DefaultReceipt() {
 
 export const ReceiptContainer = () => {
   const applicationMetadata = useApplicationMetadata();
-  const {
-    lastChanged,
-    instanceOrg,
-    instanceOwner,
-    dataElements = [],
-    dataValues,
-  } = useInstanceDataQuery({
+  const { data: instance } = useInstanceDataQuery({
     select: (instance) => ({
       lastChanged: instance.lastChanged,
       instanceOrg: instance.org,
@@ -99,7 +93,8 @@ export const ReceiptContainer = () => {
       dataElements: instance.data,
       dataValues: instance.dataValues,
     }),
-  }).data ?? {};
+  });
+  const { lastChanged, instanceOrg, instanceOwner, dataElements = [], dataValues } = instance ?? {};
   const langTools = useLanguage();
   const receiver = useAppReceiver();
   const instanceOwnerParty = useInstanceOwnerParty();
@@ -124,11 +119,13 @@ export const ReceiptContainer = () => {
     appMetadataDataTypes: applicationMetadata?.dataTypes ?? [],
   });
 
-  const displayAttachments = dataElements.length
+  // An instance can legitimately have no data elements left at this point (e.g. when every data type is configured
+  // with autoDeleteOnProcessEnd), so we only wait for the instance to load, not for it to contain data elements.
+  const displayAttachments = instance
     ? toDisplayAttachments(filterOutDataModelRefDataAsPdfAndAppOwnedDataTypes(attachmentWithDataType))
     : undefined;
 
-  const pdfDisplayAttachments = dataElements.length
+  const pdfDisplayAttachments = instance
     ? toDisplayAttachments(getRefAsPdfAttachments(attachmentWithDataType))
     : undefined;
 
