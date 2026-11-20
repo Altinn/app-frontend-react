@@ -14,7 +14,7 @@ import { useMapToReactNumberConfig } from 'src/hooks/useMapToReactNumberConfig';
 import { ComponentStructureWrapper } from 'src/layout/ComponentStructureWrapper';
 import classes from 'src/layout/Input/InputComponent.module.css';
 import { isNumberFormat, isPatternFormat, parsePastedNumber } from 'src/layout/Input/number-format-helpers';
-import { buildAriaDescribedBy } from 'src/utils/inputUtils';
+import { buildAriaDescribedBy, shouldTrimWhitespaceOnBlur } from 'src/utils/inputUtils';
 import { useLabel } from 'src/utils/layout/useLabel';
 import { useItemWhenType } from 'src/utils/layout/useNodeItem';
 import type { InputProps } from 'src/app-components/Input/Input';
@@ -102,6 +102,10 @@ function getMobileKeyboardProps(
   return { inputMode: 'text', pattern: undefined };
 }
 
+/**
+ * The input field itself, rendered as plain text, a pattern format or a number format, depending on the
+ * component's formatting and variant.
+ */
 export const InputVariant = ({
   baseComponentId,
   overrideDisplay,
@@ -115,6 +119,7 @@ export const InputVariant = ({
     textResourceBindings,
     dataModelBindings,
     saveWhileTyping,
+    trimWhitespace,
     autocomplete,
     maxLength,
   } = useItemWhenType(baseComponentId, 'Input');
@@ -145,6 +150,12 @@ export const InputVariant = ({
     hasValidations,
   });
 
+  const trimWhitespaceOnBlur = () => {
+    if (shouldTrimWhitespaceOnBlur({ trimWhitespace, readOnly, value: formValue })) {
+      setValue('simpleBinding', formValue.trim());
+    }
+  };
+
   const inputProps: InputProps = {
     id,
     'aria-label': langAsString(textResourceBindings?.title),
@@ -154,7 +165,10 @@ export const InputVariant = ({
     readOnly,
     textonly: overrideDisplay?.rowReadOnly && readOnly,
     required,
-    onBlur: () => debounce('blur'),
+    onBlur: () => {
+      trimWhitespaceOnBlur();
+      debounce('blur');
+    },
     error: !useIsValid(baseComponentId),
     prefix: textResourceBindings?.prefix ? langAsString(textResourceBindings.prefix) : undefined,
     suffix: textResourceBindings?.suffix ? langAsString(textResourceBindings.suffix) : undefined,
@@ -201,6 +215,7 @@ export const InputVariant = ({
           value={formValue}
           type='text'
           onBlur={() => {
+            trimWhitespaceOnBlur();
             setLocalValue(undefined);
           }}
           onValueChange={(values, sourceInfo) => {
