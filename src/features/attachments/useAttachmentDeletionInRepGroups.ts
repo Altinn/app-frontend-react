@@ -80,8 +80,7 @@ export function useAttachmentDeletionInRepGroups(groupIndexedId: string) {
               }
             }
             // If the attachment was never uploaded successfully, we don't need to remove
-            // it, and we can just continue as if removing it was successful.
-            return true;
+            // it, and we can just continue with the next attachment as if removing it was successful.
           }
         }
       }

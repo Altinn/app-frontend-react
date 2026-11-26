@@ -611,5 +611,45 @@ describe('Repeating group attachments', () => {
       expectAttachmentsToBe(attachmentStateAfterDeletingFirstRow);
       expectFormDataToBe(formDataAfterDeletingFirstRow);
     }
+
+    // Delete the remaining row while an attachment in it is still being uploaded. The deletion should wait for the
+    // upload to finish, and then delete all attachments in the row (including the one that was being uploaded). The
+    // file name makes sure the uploading attachment is sorted first, so that the other attachments are handled
+    // after it.
+    getAttachmentIds([filenames[1].single, ...filenames[1].multi, ...filenames[1].nested[0]]).then((rowIds) => {
+      getAttachmentIds([filenames[1].nested[1][0], filenames[1].nested[1][2]]).then((nestedIds) => {
+        cy.wrap([...rowIds, ...nestedIds]).as('lastRowAttachmentIds');
+      });
+    });
+    cy.intercept('POST', '**/instances/**/data?dataType=*', (req) => {
+      req.on('response', (res) => {
+        res.setDelay(3000);
+      });
+    }).as('slowUpload');
+
+    cy.get(appFrontend.group.row(0).editBtn).click();
+    gotoSecondPage();
+    cy.get(appFrontend.group.row(0).uploadMulti.addMoreBtn).click();
+    cy.get(appFrontend.group.row(0).uploadMulti.dropZone).selectFile(makeTestFile('aaa-uploading-while-deleting.pdf'), {
+      force: true,
+    });
+    cy.get(appFrontend.group.row(0).deleteBtn).click();
+
+    cy.wait('@slowUpload').then(({ response }) => {
+      // Newer backends reply with a DataPostResponse, older ones with the new data element itself
+      const uploadedId: string = response?.body?.newDataElementId ?? response?.body?.id;
+      expect(uploadedId, 'ID of the attachment uploaded while deleting the row').to.be.a('string');
+
+      cy.get<string[]>('@firstNestedRowAttachmentIds').then((firstNestedIds) => {
+        cy.get<string[]>('@firstRowAttachmentIds').then((firstRowIds) => {
+          cy.get<string[]>('@lastRowAttachmentIds').then((lastRowIds) => {
+            const removedIds = [...lastRowIds, uploadedId];
+            expectDeletedDataElementsToBe(deletedIds, [...firstNestedIds, ...firstRowIds, ...removedIds]);
+            expectDataElementsToBeGoneFromInstance(removedIds);
+          });
+        });
+      });
+    });
+    cy.get(`${appFrontend.group.mainGroupTableBody} > tr`).should('not.exist');
   });
 });
