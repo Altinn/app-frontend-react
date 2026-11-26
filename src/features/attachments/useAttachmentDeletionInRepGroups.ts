@@ -6,7 +6,6 @@ import { isAttachmentUploaded } from 'src/features/attachments/index';
 import { attachmentSelector } from 'src/features/attachments/tools';
 import { useAsRef } from 'src/hooks/useAsRef';
 import { getComponentDef } from 'src/layout';
-import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { NodesInternal } from 'src/utils/layout/NodesContext';
 import type { CompWithPlugin, IDataModelBindings } from 'src/layout/layout';
 import type { NodesContext } from 'src/utils/layout/NodesContext';
@@ -20,11 +19,14 @@ import type { NodesContext } from 'src/utils/layout/NodesContext';
  *
  * The 'onBeforeRowDeletion' function you get as a result here gives you a Promise that resolves to true if all
  * attachments were successfully removed, or false if any of them failed to be removed.
+ *
+ * The groupIndexedId must be the indexed ID of the repeating group itself. Do not resolve it from inside a row,
+ * as that would include the row index (i.e. 'group-0' instead of 'group') and no attachments would be found.
  */
-export function useAttachmentDeletionInRepGroups(baseComponentId: string) {
+export function useAttachmentDeletionInRepGroups(groupIndexedId: string) {
   const remove = useAsRef(useAttachmentsRemover());
   const awaiter = useAttachmentsAwaiter();
-  const idRef = useAsRef(useIndexedId(baseComponentId));
+  const idRef = useAsRef(groupIndexedId);
   const nodesStore = NodesInternal.useStore();
 
   return useCallback(
