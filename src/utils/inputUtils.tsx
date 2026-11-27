@@ -19,6 +19,25 @@ export const useCharacterLimit = (maxLength: number | undefined): FieldCounterPr
   };
 };
 
+type ShouldTrimWhitespaceOnBlurArgs = {
+  trimWhitespace?: boolean;
+  readOnly?: boolean;
+  value: string;
+};
+
+/**
+ * Whether a text field should remove whitespace at the start and end of its value when it loses focus. Not for
+ * read-only fields, and not when the whole window lost focus, since the user may be copying something from another
+ * window to paste into the field.
+ */
+export function shouldTrimWhitespaceOnBlur({
+  trimWhitespace,
+  readOnly,
+  value,
+}: ShouldTrimWhitespaceOnBlurArgs): boolean {
+  return !!trimWhitespace && !readOnly && document.hasFocus() && value !== value.trim();
+}
+
 type BuildAriaDescribedByArgs = {
   renderedInTable?: boolean;
   hasTitle: boolean;
