@@ -530,6 +530,15 @@ export class AttachmentsStorePlugin extends NodeDataPlugin<AttachmentsStorePlugi
                 return true;
               }
 
+              // When the upload finishes, the temporary attachment is moved to its new data element ID, but it is not
+              // marked as uploaded until the instance data and data model binding have been mapped onto the node.
+              const awaitingMapping = Object.values(nodeData.attachments).some(
+                (a) => !isAttachmentUploaded(a) && a.data.temporaryId === attachment.data.temporaryId,
+              );
+              if (awaitingMapping) {
+                return false;
+              }
+
               throw new Error('Given attachment not found in node');
             }),
           [waitFor],
