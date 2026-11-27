@@ -109,6 +109,13 @@ function useNodeAttachments(): AttachmentRecord {
 
     for (const attachment of mappedAttachments) {
       const prevStored = prev?.[attachment.id];
+      // Keep track of the temporary ID this attachment was uploaded with, so that code waiting for the upload to
+      // finish (see useWaitUntilUploaded) can find the uploaded attachment.
+      const temporaryId = prevStored
+        ? isAttachmentUploaded(prevStored)
+          ? prevStored.temporaryId
+          : prevStored.data.temporaryId
+        : undefined;
       result[attachment.id] = {
         uploaded: true,
         updating: prevStored?.updating || false,
@@ -117,6 +124,7 @@ function useNodeAttachments(): AttachmentRecord {
           ...attachment,
           tags: prevStored?.data.tags ?? attachment.tags,
         },
+        ...(temporaryId ? { temporaryId } : {}),
       };
     }
 

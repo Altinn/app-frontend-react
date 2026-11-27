@@ -4,6 +4,7 @@ import type { PropsWithChildren } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { createStore } from 'zustand';
 
+import { createContext } from 'src/core/contexts/context';
 import { createZustandContext } from 'src/core/contexts/zustandContext';
 import { useAttachmentDeletionInRepGroups } from 'src/features/attachments/useAttachmentDeletionInRepGroups';
 import { usePageSettings } from 'src/features/form/layoutSettings/LayoutSettingsContext';
@@ -12,6 +13,7 @@ import { ALTINN_ROW_ID } from 'src/features/formData/types';
 import { useOnGroupCloseValidation } from 'src/features/validation/callbacks/onGroupCloseValidation';
 import { OpenByDefaultProvider } from 'src/layout/RepeatingGroup/Providers/OpenByDefaultProvider';
 import { RepGroupHooks } from 'src/layout/RepeatingGroup/utils';
+import { useIndexedId } from 'src/utils/layout/DataModelLocation';
 import { useDataModelBindingsFor, useExternalItem } from 'src/utils/layout/hooks';
 import type { CompInternal } from 'src/layout/layout';
 import type { IGroupEditProperties } from 'src/layout/RepeatingGroup/config.generated';
@@ -339,11 +341,22 @@ interface Props {
   baseComponentId: string;
 }
 
+/**
+ * The indexed ID of the repeating group itself. Each row renders its own data model location, so calling
+ * useIndexedId() for the group from inside a row (where the row buttons are) would append that row's index to the
+ * group's own ID. The provider is rendered outside the rows, so we resolve the ID there and pass it down.
+ */
+const { Provider: IndexedIdProvider, useCtx: useRepeatingGroupIndexedId } = createContext<string>({
+  name: 'RepeatingGroupIndexedId',
+  required: true,
+});
+
 export function RepeatingGroupProvider({ baseComponentId, children }: PropsWithChildren<Props>) {
   const component = useExternalItem(baseComponentId, 'RepeatingGroup');
   const pagination = component.pagination;
   const editMode = component.edit?.mode;
   const getRows = RepGroupHooks.useGetFreshRowsWithButtons(baseComponentId);
+  const indexedId = useIndexedId(baseComponentId);
 
   return (
     <ZStore.Provider
@@ -352,9 +365,11 @@ export function RepeatingGroupProvider({ baseComponentId, children }: PropsWithC
       pagination={pagination}
       editMode={editMode}
     >
-      <EffectCloseEditing />
-      <EffectPagination />
-      <OpenByDefaultProvider baseComponentId={baseComponentId}>{children}</OpenByDefaultProvider>
+      <IndexedIdProvider value={indexedId}>
+        <EffectCloseEditing />
+        <EffectPagination />
+        <OpenByDefaultProvider baseComponentId={baseComponentId}>{children}</OpenByDefaultProvider>
+      </IndexedIdProvider>
     </ZStore.Provider>
   );
 }
@@ -562,7 +577,8 @@ export const RepGroupContext = {
 
     const groupBinding = useDataModelBindingsFor(baseComponentId, 'RepeatingGroup')?.group;
     const removeFromList = FD.useRemoveFromListCallback();
-    const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(baseComponentId);
+    const groupIndexedId = useRepeatingGroupIndexedId();
+    const onBeforeRowDeletion = useAttachmentDeletionInRepGroups(groupIndexedId);
     const getRows = RepGroupHooks.useGetFreshRowsWithButtons(baseComponentId);
     const getState = () => produceStateFromRows(getRows() ?? []);
 
