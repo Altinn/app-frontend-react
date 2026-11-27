@@ -13,6 +13,7 @@ import { useLayoutSetIdFromUrl } from 'src/features/form/layoutSets/useCurrentLa
 import { useLaxInstanceId } from 'src/features/instance/InstanceContext';
 import { useShallowMemo } from 'src/hooks/useShallowMemo';
 import type { QueryDefinition } from 'src/core/queries/usePrefetchQuery';
+import type { IPdfFormat } from 'src/features/pdf/types';
 import type { GlobalPageSettings, ILayoutSettings, NavigationPageGroup } from 'src/layout/common.generated';
 
 // Also used for prefetching @see formPrefetcher.ts
@@ -50,6 +51,7 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       groups: [],
       pageSettings: {},
       pdfLayoutName: undefined,
+      pdfExclusions: { excludedPages: [], excludedComponents: [] },
     };
   }
 
@@ -84,6 +86,10 @@ function processData(settings: ILayoutSettings | null): ProcessedLayoutSettings 
       validationOnNavigation: settings.pages.validationOnNavigation,
     }),
     pdfLayoutName: settings.pages.pdfLayoutName,
+    pdfExclusions: {
+      excludedPages: settings.pages.excludeFromPdf ?? [],
+      excludedComponents: settings.components?.excludeFromPdf ?? [],
+    },
   };
 }
 
@@ -109,6 +115,7 @@ interface ProcessedLayoutSettings {
   groups?: NavigationPageGroup[];
   pageSettings: GlobalPageSettings;
   pdfLayoutName?: string;
+  pdfExclusions: IPdfFormat;
 }
 
 export const LayoutSettingsProvider = Provider;
@@ -123,6 +130,12 @@ export const useRawPageOrder = (): string[] => {
 };
 
 export const usePdfLayoutName = () => useCtx().pdfLayoutName;
+
+/**
+ * Returns `pages.excludeFromPdf` and `components.excludeFromPdf` from Settings.json, without any exclusions added
+ * by a backend IPdfFormatter.
+ */
+export const usePdfExclusionsFromSettings = (): IPdfFormat => useCtx().pdfExclusions;
 export const usePageGroups = () => {
   const settings = useLaxCtx();
   if (settings === ContextNotProvided) {
